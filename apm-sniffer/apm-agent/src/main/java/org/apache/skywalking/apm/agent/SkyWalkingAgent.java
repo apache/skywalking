@@ -25,7 +25,6 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.utility.JavaModule;
@@ -72,8 +71,7 @@ public class SkyWalkingAgent {
         }
 
         final ByteBuddy byteBuddy = new ByteBuddy()
-            .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS))
-            .with(MethodGraph.Compiler.ForDeclaredMethods.INSTANCE);
+            .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
         new AgentBuilder.Default(byteBuddy)
             .ignore(nameStartsWith("net.bytebuddy."))
