@@ -58,28 +58,28 @@ public class MetadataQuery implements GraphQLQueryResolver {
         return getMetadataQueryService().getAllServices(startTimestamp, endTimestamp);
     }
 
-    public List<Service> searchServices(final Duration duration, final String keyword) throws ParseException {
+    public List<Service> searchServices(final Duration duration, final String keyword)
+        throws IOException, ParseException {
         long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
         long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
 
         return getMetadataQueryService().searchServices(startTimestamp, endTimestamp, keyword);
     }
 
-    public Service searchService(final Duration duration, final String serviceCode) throws ParseException {
+    public Service searchService(final String serviceCode) throws IOException {
+        return getMetadataQueryService().searchService(serviceCode);
+    }
+
+    public List<ServiceInstance> getServiceInstances(final Duration duration,
+        final String serviceId) throws IOException, ParseException {
         long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
         long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetadataQueryService().searchService(startTimestamp, endTimestamp, serviceCode);
+        return getMetadataQueryService().getServiceInstances(startTimestamp, endTimestamp, serviceId);
     }
 
-    public List<ServiceInstance> getServiceInstances(final Duration duration, final String id) throws ParseException {
-        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
-        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
-
-        return getMetadataQueryService().getServiceInstances(startTimestamp, endTimestamp, id);
-    }
-
-    public List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) {
+    public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
+        final int limit) throws IOException {
         return getMetadataQueryService().searchEndpoint(keyword, serviceId, limit);
     }
 }

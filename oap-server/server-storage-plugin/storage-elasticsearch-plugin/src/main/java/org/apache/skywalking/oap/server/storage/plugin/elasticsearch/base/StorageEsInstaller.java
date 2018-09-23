@@ -56,7 +56,7 @@ public class StorageEsInstaller extends ModelInstaller {
         }
     }
 
-    @Override protected void columnCheck(Client client, Model tableDefine) throws StorageException {
+    @Override protected void columnCheck(Client client, Model tableDefine) {
 
     }
 
@@ -104,7 +104,7 @@ public class StorageEsInstaller extends ModelInstaller {
             .put("index.number_of_shards", indexShardsNumber)
             .put("index.number_of_replicas", indexReplicasNumber)
             .put("index.refresh_interval", "3s")
-            .put("analysis.analyzer.collector_analyzer.type", "stop")
+            .put("analysis.analyzer.oap_analyzer.type", "stop")
             .build();
     }
 
@@ -117,10 +117,24 @@ public class StorageEsInstaller extends ModelInstaller {
             .startObject("properties");
 
         for (ModelColumn columnDefine : tableDefine.getColumns()) {
-            mappingBuilder
-                .startObject(columnDefine.getColumnName().getName())
-                .field("type", mapping.transform(columnDefine.getType()))
-                .endObject();
+            if (columnDefine.isMatchQuery()) {
+                String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
+
+                mappingBuilder
+                    .startObject(columnDefine.getColumnName().getName())
+                    .field("type", mapping.transform(columnDefine.getType()))
+                    .field("copy_to", matchCName)
+                    .endObject()
+                    .startObject(matchCName)
+                    .field("type", "text")
+                    .field("analyzer", "oap_analyzer")
+                    .endObject();
+            } else {
+                mappingBuilder
+                    .startObject(columnDefine.getColumnName().getName())
+                    .field("type", mapping.transform(columnDefine.getType()))
+                    .endObject();
+            }
         }
 
         mappingBuilder

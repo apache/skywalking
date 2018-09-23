@@ -42,16 +42,18 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String MODEL_NAME = "service_instance_inventory";
 
     public static final String NAME = "name";
-    private static final String SERVICE_ID = "service_id";
+    public static final String SERVICE_ID = "service_id";
     private static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
     private static final String OS_NAME = "os_name";
     private static final String HOST_NAME = "host_name";
     private static final String PROCESS_NO = "process_no";
     private static final String IPV4S = "ipv4s";
+    public static final String LANGUAGE = "language";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
+    @Setter @Getter @Column(columnName = LANGUAGE) private int language;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
     @Setter @Getter @Column(columnName = OS_NAME) private String osName;
@@ -109,9 +111,10 @@ public class ServiceInstanceInventory extends RegisterSource {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataIntegers(0, getSequence());
         remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, isAddress);
-        remoteBuilder.setDataIntegers(3, addressId);
-        remoteBuilder.setDataIntegers(4, processNo);
+        remoteBuilder.setDataIntegers(2, language);
+        remoteBuilder.setDataIntegers(3, isAddress);
+        remoteBuilder.setDataIntegers(4, addressId);
+        remoteBuilder.setDataIntegers(5, processNo);
 
         remoteBuilder.setDataLongs(0, getRegisterTime());
         remoteBuilder.setDataLongs(1, getHeartbeatTime());
@@ -126,9 +129,10 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setServiceId(remoteData.getDataIntegers(1));
-        setIsAddress(remoteData.getDataIntegers(2));
-        setAddressId(remoteData.getDataIntegers(3));
-        setProcessNo(remoteData.getDataIntegers(4));
+        setLanguage(remoteData.getDataIntegers(2));
+        setIsAddress(remoteData.getDataIntegers(3));
+        setAddressId(remoteData.getDataIntegers(4));
+        setProcessNo(remoteData.getDataIntegers(5));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -149,6 +153,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             ServiceInstanceInventory inventory = new ServiceInstanceInventory();
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
+            inventory.setLanguage((Integer)dbMap.get(LANGUAGE));
             inventory.setIsAddress((Integer)dbMap.get(IS_ADDRESS));
             inventory.setAddressId((Integer)dbMap.get(ADDRESS_ID));
             inventory.setProcessNo((Integer)dbMap.get(PROCESS_NO));
@@ -167,6 +172,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(SERVICE_ID, storageData.getServiceId());
+            map.put(LANGUAGE, storageData.getLanguage());
             map.put(IS_ADDRESS, storageData.getIsAddress());
             map.put(ADDRESS_ID, storageData.getAddressId());
             map.put(PROCESS_NO, storageData.getProcessNo());
