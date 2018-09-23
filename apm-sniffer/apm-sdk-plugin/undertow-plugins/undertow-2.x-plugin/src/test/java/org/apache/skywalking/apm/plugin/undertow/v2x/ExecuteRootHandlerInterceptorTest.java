@@ -48,8 +48,7 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import javax.servlet.DispatcherType;
-
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ServerConnection;
 import io.undertow.util.HeaderMap;
@@ -64,9 +63,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class DispatchRequestInterceptorTest {
+public class ExecuteRootHandlerInterceptorTest {
 
-    private DispatchRequestInterceptor dispatchRequestInterceptor;
+    private ExecuteRootHandlerInterceptor executeRootHandlerInterceptor;
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -74,38 +73,37 @@ public class DispatchRequestInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
+    @Mock
+    private HttpHandler httpHandler;
     private HttpServerExchange exchange;
-    private HeaderMap requestHeaders = new HeaderMap();
-    private HeaderMap responseHeaders = new HeaderMap();
-
     @Mock
     ServerConnection serverConnection;
-    @Mock
-    private MethodInterceptResult methodInterceptResult;
-
-    @Mock
-    private EnhancedInstance enhancedInstance;
+    private HeaderMap requestHeaders = new HeaderMap();
+    private HeaderMap responseHeaders = new HeaderMap();
 
     private Object[] arguments;
     private Class[] argumentType;
 
+    @Mock
+    private MethodInterceptResult methodInterceptResult;
+
     @Before
     public void setUp() throws Exception {
-        dispatchRequestInterceptor = new DispatchRequestInterceptor();
+        executeRootHandlerInterceptor = new ExecuteRootHandlerInterceptor();
         exchange = new HttpServerExchange(serverConnection, requestHeaders, responseHeaders, 0);
         exchange.setRequestURI("/test/testRequestURL");
         exchange.setRequestPath("/test/testRequestURL");
         exchange.setDestinationAddress(new InetSocketAddress("localhost", 8080));
         exchange.setRequestScheme("http");
         exchange.setRequestMethod(HttpString.tryFromString("POST"));
-        arguments = new Object[]{exchange, null, null, DispatcherType.REQUEST};
-        argumentType = new Class[]{exchange.getClass(), null, null, DispatcherType.class};
+        arguments = new Object[]{httpHandler, exchange};
+        argumentType = new Class[]{httpHandler.getClass(), exchange.getClass()};
     }
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        dispatchRequestInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        dispatchRequestInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        executeRootHandlerInterceptor.beforeMethod(EnhancedInstance.class, null, arguments, argumentType, methodInterceptResult);
+        executeRootHandlerInterceptor.afterMethod(EnhancedInstance.class, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -118,8 +116,8 @@ public class DispatchRequestInterceptorTest {
     public void testWithSerializedContextData() throws Throwable {
         requestHeaders.put(HttpString.tryFromString(SW3CarrierItem.HEADER_NAME), "1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        dispatchRequestInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        dispatchRequestInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        executeRootHandlerInterceptor.beforeMethod(EnhancedInstance.class, null, arguments, argumentType, methodInterceptResult);
+        executeRootHandlerInterceptor.afterMethod(EnhancedInstance.class, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -132,8 +130,8 @@ public class DispatchRequestInterceptorTest {
     @Test
     public void testStatusCodeNotEquals200() throws Throwable {
         exchange.setStatusCode(500);
-        dispatchRequestInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        dispatchRequestInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        executeRootHandlerInterceptor.beforeMethod(EnhancedInstance.class, null, arguments, argumentType, methodInterceptResult);
+        executeRootHandlerInterceptor.afterMethod(EnhancedInstance.class, null, arguments, argumentType, null);
 
         Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -151,9 +149,9 @@ public class DispatchRequestInterceptorTest {
 
     @Test
     public void testWithUndertowException() throws Throwable {
-        dispatchRequestInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        dispatchRequestInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
-        dispatchRequestInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        executeRootHandlerInterceptor.beforeMethod(EnhancedInstance.class, null, arguments, argumentType, methodInterceptResult);
+        executeRootHandlerInterceptor.handleMethodException(EnhancedInstance.class, null, arguments, argumentType, new RuntimeException());
+        executeRootHandlerInterceptor.afterMethod(EnhancedInstance.class, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

@@ -21,9 +21,8 @@ package org.apache.skywalking.apm.plugin.undertow.v2x.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
@@ -32,21 +31,21 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * @author chenpengfei
  */
-public class UndertowInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class UndertowInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.undertow.servlet.handlers.ServletInitialHandler";
-    private static final String ENHANCE_METHOD = "dispatchRequest";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.DispatchRequestInterceptor";
+    private static final String ENHANCE_CLASS = "io.undertow.server.Connectors";
+    private static final String ENHANCE_METHOD = "executeRootHandler";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.ExecuteRootHandlerInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+    protected ClassMatch enhanceClass() {
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
+    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
@@ -57,16 +56,10 @@ public class UndertowInstrumentation extends ClassInstanceMethodsEnhancePluginDe
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override
-                public boolean isOverrideArgs() {
+                @Override public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
-    }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
     }
 }

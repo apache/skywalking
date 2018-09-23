@@ -24,9 +24,8 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
@@ -37,11 +36,11 @@ import io.undertow.util.HeaderMap;
 /**
  * @author chenpengfei
  */
-public class DispatchRequestInterceptor implements InstanceMethodsAroundInterceptor {
+public class ExecuteRootHandlerInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        HttpServerExchange exchange = (HttpServerExchange) allArguments[0];
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+        HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
 
         ContextCarrier contextCarrier = new ContextCarrier();
         HeaderMap headers = exchange.getRequestHeaders();
@@ -58,8 +57,8 @@ public class DispatchRequestInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        HttpServerExchange exchange = (HttpServerExchange) allArguments[0];
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+        HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
 
         AbstractSpan span = ContextManager.activeSpan();
         if (exchange.getStatusCode() >= 400) {
@@ -72,7 +71,7 @@ public class DispatchRequestInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }
