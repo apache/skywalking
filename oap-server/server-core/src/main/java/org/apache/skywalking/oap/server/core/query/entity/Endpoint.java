@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import lombok.*;
+
+@Getter
+@Setter
 public class Endpoint {
     private String id;
     private String name;

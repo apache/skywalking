@@ -42,7 +42,7 @@ public abstract class ModelInstaller {
         IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).getService(IModelGetter.class);
         List<Model> models = modelGetter.getModels();
 
-        Boolean debug = System.getProperty("debug") != null;
+        boolean debug = System.getProperty("debug") != null;
 
         for (Model model : models) {
             if (!isExists(client, model)) {

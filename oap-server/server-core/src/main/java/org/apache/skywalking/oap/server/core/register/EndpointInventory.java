@@ -38,8 +38,8 @@ public class EndpointInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "endpoint_inventory";
 
-    private static final String SERVICE_ID = "service_id";
-    private static final String NAME = "name";
+    public static final String SERVICE_ID = "service_id";
+    public static final String NAME = "name";
     public static final String DETECT_POINT = "detect_point";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;

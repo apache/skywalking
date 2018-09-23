@@ -16,22 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import lombok.Getter;
+import org.apache.skywalking.oap.server.core.Const;
 
 /**
  * @author peng-yongsheng
  */
-@Getter
-public class ModelColumn {
-    private final ColumnName columnName;
-    private final Class<?> type;
-    private final boolean matchQuery;
+public enum MatchCNameBuilder {
+    INSTANCE;
 
-    public ModelColumn(ColumnName columnName, Class<?> type, boolean matchQuery) {
-        this.columnName = columnName;
-        this.type = type;
-        this.matchQuery = matchQuery;
+    public String build(String termCName) {
+        return termCName + Const.ID_SPLIT + "match";
     }
 }
