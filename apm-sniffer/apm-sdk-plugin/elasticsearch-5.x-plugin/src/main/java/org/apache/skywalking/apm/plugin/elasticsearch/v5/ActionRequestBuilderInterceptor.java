@@ -42,7 +42,7 @@ public class ActionRequestBuilderInterceptor implements InstanceConstructorInter
     private void parseClientInfo(Object client, ElasticSearchEnhanceInfo enhanceInfo) {
 
         if (client instanceof TransportClient) {
-            TransportClient transportClient = (TransportClient) client;
+            TransportClient transportClient = (TransportClient)client;
 
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < transportClient.transportAddresses().size(); i++) {
@@ -58,7 +58,6 @@ public class ActionRequestBuilderInterceptor implements InstanceConstructorInter
             // avoid NPE
             enhanceInfo.setTransportAddress("");
         }
-
 
     }
 

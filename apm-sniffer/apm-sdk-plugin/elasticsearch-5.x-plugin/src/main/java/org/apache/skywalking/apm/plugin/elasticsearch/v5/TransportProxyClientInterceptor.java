@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -34,10 +36,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_CLUSTER_NAME;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants.ES_ENHANCE_INFO;
 import static org.apache.skywalking.apm.plugin.elasticsearch.v5.Util.wrapperNullStringValue;
 
@@ -50,28 +50,28 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Settings settings = (Settings) allArguments[0];
-        String clusterName = settings.get("cluster.name");
+        Settings settings = (Settings)allArguments[0];
+        String clusterName = settings.get(ES_CLUSTER_NAME);
         objInst.setSkyWalkingDynamicField(wrapperNullStringValue(clusterName));
     }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo) ContextManager.getRuntimeContext().get(ES_ENHANCE_INFO);
-        enhanceInfo.setClusterName((String) objInst.getSkyWalkingDynamicField());
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        ElasticSearchEnhanceInfo enhanceInfo = (ElasticSearchEnhanceInfo)ContextManager.getRuntimeContext().get(ES_ENHANCE_INFO);
+        enhanceInfo.setClusterName((String)objInst.getSkyWalkingDynamicField());
         parseRequestInfo(allArguments[1], enhanceInfo);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
@@ -103,7 +103,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
     }
 
     private void parseSearchRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
-        SearchRequest searchRequest = (SearchRequest) request;
+        SearchRequest searchRequest = (SearchRequest)request;
         enhanceInfo.setIndices(StringUtil.join(',', searchRequest.indices()));
         enhanceInfo.setTypes(StringUtil.join(',', searchRequest.types()));
         if (TRACE_DSL) {
@@ -112,7 +112,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
     }
 
     private void parseGetRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
-        GetRequest getRequest = (GetRequest) request;
+        GetRequest getRequest = (GetRequest)request;
         enhanceInfo.setIndices(StringUtil.join(',', getRequest.indices()));
         enhanceInfo.setTypes(getRequest.type());
         if (TRACE_DSL) {
@@ -121,7 +121,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
     }
 
     private void parseIndexRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
-        IndexRequest indexRequest = (IndexRequest) request;
+        IndexRequest indexRequest = (IndexRequest)request;
         enhanceInfo.setIndices(StringUtil.join(',', indexRequest.indices()));
         enhanceInfo.setTypes(indexRequest.type());
         if (TRACE_DSL) {
@@ -130,7 +130,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
     }
 
     private void parseUpdateRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
-        UpdateRequest updateRequest = (UpdateRequest) request;
+        UpdateRequest updateRequest = (UpdateRequest)request;
         enhanceInfo.setIndices(StringUtil.join(',', updateRequest.indices()));
         enhanceInfo.setTypes(updateRequest.type());
         if (TRACE_DSL) {
@@ -145,7 +145,7 @@ public class TransportProxyClientInterceptor implements InstanceConstructorInter
     }
 
     private void parseDeleteRequest(Object request, ElasticSearchEnhanceInfo enhanceInfo) {
-        DeleteRequest deleteRequest = (DeleteRequest) request;
+        DeleteRequest deleteRequest = (DeleteRequest)request;
         enhanceInfo.setIndices(StringUtil.join(',', deleteRequest.indices()));
         enhanceInfo.setTypes(deleteRequest.type());
         if (TRACE_DSL) {

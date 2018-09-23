@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.network.trace.component;
 
 /**
@@ -64,11 +63,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
-    public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
+    public static final OfficialComponent HYSTRIX = new OfficialComponent(29, "Hystrix");
 
-    public static final OfficialComponent JEDIS =  new OfficialComponent(30, "Jedis");
+    public static final OfficialComponent JEDIS = new OfficialComponent(30, "Jedis");
 
-    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "h2-jdbc-driver");
+    public static final OfficialComponent H2_JDBC_DRIVER = new OfficialComponent(32, "h2-jdbc-driver");
 
     public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
 
@@ -90,11 +89,13 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MONGO_DRIVER = new OfficialComponent(42, "mongodb-driver");
 
-    public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
+    public static final OfficialComponent SOFARPC = new OfficialComponent(43, "SOFARPC");
 
-    public static final  OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45,"activemq-producer");
+    public static final OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45, "activemq-producer");
 
-    public static final  OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46,"activemq-consumer");
+    public static final OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46, "activemq-consumer");
+
+    public static final OfficialComponent TRANSPORT_CLIENT = new OfficialComponent(48, "transport-client");
 
     public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
 
@@ -107,7 +108,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[47];
+        components = new String[49];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -143,8 +144,7 @@ public class ComponentsDefine {
         addComponent(SOFARPC);
         addComponent(ACTIVEMQ_PRODUCER);
         addComponent(ACTIVEMQ_CONSUMER);
-
-
+        addComponent(TRANSPORT_CLIENT);
     }
 
     private void addComponent(OfficialComponent component) {
