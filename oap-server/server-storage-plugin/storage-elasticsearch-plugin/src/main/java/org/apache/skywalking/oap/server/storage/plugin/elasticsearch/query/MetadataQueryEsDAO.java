@@ -20,13 +20,14 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.query.entity.Service;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
@@ -45,20 +46,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
-        boolQuery1.must().add(QueryBuilders.rangeQuery(ServiceInventory.HEARTBEAT_TIME).gte(endTimestamp));
-        boolQuery1.must().add(QueryBuilders.rangeQuery(ServiceInventory.REGISTER_TIME).lte(endTimestamp));
-
-        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
-        boolQuery2.must().add(QueryBuilders.rangeQuery(ServiceInventory.REGISTER_TIME).lte(endTimestamp));
-        boolQuery2.must().add(QueryBuilders.rangeQuery(ServiceInventory.HEARTBEAT_TIME).gte(startTimestamp));
-
-        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(boolQuery1);
-        timeBoolQuery.should().add(boolQuery2);
-
-        boolQueryBuilder.must().add(timeBoolQuery);
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
 
@@ -73,20 +61,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
-        boolQuery1.must().add(QueryBuilders.rangeQuery(EndpointInventory.HEARTBEAT_TIME).gte(endTimestamp));
-        boolQuery1.must().add(QueryBuilders.rangeQuery(EndpointInventory.REGISTER_TIME).lte(endTimestamp));
-
-        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
-        boolQuery2.must().add(QueryBuilders.rangeQuery(EndpointInventory.REGISTER_TIME).lte(endTimestamp));
-        boolQuery2.must().add(QueryBuilders.rangeQuery(EndpointInventory.HEARTBEAT_TIME).gte(startTimestamp));
-
-        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(boolQuery1);
-        timeBoolQuery.should().add(boolQuery2);
-
-        boolQueryBuilder.must().add(timeBoolQuery);
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
@@ -101,20 +76,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
-        boolQuery1.must().add(QueryBuilders.rangeQuery(NetworkAddressInventory.HEARTBEAT_TIME).gte(endTimestamp));
-        boolQuery1.must().add(QueryBuilders.rangeQuery(NetworkAddressInventory.REGISTER_TIME).lte(endTimestamp));
-
-        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
-        boolQuery2.must().add(QueryBuilders.rangeQuery(NetworkAddressInventory.REGISTER_TIME).lte(endTimestamp));
-        boolQuery2.must().add(QueryBuilders.rangeQuery(NetworkAddressInventory.HEARTBEAT_TIME).gte(startTimestamp));
-
-        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(boolQuery1);
-        timeBoolQuery.should().add(boolQuery2);
-
-        boolQueryBuilder.must().add(timeBoolQuery);
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(NetworkAddressInventory.SRC_LAYER, srcLayer));
 
@@ -131,20 +93,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
-        boolQuery1.must().add(QueryBuilders.rangeQuery(ServiceInventory.HEARTBEAT_TIME).gte(endTimestamp));
-        boolQuery1.must().add(QueryBuilders.rangeQuery(ServiceInventory.REGISTER_TIME).lte(endTimestamp));
-
-        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
-        boolQuery2.must().add(QueryBuilders.rangeQuery(ServiceInventory.REGISTER_TIME).lte(endTimestamp));
-        boolQuery2.must().add(QueryBuilders.rangeQuery(ServiceInventory.HEARTBEAT_TIME).gte(startTimestamp));
-
-        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
-        timeBoolQuery.should().add(boolQuery1);
-        timeBoolQuery.should().add(boolQuery2);
-
-        boolQueryBuilder.must().add(timeBoolQuery);
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
 
@@ -153,6 +102,97 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
 
+        return buildServices(response);
+    }
+
+    @Override public List<Service> searchServices(long startTimestamp, long endTimestamp,
+        String keyword) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
+
+        String matchCName = MatchCNameBuilder.INSTANCE.build(ServiceInventory.NAME);
+        boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(100);
+
+        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        return buildServices(response);
+    }
+
+    @Override
+    public Service searchService(String serviceCode) throws IOException {
+        GetResponse response = getClient().get(ServiceInventory.MODEL_NAME, ServiceInventory.buildId(serviceCode));
+        if (response.isExists()) {
+            Service service = new Service();
+            service.setId(String.valueOf(response.getSource().get(ServiceInventory.SEQUENCE)));
+            service.setName((String)response.getSource().get(ServiceInventory.NAME));
+            return service;
+        } else {
+            return null;
+        }
+    }
+
+    @Override public List<Endpoint> searchEndpoint(String keyword, String serviceId,
+        int limit) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
+
+        String matchCName = MatchCNameBuilder.INSTANCE.build(EndpointInventory.NAME);
+        boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(limit);
+
+        SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, sourceBuilder);
+
+        List<Endpoint> endpoints = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits()) {
+            Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+
+            Endpoint endpoint = new Endpoint();
+            endpoint.setId(String.valueOf(sourceAsMap.get(EndpointInventory.SEQUENCE)));
+            endpoint.setName((String)sourceAsMap.get(EndpointInventory.NAME));
+            endpoints.add(endpoint);
+        }
+
+        return endpoints;
+    }
+
+    @Override public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
+        String serviceId) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
+
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
+
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(100);
+
+        SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, sourceBuilder);
+
+        List<ServiceInstance> serviceInstances = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits()) {
+            Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+
+            ServiceInstance serviceInstance = new ServiceInstance();
+            serviceInstance.setId(String.valueOf(sourceAsMap.get(ServiceInstanceInventory.SEQUENCE)));
+            serviceInstance.setName((String)sourceAsMap.get(ServiceInstanceInventory.NAME));
+            int languageId = ((Number)sourceAsMap.get(ServiceInstanceInventory.LANGUAGE)).intValue();
+            serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(languageId));
+            serviceInstances.add(serviceInstance);
+        }
+
+        return serviceInstances;
+    }
+
+    private List<Service> buildServices(SearchResponse response) {
         List<Service> services = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
@@ -164,5 +204,21 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         }
 
         return services;
+    }
+
+    private BoolQueryBuilder timeRangeQueryBuild(long startTimestamp, long endTimestamp) {
+        BoolQueryBuilder boolQuery1 = QueryBuilders.boolQuery();
+        boolQuery1.must().add(QueryBuilders.rangeQuery(RegisterSource.HEARTBEAT_TIME).gte(endTimestamp));
+        boolQuery1.must().add(QueryBuilders.rangeQuery(RegisterSource.REGISTER_TIME).lte(endTimestamp));
+
+        BoolQueryBuilder boolQuery2 = QueryBuilders.boolQuery();
+        boolQuery2.must().add(QueryBuilders.rangeQuery(RegisterSource.REGISTER_TIME).lte(endTimestamp));
+        boolQuery2.must().add(QueryBuilders.rangeQuery(RegisterSource.HEARTBEAT_TIME).gte(startTimestamp));
+
+        BoolQueryBuilder timeBoolQuery = QueryBuilders.boolQuery();
+        timeBoolQuery.should().add(boolQuery1);
+        timeBoolQuery.should().add(boolQuery2);
+
+        return timeBoolQuery;
     }
 }

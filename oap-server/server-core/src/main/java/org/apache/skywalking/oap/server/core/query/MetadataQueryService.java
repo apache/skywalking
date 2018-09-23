@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -59,20 +59,22 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return getMetadataQueryDAO().getAllServices(startTimestamp, endTimestamp);
     }
 
-    public List<Service> searchServices(final long startTimestamp, final long endTimestamp, final String keyword) {
-        return Collections.emptyList();
+    public List<Service> searchServices(final long startTimestamp, final long endTimestamp,
+        final String keyword) throws IOException {
+        return getMetadataQueryDAO().searchServices(startTimestamp, endTimestamp, keyword);
     }
 
     public List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
-        final String id) {
-        return Collections.emptyList();
+        final String serviceId) throws IOException {
+        return getMetadataQueryDAO().getServiceInstances(startTimestamp, endTimestamp, serviceId);
     }
 
-    public List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) {
-        return Collections.emptyList();
+    public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
+        final int limit) throws IOException {
+        return getMetadataQueryDAO().searchEndpoint(keyword, serviceId, limit);
     }
 
-    public Service searchService(final long startTimestamp, final long endTimestamp, final String serviceCode) {
-        return new Service();
+    public Service searchService(final String serviceCode) throws IOException {
+        return getMetadataQueryDAO().searchService(serviceCode);
     }
 }
