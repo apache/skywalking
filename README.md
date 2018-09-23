@@ -58,7 +58,7 @@ After SkyWalking 5.0.0-beta2 released, all core features have been provided. For
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to wusheng@apache.org.
 
 # Live Demo
-- Host in Beijing. [goto](http://49.4.12.44:8080/)
+- Host in Beijing. [goto](http://106.75.237.45:8080/)
   - Username: admin
   - Password: admin
 
