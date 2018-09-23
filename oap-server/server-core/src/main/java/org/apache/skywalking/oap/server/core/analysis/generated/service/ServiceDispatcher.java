@@ -30,12 +30,18 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceDispatcher implements SourceDispatcher<Service> {
 
     @Override public void dispatch(Service source) {
-        doServiceAvg(source);
-        doServiceCallsSum(source);
+        doServiceRespTime(source);
+        doServiceSla(source);
+        doServiceCpm(source);
+        doServiceP99(source);
+        doServiceP95(source);
+        doServiceP90(source);
+        doServiceP75(source);
+        doServiceP50(source);
     }
 
-    private void doServiceAvg(Service source) {
-        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+    private void doServiceRespTime(Service source) {
+        ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
 
 
         indicator.setTimeBucket(source.getTimeBucket());
@@ -43,13 +49,67 @@ public class ServiceDispatcher implements SourceDispatcher<Service> {
         indicator.combine(source.getLatency(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
-    private void doServiceCallsSum(Service source) {
-        ServiceCallsSumIndicator indicator = new ServiceCallsSumIndicator();
+    private void doServiceSla(Service source) {
+        ServiceSlaIndicator indicator = new ServiceSlaIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceCpm(Service source) {
+        ServiceCpmIndicator indicator = new ServiceCpmIndicator();
 
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setEntityId(source.getEntityId());
         indicator.combine(1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceP99(Service source) {
+        ServiceP99Indicator indicator = new ServiceP99Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceP95(Service source) {
+        ServiceP95Indicator indicator = new ServiceP95Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceP90(Service source) {
+        ServiceP90Indicator indicator = new ServiceP90Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceP75(Service source) {
+        ServiceP75Indicator indicator = new ServiceP75Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doServiceP50(Service source) {
+        ServiceP50Indicator indicator = new ServiceP50Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.combine(source.getLatency(), 10);
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }

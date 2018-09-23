@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 
 /**
@@ -35,8 +35,10 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
             return "double";
         } else if (String.class.equals(type)) {
             return "keyword";
-        } else if (List.class.equals(type)) {
+        } else if (IntKeyLongValueArray.class.equals(type)) {
             return "keyword";
+        } else if (byte[].class.equals(type)) {
+            return "binary";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }

@@ -23,12 +23,15 @@ import lombok.Getter;
 /**
  * @author peng-yongsheng
  */
+@Getter
 public class ModelColumn {
-    @Getter private final ColumnName columnName;
-    @Getter private final Class<?> type;
+    private final ColumnName columnName;
+    private final Class<?> type;
+    private final boolean matchQuery;
 
-    public ModelColumn(ColumnName columnName, Class<?> type) {
+    public ModelColumn(ColumnName columnName, Class<?> type, boolean matchQuery) {
         this.columnName = columnName;
         this.type = type;
+        this.matchQuery = matchQuery;
     }
 }

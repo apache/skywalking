@@ -96,6 +96,8 @@ public class ComponentsDefine {
 
     public static final  OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46,"activemq-consumer");
 
+    public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelatio
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -30,12 +31,32 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class EndpointRelationDispatcher implements SourceDispatcher<EndpointRelation> {
 
     @Override public void dispatch(EndpointRelation source) {
-        doEndpointRelationAvg(source);
+        doEndpointRelationCpm(source);
+        doEndpointRelationRespTime(source);
     }
 
-    private void doEndpointRelationAvg(EndpointRelation source) {
-        EndpointRelationAvgIndicator indicator = new EndpointRelationAvgIndicator();
+    private void doEndpointRelationCpm(EndpointRelation source) {
+        EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
 
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.SERVER).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setChildServiceId(source.getChildServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.setChildServiceInstanceId(source.getChildServiceInstanceId());
+        indicator.combine(1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doEndpointRelationRespTime(EndpointRelation source) {
+        EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
+
+        if (!new EqualMatch().setLeft(source.getDetectPoint()).setRight(DetectPoint.SERVER).match()) {
+            return;
+        }
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setEntityId(source.getEntityId());

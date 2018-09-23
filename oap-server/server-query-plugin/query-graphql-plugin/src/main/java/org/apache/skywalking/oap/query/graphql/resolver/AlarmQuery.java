@@ -19,18 +19,15 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.AlarmTrend;
-import org.apache.skywalking.oap.query.graphql.type.Alarms;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
-import org.apache.skywalking.oap.query.graphql.type.Pagination;
-import org.apache.skywalking.oap.query.graphql.type.Scope;
+import org.apache.skywalking.oap.query.graphql.type.*;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 
 public class AlarmQuery implements GraphQLQueryResolver {
     public AlarmTrend getAlarmTrend(final Duration duration) {
         return new AlarmTrend();
     }
 
-    public Alarms getAlarm(final Duration duration, final Scope scope,final String keyword, final Pagination paging) {
+    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword, final Pagination paging) {
         return new Alarms();
     }
 }

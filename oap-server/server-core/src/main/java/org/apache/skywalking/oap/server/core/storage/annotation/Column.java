@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
  * @author peng-yongsheng
@@ -28,7 +29,9 @@ import java.lang.annotation.*;
 public @interface Column {
     String columnName();
 
-    boolean matchQuery() default false;
+    boolean isValue() default false;
 
-    boolean termQuery() default true;
+    Function function() default Function.None;
+
+    boolean matchQuery() default false;
 }

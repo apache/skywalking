@@ -24,6 +24,8 @@ package org.apache.skywalking.oap.server.core;
 public class Const {
     public static final int NONE = 0;
     public static final String ID_SPLIT = "_";
+    public static final String KEY_VALUE_SPLIT = ",";
+    public static final String ARRAY_SPLIT = "|";
     public static final int NONE_SERVICE_ID = 1;
     public static final int NONE_INSTANCE_ID = 1;
     public static final int NONE_ENDPOINT_ID = 1;
