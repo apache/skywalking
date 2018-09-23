@@ -54,7 +54,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 
 # Live Demo
-- 北京服务器. [前往](http://49.4.12.44:8080/)
+- 北京服务器. [前往](http://106.75.237.45:8080/)
   - 用户名： admin
   - 密码： admin
 
@@ -65,7 +65,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 - [查看所有系统截图](/docs/Screenshots.md)
 
 # Compiling project
-查看[编译指南](cn/How-to-build-CN.md)
+查看[编译指南](docs/cn/How-to-build-CN.md)
 
 # Contact Us
 * 直接提交Issue

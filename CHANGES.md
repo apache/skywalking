@@ -2,6 +2,22 @@ Changes by Version
 ==================
 Release Notes.
 
+5.0.0-GA
+------------------
+
+#### Agent Changes
+  - Add several package names ignore in agent settings. Classes in these packages would be enhanced, even plugin declared.
+  - Fix wrong class names of Motan plugin, not a feature related issue, just naming.
+
+#### Collector Changes
+  - Make buffer file handler close more safety.
+  - Fix NPE in AlarmService
+
+#### Documents
+  - Fix compiling doc link.
+  - Update new live demo address.
+
+
 5.0.0-RC2
 ------------------
 
@@ -38,6 +54,8 @@ Release Notes.
   - Sync the Chinese documents.
   - Add OpenAPM badge.
   - Add icon/font documents to NOTICE files.
+  
+[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/27?closed=1)
 
 
 5.0.0-beta2
@@ -102,7 +120,7 @@ Release Notes.
   - Update UI licenses.
   - Add incubating sections in doc.
 
-[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/28)
+[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/28?closed=1)
   
 5.0.0-beta
 ------------------
