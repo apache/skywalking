@@ -7,6 +7,7 @@ Release Notes.
 
 #### Agent Changes
   - Add several package names ignore in agent settings. Classes in these packages would be enhanced, even plugin declared.
+  - Support Undertow 2.x plugin.
   - Fix wrong class names of Motan plugin, not a feature related issue, just naming.
 
 #### Collector Changes
@@ -182,7 +183,7 @@ Release Notes.
    - Add a FAQ about, `Agent or collector version upgrade`.
    - Sync all English document to Chinese.
  
-[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/24)
+[Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/24?closed=1)
  
 5.0.0-alpha
 ------------------
@@ -219,4 +220,4 @@ Release Notes.
 #### UI Changes
  - New 5.0.0 UI!!!
  
- [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/17)
+ [Issues and Pull requests](https://github.com/apache/incubator-skywalking/milestone/17?closed=1)
