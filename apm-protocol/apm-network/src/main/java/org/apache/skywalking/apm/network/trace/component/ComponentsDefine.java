@@ -98,6 +98,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
 
+    public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -107,7 +109,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[49];
+        components = new String[50];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -144,6 +146,7 @@ public class ComponentsDefine {
         addComponent(ACTIVEMQ_PRODUCER);
         addComponent(ACTIVEMQ_CONSUMER);
         addComponent(TRANSPORT_CLIENT);
+        addComponent(UNDERTOW);
     }
 
     private void addComponent(OfficialComponent component) {
