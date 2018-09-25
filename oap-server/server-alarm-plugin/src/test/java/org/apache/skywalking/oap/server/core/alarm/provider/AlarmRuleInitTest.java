@@ -34,11 +34,14 @@ public class AlarmRuleInitTest {
         Assert.assertEquals("85", ruleList.get(1).getThreshold());
         Assert.assertEquals("endpoint_percent_rule", ruleList.get(0).getAlarmRuleName());
         Assert.assertEquals(0, ruleList.get(0).getIncludeNames().size());
+        Assert.assertEquals("Successful rate of endpoint {name} is lower than 75%", ruleList.get(0).getMessage());
 
         Assert.assertEquals("service_b", ruleList.get(1).getIncludeNames().get(1));
+        Assert.assertEquals("Alarm caused by Rule service_percent_rule", ruleList.get(1).getMessage());
 
         List<String> rulesWebhooks = rules.getWebhooks();
         Assert.assertEquals(2, rulesWebhooks.size());
         Assert.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.get(1));
+
     }
 }

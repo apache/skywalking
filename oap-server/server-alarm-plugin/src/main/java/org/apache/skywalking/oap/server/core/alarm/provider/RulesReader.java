@@ -66,6 +66,7 @@ public class RulesReader {
                     alarmRule.setPeriod((Integer)settings.getOrDefault("period", 1));
                     alarmRule.setCount((Integer)settings.getOrDefault("count", 1));
                     alarmRule.setSilencePeriod((Integer)settings.getOrDefault("silence-period", alarmRule.getPeriod()));
+                    alarmRule.setMessage((String)settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule.getAlarmRuleName()));
 
                     rules.getRules().add(alarmRule);
                 }
