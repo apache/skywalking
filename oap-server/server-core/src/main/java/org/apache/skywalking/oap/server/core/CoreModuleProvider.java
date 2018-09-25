@@ -114,6 +114,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
         this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
+        this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
 
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
