@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
+import org.apache.skywalking.oap.server.core.source.Scope;
+
 public class AlarmMessage {
     private Scope scope;
     private String id;

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.query.graphql.type.*;
 import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 public class AlarmQuery implements GraphQLQueryResolver {
     public AlarmTrend getAlarmTrend(final Duration duration) {
