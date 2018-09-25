@@ -8,7 +8,7 @@ There are two parts in alarm rule definition.
 Alarm rule is constituted by following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
 - **Indicator name**. A.K.A. metric name in oal script. Only long, double, int types are supported. See
-[List of all potential indicator](#list-of-all-potential-indicator-name).
+[List of all potential metric name](#list-of-all-potential-metric-name).
 - **Include names**. The following entity names are included in this rule. Such as Service name,
 endpoint name.
 - **Threshold**. The target value.
@@ -50,4 +50,8 @@ rules:
 ```
 
 
-## List of all potential indicator name
+## List of all potential metric name
+The metric names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
+only metric from **Service** scope could be used in Alarm, we will extend in further versions. 
+
+Submit issue or pull request if you want to support any other scope in alarm.
