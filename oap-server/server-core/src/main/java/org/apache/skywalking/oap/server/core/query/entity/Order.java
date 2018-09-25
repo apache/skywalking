@@ -16,13 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum Scope {
-    SERVICE,
-    SERVICE_INSTANCE,
-    ENDPOINT,
-    SERVICE_RELATION,
-    SERVICE_INSTANCE_RELATION,
-    ENDPOINT_RELATION
+public enum Order {
+    ASC,
+    DES
 }
