@@ -16,9 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public enum Order {
-    ASC,
-    DES
+import lombok.*;
+
+@Getter
+@Setter
+public class TopNEntity {
+    private String name;
+    private String id;
+    private int value;
 }
