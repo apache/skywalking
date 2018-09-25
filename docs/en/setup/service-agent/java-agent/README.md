@@ -2,9 +2,9 @@
 1. Find `agent` folder in SkyWalking release package
 2. Add `-javaagent:/path/to/skywalking-package/agent/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
 
-New agent package looks like this：
+The agent release dist is included in Apache [official release](http://skywalking.apache.org/downloads/).MeshReceiverProvider New agent package looks like this.
 ```
-+-- skywalking-agent
++-- agent
     +-- activations
          apm-toolkit-log4j-1.x-activation.jar
          apm-toolkit-log4j-2.x-activation.jar
