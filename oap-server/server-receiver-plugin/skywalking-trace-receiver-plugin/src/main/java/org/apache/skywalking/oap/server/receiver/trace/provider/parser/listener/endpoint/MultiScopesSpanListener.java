@@ -162,6 +162,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
     @Override public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
             entrySourceBuilder.setTimeBucket(minuteTimeBucket);
+            sourceReceiver.receive(entrySourceBuilder.toAll());
             sourceReceiver.receive(entrySourceBuilder.toService());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstance());
             sourceReceiver.receive(entrySourceBuilder.toEndpoint());

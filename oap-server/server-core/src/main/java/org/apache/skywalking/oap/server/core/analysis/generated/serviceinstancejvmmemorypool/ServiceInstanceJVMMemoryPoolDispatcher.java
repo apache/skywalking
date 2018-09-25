@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -30,17 +29,6 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceInstanceJVMMemoryPoolDispatcher implements SourceDispatcher<ServiceInstanceJVMMemoryPool> {
 
     @Override public void dispatch(ServiceInstanceJVMMemoryPool source) {
-        doInstanceJvmMemoryPoolMax(source);
     }
 
-    private void doInstanceJvmMemoryPoolMax(ServiceInstanceJVMMemoryPool source) {
-        InstanceJvmMemoryPoolMaxIndicator indicator = new InstanceJvmMemoryPoolMaxIndicator();
-
-
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setId(source.getId());
-        indicator.setServiceInstanceId(source.getServiceInstanceId());
-        indicator.combine(source.getMax(), 1);
-        IndicatorProcess.INSTANCE.in(indicator);
-    }
 }

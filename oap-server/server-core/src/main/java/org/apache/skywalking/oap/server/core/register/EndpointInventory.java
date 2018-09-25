@@ -38,9 +38,9 @@ public class EndpointInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "endpoint_inventory";
 
-    private static final String SERVICE_ID = "service_id";
-    private static final String NAME = "name";
-    private static final String DETECT_POINT = "detect_point";
+    public static final String SERVICE_ID = "service_id";
+    public static final String NAME = "name";
+    public static final String DETECT_POINT = "detect_point";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
@@ -100,6 +100,10 @@ public class EndpointInventory extends RegisterSource {
         setHeartbeatTime(remoteData.getDataLongs(1));
 
         setName(remoteData.getDataStrings(0));
+    }
+
+    @Override public int remoteHashCode() {
+        return 0;
     }
 
     public static class Builder implements StorageBuilder<EndpointInventory> {

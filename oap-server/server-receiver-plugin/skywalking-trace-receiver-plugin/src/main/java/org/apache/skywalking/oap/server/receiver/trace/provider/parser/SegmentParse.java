@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.io.IOException;
 import java.util.*;
+import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -41,20 +41,19 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
-    private final SegmentStandardizationWorker standardizationWorker;
+    @Setter private SegmentStandardizationWorker standardizationWorker;
 
-    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) throws IOException {
+    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-        this.standardizationWorker = new SegmentStandardizationWorker(moduleManager, listenerManager,this);
     }
 
-    @Override public void call(UpstreamSegment segment) {
-        parse(segment, Source.Buffer);
+    @Override public boolean call(UpstreamSegment segment) {
+        return parse(segment, Source.Buffer);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {
@@ -79,9 +78,7 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
                 if (logger.isDebugEnabled()) {
                     logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
                 }
-
                 notifyListenerToBuild();
-                buildSegment(segmentCoreInfo.getSegmentId(), segmentDecorator.toByteArray());
                 return true;
             }
         } catch (Throwable e) {
@@ -112,6 +109,7 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
         segmentCoreInfo.setSegmentId(segmentIdBuilder.toString());
         segmentCoreInfo.setApplicationId(segmentDecorator.getApplicationId());
         segmentCoreInfo.setApplicationInstanceId(segmentDecorator.getApplicationInstanceId());
+        segmentCoreInfo.setDataBinary(segmentDecorator.toByteArray());
 
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
@@ -158,13 +156,6 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
         }
 
         return true;
-    }
-
-    private void buildSegment(String id, byte[] dataBinary) {
-//        Segment segment = new Segment();
-//        segment.setId(id);
-//        segment.setDataBinary(dataBinary);
-//        segment.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
     }
 
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
@@ -216,7 +207,7 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
 
     private void notifyGlobalsListener(UniqueId uniqueId) {
         spanListeners.forEach(listener -> {
-            if (listener.containsPoint(SpanListener.Point.GlobalTraceIds)) {
+            if (listener.containsPoint(SpanListener.Point.TraceIds)) {
                 ((GlobalTraceIdsListener)listener).parseGlobalTraceId(uniqueId, segmentCoreInfo);
             }
         });

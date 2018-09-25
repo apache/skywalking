@@ -39,8 +39,8 @@ public class ServiceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_inventory";
 
-    private static final String NAME = "name";
-    private static final String IS_ADDRESS = "is_address";
+    public static final String NAME = "name";
+    public static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
@@ -112,6 +112,10 @@ public class ServiceInventory extends RegisterSource {
         setHeartbeatTime(remoteData.getDataLongs(1));
 
         setName(remoteData.getDataStrings(0));
+    }
+
+    @Override public int remoteHashCode() {
+        return 0;
     }
 
     public static class Builder implements StorageBuilder<ServiceInventory> {

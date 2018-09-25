@@ -38,22 +38,29 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "serviceinstance_resptime", builder = ServiceInstanceRespTimeIndicator.Builder.class)
+@StorageEntity(name = "serviceinstance_resp_time", builder = ServiceInstanceRespTimeIndicator.Builder.class)
 public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(id);
+        splitJointId += Const.ID_SPLIT + entityId;
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
-        result = 31 * result + id;
+        result = 31 * result + entityId.hashCode();
         result = 31 * result + (int)getTimeBucket();
+        return result;
+    }
+
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        result = 31 * result + entityId.hashCode();
         return result;
     }
 
@@ -66,7 +73,7 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
             return false;
 
         ServiceInstanceRespTimeIndicator indicator = (ServiceInstanceRespTimeIndicator)obj;
-        if (id != indicator.id)
+        if (entityId != indicator.entityId)
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -77,40 +84,81 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.setDataStrings(0, getEntityId());
 
         remoteBuilder.setDataLongs(0, getSummation());
         remoteBuilder.setDataLongs(1, getValue());
         remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceId());
-        remoteBuilder.setDataIntegers(2, getCount());
+        remoteBuilder.setDataIntegers(0, getServiceId());
+        remoteBuilder.setDataIntegers(1, getCount());
 
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
+        setEntityId(remoteData.getDataStrings(0));
 
         setSummation(remoteData.getDataLongs(0));
         setValue(remoteData.getDataLongs(1));
         setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setId(remoteData.getDataIntegers(0));
-        setServiceId(remoteData.getDataIntegers(1));
-        setCount(remoteData.getDataIntegers(2));
+        setServiceId(remoteData.getDataIntegers(0));
+        setCount(remoteData.getDataIntegers(1));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("ServiceInstance_RespTime", Scope.ServiceInstance, id, serviceId);
+        return new AlarmMeta("serviceInstance_resp_time", Scope.ServiceInstance, entityId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<ServiceInstanceRespTimeIndicator> {
 
         @Override public Map<String, Object> data2Map(ServiceInstanceRespTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", storageData.getId());
+            map.put("entity_id", storageData.getEntityId());
             map.put("service_id", storageData.getServiceId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
@@ -121,7 +169,7 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
 
         @Override public ServiceInstanceRespTimeIndicator map2Data(Map<String, Object> dbMap) {
             ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-            indicator.setId(((Number)dbMap.get("id")).intValue());
+            indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());

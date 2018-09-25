@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.generated.all.AllDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.endpoint.EndpointDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.endpointrelation.EndpointRelationDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.service.ServiceDispatcher;
@@ -29,8 +30,11 @@ import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancej
 import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool.ServiceInstanceJVMMemoryPoolDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancerelation.ServiceInstanceRelationDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.generated.servicerelation.ServiceRelationDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointCallRelationDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.ServiceCallRelationDispatcher;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.slf4j.*;
 
 /**
@@ -40,29 +44,35 @@ public class DispatcherManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DispatcherManager.class);
 
-    private Map<Scope, SourceDispatcher> dispatcherMap;
+    private Map<Scope, SourceDispatcher[]> dispatcherMap;
 
     public DispatcherManager() {
         this.dispatcherMap = new HashMap<>();
 
-        this.dispatcherMap.put(Scope.Service, new ServiceDispatcher());
-        this.dispatcherMap.put(Scope.ServiceInstance, new ServiceInstanceDispatcher());
-        this.dispatcherMap.put(Scope.Endpoint, new EndpointDispatcher());
+        this.dispatcherMap.put(Scope.All, new SourceDispatcher[] {new AllDispatcher()});
 
-        this.dispatcherMap.put(Scope.ServiceComponent, new ServiceComponentDispatcher());
-        this.dispatcherMap.put(Scope.ServiceMapping, new ServiceMappingDispatcher());
+        this.dispatcherMap.put(Scope.Segment, new SourceDispatcher[] {new SegmentDispatcher()});
 
-        this.dispatcherMap.put(Scope.ServiceRelation, new ServiceRelationDispatcher());
-        this.dispatcherMap.put(Scope.ServiceInstanceRelation, new ServiceInstanceRelationDispatcher());
-        this.dispatcherMap.put(Scope.EndpointRelation, new EndpointRelationDispatcher());
+        this.dispatcherMap.put(Scope.Service, new SourceDispatcher[] {new ServiceDispatcher()});
+        this.dispatcherMap.put(Scope.ServiceInstance, new SourceDispatcher[] {new ServiceInstanceDispatcher()});
+        this.dispatcherMap.put(Scope.Endpoint, new SourceDispatcher[] {new EndpointDispatcher()});
 
-        this.dispatcherMap.put(Scope.ServiceInstanceJVMCPU, new ServiceInstanceJVMCPUDispatcher());
-        this.dispatcherMap.put(Scope.ServiceInstanceJVMGC, new ServiceInstanceJVMGCDispatcher());
-        this.dispatcherMap.put(Scope.ServiceInstanceJVMMemory, new ServiceInstanceJVMMemoryDispatcher());
-        this.dispatcherMap.put(Scope.ServiceInstanceJVMMemoryPool, new ServiceInstanceJVMMemoryPoolDispatcher());
+        this.dispatcherMap.put(Scope.ServiceComponent, new SourceDispatcher[] {new ServiceComponentDispatcher()});
+        this.dispatcherMap.put(Scope.ServiceMapping, new SourceDispatcher[] {new ServiceMappingDispatcher()});
+
+        this.dispatcherMap.put(Scope.ServiceRelation, new SourceDispatcher[] {new ServiceRelationDispatcher(), new ServiceCallRelationDispatcher()});
+        this.dispatcherMap.put(Scope.ServiceInstanceRelation, new SourceDispatcher[] {new ServiceInstanceRelationDispatcher()});
+        this.dispatcherMap.put(Scope.EndpointRelation, new SourceDispatcher[] {new EndpointRelationDispatcher(), new EndpointCallRelationDispatcher()});
+
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMCPU, new SourceDispatcher[] {new ServiceInstanceJVMCPUDispatcher()});
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMGC, new SourceDispatcher[] {new ServiceInstanceJVMGCDispatcher()});
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMMemory, new SourceDispatcher[] {new ServiceInstanceJVMMemoryDispatcher()});
+        this.dispatcherMap.put(Scope.ServiceInstanceJVMMemoryPool, new SourceDispatcher[] {new ServiceInstanceJVMMemoryPoolDispatcher()});
     }
 
-    public SourceDispatcher getDispatcher(Scope scope) {
-        return dispatcherMap.get(scope);
+    public void forward(Source source) {
+        for (SourceDispatcher dispatcher : dispatcherMap.get(source.scope())) {
+            dispatcher.dispatch(source);
+        }
     }
 }

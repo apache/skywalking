@@ -41,20 +41,27 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_avg", builder = EndpointAvgIndicator.Builder.class)
 public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "id") private int id;
-    @Setter @Getter @Column(columnName = "service_id") private int serviceId;
-    @Setter @Getter @Column(columnName = "service_instance_id") private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(id);
+        splitJointId += Const.ID_SPLIT + entityId;
         return splitJointId;
     }
 
     @Override public int hashCode() {
         int result = 17;
-        result = 31 * result + id;
+        result = 31 * result + entityId.hashCode();
         result = 31 * result + (int)getTimeBucket();
+        return result;
+    }
+
+
+    @Override public int remoteHashCode() {
+        int result = 17;
+        result = 31 * result + entityId.hashCode();
         return result;
     }
 
@@ -67,7 +74,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
             return false;
 
         EndpointAvgIndicator indicator = (EndpointAvgIndicator)obj;
-        if (id != indicator.id)
+        if (entityId != indicator.entityId)
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -78,42 +85,86 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.setDataStrings(0, getEntityId());
 
         remoteBuilder.setDataLongs(0, getSummation());
         remoteBuilder.setDataLongs(1, getValue());
         remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getId());
-        remoteBuilder.setDataIntegers(1, getServiceId());
-        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(3, getCount());
+        remoteBuilder.setDataIntegers(0, getServiceId());
+        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
+        remoteBuilder.setDataIntegers(2, getCount());
 
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
+        setEntityId(remoteData.getDataStrings(0));
 
         setSummation(remoteData.getDataLongs(0));
         setValue(remoteData.getDataLongs(1));
         setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setId(remoteData.getDataIntegers(0));
-        setServiceId(remoteData.getDataIntegers(1));
-        setServiceInstanceId(remoteData.getDataIntegers(2));
-        setCount(remoteData.getDataIntegers(3));
+        setServiceId(remoteData.getDataIntegers(0));
+        setServiceInstanceId(remoteData.getDataIntegers(1));
+        setCount(remoteData.getDataIntegers(2));
+
+
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("endpoint_Avg", Scope.Endpoint, id, serviceId, serviceInstanceId);
+        return new AlarmMeta("endpoint_Avg", Scope.Endpoint, entityId);
+    }
+
+    @Override
+    public Indicator toHour() {
+        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInHour());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toDay() {
+        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInDay());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
+    }
+
+    @Override
+    public Indicator toMonth() {
+        EndpointAvgIndicator indicator = new EndpointAvgIndicator();
+        indicator.setTimeBucket(toTimeBucketInMonth());
+        indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
+        indicator.setSummation(this.getSummation());
+        indicator.setCount(this.getCount());
+        indicator.setValue(this.getValue());
+        indicator.setTimeBucket(this.getTimeBucket());
+        return indicator;
     }
 
     public static class Builder implements StorageBuilder<EndpointAvgIndicator> {
 
         @Override public Map<String, Object> data2Map(EndpointAvgIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", storageData.getId());
+            map.put("entity_id", storageData.getEntityId());
             map.put("service_id", storageData.getServiceId());
             map.put("service_instance_id", storageData.getServiceInstanceId());
             map.put("summation", storageData.getSummation());
@@ -125,7 +176,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
 
         @Override public EndpointAvgIndicator map2Data(Map<String, Object> dbMap) {
             EndpointAvgIndicator indicator = new EndpointAvgIndicator();
-            indicator.setId(((Number)dbMap.get("id")).intValue());
+            indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
             indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());

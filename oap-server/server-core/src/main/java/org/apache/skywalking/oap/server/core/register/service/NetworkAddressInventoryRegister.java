@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static java.util.Objects.isNull;
+import static java.util.Objects.*;
 
 /**
  * @author peng-yongsheng
@@ -90,5 +90,25 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     @Override public int get(String networkAddress) {
         return getNetworkAddressInventoryCache().getAddressId(networkAddress);
+    }
+
+    @Override public void update(int addressId, int srcLayer, int serverType) {
+        if (!this.compare(addressId, srcLayer, serverType)) {
+            NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
+            newNetworkAddress.setSrcLayer(srcLayer);
+            newNetworkAddress.setServerType(serverType);
+            newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
+
+            InventoryProcess.INSTANCE.in(newNetworkAddress);
+        }
+    }
+
+    private boolean compare(int addressId, int srcLayer, int serverType) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+
+        if (nonNull(networkAddress)) {
+            return srcLayer == networkAddress.getSrcLayer() && serverType == networkAddress.getServerType();
+        }
+        return true;
     }
 }

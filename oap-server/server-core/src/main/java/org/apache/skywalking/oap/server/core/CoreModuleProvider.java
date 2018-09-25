@@ -20,9 +20,12 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
+import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordTypeListener;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.config.*;
+import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryTypeListener;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.*;
@@ -30,6 +33,7 @@ import org.apache.skywalking.oap.server.core.remote.annotation.*;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -85,6 +89,8 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
 
+        this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
+
         this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl());
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
@@ -104,10 +110,16 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager()));
         this.registerServiceImplementation(INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
 
+        this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
+        this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
+        this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
+        this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
+
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
         annotationScan.registerListener(new IndicatorTypeListener(getManager()));
         annotationScan.registerListener(new InventoryTypeListener(getManager()));
+        annotationScan.registerListener(new RecordTypeListener(getManager()));
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
@@ -136,6 +148,8 @@ public class CoreModuleProvider extends ModuleProvider {
 
         RemoteInstance gRPCServerInstance = new RemoteInstance(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
         this.getManager().find(ClusterModule.NAME).getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
+
+        PersistenceTimer.INSTANCE.start(getManager());
     }
 
     @Override

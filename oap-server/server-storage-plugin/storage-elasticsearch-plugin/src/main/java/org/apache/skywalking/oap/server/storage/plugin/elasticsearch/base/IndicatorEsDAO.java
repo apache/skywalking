@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -54,7 +55,12 @@ public class IndicatorEsDAO extends EsDAO implements IIndicatorDAO<IndexRequest,
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         for (String key : objectMap.keySet()) {
-            builder.field(key, objectMap.get(key));
+            Object value = objectMap.get(key);
+            if (value instanceof StorageDataType) {
+                builder.field(key, ((StorageDataType)value).toStorageData());
+            } else {
+                builder.field(key, value);
+            }
         }
         builder.endObject();
         return getClient().prepareInsert(modelName, indicator.id(), builder);
@@ -65,7 +71,12 @@ public class IndicatorEsDAO extends EsDAO implements IIndicatorDAO<IndexRequest,
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         for (String key : objectMap.keySet()) {
-            builder.field(key, objectMap.get(key));
+            Object value = objectMap.get(key);
+            if (value instanceof StorageDataType) {
+                builder.field(key, ((StorageDataType)value).toStorageData());
+            } else {
+                builder.field(key, value);
+            }
         }
         builder.endObject();
         return getClient().prepareUpdate(modelName, indicator.id(), builder);

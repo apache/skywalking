@@ -27,6 +27,6 @@ public interface SpanListener {
     boolean containsPoint(Point point);
 
     enum Point {
-        Entry, Exit, Local, First, GlobalTraceIds
+        Entry, Exit, Local, First, TraceIds
     }
 }

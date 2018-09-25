@@ -27,9 +27,12 @@
         <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
+        <logger name="org.elasticsearch.client.RestClient" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
+        <logger name="io.netty" level="INFO"/>
+        <logger name="org.apache.http" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
-        <logger name="org.apache.skywalking.oap.server.core.remote" level="DEBUG"/>
+        <logger name="org.apache.skywalking.oap.server.core.remote" level="INFO"/>
         <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>

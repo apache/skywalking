@@ -30,7 +30,7 @@ The core features are following.
 - Alarm
 
 
-<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/6-alpha-overview.png"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from different sources, 
 in order to provide more options
@@ -38,7 +38,7 @@ for different scenarios.
 
 
 # Document
-- [6.x Documents](docs/README.md). In these documents, you will understand
+- [6.x Documents](docs/README.md). 
 
 ```
 5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
@@ -57,7 +57,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please report unacceptable behavior to dev@skywalking.apache.org .
 
 # Live Demo
-- Host in Beijing. [goto](http://49.4.12.44:8080/)
+- Host in Beijing. [goto](http://106.75.237.45:8080/)
   - Username: admin
   - Password: admin
 
@@ -71,7 +71,7 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
-* Submit an issue
+* Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
 * Mail list: dev@skywalking.apache.org
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
