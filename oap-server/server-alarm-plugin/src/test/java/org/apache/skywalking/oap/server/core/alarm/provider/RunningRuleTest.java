@@ -82,6 +82,7 @@ public class RunningRuleTest {
         alarmRule.setThreshold("75");
         alarmRule.setCount(3);
         alarmRule.setPeriod(15);
+        alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
 
         RunningRule runningRule = new RunningRule(alarmRule);
         LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
@@ -95,14 +96,17 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getIndicator(timeInPeriod3, 74));
 
         // check at 201808301440
-        Assert.assertEquals(0, runningRule.check().size());
+        List<AlarmMessage> alarmMessages = runningRule.check();
+        Assert.assertEquals(0, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
         // check at 201808301441
-        Assert.assertEquals(0, runningRule.check().size());
+        alarmMessages = runningRule.check();
+        Assert.assertEquals(0, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
         // check at 201808301442
-        Assert.assertEquals(1, runningRule.check().size());
-
+        alarmMessages = runningRule.check();
+        Assert.assertEquals(1, alarmMessages.size());
+        Assert.assertEquals("Successful rate of endpoint Service_123 is lower than 75%", alarmMessages.get(0).getAlarmMessage());
     }
 
     @Test

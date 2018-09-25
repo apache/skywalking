@@ -16,15 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import lombok.Getter;
-
-@Getter
-public class TopNCondition {
-    private String name;
-    private int topN;
-    private Order order;
-    private Scope filterScope;
-    private int filterId;
+public enum Order {
+    ASC,
+    DES
 }

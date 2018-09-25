@@ -180,9 +180,6 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             exitSourceBuilder.setSourceEndpointName(endpointInventoryCache.get(exitSourceBuilder.getSourceEndpointId()).getName());
 
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
-            sourceReceiver.receive(exitSourceBuilder.toService());
-            sourceReceiver.receive(exitSourceBuilder.toServiceInstance());
-            sourceReceiver.receive(exitSourceBuilder.toEndpoint());
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
             sourceReceiver.receive(exitSourceBuilder.toEndpointRelation());

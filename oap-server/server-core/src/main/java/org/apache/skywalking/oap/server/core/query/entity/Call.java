@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.*;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 @Getter
 @Setter
@@ -27,4 +28,5 @@ public class Call {
     private int target;
     private String callType;
     private String id;
+    private DetectPoint detectPoint;
 }

@@ -26,24 +26,20 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
 /**
  * @author peng-yongsheng
  */
-public interface IMetadataQueryDAO extends DAO {
+public interface IAggregationQueryDAO extends DAO {
 
-    int numOfService(final long startTimestamp, final long endTimestamp) throws IOException;
+    List<TopNEntity> getServiceTopN(final String name, final int topN, final Step step, final long startTB,
+        final long endTB, final Order order) throws IOException;
 
-    int numOfEndpoint(final long startTimestamp, final long endTimestamp) throws IOException;
+    List<TopNEntity> getAllServiceInstanceTopN(final String name, final int topN, final Step step,
+        final long startTB, final long endTB, final Order order) throws IOException;
 
-    int numOfConjectural(final long startTimestamp, final long endTimestamp, final int srcLayer) throws IOException;
+    List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String name, final int topN,
+        final Step step, final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException;
+    List<TopNEntity> getAllEndpointTopN(final String name, final int topN, final Step step,
+        final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<Service> searchServices(final long startTimestamp, final long endTimestamp,
-        final String keyword) throws IOException;
-
-    Service searchService(final String serviceCode) throws IOException;
-
-    List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
-        final int limit) throws IOException;
-
-    List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
-        final String serviceId) throws IOException;
+    List<TopNEntity> getEndpointTopN(final int serviceId, final String name, final int topN,
+        final Step step, final long startTB, final long endTB, final Order order) throws IOException;
 }

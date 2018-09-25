@@ -16,13 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-public enum Scope {
-    SERVICE,
-    SERVICE_INSTANCE,
-    ENDPOINT,
-    SERVICE_RELATION,
-    SERVICE_INSTANCE_RELATION,
-    ENDPOINT_RELATION
+import org.apache.skywalking.oap.server.core.Const;
+
+/**
+ * @author peng-yongsheng
+ */
+public enum MatchCNameBuilder {
+    INSTANCE;
+
+    public String build(String termCName) {
+        return termCName + Const.ID_SPLIT + "match";
+    }
 }
