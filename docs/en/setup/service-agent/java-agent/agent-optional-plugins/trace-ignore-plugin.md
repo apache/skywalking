@@ -2,9 +2,9 @@
 Here is an optional plugin `apm-trace-ignore-plugin`
 
 ## Introduce
-- The purpose of this plugin is to filter custom services which are expected to ignore from the tracing system.
-- You can set up multiple URL path patterns, The services matches these patterns means won't be traced and analysis by agent and collector.
-- The current matching rule follows `Ant Path` match style , like `/path/*`, `/path/**`, `/path/?`.
+- The purpose of this plugin is to filter endpoint which are expected to be ignored by the tracing system.
+- You can setup multiple URL path patterns, The endpoints match these patterns wouldn't be traced.
+- The current matching rules follow `Ant Path` match style , like `/path/*`, `/path/**`, `/path/?`.
 - Copy `apm-trace-ignore-plugin-x.jar` to `agent/plugins`, restarting the `agent` can effect the plugin.                                                                                                         
 
 ## How to configure
