@@ -95,7 +95,7 @@ class TopologyBuilder {
             ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(serverCall.getTarget());
 
-            if (source.getSequence() == Const.NONE_SERVICE_ID) {
+            if (source.getSequence() == Const.USER_SERVICE_ID) {
                 if (!nodeIds.contains(source.getSequence())) {
                     Node visualUserNode = new Node();
                     visualUserNode.setId(source.getSequence());
@@ -122,7 +122,7 @@ class TopologyBuilder {
             call.setTarget(target.getSequence());
             call.setId(serverCall.getId());
 
-            if (source.getSequence() == Const.NONE_SERVICE_ID) {
+            if (source.getSequence() == Const.USER_SERVICE_ID) {
                 call.setCallType(Const.EMPTY_STRING);
             } else {
                 call.setCallType(nodeCompMap.get(serverCall.getTarget()));
@@ -147,7 +147,7 @@ class TopologyBuilder {
 
         serviceRelationServerCalls.forEach(serverCall -> {
             ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
-            if (BooleanUtils.valueToBoolean(source.getIsAddress()) || source.getSequence() == Const.NONE_SERVICE_ID) {
+            if (BooleanUtils.valueToBoolean(source.getIsAddress()) || source.getSequence() == Const.USER_SERVICE_ID) {
                 filteredCalls.add(serverCall);
             }
         });

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh.module;
+package org.apache.skywalking.aop.server.receiver.mesh;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
