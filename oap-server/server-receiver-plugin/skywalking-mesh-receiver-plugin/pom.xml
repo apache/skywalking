@@ -28,10 +28,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>skywalking-mesh-receiver-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>mesh-receiver-module</module>
-        <module>mesh-receiver-provider</module>
-    </modules>
+    <packaging>jar</packaging>
 
 </project>

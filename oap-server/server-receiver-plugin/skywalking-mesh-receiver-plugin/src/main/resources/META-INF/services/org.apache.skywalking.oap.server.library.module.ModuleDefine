@@ -17,4 +17,5 @@
 #
 
 
-org.apache.skywalking.aop.server.receiver.mesh.provider.MeshReceiverProvider
+
+org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule

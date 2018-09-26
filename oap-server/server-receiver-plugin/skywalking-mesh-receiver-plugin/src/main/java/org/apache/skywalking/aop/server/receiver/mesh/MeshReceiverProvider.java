@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh.provider;
+package org.apache.skywalking.aop.server.receiver.mesh;
 
-import org.apache.skywalking.aop.server.receiver.mesh.module.MeshReceiverModule;
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -28,6 +28,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 public class MeshReceiverProvider extends ModuleProvider {
+    private MeshModuleConfig config;
+
+    public MeshReceiverProvider() {
+        config = new MeshModuleConfig();
+    }
+
     @Override public String name() {
         return "default";
     }
@@ -37,13 +43,21 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return null;
+        return config;
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        MeshDataBufferFileCache cache = new MeshDataBufferFileCache(config);
+        try {
+            cache.start();
+            TelemetryDataDispatcher.setCache(cache, getManager());
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+        CoreRegisterLinker.setModuleManager(getManager());
         GRPCHandlerRegister service = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         service.addHandler(new MeshGRPCHandler());
     }
@@ -53,6 +67,6 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[] {CoreModule.NAME};
     }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh.provider;
+package org.apache.skywalking.aop.server.receiver.mesh;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
@@ -35,6 +35,7 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
                 if (logger.isDebugEnabled()) {
                     logger.debug("Received mesh metric: {}", metric);
                 }
+                TelemetryDataDispatcher.preProcess(metric);
             }
 
             @Override public void onError(Throwable throwable) {
