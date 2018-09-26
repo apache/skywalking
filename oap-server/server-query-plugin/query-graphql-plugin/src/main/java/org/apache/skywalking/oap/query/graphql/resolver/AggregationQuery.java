@@ -19,11 +19,67 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import java.util.*;
-import org.apache.skywalking.oap.query.graphql.type.*;
+import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class AggregationQuery implements GraphQLQueryResolver {
-    public List<TopNEntity> getTopN(final TopNCondition condition, final Duration duration) {
-        return Collections.emptyList();
+
+    private final ModuleManager moduleManager;
+    private AggregationQueryService queryService;
+
+    public AggregationQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    private AggregationQueryService getQueryService() {
+        if (queryService == null) {
+            this.queryService = moduleManager.find(CoreModule.NAME).getService(AggregationQueryService.class);
+        }
+        return queryService;
+    }
+
+    public List<TopNEntity> getServiceTopN(final String name, final int topN, final Duration duration,
+        final Order order) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getServiceTopN(name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    }
+
+    public List<TopNEntity> getAllServiceInstanceTopN(final String name, final int topN, final Duration duration,
+        final Order order) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getAllServiceInstanceTopN(name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    }
+
+    public List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String name, final int topN,
+        final Duration duration, final Order order) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getServiceInstanceTopN(serviceId, name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    }
+
+    public List<TopNEntity> getAllEndpointTopN(final String name, final int topN,
+        final Duration duration, final Order order) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getAllEndpointTopN(name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    }
+
+    public List<TopNEntity> getEndpointTopN(final int serviceId, final String name, final int topN,
+        final Duration duration, final Order order) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getEndpointTopN(serviceId, name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
     }
 }

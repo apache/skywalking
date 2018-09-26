@@ -58,6 +58,7 @@ public class RunningRule {
     private volatile IndicatorValueType valueType;
     private Scope targetScope;
     private List<String> includeNames;
+    private AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
         indicatorName = alarmRule.getIndicatorName();
@@ -75,6 +76,7 @@ public class RunningRule {
         this.silencePeriod = alarmRule.getSilencePeriod();
 
         this.includeNames = alarmRule.getIncludeNames();
+        this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
     }
 
     /**
@@ -136,9 +138,16 @@ public class RunningRule {
     public List<AlarmMessage> check() {
         List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
 
-        windows.values().forEach(window -> {
+        windows.entrySet().forEach(entry -> {
+            MetaInAlarm meta = entry.getKey();
+            Window window = entry.getValue();
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
+                alarmMessage.setScope(meta.getScope());
+                alarmMessage.setName(meta.getName());
+                alarmMessage.setId0(meta.getId0());
+                alarmMessage.setId1(meta.getId1());
+                alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessageList.add(alarmMessage);
             }
         });
@@ -238,7 +247,7 @@ public class RunningRule {
                 if (counter >= countThreshold && silenceCountdown < 1) {
                     silenceCountdown = silencePeriod;
 
-                    //TODO
+                    // set empty message, but new message
                     AlarmMessage message = new AlarmMessage();
                     return message;
                 } else {
