@@ -23,11 +23,11 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 /**
  * @author peng-yongsheng
  */
-public class MergeDataCache<INDICATOR extends Indicator> extends Window<MergeDataCollection<INDICATOR>> implements DataCache {
+public class MergeDataCache<INDICATOR extends Indicator> extends Window<INDICATOR> implements DataCache {
 
-    private MergeDataCollection<INDICATOR> lockedMergeDataCollection;
+    private SWCollection<INDICATOR> lockedMergeDataCollection;
 
-    @Override public MergeDataCollection<INDICATOR> collectionInstance() {
+    @Override public SWCollection<INDICATOR> collectionInstance() {
         return new MergeDataCollection<>();
     }
 

@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.*;
 import org.slf4j.*;
@@ -55,7 +56,7 @@ public class StorageEsInstaller extends ModelInstaller {
         }
     }
 
-    @Override protected void columnCheck(Client client, Model tableDefine) throws StorageException {
+    @Override protected void columnCheck(Client client, Model tableDefine) {
 
     }
 
@@ -80,9 +81,9 @@ public class StorageEsInstaller extends ModelInstaller {
         Settings settings = createSettingBuilder();
         try {
             mappingBuilder = createMappingBuilder(tableDefine);
-            logger.info("mapping builder str: {}", mappingBuilder.prettyPrint());
+            logger.info("index {}'s mapping builder str: {}", tableDefine.getName(), Strings.toString(mappingBuilder.prettyPrint()));
         } catch (Exception e) {
-            logger.error("create {} index mapping builder error", tableDefine.getName());
+            logger.error("create {} index mapping builder error, error message: {}", tableDefine.getName(), e.getMessage());
         }
 
         boolean isAcknowledged;
@@ -103,7 +104,7 @@ public class StorageEsInstaller extends ModelInstaller {
             .put("index.number_of_shards", indexShardsNumber)
             .put("index.number_of_replicas", indexReplicasNumber)
             .put("index.refresh_interval", "3s")
-            .put("analysis.analyzer.collector_analyzer.type", "stop")
+            .put("analysis.analyzer.oap_analyzer.type", "stop")
             .build();
     }
 
@@ -116,10 +117,24 @@ public class StorageEsInstaller extends ModelInstaller {
             .startObject("properties");
 
         for (ModelColumn columnDefine : tableDefine.getColumns()) {
-            mappingBuilder
-                .startObject(columnDefine.getColumnName().getName())
-                .field("type", mapping.transform(columnDefine.getType()))
-                .endObject();
+            if (columnDefine.isMatchQuery()) {
+                String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
+
+                mappingBuilder
+                    .startObject(columnDefine.getColumnName().getName())
+                    .field("type", mapping.transform(columnDefine.getType()))
+                    .field("copy_to", matchCName)
+                    .endObject()
+                    .startObject(matchCName)
+                    .field("type", "text")
+                    .field("analyzer", "oap_analyzer")
+                    .endObject();
+            } else {
+                mappingBuilder
+                    .startObject(columnDefine.getColumnName().getName())
+                    .field("type", mapping.transform(columnDefine.getType()))
+                    .endObject();
+            }
         }
 
         mappingBuilder

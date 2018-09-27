@@ -52,4 +52,12 @@ public class CollectionUtils {
     public static <T> boolean isNotEmpty(T[] array) {
         return array != null && array.length > 0;
     }
+
+    public static boolean isEmpty(byte[] array) {
+        return array == null || array.length == 0;
+    }
+
+    public static boolean isNotEmpty(byte[] array) {
+        return !isEmpty(array);
+    }
 }

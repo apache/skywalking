@@ -97,9 +97,9 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             }
         } else {
             SourceBuilder sourceBuilder = new SourceBuilder();
-            sourceBuilder.setSourceEndpointId(Const.NONE_ENDPOINT_ID);
-            sourceBuilder.setSourceServiceInstanceId(Const.NONE_INSTANCE_ID);
-            sourceBuilder.setSourceServiceId(Const.NONE_SERVICE_ID);
+            sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
+            sourceBuilder.setSourceServiceInstanceId(Const.USER_INSTANCE_ID);
+            sourceBuilder.setSourceServiceId(Const.USER_SERVICE_ID);
             sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
             sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
             sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
@@ -122,7 +122,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
 
-        sourceBuilder.setSourceEndpointId(Const.NONE_ENDPOINT_ID);
+        sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
         sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
         sourceBuilder.setSourceServiceId(segmentCoreInfo.getApplicationId());
         sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
@@ -175,14 +175,11 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             if (nonNull(entrySpanDecorator)) {
                 exitSourceBuilder.setSourceEndpointId(entrySpanDecorator.getOperationNameId());
             } else {
-                exitSourceBuilder.setSourceEndpointId(Const.NONE_ENDPOINT_ID);
+                exitSourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
             }
             exitSourceBuilder.setSourceEndpointName(endpointInventoryCache.get(exitSourceBuilder.getSourceEndpointId()).getName());
 
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
-            sourceReceiver.receive(exitSourceBuilder.toService());
-            sourceReceiver.receive(exitSourceBuilder.toServiceInstance());
-            sourceReceiver.receive(exitSourceBuilder.toEndpoint());
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
             sourceReceiver.receive(exitSourceBuilder.toEndpointRelation());

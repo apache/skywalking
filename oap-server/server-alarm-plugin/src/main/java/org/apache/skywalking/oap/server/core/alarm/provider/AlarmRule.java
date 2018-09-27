@@ -38,4 +38,5 @@ public class AlarmRule {
     private int period;
     private int count;
     private int silencePeriod;
+    private String message;
 }

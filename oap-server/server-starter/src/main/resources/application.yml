@@ -54,7 +54,7 @@ receiver-register:
   default:
 receiver-trace:
   default:
-    bufferPath: ../buffer/  # Path to trace buffer files, suggest to use absolute path
+    bufferPath: ../trace-buffer/  # Path to trace buffer files, suggest to use absolute path
     bufferOffsetMaxFileSize: 100 # Unit is MB
     bufferDataMaxFileSize: 500 # Unit is MB
     bufferFileCleanWhenRestart: false
@@ -62,6 +62,10 @@ receiver-jvm:
   default:
 service-mesh:
   default:
+    bufferPath: ../mesh-buffer/  # Path to trace buffer files, suggest to use absolute path
+    bufferOffsetMaxFileSize: 100 # Unit is MB
+    bufferDataMaxFileSize: 500 # Unit is MB
+    bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
 query:

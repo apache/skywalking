@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -42,42 +44,42 @@ public class MetadataQuery implements GraphQLQueryResolver {
         return metadataQueryService;
     }
 
-    public ClusterBrief getGlobalBrief(final Duration duration) {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+    public ClusterBrief getGlobalBrief(final Duration duration) throws IOException, ParseException {
+        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetadataQueryService().getGlobalBrief(duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetadataQueryService().getGlobalBrief(startTimestamp, endTimestamp);
     }
 
-    public List<Service> getAllServices(final Duration duration) {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+    public List<Service> getAllServices(final Duration duration) throws IOException, ParseException {
+        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetadataQueryService().getAllServices(duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetadataQueryService().getAllServices(startTimestamp, endTimestamp);
     }
 
-    public List<Service> searchServices(final Duration duration, final String keyword) {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+    public List<Service> searchServices(final Duration duration, final String keyword)
+        throws IOException, ParseException {
+        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetadataQueryService().searchServices(duration.getStep(), startTimeBucket, endTimeBucket, keyword);
+        return getMetadataQueryService().searchServices(startTimestamp, endTimestamp, keyword);
     }
 
-    public List<ServiceInstance> getServiceInstances(final Duration duration, final String id) {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getMetadataQueryService().getServiceInstances(duration.getStep(), startTimeBucket, endTimeBucket, id);
+    public Service searchService(final String serviceCode) throws IOException {
+        return getMetadataQueryService().searchService(serviceCode);
     }
 
-    public List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) {
+    public List<ServiceInstance> getServiceInstances(final Duration duration,
+        final String serviceId) throws IOException, ParseException {
+        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
+
+        return getMetadataQueryService().getServiceInstances(startTimestamp, endTimestamp, serviceId);
+    }
+
+    public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
+        final int limit) throws IOException {
         return getMetadataQueryService().searchEndpoint(keyword, serviceId, limit);
-    }
-
-    public Service searchService(final Duration duration, final String serviceCode) {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getMetadataQueryService().searchService(duration.getStep(), startTimeBucket, endTimeBucket, serviceCode);
     }
 }

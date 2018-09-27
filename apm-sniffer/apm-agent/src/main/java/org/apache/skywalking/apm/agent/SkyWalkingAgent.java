@@ -16,16 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
+import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
+import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.scaffold.TypeValidation;
+import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -33,11 +38,13 @@ import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
-import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
+
+import static net.bytebuddy.matcher.ElementMatchers.nameContains;
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The main entrance of sky-waking agent,
- * based on javaagent mechanism.
+ * The main entrance of sky-waking agent, based on javaagent mechanism.
  *
  * @author wusheng
  */
@@ -45,8 +52,7 @@ public class SkyWalkingAgent {
     private static final ILog logger = LogManager.getLogger(SkyWalkingAgent.class);
 
     /**
-     * Main entrance.
-     * Use byte-buddy transform to enhance all classes, which define in plugins.
+     * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
      *
      * @param agentArgs
      * @param instrumentation
@@ -64,11 +70,21 @@ public class SkyWalkingAgent {
             return;
         }
 
-        new AgentBuilder.Default()
-                .type(pluginFinder.buildMatch())
-                .transform(new Transformer(pluginFinder))
-                .with(new Listener())
-                .installOn(instrumentation);
+        final ByteBuddy byteBuddy = new ByteBuddy()
+            .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
+
+        new AgentBuilder.Default(byteBuddy)
+            .ignore(nameStartsWith("net.bytebuddy."))
+            .ignore(nameStartsWith("org.slf4j."))
+            .ignore(nameStartsWith("org.apache.logging."))
+            .ignore(nameStartsWith("org.groovy."))
+            .ignore(nameContains("javassist"))
+            .ignore(nameContains(".asm."))
+            .ignore(allSkyWalkingAgentExcludeToolkit())
+            .type(pluginFinder.buildMatch())
+            .transform(new Transformer(pluginFinder))
+            .with(new Listener())
+            .installOn(instrumentation);
 
         try {
             ServiceManager.INSTANCE.boot();
@@ -91,7 +107,8 @@ public class SkyWalkingAgent {
         }
 
         @Override
-        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+        public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
+            ClassLoader classLoader, JavaModule module) {
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
@@ -114,6 +131,10 @@ public class SkyWalkingAgent {
         }
     }
 
+    private static ElementMatcher.Junction<NamedElement> allSkyWalkingAgentExcludeToolkit() {
+        return nameStartsWith("org.apache.skywalking.").and(not(nameStartsWith("org.apache.skywalking.apm.toolkit.")));
+    }
+
     private static class Listener implements AgentBuilder.Listener {
         @Override
         public void onDiscovery(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
@@ -122,7 +143,7 @@ public class SkyWalkingAgent {
 
         @Override
         public void onTransformation(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                                     boolean loaded, DynamicType dynamicType) {
+            boolean loaded, DynamicType dynamicType) {
             if (logger.isDebugEnable()) {
                 logger.debug("On Transformation class {}.", typeDescription.getName());
             }
@@ -132,13 +153,13 @@ public class SkyWalkingAgent {
 
         @Override
         public void onIgnored(TypeDescription typeDescription, ClassLoader classLoader, JavaModule module,
-                              boolean loaded) {
+            boolean loaded) {
 
         }
 
         @Override
         public void onError(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded,
-                            Throwable throwable) {
+            Throwable throwable) {
             logger.error("Enhance class " + typeName + " error.", throwable);
         }
 

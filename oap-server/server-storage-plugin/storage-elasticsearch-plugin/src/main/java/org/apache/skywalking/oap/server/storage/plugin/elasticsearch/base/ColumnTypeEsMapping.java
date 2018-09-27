@@ -37,6 +37,8 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
             return "keyword";
         } else if (IntKeyLongValueArray.class.equals(type)) {
             return "keyword";
+        } else if (byte[].class.equals(type)) {
+            return "binary";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
