@@ -90,6 +90,9 @@ public abstract class ModuleDefine {
 
     private void copyProperties(ModuleConfig dest, Properties src, String moduleName,
         String providerName) throws IllegalAccessException {
+        if (dest == null) {
+            return;
+        }
         Enumeration<?> propertyNames = src.propertyNames();
         while (propertyNames.hasMoreElements()) {
             String propertyName = (String)propertyNames.nextElement();
