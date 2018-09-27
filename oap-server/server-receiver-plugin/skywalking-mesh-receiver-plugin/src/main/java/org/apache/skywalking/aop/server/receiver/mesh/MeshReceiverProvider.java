@@ -47,6 +47,9 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    }
+
+    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         MeshDataBufferFileCache cache = new MeshDataBufferFileCache(config);
         try {
             cache.start();
@@ -54,9 +57,6 @@ public class MeshReceiverProvider extends ModuleProvider {
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-    }
-
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         CoreRegisterLinker.setModuleManager(getManager());
         GRPCHandlerRegister service = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         service.addHandler(new MeshGRPCHandler());
