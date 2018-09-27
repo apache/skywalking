@@ -52,6 +52,7 @@ read **Set receivers** document in the [link list](#advanced-feature-document-li
 After understand the setting file structure, you could choose your interesting feature document.
 We recommend you to read the feature documents in our following order.
 
+1. [Overriding settings](backend-setting-override.md) in application.yml is supported
 1. [IP and port setting](backend-ip-port.md). Introduce how IP and port set and be used.
 1. [Cluster management](backend-cluster.md). Guide you to set backend server in cluster mode.
 1. [Deploy in kubernetes](backend-k8s.md). Guide you to build and use SkyWalking image, and deploy in k8s.
