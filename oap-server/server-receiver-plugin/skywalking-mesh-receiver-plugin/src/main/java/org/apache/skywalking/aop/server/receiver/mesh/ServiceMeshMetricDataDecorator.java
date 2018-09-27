@@ -83,16 +83,9 @@ public class ServiceMeshMetricDataDecorator {
         String endpoint = origin.getEndpoint();
         if (destServiceId != Const.NONE) {
             DetectPoint point = origin.getDetectPoint();
-            /**
-             * Detect point matches {@link SpanType}, value options:
-             *
-             *     Entry = 0; Server side.
-             *     Exit = 1;  Client side
-             *     Local = 2; Never used.
-             *
-             */
-            int detectPointInt = DetectPoint.client.equals(point) ? 1 : 0;
-            endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint, detectPointInt);
+
+            endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
+                org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
             if (endpointId != Const.NONE) {
             } else {
                 isRegistered = false;

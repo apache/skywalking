@@ -18,9 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+
 /**
  * @author peng-yongsheng
  */
 public enum DetectPoint {
-    CLIENT, SERVER, PROXY
+    SERVER, CLIENT, PROXY, UNRECOGNIZED;
+
+    public static DetectPoint fromSpanType(SpanType spanType) {
+        switch (spanType) {
+            case Entry:
+                return DetectPoint.SERVER;
+            case Exit:
+                return DetectPoint.SERVER;
+            case UNRECOGNIZED:
+            case Local:
+            default:
+                return DetectPoint.UNRECOGNIZED;
+        }
+    }
+
+    public static DetectPoint fromMeshDetectPoint(org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
+        switch (detectPoint) {
+            case client:
+                return CLIENT;
+            case server:
+                return SERVER;
+            case proxy:
+            case UNRECOGNIZED:
+            default:
+                return UNRECOGNIZED;
+        }
+    }
 }
