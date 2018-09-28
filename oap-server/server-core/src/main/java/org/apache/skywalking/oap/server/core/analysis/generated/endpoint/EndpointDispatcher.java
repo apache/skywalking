@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
 
     @Override public void dispatch(Endpoint source) {
+        doEndpointCpm(source);
         doEndpointAvg(source);
         doEndpointSla(source);
         doEndpointP99(source);
@@ -37,6 +38,18 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
         doEndpointP90(source);
         doEndpointP75(source);
         doEndpointP50(source);
+    }
+
+    private void doEndpointCpm(Endpoint source) {
+        EndpointCpmIndicator indicator = new EndpointCpmIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(1);
+        IndicatorProcess.INSTANCE.in(indicator);
     }
 
     private void doEndpointAvg(Endpoint source) {
