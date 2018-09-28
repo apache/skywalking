@@ -43,10 +43,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.KafkaProducerInterceptor";
-    public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.KafkaProducer";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.ProducerConstructorInterceptor";
-    public static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "org.apache.kafka.clients.producer.ProducerConfig";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.KafkaProducerInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.KafkaProducer";
+    private static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.ProducerConstructorInterceptor";
+    private static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "org.apache.kafka.clients.producer.ProducerConfig";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {

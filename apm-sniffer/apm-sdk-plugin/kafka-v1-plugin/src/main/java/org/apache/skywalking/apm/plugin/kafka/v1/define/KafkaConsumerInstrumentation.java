@@ -42,14 +42,14 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  */
 public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
 
-    public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerConfig";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.ConsumerConstructorInterceptor";
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.KafkaConsumerInterceptor";
-    public static final String ENHANCE_METHOD = "pollOnce";
-    public static final String ENHANCE_CLASS = "org.apache.kafka.clients.consumer.KafkaConsumer";
-    public static final String SUBSCRIBE_METHOD = "subscribe";
-    public static final String SUBSCRIBE_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerRebalanceListener";
-    public static final String SUBSCRIBE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.SubscribeMethodInterceptor";
+    private static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerConfig";
+    private static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.ConsumerConstructorInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.KafkaConsumerInterceptor";
+    private static final String ENHANCE_METHOD = "pollOnce";
+    private static final String ENHANCE_CLASS = "org.apache.kafka.clients.consumer.KafkaConsumer";
+    private static final String SUBSCRIBE_METHOD = "subscribe";
+    private static final String SUBSCRIBE_INTERCEPT_TYPE = "org.apache.kafka.clients.consumer.ConsumerRebalanceListener";
+    private static final String SUBSCRIBE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.SubscribeMethodInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
