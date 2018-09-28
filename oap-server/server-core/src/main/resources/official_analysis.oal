@@ -47,6 +47,7 @@ service_instance_resp_time= from(ServiceInstance.latency).longAvg();
 service_instance_cpm = from(ServiceInstance.*).cpm();
 
 // Endpoint scope metric
+endpoint_cpm = from(Endpoint.*).cpm();
 endpoint_avg = from(Endpoint.latency).longAvg();
 endpoint_sla = from(Endpoint.*).percent(status == true);
 endpoint_p99 = from(Endpoint.latency).p99(10);
