@@ -38,10 +38,10 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "serviceinstance_resp_time", builder = ServiceInstanceRespTimeIndicator.Builder.class)
+@StorageEntity(name = "service_instance_resp_time", builder = ServiceInstanceRespTimeIndicator.Builder.class)
 public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
 
     @Override public String id() {
@@ -112,7 +112,7 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("serviceInstance_resp_time", Scope.ServiceInstance, entityId);
+        return new AlarmMeta("service_instance_resp_time", Scope.ServiceInstance, entityId);
     }
 
     @Override

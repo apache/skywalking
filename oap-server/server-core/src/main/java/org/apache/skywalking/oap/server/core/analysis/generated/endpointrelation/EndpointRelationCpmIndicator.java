@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_relation_cpm", builder = EndpointRelationCpmIndicator.Builder.class)
 public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
     @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;

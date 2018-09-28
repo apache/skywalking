@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_p99", builder = ServiceP99Indicator.Builder.class)
 public class ServiceP99Indicator extends P99Indicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
