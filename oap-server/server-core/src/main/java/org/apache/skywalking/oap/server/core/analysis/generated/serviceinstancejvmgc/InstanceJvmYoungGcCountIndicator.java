@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "instance_jvm_young_gc_count", builder = InstanceJvmYoungGcCountIndicator.Builder.class)
 public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
