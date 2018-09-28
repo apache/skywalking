@@ -39,6 +39,7 @@ public class Segment extends Source {
     @Setter @Getter private String traceId;
     @Setter @Getter private int serviceId;
     @Setter @Getter private String endpointName;
+    @Setter @Getter private int endpointId;
     @Setter @Getter private long startTime;
     @Setter @Getter private long endTime;
     @Setter @Getter private int latency;
