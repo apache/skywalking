@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -143,7 +144,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
 
         String matchCName = MatchCNameBuilder.INSTANCE.build(EndpointInventory.NAME);
-        boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+        if (StringUtils.isNotEmpty(keyword)) {
+            boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+        }
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
