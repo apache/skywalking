@@ -40,6 +40,7 @@ public class SegmentRecord extends Record {
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
     public static final String ENDPOINT_NAME = "endpoint_name";
+    public static final String ENDPOINT_ID = "endpoint_id";
     public static final String START_TIME = "start_time";
     public static final String END_TIME = "end_time";
     public static final String LATENCY = "latency";
@@ -50,6 +51,7 @@ public class SegmentRecord extends Record {
     @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
     @Setter @Getter @Column(columnName = SERVICE_ID) @IDColumn private int serviceId;
     @Setter @Getter @Column(columnName = ENDPOINT_NAME) @IDColumn private String endpointName;
+    @Setter @Getter @Column(columnName = ENDPOINT_ID) @IDColumn private int endpointId;
     @Setter @Getter @Column(columnName = START_TIME) @IDColumn private long startTime;
     @Setter @Getter @Column(columnName = END_TIME) @IDColumn private long endTime;
     @Setter @Getter @Column(columnName = LATENCY) @IDColumn private int latency;
