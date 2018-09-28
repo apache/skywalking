@@ -49,11 +49,11 @@ public class IntKeyLongValueArray extends ArrayList<IntKeyLongValue> implements 
     }
 
     @Override public void toObject(String data) {
-        String[] keyValues = data.split(Const.ARRAY_SPLIT);
+        String[] keyValues = data.split(Const.ARRAY_PARSER_SPLIT);
         for (int i = 0; i < keyValues.length; i++) {
             IntKeyLongValue value = new IntKeyLongValue();
             value.toObject(keyValues[i]);
-            this.set(i, value);
+            this.add(value);
         }
     }
 }

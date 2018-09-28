@@ -77,7 +77,13 @@ public class MetricQueryService implements Service {
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTB, endTB);
         List<String> ids = new ArrayList<>();
-        durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+        durationPoints.forEach(durationPoint -> {
+            if (id == null) {
+                ids.add(durationPoint.getPoint() + "");
+            } else {
+                ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id);
+            }
+        });
 
         return getMetricQueryDAO().getThermodynamic(indName, step, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }
