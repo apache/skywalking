@@ -33,6 +33,8 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
     @Override public void dispatch(ServiceInstanceJVMMemory source) {
         doInstanceJvmMemoryHeap(source);
         doInstanceJvmMemoryNoheap(source);
+        doInstanceJvmMemoryHeapMax(source);
+        doInstanceJvmMemoryNoheapMax(source);
     }
 
     private void doInstanceJvmMemoryHeap(ServiceInstanceJVMMemory source) {
@@ -45,11 +47,37 @@ public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<Serv
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setEntityId(source.getEntityId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
-        indicator.combine(source.getMax(), 1);
+        indicator.combine(source.getUsed(), 1);
         IndicatorProcess.INSTANCE.in(indicator);
     }
     private void doInstanceJvmMemoryNoheap(ServiceInstanceJVMMemory source) {
         InstanceJvmMemoryNoheapIndicator indicator = new InstanceJvmMemoryNoheapIndicator();
+
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(false).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getUsed(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmMemoryHeapMax(ServiceInstanceJVMMemory source) {
+        InstanceJvmMemoryHeapMaxIndicator indicator = new InstanceJvmMemoryHeapMaxIndicator();
+
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(true).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getMax(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmMemoryNoheapMax(ServiceInstanceJVMMemory source) {
+        InstanceJvmMemoryNoheapMaxIndicator indicator = new InstanceJvmMemoryNoheapMaxIndicator();
 
         if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(false).match()) {
             return;

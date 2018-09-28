@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_avg", builder = EndpointAvgIndicator.Builder.class)
 public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
@@ -115,7 +115,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("endpoint_Avg", Scope.Endpoint, entityId);
+        return new AlarmMeta("endpoint_avg", Scope.Endpoint, entityId);
     }
 
     @Override

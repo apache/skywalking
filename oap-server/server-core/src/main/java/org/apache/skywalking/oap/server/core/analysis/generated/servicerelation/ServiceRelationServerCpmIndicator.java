@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_relation_server_cpm", builder = ServiceRelationServerCpmIndicator.Builder.class)
 public class ServiceRelationServerCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private java.lang.String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
