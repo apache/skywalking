@@ -174,6 +174,15 @@ transport-client:
 Undertow:
   id: 49
   languages: Java
+RabbitMQ:
+  id: 50
+  languages: Java
+rabbitmq-producer:
+  id: 51
+  languages: Java
+rabbitmq-consumer:
+  id: 52
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -249,6 +258,8 @@ Component-Server-Mappings:
   kafka-consumer: Kafka
   activemq-producer: ActiveMQ
   activemq-consumer: ActiveMQ
+  rabbitmq-producer: RabbitMQ
+  rabbitmq-consumer: RabbitMQ
   postgresql-jdbc-driver: PostgreSQL
   Xmemcached: Memcached
   Spymemcached: Memcached
