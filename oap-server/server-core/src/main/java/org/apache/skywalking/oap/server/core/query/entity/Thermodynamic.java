@@ -26,4 +26,13 @@ import lombok.*;
 public class Thermodynamic {
     private List<List<Long>> nodes = new ArrayList<>();
     private int axisYStep;
+
+    public void setNodeValue(int columnNum, int rowNum, Long value) {
+        List<Long> element = new ArrayList<>(3);
+        element.add((long)columnNum);
+        element.add((long)rowNum);
+        element.add(value);
+        nodes.add(element);
+    }
+
 }
