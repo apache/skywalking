@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.*;
@@ -48,8 +49,7 @@ public class ServiceNameDiscoveryHandler extends ServiceNameDiscoveryServiceGrpc
         for (ServiceNameElement serviceNameElement : serviceNameElementList) {
             int serviceId = serviceNameElement.getApplicationId();
             String endpointName = serviceNameElement.getServiceName();
-            int srcSpanType = serviceNameElement.getSrcSpanTypeValue();
-            int endpointId = inventoryService.getOrCreate(serviceId, endpointName, srcSpanType);
+            int endpointId = inventoryService.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(serviceNameElement.getSrcSpanType()));
 
             if (endpointId != Const.NONE) {
                 ServiceNameMappingElement.Builder mappingElement = ServiceNameMappingElement.newBuilder();
