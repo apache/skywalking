@@ -37,12 +37,12 @@ import java.lang.reflect.Method;
  */
 public class ActiveMQConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
-    public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
-    public static final byte QUEUE_TYPE = 1;
-    public static final byte TOPIC_TYPE = 2;
-    public static final byte TEMP_TOPIC_TYPE = 6;
-    public static final byte TEMP_QUEUE_TYPE = 5;
+    private static final String OPERATE_NAME_PREFIX = "ActiveMQ/";
+    private static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+    private static final byte QUEUE_TYPE = 1;
+    private static final byte TOPIC_TYPE = 2;
+    private static final byte TEMP_TOPIC_TYPE = 6;
+    private static final byte TEMP_QUEUE_TYPE = 5;
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();

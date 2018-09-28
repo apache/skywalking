@@ -36,11 +36,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  * @author withlin
  */
 public class ActiveMQConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerInterceptor";
-    public static final String ENHANCE_CLASS_CONSUMER = "org.apache.activemq.ActiveMQMessageConsumer";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerConstructorInterceptor";
-    public static final String ENHANCE_METHOD_DISPATCH = "dispatch";
-    public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.activemq.ActiveMQSession";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerInterceptor";
+    private static final String ENHANCE_CLASS_CONSUMER = "org.apache.activemq.ActiveMQMessageConsumer";
+    private static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.activemq.ActiveMQConsumerConstructorInterceptor";
+    private static final String ENHANCE_METHOD_DISPATCH = "dispatch";
+    private static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.activemq.ActiveMQSession";
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
