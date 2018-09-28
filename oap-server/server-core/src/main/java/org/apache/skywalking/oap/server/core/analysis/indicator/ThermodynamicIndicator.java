@@ -41,7 +41,7 @@ public abstract class ThermodynamicIndicator extends Indicator {
 
     @Getter @Setter @Column(columnName = STEP) private int step = 0;
     @Getter @Setter @Column(columnName = NUM_OF_STEPS) private int numOfSteps = 0;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup = new IntKeyLongValueArray(30);
+    @Getter @Setter @Column(columnName = DETAIL_GROUP, isValue = true) private IntKeyLongValueArray detailGroup = new IntKeyLongValueArray(30);
 
     private Map<Integer, IntKeyLongValue> detailIndex;
 

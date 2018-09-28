@@ -106,26 +106,57 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 
         Thermodynamic thermodynamic = new Thermodynamic();
+        List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
+
+        int numOfSteps = 0;
         for (MultiGetItemResponse itemResponse : response.getResponses()) {
-            int axisYStep = ((Number)itemResponse.getResponse().getSource().get(ThermodynamicIndicator.STEP)).intValue();
-            thermodynamic.setAxisYStep(axisYStep);
-            int numOfSteps = ((Number)itemResponse.getResponse().getSource().get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue();
+            Map<String, Object> source = itemResponse.getResponse().getSource();
+            if (source == null) {
+                // add empty list to represent no data exist for this time bucket
+                thermodynamicValueMatrix.add(new ArrayList<>());
+            } else {
+                int axisYStep = ((Number)source.get(ThermodynamicIndicator.STEP)).intValue();
+                thermodynamic.setAxisYStep(axisYStep);
+                numOfSteps = ((Number)source.get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue();
 
-            String value = (String)itemResponse.getResponse().getSource().get(ThermodynamicIndicator.DETAIL_GROUP);
-            IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
-            intKeyLongValues.toObject(value);
+                String value = (String)source.get(ThermodynamicIndicator.DETAIL_GROUP);
+                IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                intKeyLongValues.toObject(value);
 
-            List<Long> axisYValues = new ArrayList<>();
-            for (int i = 0; i < numOfSteps; i++) {
-                axisYValues.add(0L);
+                List<Long> axisYValues = new ArrayList<>();
+                for (int i = 0; i < numOfSteps; i++) {
+                    axisYValues.add(0L);
+                }
+
+                for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                    axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
+                }
+
+                thermodynamicValueMatrix.add(axisYValues);
             }
-
-            for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
-                axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
-            }
-
-            thermodynamic.getNodes().add(axisYValues);
         }
+
+        int defaultNumOfSteps = numOfSteps;
+
+        thermodynamicValueMatrix.forEach(columnOfThermodynamic -> {
+                if (columnOfThermodynamic.size() == 0) {
+                    if (defaultNumOfSteps > 0) {
+                        for (int i = 0; i < defaultNumOfSteps; i++) {
+                            columnOfThermodynamic.add(0L);
+                        }
+                    }
+                }
+            }
+        );
+
+        for (int colNum = 0; colNum < thermodynamicValueMatrix.size(); colNum++) {
+            List<Long> column = thermodynamicValueMatrix.get(colNum);
+            for (int rowNum = 0; rowNum < column.size(); rowNum++) {
+                Long value = column.get(rowNum);
+                thermodynamic.setNodeValue(colNum, rowNum, value);
+            }
+        }
+
         return thermodynamic;
     }
 }
