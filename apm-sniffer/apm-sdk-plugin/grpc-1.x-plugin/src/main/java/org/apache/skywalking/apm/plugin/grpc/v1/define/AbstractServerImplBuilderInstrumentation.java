@@ -31,10 +31,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class AbstractServerImplBuilderInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "io.grpc.internal.AbstractServerImplBuilder";
-    public static final String ENHANCE_METHOD = "addService";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor";
-    public static final String ARGUMENT_TYPE = "io.grpc.ServerServiceDefinition";
+    private static final String ENHANCE_CLASS = "io.grpc.internal.AbstractServerImplBuilder";
+    private static final String ENHANCE_METHOD = "addService";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor";
+    private static final String ARGUMENT_TYPE = "io.grpc.ServerServiceDefinition";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

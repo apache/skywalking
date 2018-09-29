@@ -29,9 +29,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 public class CallbackInstrumentation extends AbstractKafkaInstrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.Callback";
-    private static final String ENHANCE_METHOD = "onCompletion";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.CallbackInterceptor";
+    public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.Callback";
+    public static final String ENHANCE_METHOD = "onCompletion";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.CallbackInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

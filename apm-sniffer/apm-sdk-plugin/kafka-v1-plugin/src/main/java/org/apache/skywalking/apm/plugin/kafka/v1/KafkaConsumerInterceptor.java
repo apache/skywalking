@@ -41,8 +41,8 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class KafkaConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String OPERATE_NAME_PREFIX = "Kafka/";
-    private static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+    public static final String OPERATE_NAME_PREFIX = "Kafka/";
+    public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,

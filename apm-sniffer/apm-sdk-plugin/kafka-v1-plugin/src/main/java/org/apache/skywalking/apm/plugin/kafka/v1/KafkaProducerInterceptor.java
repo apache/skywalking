@@ -36,8 +36,8 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public class KafkaProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String OPERATE_NAME_PREFIX = "Kafka/";
-    private static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer";
+    public static final String OPERATE_NAME_PREFIX = "Kafka/";
+    public static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
