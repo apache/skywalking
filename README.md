@@ -32,10 +32,12 @@ The core features are following.
 
 <img src="https://skywalkingtest.github.io/page-resources/6-alpha-overview.png"/>
 
-SkyWalking supports to collect telemetry (traces and metrics) data from different sources, 
-including Java, .NET Core, NodeJS Server side and Istio,
-in order to provide more options
-for different scenarios. 
+SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
+and multiple formats, 
+including 
+Java, .NET Core, NodeJS Server side in SkyWalking format,
+Istio telemetry format
+and Zipkin v1/v2 formats.
 
 
 # Document
