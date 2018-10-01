@@ -20,7 +20,7 @@ Getting Started
 To help you get started, try the following links:
 
 Getting Started
-    https://github.com/apache/incubator-skywalking/blob/master/docs/en/setup/service-agent/java-agent/Quick-start.md
+    https://github.com/apache/incubator-skywalking/blob/master/docs/en/setup/README.md
 
 Building
     https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/How-to-build.md
