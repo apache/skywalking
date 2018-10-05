@@ -100,6 +100,10 @@ public class ComponentsDefine {
 
     public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
 
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(51,"rabbitmq-producer");
+
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(52,"rabbitmq-consumer");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -109,7 +113,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[50];
+        components = new String[54];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -147,6 +151,8 @@ public class ComponentsDefine {
         addComponent(ACTIVEMQ_CONSUMER);
         addComponent(TRANSPORT_CLIENT);
         addComponent(UNDERTOW);
+        addComponent(RABBITMQ_PRODUCER);
+        addComponent(RABBITMQ_CONSUMER);
     }
 
     private void addComponent(OfficialComponent component) {
