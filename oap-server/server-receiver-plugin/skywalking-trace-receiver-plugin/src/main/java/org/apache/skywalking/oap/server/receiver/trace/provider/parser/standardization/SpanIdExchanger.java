@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
@@ -88,7 +89,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
         if (standardBuilder.getOperationNameId() == 0) {
             String endpointName = StringUtils.isNotEmpty(standardBuilder.getOperationName()) ? standardBuilder.getOperationName() : Const.DOMAIN_OPERATION_NAME;
-            int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, standardBuilder.getSpanTypeValue());
+            int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder.getSpanType()));
 
             if (endpointId == 0) {
                 if (logger.isDebugEnabled()) {

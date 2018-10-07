@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 public interface ITraceQueryDAO extends Service {
 
     TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration,
-        long maxDuration, String endpointName, int serviceId, String traceId, int limit, int from,
+        long maxDuration, String endpointName, int serviceId, int endpointId, String traceId, int limit, int from,
         TraceState traceState, QueryOrder queryOrder) throws IOException;
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;

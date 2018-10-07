@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
@@ -48,14 +49,14 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         return cacheService;
     }
 
-    @Override public int getOrCreate(int serviceId, String endpointName, int detectPoint) {
+    @Override public int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint) {
         int endpointId = getCacheService().getEndpointId(serviceId, endpointName);
 
         if (endpointId == Const.NONE) {
             EndpointInventory endpointInventory = new EndpointInventory();
             endpointInventory.setServiceId(serviceId);
             endpointInventory.setName(endpointName);
-            endpointInventory.setDetectPoint(detectPoint);
+            endpointInventory.setDetectPoint(detectPoint.ordinal());
 
             long now = System.currentTimeMillis();
             endpointInventory.setRegisterTime(now);

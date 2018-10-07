@@ -43,7 +43,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration,
-        long maxDuration, String endpointName, int serviceId, String traceId, int limit, int from,
+        long maxDuration, String endpointName, int serviceId, int endpointId, String traceId, int limit, int from,
         TraceState traceState, QueryOrder queryOrder) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -70,6 +70,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         if (serviceId != 0) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
+        }
+        if (endpointId != 0) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.ENDPOINT_ID, endpointId));
         }
         if (StringUtils.isNotEmpty(traceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));

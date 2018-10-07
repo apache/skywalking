@@ -24,9 +24,10 @@ import org.apache.skywalking.oap.server.core.query.entity.*;
 @Getter
 @Setter
 public class TraceQueryCondition {
-    private int serviceId;
+    private String serviceId;
     private String traceId;
     private String endpointName;
+    private String endpointId;
     private Duration queryDuration;
     private int minTraceDuration;
     private int maxTraceDuration;
