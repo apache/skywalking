@@ -1,48 +1,38 @@
 # Query in OAP
-Query is the core feature of OAP for visualization and other higher system. The query matches the metric type.
+Query(s) are provided in GraphQL format. All GraphQL definition files are [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol).
 
-There are two types of query provided.
-1. Hard codes query implementor
-1. Metric style query of implementor
+Here are the explanation of these definitions.
 
-## Hard codes
-Hard codes query implementor, is for complex logic query, such as: topology map, dependency map, which 
-most likely relate to mapping mechanism of the node relationship.
+## Common Objects
+All objects defined in `common.graphqls` are simple common objects, which could be used in any other 
+`*.graphqls` definition files. Such as, **Duration**, **Step**, **Scope**.
 
-Even so, hard codes implementors are based on metric style query too, just need extra codes to assemble the 
-results.
+## Metadata
+Through Metadata query(s) which defined in `metadata.graphqls`, you could have the meta info of Service, Service Instance and Endpoint, 
+including name, id, relationship. 
 
-## Metric style query
-Metric style query is based on the given scope and metric name in oal scripts.
+## Metric
+Metric query(s) in `metric.graphqls` could be used to fetch data from any variable defined in **OAL** scripts. 
+You could read value or linear trend of the metric variable by the given duration and id.
 
-Metric style query provided in two ways
-- GraphQL way. UI uses this directly, and assembles the pages.
-- API way. Most for `Hard codes query implementor` to do extra works.
+Also, Thermodynamic heatmap is very different with other single value metric, so it is a special
+query op. **Thermodynamic** object, a data matrix, will be returned to represent.
 
-### Grammar
-```
-Metric.Scope(SCOPE).Func(METRIC_NAME [, PARAM ...])
-```
+## Aggregation Query
+Aggregation query(s) in `aggregation.graphs` right now, are most TopN related query(s). You could 
+get **TopN** service, service instance and endpoint in different ways.
 
-### Scope
-**SCOPE** in (`All`, `Service`, `ServiceInst`, `Endpoint`, `ServiceRelation`, `ServiceInstRelation`, `EndpointRelation`).
+## Topology Query
+Topology query(s) in `topology.graphqls` provide the consistency query no matter what sources do you 
+get the topology relation. Also, all entity IDs included in topology will be returned too, for your 
+convenience to do metric query(s).
 
-### Metric name
-Metric name is defined in oal script. Such as **EndpointCalls** is the name defined by `EndpointCalls = from(Endpoint.*).sum()`.
+## Trace
+At beginning and some scenarios, SkyWalking will be considered as a distributed tracing system. So
+of course we will provide trace query. In `trace.graphql` you will find the format, it is nearly the 
+same format of our trace report/uplink protocol, just in GraphQL version. 
 
-### Metric Query Function
-Metric Query Functions match the Aggregation Function in most cases, but include some order or filter features.
-Try to keep the name as same as the aggregation functions.
-
-Provided functions
-- `top`
-- `trend`
-- `histogram`
-- `sum`
-
-### Example
-For `avg` aggregate func, `top` match it, also with parameter[1] of result size and parameter[2] of order
-```
-# for Service_avg = from(Service.latency).avg()
-Metric.Scope("Service").topn("Service_avg", 10, "desc")
-```
+## Alarm
+Alarm query(s) in `alarm.graphql` could be get triggered alarms. Although we believe alarm webhook
+in alarm settings(see [alarm setting doc](../setup/backend/backend-alarm.md)) will be more useful
+and powerful, still we provide query for SkyWalking UI or simple use scenarios.
