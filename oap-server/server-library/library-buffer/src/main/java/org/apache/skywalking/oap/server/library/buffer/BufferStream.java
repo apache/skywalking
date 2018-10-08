@@ -68,7 +68,7 @@ public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
     }
 
     private void tryLock(File directory) {
-        logger.info("Try to lock buffer directory, directory is: " + absolutePath);
+        logger.info("Try to lock buffer directory, directory is: " + directory.getAbsolutePath());
         FileLock lock = null;
 
         try {
@@ -78,10 +78,10 @@ public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
         }
 
         if (lock == null) {
-            throw new RuntimeException("The buffer directory is reading or writing by another thread, directory is: " + absolutePath);
+            throw new RuntimeException("The buffer directory is reading or writing by another thread, directory is: " + directory.getAbsolutePath());
         }
 
-        logger.info("Lock buffer directory successfully, directory is: " + absolutePath);
+        logger.info("Lock buffer directory successfully, directory is: " + directory.getAbsolutePath());
     }
 
     public static class Builder<MESSAGE_TYPE extends GeneratedMessageV3> {
