@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.client.jdbc;
 
-import org.apache.skywalking.oap.server.library.client.ClientException;
+import java.io.IOException;
 
 /**
  * @author wusheng
  */
-public class JDBCClientException extends ClientException {
+public class JDBCClientException extends IOException {
 
     public JDBCClientException(String message) {
         super(message);

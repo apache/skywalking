@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
@@ -79,7 +80,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
         List<Integer> serviceIds) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceRelationServerSideIndicator.TIME_BUCKET).lte(startTB).gte(endTB));
+        boolQuery.must().add(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(startTB).gte(endTB));
 
         BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(serviceIdBoolQuery);

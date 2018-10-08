@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.client.jdbc.hikaricp;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,7 +76,7 @@ public class JDBCHikariCPClient implements Client {
         }
     }
 
-    public ResultSet executeQuery(String sql, Object[] params) throws JDBCClientException {
+    public ResultSet executeQuery(String sql, Object... params) throws JDBCClientException {
         logger.debug("execute query with result: {}", sql);
         ResultSet rs;
         try (Connection conn = getConnection()) {
