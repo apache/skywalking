@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.service;
+package org.apache.skywalking.oap.server.core.analysis.generated.endpoint;
 
 import java.util.*;
 import lombok.*;
@@ -38,10 +38,12 @@ import org.apache.skywalking.oap.server.core.source.Scope;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_p90", builder = ServiceP90Indicator.Builder.class)
-public class ServiceP90Indicator extends P90Indicator implements AlarmSupported {
+@StorageEntity(name = "endpoint_cpm", builder = EndpointCpmIndicator.Builder.class)
+public class EndpointCpmIndicator extends CPMIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
+    @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -71,7 +73,7 @@ public class ServiceP90Indicator extends P90Indicator implements AlarmSupported 
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceP90Indicator indicator = (ServiceP90Indicator)obj;
+        EndpointCpmIndicator indicator = (EndpointCpmIndicator)obj;
         if (entityId != indicator.entityId)
             return false;
 
@@ -85,12 +87,13 @@ public class ServiceP90Indicator extends P90Indicator implements AlarmSupported 
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataStrings(0, getEntityId());
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.setDataLongs(0, getValue());
+        remoteBuilder.setDataLongs(1, getTotal());
+        remoteBuilder.setDataLongs(2, getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getValue());
-        remoteBuilder.setDataIntegers(1, getPrecision());
-        getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
+        remoteBuilder.setDataIntegers(0, getServiceId());
+        remoteBuilder.setDataIntegers(1, getServiceInstanceId());
 
         return remoteBuilder;
     }
@@ -98,77 +101,80 @@ public class ServiceP90Indicator extends P90Indicator implements AlarmSupported 
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
 
-        setTimeBucket(remoteData.getDataLongs(0));
+        setValue(remoteData.getDataLongs(0));
+        setTotal(remoteData.getDataLongs(1));
+        setTimeBucket(remoteData.getDataLongs(2));
 
 
-        setValue(remoteData.getDataIntegers(0));
-        setPrecision(remoteData.getDataIntegers(1));
+        setServiceId(remoteData.getDataIntegers(0));
+        setServiceInstanceId(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new IntKeyLongValueArray(30));
-        remoteData.getDataIntLongPairListList().forEach(element -> {
-            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
-        });
 
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("service_p90", Scope.Service, entityId);
+        return new AlarmMeta("endpoint_cpm", Scope.Endpoint, entityId);
     }
 
     @Override
     public Indicator toHour() {
-        ServiceP90Indicator indicator = new ServiceP90Indicator();
+        EndpointCpmIndicator indicator = new EndpointCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
-        ServiceP90Indicator indicator = new ServiceP90Indicator();
+        EndpointCpmIndicator indicator = new EndpointCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
-        ServiceP90Indicator indicator = new ServiceP90Indicator();
+        EndpointCpmIndicator indicator = new EndpointCpmIndicator();
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
+        indicator.setServiceId(this.getServiceId());
+        indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
+        indicator.setTotal(this.getTotal());
         indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
-    public static class Builder implements StorageBuilder<ServiceP90Indicator> {
+    public static class Builder implements StorageBuilder<EndpointCpmIndicator> {
 
-        @Override public Map<String, Object> data2Map(ServiceP90Indicator storageData) {
+        @Override public Map<String, Object> data2Map(EndpointCpmIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
+            map.put("service_id", storageData.getServiceId());
+            map.put("service_instance_id", storageData.getServiceInstanceId());
             map.put("value", storageData.getValue());
-            map.put("precision", storageData.getPrecision());
-            map.put("detail_group", storageData.getDetailGroup());
+            map.put("total", storageData.getTotal());
             map.put("time_bucket", storageData.getTimeBucket());
             return map;
         }
 
-        @Override public ServiceP90Indicator map2Data(Map<String, Object> dbMap) {
-            ServiceP90Indicator indicator = new ServiceP90Indicator();
+        @Override public EndpointCpmIndicator map2Data(Map<String, Object> dbMap) {
+            EndpointCpmIndicator indicator = new EndpointCpmIndicator();
             indicator.setEntityId((String)dbMap.get("entity_id"));
-            indicator.setValue(((Number)dbMap.get("value")).intValue());
-            indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray((String)dbMap.get("detail_group")));
+            indicator.setServiceId(((Number)dbMap.get("service_id")).intValue());
+            indicator.setServiceInstanceId(((Number)dbMap.get("service_instance_id")).intValue());
+            indicator.setValue(((Number)dbMap.get("value")).longValue());
+            indicator.setTotal(((Number)dbMap.get("total")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

@@ -33,6 +33,7 @@ public class SegmentDispatcher implements SourceDispatcher<Segment> {
         segment.setTraceId(source.getTraceId());
         segment.setServiceId(source.getServiceId());
         segment.setEndpointName(source.getEndpointName());
+        segment.setEndpointId(source.getEndpointId());
         segment.setStartTime(source.getStartTime());
         segment.setEndTime(source.getEndTime());
         segment.setLatency(source.getLatency());

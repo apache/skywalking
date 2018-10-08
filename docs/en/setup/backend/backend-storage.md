@@ -6,7 +6,7 @@ use is by changing the `application.yml`
 - [**ElasticSearch 6**](#elasticsearch-6)
 
 ## H2
-Active ElasticSearch 6 as storage, set storage provider to **H2**. Default in distribution package.
+Active H2 as storage, set storage provider to **H2**. Default in distribution package.
 
 Setting fragment example
 ```yaml

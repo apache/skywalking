@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlarmTrend {
-    private List<Integer> numOfAlarm;
+    private List<Integer> numOfAlarm = new ArrayList<>();
 }

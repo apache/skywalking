@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_p75", builder = EndpointP75Indicator.Builder.class)
 public class EndpointP75Indicator extends P75Indicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 

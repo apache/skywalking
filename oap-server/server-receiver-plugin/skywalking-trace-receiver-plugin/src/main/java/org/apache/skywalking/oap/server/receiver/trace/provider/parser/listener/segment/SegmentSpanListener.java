@@ -89,8 +89,10 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         }
 
         if (entryEndpointId == 0) {
+            segment.setEndpointId(firstEndpointId);
             segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
         } else {
+            segment.setEndpointId(entryEndpointId);
             segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());
         }
 

@@ -7,8 +7,10 @@ There are two parts in alarm rule definition.
 ## Rules
 Alarm rule is constituted by following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
-- **Indicator name**。A.K.A. metric name in oal script. Only long, double, int types are supported. See
-[List of all potential indicator](#list-of-all-potential-indicator-name).
+- **Indicator name**. A.K.A. metric name in oal script. Only long, double, int types are supported. See
+[List of all potential metric name](#list-of-all-potential-metric-name).
+- **Include names**. The following entity names are included in this rule. Such as Service name,
+endpoint name.
 - **Threshold**. The target value.
 - **OP**. Operator, support `>`, `<`, `=`. Welcome to contribute all OPs.
 - **Period**. How long should the alarm rule should be checked. This is a time window, which goes with the
@@ -34,7 +36,22 @@ rules:
     count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
+    
+  service_percent_rule:
+    indicator-name: service_percent
+    # [Optional] Default, match all services in this indicator
+    include-names:
+      - service_a
+      - service_b
+    threshold: 85
+    op: <
+    period: 10
+    count: 4
 ```
 
 
-## List of all potential indicator name
+## List of all potential metric name
+The metric names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
+only metric from **Service** scope could be used in Alarm, we will extend in further versions. 
+
+Submit issue or pull request if you want to support any other scope in alarm.
