@@ -23,4 +23,17 @@ import lombok.Getter;
 
 public class IntValues {
     @Getter private List<KVInt> values = new LinkedList<>();
+
+    public void addKVInt(KVInt e){
+        values.add(e);
+    }
+
+    public int findValue(String id, int defaultValue){
+        for (KVInt value : values) {
+            if(value.getId().equals(id)){
+                return value.getValue();
+            }
+        }
+        return defaultValue;
+    }
 }

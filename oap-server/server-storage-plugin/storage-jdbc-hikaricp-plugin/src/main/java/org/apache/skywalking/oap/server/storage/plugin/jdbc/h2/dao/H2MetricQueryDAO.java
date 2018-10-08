@@ -19,11 +19,20 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValue;
+import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.indicator.ThermodynamicIndicator;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
+import org.apache.skywalking.oap.server.core.query.entity.KVInt;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
@@ -44,16 +53,150 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
         Function function) throws IOException {
         String tableName = TimePyramidTableNameBuilder.build(step, indName);
 
-        return null;
+        List<KeyValues> whereKeyValues = where.getKeyValues();
+        String op;
+        switch (function) {
+            case Avg:
+                op = "avg";
+                break;
+            default:
+                op = "sum";
+        }
+        List<String> ids = new ArrayList<>(whereKeyValues.size());
+        StringBuilder whereSql = new StringBuilder();
+        if (whereKeyValues.size() > 0) {
+            whereSql.append("(");
+            for (int i = 0; i < whereKeyValues.size(); i++) {
+                if (i != 0) {
+                    whereSql.append(" or ");
+                }
+                KeyValues keyValues = whereKeyValues.get(i);
+                ids.add(keyValues.getKey());
+                StringBuilder valueCollection = new StringBuilder();
+                for (int valueIdx = 0; valueIdx < keyValues.getValues().size(); valueIdx++) {
+                    if (valueIdx != 0) {
+                        valueCollection.append(",");
+                    }
+                    valueCollection.append("\"").append(keyValues.getValues().get(valueIdx)).append("\"");
+                }
+                whereSql.append(keyValues.getKey()).append("in (" + valueCollection + ")");
+            }
+            whereSql.append(")");
+        }
+
+        ResultSet resultSet = h2Client.executeQuery("select " + Indicator.ENTITY_ID + " id, " + op + "(" + valueCName + ") value from " + tableName
+                + " where " + whereSql
+                + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=?"
+                + " group by " + Indicator.ENTITY_ID,
+            startTB, endTB);
+
+        IntValues intValues = new IntValues();
+        try {
+            while (resultSet.next()) {
+                KVInt kv = new KVInt();
+                kv.setId(resultSet.getString("id"));
+                kv.setValue(resultSet.getInt("value"));
+                intValues.getValues().add(kv);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return orderWithDefault0(intValues, ids);
     }
 
     @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        return null;
+        String tableName = TimePyramidTableNameBuilder.build(step, indName);
+
+        StringBuilder idValues = new StringBuilder();
+        for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
+            if (valueIdx != 0) {
+                idValues.append(",");
+            }
+            idValues.append("\"").append(ids.get(valueIdx)).append("\"");
+        }
+
+        IntValues intValues = new IntValues();
+        ResultSet resultSet = h2Client.executeQuery("select id, " + valueCName + " from " + tableName + " where id in " + idValues.toString());
+        try {
+            while (resultSet.next()) {
+                KVInt kv = new KVInt();
+                kv.setId(resultSet.getString("id"));
+                kv.setValue(resultSet.getInt(valueCName));
+                intValues.getValues().add(kv);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return orderWithDefault0(intValues, ids);
+    }
+
+    /**
+     * Make sure the order is same as the expected order, and keep default value as 0.
+     *
+     * @param origin
+     * @param expectedOrder
+     * @return
+     */
+    private IntValues orderWithDefault0(IntValues origin, List<String> expectedOrder) {
+        IntValues intValues = new IntValues();
+
+        expectedOrder.forEach(id -> {
+            KVInt e = new KVInt();
+            e.setId(id);
+            e.setValue(origin.findValue(id, 0));
+        });
+
+        return intValues;
     }
 
     @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        return null;
+        String tableName = TimePyramidTableNameBuilder.build(step, indName);
+
+        StringBuilder idValues = new StringBuilder();
+        for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
+            if (valueIdx != 0) {
+                idValues.append(",");
+            }
+            idValues.append("\"").append(ids.get(valueIdx)).append("\"");
+        }
+
+        List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
+
+        ResultSet resultSet = h2Client.executeQuery("select " + ThermodynamicIndicator.STEP + " step, "
+            + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps， "
+            + ThermodynamicIndicator.DETAIL_GROUP + " detail_group "
+            + " from " + tableName + " where id in " + idValues.toString());
+
+        Thermodynamic thermodynamic = new Thermodynamic();
+        try {
+            int numOfSteps = 0;
+            while (resultSet.next()) {
+                int axisYStep = resultSet.getInt("step");
+                numOfSteps = resultSet.getInt("num_of_steps");
+                String value = resultSet.getString("detail_group");
+                IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                intKeyLongValues.toObject(value);
+
+                List<Long> axisYValues = new ArrayList<>();
+                for (int i = 0; i < numOfSteps; i++) {
+                    axisYValues.add(0L);
+                }
+
+                for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                    axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
+                }
+
+                thermodynamicValueMatrix.add(axisYValues);
+            }
+
+            thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);
+
+            return thermodynamic;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
+
 }

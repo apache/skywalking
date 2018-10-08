@@ -136,26 +136,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
             }
         }
 
-        int defaultNumOfSteps = numOfSteps;
-
-        thermodynamicValueMatrix.forEach(columnOfThermodynamic -> {
-                if (columnOfThermodynamic.size() == 0) {
-                    if (defaultNumOfSteps > 0) {
-                        for (int i = 0; i < defaultNumOfSteps; i++) {
-                            columnOfThermodynamic.add(0L);
-                        }
-                    }
-                }
-            }
-        );
-
-        for (int colNum = 0; colNum < thermodynamicValueMatrix.size(); colNum++) {
-            List<Long> column = thermodynamicValueMatrix.get(colNum);
-            for (int rowNum = 0; rowNum < column.size(); rowNum++) {
-                Long value = column.get(rowNum);
-                thermodynamic.setNodeValue(colNum, rowNum, value);
-            }
-        }
+        thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);
 
         return thermodynamic;
     }

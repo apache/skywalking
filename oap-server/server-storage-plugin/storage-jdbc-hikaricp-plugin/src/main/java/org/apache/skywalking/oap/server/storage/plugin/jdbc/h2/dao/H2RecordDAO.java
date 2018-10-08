@@ -18,35 +18,30 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.IIndicatorDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 /**
  * @author wusheng
  */
-public class H2StorageDAO implements StorageDAO {
+public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO<SQLExecutor> {
     private JDBCHikariCPClient h2Client;
+    private StorageBuilder<Record> storageBuilder;
 
-    public H2StorageDAO(JDBCHikariCPClient h2Client) {
+    public H2RecordDAO(JDBCHikariCPClient h2Client, StorageBuilder<Record> storageBuilder) {
         this.h2Client = h2Client;
+        this.storageBuilder = storageBuilder;
     }
 
-    @Override public IIndicatorDAO newIndicatorDao(StorageBuilder<Indicator> storageBuilder) {
-        return new H2IndicatorDAO(h2Client, storageBuilder);
+    @Override public SQLExecutor prepareBatchInsert(String modelName, Record record) throws IOException {
+        return getInsertExecutor(modelName, record, storageBuilder);
     }
 
-    @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return new H2RegisterDAO(h2Client, storageBuilder);
-    }
+    @Override public void deleteHistory(String modelName, Long timeBucketBefore) {
 
-    @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new H2RecordDAO(h2Client, storageBuilder);
     }
 }
