@@ -35,13 +35,11 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
 
-    private final BufferStream<UpstreamSegment> stream;
+    private final DataCarrier<SegmentStandardization> dataCarrier;
 
     public SegmentStandardizationWorker(SegmentParse segmentParse, String path,
         int offsetFileMaxSize, int dataFileMaxSize, boolean cleanWhenRestart) throws IOException {
         super(Integer.MAX_VALUE);
-        DataCarrier<SegmentStandardization> dataCarrier = new DataCarrier<>(1, 1024);
-        dataCarrier.consume(new Consumer(this), 1);
 
         BufferStream.Builder<UpstreamSegment> builder = new BufferStream.Builder<>(path);
         builder.cleanWhenRestart(cleanWhenRestart);
@@ -50,21 +48,24 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
         builder.parser(UpstreamSegment.parser());
         builder.callBack(segmentParse);
 
-        stream = builder.build();
+        BufferStream<UpstreamSegment> stream = builder.build();
         stream.initialize();
+
+        dataCarrier = new DataCarrier<>(1, 1024);
+        dataCarrier.consume(new Consumer(stream), 1);
     }
 
     @Override
     public void in(SegmentStandardization standardization) {
-        stream.write(standardization.getUpstreamSegment());
+        dataCarrier.produce(standardization);
     }
 
     private class Consumer implements IConsumer<SegmentStandardization> {
 
-        private final SegmentStandardizationWorker aggregator;
+        private final BufferStream<UpstreamSegment> stream;
 
-        private Consumer(SegmentStandardizationWorker aggregator) {
-            this.aggregator = aggregator;
+        private Consumer(BufferStream<UpstreamSegment> stream) {
+            this.stream = stream;
         }
 
         @Override
@@ -73,16 +74,8 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
 
         @Override
         public void consume(List<SegmentStandardization> data) {
-            Iterator<SegmentStandardization> inputIterator = data.iterator();
-
-            int i = 0;
-            while (inputIterator.hasNext()) {
-                SegmentStandardization indicator = inputIterator.next();
-                i++;
-                if (i == data.size()) {
-                    indicator.getEndOfBatchContext().setEndOfBatch(true);
-                }
-                aggregator.in(indicator);
+            for (SegmentStandardization aData : data) {
+                stream.write(aData.getUpstreamSegment());
             }
         }
 
