@@ -38,7 +38,7 @@ public abstract class PxxIndicator extends Indicator implements IntValueHolder {
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
-    @Getter @Setter @Column(columnName = VALUE) private int value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true) private int value;
     @Getter @Setter @Column(columnName = PRECISION) private int precision;
     @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup;
 
