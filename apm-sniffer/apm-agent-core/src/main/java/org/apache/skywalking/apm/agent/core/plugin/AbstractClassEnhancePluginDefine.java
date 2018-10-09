@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
+import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -38,22 +39,22 @@ public abstract class AbstractClassEnhancePluginDefine {
     /**
      * Main entrance of enhancing the class.
      *
-     * @param transformClassName target class.
+     * @param typeDescription The description of the type currently being instrumented.
      * @param builder byte-buddy's builder to manipulate target class's bytecode.
      * @param classLoader load the given transformClass
      * @return the new builder, or <code>null</code> if not be enhanced.
      * @throws PluginException when set builder failure.
      */
-    public DynamicType.Builder<?> define(String transformClassName,
-        DynamicType.Builder<?> builder, ClassLoader classLoader, EnhanceContext context) throws PluginException {
+    public DynamicType.Builder<?> define(TypeDescription typeDescription,
+                                         DynamicType.Builder<?> builder, ClassLoader classLoader, EnhanceContext context) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
 
-        if (StringUtil.isEmpty(transformClassName)) {
+        if (StringUtil.isEmpty(typeDescription.getTypeName())) {
             logger.warn("classname of being intercepted is not defined by {}.", interceptorDefineClassName);
             return null;
         }
 
-        logger.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
+        logger.debug("prepare to enhance class {} by {}.", typeDescription.getTypeName(), interceptorDefineClassName);
 
         /**
          * find witness classes for enhance class
@@ -62,7 +63,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
                 if (!WitnessClassFinder.INSTANCE.exist(witnessClass, classLoader)) {
-                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName,
+                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", typeDescription.getTypeName(), interceptorDefineClassName,
                         witnessClass);
                     return null;
                 }
@@ -72,15 +73,15 @@ public abstract class AbstractClassEnhancePluginDefine {
         /**
          * find origin class source code for interceptor
          */
-        DynamicType.Builder<?> newClassBuilder = this.enhance(transformClassName, builder, classLoader, context);
+        DynamicType.Builder<?> newClassBuilder = this.enhance(typeDescription, builder, classLoader, context);
 
         context.initializationStageCompleted();
-        logger.debug("enhance class {} by {} completely.", transformClassName, interceptorDefineClassName);
+        logger.debug("enhance class {} by {} completely.", typeDescription.getTypeName(), interceptorDefineClassName);
 
         return newClassBuilder;
     }
 
-    protected abstract DynamicType.Builder<?> enhance(String enhanceOriginClassName,
+    protected abstract DynamicType.Builder<?> enhance(TypeDescription typeDefinition,
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader, EnhanceContext context) throws PluginException;
 
     /**

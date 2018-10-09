@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -39,6 +40,7 @@ import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
 import static net.bytebuddy.jar.asm.Opcodes.ACC_VOLATILE;
 import static net.bytebuddy.matcher.ElementMatchers.isStatic;
 import static net.bytebuddy.matcher.ElementMatchers.not;
+import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 
 /**
  * This class controls all enhance operations, including enhance constructors, instance methods and static methods. All
@@ -61,17 +63,17 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * Begin to define how to enhance class.
      * After invoke this method, only means definition is finished.
      *
-     * @param enhanceOriginClassName target class name
+     * @param typeDescription The description of the type currently being instrumented.
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
     @Override
-    protected DynamicType.Builder<?> enhance(String enhanceOriginClassName,
+    protected DynamicType.Builder<?> enhance(TypeDescription typeDescription,
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
         EnhanceContext context) throws PluginException {
-        newClassBuilder = this.enhanceClass(enhanceOriginClassName, newClassBuilder, classLoader);
+        newClassBuilder = this.enhanceClass(typeDescription.getTypeName(), newClassBuilder, classLoader);
 
-        newClassBuilder = this.enhanceInstance(enhanceOriginClassName, newClassBuilder, classLoader, context);
+        newClassBuilder = this.enhanceInstance(typeDescription, newClassBuilder, classLoader, context);
 
         return newClassBuilder;
     }
@@ -79,11 +81,11 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     /**
      * Enhance a class to intercept constructors and class instance methods.
      *
-     * @param enhanceOriginClassName target class name
+     * @param typeDescription The description of the type currently being instrumented.
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    private DynamicType.Builder<?> enhanceInstance(String enhanceOriginClassName,
+    private DynamicType.Builder<?> enhanceInstance(TypeDescription typeDescription,
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
         EnhanceContext context) throws PluginException {
         ConstructorInterceptPoint[] constructorInterceptPoints = getConstructorsInterceptPoints();
@@ -142,26 +144,22 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             for (InstanceMethodsInterceptPoint instanceMethodsInterceptPoint : instanceMethodsInterceptPoints) {
                 String interceptor = instanceMethodsInterceptPoint.getMethodsInterceptor();
                 if (StringUtil.isEmpty(interceptor)) {
-                    throw new EnhanceException("no InstanceMethodsAroundInterceptor define to enhance class " + enhanceOriginClassName);
+                    throw new EnhanceException("no InstanceMethodsAroundInterceptor define to enhance class " + typeDescription.getTypeName());
                 }
 
                 if (instanceMethodsInterceptPoint.isOverrideArgs()) {
                     newClassBuilder =
-                        newClassBuilder.method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher()))
-                            .intercept(
-                                MethodDelegation.withDefaultConfiguration()
-                                    .withBinders(
-                                        Morph.Binder.install(OverrideCallable.class)
-                                    )
-                                    .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader))
-                            );
+                        newClassBuilder.method(isDeclaredBy(typeDescription)
+                                .and(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher())))
+                                .intercept(MethodDelegation.withDefaultConfiguration()
+                                    .withBinders(Morph.Binder.install(OverrideCallable.class))
+                                    .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader)));
                 } else {
                     newClassBuilder =
-                        newClassBuilder.method(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher()))
-                            .intercept(
-                                MethodDelegation.withDefaultConfiguration()
-                                    .to(new InstMethodsInter(interceptor, classLoader))
-                            );
+                        newClassBuilder.method(isDeclaredBy(typeDescription)
+                                .and(not(isStatic()).and(instanceMethodsInterceptPoint.getMethodsMatcher())))
+                                .intercept(MethodDelegation.withDefaultConfiguration()
+                                  .to(new InstMethodsInter(interceptor, classLoader)));
                 }
             }
         }
