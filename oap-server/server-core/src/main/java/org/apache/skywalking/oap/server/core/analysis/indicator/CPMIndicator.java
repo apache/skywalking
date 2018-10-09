@@ -34,7 +34,7 @@ public abstract class CPMIndicator extends Indicator implements LongValueHolder 
     protected static final String VALUE = "value";
     protected static final String TOTAL = "total";
 
-    @Getter @Setter @Column(columnName = VALUE) private long value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true) private long value;
     @Getter @Setter @Column(columnName = TOTAL) private long total;
 
     @Entrance
