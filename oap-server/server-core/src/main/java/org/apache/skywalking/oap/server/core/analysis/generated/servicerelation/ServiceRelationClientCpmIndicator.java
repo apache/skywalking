@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_relation_client_cpm", builder = ServiceRelationClientCpmIndicator.Builder.class)
 public class ServiceRelationClientCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -147,7 +147,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
 
         @Override public Map<String, Object> data2Map(ServiceRelationClientCpmIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("source_service_id", storageData.getEntityId());
+            map.put("entity_id", storageData.getEntityId());
             map.put("value", storageData.getValue());
             map.put("total", storageData.getTotal());
             map.put("time_bucket", storageData.getTimeBucket());
@@ -156,7 +156,7 @@ public class ServiceRelationClientCpmIndicator extends CPMIndicator implements A
 
         @Override public ServiceRelationClientCpmIndicator map2Data(Map<String, Object> dbMap) {
             ServiceRelationClientCpmIndicator indicator = new ServiceRelationClientCpmIndicator();
-            indicator.setEntityId((String)dbMap.get("source_service_id"));
+            indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setValue(((Number)dbMap.get("value")).longValue());
             indicator.setTotal(((Number)dbMap.get("total")).longValue());
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());

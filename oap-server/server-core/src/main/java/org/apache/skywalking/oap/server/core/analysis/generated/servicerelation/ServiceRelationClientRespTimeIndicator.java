@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_relation_client_resp_time", builder = ServiceRelationClientRespTimeIndicator.Builder.class)
 public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -152,7 +152,7 @@ public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator imp
 
         @Override public Map<String, Object> data2Map(ServiceRelationClientRespTimeIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("source_service_id", storageData.getEntityId());
+            map.put("entity_id", storageData.getEntityId());
             map.put("summation", storageData.getSummation());
             map.put("count", storageData.getCount());
             map.put("value", storageData.getValue());
@@ -162,7 +162,7 @@ public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator imp
 
         @Override public ServiceRelationClientRespTimeIndicator map2Data(Map<String, Object> dbMap) {
             ServiceRelationClientRespTimeIndicator indicator = new ServiceRelationClientRespTimeIndicator();
-            indicator.setEntityId((String)dbMap.get("source_service_id"));
+            indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setSummation(((Number)dbMap.get("summation")).longValue());
             indicator.setCount(((Number)dbMap.get("count")).intValue());
             indicator.setValue(((Number)dbMap.get("value")).longValue());
