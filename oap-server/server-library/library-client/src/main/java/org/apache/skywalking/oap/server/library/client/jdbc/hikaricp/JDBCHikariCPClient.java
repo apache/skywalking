@@ -26,6 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.ClientException;
@@ -74,6 +75,10 @@ public class JDBCHikariCPClient implements Client {
         } catch (SQLException e) {
             throw new JDBCClientException(e.getMessage(), e);
         }
+    }
+
+    public ResultSet executeQuery(String sql, List<Object> params) throws JDBCClientException {
+        return executeQuery(sql, params.toArray(new Object[0]));
     }
 
     public ResultSet executeQuery(String sql, Object... params) throws JDBCClientException {
