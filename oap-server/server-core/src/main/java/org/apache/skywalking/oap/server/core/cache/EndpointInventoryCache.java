@@ -37,15 +37,21 @@ public class EndpointInventoryCache implements Service {
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCache.class);
 
     private final ModuleManager moduleManager;
+    private final EndpointInventory userEndpoint;
+    private final Cache<String, Integer> endpointNameCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
+
+    private final Cache<Integer, EndpointInventory> endpointIdCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
+
     private IEndpointInventoryCacheDAO cacheDAO;
 
     public EndpointInventoryCache(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+
+        this.userEndpoint = new EndpointInventory();
+        this.userEndpoint.setSequence(Const.USER_ENDPOINT_ID);
+        this.userEndpoint.setName(Const.USER_CODE);
+        this.userEndpoint.setServiceId(Const.USER_SERVICE_ID);
     }
-
-    private final Cache<String, Integer> endpointNameCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
-
-    private final Cache<Integer, EndpointInventory> endpointIdCache = CacheBuilder.newBuilder().initialCapacity(5000).maximumSize(100000).build();
 
     private IEndpointInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
@@ -69,6 +75,10 @@ public class EndpointInventoryCache implements Service {
     }
 
     public EndpointInventory get(int endpointId) {
+        if (Const.USER_ENDPOINT_ID == endpointId) {
+            return userEndpoint;
+        }
+
         EndpointInventory endpointInventory = endpointIdCache.getIfPresent(endpointId);
 
         if (isNull(endpointInventory)) {

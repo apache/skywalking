@@ -40,8 +40,8 @@ class ConsumerMock {
     private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId, boolean isPrepare) {
         TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
-        segment.setApplicationId(1);
-        segment.setApplicationInstanceId(1);
+        segment.setApplicationId(2);
+        segment.setApplicationInstanceId(2);
         segment.addSpans(createEntrySpan(startTimestamp, isPrepare));
         segment.addSpans(createLocalSpan(startTimestamp, isPrepare));
         segment.addSpans(createMqEntrySpan(startTimestamp, isPrepare));
@@ -64,7 +64,7 @@ class ConsumerMock {
         if (isPrepare) {
             span.setOperationName("/dubbox-case/case/dubbox-rest");
         } else {
-            span.setOperationNameId(1);
+            span.setOperationNameId(2);
         }
         span.setIsError(false);
         return span;
@@ -80,7 +80,7 @@ class ConsumerMock {
         if (isPrepare) {
             span.setOperationName("org.apache.skywalking.Local.do");
         } else {
-            span.setOperationNameId(2);
+            span.setOperationNameId(3);
         }
         span.setIsError(false);
         return span;
@@ -98,7 +98,7 @@ class ConsumerMock {
         if (isPrepare) {
             span.setOperationName("org.apache.skywalking.RocketMQ");
         } else {
-            span.setOperationNameId(3);
+            span.setOperationNameId(4);
         }
         span.setIsError(false);
         return span;
@@ -117,8 +117,8 @@ class ConsumerMock {
             span.setPeer("172.25.0.4:20880");
             span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
         } else {
-            span.setOperationNameId(4);
-            span.setPeerId(2);
+            span.setOperationNameId(5);
+            span.setPeerId(3);
         }
         span.setIsError(false);
         return span;
@@ -136,7 +136,7 @@ class ConsumerMock {
         if (isPrepare) {
             span.setOperationName("org.apache.skywalking.RocketMQ");
         } else {
-            span.setOperationNameId(3);
+            span.setOperationNameId(4);
         }
         span.setIsError(false);
         return span;
@@ -155,8 +155,8 @@ class ConsumerMock {
             span.setPeer("172.25.0.4:20880");
             span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
         } else {
-            span.setOperationNameId(4);
-            span.setPeerId(2);
+            span.setOperationNameId(5);
+            span.setPeerId(3);
         }
         span.setIsError(false);
         return span;

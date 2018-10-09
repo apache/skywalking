@@ -38,7 +38,7 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
     private final Map<RegisterSource, RegisterSource> sources;
     private int messageNum;
 
-    public RegisterDistinctWorker(int workerId, AbstractWorker<RegisterSource> nextWorker) {
+    RegisterDistinctWorker(int workerId, AbstractWorker<RegisterSource> nextWorker) {
         super(workerId);
         this.nextWorker = nextWorker;
         this.sources = new HashMap<>();

@@ -90,7 +90,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 sourceBuilder.sort(SegmentRecord.START_TIME, SortOrder.DESC);
                 break;
             case BY_DURATION:
-                sourceBuilder.sort(SegmentRecord.START_TIME, SortOrder.DESC);
+                sourceBuilder.sort(SegmentRecord.LATENCY, SortOrder.DESC);
                 break;
         }
         sourceBuilder.size(limit);

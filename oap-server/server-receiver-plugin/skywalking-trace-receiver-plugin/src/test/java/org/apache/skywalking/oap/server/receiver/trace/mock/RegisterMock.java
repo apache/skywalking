@@ -59,7 +59,7 @@ class RegisterMock {
 
         ApplicationInstance.Builder instance = ApplicationInstance.newBuilder();
         instance.setApplicationId(applicationMapping.getApplication().getValue());
-        instance.setAgentUUID(UUID.randomUUID().toString());
+        instance.setAgentUUID("pengys");
         instance.setRegisterTime(new DateTime("2017-01-01T00:01:01.001").getMillis());
 
         OSInfo.Builder osInfo = OSInfo.newBuilder();
@@ -104,7 +104,7 @@ class RegisterMock {
 
         ApplicationInstance.Builder instance = ApplicationInstance.newBuilder();
         instance.setApplicationId(applicationMapping.getApplication().getValue());
-        instance.setAgentUUID(UUID.randomUUID().toString());
+        instance.setAgentUUID("peng-yongsheng");
         instance.setRegisterTime(new DateTime("2017-01-01T00:01:01.001").getMillis());
 
         OSInfo.Builder osInfo = OSInfo.newBuilder();

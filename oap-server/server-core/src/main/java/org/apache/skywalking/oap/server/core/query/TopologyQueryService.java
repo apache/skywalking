@@ -98,7 +98,7 @@ public class TopologyQueryService implements Service {
         List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, serviceIdList);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
-        Topology topology = builder.build(serviceComponents, serviceMappings, serviceRelationClientCalls, serviceRelationServerCalls);
+        Topology topology = builder.build(serviceComponents, new ArrayList<>(), serviceRelationClientCalls, serviceRelationServerCalls);
 
         Set<Integer> nodeIds = new HashSet<>();
         topology.getCalls().forEach(call -> {

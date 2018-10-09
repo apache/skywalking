@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
 
 import static java.util.Objects.*;
@@ -36,6 +37,7 @@ public class ServiceInventoryCache implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCache.class);
 
+    private final ServiceInventory userService;
     private final Cache<String, Integer> serviceNameCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
     private final Cache<String, Integer> addressIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
     private final Cache<Integer, ServiceInventory> serviceIdCache = CacheBuilder.newBuilder().initialCapacity(100).maximumSize(1000).build();
@@ -45,6 +47,11 @@ public class ServiceInventoryCache implements Service {
 
     public ServiceInventoryCache(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+
+        this.userService = new ServiceInventory();
+        this.userService.setSequence(Const.USER_SERVICE_ID);
+        this.userService.setName(Const.USER_CODE);
+        this.userService.setIsAddress(BooleanUtils.FALSE);
     }
 
     private IServiceInventoryCacheDAO getCacheDAO() {
@@ -79,6 +86,14 @@ public class ServiceInventoryCache implements Service {
     }
 
     public ServiceInventory get(int serviceId) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Get service by id {} from cache", serviceId);
+        }
+
+        if (Const.USER_SERVICE_ID == serviceId) {
+            return userService;
+        }
+
         ServiceInventory serviceInventory = serviceIdCache.getIfPresent(serviceId);
 
         if (isNull(serviceInventory)) {
