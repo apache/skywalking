@@ -41,8 +41,8 @@ class ProviderMock {
         UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
         TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
-        segment.setApplicationId(2);
-        segment.setApplicationInstanceId(2);
+        segment.setApplicationId(3);
+        segment.setApplicationInstanceId(3);
         segment.addSpans(createExitSpan(startTimestamp, isPrepare));
         segment.addSpans(createEntrySpan(startTimestamp, parentTraceSegmentId, isPrepare));
 
@@ -52,9 +52,9 @@ class ProviderMock {
     private TraceSegmentReference.Builder createReference(UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
         TraceSegmentReference.Builder reference = TraceSegmentReference.newBuilder();
         reference.setParentTraceSegmentId(parentTraceSegmentId);
-        reference.setParentApplicationInstanceId(1);
+        reference.setParentApplicationInstanceId(2);
         reference.setParentSpanId(1);
-        reference.setEntryApplicationInstanceId(1);
+        reference.setEntryApplicationInstanceId(2);
         reference.setRefType(RefType.CrossProcess);
 
         if (isPrepare) {
@@ -62,9 +62,9 @@ class ProviderMock {
             reference.setNetworkAddress("172.25.0.4:20880");
             reference.setEntryServiceName("/dubbox-case/case/dubbox-rest");
         } else {
-            reference.setParentServiceId(1);
-            reference.setNetworkAddressId(2);
-            reference.setEntryServiceId(1);
+            reference.setParentServiceId(2);
+            reference.setNetworkAddressId(3);
+            reference.setEntryServiceId(2);
         }
         return reference;
     }
@@ -84,8 +84,8 @@ class ProviderMock {
             span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
             span.setPeer("localhost:27017");
         } else {
-            span.setOperationNameId(5);
-            span.setPeerId(1);
+            span.setOperationNameId(6);
+            span.setPeerId(2);
         }
         return span;
     }
@@ -105,7 +105,7 @@ class ProviderMock {
         if (isPrepare) {
             span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
         } else {
-            span.setOperationNameId(6);
+            span.setOperationNameId(7);
         }
         return span;
     }
