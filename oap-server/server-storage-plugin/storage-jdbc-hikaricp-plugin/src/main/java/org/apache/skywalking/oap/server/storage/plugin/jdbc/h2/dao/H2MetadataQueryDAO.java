@@ -213,11 +213,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
     private void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
         long endTimestamp) {
-        sql.append(" (（").append(RegisterSource.HEARTBEAT_TIME).append(" >= ? and")
+        sql.append(" ( (").append(RegisterSource.HEARTBEAT_TIME).append(" >= ? and")
             .append(RegisterSource.REGISTER_TIME).append(" <= ? )");
         conditions.add(endTimestamp);
         conditions.add(endTimestamp);
-        sql.append(" or（").append(RegisterSource.REGISTER_TIME).append(" <= ? and")
+        sql.append(" or (").append(RegisterSource.REGISTER_TIME).append(" <= ? and")
             .append(RegisterSource.HEARTBEAT_TIME).append(" >= ? ) ) ");
         conditions.add(endTimestamp);
         conditions.add(startTimestamp);

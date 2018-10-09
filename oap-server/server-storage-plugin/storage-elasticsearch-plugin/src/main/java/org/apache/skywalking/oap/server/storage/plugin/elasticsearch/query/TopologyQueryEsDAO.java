@@ -19,23 +19,32 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.*;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
-import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationClientSideIndicator;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideIndicator;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceComponentIndicator;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceMappingIndicator;
+import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.ServiceRelationClientSideIndicator;
+import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.ServiceRelationServerSideIndicator;
+import org.apache.skywalking.oap.server.core.query.entity.Call;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceComponent;
+import org.apache.skywalking.oap.server.core.source.ServiceMapping;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
