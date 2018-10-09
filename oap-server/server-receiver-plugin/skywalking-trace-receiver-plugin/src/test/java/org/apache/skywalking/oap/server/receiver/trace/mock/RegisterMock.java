@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.trace.mock;
 
 import io.grpc.ManagedChannel;
-import java.util.UUID;
 import java.util.concurrent.*;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
