@@ -89,11 +89,14 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
         IntValues intValues = new IntValues();
         for (MultiGetItemResponse itemResponse : response.getResponses()) {
-            int value = ((Number)itemResponse.getResponse().getSource().getOrDefault(valueCName, 0)).intValue();
 
             KVInt kvInt = new KVInt();
             kvInt.setId(itemResponse.getId());
-            kvInt.setValue(value);
+            kvInt.setValue(0);
+            Map<String, Object> source = itemResponse.getResponse().getSource();
+            if (source != null) {
+                kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).intValue());
+            }
             intValues.getValues().add(kvInt);
         }
         return intValues;

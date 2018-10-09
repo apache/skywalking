@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_relation_server_call_sla", builder = ServiceRelationServerCallSlaIndicator.Builder.class)
 public class ServiceRelationServerCallSlaIndicator extends PercentIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "source_service_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -152,7 +152,7 @@ public class ServiceRelationServerCallSlaIndicator extends PercentIndicator impl
 
         @Override public Map<String, Object> data2Map(ServiceRelationServerCallSlaIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put("source_service_id", storageData.getEntityId());
+            map.put("entity_id", storageData.getEntityId());
             map.put("total", storageData.getTotal());
             map.put("percentage", storageData.getPercentage());
             map.put("match", storageData.getMatch());
@@ -162,7 +162,7 @@ public class ServiceRelationServerCallSlaIndicator extends PercentIndicator impl
 
         @Override public ServiceRelationServerCallSlaIndicator map2Data(Map<String, Object> dbMap) {
             ServiceRelationServerCallSlaIndicator indicator = new ServiceRelationServerCallSlaIndicator();
-            indicator.setEntityId((String)dbMap.get("source_service_id"));
+            indicator.setEntityId((String)dbMap.get("entity_id"));
             indicator.setTotal(((Number)dbMap.get("total")).longValue());
             indicator.setPercentage(((Number)dbMap.get("percentage")).intValue());
             indicator.setMatch(((Number)dbMap.get("match")).longValue());
