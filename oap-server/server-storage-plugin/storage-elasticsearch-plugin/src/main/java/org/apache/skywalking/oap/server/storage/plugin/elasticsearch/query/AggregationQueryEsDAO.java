@@ -44,27 +44,27 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String name, int topN, Step step, long startTB,
+    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Step step, long startTB,
         long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, name);
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, sourceBuilder, topN, order);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    @Override public List<TopNEntity> getAllServiceInstanceTopN(String name, int topN, Step step,
+    @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Step step,
         long startTB, long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, name);
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, sourceBuilder, topN, order);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String name, int topN,
+    @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
         Step step, long startTB, long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, name);
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -74,23 +74,23 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
 
-        return aggregation(indexName, sourceBuilder, topN, order);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String name, int topN, Step step, long startTB,
+    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Step step, long startTB,
         long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, name);
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, sourceBuilder, topN, order);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String name, int topN, Step step,
+    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Step step,
         long startTB, long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, name);
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -100,10 +100,11 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
 
-        return aggregation(indexName, sourceBuilder, topN, order);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    private List<TopNEntity> aggregation(String indexName, SearchSourceBuilder sourceBuilder, int topN,
+    private List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
+        int topN,
         Order order) throws IOException {
         boolean asc = false;
         if (order.equals(Order.ASC)) {
@@ -113,10 +114,10 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders
             .terms(Indicator.ENTITY_ID)
             .field(Indicator.ENTITY_ID)
-            .order(BucketOrder.aggregation("value", asc))
+            .order(BucketOrder.aggregation(valueCName, asc))
             .size(topN)
             .subAggregation(
-                AggregationBuilders.avg("value").field("value")
+                AggregationBuilders.avg(valueCName).field(valueCName)
             );
         sourceBuilder.aggregation(aggregationBuilder);
 
@@ -127,7 +128,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get("value");
+            Avg value = termsBucket.getAggregations().get(valueCName);
             topNEntity.setValue((int)value.getValue());
             topNEntities.add(topNEntity);
         }
