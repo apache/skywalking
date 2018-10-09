@@ -31,7 +31,7 @@ public class URLParser {
 
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle";
-    private static final String H2_JDBC_URL_PREFIX = "jdbc:jdbc";
+    private static final String H2_JDBC_URL_PREFIX = "jdbc:h2";
     private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql";
 
     public static ConnectionInfo parser(String url) {

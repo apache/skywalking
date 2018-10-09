@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
  */
 public class ConnectionInfo {
     /**
-     * DB type, such as mysql, oracle, jdbc.
+     * DB type, such as mysql, oracle, h2.
      */
     private final String dbType;
     /**
