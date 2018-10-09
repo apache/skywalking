@@ -19,15 +19,26 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
 
 /**
  * Save the alarm info into storage for UI query.
+ *
+ * @author wusheng, peng-yongsheng
  */
 public class AlarmStandardPersistence implements AlarmCallback {
+
     @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
-        //TODO Peng-yongsheng
-        /**
-         * This is just a callback entrance.
-         */
+        alarmMessage.forEach(message -> {
+            AlarmRecord record = new AlarmRecord();
+            record.setScope(message.getScope().ordinal());
+            record.setId0(message.getId0());
+            record.setId1(message.getId1());
+            record.setName(message.getName());
+            record.setAlarmMessage(message.getAlarmMessage());
+            record.setTimeBucket(message.getTimeBucket());
+
+            RecordProcess.INSTANCE.in(record);
+        });
     }
 }
