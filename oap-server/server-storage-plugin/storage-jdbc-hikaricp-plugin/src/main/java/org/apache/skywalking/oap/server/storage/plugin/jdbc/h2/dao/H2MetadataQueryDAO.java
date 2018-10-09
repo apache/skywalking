@@ -90,7 +90,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(NetworkAddressInventory.MODEL_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(NetworkAddressInventory.SRC_LAYER).append("=？");
+        sql.append(" and ").append(NetworkAddressInventory.SRC_LAYER).append("=?");
         condition.add(srcLayer);
 
         ResultSet resultSet = h2Client.executeQuery(sql.toString(), condition);
@@ -111,7 +111,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * num from ").append(ServiceInventory.MODEL_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=？limit 100");
+        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?limit 100");
         condition.add(BooleanUtils.FALSE);
 
         ResultSet resultSet = h2Client.executeQuery(sql.toString(), condition);
@@ -125,7 +125,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=？");
+        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\" limit 100");
 
@@ -138,7 +138,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
-        sql.append(ServiceInventory.IS_ADDRESS).append("=？");
+        sql.append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NAME).append(" = ?");
         condition.add(serviceCode);
@@ -164,7 +164,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(EndpointInventory.MODEL_NAME).append(" where ");
-        sql.append(EndpointInventory.SERVICE_ID).append("=？");
+        sql.append(EndpointInventory.SERVICE_ID).append("=?");
         condition.add(serviceId);
         sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\" limit ").append(limit);
 
@@ -190,7 +190,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInstanceInventory.MODEL_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(ServiceInstanceInventory.SERVICE_ID).append("=？");
+        sql.append(" and ").append(ServiceInstanceInventory.SERVICE_ID).append("=?");
         condition.add(serviceId);
 
         ResultSet resultSet = h2Client.executeQuery(sql.toString(), condition);

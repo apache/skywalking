@@ -161,7 +161,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                 call.setSource(resultSet.getInt(sourceCName));
                 call.setTarget(resultSet.getInt(destCName));
                 call.setId(ServiceRelation.buildEntityId(call.getSource(), call.getTarget()));
-                call.setDetectPoint(isClientSide? DetectPoint.CLIENT: DetectPoint.SERVER);
+                call.setDetectPoint(isClientSide ? DetectPoint.CLIENT : DetectPoint.SERVER);
                 calls.add(call);
             }
         } catch (SQLException e) {

@@ -165,7 +165,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
 
         ResultSet resultSet = h2Client.executeQuery("select " + ThermodynamicIndicator.STEP + " step, "
-            + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps， "
+            + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps, "
             + ThermodynamicIndicator.DETAIL_GROUP + " detail_group "
             + " from " + tableName + " where id in " + idValues.toString());
 
