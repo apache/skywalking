@@ -28,18 +28,20 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
  */
 public interface IAggregationQueryDAO extends DAO {
 
-    List<TopNEntity> getServiceTopN(final String name, final int topN, final Step step, final long startTB,
+    List<TopNEntity> getServiceTopN(final String indName, String valueCName, final int topN, final Step step,
+        final long startTB,
         final long endTB, final Order order) throws IOException;
 
-    List<TopNEntity> getAllServiceInstanceTopN(final String name, final int topN, final Step step,
+    List<TopNEntity> getAllServiceInstanceTopN(final String indName, String valueCName, final int topN, final Step step,
         final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String name, final int topN,
+    List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String indName, String valueCName,
+        final int topN,
         final Step step, final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<TopNEntity> getAllEndpointTopN(final String name, final int topN, final Step step,
+    List<TopNEntity> getAllEndpointTopN(final String indName, String valueCName, final int topN, final Step step,
         final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<TopNEntity> getEndpointTopN(final int serviceId, final String name, final int topN,
+    List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, String valueCName, final int topN,
         final Step step, final long startTB, final long endTB, final Order order) throws IOException;
 }
