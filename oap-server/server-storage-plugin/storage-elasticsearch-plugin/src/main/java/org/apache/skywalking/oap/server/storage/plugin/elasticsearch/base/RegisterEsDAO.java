@@ -91,7 +91,7 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
 
         int id = (int)agg.getValue();
         if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
-            return 0;
+            return 1;
         } else {
             return id;
         }

@@ -39,7 +39,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
 
-    public RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
+    RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
         IRegisterDAO registerDAO, Scope scope) {
         super(workerId);
         this.modelName = modelName;

@@ -78,6 +78,11 @@ class TopologyBuilder {
                 serviceNode.setId(source.getSequence());
                 serviceNode.setName(source.getName());
                 serviceNode.setType(nodeCompMap.getOrDefault(source.getSequence(), Const.UNKNOWN));
+                if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
+                    serviceNode.setReal(false);
+                } else {
+                    serviceNode.setReal(true);
+                }
                 nodes.add(serviceNode);
             }
 
@@ -88,6 +93,7 @@ class TopologyBuilder {
             call.setTarget(actualTargetId);
             call.setCallType(nodeCompMap.get(clientCall.getTarget()));
             call.setId(clientCall.getId());
+            call.setDetectPoint(DetectPoint.CLIENT);
             calls.add(call);
         });
 
@@ -101,6 +107,7 @@ class TopologyBuilder {
                     visualUserNode.setId(source.getSequence());
                     visualUserNode.setName(Const.USER_CODE);
                     visualUserNode.setType(Const.USER_CODE.toUpperCase());
+                    visualUserNode.setReal(false);
                     nodes.add(visualUserNode);
                     nodeIds.add(source.getSequence());
                 }
@@ -112,6 +119,7 @@ class TopologyBuilder {
                     conjecturalNode.setId(source.getSequence());
                     conjecturalNode.setName(source.getName());
                     conjecturalNode.setType(conjecturalNodeCompMap.getOrDefault(target.getSequence(), Const.UNKNOWN));
+                    conjecturalNode.setReal(true);
                     nodeIds.add(source.getSequence());
                     nodes.add(conjecturalNode);
                 }
@@ -121,6 +129,7 @@ class TopologyBuilder {
             call.setSource(source.getSequence());
             call.setTarget(target.getSequence());
             call.setId(serverCall.getId());
+            call.setDetectPoint(DetectPoint.SERVER);
 
             if (source.getSequence() == Const.USER_SERVICE_ID) {
                 call.setCallType(Const.EMPTY_STRING);
