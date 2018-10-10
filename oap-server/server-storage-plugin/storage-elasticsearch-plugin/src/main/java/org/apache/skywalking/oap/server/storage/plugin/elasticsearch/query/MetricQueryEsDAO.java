@@ -31,6 +31,8 @@ import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.metrics.avg.Avg;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
@@ -59,13 +61,22 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            Terms valueTerms = idBucket.getAggregations().get(valueCName);
-            for (Terms.Bucket valueBucket : valueTerms.getBuckets()) {
-                KVInt value = new KVInt();
-                value.setId(idBucket.getKeyAsString());
-                value.setValue(valueBucket.getKeyAsNumber().intValue());
-                intValues.getValues().add(value);
+            int value = 0;
+            switch (function) {
+                case Sum:
+                    Sum sum = idBucket.getAggregations().get(valueCName);
+                    value = (int)sum.getValue();
+                    break;
+                case Avg:
+                    Avg avg = idBucket.getAggregations().get(valueCName);
+                    value = (int)avg.getValue();
+                    break;
             }
+
+            KVInt kvInt = new KVInt();
+            kvInt.setId(idBucket.getKeyAsString());
+            kvInt.setValue(value);
+            intValues.getValues().add(kvInt);
         }
         return intValues;
     }
