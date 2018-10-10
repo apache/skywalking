@@ -16,19 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.service;
+package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5;
 
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.library.module.Service;
+import io.grpc.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface IEndpointInventoryRegister extends Service {
+public class InstanceHeartBeatTestCase {
 
-    int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint);
+    public static void main(String[] args) {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
 
-    int get(int serviceId, String endpointName);
+        InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub stub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
 
-    void heartbeat(int endpointId, long heartBeatTime);
+        ApplicationInstanceHeartbeat.Builder builder = ApplicationInstanceHeartbeat.newBuilder();
+        builder.setApplicationInstanceId(2);
+        builder.setHeartbeatTime(System.currentTimeMillis() + 5 * 1000 * 60);
+        Downstream heartbeat = stub.heartbeat(builder.build());
+    }
 }

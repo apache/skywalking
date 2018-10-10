@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.slf4j.*;
 
 import static java.util.Objects.*;
 
@@ -30,6 +32,8 @@ import static java.util.Objects.*;
  * @author peng-yongsheng
  */
 public class NetworkAddressInventoryRegister implements INetworkAddressInventoryRegister {
+
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
 
     private final ModuleManager moduleManager;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
@@ -110,5 +114,16 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             return srcLayer == networkAddress.getSrcLayer() && serverType == networkAddress.getServerType();
         }
         return true;
+    }
+
+    @Override public void heartbeat(int addressId, long heartBeatTime) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+        if (Objects.nonNull(networkAddress)) {
+            networkAddress.setHeartbeatTime(heartBeatTime);
+
+            InventoryProcess.INSTANCE.in(networkAddress);
+        } else {
+            logger.warn("Network address {} heartbeat, but not found in storage.");
+        }
     }
 }
