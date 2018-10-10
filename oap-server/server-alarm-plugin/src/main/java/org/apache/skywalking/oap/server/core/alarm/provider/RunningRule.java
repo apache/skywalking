@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
@@ -148,6 +149,7 @@ public class RunningRule {
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
                 alarmMessage.setAlarmMessage(formatter.format(meta));
+                alarmMessage.setTimeBucket(TimeBucketUtils.INSTANCE.getTime(LocalDateTime.now()));
                 alarmMessageList.add(alarmMessage);
             }
         });
