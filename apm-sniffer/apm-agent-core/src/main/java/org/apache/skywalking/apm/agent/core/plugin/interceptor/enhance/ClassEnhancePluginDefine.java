@@ -71,7 +71,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     protected DynamicType.Builder<?> enhance(TypeDescription typeDescription,
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
         EnhanceContext context) throws PluginException {
-        newClassBuilder = this.enhanceClass(typeDescription.getTypeName(), newClassBuilder, classLoader);
+        newClassBuilder = this.enhanceClass(typeDescription, newClassBuilder, classLoader);
 
         newClassBuilder = this.enhanceInstance(typeDescription, newClassBuilder, classLoader, context);
 
@@ -184,11 +184,11 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     /**
      * Enhance a class to intercept class static methods.
      *
-     * @param enhanceOriginClassName target class name
+     * @param typeDescription The description of the type currently being instrumented.
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
      */
-    private DynamicType.Builder<?> enhanceClass(String enhanceOriginClassName,
+    private DynamicType.Builder<?> enhanceClass(TypeDescription typeDescription,
         DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader) throws PluginException {
         StaticMethodsInterceptPoint[] staticMethodsInterceptPoints = getStaticMethodsInterceptPoints();
 
@@ -199,11 +199,12 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
         for (StaticMethodsInterceptPoint staticMethodsInterceptPoint : staticMethodsInterceptPoints) {
             String interceptor = staticMethodsInterceptPoint.getMethodsInterceptor();
             if (StringUtil.isEmpty(interceptor)) {
-                throw new EnhanceException("no StaticMethodsAroundInterceptor define to enhance class " + enhanceOriginClassName);
+                throw new EnhanceException("no StaticMethodsAroundInterceptor define to enhance class " + typeDescription.getTypeName());
             }
 
             if (staticMethodsInterceptPoint.isOverrideArgs()) {
-                newClassBuilder = newClassBuilder.method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
+                newClassBuilder = newClassBuilder.method(isDeclaredBy(typeDescription)
+                        .and(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher())))
                     .intercept(
                         MethodDelegation.withDefaultConfiguration()
                             .withBinders(
@@ -212,7 +213,8 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                             .to(new StaticMethodsInterWithOverrideArgs(interceptor))
                     );
             } else {
-                newClassBuilder = newClassBuilder.method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
+                newClassBuilder = newClassBuilder.method(isDeclaredBy(typeDescription)
+                        .and(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher())))
                     .intercept(
                         MethodDelegation.withDefaultConfiguration()
                             .to(new StaticMethodsInter(interceptor))
