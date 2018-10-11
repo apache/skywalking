@@ -21,11 +21,17 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
-@Setter
 public class Thermodynamic {
-    private List<List<Long>> nodes = new ArrayList<>();
-    private int axisYStep;
+    private final List<List<Long>> nodes;
+    @Setter private int axisYStep;
+
+    public Thermodynamic() {
+        this.nodes = new ArrayList<>();
+    }
 
     public void setNodeValue(int columnNum, int rowNum, Long value) {
         List<Long> element = new ArrayList<>(3);
@@ -34,5 +40,4 @@ public class Thermodynamic {
         element.add(value);
         nodes.add(element);
     }
-
 }

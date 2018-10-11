@@ -21,9 +21,15 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.*;
 
-@Setter
+/**
+ * @author peng-yongsheng
+ */
 @Getter
 public class TraceBrief {
-    private List<BasicTrace> traces = new ArrayList<>();
-    private int total;
+    private final List<BasicTrace> traces;
+    @Setter private int total;
+
+    public TraceBrief() {
+        this.traces = new ArrayList<>();
+    }
 }

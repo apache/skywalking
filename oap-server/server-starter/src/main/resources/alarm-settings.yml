@@ -15,8 +15,8 @@
 # limitations under the License.
 
 # Sample alarm rules.
-#rules:
-#  # Rule unique name, must be ended with `_rule`.
+rules:
+  # Rule unique name, must be ended with `_rule`.
 #  endpoint_percent_rule:
 #    # Indicator value need to be long, double or int
 #    indicator-name: endpoint_percent
@@ -29,16 +29,16 @@
 #    # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
 #    silence-period: 10
 #    message: Successful rate of endpoint {name} is lower than 75%
-#  service_percent_rule:
-#    indicator-name: service_percent
-#    # [Optional] Default, match all services in this indicator
-#    include-names:
-#      - service_a
-#      - service_b
-#    threshold: 85
-#    op: <
-#    period: 10
-#    count: 4
+  service_resp_time_rule:
+    indicator-name: service_resp_time
+    # [Optional] Default, match all services in this indicator
+    include-names:
+      - dubbox-provider
+      - dubbox-consumer
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 1
 
 #webhooks:
 #  - http://127.0.0.1/notify/

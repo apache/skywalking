@@ -16,11 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.List;
+import java.util.*;
+import lombok.Getter;
 
-public class Alarms {
-    private List<AlarmMessage> msgs;
-    private int total;
+/**
+ * @author peng-yongsheng
+ */
+@Getter
+public class AlarmTrend {
+
+    private final List<Integer> numOfAlarm;
+
+    public AlarmTrend() {
+        this.numOfAlarm = new ArrayList<>();
+    }
 }

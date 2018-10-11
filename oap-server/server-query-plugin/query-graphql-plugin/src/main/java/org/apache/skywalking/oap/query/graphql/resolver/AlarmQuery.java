@@ -19,16 +19,42 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.*;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import java.io.IOException;
+import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @author peng-yongsheng
+ */
 public class AlarmQuery implements GraphQLQueryResolver {
+
+    private final ModuleManager moduleManager;
+    private AlarmQueryService queryService;
+
+    public AlarmQuery(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    private AlarmQueryService getQueryService() {
+        if (queryService == null) {
+            this.queryService = moduleManager.find(CoreModule.NAME).getService(AlarmQueryService.class);
+        }
+        return queryService;
+    }
+
     public AlarmTrend getAlarmTrend(final Duration duration) {
         return new AlarmTrend();
     }
 
-    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword, final Pagination paging) {
-        return new Alarms();
+    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
+        final Pagination paging) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getAlarm(scope, keyword, paging, startTimeBucket, endTimeBucket);
     }
 }

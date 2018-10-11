@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+/**
+ * @author peng-yongsheng
+ */
 public enum RefType {
     CROSS_PROCESS,
     CROSS_THREAD

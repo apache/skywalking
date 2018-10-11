@@ -149,7 +149,7 @@ public class RunningRule {
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
                 alarmMessage.setAlarmMessage(formatter.format(meta));
-                alarmMessage.setTimeBucket(TimeBucketUtils.INSTANCE.getTime(LocalDateTime.now()));
+                alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
             }
         });

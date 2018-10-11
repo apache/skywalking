@@ -62,6 +62,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(TraceQueryService.class);
         classes.add(MetadataQueryService.class);
         classes.add(AggregationQueryService.class);
+        classes.add(AlarmQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {
