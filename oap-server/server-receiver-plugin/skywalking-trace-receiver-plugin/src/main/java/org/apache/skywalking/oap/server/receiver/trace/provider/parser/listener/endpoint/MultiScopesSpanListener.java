@@ -137,7 +137,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         long latency = spanDecorator.getEndTime() - spanDecorator.getStartTime();
         sourceBuilder.setLatency((int)latency);
         sourceBuilder.setResponseCode(Const.NONE);
-        sourceBuilder.setStatus(spanDecorator.getIsError());
+        sourceBuilder.setStatus(!spanDecorator.getIsError());
 
         switch (spanDecorator.getSpanLayer()) {
             case Http:

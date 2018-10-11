@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -68,7 +69,11 @@ public class MetricQueryService implements Service {
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTB, endTB);
         List<String> ids = new ArrayList<>();
-        durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+        if (StringUtil.isEmpty(id)) {
+            durationPoints.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
+        } else {
+            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+        }
 
         return getMetricQueryDAO().getLinearIntValues(indName, step, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }

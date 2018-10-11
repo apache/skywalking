@@ -35,5 +35,8 @@ public class InstanceHeartBeatTestCase {
         builder.setApplicationInstanceId(2);
         builder.setHeartbeatTime(System.currentTimeMillis() + 5 * 1000 * 60);
         Downstream heartbeat = stub.heartbeat(builder.build());
+
+        builder.setApplicationInstanceId(3);
+        heartbeat = stub.heartbeat(builder.build());
     }
 }
