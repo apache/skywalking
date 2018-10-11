@@ -70,6 +70,7 @@ public class SegmentRecord extends Record {
             map.put(TRACE_ID, storageData.getTraceId());
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(ENDPOINT_NAME, storageData.getEndpointName());
+            map.put(ENDPOINT_ID, storageData.getEndpointId());
             map.put(START_TIME, storageData.getStartTime());
             map.put(END_TIME, storageData.getEndTime());
             map.put(LATENCY, storageData.getLatency());
@@ -89,6 +90,7 @@ public class SegmentRecord extends Record {
             record.setTraceId((String)dbMap.get(TRACE_ID));
             record.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
             record.setEndpointName((String)dbMap.get(ENDPOINT_NAME));
+            record.setEndpointId(((Number)dbMap.get(ENDPOINT_ID)).intValue());
             record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
             record.setEndTime(((Number)dbMap.get(END_TIME)).longValue());
             record.setLatency(((Number)dbMap.get(LATENCY)).intValue());
