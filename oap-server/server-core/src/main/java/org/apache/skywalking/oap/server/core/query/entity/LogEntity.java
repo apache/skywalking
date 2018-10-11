@@ -21,9 +21,15 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
-@Setter
 public class LogEntity {
-    private long time;
-    private List<KeyValue> data = new ArrayList<>();
+    @Setter private long time;
+    private final List<KeyValue> data;
+
+    public LogEntity() {
+        this.data = new ArrayList<>();
+    }
 }

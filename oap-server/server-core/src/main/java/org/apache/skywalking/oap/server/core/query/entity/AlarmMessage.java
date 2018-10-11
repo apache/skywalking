@@ -16,30 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
- * Alarm message represents the details of each alarm.
- *
- * @author wusheng, peng-yongsheng
+ * @author peng-yongsheng
  */
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class AlarmMessage {
-
-    public static AlarmMessage NONE = new NoAlarm();
-
     private Scope scope;
-    private String name;
-    private int id0;
-    private int id1;
-    private String alarmMessage;
-    private long startTime;
-
-    private static class NoAlarm extends AlarmMessage {
-
-    }
+    private String id;
+    private String message;
+    private Long startTime;
 }
