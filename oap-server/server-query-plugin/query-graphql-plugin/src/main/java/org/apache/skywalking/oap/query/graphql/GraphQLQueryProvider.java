@@ -65,7 +65,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
             .file("query-protocol/aggregation.graphqls")
             .resolvers(new AggregationQuery(getManager()))
             .file("query-protocol/alarm.graphqls")
-            .resolvers(new AlarmQuery())
+            .resolvers(new AlarmQuery(getManager()))
             .build()
             .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

@@ -21,26 +21,34 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
-@Setter
 public class Span {
-    private String traceId;
-    private String segmentId;
-    private int spanId;
-    private int parentSpanId;
-    private List<Ref> refs = new ArrayList<>();
-    private String serviceCode;
-    private long startTime;
-    private long endTime;
-    private String endpointName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private List<KeyValue> tags = new ArrayList<>();
-    private List<LogEntity> logs = new ArrayList<>();
-    private boolean isRoot;
-    private String segmentSpanId;
-    private String segmentParentSpanId;
+    @Setter private String traceId;
+    @Setter private String segmentId;
+    @Setter private int spanId;
+    @Setter private int parentSpanId;
+    private final List<Ref> refs;
+    @Setter private String serviceCode;
+    @Setter private long startTime;
+    @Setter private long endTime;
+    @Setter private String endpointName;
+    @Setter private String type;
+    @Setter private String peer;
+    @Setter private String component;
+    @Setter private boolean isError;
+    @Setter private String layer;
+    private final List<KeyValue> tags;
+    private final List<LogEntity> logs;
+    @Setter private boolean isRoot;
+    @Setter private String segmentSpanId;
+    @Setter private String segmentParentSpanId;
+
+    public Span() {
+        this.refs = new ArrayList<>();
+        this.tags = new ArrayList<>();
+        this.logs = new ArrayList<>();
+    }
 }

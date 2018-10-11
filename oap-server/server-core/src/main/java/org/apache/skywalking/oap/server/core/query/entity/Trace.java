@@ -21,7 +21,14 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.Getter;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
 public class Trace {
-    private List<Span> spans = new ArrayList<>();
+    private final List<Span> spans;
+
+    public Trace() {
+        this.spans = new ArrayList<>();
+    }
 }
