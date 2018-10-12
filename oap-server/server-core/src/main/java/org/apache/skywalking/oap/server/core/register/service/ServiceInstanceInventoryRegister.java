@@ -102,15 +102,6 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
     }
 
-    @Override public void heartBeat(int instanceID, long time) {
-        ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
-        serviceInstanceInventory.setServiceId(instanceID);
-        serviceInstanceInventory.setHeartbeatTime(time);
-
-        InventoryProcess.INSTANCE.in(serviceInstanceInventory);
-
-
-    }
 
     @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
         ServiceInstanceInventory serviceInstanceInventory = getServiceInstanceInventoryCache().get(serviceInstanceId);
