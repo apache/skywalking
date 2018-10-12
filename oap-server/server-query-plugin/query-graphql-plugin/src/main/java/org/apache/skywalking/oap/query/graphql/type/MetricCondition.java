@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
+import lombok.*;
+
+@Getter
+@Setter
 public class MetricCondition {
     private String id;
     private String name;

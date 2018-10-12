@@ -46,28 +46,32 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
     @Override public void notify(Class aClass) {
         logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
 
-        List<ModelColumn> modelColumns = new LinkedList<>();
-        retrieval(aClass, modelColumns);
-
         String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
+
+        List<ModelColumn> modelColumns = new LinkedList<>();
+        retrieval(aClass, modelName, modelColumns);
+
         models.add(new Model(modelName, modelColumns));
     }
 
-    private void retrieval(Class clazz, List<ModelColumn> modelColumns) {
+    private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {
         Field[] fields = clazz.getDeclaredFields();
 
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                modelColumns.add(new ModelColumn(new ColumnName(column.columnName(), column.columnName()), field.getType()));
+                modelColumns.add(new ModelColumn(new ColumnName(column.columnName(), column.columnName()), field.getType(), column.matchQuery()));
                 if (logger.isDebugEnabled()) {
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
+                }
+                if (column.isValue()) {
+                    ValueColumnIds.INSTANCE.putIfAbsent(modelName, column.columnName(), column.function());
                 }
             }
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelColumns);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns);
         }
     }
 }

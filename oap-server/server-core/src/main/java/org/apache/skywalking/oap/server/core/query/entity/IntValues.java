@@ -21,6 +21,14 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.Getter;
 
+/**
+ * @author peng-yongsheng
+ */
 public class IntValues {
-    @Getter private List<KVInt> values = new LinkedList<>();
+    
+    @Getter private final List<KVInt> values;
+
+    public IntValues() {
+        this.values = new LinkedList<>();
+    }
 }

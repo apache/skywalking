@@ -39,7 +39,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
 
-    public RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
+    RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
         IRegisterDAO registerDAO, Scope scope) {
         super(workerId);
         this.modelName = modelName;
@@ -62,7 +62,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                         try {
                             RegisterSource newSource = registerDAO.get(modelName, source.id());
                             if (Objects.nonNull(newSource)) {
-                                newSource.combine(newSource);
+                                newSource.combine(source);
                                 registerDAO.forceUpdate(modelName, newSource);
                             } else {
                                 int sequence = registerDAO.max(modelName);

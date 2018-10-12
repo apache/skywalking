@@ -28,4 +28,6 @@ public interface IServiceInventoryRegister extends Service {
     int getOrCreate(String serviceName);
 
     int getOrCreate(int addressId);
+
+    void heartbeat(int serviceId, long heartBeatTime);
 }

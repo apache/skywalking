@@ -18,18 +18,20 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.Getter;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 
 @Getter
+@Setter
 public class TraceQueryCondition {
-    private int applicationId;
+    private String serviceId;
     private String traceId;
-    private String operationName;
+    private String endpointName;
+    private String endpointId;
     private Duration queryDuration;
     private int minTraceDuration;
     private int maxTraceDuration;
     private TraceState traceState;
     private QueryOrder queryOrder;
     private Pagination paging;
-
 }

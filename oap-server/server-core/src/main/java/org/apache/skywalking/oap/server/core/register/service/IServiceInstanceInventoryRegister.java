@@ -31,5 +31,5 @@ public interface IServiceInstanceInventoryRegister extends Service {
 
     int getOrCreate(int serviceId, int addressId, long registerTime);
 
-    void heartBeat(int instanceId,long time);
+    void heartbeat(int serviceInstanceId, long heartBeatTime);
 }

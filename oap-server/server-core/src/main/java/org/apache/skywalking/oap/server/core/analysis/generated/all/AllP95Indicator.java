@@ -94,7 +94,7 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
         setValue(remoteData.getDataIntegers(0));
         setPrecision(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });
@@ -102,7 +102,7 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("All_p95", Scope.All);
+        return new AlarmMeta("all_p95", Scope.All);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class AllP95Indicator extends P95Indicator implements AlarmSupported {
             AllP95Indicator indicator = new AllP95Indicator();
             indicator.setValue(((Number)dbMap.get("value")).intValue());
             indicator.setPrecision(((Number)dbMap.get("precision")).intValue());
-            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
+            indicator.setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray((String)dbMap.get("detail_group")));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

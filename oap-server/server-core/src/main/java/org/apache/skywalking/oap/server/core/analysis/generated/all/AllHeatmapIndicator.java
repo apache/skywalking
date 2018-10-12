@@ -94,7 +94,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         setStep(remoteData.getDataIntegers(0));
         setNumOfSteps(remoteData.getDataIntegers(1));
 
-        setDetailGroup(new ArrayList<>(30));
+        setDetailGroup(new IntKeyLongValueArray(30));
         remoteData.getDataIntLongPairListList().forEach(element -> {
             getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
         });
@@ -102,7 +102,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("All_heatmap", Scope.All);
+        return new AlarmMeta("all_heatmap", Scope.All);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
             AllHeatmapIndicator indicator = new AllHeatmapIndicator();
             indicator.setStep(((Number)dbMap.get("step")).intValue());
             indicator.setNumOfSteps(((Number)dbMap.get("num_of_steps")).intValue());
-            indicator.setDetailGroup((java.util.List)dbMap.get("detail_group"));
+            indicator.setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray((String)dbMap.get("detail_group")));
             indicator.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
             return indicator;
         }

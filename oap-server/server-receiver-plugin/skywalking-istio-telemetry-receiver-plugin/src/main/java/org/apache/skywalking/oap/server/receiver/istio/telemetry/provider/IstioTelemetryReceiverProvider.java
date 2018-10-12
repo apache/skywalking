@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
 
+import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -53,6 +54,6 @@ public class IstioTelemetryReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {CoreModule.NAME, MeshReceiverModule.NAME};
     }
 }

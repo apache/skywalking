@@ -1,7 +1,7 @@
 Apache SkyWalking
 ==========
 
-<img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="https://skywalkingtest.github.io/page-resources/logo/sw-big-dark-1200.png" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking**: an APM(application performance monitor) system, especially designed for 
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
@@ -32,9 +32,12 @@ The core features are following.
 
 <img src="https://skywalkingtest.github.io/page-resources/6-alpha-overview.png"/>
 
-SkyWalking supports to collect telemetry (traces and metrics) data from different sources, 
-in order to provide more options
-for different scenarios. 
+SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
+and multiple formats, 
+including 
+1. Java, .NET Core and NodeJS auto-instrument agents in SkyWalking format
+1. Istio telemetry format
+1. Zipkin v1/v2 formats
 
 
 # Document
@@ -57,7 +60,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please report unacceptable behavior to dev@skywalking.apache.org .
 
 # Live Demo
-- Host in Beijing. [goto](http://49.4.12.44:8080/)
+- Host in Beijing. [goto](http://106.75.237.45:8080/)
   - Username: admin
   - Password: admin
 

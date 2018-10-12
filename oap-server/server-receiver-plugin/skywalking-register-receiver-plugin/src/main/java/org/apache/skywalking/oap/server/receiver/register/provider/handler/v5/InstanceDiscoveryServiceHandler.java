@@ -35,11 +35,9 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
 
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-//    private final IInstanceHeartBeatService instanceHeartBeatService;
 
     public InstanceDiscoveryServiceHandler(ModuleManager moduleManager) {
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
-//        this.instanceHeartBeatService = moduleManager.find(CoreModule.NAME).getService(IInstanceHeartBeatService.class);
     }
 
     @Override
@@ -61,10 +59,10 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     }
 
     @Override public void heartbeat(ApplicationInstanceHeartbeat request, StreamObserver<Downstream> responseObserver) {
-//        int instanceId = request.getApplicationInstanceId();
-//        long heartBeatTime = request.getHeartbeatTime();
-//        this.instanceHeartBeatService.heartBeat(instanceId, heartBeatTime);
-//        responseObserver.onNext(Downstream.getDefaultInstance());
-//        responseObserver.onCompleted();
+        int serviceInstanceId = request.getApplicationInstanceId();
+        long heartBeatTime = request.getHeartbeatTime();
+        serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, heartBeatTime);
+        responseObserver.onNext(Downstream.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 }

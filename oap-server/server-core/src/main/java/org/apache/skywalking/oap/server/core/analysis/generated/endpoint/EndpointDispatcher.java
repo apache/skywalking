@@ -30,8 +30,26 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
 
     @Override public void dispatch(Endpoint source) {
+        doEndpointCpm(source);
         doEndpointAvg(source);
-        doEndpointPercent(source);
+        doEndpointSla(source);
+        doEndpointP99(source);
+        doEndpointP95(source);
+        doEndpointP90(source);
+        doEndpointP75(source);
+        doEndpointP50(source);
+    }
+
+    private void doEndpointCpm(Endpoint source) {
+        EndpointCpmIndicator indicator = new EndpointCpmIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(1);
+        IndicatorProcess.INSTANCE.in(indicator);
     }
 
     private void doEndpointAvg(Endpoint source) {
@@ -46,8 +64,8 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
         IndicatorProcess.INSTANCE.in(indicator);
     }
 
-    private void doEndpointPercent(Endpoint source) {
-        EndpointPercentIndicator indicator = new EndpointPercentIndicator();
+    private void doEndpointSla(Endpoint source) {
+        EndpointSlaIndicator indicator = new EndpointSlaIndicator();
 
 
         indicator.setTimeBucket(source.getTimeBucket());
@@ -55,6 +73,66 @@ public class EndpointDispatcher implements SourceDispatcher<Endpoint> {
         indicator.setServiceId(source.getServiceId());
         indicator.setServiceInstanceId(source.getServiceInstanceId());
         indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+
+    private void doEndpointP99(Endpoint source) {
+        EndpointP99Indicator indicator = new EndpointP99Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+
+    private void doEndpointP95(Endpoint source) {
+        EndpointP95Indicator indicator = new EndpointP95Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+
+    private void doEndpointP90(Endpoint source) {
+        EndpointP90Indicator indicator = new EndpointP90Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+
+    private void doEndpointP75(Endpoint source) {
+        EndpointP75Indicator indicator = new EndpointP75Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getLatency(), 10);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+
+    private void doEndpointP50(Endpoint source) {
+        EndpointP50Indicator indicator = new EndpointP50Indicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getLatency(), 10);
         IndicatorProcess.INSTANCE.in(indicator);
     }
 

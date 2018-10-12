@@ -20,15 +20,19 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
-import org.apache.skywalking.oap.server.core.storage.query.*;
+import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.metrics.avg.Avg;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
@@ -40,73 +44,41 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
         super(client);
     }
 
-    public List<OneIdGroupValue> aggregation(String indName, Step step, long startTB,
-        long endTB, Where where, String idCName, String valueCName, Function function) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        queryBuild(sourceBuilder, where, startTB, endTB);
-
-        TermsAggregationBuilder aggIdCName1 = AggregationBuilders.terms(idCName).field(idCName).size(1000);
-        functionAggregation(function, aggIdCName1, valueCName);
-
-        sourceBuilder.aggregation(aggIdCName1);
-
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
-
-        List<OneIdGroupValue> values = new ArrayList<>();
-        Terms idTerms = response.getAggregations().get(idCName);
-        for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            Terms valueTerms = idBucket.getAggregations().get(valueCName);
-            for (Terms.Bucket valueBucket : valueTerms.getBuckets()) {
-                OneIdGroupValue value = new OneIdGroupValue();
-                value.setId(idBucket.getKeyAsNumber().intValue());
-                value.setValue(valueBucket.getKeyAsNumber());
-                values.add(value);
-            }
-        }
-        return values;
-    }
-
-    public List<TwoIdGroupValue> aggregation(String indName, Step step, long startTB,
-        long endTB, Where where, String idCName1, String idCName2, String valueCName,
+    public IntValues getValues(String indName, Step step, long startTB, long endTB, Where where, String valueCName,
         Function function) throws IOException {
         String indexName = TimePyramidTableNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
 
-        sourceBuilder.aggregation(
-            AggregationBuilders.terms(idCName1).field(idCName1).size(1000)
-                .subAggregation(AggregationBuilders.terms(idCName2).field(idCName2).size(1000)
-                    .subAggregation(AggregationBuilders.avg(valueCName).field(valueCName)))
-        );
+        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Indicator.ENTITY_ID).field(Indicator.ENTITY_ID).size(1000);
+        functionAggregation(function, entityIdAggregation, valueCName);
 
-        TermsAggregationBuilder aggIdCName1 = AggregationBuilders.terms(idCName1).field(idCName1).size(1000);
-        TermsAggregationBuilder aggIdCName2 = AggregationBuilders.terms(idCName2).field(idCName2).size(1000);
-        aggIdCName1.subAggregation(aggIdCName2);
-        functionAggregation(function, aggIdCName2, valueCName);
-
-        sourceBuilder.aggregation(aggIdCName1);
+        sourceBuilder.aggregation(entityIdAggregation);
 
         SearchResponse response = getClient().search(indexName, sourceBuilder);
 
-        List<TwoIdGroupValue> values = new ArrayList<>();
-        Terms id1Terms = response.getAggregations().get(idCName1);
-        for (Terms.Bucket id1Bucket : id1Terms.getBuckets()) {
-            Terms id2Terms = id1Bucket.getAggregations().get(idCName2);
-            for (Terms.Bucket id2Bucket : id2Terms.getBuckets()) {
-                Terms valueTerms = id1Bucket.getAggregations().get(valueCName);
-                for (Terms.Bucket valueBucket : valueTerms.getBuckets()) {
-                    TwoIdGroupValue value = new TwoIdGroupValue();
-                    value.setId1(id1Bucket.getKeyAsNumber().intValue());
-                    value.setId1(id2Bucket.getKeyAsNumber().intValue());
-                    value.setValue(valueBucket.getKeyAsNumber());
-                    values.add(value);
-                }
+        IntValues intValues = new IntValues();
+        Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
+        for (Terms.Bucket idBucket : idTerms.getBuckets()) {
+            int value = 0;
+            switch (function) {
+                case Sum:
+                    Sum sum = idBucket.getAggregations().get(valueCName);
+                    value = (int)sum.getValue();
+                    break;
+                case Avg:
+                    Avg avg = idBucket.getAggregations().get(valueCName);
+                    value = (int)avg.getValue();
+                    break;
             }
+
+            KVInt kvInt = new KVInt();
+            kvInt.setId(idBucket.getKeyAsString());
+            kvInt.setValue(value);
+            intValues.getValues().add(kvInt);
         }
-        return values;
+        return intValues;
     }
 
     private void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
@@ -118,5 +90,87 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
                 parentAggBuilder.subAggregation(AggregationBuilders.sum(valueCName).field(valueCName));
                 break;
         }
+    }
+
+    @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
+        String valueCName) throws IOException {
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+
+        MultiGetResponse response = getClient().multiGet(indexName, ids);
+
+        IntValues intValues = new IntValues();
+        for (MultiGetItemResponse itemResponse : response.getResponses()) {
+
+            KVInt kvInt = new KVInt();
+            kvInt.setId(itemResponse.getId());
+            kvInt.setValue(0);
+            Map<String, Object> source = itemResponse.getResponse().getSource();
+            if (source != null) {
+                kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).intValue());
+            }
+            intValues.getValues().add(kvInt);
+        }
+        return intValues;
+    }
+
+    @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
+        String valueCName) throws IOException {
+        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+
+        MultiGetResponse response = getClient().multiGet(indexName, ids);
+
+        Thermodynamic thermodynamic = new Thermodynamic();
+        List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
+
+        int numOfSteps = 0;
+        for (MultiGetItemResponse itemResponse : response.getResponses()) {
+            Map<String, Object> source = itemResponse.getResponse().getSource();
+            if (source == null) {
+                // add empty list to represent no data exist for this time bucket
+                thermodynamicValueMatrix.add(new ArrayList<>());
+            } else {
+                int axisYStep = ((Number)source.get(ThermodynamicIndicator.STEP)).intValue();
+                thermodynamic.setAxisYStep(axisYStep);
+                numOfSteps = ((Number)source.get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue();
+
+                String value = (String)source.get(ThermodynamicIndicator.DETAIL_GROUP);
+                IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                intKeyLongValues.toObject(value);
+
+                List<Long> axisYValues = new ArrayList<>();
+                for (int i = 0; i < numOfSteps; i++) {
+                    axisYValues.add(0L);
+                }
+
+                for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                    axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
+                }
+
+                thermodynamicValueMatrix.add(axisYValues);
+            }
+        }
+
+        int defaultNumOfSteps = numOfSteps;
+
+        thermodynamicValueMatrix.forEach(columnOfThermodynamic -> {
+                if (columnOfThermodynamic.size() == 0) {
+                    if (defaultNumOfSteps > 0) {
+                        for (int i = 0; i < defaultNumOfSteps; i++) {
+                            columnOfThermodynamic.add(0L);
+                        }
+                    }
+                }
+            }
+        );
+
+        for (int colNum = 0; colNum < thermodynamicValueMatrix.size(); colNum++) {
+            List<Long> column = thermodynamicValueMatrix.get(colNum);
+            for (int rowNum = 0; rowNum < column.size(); rowNum++) {
+                Long value = column.get(rowNum);
+                thermodynamic.setNodeValue(colNum, rowNum, value);
+            }
+        }
+
+        return thermodynamic;
     }
 }

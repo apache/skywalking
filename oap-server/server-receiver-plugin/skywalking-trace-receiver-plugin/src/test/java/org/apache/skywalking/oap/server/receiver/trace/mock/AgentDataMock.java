@@ -52,6 +52,14 @@ public class AgentDataMock {
         UniqueId.Builder providerSegmentId = UniqueIdBuilder.INSTANCE.create();
         providerMock.mock(streamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp, true);
 
+        TimeUnit.SECONDS.sleep(10);
+
+        globalTraceId = UniqueIdBuilder.INSTANCE.create();
+        consumerSegmentId = UniqueIdBuilder.INSTANCE.create();
+        providerSegmentId = UniqueIdBuilder.INSTANCE.create();
+        consumerMock.mock(streamObserver, globalTraceId, consumerSegmentId, startTimestamp, false);
+        providerMock.mock(streamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp, false);
+
         streamObserver.onCompleted();
         while (!IS_COMPLETED) {
             TimeUnit.MILLISECONDS.sleep(500);

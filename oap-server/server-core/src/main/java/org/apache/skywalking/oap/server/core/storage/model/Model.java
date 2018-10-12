@@ -24,9 +24,10 @@ import lombok.Getter;
 /**
  * @author peng-yongsheng
  */
+@Getter
 public class Model {
-    @Getter private final String name;
-    @Getter private final List<ModelColumn> columns;
+    private final String name;
+    private final List<ModelColumn> columns;
 
     public Model(String name, List<ModelColumn> columns) {
         this.name = name;

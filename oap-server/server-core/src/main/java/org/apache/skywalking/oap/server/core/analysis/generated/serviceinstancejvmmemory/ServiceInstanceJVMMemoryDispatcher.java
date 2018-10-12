@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -30,12 +31,57 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceInstanceJVMMemoryDispatcher implements SourceDispatcher<ServiceInstanceJVMMemory> {
 
     @Override public void dispatch(ServiceInstanceJVMMemory source) {
-        doInstanceJvmMemoryMax(source);
+        doInstanceJvmMemoryHeap(source);
+        doInstanceJvmMemoryNoheap(source);
+        doInstanceJvmMemoryHeapMax(source);
+        doInstanceJvmMemoryNoheapMax(source);
     }
 
-    private void doInstanceJvmMemoryMax(ServiceInstanceJVMMemory source) {
-        InstanceJvmMemoryMaxIndicator indicator = new InstanceJvmMemoryMaxIndicator();
+    private void doInstanceJvmMemoryHeap(ServiceInstanceJVMMemory source) {
+        InstanceJvmMemoryHeapIndicator indicator = new InstanceJvmMemoryHeapIndicator();
 
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(true).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getUsed(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmMemoryNoheap(ServiceInstanceJVMMemory source) {
+        InstanceJvmMemoryNoheapIndicator indicator = new InstanceJvmMemoryNoheapIndicator();
+
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(false).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getUsed(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmMemoryHeapMax(ServiceInstanceJVMMemory source) {
+        InstanceJvmMemoryHeapMaxIndicator indicator = new InstanceJvmMemoryHeapMaxIndicator();
+
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(true).match()) {
+            return;
+        }
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceInstanceId(source.getServiceInstanceId());
+        indicator.combine(source.getMax(), 1);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
+    private void doInstanceJvmMemoryNoheapMax(ServiceInstanceJVMMemory source) {
+        InstanceJvmMemoryNoheapMaxIndicator indicator = new InstanceJvmMemoryNoheapMaxIndicator();
+
+        if (!new EqualMatch().setLeft(source.isHeapStatus()).setRight(false).match()) {
+            return;
+        }
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setEntityId(source.getEntityId());

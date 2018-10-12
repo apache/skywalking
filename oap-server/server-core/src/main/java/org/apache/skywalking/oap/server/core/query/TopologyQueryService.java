@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.*;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -37,6 +40,8 @@ public class TopologyQueryService implements Service {
 
     private final ModuleManager moduleManager;
     private ITopologyQueryDAO topologyQueryDAO;
+    private EndpointInventoryCache endpointInventoryCache;
+    private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TopologyQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -47,6 +52,20 @@ public class TopologyQueryService implements Service {
             topologyQueryDAO = moduleManager.find(StorageModule.NAME).getService(ITopologyQueryDAO.class);
         }
         return topologyQueryDAO;
+    }
+
+    private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
+        if (componentLibraryCatalogService == null) {
+            componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).getService(IComponentLibraryCatalogService.class);
+        }
+        return componentLibraryCatalogService;
+    }
+
+    private EndpointInventoryCache getEndpointInventoryCache() {
+        if (endpointInventoryCache == null) {
+            endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        }
+        return endpointInventoryCache;
     }
 
     public Topology getGlobalTopology(final Step step, final long startTB, final long endTB) throws IOException {
@@ -79,7 +98,7 @@ public class TopologyQueryService implements Service {
         List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, serviceIdList);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
-        Topology topology = builder.build(serviceComponents, serviceMappings, serviceRelationClientCalls, serviceRelationServerCalls);
+        Topology topology = builder.build(serviceComponents, new ArrayList<>(), serviceRelationClientCalls, serviceRelationServerCalls);
 
         Set<Integer> nodeIds = new HashSet<>();
         topology.getCalls().forEach(call -> {
@@ -93,6 +112,25 @@ public class TopologyQueryService implements Service {
             }
         }
 
+        return topology;
+    }
+
+    public Topology getEndpointTopology(final Step step, final long startTB, final long endTB,
+        final int endpointId) throws IOException {
+        List<ServiceComponent> serviceComponents = getTopologyQueryDAO().loadServiceComponents(step, startTB, endTB);
+
+        Map<Integer, String> components = new HashMap<>();
+        serviceComponents.forEach(component -> components.put(component.getServiceId(), getComponentLibraryCatalogService().getComponentName(component.getComponentId())));
+
+        List<Call> calls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
+        calls.addAll(getTopologyQueryDAO().loadSpecifiedSourceOfClientSideEndpointRelations(step, startTB, endTB, endpointId));
+
+        calls.forEach(call -> {
+            call.setCallType(components.getOrDefault(getEndpointInventoryCache().get(call.getTarget()).getServiceId(), Const.UNKNOWN));
+        });
+
+        Topology topology = new Topology();
+        topology.getCalls().addAll(calls);
         return topology;
     }
 }

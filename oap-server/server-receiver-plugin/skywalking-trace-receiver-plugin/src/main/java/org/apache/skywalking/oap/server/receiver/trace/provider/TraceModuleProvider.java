@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment.SegmentSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 
@@ -60,6 +61,7 @@ public class TraceModuleProvider extends ModuleProvider {
         listenerManager.add(new MultiScopesSpanListener.Factory());
         listenerManager.add(new ServiceComponentSpanListener.Factory());
         listenerManager.add(new ServiceMappingSpanListener.Factory());
+        listenerManager.add(new SegmentSpanListener.Factory());
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         try {
