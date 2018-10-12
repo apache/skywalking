@@ -17,18 +17,18 @@
 # Sample alarm rules.
 rules:
   # Rule unique name, must be ended with `_rule`.
-#  endpoint_percent_rule:
-#    # Indicator value need to be long, double or int
-#    indicator-name: endpoint_percent
-#    threshold: 75
-#    op: <
-#    # The length of time to evaluate the metric
-#    period: 10
-#    # How many times after the metric match the condition, will trigger alarm
-#    count: 3
-#    # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
-#    silence-period: 10
-#    message: Successful rate of endpoint {name} is lower than 75%
+  endpoint_percent_rule:
+    # Indicator value need to be long, double or int
+    indicator-name: endpoint_percent
+    threshold: 75
+    op: <
+    # The length of time to evaluate the metric
+    period: 10
+    # How many times after the metric match the condition, will trigger alarm
+    count: 3
+    # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
+    silence-period: 10
+    message: Successful rate of endpoint {name} is lower than 75%
   service_resp_time_rule:
     indicator-name: service_resp_time
     # [Optional] Default, match all services in this indicator
@@ -40,7 +40,7 @@ rules:
     period: 10
     count: 1
 
-webhooks:
+#webhooks:
 #  - http://127.0.0.1/notify/
 #  - http://127.0.0.1/go-wechat/
 
