@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.ConstOne;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -34,7 +32,7 @@ public abstract class CPMIndicator extends Indicator implements LongValueHolder 
     protected static final String VALUE = "value";
     protected static final String TOTAL = "total";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private long value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private long value;
     @Getter @Setter @Column(columnName = TOTAL) private long total;
 
     @Entrance

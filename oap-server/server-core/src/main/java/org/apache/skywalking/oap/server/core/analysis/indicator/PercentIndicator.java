@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -33,7 +34,7 @@ public abstract class PercentIndicator extends Indicator implements IntValueHold
     protected static final String PERCENTAGE = "percentage";
 
     @Getter @Setter @Column(columnName = TOTAL) private long total;
-    @Getter @Setter @Column(columnName = PERCENTAGE, isValue = true) private int percentage;
+    @Getter @Setter @Column(columnName = PERCENTAGE, isValue = true, function = Function.Avg) private int percentage;
     @Getter @Setter @Column(columnName = MATCH) private long match;
 
     @Entrance

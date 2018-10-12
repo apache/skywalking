@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -34,7 +35,7 @@ public abstract class DoubleAvgIndicator extends Indicator implements DoubleValu
 
     @Getter @Setter @Column(columnName = SUMMATION) private double summation;
     @Getter @Setter @Column(columnName = COUNT) private int count;
-    @Getter @Setter @Column(columnName = VALUE) private double value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private double value;
 
     @Entrance
     public final void combine(@SourceFrom double summation, @ConstOne int count) {
