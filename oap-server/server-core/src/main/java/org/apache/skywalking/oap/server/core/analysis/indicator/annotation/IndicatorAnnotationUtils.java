@@ -24,10 +24,6 @@ package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 public class IndicatorAnnotationUtils {
 
     public static boolean isIndicator(Class aClass) {
-        if (aClass.isAnnotationPresent(IndicatorType.class)) {
-            return true;
-        } else {
-            return false;
-        }
+        return aClass.isAnnotationPresent(IndicatorType.class);
     }
 }
