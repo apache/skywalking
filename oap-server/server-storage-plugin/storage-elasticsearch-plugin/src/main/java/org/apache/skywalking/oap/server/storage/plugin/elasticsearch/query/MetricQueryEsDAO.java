@@ -71,6 +71,10 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
                     Avg avg = idBucket.getAggregations().get(valueCName);
                     value = (int)avg.getValue();
                     break;
+                default:
+                    avg = idBucket.getAggregations().get(valueCName);
+                    value = (int)avg.getValue();
+                    break;
             }
 
             KVInt kvInt = new KVInt();
@@ -88,6 +92,9 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
                 break;
             case Sum:
                 parentAggBuilder.subAggregation(AggregationBuilders.sum(valueCName).field(valueCName));
+                break;
+            default:
+                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
                 break;
         }
     }
