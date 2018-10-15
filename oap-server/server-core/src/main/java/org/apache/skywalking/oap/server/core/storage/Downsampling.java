@@ -18,29 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
-
 /**
  * @author peng-yongsheng
  */
-public class TimePyramidTableNameBuilder {
+public enum Downsampling {
+    Second(0, "second"), Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
 
-    private TimePyramidTableNameBuilder() {
+    private final int value;
+    private final String name;
+
+    Downsampling(int value, String name) {
+        this.value = value;
+        this.name = name;
     }
 
-    public static String build(Step step, String tableName) {
-        switch (step) {
-            case MONTH:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Month.getName();
-                break;
-            case DAY:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Day.getName();
-                break;
-            case HOUR:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Hour.getName();
-                break;
-        }
-        return tableName;
+    public int getValue() {
+        return value;
+    }
+
+    public String getName() {
+        return name;
     }
 }
