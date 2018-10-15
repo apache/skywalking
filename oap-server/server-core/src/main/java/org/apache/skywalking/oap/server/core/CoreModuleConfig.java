@@ -18,16 +18,23 @@
 
 package org.apache.skywalking.oap.server.core;
 
+import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author peng-yongsheng
  */
+@Getter
 public class CoreModuleConfig extends ModuleConfig {
-    @Setter @Getter private String restHost;
-    @Setter @Getter private int restPort;
-    @Setter @Getter private String restContextPath;
-    @Setter @Getter private String gRPCHost;
-    @Setter @Getter private int gRPCPort;
+    @Setter private String restHost;
+    @Setter private int restPort;
+    @Setter private String restContextPath;
+    @Setter private String gRPCHost;
+    @Setter private int gRPCPort;
+    private final List<String> downsampling;
+
+    CoreModuleConfig() {
+        this.downsampling = new ArrayList<>();
+    }
 }
