@@ -18,6 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import lombok.*;
+
+/**
+ * @author peng-yongsheng
+ */
+@Getter
+@Setter
 public class Attribute {
     private String name;
     private String value;

@@ -18,25 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.indicator.DoubleValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
+import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.source.Scope;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Minutes;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.time.*;
+import org.joda.time.format.*;
+import org.slf4j.*;
 
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
@@ -148,6 +138,7 @@ public class RunningRule {
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
                 alarmMessage.setAlarmMessage(formatter.format(meta));
+                alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
             }
         });

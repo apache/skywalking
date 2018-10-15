@@ -16,11 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.library.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import org.slf4j.*;
 
-public class AlarmTrend {
-    private List<Integer> numOfAlarm = new ArrayList<>();
+/**
+ * @author peng-yongsheng
+ */
+public class TimestampUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(TimestampUtils.class);
+
+    public static void main(String[] args) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp timestamp = new Timestamp(1483200061001L);
+        logger.info("time: {}", format.format(timestamp));
+    }
 }

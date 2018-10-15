@@ -29,4 +29,6 @@ public interface IEndpointInventoryRegister extends Service {
     int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint);
 
     int get(int serviceId, String endpointName);
+
+    void heartbeat(int endpointId, long heartBeatTime);
 }

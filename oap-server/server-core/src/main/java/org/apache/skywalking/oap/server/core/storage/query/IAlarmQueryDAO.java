@@ -16,11 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import java.util.List;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-public class Alarms {
-    private List<AlarmMessage> msgs;
-    private int total;
+/**
+ * @author peng-yongsheng
+ */
+public interface IAlarmQueryDAO extends DAO {
+
+    Alarms getAlarm(final Scope scope, final String keyword, final int limit, final int from, final long startTB,
+        final long endTB) throws IOException;
 }

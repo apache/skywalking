@@ -30,4 +30,6 @@ public interface IServiceInstanceInventoryRegister extends Service {
         ServiceInstanceInventory.AgentOsInfo osInfo);
 
     int getOrCreate(int serviceId, int addressId, long registerTime);
+
+    void heartbeat(int serviceInstanceId, long heartBeatTime);
 }

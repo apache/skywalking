@@ -16,13 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import org.apache.skywalking.oap.server.core.source.Scope;
+import java.util.*;
+import lombok.Getter;
 
-public class AlarmMessage {
-    private Scope scope;
-    private String id;
-    private String message;
-    private Long startTime;
+/**
+ * @author peng-yongsheng
+ */
+@Getter
+public class AlarmTrend {
+
+    private final List<Integer> numOfAlarm;
+
+    public AlarmTrend() {
+        this.numOfAlarm = new ArrayList<>();
+    }
 }

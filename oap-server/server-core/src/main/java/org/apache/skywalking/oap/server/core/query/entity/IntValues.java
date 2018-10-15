@@ -22,6 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
 
+/**
+ * @author peng-yongsheng
+ */
 public class IntValues {
     @Getter private List<KVInt> values = new LinkedList<>();
 

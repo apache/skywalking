@@ -26,6 +26,9 @@ import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @author peng-yongsheng
+ */
 public class TopologyQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;

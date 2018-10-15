@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -30,7 +31,7 @@ public abstract class CountIndicator extends Indicator implements LongValueHolde
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE) private long value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Sum) private long value;
 
     @Entrance
     public final void combine(@ConstOne long count) {
