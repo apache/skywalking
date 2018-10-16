@@ -16,27 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
-
-import java.util.List;
-import lombok.Getter;
+package org.apache.skywalking.oap.server.core.analysis.indicator.annotation;
 
 /**
  * @author peng-yongsheng
  */
-@Getter
-public class Model {
-    private final String name;
-    private final boolean isIndicator;
-    private final List<ModelColumn> columns;
+public class IndicatorAnnotationUtils {
 
-    public Model(String name, List<ModelColumn> columns, boolean isIndicator) {
-        this.name = name;
-        this.columns = columns;
-        this.isIndicator = isIndicator;
-    }
-
-    public Model copy(String name) {
-        return new Model(name, columns, isIndicator);
+    public static boolean isIndicator(Class aClass) {
+        return aClass.isAnnotationPresent(IndicatorType.class);
     }
 }

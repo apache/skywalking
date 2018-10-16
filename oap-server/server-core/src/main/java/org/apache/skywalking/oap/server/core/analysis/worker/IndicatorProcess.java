@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -52,20 +52,43 @@ public enum IndicatorProcess {
             throw new UnexpectedException("");
         }
 
-        AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
-        WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
+        IndicatorPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleManager, indicatorDAO, modelName);
+        IndicatorPersistentWorker hourPersistentWorker = worker(moduleManager, indicatorDAO, modelName + Const.ID_SPLIT + Downsampling.Hour.getName());
+        IndicatorPersistentWorker dayPersistentWorker = worker(moduleManager, indicatorDAO, modelName + Const.ID_SPLIT + Downsampling.Day.getName());
+        IndicatorPersistentWorker monthPersistentWorker = worker(moduleManager, indicatorDAO, modelName + Const.ID_SPLIT + Downsampling.Month.getName());
 
-        IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, alarmNotifyWorker);
-        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
-        persistentWorkers.add(persistentWorker);
+        IndicatorTransWorker transWorker = new IndicatorTransWorker(WorkerIdGenerator.INSTANCES.generate(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
+        WorkerInstances.INSTANCES.put(transWorker.getWorkerId(), transWorker);
 
-        IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, persistentWorker);
+        IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, transWorker);
         WorkerInstances.INSTANCES.put(remoteWorker.getWorkerId(), remoteWorker);
 
         IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(WorkerIdGenerator.INSTANCES.generate(), remoteWorker);
         WorkerInstances.INSTANCES.put(aggregateWorker.getWorkerId(), aggregateWorker);
 
         entryWorkers.put(indicatorClass, aggregateWorker);
+    }
+
+    private IndicatorPersistentWorker minutePersistentWorker(ModuleManager moduleManager,
+        IIndicatorDAO indicatorDAO, String modelName) {
+        AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
+        WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
+
+        IndicatorPersistentWorker minutePersistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
+            1000, moduleManager, indicatorDAO, alarmNotifyWorker);
+        WorkerInstances.INSTANCES.put(minutePersistentWorker.getWorkerId(), minutePersistentWorker);
+        persistentWorkers.add(minutePersistentWorker);
+
+        return minutePersistentWorker;
+    }
+
+    private IndicatorPersistentWorker worker(ModuleManager moduleManager,
+        IIndicatorDAO indicatorDAO, String modelName) {
+        IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
+            1000, moduleManager, indicatorDAO, null);
+        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        persistentWorkers.add(persistentWorker);
+
+        return persistentWorker;
     }
 }

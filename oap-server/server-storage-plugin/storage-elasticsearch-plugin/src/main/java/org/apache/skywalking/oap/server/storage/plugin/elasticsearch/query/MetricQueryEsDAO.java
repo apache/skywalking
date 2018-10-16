@@ -23,7 +23,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
-import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownsampleingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -46,7 +46,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
     public IntValues getValues(String indName, Step step, long startTB, long endTB, Where where, String valueCName,
         Function function) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownsampleingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
@@ -101,7 +101,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
     @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownsampleingModelNameBuilder.build(step, indName);
 
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 
@@ -122,7 +122,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
     @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownsampleingModelNameBuilder.build(step, indName);
 
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 

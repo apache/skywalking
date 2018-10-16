@@ -82,7 +82,9 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
                     batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));
                 }
 
-                nextWorker.in(data);
+                if (Objects.nonNull(nextWorker)) {
+                    nextWorker.in(data);
+                }
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }

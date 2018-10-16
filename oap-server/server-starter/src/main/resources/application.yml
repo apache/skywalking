@@ -33,6 +33,10 @@ core:
     restContextPath: /
     gRPCHost: 0.0.0.0
     gRPCPort: 11800
+    downsampling:
+      - Hour
+      - Day
+      - Month
 storage:
   h2:
 #  elasticsearch:
