@@ -25,7 +25,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.ClientException;
@@ -63,70 +62,45 @@ public class JDBCHikariCPClient implements Client {
         }
     }
 
-    public void execute(String sql) throws JDBCClientException {
-        try (Connection conn = getConnection()) {
-            try (Statement statement = conn.createStatement()) {
-                statement.execute(sql);
-                statement.closeOnCompletion();
+    public void close(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
             } catch (SQLException e) {
-                throw new JDBCClientException(e.getMessage(), e);
             }
+        }
+    }
+
+    public void execute(Connection connection, String sql) throws JDBCClientException {
+        try {
+            connection.setReadOnly(true);
+        } catch (SQLException e) {
+
+        }
+        logger.debug("execute aql: {}", sql);
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(sql);
+            statement.closeOnCompletion();
         } catch (SQLException e) {
             throw new JDBCClientException(e.getMessage(), e);
         }
     }
 
-    public ResultSet executeQuery(String sql, List<Object> params) throws JDBCClientException {
-        return executeQuery(sql, params.toArray(new Object[0]));
-    }
-
-    public ResultSet executeQuery(String sql, Object... params) throws JDBCClientException {
+    public ResultSet executeQuery(Connection connection, String sql, Object... params) throws JDBCClientException {
         logger.debug("execute query with result: {}", sql);
         ResultSet rs;
-        try (Connection conn = getConnection()) {
-            conn.setReadOnly(true);
-            try (PreparedStatement statement = conn.prepareStatement(sql)) {
-                if (params != null) {
-                    for (int i = 0; i < params.length; i++) {
-                        statement.setObject(i + 1, params[i]);
-                    }
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            if (params != null) {
+                for (int i = 0; i < params.length; i++) {
+                    statement.setObject(i + 1, params[i]);
                 }
-                rs = statement.executeQuery();
-                statement.closeOnCompletion();
-            } catch (SQLException e) {
-                throw new JDBCClientException(e.getMessage(), e);
             }
+            rs = statement.executeQuery();
+            statement.closeOnCompletion();
         } catch (SQLException e) {
             throw new JDBCClientException(e.getMessage(), e);
         }
 
         return rs;
-    }
-
-    public boolean execute(String sql, Object[] params) throws JDBCClientException {
-        logger.debug("execute insert/update/delete: {}", sql);
-        boolean flag;
-        try (Connection conn = getConnection()) {
-            /**
-             * Notice, SkyWalking is an observability system,
-             * no transaction required.
-             */
-            conn.setAutoCommit(true);
-            try (PreparedStatement statement = conn.prepareStatement(sql)) {
-                conn.setAutoCommit(true);
-                if (params != null) {
-                    for (int i = 0; i < params.length; i++) {
-                        statement.setObject(i + 1, params[i]);
-                    }
-                }
-                flag = statement.execute();
-                statement.closeOnCompletion();
-            } catch (SQLException e) {
-                throw new JDBCClientException(e.getMessage(), e);
-            }
-        } catch (SQLException e) {
-            throw new JDBCClientException(e.getMessage(), e);
-        }
-        return flag;
     }
 }

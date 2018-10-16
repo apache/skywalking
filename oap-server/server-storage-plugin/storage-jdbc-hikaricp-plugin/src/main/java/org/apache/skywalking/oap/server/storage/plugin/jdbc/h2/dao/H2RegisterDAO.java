@@ -43,14 +43,20 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
     }
 
     @Override public int max(String modelName) throws IOException {
-        try (ResultSet rs = h2Client.executeQuery("SELECT max(sequence) max_id FROM " + modelName + " ORDER BY sequence ASC", new Object[0])) {
-            while (rs.next()) {
-                return rs.getInt("max_id");
+        Connection connection = null;
+        try {
+            connection = h2Client.getConnection();
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT max(sequence) max_id FROM " + modelName + " ORDER BY sequence ASC", new Object[0])) {
+                while (rs.next()) {
+                    return rs.getInt("max_id");
+                }
             }
         } catch (SQLException e) {
             throw new IOException(e.getMessage(), e);
         } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
+        } finally {
+            h2Client.close(connection);
         }
         return Const.NONE;
     }

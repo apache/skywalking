@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -91,18 +92,24 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         sql.append(" group by ").append(Indicator.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
 
-        ResultSet resultSet = h2Client.executeQuery(sql.toString(), conditions);
-
+        Connection connection = null;
         List<TopNEntity> topNEntities = new ArrayList<>();
         try {
-            while (resultSet.next()) {
-                TopNEntity topNEntity = new TopNEntity();
-                topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
-                topNEntity.setValue(resultSet.getInt("value"));
-                topNEntities.add(topNEntity);
+            connection = h2Client.getConnection();
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions);
+
+            try {
+                while (resultSet.next()) {
+                    TopNEntity topNEntity = new TopNEntity();
+                    topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
+                    topNEntity.setValue(resultSet.getInt("value"));
+                    topNEntities.add(topNEntity);
+                }
+            } catch (SQLException e) {
+                throw new IOException(e);
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return topNEntities;
     }

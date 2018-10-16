@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -84,22 +85,27 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             whereSql.append(")");
         }
 
-        ResultSet resultSet = h2Client.executeQuery("select " + Indicator.ENTITY_ID + " id, " + op + "(" + valueCName + ") value from " + tableName
-                + " where " + whereSql
-                + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=?"
-                + " group by " + Indicator.ENTITY_ID,
-            startTB, endTB);
-
         IntValues intValues = new IntValues();
+        Connection connection = null;
         try {
-            while (resultSet.next()) {
-                KVInt kv = new KVInt();
-                kv.setId(resultSet.getString("id"));
-                kv.setValue(resultSet.getInt("value"));
-                intValues.getValues().add(kv);
+            connection = h2Client.getConnection();
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + Indicator.ENTITY_ID + " id, " + op + "(" + valueCName + ") value from " + tableName
+                    + " where " + whereSql
+                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=?"
+                    + " group by " + Indicator.ENTITY_ID,
+                startTB, endTB)) {
+
+                while (resultSet.next()) {
+                    KVInt kv = new KVInt();
+                    kv.setId(resultSet.getString("id"));
+                    kv.setValue(resultSet.getInt("value"));
+                    intValues.getValues().add(kv);
+                }
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return orderWithDefault0(intValues, ids);
     }
@@ -117,16 +123,22 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
         }
 
         IntValues intValues = new IntValues();
-        ResultSet resultSet = h2Client.executeQuery("select id, " + valueCName + " from " + tableName + " where id in " + idValues.toString());
+
+        Connection connection = null;
         try {
-            while (resultSet.next()) {
-                KVInt kv = new KVInt();
-                kv.setId(resultSet.getString("id"));
-                kv.setValue(resultSet.getInt(valueCName));
-                intValues.getValues().add(kv);
+            connection = h2Client.getConnection();
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select id, " + valueCName + " from " + tableName + " where id in " + idValues.toString())) {
+                while (resultSet.next()) {
+                    KVInt kv = new KVInt();
+                    kv.setId(resultSet.getString("id"));
+                    kv.setValue(resultSet.getInt(valueCName));
+                    intValues.getValues().add(kv);
+                }
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return orderWithDefault0(intValues, ids);
     }
@@ -164,31 +176,34 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
 
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
 
-        ResultSet resultSet = h2Client.executeQuery("select " + ThermodynamicIndicator.STEP + " step, "
-            + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps, "
-            + ThermodynamicIndicator.DETAIL_GROUP + " detail_group "
-            + " from " + tableName + " where id in " + idValues.toString());
-
-        Thermodynamic thermodynamic = new Thermodynamic();
+        Connection connection = null;
         try {
+            connection = h2Client.getConnection();
+            Thermodynamic thermodynamic = new Thermodynamic();
             int numOfSteps = 0;
-            while (resultSet.next()) {
-                int axisYStep = resultSet.getInt("step");
-                numOfSteps = resultSet.getInt("num_of_steps");
-                String value = resultSet.getString("detail_group");
-                IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
-                intKeyLongValues.toObject(value);
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + ThermodynamicIndicator.STEP + " step, "
+                + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps, "
+                + ThermodynamicIndicator.DETAIL_GROUP + " detail_group "
+                + " from " + tableName + " where id in " + idValues.toString())) {
 
-                List<Long> axisYValues = new ArrayList<>();
-                for (int i = 0; i < numOfSteps; i++) {
-                    axisYValues.add(0L);
+                while (resultSet.next()) {
+                    int axisYStep = resultSet.getInt("step");
+                    numOfSteps = resultSet.getInt("num_of_steps");
+                    String value = resultSet.getString("detail_group");
+                    IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                    intKeyLongValues.toObject(value);
+
+                    List<Long> axisYValues = new ArrayList<>();
+                    for (int i = 0; i < numOfSteps; i++) {
+                        axisYValues.add(0L);
+                    }
+
+                    for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                        axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
+                    }
+
+                    thermodynamicValueMatrix.add(axisYValues);
                 }
-
-                for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
-                    axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
-                }
-
-                thermodynamicValueMatrix.add(axisYValues);
             }
 
             thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);

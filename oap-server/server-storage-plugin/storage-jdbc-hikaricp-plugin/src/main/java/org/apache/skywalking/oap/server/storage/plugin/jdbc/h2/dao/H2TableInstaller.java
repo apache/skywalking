@@ -83,10 +83,14 @@ public class H2TableInstaller extends ModelInstaller {
             logger.debug("creating table: " + tableCreateSQL.toStringInNewLine());
         }
 
+        Connection connection = null;
         try {
-            h2Client.execute(tableCreateSQL.toString());
+            connection = h2Client.getConnection();
+            h2Client.execute(connection, tableCreateSQL.toString());
         } catch (JDBCClientException e) {
             throw new StorageException(e.getMessage(), e);
+        } finally {
+            h2Client.close(connection);
         }
 
     }
@@ -101,6 +105,8 @@ public class H2TableInstaller extends ModelInstaller {
         } else if (String.class.equals(type)) {
             return "VARCHAR(2000)";
         } else if (IntKeyLongValueArray.class.equals(type)) {
+            return "VARCHAR(20000)";
+        } else if (byte[].class.equals(type)) {
             return "VARCHAR(20000)";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,23 +48,35 @@ public class H2SQLExecutor {
 
     protected StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
         StorageBuilder storageBuilder) throws IOException {
-        try (ResultSet rs = h2Client.executeQuery("SELECT * FROM " + modelName + " WHERE id = ?", new Object[] {id})) {
-            return toStorageData(rs, modelName, storageBuilder);
+        Connection connection = null;
+        try {
+            connection = h2Client.getConnection();
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", new Object[] {id})) {
+                return toStorageData(rs, modelName, storageBuilder);
+            }
         } catch (SQLException e) {
             throw new IOException(e.getMessage(), e);
         } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
+        } finally {
+            h2Client.close(connection);
         }
     }
 
     protected StorageData getByColumn(JDBCHikariCPClient h2Client, String modelName, String columnName, Object value,
         StorageBuilder storageBuilder) throws IOException {
-        try (ResultSet rs = h2Client.executeQuery("SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", new Object[] {value})) {
-            return toStorageData(rs, modelName, storageBuilder);
+        Connection connection = null;
+        try {
+            connection = h2Client.getConnection();
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", new Object[] {value})) {
+                return toStorageData(rs, modelName, storageBuilder);
+            }
         } catch (SQLException e) {
             throw new IOException(e.getMessage(), e);
         } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
+        } finally {
+            h2Client.close(connection);
         }
     }
 
@@ -81,14 +94,20 @@ public class H2SQLExecutor {
     }
 
     protected int getEntityIDByID(JDBCHikariCPClient h2Client, String entityColumnName, String modelName, String id) {
-        try (ResultSet rs = h2Client.executeQuery("SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", new Object[] {id})) {
-            while (rs.next()) {
-                return rs.getInt(ServiceInstanceInventory.SEQUENCE);
+        Connection connection = null;
+        try {
+            connection = h2Client.getConnection();
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", new Object[] {id})) {
+                while (rs.next()) {
+                    return rs.getInt(ServiceInstanceInventory.SEQUENCE);
+                }
             }
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         } catch (JDBCClientException e) {
             logger.error(e.getMessage(), e);
+        } finally {
+            h2Client.close(connection);
         }
         return Const.NONE;
     }

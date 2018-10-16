@@ -64,7 +64,7 @@ public abstract class ModelInstaller {
 
         for (Model model : models) {
             if (!isExists(client, model)) {
-                logger.info("table: {} not exists", model.getName());
+                logger.info("table: {} does not exist", model.getName());
                 createTable(client, model);
             } else if (debug) {
                 logger.info("table: {} exists", model.getName());

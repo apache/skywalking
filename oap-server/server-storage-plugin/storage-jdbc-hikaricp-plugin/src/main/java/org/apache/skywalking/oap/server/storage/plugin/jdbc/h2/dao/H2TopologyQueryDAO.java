@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -74,13 +75,16 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override public List<ServiceMapping> loadServiceMappings(Step step, long startTB, long endTB) throws IOException {
         String tableName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
-        ResultSet resultSet = h2Client.executeQuery("select distinct " + ServiceMappingIndicator.SERVICE_ID
-                + ", " + ServiceMappingIndicator.MAPPING_SERVICE_ID
-                + " from " + tableName + " where "
-                + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? ",
-            startTB, endTB);
+
         List<ServiceMapping> serviceMappings = new ArrayList<>();
+        Connection connection = null;
         try {
+            connection = h2Client.getConnection();
+            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + ServiceMappingIndicator.SERVICE_ID
+                    + ", " + ServiceMappingIndicator.MAPPING_SERVICE_ID
+                    + " from " + tableName + " where "
+                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? ",
+                startTB, endTB);
             while (resultSet.next()) {
                 ServiceMapping serviceMapping = new ServiceMapping();
                 serviceMapping.setServiceId(resultSet.getInt(ServiceMappingIndicator.SERVICE_ID));
@@ -89,6 +93,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return serviceMappings;
     }
@@ -96,13 +102,16 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<ServiceComponent> loadServiceComponents(Step step, long startTB, long endTB) throws IOException {
         String tableName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
-        ResultSet resultSet = h2Client.executeQuery("select distinct " + ServiceComponentIndicator.SERVICE_ID
-                + ", " + ServiceComponentIndicator.COMPONENT_ID
-                + " from " + tableName + " where "
-                + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? ",
-            startTB, endTB);
+
+        Connection connection = null;
         List<ServiceComponent> serviceComponents = new ArrayList<>();
         try {
+            connection = h2Client.getConnection();
+            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + ServiceComponentIndicator.SERVICE_ID
+                    + ", " + ServiceComponentIndicator.COMPONENT_ID
+                    + " from " + tableName + " where "
+                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? ",
+                startTB, endTB);
             while (resultSet.next()) {
                 ServiceComponent serviceComponent = new ServiceComponent();
                 serviceComponent.setServiceId(resultSet.getInt(ServiceComponentIndicator.SERVICE_ID));
@@ -111,6 +120,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return serviceComponents;
     }
@@ -148,14 +159,16 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             }
             serviceIdMatchSql.append(")");
         }
-        ResultSet resultSet = h2Client.executeQuery("select distinct " + sourceCName
-                + ", " + destCName
-                + " from " + tableName + " where "
-                + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? "
-                + serviceIdMatchSql.toString(),
-            conditions);
         List<Call> calls = new ArrayList<>();
+        Connection connection = null;
         try {
+            connection = h2Client.getConnection();
+            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + sourceCName
+                    + ", " + destCName
+                    + " from " + tableName + " where "
+                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? "
+                    + serviceIdMatchSql.toString(),
+                conditions);
             while (resultSet.next()) {
                 Call call = new Call();
                 call.setSource(resultSet.getInt(sourceCName));
@@ -166,6 +179,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return calls;
     }
@@ -176,14 +191,16 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         conditions[0] = startTB;
         conditions[1] = endTB;
         conditions[2] = id;
-        ResultSet resultSet = h2Client.executeQuery("select distinct " + sourceCName
-                + ", " + destCName
-                + " from " + tableName + " where "
-                + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and"
-                + (isSourceId ? sourceCName : destCName) + "=?",
-            conditions);
+        Connection connection = null;
         List<Call> calls = new ArrayList<>();
         try {
+            connection = h2Client.getConnection();
+            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + sourceCName
+                    + ", " + destCName
+                    + " from " + tableName + " where "
+                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and"
+                    + (isSourceId ? sourceCName : destCName) + "=?",
+                conditions);
             while (resultSet.next()) {
                 Call call = new Call();
                 call.setSource(resultSet.getInt(sourceCName));
@@ -193,6 +210,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return calls;
     }
