@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.language.agent.*;
