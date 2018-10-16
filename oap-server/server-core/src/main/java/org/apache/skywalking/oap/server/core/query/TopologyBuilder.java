@@ -51,11 +51,14 @@ class TopologyBuilder {
         Map<Integer, Integer> mappings = changeMapping2Map(serviceMappings);
         filterZeroSourceOrTargetReference(serviceRelationClientCalls);
         filterZeroSourceOrTargetReference(serviceRelationServerCalls);
-        serviceRelationServerCalls = serverCallsFilter(serviceRelationServerCalls);
+        mappingIdExchange(mappings, serviceRelationClientCalls);
+        mappingIdExchange(mappings, serviceRelationServerCalls);
 
         List<Node> nodes = new LinkedList<>();
         List<Call> calls = new LinkedList<>();
         Set<Integer> nodeIds = new HashSet<>();
+        Set<String> callIds = new HashSet<>();
+
         serviceRelationClientCalls.forEach(clientCall -> {
             ServiceInventory source = serviceInventoryCache.get(clientCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(clientCall.getTarget());
@@ -72,29 +75,28 @@ class TopologyBuilder {
                 }
             }
 
-            Set<Integer> serviceNodeIds = buildNodeIds(nodes);
-            if (!serviceNodeIds.contains(source.getSequence())) {
-                Node serviceNode = new Node();
-                serviceNode.setId(source.getSequence());
-                serviceNode.setName(source.getName());
-                serviceNode.setType(nodeCompMap.getOrDefault(source.getSequence(), Const.UNKNOWN));
-                if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
-                    serviceNode.setReal(false);
-                } else {
-                    serviceNode.setReal(true);
-                }
-                nodes.add(serviceNode);
+            if (!nodeIds.contains(source.getSequence())) {
+                nodes.add(buildNode(nodeCompMap, source));
+                nodeIds.add(source.getSequence());
             }
 
-            Call call = new Call();
-            call.setSource(source.getSequence());
+            if (!nodeIds.contains(target.getSequence())) {
+                nodes.add(buildNode(nodeCompMap, target));
+                nodeIds.add(target.getSequence());
+            }
 
-            int actualTargetId = mappings.getOrDefault(target.getSequence(), target.getSequence());
-            call.setTarget(actualTargetId);
-            call.setCallType(nodeCompMap.get(clientCall.getTarget()));
-            call.setId(clientCall.getId());
-            call.setDetectPoint(DetectPoint.CLIENT);
-            calls.add(call);
+            String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
+            if (!callIds.contains(callId)) {
+                callIds.add(callId);
+
+                Call call = new Call();
+                call.setSource(source.getSequence());
+                call.setTarget(target.getSequence());
+                call.setCallType(nodeCompMap.get(clientCall.getTarget()));
+                call.setId(clientCall.getId());
+                call.setDetectPoint(DetectPoint.CLIENT);
+                calls.add(call);
+            }
         });
 
         serviceRelationServerCalls.forEach(serverCall -> {
@@ -125,18 +127,33 @@ class TopologyBuilder {
                 }
             }
 
-            Call call = new Call();
-            call.setSource(source.getSequence());
-            call.setTarget(target.getSequence());
-            call.setId(serverCall.getId());
-            call.setDetectPoint(DetectPoint.SERVER);
-
-            if (source.getSequence() == Const.USER_SERVICE_ID) {
-                call.setCallType(Const.EMPTY_STRING);
-            } else {
-                call.setCallType(nodeCompMap.get(serverCall.getTarget()));
+            if (!nodeIds.contains(source.getSequence())) {
+                nodes.add(buildNode(nodeCompMap, source));
+                nodeIds.add(source.getSequence());
             }
-            calls.add(call);
+
+            if (!nodeIds.contains(target.getSequence())) {
+                nodes.add(buildNode(nodeCompMap, target));
+                nodeIds.add(target.getSequence());
+            }
+
+            String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
+            if (!callIds.contains(callId)) {
+                callIds.add(callId);
+
+                Call call = new Call();
+                call.setSource(source.getSequence());
+                call.setTarget(target.getSequence());
+                call.setId(serverCall.getId());
+                call.setDetectPoint(DetectPoint.SERVER);
+
+                if (source.getSequence() == Const.USER_SERVICE_ID) {
+                    call.setCallType(Const.EMPTY_STRING);
+                } else {
+                    call.setCallType(nodeCompMap.get(serverCall.getTarget()));
+                }
+                calls.add(call);
+            }
         });
 
         Topology topology = new Topology();
@@ -145,23 +162,11 @@ class TopologyBuilder {
         return topology;
     }
 
-    private Set<Integer> buildNodeIds(List<Node> nodes) {
-        Set<Integer> nodeIds = new HashSet<>();
-        nodes.forEach(node -> nodeIds.add(node.getId()));
-        return nodeIds;
-    }
-
-    private List<Call> serverCallsFilter(List<Call> serviceRelationServerCalls) {
-        List<Call> filteredCalls = new LinkedList<>();
-
-        serviceRelationServerCalls.forEach(serverCall -> {
-            ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
-            if (BooleanUtils.valueToBoolean(source.getIsAddress()) || source.getSequence() == Const.USER_SERVICE_ID) {
-                filteredCalls.add(serverCall);
-            }
+    private void mappingIdExchange(Map<Integer, Integer> mappings, List<Call> serviceRelationCalls) {
+        serviceRelationCalls.forEach(relationCall -> {
+            relationCall.setSource(mappings.getOrDefault(relationCall.getSource(), relationCall.getSource()));
+            relationCall.setTarget(mappings.getOrDefault(relationCall.getTarget(), relationCall.getTarget()));
         });
-
-        return filteredCalls;
     }
 
     private Map<Integer, Integer> changeMapping2Map(List<ServiceMapping> serviceMappings) {
@@ -187,6 +192,19 @@ class TopologyBuilder {
             components.put(serviceComponent.getServiceId(), componentName);
         });
         return components;
+    }
+
+    private Node buildNode(Map<Integer, String> nodeCompMap, ServiceInventory serviceInventory) {
+        Node serviceNode = new Node();
+        serviceNode.setId(serviceInventory.getSequence());
+        serviceNode.setName(serviceInventory.getName());
+        serviceNode.setType(nodeCompMap.getOrDefault(serviceInventory.getSequence(), Const.UNKNOWN));
+        if (BooleanUtils.valueToBoolean(serviceInventory.getIsAddress())) {
+            serviceNode.setReal(false);
+        } else {
+            serviceNode.setReal(true);
+        }
+        return serviceNode;
     }
 
     private void filterZeroSourceOrTargetReference(List<Call> serviceRelationClientCalls) {
