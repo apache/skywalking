@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -79,7 +79,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Step step,
         long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, indName);
+        String tableName = DownSamplingModelNameBuilder.build(step, indName);
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
         sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Indicator.ENTITY_ID).append(" from ")

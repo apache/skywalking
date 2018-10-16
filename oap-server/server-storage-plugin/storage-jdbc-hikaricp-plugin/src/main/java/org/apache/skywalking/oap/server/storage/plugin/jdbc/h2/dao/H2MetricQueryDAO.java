@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -51,7 +51,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
     @Override
     public IntValues getValues(String indName, Step step, long startTB, long endTB, Where where, String valueCName,
         Function function) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, indName);
+        String tableName = DownSamplingModelNameBuilder.build(step, indName);
 
         List<KeyValues> whereKeyValues = where.getKeyValues();
         String op;
@@ -106,7 +106,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
 
     @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, indName);
+        String tableName = DownSamplingModelNameBuilder.build(step, indName);
 
         StringBuilder idValues = new StringBuilder();
         for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
@@ -152,7 +152,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
 
     @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, indName);
+        String tableName = DownSamplingModelNameBuilder.build(step, indName);
 
         StringBuilder idValues = new StringBuilder();
         for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {

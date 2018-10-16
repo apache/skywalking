@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceComponent;
 import org.apache.skywalking.oap.server.core.source.ServiceMapping;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
-import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -52,28 +52,28 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override public List<Call> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideIndicator.SOURCE_SERVICE_ID, ServiceRelationServerSideIndicator.DEST_SERVICE_ID, serviceIds, true);
     }
 
     @Override public List<Call> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideIndicator.SOURCE_SERVICE_ID, ServiceRelationServerSideIndicator.DEST_SERVICE_ID, serviceIds, false);
     }
 
     @Override public List<Call> loadServerSideServiceRelations(Step step, long startTB, long endTB) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideIndicator.SOURCE_SERVICE_ID, ServiceRelationServerSideIndicator.DEST_SERVICE_ID, new ArrayList<>(0), false);
     }
 
     @Override public List<Call> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideIndicator.SOURCE_SERVICE_ID, ServiceRelationServerSideIndicator.DEST_SERVICE_ID, new ArrayList<>(0), true);
     }
 
     @Override public List<ServiceMapping> loadServiceMappings(Step step, long startTB, long endTB) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
         ResultSet resultSet = h2Client.executeQuery("select distinct " + ServiceMappingIndicator.SERVICE_ID
                 + ", " + ServiceMappingIndicator.MAPPING_SERVICE_ID
                 + " from " + tableName + " where "
@@ -95,7 +95,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override
     public List<ServiceComponent> loadServiceComponents(Step step, long startTB, long endTB) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
         ResultSet resultSet = h2Client.executeQuery("select distinct " + ServiceComponentIndicator.SERVICE_ID
                 + ", " + ServiceComponentIndicator.COMPONENT_ID
                 + " from " + tableName + " where "
@@ -117,7 +117,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override public List<Call> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
         int destEndpointId) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
 
         return loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideIndicator.SOURCE_ENDPOINT_ID, EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, destEndpointId, false);
     }
@@ -125,7 +125,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override public List<Call> loadSpecifiedSourceOfClientSideEndpointRelations(Step step, long startTB,
         long endTB,
         int sourceEndpointId) throws IOException {
-        String tableName = TimePyramidTableNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
+        String tableName = DownSamplingModelNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
 
         return loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideIndicator.SOURCE_ENDPOINT_ID, EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, sourceEndpointId, true);
     }

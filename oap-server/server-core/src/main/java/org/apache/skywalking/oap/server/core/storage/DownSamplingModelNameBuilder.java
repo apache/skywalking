@@ -24,9 +24,9 @@ import org.apache.skywalking.oap.server.core.query.entity.Step;
 /**
  * @author peng-yongsheng
  */
-public class DownsampleingModelNameBuilder {
+public class DownSamplingModelNameBuilder {
 
-    private DownsampleingModelNameBuilder() {
+    private DownSamplingModelNameBuilder() {
     }
 
     public static String build(Step step, String modelName) {
