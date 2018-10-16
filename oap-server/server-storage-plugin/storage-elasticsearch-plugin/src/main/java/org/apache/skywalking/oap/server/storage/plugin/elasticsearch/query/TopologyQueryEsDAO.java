@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideIndicator;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -175,26 +175,15 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.rangeQuery(EndpointRelationServerSideIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
-        boolQuery.must().add(QueryBuilders.termQuery(EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, destEndpointId));
+
+        BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(serviceIdBoolQuery);
+        serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideIndicator.SOURCE_ENDPOINT_ID, destEndpointId));
+        serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, destEndpointId));
+
         sourceBuilder.query(boolQuery);
 
         return load(sourceBuilder, indexName, EndpointRelationServerSideIndicator.SOURCE_ENDPOINT_ID, EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, Source.Endpoint);
-    }
-
-    @Override
-    public List<Call> loadSpecifiedSourceOfClientSideEndpointRelations(Step step, long startTB, long endTB,
-        int sourceEndpointId) throws IOException {
-        String indexName = DownsampleingModelNameBuilder.build(step, EndpointRelationClientSideIndicator.INDEX_NAME);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.size(0);
-
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(EndpointRelationClientSideIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
-        boolQuery.must().add(QueryBuilders.termQuery(EndpointRelationClientSideIndicator.SOURCE_ENDPOINT_ID, sourceEndpointId));
-        sourceBuilder.query(boolQuery);
-
-        return load(sourceBuilder, indexName, EndpointRelationClientSideIndicator.SOURCE_ENDPOINT_ID, EndpointRelationClientSideIndicator.DEST_ENDPOINT_ID, Source.Endpoint);
     }
 
     private List<Call> load(SearchSourceBuilder sourceBuilder, String indexName, String sourceCName,
