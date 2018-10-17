@@ -16,19 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.reader;
 
-import java.util.concurrent.atomic.AtomicLong;
+import com.google.gson.stream.JsonReader;
+import java.io.IOException;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng
  */
-public enum SegmentCounter {
-    INSTANCE;
+public class UniqueIdJsonReader implements StreamJsonReader<UniqueId.Builder> {
 
-    private final AtomicLong counter = new AtomicLong(0);
+    @Override public UniqueId.Builder read(JsonReader reader) throws IOException {
+        UniqueId.Builder builder = UniqueId.newBuilder();
 
-    public long incrementAndGet() {
-        return counter.incrementAndGet();
+        reader.beginArray();
+        while (reader.hasNext()) {
+            builder.addIdParts(reader.nextLong());
+        }
+        reader.endArray();
+        return builder;
     }
 }
