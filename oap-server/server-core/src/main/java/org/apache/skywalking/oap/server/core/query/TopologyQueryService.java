@@ -109,15 +109,35 @@ public class TopologyQueryService implements Service {
         Map<Integer, String> components = new HashMap<>();
         serviceComponents.forEach(component -> components.put(component.getServiceId(), getComponentLibraryCatalogService().getComponentName(component.getComponentId())));
 
-        List<Call> calls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
-        calls.addAll(getTopologyQueryDAO().loadSpecifiedSourceOfClientSideEndpointRelations(step, startTB, endTB, endpointId));
+        List<Call> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
+        serverSideCalls.forEach(call -> call.setDetectPoint(DetectPoint.SERVER));
 
-        calls.forEach(call -> {
-            call.setCallType(components.getOrDefault(getEndpointInventoryCache().get(call.getTarget()).getServiceId(), Const.UNKNOWN));
-        });
+        serverSideCalls.forEach(call -> call.setCallType(components.getOrDefault(getEndpointInventoryCache().get(call.getTarget()).getServiceId(), Const.UNKNOWN)));
 
         Topology topology = new Topology();
-        topology.getCalls().addAll(calls);
+        topology.getCalls().addAll(serverSideCalls);
+
+        Set<Integer> nodeIds = new HashSet<>();
+        serverSideCalls.forEach(call -> {
+            if (!nodeIds.contains(call.getSource())) {
+                topology.getNodes().add(buildEndpointNode(components, call.getSource()));
+                nodeIds.add(call.getSource());
+            }
+            if (!nodeIds.contains(call.getTarget())) {
+                topology.getNodes().add(buildEndpointNode(components, call.getTarget()));
+                nodeIds.add(call.getTarget());
+            }
+        });
+
         return topology;
+    }
+
+    private Node buildEndpointNode(Map<Integer, String> components, int endpointId) {
+        Node node = new Node();
+        node.setId(endpointId);
+        node.setName(getEndpointInventoryCache().get(endpointId).getName());
+        node.setType(components.getOrDefault(getEndpointInventoryCache().get(endpointId).getServiceId(), Const.UNKNOWN));
+        node.setReal(true);
+        return node;
     }
 }
