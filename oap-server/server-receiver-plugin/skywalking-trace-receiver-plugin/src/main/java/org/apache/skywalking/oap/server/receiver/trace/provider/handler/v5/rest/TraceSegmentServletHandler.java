@@ -34,10 +34,10 @@ public class TraceSegmentServletHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServletHandler.class);
 
-    private final SegmentParse segmentParse;
+    private final SegmentParse.Producer segmentProducer;
 
-    public TraceSegmentServletHandler(SegmentParse segmentParse) {
-        this.segmentParse = segmentParse;
+    public TraceSegmentServletHandler(SegmentParse.Producer segmentProducer) {
+        this.segmentProducer = segmentProducer;
     }
 
     @Override public String pathSpec() {
@@ -71,7 +71,7 @@ public class TraceSegmentServletHandler extends JettyJsonHandler {
         reader.beginArray();
         while (reader.hasNext()) {
             TraceSegment traceSegment = jsonReader.read(reader);
-            segmentParse.parse(traceSegment.getUpstreamSegment(), SegmentParse.Source.Agent);
+            segmentProducer.send(traceSegment.getUpstreamSegment(), SegmentParse.Source.Agent);
         }
         reader.endArray();
     }
