@@ -41,4 +41,5 @@ or providing commercial products including Apache SkyWalking.
 - VBill Payment Co., LTD. 随行付. https://www.vbill.cn/
 - Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 - Xiaomi. 小米. https://www.mi.com/en/
+- Yiguo. 易果生鲜. http://www.yiguo.com/
 - Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
