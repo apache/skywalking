@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc;
 
 import io.grpc.stub.StreamObserver;
+import java.util.Objects;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.*;
@@ -34,9 +36,13 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
 
     private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
 
+    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
+    private final IServiceInventoryRegister serviceInventoryRegister;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public InstanceDiscoveryServiceHandler(ModuleManager moduleManager) {
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
     }
 
@@ -62,6 +68,14 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         int serviceInstanceId = request.getApplicationInstanceId();
         long heartBeatTime = request.getHeartbeatTime();
         serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, heartBeatTime);
+
+        ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
+        if (Objects.nonNull(serviceInstanceInventory)) {
+            serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
+        } else {
+            logger.warn("Can't found service instance by service instance id from cache, service instance id is: {}", serviceInstanceId);
+        }
+
         responseObserver.onNext(Downstream.getDefaultInstance());
         responseObserver.onCompleted();
     }
