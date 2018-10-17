@@ -84,7 +84,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
     @Override public void build() {
         if (logger.isDebugEnabled()) {
-            logger.debug("segment duration listener build");
+            logger.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
 
         if (entryEndpointId == 0) {
