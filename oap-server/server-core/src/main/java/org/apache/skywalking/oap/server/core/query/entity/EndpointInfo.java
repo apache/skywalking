@@ -25,7 +25,9 @@ import lombok.*;
  */
 @Getter
 @Setter
-public class Endpoint {
+public class EndpointInfo {
     private int id;
     private String name;
+    private int serviceId;
+    private String serviceName;
 }
