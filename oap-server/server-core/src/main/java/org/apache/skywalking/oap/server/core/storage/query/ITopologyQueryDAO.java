@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
