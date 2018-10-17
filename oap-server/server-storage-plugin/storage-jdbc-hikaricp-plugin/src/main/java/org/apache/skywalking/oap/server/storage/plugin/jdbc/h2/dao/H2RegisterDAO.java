@@ -46,7 +46,7 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT max(sequence) max_id FROM " + modelName + " ORDER BY sequence ASC", new Object[0])) {
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT max(sequence) max_id FROM " + modelName + " GROUP BY sequence ORDER BY sequence ASC", new Object[0])) {
                 while (rs.next()) {
                     return rs.getInt("max_id");
                 }

@@ -39,6 +39,10 @@ core:
       - Month
 storage:
   h2:
+    driver: org.h2.jdbcx.JdbcDataSource
+    url: jdbc:h2:tcp://localhost/~/test
+    user: sa
+    password:
 #  elasticsearch:
 #    clusterNodes: localhost:9200
 #    indexShardsNumber: 2

@@ -86,7 +86,7 @@ public class H2SQLExecutor {
             Map data = new HashMap();
             List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
             for (ModelColumn column : columns) {
-                data.put(column.getColumnName(), rs.getObject(column.getColumnName().getName()));
+                data.put(column.getColumnName().getName(), rs.getObject(column.getColumnName().getName()));
             }
             return storageBuilder.map2Data(data);
         }
@@ -119,12 +119,12 @@ public class H2SQLExecutor {
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
         List<Object> param = new ArrayList<>();
-        sqlBuilder.append("(id=?,");
+        sqlBuilder.append("(?,");
         param.add(indicator.id());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
             sqlBuilder.append("?");
-            if (i != columns.size()) {
+            if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
             }
 
@@ -150,7 +150,7 @@ public class H2SQLExecutor {
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
             sqlBuilder.append(column.getColumnName().getName() + "= ?");
-            if (i != columns.size()) {
+            if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
             }
 

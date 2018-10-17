@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
  */
 public class H2RegisterLockDAO implements IRegisterLockDAO {
     @Override public boolean tryLock(Scope scope) {
-        return false;
+        return true;
     }
 
     @Override public void releaseLock(Scope scope) {

@@ -50,8 +50,6 @@ public class H2BatchDAO implements IBatchDAO {
         }
 
         try (Connection connection = h2Client.getConnection()) {
-            connection.setAutoCommit(true);
-
             for (Object exe : batchCollection) {
                 SQLExecutor sqlExecutor = (SQLExecutor)exe;
                 sqlExecutor.invoke(connection);

@@ -86,10 +86,10 @@ public class H2StorageProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         Properties settings = new Properties();
-        settings.setProperty("dataSourceClassName", "org.h2.jdbcx.JdbcDataSource");
-        settings.setProperty("dataSource.url", "jdbc:h2:mem:collector");
-        settings.setProperty("dataSource.user", "");
-        settings.setProperty("dataSource.password", "");
+        settings.setProperty("dataSourceClassName", config.getDriver());
+        settings.setProperty("dataSource.url", config.getUrl());
+        settings.setProperty("dataSource.user", config.getUser());
+        settings.setProperty("dataSource.password", config.getPassword());
         h2Client = new JDBCHikariCPClient(settings);
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));

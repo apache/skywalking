@@ -80,7 +80,7 @@ public class ServiceInventory extends RegisterSource {
             return false;
 
         ServiceInventory source = (ServiceInventory)obj;
-        if (name.equals(source.getName()))
+        if (!name.equals(source.getName()))
             return false;
         if (isAddress != source.getIsAddress())
             return false;

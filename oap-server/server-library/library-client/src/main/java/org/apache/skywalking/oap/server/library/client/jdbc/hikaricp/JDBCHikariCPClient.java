@@ -56,7 +56,9 @@ public class JDBCHikariCPClient implements Client {
 
     public Connection getConnection() throws JDBCClientException {
         try {
-            return dataSource.getConnection();
+            Connection connection = dataSource.getConnection();
+            connection.setAutoCommit(true);
+            return connection;
         } catch (SQLException e) {
             throw new JDBCClientException(e.getMessage(), e);
         }
@@ -89,7 +91,9 @@ public class JDBCHikariCPClient implements Client {
     public ResultSet executeQuery(Connection connection, String sql, Object... params) throws JDBCClientException {
         logger.debug("execute query with result: {}", sql);
         ResultSet rs;
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(sql);
             if (params != null) {
                 for (int i = 0; i < params.length; i++) {
                     statement.setObject(i + 1, params[i]);
@@ -98,6 +102,12 @@ public class JDBCHikariCPClient implements Client {
             rs = statement.executeQuery();
             statement.closeOnCompletion();
         } catch (SQLException e) {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e1) {
+                }
+            }
             throw new JDBCClientException(e.getMessage(), e);
         }
 

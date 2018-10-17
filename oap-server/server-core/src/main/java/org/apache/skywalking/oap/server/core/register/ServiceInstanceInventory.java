@@ -97,7 +97,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         ServiceInstanceInventory source = (ServiceInstanceInventory)obj;
         if (serviceId != source.getServiceId())
             return false;
-        if (name.equals(source.getName()))
+        if (!name.equals(source.getName()))
             return false;
         if (isAddress != source.getIsAddress())
             return false;

@@ -18,10 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author wusheng
  */
+@Setter
+@Getter
 public class H2StorageConfig extends ModuleConfig {
+    private String driver = "org.h2.jdbcx.JdbcDataSource";
+    private String url = "jdbc:h2:mem:collector";
+    private String user = "";
+    private String password = "";
 }
