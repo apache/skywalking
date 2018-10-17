@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author wusheng
@@ -149,7 +150,10 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
-        sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\" limit 100");
+        if (StringUtils.isNotEmpty(keyword)) {
+            sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\"");
+        }
+        sql.append(" limit 100");
 
         Connection connection = null;
         try {
@@ -179,7 +183,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
             while (resultSet.next()) {
                 Service service = new Service();
-                service.setId(resultSet.getString(ServiceInventory.SEQUENCE));
+                service.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
                 service.setName(resultSet.getString(ServiceInventory.NAME));
                 return service;
             }
@@ -264,7 +268,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Service> services = new ArrayList<>();
         while (resultSet.next()) {
             Service service = new Service();
-            service.setId(resultSet.getString(ServiceInventory.SEQUENCE));
+            service.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
             service.setName(resultSet.getString(ServiceInventory.NAME));
             services.add(service);
         }
