@@ -67,6 +67,7 @@ public class JDBCHikariCPClient implements Client {
     public void close(Connection connection) {
         if (connection != null) {
             try {
+                connection.commit();
                 connection.close();
             } catch (SQLException e) {
             }
@@ -96,7 +97,16 @@ public class JDBCHikariCPClient implements Client {
             statement = connection.prepareStatement(sql);
             if (params != null) {
                 for (int i = 0; i < params.length; i++) {
-                    statement.setObject(i + 1, params[i]);
+                    Object param = params[i];
+                    if (param instanceof String) {
+                        statement.setString(i + 1, (String)param);
+                    } else if (param instanceof Integer) {
+                        statement.setInt(i + 1, (int)param);
+                    } else if (param instanceof Double) {
+                        statement.setDouble(i + 1, (double)param);
+                    } else {
+                        throw new JDBCClientException("Unsupported data type, type=" + param.getClass().getName());
+                    }
                 }
             }
             rs = statement.executeQuery();

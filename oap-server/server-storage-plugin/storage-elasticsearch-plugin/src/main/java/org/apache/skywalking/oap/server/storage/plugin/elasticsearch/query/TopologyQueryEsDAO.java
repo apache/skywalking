@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.core.storage.DownsampleingModelNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -57,7 +57,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
-        String indexName = DownsampleingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
         return load(sourceBuilder, indexName, ServiceRelationServerSideIndicator.SOURCE_SERVICE_ID, ServiceRelationServerSideIndicator.DEST_SERVICE_ID, Source.Service);
     }
 
@@ -72,7 +72,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
-        String indexName = DownsampleingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
         return load(sourceBuilder, indexName, ServiceRelationClientSideIndicator.SOURCE_SERVICE_ID, ServiceRelationClientSideIndicator.DEST_SERVICE_ID, Source.Service);
     }
 
@@ -95,7 +95,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override public List<Call> loadServerSideServiceRelations(Step step, long startTB, long endTB) throws IOException {
-        String indexName = DownsampleingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
@@ -104,7 +104,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override public List<Call> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException {
-        String indexName = DownsampleingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
@@ -113,7 +113,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override public List<ServiceMapping> loadServiceMappings(Step step, long startTB, long endTB) throws IOException {
-        String indexName = DownsampleingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceMappingIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
@@ -140,7 +140,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
     @Override
     public List<ServiceComponent> loadServiceComponents(Step step, long startTB, long endTB) throws IOException {
-        String indexName = DownsampleingModelNameBuilder.build(step, ServiceComponentIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, ServiceComponentIndicator.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceComponentIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
@@ -168,7 +168,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     @Override
     public List<Call> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
         int destEndpointId) throws IOException {
-        String indexName = DownsampleingModelNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
+        String indexName = DownSamplingModelNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);

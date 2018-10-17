@@ -133,14 +133,6 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         return loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideIndicator.SOURCE_ENDPOINT_ID, EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, destEndpointId, false);
     }
 
-    @Override public List<Call> loadSpecifiedSourceOfClientSideEndpointRelations(Step step, long startTB,
-        long endTB,
-        int sourceEndpointId) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, EndpointRelationServerSideIndicator.INDEX_NAME);
-
-        return loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideIndicator.SOURCE_ENDPOINT_ID, EndpointRelationServerSideIndicator.DEST_ENDPOINT_ID, sourceEndpointId, true);
-    }
-
     private List<Call> loadServiceCalls(String tableName, long startTB, long endTB, String sourceCName,
         String destCName, List<Integer> serviceIds, boolean isClientSide) throws IOException {
         Object[] conditions = new Object[serviceIds.size() * 2 + 2];

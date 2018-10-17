@@ -51,7 +51,7 @@ public class H2SQLExecutor {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", new Object[] {id})) {
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
                 return toStorageData(rs, modelName, storageBuilder);
             }
         } catch (SQLException e) {
@@ -68,7 +68,7 @@ public class H2SQLExecutor {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", new Object[] {value})) {
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", value)) {
                 return toStorageData(rs, modelName, storageBuilder);
             }
         } catch (SQLException e) {
@@ -97,7 +97,7 @@ public class H2SQLExecutor {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", new Object[] {id})) {
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", id)) {
                 while (rs.next()) {
                     return rs.getInt(ServiceInstanceInventory.SEQUENCE);
                 }
