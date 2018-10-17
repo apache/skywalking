@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.slf4j.*;
@@ -40,11 +40,19 @@ public class TopologyQueryService implements Service {
 
     private final ModuleManager moduleManager;
     private ITopologyQueryDAO topologyQueryDAO;
+    private IMetadataQueryDAO metadataQueryDAO;
     private EndpointInventoryCache endpointInventoryCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TopologyQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+    }
+
+    private IMetadataQueryDAO getMetadataQueryDAO() {
+        if (metadataQueryDAO == null) {
+            metadataQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetadataQueryDAO.class);
+        }
+        return metadataQueryDAO;
     }
 
     private ITopologyQueryDAO getTopologyQueryDAO() {
@@ -68,7 +76,8 @@ public class TopologyQueryService implements Service {
         return endpointInventoryCache;
     }
 
-    public Topology getGlobalTopology(final Step step, final long startTB, final long endTB) throws IOException {
+    public Topology getGlobalTopology(final Step step, final long startTB, final long endTB, final long startTimestamp,
+        final long endTimestamp) throws IOException {
         logger.debug("step: {}, startTimeBucket: {}, endTimeBucket: {}", step, startTB, endTB);
         List<ServiceComponent> serviceComponents = getTopologyQueryDAO().loadServiceComponents(step, startTB, endTB);
         List<ServiceMapping> serviceMappings = getTopologyQueryDAO().loadServiceMappings(step, startTB, endTB);
@@ -76,8 +85,31 @@ public class TopologyQueryService implements Service {
         List<Call> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(step, startTB, endTB);
         List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(step, startTB, endTB);
 
+        List<org.apache.skywalking.oap.server.core.query.entity.Service> serviceList = getMetadataQueryDAO().searchServices(startTimestamp, endTimestamp, null);
+
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
-        return builder.build(serviceComponents, serviceMappings, serviceRelationClientCalls, serviceRelationServerCalls);
+        Topology topology = builder.build(serviceComponents, serviceMappings, serviceRelationClientCalls, serviceRelationServerCalls);
+
+        serviceList.forEach(service -> {
+            boolean contains = false;
+            for (Node node : topology.getNodes()) {
+                if (service.getId() == node.getId()) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if (!contains) {
+                Node newNode = new Node();
+                newNode.setId(service.getId());
+                newNode.setName(service.getName());
+                newNode.setReal(true);
+                newNode.setType(Const.UNKNOWN);
+                topology.getNodes().add(newNode);
+            }
+        });
+
+        return topology;
     }
 
     public Topology getServiceTopology(final Step step, final long startTB, final long endTB,
