@@ -85,7 +85,10 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     public List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
         final String serviceId) throws IOException {
-        return getMetadataQueryDAO().getServiceInstances(startTimestamp, endTimestamp, serviceId);
+        List<ServiceInstance> serviceInstances = getMetadataQueryDAO().getServiceInstances(startTimestamp, endTimestamp, serviceId);
+        serviceInstances.forEach(instance -> {
+        });
+        return serviceInstances;
     }
 
     public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
