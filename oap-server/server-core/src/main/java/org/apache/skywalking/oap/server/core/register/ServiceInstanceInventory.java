@@ -45,10 +45,10 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String SERVICE_ID = "service_id";
     private static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
-    private static final String OS_NAME = "os_name";
-    private static final String HOST_NAME = "host_name";
-    private static final String PROCESS_NO = "process_no";
-    private static final String IPV4S = "ipv4s";
+    public static final String OS_NAME = "os_name";
+    public static final String HOST_NAME = "host_name";
+    public static final String PROCESS_NO = "process_no";
+    public static final String IPV4S = "ipv4s";
     public static final String LANGUAGE = "language";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
