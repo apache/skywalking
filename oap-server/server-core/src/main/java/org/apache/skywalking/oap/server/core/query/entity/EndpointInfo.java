@@ -16,19 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancerelation;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.source.*;
+import lombok.*;
 
 /**
- * This class is auto generated. Please don't change this class manually.
- *
- * @author Observability Analysis Language code generator
+ * @author peng-yongsheng
  */
-public class ServiceInstanceRelationDispatcher implements SourceDispatcher<ServiceInstanceRelation> {
-
-    @Override public void dispatch(ServiceInstanceRelation source) {
-    }
-
+@Getter
+@Setter
+public class EndpointInfo {
+    private int id;
+    private String name;
+    private int serviceId;
+    private String serviceName;
 }
