@@ -22,8 +22,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -43,7 +42,7 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
 
     @Override public int getServiceId(int addressId) {
         String id = ServiceInventory.buildId(addressId);
-        return getServiceId(id);
+        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.MODEL_NAME, id);
     }
 
     @Override public ServiceInventory get(int serviceId) {
