@@ -209,7 +209,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
             while (resultSet.next()) {
                 Endpoint endpoint = new Endpoint();
-                endpoint.setId(resultSet.getString(EndpointInventory.SEQUENCE));
+                endpoint.setId(resultSet.getInt(EndpointInventory.SEQUENCE));
                 endpoint.setName(resultSet.getString(EndpointInventory.NAME));
                 endpoints.add(endpoint);
             }
