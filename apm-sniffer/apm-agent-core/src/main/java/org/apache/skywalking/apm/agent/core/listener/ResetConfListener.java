@@ -45,7 +45,10 @@ public class ResetConfListener implements BootService, Runnable {
     }
 
     @Override public void boot() throws IOException {
-        if (Reseter.INSTANCE.getResetPath() != null) {
+      if ("enabled" != Config.Agent.RESETER_LISTENER) {
+        return;
+      }
+      if (Reseter.INSTANCE.getResetPath() != null) {
             Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ResetConfListener"))
                 .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
                     @Override
