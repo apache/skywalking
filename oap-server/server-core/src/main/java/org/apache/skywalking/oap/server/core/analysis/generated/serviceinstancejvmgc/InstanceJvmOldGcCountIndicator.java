@@ -73,7 +73,7 @@ public class InstanceJvmOldGcCountIndicator extends SumIndicator implements Alar
             return false;
 
         InstanceJvmOldGcCountIndicator indicator = (InstanceJvmOldGcCountIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -118,7 +118,6 @@ public class InstanceJvmOldGcCountIndicator extends SumIndicator implements Alar
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -129,7 +128,6 @@ public class InstanceJvmOldGcCountIndicator extends SumIndicator implements Alar
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -140,7 +138,6 @@ public class InstanceJvmOldGcCountIndicator extends SumIndicator implements Alar
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

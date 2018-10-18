@@ -76,7 +76,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
             return false;
 
         EndpointRelationCpmIndicator indicator = (EndpointRelationCpmIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -133,7 +133,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -148,7 +147,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -163,7 +161,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

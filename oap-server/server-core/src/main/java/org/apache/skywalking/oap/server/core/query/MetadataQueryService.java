@@ -21,7 +21,10 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -33,16 +36,32 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     private final ModuleManager moduleManager;
     private IMetadataQueryDAO metadataQueryDAO;
+    private ServiceInventoryCache serviceInventoryCache;
+    private EndpointInventoryCache endpointInventoryCache;
 
     public MetadataQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    public IMetadataQueryDAO getMetadataQueryDAO() {
+    private IMetadataQueryDAO getMetadataQueryDAO() {
         if (metadataQueryDAO == null) {
             metadataQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetadataQueryDAO.class);
         }
         return metadataQueryDAO;
+    }
+
+    private ServiceInventoryCache getServiceInventoryCache() {
+        if (serviceInventoryCache == null) {
+            serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+        }
+        return serviceInventoryCache;
+    }
+
+    private EndpointInventoryCache getEndpointInventoryCache() {
+        if (endpointInventoryCache == null) {
+            endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        }
+        return endpointInventoryCache;
     }
 
     public ClusterBrief getGlobalBrief(final long startTimestamp, final long endTimestamp) throws IOException {
@@ -76,5 +95,16 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     public Service searchService(final String serviceCode) throws IOException {
         return getMetadataQueryDAO().searchService(serviceCode);
+    }
+
+    public EndpointInfo getEndpointInfo(final int endpointId) throws IOException {
+        EndpointInventory endpointInventory = getEndpointInventoryCache().get(endpointId);
+
+        EndpointInfo endpointInfo = new EndpointInfo();
+        endpointInfo.setId(endpointInventory.getSequence());
+        endpointInfo.setName(endpointInventory.getName());
+        endpointInfo.setServiceId(endpointInventory.getServiceId());
+        endpointInfo.setServiceName(getServiceInventoryCache().get(endpointInventory.getServiceId()).getName());
+        return endpointInfo;
     }
 }

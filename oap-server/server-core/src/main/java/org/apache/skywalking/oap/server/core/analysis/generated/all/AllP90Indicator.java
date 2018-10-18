@@ -112,7 +112,6 @@ public class AllP90Indicator extends P90Indicator implements AlarmSupported {
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -123,7 +122,6 @@ public class AllP90Indicator extends P90Indicator implements AlarmSupported {
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -134,7 +132,6 @@ public class AllP90Indicator extends P90Indicator implements AlarmSupported {
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

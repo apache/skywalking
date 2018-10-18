@@ -76,7 +76,7 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
             return false;
 
         EndpointRelationRespTimeIndicator indicator = (EndpointRelationRespTimeIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -136,7 +136,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -152,7 +151,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -168,7 +166,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

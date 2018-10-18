@@ -72,7 +72,7 @@ public class ServiceRelationServerCpmIndicator extends CPMIndicator implements A
             return false;
 
         ServiceRelationServerCpmIndicator indicator = (ServiceRelationServerCpmIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -117,7 +117,6 @@ public class ServiceRelationServerCpmIndicator extends CPMIndicator implements A
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -128,7 +127,6 @@ public class ServiceRelationServerCpmIndicator extends CPMIndicator implements A
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -139,7 +137,6 @@ public class ServiceRelationServerCpmIndicator extends CPMIndicator implements A
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

@@ -74,7 +74,7 @@ public class EndpointSlaIndicator extends PercentIndicator implements AlarmSuppo
             return false;
 
         EndpointSlaIndicator indicator = (EndpointSlaIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -128,7 +128,6 @@ public class EndpointSlaIndicator extends PercentIndicator implements AlarmSuppo
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -142,7 +141,6 @@ public class EndpointSlaIndicator extends PercentIndicator implements AlarmSuppo
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -156,7 +154,6 @@ public class EndpointSlaIndicator extends PercentIndicator implements AlarmSuppo
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

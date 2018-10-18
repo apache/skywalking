@@ -72,7 +72,7 @@ public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator imp
             return false;
 
         ServiceRelationClientRespTimeIndicator indicator = (ServiceRelationClientRespTimeIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -120,7 +120,6 @@ public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator imp
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -132,7 +131,6 @@ public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator imp
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -144,7 +142,6 @@ public class ServiceRelationClientRespTimeIndicator extends LongAvgIndicator imp
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

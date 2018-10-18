@@ -74,7 +74,7 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
             return false;
 
         EndpointAvgIndicator indicator = (EndpointAvgIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -128,7 +128,6 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -142,7 +141,6 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -156,7 +154,6 @@ public class EndpointAvgIndicator extends LongAvgIndicator implements AlarmSuppo
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

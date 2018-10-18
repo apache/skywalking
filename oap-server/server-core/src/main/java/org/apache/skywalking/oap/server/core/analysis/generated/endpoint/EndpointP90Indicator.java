@@ -74,7 +74,7 @@ public class EndpointP90Indicator extends P90Indicator implements AlarmSupported
             return false;
 
         EndpointP90Indicator indicator = (EndpointP90Indicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -131,7 +131,6 @@ public class EndpointP90Indicator extends P90Indicator implements AlarmSupported
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -145,7 +144,6 @@ public class EndpointP90Indicator extends P90Indicator implements AlarmSupported
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -159,7 +157,6 @@ public class EndpointP90Indicator extends P90Indicator implements AlarmSupported
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

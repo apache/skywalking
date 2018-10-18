@@ -73,7 +73,7 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
             return false;
 
         InstanceJvmYoungGcCountIndicator indicator = (InstanceJvmYoungGcCountIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -118,7 +118,6 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -129,7 +128,6 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -140,7 +138,6 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

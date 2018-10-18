@@ -72,7 +72,7 @@ public class ServiceRelationServerCallSlaIndicator extends PercentIndicator impl
             return false;
 
         ServiceRelationServerCallSlaIndicator indicator = (ServiceRelationServerCallSlaIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -120,7 +120,6 @@ public class ServiceRelationServerCallSlaIndicator extends PercentIndicator impl
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -132,7 +131,6 @@ public class ServiceRelationServerCallSlaIndicator extends PercentIndicator impl
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -144,7 +142,6 @@ public class ServiceRelationServerCallSlaIndicator extends PercentIndicator impl
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

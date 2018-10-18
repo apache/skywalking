@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.language.agent.*;
@@ -32,11 +32,11 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
     private final Boolean debug;
-    private final SegmentParse segmentParse;
+    private final SegmentParse.Producer segmentProducer;
 
-    public TraceSegmentServiceHandler(SegmentParse segmentParse) {
+    public TraceSegmentServiceHandler(SegmentParse.Producer segmentProducer) {
         this.debug = System.getProperty("debug") != null;
-        this.segmentParse = segmentParse;
+        this.segmentProducer = segmentProducer;
     }
 
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Downstream> responseObserver) {
@@ -46,7 +46,7 @@ public class TraceSegmentServiceHandler extends TraceSegmentServiceGrpc.TraceSeg
                     logger.debug("receive segment");
                 }
 
-                segmentParse.parse(segment, SegmentParse.Source.Agent);
+                segmentProducer.send(segment, SegmentParse.Source.Agent);
 
                 if (debug) {
                     long count = SegmentCounter.INSTANCE.incrementAndGet();

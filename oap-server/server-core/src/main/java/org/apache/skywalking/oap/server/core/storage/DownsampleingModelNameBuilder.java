@@ -16,19 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler;
+package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.concurrent.atomic.AtomicLong;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 /**
  * @author peng-yongsheng
  */
-public enum SegmentCounter {
-    INSTANCE;
+public class DownsampleingModelNameBuilder {
 
-    private final AtomicLong counter = new AtomicLong(0);
+    private DownsampleingModelNameBuilder() {
+    }
 
-    public long incrementAndGet() {
-        return counter.incrementAndGet();
+    public static String build(Step step, String modelName) {
+        switch (step) {
+            case MONTH:
+                modelName = modelName + Const.ID_SPLIT + Downsampling.Month.getName();
+                break;
+            case DAY:
+                modelName = modelName + Const.ID_SPLIT + Downsampling.Day.getName();
+                break;
+            case HOUR:
+                modelName = modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
+                break;
+        }
+        return modelName;
     }
 }

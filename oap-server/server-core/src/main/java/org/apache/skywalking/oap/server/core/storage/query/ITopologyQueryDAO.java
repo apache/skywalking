@@ -45,7 +45,4 @@ public interface ITopologyQueryDAO extends Service {
 
     List<Call> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
         int destEndpointId) throws IOException;
-
-    List<Call> loadSpecifiedSourceOfClientSideEndpointRelations(Step step, long startTB, long endTB,
-        int sourceEndpointId) throws IOException;
 }

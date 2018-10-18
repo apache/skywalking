@@ -20,10 +20,11 @@ package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.TraceSegmentServiceHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc.TraceSegmentServiceHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.TraceSegmentServletHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment.SegmentSpanListener;
@@ -64,12 +65,14 @@ public class TraceModuleProvider extends ModuleProvider {
         listenerManager.add(new SegmentSpanListener.Factory());
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
         try {
-            SegmentParse segmentParse = new SegmentParse(getManager(), listenerManager);
-            grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentParse));
+            SegmentParse.Producer segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
+            grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
+            jettyHandlerRegister.addHandler(new TraceSegmentServletHandler(segmentProducer));
 
-            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(segmentParse, moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
-            segmentParse.setStandardizationWorker(standardizationWorker);
+            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(segmentProducer, moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
+            segmentProducer.setStandardizationWorker(standardizationWorker);
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

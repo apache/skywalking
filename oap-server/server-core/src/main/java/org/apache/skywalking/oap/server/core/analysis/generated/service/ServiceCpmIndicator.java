@@ -72,7 +72,7 @@ public class ServiceCpmIndicator extends CPMIndicator implements AlarmSupported 
             return false;
 
         ServiceCpmIndicator indicator = (ServiceCpmIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -117,7 +117,6 @@ public class ServiceCpmIndicator extends CPMIndicator implements AlarmSupported 
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -128,7 +127,6 @@ public class ServiceCpmIndicator extends CPMIndicator implements AlarmSupported 
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -139,7 +137,6 @@ public class ServiceCpmIndicator extends CPMIndicator implements AlarmSupported 
         indicator.setEntityId(this.getEntityId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

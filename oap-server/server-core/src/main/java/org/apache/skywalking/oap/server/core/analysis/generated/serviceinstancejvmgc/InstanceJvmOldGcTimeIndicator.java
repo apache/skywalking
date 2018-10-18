@@ -73,7 +73,7 @@ public class InstanceJvmOldGcTimeIndicator extends LongAvgIndicator implements A
             return false;
 
         InstanceJvmOldGcTimeIndicator indicator = (InstanceJvmOldGcTimeIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -124,7 +124,6 @@ public class InstanceJvmOldGcTimeIndicator extends LongAvgIndicator implements A
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -137,7 +136,6 @@ public class InstanceJvmOldGcTimeIndicator extends LongAvgIndicator implements A
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -150,7 +148,6 @@ public class InstanceJvmOldGcTimeIndicator extends LongAvgIndicator implements A
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

@@ -16,27 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.reader;
+
+import com.google.gson.stream.JsonReader;
+import java.io.IOException;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * @author peng-yongsheng
  */
-public enum TimePyramid {
-    Second(0, "second"), Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
+public class UniqueIdJsonReader implements StreamJsonReader<UniqueId.Builder> {
 
-    private final int value;
-    private final String name;
+    @Override public UniqueId.Builder read(JsonReader reader) throws IOException {
+        UniqueId.Builder builder = UniqueId.newBuilder();
 
-    TimePyramid(int value, String name) {
-        this.value = value;
-        this.name = name;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public String getName() {
-        return name;
+        reader.beginArray();
+        while (reader.hasNext()) {
+            builder.addIdParts(reader.nextLong());
+        }
+        reader.endArray();
+        return builder;
     }
 }

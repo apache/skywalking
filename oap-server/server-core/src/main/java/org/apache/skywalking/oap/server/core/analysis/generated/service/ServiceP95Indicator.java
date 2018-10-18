@@ -72,7 +72,7 @@ public class ServiceP95Indicator extends P95Indicator implements AlarmSupported 
             return false;
 
         ServiceP95Indicator indicator = (ServiceP95Indicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -123,7 +123,6 @@ public class ServiceP95Indicator extends P95Indicator implements AlarmSupported 
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -135,7 +134,6 @@ public class ServiceP95Indicator extends P95Indicator implements AlarmSupported 
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -147,7 +145,6 @@ public class ServiceP95Indicator extends P95Indicator implements AlarmSupported 
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

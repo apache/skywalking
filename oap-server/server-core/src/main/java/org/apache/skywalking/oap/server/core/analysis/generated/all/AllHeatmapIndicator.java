@@ -112,7 +112,6 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -123,7 +122,6 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -134,7 +132,6 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
         indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 

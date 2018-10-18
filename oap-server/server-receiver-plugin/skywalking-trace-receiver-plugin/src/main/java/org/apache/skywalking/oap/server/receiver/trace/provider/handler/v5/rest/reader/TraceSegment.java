@@ -16,31 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.reader;
 
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author peng-yongsheng
  */
-public class TimePyramidTableNameBuilder {
+public class TraceSegment {
 
-    private TimePyramidTableNameBuilder() {
+    private UpstreamSegment.Builder builder;
+
+    public TraceSegment() {
+        builder = UpstreamSegment.newBuilder();
     }
 
-    public static String build(Step step, String tableName) {
-        switch (step) {
-            case MONTH:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Month.getName();
-                break;
-            case DAY:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Day.getName();
-                break;
-            case HOUR:
-                tableName = tableName + Const.ID_SPLIT + TimePyramid.Hour.getName();
-                break;
-        }
-        return tableName;
+    public void addGlobalTraceId(UniqueId.Builder globalTraceId) {
+        builder.addGlobalTraceIds(globalTraceId);
+    }
+
+    public void setTraceSegmentBuilder(TraceSegmentObject.Builder traceSegmentBuilder) {
+        builder.setSegment(traceSegmentBuilder.build().toByteString());
+    }
+
+    public UpstreamSegment getUpstreamSegment() {
+        return builder.build();
     }
 }

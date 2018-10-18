@@ -72,7 +72,7 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
             return false;
 
         ServiceRespTimeIndicator indicator = (ServiceRespTimeIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -120,7 +120,6 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -132,7 +131,6 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
@@ -144,7 +142,6 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
         return indicator;
     }
 
