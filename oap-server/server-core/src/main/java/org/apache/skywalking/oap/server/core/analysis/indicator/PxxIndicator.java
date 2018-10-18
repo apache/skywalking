@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.indicator;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -38,7 +39,7 @@ public abstract class PxxIndicator extends Indicator implements IntValueHolder {
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private int value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
     @Getter @Setter @Column(columnName = PRECISION) private int precision;
     @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup;
 
