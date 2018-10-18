@@ -53,7 +53,7 @@ public class ServiceInstancePingPkgHandler extends ServiceInstancePingGrpc.Servi
         if (request.getServiceInstanceUUID().equals(serviceInstanceInventory.getName()) || serviceInstanceInventory.getServiceId() == Const.NONE) {
             logger.error("Your metadata loss,please set the status in reset.status in the agent {} to ON to trigger a reset!", request.getServiceInstanceUUID());
         } else {
-            serviceInstanceInventoryRegister.heartBeat(request.getServiceInstanceId(), request.getTime());
+            serviceInstanceInventoryRegister.heartbeat(request.getServiceInstanceId(), request.getTime());
         }
 
     }
