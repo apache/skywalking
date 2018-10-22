@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
+import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.NonMergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
@@ -35,6 +37,7 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
     private final String modelName;
     private final NonMergeDataCache<Record> nonMergeDataCache;
     private final IRecordDAO recordDAO;
+    private final DataCarrier<Record> dataCarrier;
 
     RecordPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
         IRecordDAO recordDAO) {
@@ -42,6 +45,12 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
         this.modelName = modelName;
         this.nonMergeDataCache = new NonMergeDataCache<>();
         this.recordDAO = recordDAO;
+        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier.consume(new RecordPersistentWorker.PersistentConsumer(this), 1);
+    }
+
+    @Override public void in(Record record) {
+        dataCarrier.produce(record);
     }
 
     @Override public NonMergeDataCache<Record> getCache() {
@@ -64,5 +73,31 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
         nonMergeDataCache.writing();
         nonMergeDataCache.add(input);
         nonMergeDataCache.finishWriting();
+    }
+
+    private class PersistentConsumer implements IConsumer<Record> {
+
+        private final RecordPersistentWorker persistent;
+
+        private PersistentConsumer(RecordPersistentWorker persistent) {
+            this.persistent = persistent;
+        }
+
+        @Override public void init() {
+
+        }
+
+        @Override public void consume(List<Record> data) {
+            for (Record record : data) {
+                persistent.onWork(record);
+            }
+        }
+
+        @Override public void onError(List<Record> data, Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
+
+        @Override public void onExit() {
+        }
     }
 }

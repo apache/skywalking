@@ -56,7 +56,6 @@ public class ServiceRelationClientCallSlaIndicator extends PercentIndicator impl
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -115,33 +114,33 @@ public class ServiceRelationClientCallSlaIndicator extends PercentIndicator impl
     @Override
     public Indicator toHour() {
         ServiceRelationClientCallSlaIndicator indicator = new ServiceRelationClientCallSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         ServiceRelationClientCallSlaIndicator indicator = new ServiceRelationClientCallSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         ServiceRelationClientCallSlaIndicator indicator = new ServiceRelationClientCallSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 
