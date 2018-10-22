@@ -31,6 +31,10 @@ public class IntKeyLongValueArray extends ArrayList<IntKeyLongValue> implements 
         super(initialCapacity);
     }
 
+    public IntKeyLongValueArray() {
+        super(30);
+    }
+
     public IntKeyLongValueArray(String data) {
         super();
         toObject(data);
@@ -55,5 +59,14 @@ public class IntKeyLongValueArray extends ArrayList<IntKeyLongValue> implements 
             value.toObject(keyValues[i]);
             this.add(value);
         }
+    }
+
+    @Override public void copyFrom(Object source) {
+        IntKeyLongValueArray valueArray = (IntKeyLongValueArray)source;
+        valueArray.forEach(value -> {
+            IntKeyLongValue newValue = new IntKeyLongValue();
+            newValue.copyFrom(value);
+            this.add(newValue);
+        });
     }
 }

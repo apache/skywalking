@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @InventoryType(scope = Scope.NetworkAddress)
 @StreamData
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class)
+@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "network_address_inventory";

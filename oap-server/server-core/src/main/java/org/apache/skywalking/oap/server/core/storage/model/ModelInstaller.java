@@ -58,11 +58,11 @@ public abstract class ModelInstaller {
                 }
             }
         });
-        models.addAll(downsamplingModels);
+        downsamplingModels.addAll(models);
 
         boolean debug = System.getProperty("debug") != null;
 
-        for (Model model : models) {
+        for (Model model : downsamplingModels) {
             if (!isExists(client, model)) {
                 logger.info("table: {} not exists", model.getName());
                 createTable(client, model);

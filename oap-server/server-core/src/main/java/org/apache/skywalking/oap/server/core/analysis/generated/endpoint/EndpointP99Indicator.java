@@ -58,7 +58,6 @@ public class EndpointP99Indicator extends P99Indicator implements AlarmSupported
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -124,39 +123,45 @@ public class EndpointP99Indicator extends P99Indicator implements AlarmSupported
     @Override
     public Indicator toHour() {
         EndpointP99Indicator indicator = new EndpointP99Indicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         EndpointP99Indicator indicator = new EndpointP99Indicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         EndpointP99Indicator indicator = new EndpointP99Indicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 
