@@ -45,7 +45,7 @@ public enum WitnessClassFinder {
         if (!poolMap.containsKey(mappingKey)) {
             synchronized (poolMap) {
                 if (!poolMap.containsKey(mappingKey)) {
-                    TypePool classTypePool = classLoader == null ? TypePool.Default.ofClassPath() : TypePool.Default.of(classLoader);
+                    TypePool classTypePool = classLoader == null ? TypePool.Default.ofBootLoader() : TypePool.Default.of(classLoader);
                     poolMap.put(mappingKey, classTypePool);
                 }
             }
