@@ -59,7 +59,12 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
-        CACHE.in(data);
+        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);
+        if (decorator.tryMetaDataRegister()) {
+            TelemetryDataDispatcher.doDispatch(decorator);
+        } else {
+            CACHE.in(data);
+        }
     }
 
     /**
