@@ -58,7 +58,6 @@ public class EndpointSlaIndicator extends PercentIndicator implements AlarmSuppo
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -121,39 +120,39 @@ public class EndpointSlaIndicator extends PercentIndicator implements AlarmSuppo
     @Override
     public Indicator toHour() {
         EndpointSlaIndicator indicator = new EndpointSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         EndpointSlaIndicator indicator = new EndpointSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         EndpointSlaIndicator indicator = new EndpointSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

@@ -83,4 +83,10 @@ public class IntKeyLongValue implements Comparable<IntKeyLongValue>, StorageData
         this.key = Integer.valueOf(keyValue[0]);
         this.value = Long.valueOf(keyValue[1]);
     }
+
+    @Override public void copyFrom(Object source) {
+        IntKeyLongValue value = (IntKeyLongValue)source;
+        this.key = value.key;
+        this.value = value.value;
+    }
 }
