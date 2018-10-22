@@ -19,12 +19,11 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * @author peng-yongsheng
  */
-public interface IRecordDAO<INSERT> extends DAO {
+public interface IHistoryDeleteDAO extends DAO {
 
-    INSERT prepareBatchInsert(String modelName, Record record) throws IOException;
+    void deleteHistory(String modelName, String timeBucketColumnName, Long timeBucketBefore) throws IOException;
 }

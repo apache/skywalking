@@ -16,15 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core;
 
-import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import lombok.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface IRecordDAO<INSERT> extends DAO {
-
-    INSERT prepareBatchInsert(String modelName, Record record) throws IOException;
+@Setter
+@Getter
+public class DataTTL {
+    private int recordDataTTL;
+    private int minuteMetricsDataTTL;
+    private int hourMetricsDataTTL;
+    private int dayMetricsDataTTL;
+    private int monthMetricsDataTTL;
 }

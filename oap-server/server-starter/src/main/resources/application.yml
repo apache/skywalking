@@ -34,9 +34,15 @@ core:
     gRPCHost: 0.0.0.0
     gRPCPort: 11800
     downsampling:
-      - Hour
-      - Day
-      - Month
+    - Hour
+    - Day
+    - Month
+    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    recordDataTTL: 90 # Unit is minute
+    minuteMetricsDataTTL: 90 # Unit is minute
+    hourMetricsDataTTL: 36 # Unit is hour
+    dayMetricsDataTTL: 45 # Unit is day
+    monthMetricsDataTTL: 18 # Unit is month
 storage:
   elasticsearch:
     clusterNodes: localhost:9200
@@ -47,12 +53,6 @@ storage:
     bulkSize: 20 # flush the bulk every 20mb
     flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: 2 # the number of concurrent requests
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
-    traceDataTTL: 90 # Unit is minute
-    minuteMetricDataTTL: 90 # Unit is minute
-    hourMetricDataTTL: 36 # Unit is hour
-    dayMetricDataTTL: 45 # Unit is day
-    monthMetricDataTTL: 18 # Unit is month
 receiver-register:
   default:
 receiver-trace:

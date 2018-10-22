@@ -57,7 +57,6 @@ public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements Alarm
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -118,36 +117,36 @@ public class InstanceJvmCpuIndicator extends DoubleAvgIndicator implements Alarm
     @Override
     public Indicator toHour() {
         InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         InstanceJvmCpuIndicator indicator = new InstanceJvmCpuIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 
