@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Properties;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -64,7 +63,7 @@ public enum Reseter {
         if (statusDir.exists() && statusDir.isDirectory()) {
             resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
         } else {
-            return null;
+            statusDir.mkdir();
         }
         init();
         return resetPath;
@@ -95,7 +94,7 @@ public enum Reseter {
         return this;
     }
 
-    Boolean predicateReset() throws AgentPackageNotFoundException, IOException {
+    Boolean predicateReset() throws IOException {
         File resetFile = new File(getResetPath());
         FileInputStream inputStream = null;
 

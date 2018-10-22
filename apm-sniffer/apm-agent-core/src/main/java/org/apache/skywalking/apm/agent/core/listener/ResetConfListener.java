@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -44,11 +43,8 @@ public class ResetConfListener implements BootService, Runnable {
 
     }
 
-    @Override public void boot() throws IOException {
-        if ("enabled" != Config.Agent.RESETER_LISTENER) {
-            return;
-        }
-        if (Reseter.INSTANCE.getResetPath() != null) {
+    @Override public void boot() {
+        if ("enabled".equals(Config.Agent.RESETER_LISTENER)) {
             Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ResetConfListener"))
                 .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
                     @Override
@@ -61,7 +57,6 @@ public class ResetConfListener implements BootService, Runnable {
             logger.warn("Since the agent.register_status variable is not set correctly, the reset service is not started.");
         }
     }
-
     @Override public void onComplete() throws Throwable {
 
     }
@@ -76,8 +71,6 @@ public class ResetConfListener implements BootService, Runnable {
         try {
             if (Reseter.INSTANCE.predicateReset())
                 Reseter.INSTANCE.setStatus(ResetStatus.DONE).clearID().reportToRegisterFile();
-        } catch (AgentPackageNotFoundException e) {
-            logger.warn(e, "not found package.");
         } catch (SecurityException e) {
             logger.warn(e, "Denise read access to the file {}", configFile);
         } catch (FileNotFoundException e) {

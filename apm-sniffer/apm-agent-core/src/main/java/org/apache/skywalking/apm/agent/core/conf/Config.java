@@ -73,7 +73,7 @@ public class Config {
         /**
          * Specify register.status dir ,This is an option, the default is AGENT_HOME/option/reset.status.
          */
-        public static String REGISTER_STATUS_DIR = "";
+        public static String REGISTER_STATUS_DIR = "option";
 
         /**
          * Specify instance_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
