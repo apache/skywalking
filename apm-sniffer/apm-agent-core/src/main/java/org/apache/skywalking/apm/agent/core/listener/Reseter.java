@@ -44,13 +44,15 @@ public enum Reseter {
     private static final String APPLICATION_ID_NAM = "application_id";
     private static final String INSTANCE_ID_NAME = "instance_id";
     private static final String STATUS_NAME = "status";
-    private static final String RESET_CHILD_DIR = "/option/reset.status";
+    private static final String RESET_CHILD_DIR = "/reset.status";
     private static final String COMMENT = "#Status has three values: ON (trigger reset), DONE(reset complete), OFF(agent fist boot).\n" +
         "Application_id: application_id of the current agent.\n" +
         "Instance_id: the instanceid of the current agent.";
     private volatile Properties properties = new Properties();
     private String resetPath;
     private ResetStatus status = ResetStatus.OFF;
+    private int isFirstRun = 0;
+    private int detectDuration = 5;
 
     public Reseter setStatus(ResetStatus status) {
         this.status = status;
@@ -58,14 +60,17 @@ public enum Reseter {
     }
 
     public String getResetPath() throws IOException {
-        File statusDir = new File(Config.Agent.REGISTER_STATUS_DIR);
+        if (isFirstRun == 0) {
+            File statusDir = new File(Config.Agent.REGISTER_STATUS_DIR);
 
-        if (statusDir.exists() && statusDir.isDirectory()) {
-            resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
-        } else {
-            statusDir.mkdir();
+            if (statusDir.exists() && statusDir.isDirectory()) {
+                resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
+            } else {
+                statusDir.mkdir();
+            }
+            init();
+            isFirstRun = 1;
         }
-        init();
         return resetPath;
     }
 
@@ -94,20 +99,25 @@ public enum Reseter {
         return this;
     }
 
-    Boolean predicateReset() throws IOException {
+    public Boolean predicateReset() throws IOException {
         File resetFile = new File(getResetPath());
         FileInputStream inputStream = null;
-
-        if (System.currentTimeMillis() - resetFile.lastModified() < 5 * 1000) {
+        FileLock fileLock = null;
+        FileChannel fileChannel = null;
+        if (System.currentTimeMillis() - resetFile.lastModified() < detectDuration * 1000) {
             try {
+                logger.info("The file reset.status was detected to have been modified in the last {} seconds.", detectDuration);
                 inputStream = new FileInputStream(resetFile);
-                FileChannel fileChannel = inputStream.getChannel();
-                FileLock fileLock = fileChannel.tryLock(0, resetFile.length(), true);
+                fileChannel = inputStream.getChannel();
+                fileLock = fileChannel.tryLock(0, resetFile.length(), true);
                 if (fileLock == null) {
                     return false;
                 }
+                properties.clear();
                 properties.load(inputStream);
             } finally {
+                fileLock.release();
+                fileChannel.close();
                 closeFileStream(inputStream);
             }
             if (properties.get(STATUS_NAME) != null && properties.getProperty(STATUS_NAME).equals(ResetStatus.ON.value())) {
