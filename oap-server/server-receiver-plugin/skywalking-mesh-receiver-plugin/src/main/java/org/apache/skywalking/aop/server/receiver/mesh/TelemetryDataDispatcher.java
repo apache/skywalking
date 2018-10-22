@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.RequestType;
@@ -75,11 +76,26 @@ public class TelemetryDataDispatcher {
     static void doDispatch(ServiceMeshMetricDataDecorator decorator) {
         ServiceMeshMetric metric = decorator.getMetric();
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
+        toAll(decorator, minuteTimeBucket);
         toService(decorator, minuteTimeBucket);
         toServiceRelation(decorator, minuteTimeBucket);
         toServiceInstance(decorator, minuteTimeBucket);
         toServiceInstanceRelation(decorator, minuteTimeBucket);
         toEndpoint(decorator, minuteTimeBucket);
+    }
+
+    private static void toAll(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
+        ServiceMeshMetric metric = decorator.getMetric();
+        All all = new All();
+        all.setTimeBucket(minuteTimeBucket);
+        all.setName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));
+        all.setServiceInstanceName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
+        all.setEndpointName(metric.getEndpoint());
+        all.setLatency(metric.getLatency());
+        all.setStatus(metric.getStatus());
+        all.setType(protocol2Type(metric.getProtocol()));
+
+        SOURCE_RECEIVER.receive(all);
     }
 
     private static void toService(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
