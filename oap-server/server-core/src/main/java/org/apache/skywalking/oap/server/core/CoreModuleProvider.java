@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -154,6 +155,9 @@ public class CoreModuleProvider extends ModuleProvider {
         this.getManager().find(ClusterModule.NAME).getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
 
         PersistenceTimer.INSTANCE.start(getManager());
+
+        DataTTLKeeperTimer.INSTANCE.setDataTTL(moduleConfig.getDataTTL());
+        DataTTLKeeperTimer.INSTANCE.start(getManager());
     }
 
     @Override

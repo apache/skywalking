@@ -60,7 +60,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -125,7 +124,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
     @Override
     public Indicator toHour() {
         EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -133,13 +131,13 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -147,13 +145,13 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -161,6 +159,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 
