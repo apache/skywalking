@@ -19,10 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service;
 
 import java.util.*;
+import lombok.*;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
@@ -35,13 +36,13 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMappingSpanListener.class);
 
-    private final SourceReceiver sourceReceiver;
+    private final IServiceInventoryRegister serviceInventoryRegister;
     private final ServiceInventoryCache serviceInventoryCache;
     private List<ServiceMapping> serviceMappings = new LinkedList<>();
 
     private ServiceMappingSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
     }
 
     @Override public boolean containsPoint(Point point) {
@@ -56,25 +57,26 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
             if (spanDecorator.getRefsCount() > 0) {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
-                    ServiceMapping serviceMapping = new ServiceMapping();
-                    serviceMapping.setServiceId(segmentCoreInfo.getApplicationId());
-
-                    int addressId = spanDecorator.getRefs(i).getNetworkAddressId();
-                    int mappingServiceId = serviceInventoryCache.getServiceId(addressId);
-                    serviceMapping.setMappingServiceId(mappingServiceId);
-                    serviceMapping.setTimeBucket(segmentCoreInfo.getMinuteTimeBucket());
-                    serviceMappings.add(serviceMapping);
+                    int serviceId = serviceInventoryCache.getServiceId(spanDecorator.getRefs(i).getNetworkAddressId());
+                    int mappingServiceId = serviceInventoryCache.get(serviceId).getMappingServiceId();
+                    if (mappingServiceId != segmentCoreInfo.getApplicationId()) {
+                        ServiceMapping serviceMapping = new ServiceMapping();
+                        serviceMapping.setServiceId(serviceId);
+                        serviceMapping.setMappingServiceId(segmentCoreInfo.getApplicationId());
+                        serviceMappings.add(serviceMapping);
+                    }
                 }
             }
         }
     }
 
     @Override public void build() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("service mapping listener build");
-        }
-
-        serviceMappings.forEach(sourceReceiver::receive);
+        serviceMappings.forEach(serviceMapping -> {
+            if (logger.isDebugEnabled()) {
+                logger.debug("service mapping listener build, service id: {}, mapping service id: {}", serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
+            }
+            serviceInventoryRegister.updateMapping(serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
+        });
     }
 
     public static class Factory implements SpanListenerFactory {
@@ -82,5 +84,12 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
         @Override public SpanListener create(ModuleManager moduleManager) {
             return new ServiceMappingSpanListener(moduleManager);
         }
+    }
+
+    @Setter
+    @Getter
+    private class ServiceMapping {
+        private int serviceId;
+        private int mappingServiceId;
     }
 }

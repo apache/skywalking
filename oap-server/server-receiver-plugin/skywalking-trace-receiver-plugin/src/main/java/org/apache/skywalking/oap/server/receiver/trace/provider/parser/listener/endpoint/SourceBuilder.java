@@ -38,6 +38,7 @@ class SourceBuilder {
     @Getter @Setter private String destServiceInstanceName;
     @Getter @Setter private int destEndpointId;
     @Getter @Setter private String destEndpointName;
+    @Getter @Setter private int componentId;
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;
     @Getter @Setter private int responseCode;
@@ -81,6 +82,7 @@ class SourceBuilder {
         serviceRelation.setDestServiceName(destServiceName);
         serviceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceRelation.setEndpoint(destEndpointName);
+        serviceRelation.setComponentId(componentId);
         serviceRelation.setLatency(latency);
         serviceRelation.setStatus(status);
         serviceRelation.setResponseCode(responseCode);
@@ -116,6 +118,7 @@ class SourceBuilder {
         serviceInstanceRelation.setDestServiceName(destServiceName);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceInstanceRelation.setEndpoint(destEndpointName);
+        serviceInstanceRelation.setComponentId(componentId);
         serviceInstanceRelation.setLatency(latency);
         serviceInstanceRelation.setStatus(status);
         serviceInstanceRelation.setResponseCode(responseCode);
@@ -155,6 +158,7 @@ class SourceBuilder {
         endpointRelation.setChildServiceName(destServiceName);
         endpointRelation.setChildServiceInstanceId(destServiceInstanceId);
         endpointRelation.setChildServiceInstanceName(destServiceInstanceName);
+        endpointRelation.setComponentId(componentId);
         endpointRelation.setRpcLatency(latency);
         endpointRelation.setStatus(status);
         endpointRelation.setResponseCode(responseCode);

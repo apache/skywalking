@@ -22,43 +22,54 @@ import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.language.agent.*;
-import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class AgentDataMock {
 
-    private static final Logger logger = LoggerFactory.getLogger(AgentDataMock.class);
-
     private static boolean IS_COMPLETED = false;
 
     public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
 
-        RegisterMock registerMock = new RegisterMock();
-        registerMock.mock(channel);
+        RegisterMock registerMock = new RegisterMock(channel);
 
         StreamObserver<UpstreamSegment> streamObserver = createStreamObserver();
 
         UniqueId.Builder globalTraceId = UniqueIdBuilder.INSTANCE.create();
         long startTimestamp = System.currentTimeMillis();
 
-        ConsumerMock consumerMock = new ConsumerMock();
-        UniqueId.Builder consumerSegmentId = UniqueIdBuilder.INSTANCE.create();
-        consumerMock.mock(streamObserver, globalTraceId, consumerSegmentId, startTimestamp, true);
+        // ServiceAMock
+        ServiceAMock serviceAMock = new ServiceAMock(registerMock);
+        serviceAMock.register();
 
-        ProviderMock providerMock = new ProviderMock();
-        UniqueId.Builder providerSegmentId = UniqueIdBuilder.INSTANCE.create();
-        providerMock.mock(streamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp, true);
+        UniqueId.Builder serviceASegmentId = UniqueIdBuilder.INSTANCE.create();
+        serviceAMock.mock(streamObserver, globalTraceId, serviceASegmentId, startTimestamp, true);
+
+        // ServiceBMock
+        ServiceBMock serviceBMock = new ServiceBMock(registerMock);
+        serviceBMock.register();
+
+        UniqueId.Builder serviceBSegmentId = UniqueIdBuilder.INSTANCE.create();
+        serviceBMock.mock(streamObserver, globalTraceId, serviceBSegmentId, serviceASegmentId, startTimestamp, true);
+
+        // ServiceCMock
+        ServiceCMock serviceCMock = new ServiceCMock(registerMock);
+        serviceCMock.register();
+
+        UniqueId.Builder serviceCSegmentId = UniqueIdBuilder.INSTANCE.create();
+        serviceCMock.mock(streamObserver, globalTraceId, serviceCSegmentId, serviceBSegmentId, startTimestamp, true);
 
         TimeUnit.SECONDS.sleep(10);
 
         globalTraceId = UniqueIdBuilder.INSTANCE.create();
-        consumerSegmentId = UniqueIdBuilder.INSTANCE.create();
-        providerSegmentId = UniqueIdBuilder.INSTANCE.create();
-        consumerMock.mock(streamObserver, globalTraceId, consumerSegmentId, startTimestamp, false);
-        providerMock.mock(streamObserver, globalTraceId, providerSegmentId, consumerSegmentId, startTimestamp, false);
+        serviceASegmentId = UniqueIdBuilder.INSTANCE.create();
+        serviceBSegmentId = UniqueIdBuilder.INSTANCE.create();
+        serviceCSegmentId = UniqueIdBuilder.INSTANCE.create();
+        serviceAMock.mock(streamObserver, globalTraceId, serviceASegmentId, startTimestamp, false);
+        serviceBMock.mock(streamObserver, globalTraceId, serviceBSegmentId, serviceASegmentId, startTimestamp, false);
+        serviceCMock.mock(streamObserver, globalTraceId, serviceCSegmentId, serviceBSegmentId, startTimestamp, false);
 
         streamObserver.onCompleted();
         while (!IS_COMPLETED) {
