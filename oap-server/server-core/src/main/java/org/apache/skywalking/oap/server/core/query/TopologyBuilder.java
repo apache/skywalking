@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
@@ -44,45 +44,31 @@ class TopologyBuilder {
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).getService(IComponentLibraryCatalogService.class);
     }
 
-    Topology build(List<ServiceComponent> serviceComponents, List<ServiceMapping> serviceMappings,
-        List<Call> serviceRelationClientCalls, List<Call> serviceRelationServerCalls) {
-        Map<Integer, String> nodeCompMap = buildNodeCompMap(serviceComponents);
-        Map<Integer, String> conjecturalNodeCompMap = buildConjecturalNodeCompMap(serviceComponents);
-        Map<Integer, Integer> mappings = changeMapping2Map(serviceMappings);
+    Topology build(List<Call> serviceRelationClientCalls, List<Call> serviceRelationServerCalls) {
         filterZeroSourceOrTargetReference(serviceRelationClientCalls);
         filterZeroSourceOrTargetReference(serviceRelationServerCalls);
-        mappingIdExchange(mappings, serviceRelationClientCalls);
-        mappingIdExchange(mappings, serviceRelationServerCalls);
 
-        List<Node> nodes = new LinkedList<>();
+        Map<Integer, Node> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
-        Set<Integer> nodeIds = new HashSet<>();
         Set<String> callIds = new HashSet<>();
 
-        serviceRelationClientCalls.forEach(clientCall -> {
+        for (Call clientCall : serviceRelationClientCalls) {
             ServiceInventory source = serviceInventoryCache.get(clientCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(clientCall.getTarget());
 
-            if (BooleanUtils.valueToBoolean(target.getIsAddress()) && !mappings.containsKey(target.getSequence())) {
-                if (!nodeIds.contains(target.getSequence())) {
-                    Node conjecturalNode = new Node();
-                    conjecturalNode.setId(target.getSequence());
-                    conjecturalNode.setName(target.getName());
-                    conjecturalNode.setType(conjecturalNodeCompMap.getOrDefault(target.getSequence(), Const.UNKNOWN));
-                    conjecturalNode.setReal(false);
-                    nodes.add(conjecturalNode);
-                    nodeIds.add(target.getSequence());
+            if (target.getMappingServiceId() != Const.NONE) {
+                continue;
+            }
+
+            if (!nodes.containsKey(source.getSequence())) {
+                nodes.put(source.getSequence(), buildNode(source));
+            }
+
+            if (!nodes.containsKey(target.getSequence())) {
+                nodes.put(target.getSequence(), buildNode(target));
+                if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
+                    nodes.get(target.getSequence()).setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
-            }
-
-            if (!nodeIds.contains(source.getSequence())) {
-                nodes.add(buildNode(nodeCompMap, source));
-                nodeIds.add(source.getSequence());
-            }
-
-            if (!nodeIds.contains(target.getSequence())) {
-                nodes.add(buildNode(nodeCompMap, target));
-                nodeIds.add(target.getSequence());
             }
 
             String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
@@ -90,51 +76,39 @@ class TopologyBuilder {
                 callIds.add(callId);
 
                 Call call = new Call();
-                call.setSource(source.getSequence());
-                call.setTarget(target.getSequence());
-                call.setCallType(nodeCompMap.get(clientCall.getTarget()));
+                call.setSource(clientCall.getSource());
+                call.setTarget(clientCall.getTarget());
                 call.setId(clientCall.getId());
                 call.setDetectPoint(DetectPoint.CLIENT);
+                call.setCallType(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
             }
-        });
+        }
 
-        serviceRelationServerCalls.forEach(serverCall -> {
+        for (Call serverCall : serviceRelationServerCalls) {
             ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(serverCall.getTarget());
 
             if (source.getSequence() == Const.USER_SERVICE_ID) {
-                if (!nodeIds.contains(source.getSequence())) {
+                if (!nodes.containsKey(source.getSequence())) {
                     Node visualUserNode = new Node();
                     visualUserNode.setId(source.getSequence());
                     visualUserNode.setName(Const.USER_CODE);
                     visualUserNode.setType(Const.USER_CODE.toUpperCase());
                     visualUserNode.setReal(false);
-                    nodes.add(visualUserNode);
-                    nodeIds.add(source.getSequence());
+                    nodes.put(source.getSequence(), visualUserNode);
                 }
             }
 
             if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
-                if (!nodeIds.contains(source.getSequence())) {
+                if (!nodes.containsKey(source.getSequence())) {
                     Node conjecturalNode = new Node();
                     conjecturalNode.setId(source.getSequence());
                     conjecturalNode.setName(source.getName());
-                    conjecturalNode.setType(conjecturalNodeCompMap.getOrDefault(target.getSequence(), Const.UNKNOWN));
+                    conjecturalNode.setType(componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
                     conjecturalNode.setReal(true);
-                    nodeIds.add(source.getSequence());
-                    nodes.add(conjecturalNode);
+                    nodes.put(source.getSequence(), conjecturalNode);
                 }
-            }
-
-            if (!nodeIds.contains(source.getSequence())) {
-                nodes.add(buildNode(nodeCompMap, source));
-                nodeIds.add(source.getSequence());
-            }
-
-            if (!nodeIds.contains(target.getSequence())) {
-                nodes.add(buildNode(nodeCompMap, target));
-                nodeIds.add(target.getSequence());
             }
 
             String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
@@ -142,63 +116,42 @@ class TopologyBuilder {
                 callIds.add(callId);
 
                 Call call = new Call();
-                call.setSource(source.getSequence());
-                call.setTarget(target.getSequence());
+                call.setSource(serverCall.getSource());
+                call.setTarget(serverCall.getTarget());
                 call.setId(serverCall.getId());
                 call.setDetectPoint(DetectPoint.SERVER);
+                calls.add(call);
 
                 if (source.getSequence() == Const.USER_SERVICE_ID) {
                     call.setCallType(Const.EMPTY_STRING);
                 } else {
-                    call.setCallType(nodeCompMap.get(serverCall.getTarget()));
+                    call.setCallType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
                 }
-                calls.add(call);
             }
-        });
+
+            if (!nodes.containsKey(source.getSequence())) {
+                nodes.put(source.getSequence(), buildNode(source));
+            }
+
+            if (!nodes.containsKey(target.getSequence())) {
+                nodes.put(target.getSequence(), buildNode(target));
+            }
+
+            if (nodes.containsKey(target.getSequence())) {
+                nodes.get(target.getSequence()).setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+            }
+        }
 
         Topology topology = new Topology();
         topology.getCalls().addAll(calls);
-        topology.getNodes().addAll(nodes);
+        topology.getNodes().addAll(nodes.values());
         return topology;
     }
 
-    private void mappingIdExchange(Map<Integer, Integer> mappings, List<Call> serviceRelationCalls) {
-        serviceRelationCalls.forEach(relationCall -> {
-            relationCall.setSource(mappings.getOrDefault(relationCall.getSource(), relationCall.getSource()));
-            relationCall.setTarget(mappings.getOrDefault(relationCall.getTarget(), relationCall.getTarget()));
-        });
-    }
-
-    private Map<Integer, Integer> changeMapping2Map(List<ServiceMapping> serviceMappings) {
-        Map<Integer, Integer> mappings = new HashMap<>();
-        serviceMappings.forEach(serviceMapping -> mappings.put(serviceMapping.getMappingServiceId(), serviceMapping.getServiceId()));
-        return mappings;
-    }
-
-    private Map<Integer, String> buildConjecturalNodeCompMap(List<ServiceComponent> serviceComponents) {
-        Map<Integer, String> components = new HashMap<>();
-        serviceComponents.forEach(serviceComponent -> {
-            int componentServerId = this.componentLibraryCatalogService.getServerIdBasedOnComponent(serviceComponent.getComponentId());
-            String componentName = this.componentLibraryCatalogService.getServerName(componentServerId);
-            components.put(serviceComponent.getServiceId(), componentName);
-        });
-        return components;
-    }
-
-    private Map<Integer, String> buildNodeCompMap(List<ServiceComponent> serviceComponents) {
-        Map<Integer, String> components = new HashMap<>();
-        serviceComponents.forEach(serviceComponent -> {
-            String componentName = this.componentLibraryCatalogService.getComponentName(serviceComponent.getComponentId());
-            components.put(serviceComponent.getServiceId(), componentName);
-        });
-        return components;
-    }
-
-    private Node buildNode(Map<Integer, String> nodeCompMap, ServiceInventory serviceInventory) {
+    private Node buildNode(ServiceInventory serviceInventory) {
         Node serviceNode = new Node();
         serviceNode.setId(serviceInventory.getSequence());
         serviceNode.setName(serviceInventory.getName());
-        serviceNode.setType(nodeCompMap.getOrDefault(serviceInventory.getSequence(), Const.UNKNOWN));
         if (BooleanUtils.valueToBoolean(serviceInventory.getIsAddress())) {
             serviceNode.setReal(false);
         } else {
