@@ -33,29 +33,12 @@ import org.apache.skywalking.apm.collector.remote.RemoteModule;
 import org.apache.skywalking.apm.collector.storage.StorageException;
 import org.apache.skywalking.apm.collector.storage.StorageModule;
 import org.apache.skywalking.apm.collector.storage.base.dao.IBatchDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IGlobalTracePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.IInstanceHeartBeatPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentDurationPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.ISegmentPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.*;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentDayPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentHourPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMinutePersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.acp.IApplicationComponentMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListDayPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListHourPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMinutePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmListMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IApplicationReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IInstanceReferenceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceAlarmPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmListPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.dao.alarm.IServiceReferenceAlarmPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.dao.alarm.*;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationDayMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationHourMetricPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.dao.amp.IApplicationMinuteMetricPersistenceDAO;
@@ -119,29 +102,12 @@ import org.apache.skywalking.apm.collector.storage.dao.srmp.IServiceReferenceMon
 import org.apache.skywalking.apm.collector.storage.dao.ui.*;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.base.dao.BatchShardingjdbcDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.base.define.ShardingjdbcStorageInstaller;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.GlobalTraceShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.InstanceHeartBeatShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.SegmentDurationShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.SegmentShardingjdbcPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.*;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.acp.ApplicationComponentDayShardingjdbcPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.acp.ApplicationComponentHourShardingjdbcPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.acp.ApplicationComponentMinuteShardingjdbcPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.acp.ApplicationComponentMonthShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationAlarmListShardingjdbcDayPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationAlarmListShardingjdbcHourPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationAlarmListShardingjdbcMinutePersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationAlarmListShardingjdbcMonthPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationAlarmShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationReferenceAlarmListShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ApplicationReferenceAlarmShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.InstanceAlarmListShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.InstanceAlarmShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.InstanceReferenceAlarmListShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.InstanceReferenceAlarmShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ServiceAlarmListShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ServiceAlarmShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ServiceReferenceAlarmListShardingjdbcPersistenceDAO;
-import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.ServiceReferenceAlarmShardingjdbcPersistenceDAO;
+import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.alarm.*;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.amp.ApplicationDayMetricShardingjdbcPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.amp.ApplicationHourMetricShardingjdbcPersistenceDAO;
 import org.apache.skywalking.apm.collector.storage.shardingjdbc.dao.amp.ApplicationMinuteMetricShardingjdbcPersistenceDAO;
@@ -246,7 +212,7 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         Map<String, ShardingjdbcClientConfig> shardingjdbcClientConfigs = createShardingjdbcClientConfigs();
         ShardingRuleConfiguration shardingRuleConfig = createShardingRule(shardingjdbcClientConfigs.size());
         shardingjdbcClient = new ShardingjdbcClient(shardingjdbcClientConfigs, shardingRuleConfig);
-    
+        
         this.registerServiceImplementation(ITTLConfigService.class, new TTLConfigService(config));
         this.registerServiceImplementation(IBatchDAO.class, new BatchShardingjdbcDAO(shardingjdbcClient));
         registerCacheDAO();
@@ -336,17 +302,6 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         this.registerServiceImplementation(IMemoryPoolDayMetricPersistenceDAO.class, new MemoryPoolDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IMemoryPoolMonthMetricPersistenceDAO.class, new MemoryPoolMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         
-        this.registerServiceImplementation(IGlobalTracePersistenceDAO.class, new GlobalTraceShardingjdbcPersistenceDAO(shardingjdbcClient));
-        
-        this.registerServiceImplementation(IResponseTimeDistributionMinutePersistenceDAO.class, new ResponseTimeDistributionMinuteShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IResponseTimeDistributionHourPersistenceDAO.class, new ResponseTimeDistributionHourShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IResponseTimeDistributionDayPersistenceDAO.class, new ResponseTimeDistributionDayShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IResponseTimeDistributionMonthPersistenceDAO.class, new ResponseTimeDistributionMonthShardingjdbcPersistenceDAO(shardingjdbcClient));
-        
-        this.registerServiceImplementation(ISegmentDurationPersistenceDAO.class, new SegmentDurationShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IInstanceHeartBeatPersistenceDAO.class, new InstanceHeartBeatShardingjdbcPersistenceDAO(shardingjdbcClient));
-        
         this.registerServiceImplementation(IApplicationComponentMinutePersistenceDAO.class, new ApplicationComponentMinuteShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IApplicationComponentHourPersistenceDAO.class, new ApplicationComponentHourShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IApplicationComponentDayPersistenceDAO.class, new ApplicationComponentDayShardingjdbcPersistenceDAO(shardingjdbcClient));
@@ -362,6 +317,13 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceMappingDayPersistenceDAO.class, new InstanceMappingDayShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IInstanceMappingMonthPersistenceDAO.class, new InstanceMappingMonthShardingjdbcPersistenceDAO(shardingjdbcClient));
         
+        this.registerServiceImplementation(IGlobalTracePersistenceDAO.class, new GlobalTraceShardingjdbcPersistenceDAO(shardingjdbcClient));
+        
+        this.registerServiceImplementation(IResponseTimeDistributionMinutePersistenceDAO.class, new ResponseTimeDistributionMinuteShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IResponseTimeDistributionHourPersistenceDAO.class, new ResponseTimeDistributionHourShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IResponseTimeDistributionDayPersistenceDAO.class, new ResponseTimeDistributionDayShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IResponseTimeDistributionMonthPersistenceDAO.class, new ResponseTimeDistributionMonthShardingjdbcPersistenceDAO(shardingjdbcClient));
+        
         this.registerServiceImplementation(IApplicationMinuteMetricPersistenceDAO.class, new ApplicationMinuteMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IApplicationHourMetricPersistenceDAO.class, new ApplicationHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IApplicationDayMetricPersistenceDAO.class, new ApplicationDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
@@ -371,6 +333,19 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         this.registerServiceImplementation(IApplicationReferenceHourMetricPersistenceDAO.class, new ApplicationReferenceHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IApplicationReferenceDayMetricPersistenceDAO.class, new ApplicationReferenceDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IApplicationReferenceMonthMetricPersistenceDAO.class, new ApplicationReferenceMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        
+        this.registerServiceImplementation(ISegmentDurationPersistenceDAO.class, new SegmentDurationShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(ISegmentPersistenceDAO.class, new SegmentShardingjdbcPersistenceDAO(shardingjdbcClient));
+        
+        this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceHourMetricPersistenceDAO.class, new ServiceHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceDayMetricPersistenceDAO.class, new ServiceDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceMonthMetricPersistenceDAO.class, new ServiceMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        
+        this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMinuteMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceReferenceHourMetricPersistenceDAO.class, new ServiceReferenceHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceReferenceDayMetricPersistenceDAO.class, new ServiceReferenceDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceReferenceMonthMetricPersistenceDAO.class, new ServiceReferenceMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         
         this.registerServiceImplementation(IInstanceMinuteMetricPersistenceDAO.class, new InstanceMinuteMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IInstanceHourMetricPersistenceDAO.class, new InstanceHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
@@ -382,15 +357,8 @@ public class StorageModuleShardingjdbcProvider extends ModuleProvider {
         this.registerServiceImplementation(IInstanceReferenceDayMetricPersistenceDAO.class, new InstanceReferenceDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         this.registerServiceImplementation(IInstanceReferenceMonthMetricPersistenceDAO.class, new InstanceReferenceMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
         
-        this.registerServiceImplementation(IServiceMinuteMetricPersistenceDAO.class, new ServiceMinuteMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IServiceHourMetricPersistenceDAO.class, new ServiceHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IServiceDayMetricPersistenceDAO.class, new ServiceDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IServiceMonthMetricPersistenceDAO.class, new ServiceMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        
-        this.registerServiceImplementation(IServiceReferenceMinuteMetricPersistenceDAO.class, new ServiceReferenceMinuteMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IServiceReferenceHourMetricPersistenceDAO.class, new ServiceReferenceHourMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IServiceReferenceDayMetricPersistenceDAO.class, new ServiceReferenceDayMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
-        this.registerServiceImplementation(IServiceReferenceMonthMetricPersistenceDAO.class, new ServiceReferenceMonthMetricShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IInstanceHeartBeatPersistenceDAO.class, new InstanceHeartBeatShardingjdbcPersistenceDAO(shardingjdbcClient));
+        this.registerServiceImplementation(IServiceNameHeartBeatPersistenceDAO.class, new ServiceNameHeartBeatShardingjdbcPersistenceDAO(shardingjdbcClient));
     }
     
     private void registerUiDAO() throws ServiceNotProvidedException {
