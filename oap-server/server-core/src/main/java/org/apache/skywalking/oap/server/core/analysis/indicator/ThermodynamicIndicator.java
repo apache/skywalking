@@ -61,7 +61,7 @@ public abstract class ThermodynamicIndicator extends Indicator {
             this.step = step;
         }
         if (this.numOfSteps == 0) {
-            this.numOfSteps = maxNumOfSteps + 1;
+            this.numOfSteps = maxNumOfSteps;
         }
 
         indexCheckAndInit();
