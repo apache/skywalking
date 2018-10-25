@@ -22,7 +22,6 @@ metadata:
   labels:
     service: elasticsearch
 spec:
-  clusterIP: None
   ports:
   - port: 9200
     name: serving
