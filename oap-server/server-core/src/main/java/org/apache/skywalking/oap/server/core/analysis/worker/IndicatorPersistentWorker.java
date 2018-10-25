@@ -87,6 +87,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
             try {
                 if (nonNull(dbData)) {
                     data.combine(dbData);
+                    data.calculate();
                     batchCollection.add(indicatorDAO.prepareBatchUpdate(modelName, data));
                 } else {
                     batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));
