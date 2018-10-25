@@ -285,7 +285,7 @@
                         <!-- UI Test configs -->
                         <exclude>**/skywalking-ui/jest.config.js</exclude>
                         <!-- UI style check files -->
-                        <exclude>**/skywalking-ui/.eslintrc.js</exclude>
+                        <exclude>**/skywalking-ui/.eslintrc</exclude>
                         <exclude>**/skywalking-ui/.stylelintrc</exclude>
                         <exclude>**/skywalking-ui/.prettierignore</exclude>
                         <exclude>**/skywalking-ui/.prettierrc</exclude>
