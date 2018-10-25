@@ -51,7 +51,6 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         return result;
@@ -108,30 +107,36 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
     @Override
     public Indicator toHour() {
         AllHeatmapIndicator indicator = new AllHeatmapIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
-        indicator.setDetailGroup(this.getDetailGroup());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         AllHeatmapIndicator indicator = new AllHeatmapIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
-        indicator.setDetailGroup(this.getDetailGroup());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         AllHeatmapIndicator indicator = new AllHeatmapIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setStep(this.getStep());
         indicator.setNumOfSteps(this.getNumOfSteps());
-        indicator.setDetailGroup(this.getDetailGroup());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

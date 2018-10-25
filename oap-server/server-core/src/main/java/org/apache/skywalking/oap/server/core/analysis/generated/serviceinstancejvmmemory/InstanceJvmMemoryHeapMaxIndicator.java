@@ -57,7 +57,6 @@ public class InstanceJvmMemoryHeapMaxIndicator extends LongAvgIndicator implemen
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -118,36 +117,36 @@ public class InstanceJvmMemoryHeapMaxIndicator extends LongAvgIndicator implemen
     @Override
     public Indicator toHour() {
         InstanceJvmMemoryHeapMaxIndicator indicator = new InstanceJvmMemoryHeapMaxIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         InstanceJvmMemoryHeapMaxIndicator indicator = new InstanceJvmMemoryHeapMaxIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         InstanceJvmMemoryHeapMaxIndicator indicator = new InstanceJvmMemoryHeapMaxIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

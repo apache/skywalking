@@ -57,7 +57,6 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -118,36 +117,36 @@ public class ServiceInstanceRespTimeIndicator extends LongAvgIndicator implement
     @Override
     public Indicator toHour() {
         ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

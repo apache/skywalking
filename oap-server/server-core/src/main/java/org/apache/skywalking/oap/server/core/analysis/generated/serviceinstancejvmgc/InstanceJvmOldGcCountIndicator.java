@@ -57,7 +57,6 @@ public class InstanceJvmOldGcCountIndicator extends SumIndicator implements Alar
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -114,30 +113,30 @@ public class InstanceJvmOldGcCountIndicator extends SumIndicator implements Alar
     @Override
     public Indicator toHour() {
         InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         InstanceJvmOldGcCountIndicator indicator = new InstanceJvmOldGcCountIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

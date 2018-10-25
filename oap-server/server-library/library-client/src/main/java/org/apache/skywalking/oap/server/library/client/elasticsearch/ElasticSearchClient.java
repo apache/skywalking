@@ -166,22 +166,21 @@ public class ElasticSearchClient implements Client {
         return new UpdateRequest(indexName, TYPE, id).doc(source);
     }
 
-    public void delete(String indexName, String timeBucketColumnName, long startTimeBucket,
-        long endTimeBucket) throws IOException {
+    public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
         indexName = formatIndexName(indexName);
-        Map<String, String> params = Collections.singletonMap("pretty", "true");
+        Map<String, String> params = Collections.singletonMap("conflicts", "proceed");
         String jsonString = "{" +
             "  \"query\": {" +
             "    \"range\": {" +
             "      \"" + timeBucketColumnName + "\": {" +
-            "        \"gte\": " + startTimeBucket + "," +
-            "        \"lte\": " + endTimeBucket + "" +
+            "        \"lte\": " + endTimeBucket +
             "      }" +
             "    }" +
             "  }" +
             "}";
         HttpEntity entity = new NStringEntity(jsonString, ContentType.APPLICATION_JSON);
-        client.getLowLevelClient().performRequest("POST", "/" + indexName + "/_delete_by_query", params, entity);
+        Response response = client.getLowLevelClient().performRequest("POST", "/" + indexName + "/_delete_by_query", params, entity);
+        return response.getStatusLine().getStatusCode();
     }
 
     private String formatIndexName(String indexName) {

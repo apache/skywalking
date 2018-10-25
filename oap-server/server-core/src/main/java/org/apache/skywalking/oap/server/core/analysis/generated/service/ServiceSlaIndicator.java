@@ -56,7 +56,6 @@ public class ServiceSlaIndicator extends PercentIndicator implements AlarmSuppor
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -115,33 +114,33 @@ public class ServiceSlaIndicator extends PercentIndicator implements AlarmSuppor
     @Override
     public Indicator toHour() {
         ServiceSlaIndicator indicator = new ServiceSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         ServiceSlaIndicator indicator = new ServiceSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         ServiceSlaIndicator indicator = new ServiceSlaIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setTotal(this.getTotal());
         indicator.setPercentage(this.getPercentage());
         indicator.setMatch(this.getMatch());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

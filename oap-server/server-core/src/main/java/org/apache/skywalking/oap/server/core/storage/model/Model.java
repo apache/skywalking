@@ -28,15 +28,17 @@ import lombok.Getter;
 public class Model {
     private final String name;
     private final boolean isIndicator;
+    private final boolean deleteHistory;
     private final List<ModelColumn> columns;
 
-    public Model(String name, List<ModelColumn> columns, boolean isIndicator) {
+    public Model(String name, List<ModelColumn> columns, boolean isIndicator, boolean deleteHistory) {
         this.name = name;
         this.columns = columns;
         this.isIndicator = isIndicator;
+        this.deleteHistory = deleteHistory;
     }
 
     public Model copy(String name) {
-        return new Model(name, columns, isIndicator);
+        return new Model(name, columns, isIndicator, deleteHistory);
     }
 }
