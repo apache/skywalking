@@ -131,6 +131,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setType(protocol2Type(metric.getProtocol()));
         serviceRelation.setResponseCode(metric.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metric.getDetectPoint()));
+        serviceRelation.setComponentId(protocol2Component(metric.getProtocol()));
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -171,6 +172,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setType(protocol2Type(metric.getProtocol()));
         serviceRelation.setResponseCode(metric.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metric.getDetectPoint()));
+        serviceRelation.setComponentId(protocol2Component(metric.getProtocol()));
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -202,6 +204,21 @@ public class TelemetryDataDispatcher {
             case UNRECOGNIZED:
             default:
                 return RequestType.RPC;
+        }
+    }
+
+    private static int protocol2Component(Protocol protocol) {
+        switch (protocol) {
+            case gRPC:
+                // GRPC in component-libraries.yml
+                return 23;
+            case HTTP:
+                // HTTP in component-libraries.yml
+                return 49;
+            case UNRECOGNIZED:
+            default:
+                // RPC in component-libraries.yml
+                return 50;
         }
     }
 
