@@ -31,11 +31,11 @@ public class EndpointRelation extends Source {
     }
 
     @Override public String getEntityId() {
-        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
+        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId) + Const.ID_SPLIT + String.valueOf(componentId);
     }
 
-    public static String buildEntityId(int endpointId, int childEndpointId) {
-        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
+    public static String buildEntityId(int endpointId, int childEndpointId, int componentId) {
+        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId) + Const.ID_SPLIT + String.valueOf(componentId);
     }
 
     @Getter @Setter private int endpointId;
@@ -52,6 +52,7 @@ public class EndpointRelation extends Source {
     @Getter @Setter private int childServiceInstanceId;
     @Getter @Setter private String childServiceInstanceName;
 
+    @Getter @Setter private int componentId;
     @Getter @Setter private int rpcLatency;
     @Getter @Setter private boolean status;
     @Getter @Setter private int responseCode;

@@ -16,27 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
-public class ServiceMapping extends Source {
-
-    @Override public Scope scope() {
-        return Scope.ServiceMapping;
-    }
-
-
-    @Override public String getEntityId() {
-        throw new UnexpectedException("ServiceMapping doesn't support getEntityId");
-    }
-
-    @Getter @Setter private int serviceId;
-    @Getter @Setter private int mappingServiceId;
+@Setter
+@Getter
+public class DataTTL {
+    private int recordDataTTL;
+    private int minuteMetricsDataTTL;
+    private int hourMetricsDataTTL;
+    private int dayMetricsDataTTL;
+    private int monthMetricsDataTTL;
 }

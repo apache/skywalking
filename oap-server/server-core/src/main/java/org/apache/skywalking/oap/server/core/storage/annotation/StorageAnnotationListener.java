@@ -48,11 +48,12 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
 
         String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
+        boolean deleteHistory = StorageEntityAnnotationUtils.getDeleteHistory(aClass);
         boolean isIndicator = IndicatorAnnotationUtils.isIndicator(aClass);
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, isIndicator));
+        models.add(new Model(modelName, modelColumns, isIndicator, deleteHistory));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

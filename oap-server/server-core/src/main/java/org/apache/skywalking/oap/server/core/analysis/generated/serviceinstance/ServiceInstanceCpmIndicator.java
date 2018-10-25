@@ -57,7 +57,6 @@ public class ServiceInstanceCpmIndicator extends CPMIndicator implements AlarmSu
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -116,33 +115,33 @@ public class ServiceInstanceCpmIndicator extends CPMIndicator implements AlarmSu
     @Override
     public Indicator toHour() {
         ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         ServiceInstanceCpmIndicator indicator = new ServiceInstanceCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

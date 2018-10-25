@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
  */
 @InventoryType(scope = Scope.ServiceInstance)
 @StreamData
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class)
+@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false)
 public class ServiceInstanceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_instance_inventory";

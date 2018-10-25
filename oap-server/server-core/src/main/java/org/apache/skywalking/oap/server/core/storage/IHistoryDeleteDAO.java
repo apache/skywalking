@@ -16,27 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.service;
+package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.ServiceMapping;
+import java.io.IOException;
 
 /**
  * @author peng-yongsheng
  */
-public class ServiceMappingDispatcher implements SourceDispatcher<ServiceMapping> {
+public interface IHistoryDeleteDAO extends DAO {
 
-    @Override public void dispatch(ServiceMapping source) {
-        doDispatch(source);
-    }
-
-    private void doDispatch(ServiceMapping source) {
-        ServiceMappingIndicator indicator = new ServiceMappingIndicator();
-
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setServiceId(source.getServiceId());
-        indicator.setMappingServiceId(source.getMappingServiceId());
-        IndicatorProcess.INSTANCE.in(indicator);
-    }
+    void deleteHistory(String modelName, String timeBucketColumnName, Long timeBucketBefore) throws IOException;
 }

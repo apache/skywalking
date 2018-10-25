@@ -60,7 +60,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -127,7 +126,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
     @Override
     public Indicator toHour() {
         EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -136,13 +134,13 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -151,13 +149,13 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -166,6 +164,7 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 
