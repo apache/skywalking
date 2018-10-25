@@ -31,7 +31,7 @@ public enum DetectPoint {
             case Entry:
                 return DetectPoint.SERVER;
             case Exit:
-                return DetectPoint.SERVER;
+                return DetectPoint.CLIENT;
             case UNRECOGNIZED:
             case Local:
             default:
