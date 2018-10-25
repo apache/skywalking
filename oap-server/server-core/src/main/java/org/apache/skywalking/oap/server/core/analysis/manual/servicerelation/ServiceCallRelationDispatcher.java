@@ -43,6 +43,8 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setComponentId(source.getComponentId());
+        indicator.setEntityId(source.getEntityId());
         IndicatorProcess.INSTANCE.in(indicator);
     }
 
@@ -51,6 +53,8 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceServiceId(source.getSourceServiceId());
         indicator.setDestServiceId(source.getDestServiceId());
+        indicator.setComponentId(source.getComponentId());
+        indicator.setEntityId(source.getEntityId());
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }

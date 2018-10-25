@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.config;
 
 import java.io.*;
 import java.util.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.*;
 import org.yaml.snakeyaml.Yaml;
@@ -61,8 +62,9 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
     }
 
     @Override
-    public String getServerName(int componentServerId) {
-        return getComponentName(componentServerId);
+    public String getServerNameBasedOnComponent(int componentId) {
+        Integer serverComponentId = componentId2ServerId.get(componentId);
+        return serverComponentId == null ? Const.UNKNOWN : getComponentName(serverComponentId);
     }
 
     private void init() throws InitialComponentCatalogException {

@@ -28,7 +28,5 @@ public interface INetworkAddressInventoryRegister extends Service {
 
     int get(String networkAddress);
 
-    void update(int addressId, int srcLayer, int serverType);
-
     void heartbeat(int addressId, long heartBeatTime);
 }

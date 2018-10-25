@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -38,10 +37,6 @@ public interface ITopologyQueryDAO extends Service {
     List<Call> loadServerSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
 
     List<Call> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
-
-    List<ServiceMapping> loadServiceMappings(Step step, long startTB, long endTB) throws IOException;
-
-    List<ServiceComponent> loadServiceComponents(Step step, long startTB, long endTB) throws IOException;
 
     List<Call> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
         int destEndpointId) throws IOException;

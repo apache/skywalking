@@ -40,6 +40,8 @@ public class EndpointCallRelationDispatcher implements SourceDispatcher<Endpoint
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setSourceEndpointId(source.getEndpointId());
         indicator.setDestEndpointId(source.getChildEndpointId());
+        indicator.setComponentId(source.getComponentId());
+        indicator.setEntityId(source.getEntityId());
         IndicatorProcess.INSTANCE.in(indicator);
     }
 }

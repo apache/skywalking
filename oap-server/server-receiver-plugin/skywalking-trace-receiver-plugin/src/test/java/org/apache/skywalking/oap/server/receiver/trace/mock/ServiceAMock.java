@@ -26,12 +26,28 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 /**
  * @author peng-yongsheng
  */
-class ConsumerMock {
+class ServiceAMock {
 
-    void mock(StreamObserver<UpstreamSegment> streamObserver, UniqueId.Builder globalTraceId,
+    static String REST_ENDPOINT = "/dubbox-case/case/dubbox-rest";
+    static String DUBBO_ENDPOINT = "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()";
+    static String DUBBO_ADDRESS = "DubboIPAddress:1000";
+    private final RegisterMock registerMock;
+    private static int SERVICE_ID;
+    static int SERVICE_INSTANCE_ID;
+
+    ServiceAMock(RegisterMock registerMock) {
+        this.registerMock = registerMock;
+    }
+
+    void register() throws InterruptedException {
+        SERVICE_ID = registerMock.registerService("dubbox-consumer");
+        SERVICE_INSTANCE_ID = registerMock.registerServiceInstance(SERVICE_ID, "pengysA");
+    }
+
+    void mock(StreamObserver<UpstreamSegment> streamObserver, UniqueId.Builder traceId,
         UniqueId.Builder segmentId, long startTimestamp, boolean isPrepare) {
         UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
-        upstreamSegment.addGlobalTraceIds(globalTraceId);
+        upstreamSegment.addGlobalTraceIds(traceId);
         upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, isPrepare));
 
         streamObserver.onNext(upstreamSegment.build());
@@ -40,14 +56,11 @@ class ConsumerMock {
     private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId, boolean isPrepare) {
         TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
-        segment.setApplicationId(2);
-        segment.setApplicationInstanceId(2);
+        segment.setApplicationId(SERVICE_ID);
+        segment.setApplicationInstanceId(SERVICE_INSTANCE_ID);
         segment.addSpans(createEntrySpan(startTimestamp, isPrepare));
         segment.addSpans(createLocalSpan(startTimestamp, isPrepare));
-        segment.addSpans(createMqEntrySpan(startTimestamp, isPrepare));
         segment.addSpans(createExitSpan(startTimestamp, isPrepare));
-        segment.addSpans(createMqEntrySpan2(startTimestamp, isPrepare));
-        segment.addSpans(createExitSpan2(startTimestamp, isPrepare));
 
         return segment.build().toByteString();
     }
@@ -59,10 +72,10 @@ class ConsumerMock {
         span.setSpanLayer(SpanLayer.Http);
         span.setParentSpanId(-1);
         span.setStartTime(startTimestamp);
-        span.setEndTime(startTimestamp + 2000);
+        span.setEndTime(startTimestamp + 6000);
         span.setComponentId(ComponentsDefine.TOMCAT.getId());
         if (isPrepare) {
-            span.setOperationName("/dubbox-case/case/dubbox-rest");
+            span.setOperationName(REST_ENDPOINT);
         } else {
             span.setOperationNameId(2);
         }
@@ -76,7 +89,7 @@ class ConsumerMock {
         span.setSpanType(SpanType.Local);
         span.setParentSpanId(0);
         span.setStartTime(startTimestamp + 100);
-        span.setEndTime(startTimestamp + 1900);
+        span.setEndTime(startTimestamp + 500);
         if (isPrepare) {
             span.setOperationName("org.apache.skywalking.Local.do");
         } else {
@@ -86,77 +99,21 @@ class ConsumerMock {
         return span;
     }
 
-    private SpanObject.Builder createMqEntrySpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
-        span.setSpanId(2);
-        span.setSpanType(SpanType.Entry);
-        span.setSpanLayer(SpanLayer.MQ);
-        span.setParentSpanId(1);
-        span.setStartTime(startTimestamp + 110);
-        span.setEndTime(startTimestamp + 1800);
-        span.setComponentId(ComponentsDefine.ROCKET_MQ_CONSUMER.getId());
-        if (isPrepare) {
-            span.setOperationName("org.apache.skywalking.RocketMQ");
-        } else {
-            span.setOperationNameId(4);
-        }
-        span.setIsError(false);
-        return span;
-    }
-
     private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
         SpanObject.Builder span = SpanObject.newBuilder();
-        span.setSpanId(3);
+        span.setSpanId(2);
         span.setSpanType(SpanType.Exit);
         span.setSpanLayer(SpanLayer.RPCFramework);
-        span.setParentSpanId(2);
-        span.setStartTime(startTimestamp + 120);
-        span.setEndTime(startTimestamp + 1780);
-        span.setComponentId(ComponentsDefine.DUBBO.getId());
-        if (isPrepare) {
-            span.setPeer("172.25.0.4:20880");
-            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
-        } else {
-            span.setOperationNameId(5);
-            span.setPeerId(3);
-        }
-        span.setIsError(false);
-        return span;
-    }
-
-    private SpanObject.Builder createMqEntrySpan2(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
-        span.setSpanId(4);
-        span.setSpanType(SpanType.Entry);
-        span.setSpanLayer(SpanLayer.MQ);
         span.setParentSpanId(1);
-        span.setStartTime(startTimestamp + 110);
-        span.setEndTime(startTimestamp + 1800);
-        span.setComponentId(ComponentsDefine.ROCKET_MQ_CONSUMER.getId());
-        if (isPrepare) {
-            span.setOperationName("org.apache.skywalking.RocketMQ");
-        } else {
-            span.setOperationNameId(4);
-        }
-        span.setIsError(false);
-        return span;
-    }
-
-    private SpanObject.Builder createExitSpan2(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
-        span.setSpanId(5);
-        span.setSpanType(SpanType.Exit);
-        span.setSpanLayer(SpanLayer.RPCFramework);
-        span.setParentSpanId(4);
         span.setStartTime(startTimestamp + 120);
-        span.setEndTime(startTimestamp + 1780);
+        span.setEndTime(startTimestamp + 5800);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
         if (isPrepare) {
-            span.setPeer("172.25.0.4:20880");
-            span.setOperationName("org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()");
+            span.setPeer(DUBBO_ADDRESS);
+            span.setOperationName(DUBBO_ENDPOINT);
         } else {
-            span.setOperationNameId(5);
-            span.setPeerId(3);
+            span.setPeerId(2);
+            span.setOperationNameId(6);
         }
         span.setIsError(false);
         return span;

@@ -27,7 +27,9 @@ public interface IServiceInventoryRegister extends Service {
 
     int getOrCreate(String serviceName);
 
-    int getOrCreate(int addressId);
+    int getOrCreate(int addressId, String serviceName);
 
     void heartbeat(int serviceId, long heartBeatTime);
+
+    void updateMapping(int serviceId, int mappingServiceId);
 }
