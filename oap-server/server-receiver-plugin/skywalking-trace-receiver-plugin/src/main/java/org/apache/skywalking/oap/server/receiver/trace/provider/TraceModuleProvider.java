@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment.SegmentSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 
 /**
@@ -60,7 +60,6 @@ public class TraceModuleProvider extends ModuleProvider {
     @Override public void start() throws ModuleStartException {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         listenerManager.add(new MultiScopesSpanListener.Factory());
-        listenerManager.add(new ServiceComponentSpanListener.Factory());
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory());
 
