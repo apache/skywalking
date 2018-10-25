@@ -30,5 +30,5 @@ public interface IComponentLibraryCatalogService extends Service {
 
     String getComponentName(int componentId);
 
-    String getServerName(int componentServerId);
+    String getServerNameBasedOnComponent(int componentId);
 }
