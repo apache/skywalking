@@ -72,7 +72,7 @@ public class EndpointInventory extends RegisterSource {
         EndpointInventory source = (EndpointInventory)obj;
         if (serviceId != source.getServiceId())
             return false;
-        if (name.equals(source.getName()))
+        if (!name.equals(source.getName()))
             return false;
 
         return true;
