@@ -171,6 +171,12 @@ Elasticsearch:
 transport-client:
   id: 48
   languages: Java
+http:
+  id: 49
+  languages: Java,C#,Node.js
+rpc:
+  id: 50
+  languages: Java,C#,Node.js
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
