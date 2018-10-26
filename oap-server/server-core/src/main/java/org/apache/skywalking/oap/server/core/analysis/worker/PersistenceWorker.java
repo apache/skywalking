@@ -41,7 +41,7 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
         this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
     }
 
-    final void onWork(INPUT input) {
+    void onWork(INPUT input) {
         if (getCache().currentCollectionSize() >= batchSize) {
             try {
                 if (getCache().trySwitchPointer()) {

@@ -33,7 +33,7 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
 
     public MeshDataBufferFileCache(MeshModuleConfig config) {
         this.config = config;
-        dataCarrier = new DataCarrier<>(3, 1024);
+        dataCarrier = new DataCarrier<>("MeshDataBufferFileCache", 3, 1024);
     }
 
     void start() throws IOException {
