@@ -18,15 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
+import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.IIndicatorDAO;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 
@@ -50,8 +55,12 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         this.mergeDataCache = new MergeDataCache<>();
         this.indicatorDAO = indicatorDAO;
         this.nextWorker = nextWorker;
-        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new IndicatorPersistentWorker.PersistentConsumer(this), 1);
+    }
+
+    @Override void onWork(Indicator indicator) {
+        super.onWork(indicator);
     }
 
     @Override public void in(Indicator indicator) {
@@ -87,6 +96,8 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
             try {
                 if (nonNull(dbData)) {
                     data.combine(dbData);
+                    data.calculate();
+
                     batchCollection.add(indicatorDAO.prepareBatchUpdate(modelName, data));
                 } else {
                     batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));

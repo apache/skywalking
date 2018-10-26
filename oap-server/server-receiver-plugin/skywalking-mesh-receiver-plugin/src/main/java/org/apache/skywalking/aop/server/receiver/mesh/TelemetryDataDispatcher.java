@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.RequestType;
@@ -59,7 +60,12 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
-        CACHE.in(data);
+        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);
+        if (decorator.tryMetaDataRegister()) {
+            TelemetryDataDispatcher.doDispatch(decorator);
+        } else {
+            CACHE.in(data);
+        }
     }
 
     /**
@@ -70,11 +76,29 @@ public class TelemetryDataDispatcher {
     static void doDispatch(ServiceMeshMetricDataDecorator decorator) {
         ServiceMeshMetric metric = decorator.getMetric();
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
-        toService(decorator, minuteTimeBucket);
+
+        if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metric.getDetectPoint())) {
+            toAll(decorator, minuteTimeBucket);
+            toService(decorator, minuteTimeBucket);
+            toEndpoint(decorator, minuteTimeBucket);
+        }
         toServiceRelation(decorator, minuteTimeBucket);
         toServiceInstance(decorator, minuteTimeBucket);
         toServiceInstanceRelation(decorator, minuteTimeBucket);
-        toEndpoint(decorator, minuteTimeBucket);
+    }
+
+    private static void toAll(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
+        ServiceMeshMetric metric = decorator.getMetric();
+        All all = new All();
+        all.setTimeBucket(minuteTimeBucket);
+        all.setName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));
+        all.setServiceInstanceName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
+        all.setEndpointName(metric.getEndpoint());
+        all.setLatency(metric.getLatency());
+        all.setStatus(metric.getStatus());
+        all.setType(protocol2Type(metric.getProtocol()));
+
+        SOURCE_RECEIVER.receive(all);
     }
 
     private static void toService(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
@@ -110,6 +134,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setType(protocol2Type(metric.getProtocol()));
         serviceRelation.setResponseCode(metric.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metric.getDetectPoint()));
+        serviceRelation.setComponentId(protocol2Component(metric.getProtocol()));
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -150,6 +175,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setType(protocol2Type(metric.getProtocol()));
         serviceRelation.setResponseCode(metric.getResponseCode());
         serviceRelation.setDetectPoint(detectPointMapping(metric.getDetectPoint()));
+        serviceRelation.setComponentId(protocol2Component(metric.getProtocol()));
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -181,6 +207,21 @@ public class TelemetryDataDispatcher {
             case UNRECOGNIZED:
             default:
                 return RequestType.RPC;
+        }
+    }
+
+    private static int protocol2Component(Protocol protocol) {
+        switch (protocol) {
+            case gRPC:
+                // GRPC in component-libraries.yml
+                return 23;
+            case HTTP:
+                // HTTP in component-libraries.yml
+                return 49;
+            case UNRECOGNIZED:
+            default:
+                // RPC in component-libraries.yml
+                return 50;
         }
     }
 

@@ -150,7 +150,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
                 }
 
                 for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
-                    axisYValues.set(intKeyLongValue.getKey() - 1, intKeyLongValue.getValue());
+                    axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
                 }
 
                 thermodynamicValueMatrix.add(axisYValues);

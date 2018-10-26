@@ -50,13 +50,12 @@ public class ThermodynamicIndicatorTest {
         indicatorMocker.combine(100, step, maxNumOfSteps);
 
         Map<Integer, IntKeyLongValue> index = Whitebox.getInternalState(indicatorMocker, "detailIndex");
-        Assert.assertEquals(5, index.size());
+        Assert.assertEquals(4, index.size());
 
         Assert.assertEquals(1, index.get(2).getValue());
         Assert.assertEquals(3, index.get(5).getValue());
         Assert.assertEquals(1, index.get(6).getValue());
-        Assert.assertEquals(6, index.get(10).getValue());
-        Assert.assertEquals(2, index.get(11).getValue());
+        Assert.assertEquals(8, index.get(10).getValue());
     }
 
     @Test
@@ -83,13 +82,12 @@ public class ThermodynamicIndicatorTest {
         indicatorMocker.combine(indicatorMocker2);
 
         Map<Integer, IntKeyLongValue> index = Whitebox.getInternalState(indicatorMocker, "detailIndex");
-        Assert.assertEquals(5, index.size());
+        Assert.assertEquals(4, index.size());
 
         Assert.assertEquals(1, index.get(2).getValue());
         Assert.assertEquals(3, index.get(5).getValue());
         Assert.assertEquals(1, index.get(6).getValue());
-        Assert.assertEquals(6, index.get(10).getValue());
-        Assert.assertEquals(2, index.get(11).getValue());
+        Assert.assertEquals(8, index.get(10).getValue());
     }
 
     public class ThermodynamicIndicatorMocker extends ThermodynamicIndicator {
