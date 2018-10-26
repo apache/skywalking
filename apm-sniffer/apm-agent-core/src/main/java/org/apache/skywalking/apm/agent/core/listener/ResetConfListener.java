@@ -54,7 +54,7 @@ public class ResetConfListener implements BootService, Runnable {
                 }), 0, Config.Collector.SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
 
         } else {
-            logger.warn("Since the agent.register_status variable is not set correctly, the reset service is not started.");
+            logger.info("Since the agent.register_status variable is not set correctly, the reset service is not started -> Agent reset service is inactive.");
         }
     }
     @Override public void onComplete() throws Throwable {

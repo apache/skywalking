@@ -45,6 +45,7 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * @author wusheng
@@ -52,7 +53,6 @@ import java.util.concurrent.TimeUnit;
 @DefaultImplementor
 public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
-    private static final String INSTANCE_UUID = Config.Agent.INSTANCE_UUID.equals("") ? UUID.randomUUID().toString().replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub;
@@ -111,6 +111,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     public void run() {
         logger.debug("AppAndServiceRegisterClient running, status:{}.", status);
         boolean shouldTry = true;
+        String instanceUUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID) ? UUID.randomUUID().toString().replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
         while (GRPCChannelStatus.CONNECTED.equals(status) && shouldTry) {
             shouldTry = false;
             try {
@@ -130,7 +131,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
 
                             ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
                                 .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
-                                .setAgentUUID(INSTANCE_UUID)
+                                .setAgentUUID(instanceUUID)
                                 .setRegisterTime(System.currentTimeMillis())
                                 .setOsinfo(OSUtil.buildOSInfo())
                                 .build());
@@ -144,7 +145,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                             if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
                                 serviceInstancePingBlockingStub.doPing(ServiceInstancePingPkg.newBuilder()
                                     .setServiceInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
-                                    .setServiceInstanceUUID(INSTANCE_UUID)
+                                    .setServiceInstanceUUID(instanceUUID)
                                     .setTime(System.currentTimeMillis())
                                     .build());
                             }
