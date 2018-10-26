@@ -52,6 +52,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     @Override public int getOrCreate(String serviceName) {
         int serviceId = getServiceInventoryCache().getServiceId(serviceName);
+        logger.info("register service: {}, service id: {}", serviceName, serviceId);
 
         if (serviceId == Const.NONE) {
             ServiceInventory serviceInventory = new ServiceInventory();
@@ -62,6 +63,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
+            serviceInventory.setMappingServiceId(Const.NONE);
             serviceInventory.setMappingLastUpdateTime(now);
 
             InventoryProcess.INSTANCE.in(serviceInventory);

@@ -22,9 +22,9 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.generated.all.AllHeatmapIndicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 import org.slf4j.*;
 
 /**
@@ -38,9 +38,11 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final DataCarrier<Indicator> dataCarrier;
     private final MergeDataCache<Indicator> mergeDataCache;
     private int messageNum;
+    private final String modelName;
 
     IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker, String modelName) {
         super(workerId);
+        this.modelName = modelName;
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
         this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, 1, 10000);
@@ -53,6 +55,10 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     }
 
     private void onWork(Indicator indicator) {
+        if (modelName.equals("all_heatmap")) {
+            AllHeatmapIndicator allHeatmapIndicator = (AllHeatmapIndicator)indicator;
+            logger.info("aggregate indicator: {}", allHeatmapIndicator.getDetailGroup().toStorageData());
+        }
         messageNum++;
         aggregate(indicator);
 
@@ -89,6 +95,14 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         } else {
             mergeDataCache.put(indicator);
         }
+
+        mergeDataCache.getLast().collection().forEach(indicator1 -> {
+            if (modelName.equals("all_heatmap")) {
+                AllHeatmapIndicator allHeatmapIndicator = (AllHeatmapIndicator)indicator1;
+                logger.warn("aggregate indicator aggregate method: {}", allHeatmapIndicator.getDetailGroup().toStorageData());
+            }
+        });
+
         mergeDataCache.finishWriting();
     }
 
