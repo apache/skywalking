@@ -18,9 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import java.util.*;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -61,7 +66,7 @@ public abstract class ThermodynamicIndicator extends Indicator {
             this.step = step;
         }
         if (this.numOfSteps == 0) {
-            this.numOfSteps = maxNumOfSteps + 1;
+            this.numOfSteps = maxNumOfSteps;
         }
 
         indexCheckAndInit();
@@ -86,14 +91,15 @@ public abstract class ThermodynamicIndicator extends Indicator {
         ThermodynamicIndicator thermodynamicIndicator = (ThermodynamicIndicator)indicator;
         this.indexCheckAndInit();
         thermodynamicIndicator.indexCheckAndInit();
+        final ThermodynamicIndicator self = this;
 
         thermodynamicIndicator.detailIndex.forEach((key, element) -> {
-            IntKeyLongValue existingElement = this.detailIndex.get(key);
+            IntKeyLongValue existingElement = self.detailIndex.get(key);
             if (existingElement == null) {
                 existingElement = new IntKeyLongValue();
                 existingElement.setKey(key);
                 existingElement.setValue(element.getValue());
-                addElement(element);
+                self.addElement(element);
             } else {
                 existingElement.addValue(element.getValue());
             }

@@ -68,5 +68,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
                 }
             });
         }
+
+        this.bulkProcessor.flush();
     }
 }

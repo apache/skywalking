@@ -62,6 +62,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
+            serviceInventory.setMappingServiceId(Const.NONE);
             serviceInventory.setMappingLastUpdateTime(now);
 
             InventoryProcess.INSTANCE.in(serviceInventory);
