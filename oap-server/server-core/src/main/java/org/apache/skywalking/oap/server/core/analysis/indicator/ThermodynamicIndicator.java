@@ -19,9 +19,12 @@
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Thermodynamic indicator represents the calculator for heat map.
@@ -35,6 +38,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @IndicatorOperator
 public abstract class ThermodynamicIndicator extends Indicator {
+    private static final Logger logger = LoggerFactory.getLogger(ThermodynamicIndicator.class);
+    private static AtomicInteger INDEX = new AtomicInteger(0);
+
     public static final String DETAIL_GROUP = "detail_group";
     public static final String STEP = "step";
     public static final String NUM_OF_STEPS = "num_of_steps";
@@ -57,6 +63,7 @@ public abstract class ThermodynamicIndicator extends Indicator {
      */
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int step, @Arg int maxNumOfSteps) {
+        logger.info("ThermodynamicIndicator get " + INDEX.addAndGet(1));
         if (this.step == 0) {
             this.step = step;
         }
@@ -86,18 +93,24 @@ public abstract class ThermodynamicIndicator extends Indicator {
         ThermodynamicIndicator thermodynamicIndicator = (ThermodynamicIndicator)indicator;
         this.indexCheckAndInit();
         thermodynamicIndicator.indexCheckAndInit();
+        final ThermodynamicIndicator self = this;
 
         thermodynamicIndicator.detailIndex.forEach((key, element) -> {
-            IntKeyLongValue existingElement = this.detailIndex.get(key);
+            IntKeyLongValue existingElement = self.detailIndex.get(key);
+            logger.info("prepare merging id =" + key + ", value=" + element.getValue());
             if (existingElement == null) {
                 existingElement = new IntKeyLongValue();
                 existingElement.setKey(key);
                 existingElement.setValue(element.getValue());
-                addElement(element);
+                self.addElement(element);
             } else {
                 existingElement.addValue(element.getValue());
             }
+
+            logger.info("result=" + self.detailGroup.toStorageData());
         });
+
+        logger.info("after combine, " + self.detailGroup.toStorageData());
     }
 
     /**

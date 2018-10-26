@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 import org.slf4j.*;
 
 /**
@@ -38,11 +39,11 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final MergeDataCache<Indicator> mergeDataCache;
     private int messageNum;
 
-    IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker) {
+    IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker, String modelName) {
         super(workerId);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
-        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new AggregatorConsumer(this), 1);
     }
 

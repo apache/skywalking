@@ -63,7 +63,7 @@ public enum IndicatorProcess {
         IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, transWorker);
         WorkerInstances.INSTANCES.put(remoteWorker.getWorkerId(), remoteWorker);
 
-        IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(WorkerIdGenerator.INSTANCES.generate(), remoteWorker);
+        IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(WorkerIdGenerator.INSTANCES.generate(), remoteWorker, modelName);
         WorkerInstances.INSTANCES.put(aggregateWorker.getWorkerId(), aggregateWorker);
 
         entryWorkers.put(indicatorClass, aggregateWorker);

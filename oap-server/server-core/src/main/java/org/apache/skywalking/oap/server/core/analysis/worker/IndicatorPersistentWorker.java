@@ -50,7 +50,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         this.mergeDataCache = new MergeDataCache<>();
         this.indicatorDAO = indicatorDAO;
         this.nextWorker = nextWorker;
-        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new IndicatorPersistentWorker.PersistentConsumer(this), 1);
     }
 
