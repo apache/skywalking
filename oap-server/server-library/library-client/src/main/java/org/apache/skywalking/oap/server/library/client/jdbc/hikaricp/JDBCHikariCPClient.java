@@ -104,6 +104,8 @@ public class JDBCHikariCPClient implements Client {
                         statement.setInt(i + 1, (int)param);
                     } else if (param instanceof Double) {
                         statement.setDouble(i + 1, (double)param);
+                    } else if (param instanceof Long) {
+                        statement.setLong(i + 1, (long)param);
                     } else {
                         throw new JDBCClientException("Unsupported data type, type=" + param.getClass().getName());
                     }

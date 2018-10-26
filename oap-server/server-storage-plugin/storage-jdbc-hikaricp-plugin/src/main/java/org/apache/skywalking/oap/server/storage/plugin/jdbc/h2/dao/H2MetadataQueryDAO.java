@@ -58,7 +58,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             while (resultSet.next()) {
                 return resultSet.getInt("num");
             }
@@ -80,7 +80,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
                 return resultSet.getInt("num");
@@ -105,7 +105,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             while (resultSet.next()) {
                 return resultSet.getInt("num");
             }
@@ -129,7 +129,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             while (resultSet.next()) {
                 return buildServices(resultSet);
             }
@@ -158,7 +158,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             return buildServices(resultSet);
         } catch (SQLException e) {
             throw new IOException(e);
@@ -179,7 +179,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
                 Service service = new Service();
@@ -209,7 +209,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
                 Endpoint endpoint = new Endpoint();
@@ -219,6 +219,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return endpoints;
     }
@@ -236,7 +238,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<ServiceInstance> serviceInstances = new ArrayList<>();
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
                 ServiceInstance serviceInstance = new ServiceInstance();
@@ -248,17 +250,19 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return serviceInstances;
     }
 
     private void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
         long endTimestamp) {
-        sql.append(" ( (").append(RegisterSource.HEARTBEAT_TIME).append(" >= ? and")
+        sql.append(" ( (").append(RegisterSource.HEARTBEAT_TIME).append(" >= ? and ")
             .append(RegisterSource.REGISTER_TIME).append(" <= ? )");
         conditions.add(endTimestamp);
         conditions.add(endTimestamp);
-        sql.append(" or (").append(RegisterSource.REGISTER_TIME).append(" <= ? and")
+        sql.append(" or (").append(RegisterSource.REGISTER_TIME).append(" <= ? and ")
             .append(RegisterSource.HEARTBEAT_TIME).append(" >= ? ) ) ");
         conditions.add(endTimestamp);
         conditions.add(startTimestamp);

@@ -78,11 +78,11 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
                     if (valueIdx != 0) {
                         valueCollection.append(",");
                     }
-                    valueCollection.append("\"").append(keyValues.getValues().get(valueIdx)).append("\"");
+                    valueCollection.append("'").append(keyValues.getValues().get(valueIdx)).append("'");
                 }
-                whereSql.append(keyValues.getKey()).append("in (" + valueCollection + ")");
+                whereSql.append(keyValues.getKey()).append(" in (" + valueCollection + ")");
             }
-            whereSql.append(")");
+            whereSql.append(") and ");
         }
 
         IntValues intValues = new IntValues();
@@ -119,7 +119,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             if (valueIdx != 0) {
                 idValues.append(",");
             }
-            idValues.append("\"").append(ids.get(valueIdx)).append("\"");
+            idValues.append("'").append(ids.get(valueIdx)).append("'");
         }
 
         IntValues intValues = new IntValues();
@@ -127,7 +127,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select id, " + valueCName + " from " + tableName + " where id in " + idValues.toString())) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select id, " + valueCName + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
                 while (resultSet.next()) {
                     KVInt kv = new KVInt();
                     kv.setId(resultSet.getString("id"));
@@ -171,7 +171,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             if (valueIdx != 0) {
                 idValues.append(",");
             }
-            idValues.append("\"").append(ids.get(valueIdx)).append("\"");
+            idValues.append("'").append(ids.get(valueIdx)).append("'");
         }
 
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
@@ -184,7 +184,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + ThermodynamicIndicator.STEP + " step, "
                 + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps, "
                 + ThermodynamicIndicator.DETAIL_GROUP + " detail_group "
-                + " from " + tableName + " where id in " + idValues.toString())) {
+                + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
 
                 while (resultSet.next()) {
                     int axisYStep = resultSet.getInt("step");
@@ -211,6 +211,8 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             return thermodynamic;
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
     }
 

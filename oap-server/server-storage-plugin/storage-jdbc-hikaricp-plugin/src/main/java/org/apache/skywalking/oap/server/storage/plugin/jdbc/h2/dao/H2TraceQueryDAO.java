@@ -163,6 +163,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
+        } finally {
+            h2Client.close(connection);
         }
         return segmentRecords;
     }

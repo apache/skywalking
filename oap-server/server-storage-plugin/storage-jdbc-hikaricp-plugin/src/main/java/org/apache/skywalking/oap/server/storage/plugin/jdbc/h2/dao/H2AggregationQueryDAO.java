@@ -96,7 +96,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         List<TopNEntity> topNEntities = new ArrayList<>();
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions);
+            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]));
 
             try {
                 while (resultSet.next()) {
