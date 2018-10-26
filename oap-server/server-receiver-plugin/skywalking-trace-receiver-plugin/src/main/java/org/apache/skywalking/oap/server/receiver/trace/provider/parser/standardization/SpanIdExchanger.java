@@ -80,6 +80,9 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 standardBuilder.toBuilder();
                 standardBuilder.setPeerId(peerId);
                 standardBuilder.setPeer(Const.EMPTY_STRING);
+
+                int spanLayer = standardBuilder.getSpanLayerValue();
+                networkAddressInventoryRegister.update(peerId, spanLayer);
             }
         }
 
