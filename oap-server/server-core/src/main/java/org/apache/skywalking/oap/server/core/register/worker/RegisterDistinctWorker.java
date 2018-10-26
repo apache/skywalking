@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.slf4j.*;
 
@@ -54,6 +54,10 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
     private void onWork(RegisterSource source) {
         messageNum++;
 
+        if (source instanceof ServiceInventory) {
+            logger.info("service register distinct, name {}", ((ServiceInventory)source).getName());
+        }
+
         if (!sources.containsKey(source)) {
             sources.put(source, source);
         } else {
@@ -61,7 +65,12 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
         }
 
         if (messageNum >= 1000 || source.getEndOfBatchContext().isEndOfBatch()) {
-            sources.values().forEach(nextWorker::in);
+            sources.values().forEach(source1 -> {
+                if (source instanceof ServiceInventory) {
+                    logger.info("register distinct send to next, name: {}", ((ServiceInventory)source).getName());
+                }
+                nextWorker.in(source1);
+            });
             messageNum = 0;
         }
     }

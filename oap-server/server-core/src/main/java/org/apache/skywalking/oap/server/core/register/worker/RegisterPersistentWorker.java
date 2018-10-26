@@ -19,7 +19,10 @@
 package org.apache.skywalking.oap.server.core.register.worker;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
+import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -38,6 +41,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final Map<RegisterSource, RegisterSource> sources;
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
+    private final DataCarrier<RegisterSource> dataCarrier;
 
     RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
         IRegisterDAO registerDAO, Scope scope) {
@@ -47,9 +51,20 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.registerDAO = registerDAO;
         this.registerLockDAO = moduleManager.find(StorageModule.NAME).getService(IRegisterLockDAO.class);
         this.scope = scope;
+        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
+        this.dataCarrier.consume(new RegisterPersistentWorker.PersistentConsumer(this), 1);
     }
 
     @Override public final void in(RegisterSource registerSource) {
+        registerSource.setEndOfBatchContext(new EndOfBatchContext(false));
+        dataCarrier.produce(registerSource);
+    }
+
+    private void onWork(RegisterSource registerSource) {
+        if (registerSource instanceof ServiceInventory) {
+            logger.info("service register persistent, name {}", ((ServiceInventory)registerSource).getName());
+        }
+
         if (!sources.containsKey(registerSource)) {
             sources.put(registerSource, registerSource);
         }
@@ -76,7 +91,43 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                 } finally {
                     registerLockDAO.releaseLock(scope);
                 }
+            } else {
+                logger.info("Inventory register try lock failure.");
             }
+        }
+    }
+
+    private class PersistentConsumer implements IConsumer<RegisterSource> {
+
+        private final RegisterPersistentWorker persistent;
+
+        private PersistentConsumer(RegisterPersistentWorker persistent) {
+            this.persistent = persistent;
+        }
+
+        @Override public void init() {
+
+        }
+
+        @Override public void consume(List<RegisterSource> data) {
+            Iterator<RegisterSource> sourceIterator = data.iterator();
+
+            int i = 0;
+            while (sourceIterator.hasNext()) {
+                RegisterSource indicator = sourceIterator.next();
+                i++;
+                if (i == data.size()) {
+                    indicator.getEndOfBatchContext().setEndOfBatch(true);
+                }
+                persistent.onWork(indicator);
+            }
+        }
+
+        @Override public void onError(List<RegisterSource> data, Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
+
+        @Override public void onExit() {
         }
     }
 }

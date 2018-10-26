@@ -22,6 +22,7 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.generated.all.AllHeatmapIndicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.IIndicatorDAO;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -52,6 +53,14 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         this.nextWorker = nextWorker;
         this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new IndicatorPersistentWorker.PersistentConsumer(this), 1);
+    }
+
+    @Override void onWork(Indicator indicator) {
+        if (modelName.equals("all_heatmap")) {
+            AllHeatmapIndicator allHeatmapIndicator = (AllHeatmapIndicator)indicator;
+            logger.warn("persistent indicator: {}", allHeatmapIndicator.getDetailGroup().toStorageData());
+        }
+        super.onWork(indicator);
     }
 
     @Override public void in(Indicator indicator) {
@@ -86,10 +95,23 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
             }
             try {
                 if (nonNull(dbData)) {
+                    if (modelName.equals("all_heatmap")) {
+                        AllHeatmapIndicator dbBefore = (AllHeatmapIndicator)dbData;
+                        AllHeatmapIndicator stremBefore = (AllHeatmapIndicator)data;
+                        logger.warn("need to combine, db data before: {}, stream data before: {}", dbBefore.getDetailGroup().toStorageData(), stremBefore.getDetailGroup().toStorageData());
+                    }
                     data.combine(dbData);
                     data.calculate();
+
+                    if (modelName.equals("all_heatmap")) {
+                        AllHeatmapIndicator stremAfter = (AllHeatmapIndicator)data;
+                        logger.warn("need to combine, stream data after: {}", stremAfter.getDetailGroup().toStorageData());
+                    }
                     batchCollection.add(indicatorDAO.prepareBatchUpdate(modelName, data));
                 } else {
+                    if (modelName.equals("all_heatmap")) {
+                        logger.warn("insert all_heatmap id: {}", data.id());
+                    }
                     batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));
                 }
 
