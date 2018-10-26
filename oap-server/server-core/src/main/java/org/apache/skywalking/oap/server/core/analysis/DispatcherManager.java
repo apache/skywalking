@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancer
 import org.apache.skywalking.oap.server.core.analysis.generated.servicerelation.ServiceRelationDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointCallRelationDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.ServiceCallRelationDispatcher;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.slf4j.*;
@@ -56,9 +55,6 @@ public class DispatcherManager {
         this.dispatcherMap.put(Scope.Service, new SourceDispatcher[] {new ServiceDispatcher()});
         this.dispatcherMap.put(Scope.ServiceInstance, new SourceDispatcher[] {new ServiceInstanceDispatcher()});
         this.dispatcherMap.put(Scope.Endpoint, new SourceDispatcher[] {new EndpointDispatcher()});
-
-        this.dispatcherMap.put(Scope.ServiceComponent, new SourceDispatcher[] {new ServiceComponentDispatcher()});
-        this.dispatcherMap.put(Scope.ServiceMapping, new SourceDispatcher[] {new ServiceMappingDispatcher()});
 
         this.dispatcherMap.put(Scope.ServiceRelation, new SourceDispatcher[] {new ServiceRelationDispatcher(), new ServiceCallRelationDispatcher()});
         this.dispatcherMap.put(Scope.ServiceInstanceRelation, new SourceDispatcher[] {new ServiceInstanceRelationDispatcher()});

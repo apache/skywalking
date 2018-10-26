@@ -42,10 +42,14 @@ public class ServiceInventory extends RegisterSource {
     public static final String NAME = "name";
     public static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
+    public static final String MAPPING_SERVICE_ID = "mapping_service_id";
+    public static final String MAPPING_LAST_UPDATE_TIME = "mapping_last_update_time";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
+    @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
+    @Setter @Getter @Column(columnName = MAPPING_LAST_UPDATE_TIME) private long mappingLastUpdateTime;
 
     public static String buildId(String serviceName) {
         return serviceName + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
@@ -80,7 +84,7 @@ public class ServiceInventory extends RegisterSource {
             return false;
 
         ServiceInventory source = (ServiceInventory)obj;
-        if (name.equals(source.getName()))
+        if (!name.equals(source.getName()))
             return false;
         if (isAddress != source.getIsAddress())
             return false;
@@ -95,9 +99,11 @@ public class ServiceInventory extends RegisterSource {
         remoteBuilder.setDataIntegers(0, getSequence());
         remoteBuilder.setDataIntegers(1, isAddress);
         remoteBuilder.setDataIntegers(2, addressId);
+        remoteBuilder.setDataIntegers(3, mappingServiceId);
 
         remoteBuilder.setDataLongs(0, getRegisterTime());
         remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.setDataLongs(2, getMappingLastUpdateTime());
 
         remoteBuilder.setDataStrings(0, name);
         return remoteBuilder;
@@ -107,9 +113,11 @@ public class ServiceInventory extends RegisterSource {
         setSequence(remoteData.getDataIntegers(0));
         setIsAddress(remoteData.getDataIntegers(1));
         setAddressId(remoteData.getDataIntegers(2));
+        setMappingServiceId(remoteData.getDataIntegers(3));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
+        setMappingLastUpdateTime(remoteData.getDataLongs(2));
 
         setName(remoteData.getDataStrings(0));
     }
@@ -118,16 +126,27 @@ public class ServiceInventory extends RegisterSource {
         return 0;
     }
 
+    @Override public void combine(RegisterSource registerSource) {
+        super.combine(registerSource);
+        ServiceInventory serviceInventory = (ServiceInventory)registerSource;
+        if (Const.NONE != serviceInventory.getMappingServiceId() && serviceInventory.getMappingLastUpdateTime() >= this.getMappingLastUpdateTime()) {
+            this.mappingServiceId = serviceInventory.getMappingServiceId();
+            this.mappingLastUpdateTime = serviceInventory.getMappingLastUpdateTime();
+        }
+    }
+
     public static class Builder implements StorageBuilder<ServiceInventory> {
 
         @Override public ServiceInventory map2Data(Map<String, Object> dbMap) {
             ServiceInventory inventory = new ServiceInventory();
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setIsAddress((Integer)dbMap.get(IS_ADDRESS));
+            inventory.setMappingServiceId((Integer)dbMap.get(MAPPING_SERVICE_ID));
             inventory.setName((String)dbMap.get(NAME));
             inventory.setAddressId((Integer)dbMap.get(ADDRESS_ID));
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            inventory.setMappingLastUpdateTime((Long)dbMap.get(MAPPING_LAST_UPDATE_TIME));
             return inventory;
         }
 
@@ -135,10 +154,12 @@ public class ServiceInventory extends RegisterSource {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(IS_ADDRESS, storageData.getIsAddress());
+            map.put(MAPPING_SERVICE_ID, storageData.getMappingServiceId());
             map.put(NAME, storageData.getName());
             map.put(ADDRESS_ID, storageData.getAddressId());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
+            map.put(MAPPING_LAST_UPDATE_TIME, storageData.getMappingLastUpdateTime());
             return map;
         }
     }
