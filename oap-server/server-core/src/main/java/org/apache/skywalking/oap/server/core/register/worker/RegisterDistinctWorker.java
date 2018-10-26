@@ -54,10 +54,6 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
     private void onWork(RegisterSource source) {
         messageNum++;
 
-        if (source instanceof ServiceInventory) {
-            logger.info("service register distinct, name {}", ((ServiceInventory)source).getName());
-        }
-
         if (!sources.containsKey(source)) {
             sources.put(source, source);
         } else {
@@ -66,9 +62,6 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
 
         if (messageNum >= 1000 || source.getEndOfBatchContext().isEndOfBatch()) {
             sources.values().forEach(source1 -> {
-                if (source instanceof ServiceInventory) {
-                    logger.info("register distinct send to next, name: {}", ((ServiceInventory)source).getName());
-                }
                 nextWorker.in(source1);
             });
             messageNum = 0;

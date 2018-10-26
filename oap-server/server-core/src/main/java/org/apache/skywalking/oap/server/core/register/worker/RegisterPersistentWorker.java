@@ -61,10 +61,6 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     }
 
     private void onWork(RegisterSource registerSource) {
-        if (registerSource instanceof ServiceInventory) {
-            logger.info("service register persistent, name {}", ((ServiceInventory)registerSource).getName());
-        }
-
         if (!sources.containsKey(registerSource)) {
             sources.put(registerSource, registerSource);
         }

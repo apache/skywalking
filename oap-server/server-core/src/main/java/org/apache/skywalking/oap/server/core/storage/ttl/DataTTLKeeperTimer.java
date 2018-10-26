@@ -20,7 +20,10 @@ package org.apache.skywalking.oap.server.core.storage.ttl;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.Setter;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.DataTTL;
@@ -57,9 +60,9 @@ public enum DataTTLKeeperTimer {
         this.moduleManager = moduleManager;
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).getService(ClusterNodesQuery.class);
 
-//        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-//            new RunnableWithExceptionProtection(this::delete,
-//                t -> logger.error("Remove data in background failure.", t)), 1, 5, TimeUnit.MINUTES);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(this::delete,
+                t -> logger.error("Remove data in background failure.", t)), 1, 5, TimeUnit.MINUTES);
     }
 
     private void delete() {

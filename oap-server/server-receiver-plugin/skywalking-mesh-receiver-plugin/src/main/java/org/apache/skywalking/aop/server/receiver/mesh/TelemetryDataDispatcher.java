@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.servicemesh.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
@@ -36,8 +35,6 @@ import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -46,9 +43,6 @@ import org.slf4j.LoggerFactory;
  * @author wusheng
  */
 public class TelemetryDataDispatcher {
-    private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
-    private static AtomicInteger INDEX = new AtomicInteger(0);
-
     private static MeshDataBufferFileCache CACHE;
     private static ServiceInventoryCache SERVICE_CACHE;
     private static ServiceInstanceInventoryCache SERVICE_INSTANCE_CACHE;
@@ -84,7 +78,6 @@ public class TelemetryDataDispatcher {
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
 
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metric.getDetectPoint())) {
-            logger.info("dispatch server: " + INDEX.addAndGet(1));
             toAll(decorator, minuteTimeBucket);
             toService(decorator, minuteTimeBucket);
             toEndpoint(decorator, minuteTimeBucket);

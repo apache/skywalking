@@ -19,13 +19,13 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.generated.all.AllHeatmapIndicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +38,8 @@ public class IndicatorRemoteWorker extends AbstractWorker<Indicator> {
     private final RemoteSenderService remoteSender;
     private final String modelName;
 
-    IndicatorRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<Indicator> nextWorker, String modelName) {
+    IndicatorRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<Indicator> nextWorker,
+        String modelName) {
         super(workerId);
         this.remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
         this.nextWorker = nextWorker;
@@ -46,11 +47,6 @@ public class IndicatorRemoteWorker extends AbstractWorker<Indicator> {
     }
 
     @Override public final void in(Indicator indicator) {
-        if (modelName.equals("all_heatmap")) {
-            AllHeatmapIndicator allHeatmapIndicator = (AllHeatmapIndicator)indicator;
-            logger.error("remote indicator: {}", allHeatmapIndicator.getDetailGroup().toStorageData());
-        }
-
         try {
             remoteSender.send(nextWorker.getWorkerId(), indicator, Selector.HashCode);
         } catch (Throwable e) {

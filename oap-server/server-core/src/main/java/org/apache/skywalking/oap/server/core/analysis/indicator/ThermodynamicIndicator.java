@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Thermodynamic indicator represents the calculator for heat map.
@@ -38,9 +40,6 @@ import org.slf4j.LoggerFactory;
  */
 @IndicatorOperator
 public abstract class ThermodynamicIndicator extends Indicator {
-    private static final Logger logger = LoggerFactory.getLogger(ThermodynamicIndicator.class);
-    private static AtomicInteger INDEX = new AtomicInteger(0);
-
     public static final String DETAIL_GROUP = "detail_group";
     public static final String STEP = "step";
     public static final String NUM_OF_STEPS = "num_of_steps";
@@ -63,7 +62,6 @@ public abstract class ThermodynamicIndicator extends Indicator {
      */
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int step, @Arg int maxNumOfSteps) {
-        logger.info("ThermodynamicIndicator get " + INDEX.addAndGet(1));
         if (this.step == 0) {
             this.step = step;
         }
@@ -97,7 +95,6 @@ public abstract class ThermodynamicIndicator extends Indicator {
 
         thermodynamicIndicator.detailIndex.forEach((key, element) -> {
             IntKeyLongValue existingElement = self.detailIndex.get(key);
-            logger.info("prepare merging id =" + key + ", value=" + element.getValue());
             if (existingElement == null) {
                 existingElement = new IntKeyLongValue();
                 existingElement.setKey(key);
@@ -106,11 +103,7 @@ public abstract class ThermodynamicIndicator extends Indicator {
             } else {
                 existingElement.addValue(element.getValue());
             }
-
-            logger.info("result=" + self.detailGroup.toStorageData());
         });
-
-        logger.info("after combine, " + self.detailGroup.toStorageData());
     }
 
     /**

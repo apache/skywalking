@@ -18,14 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
-import org.apache.skywalking.oap.server.core.analysis.generated.all.AllHeatmapIndicator;
+import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
+import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -55,10 +57,6 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     }
 
     private void onWork(Indicator indicator) {
-        if (modelName.equals("all_heatmap")) {
-            AllHeatmapIndicator allHeatmapIndicator = (AllHeatmapIndicator)indicator;
-            logger.info("aggregate indicator: {}", allHeatmapIndicator.getDetailGroup().toStorageData());
-        }
         messageNum++;
         aggregate(indicator);
 
@@ -95,13 +93,6 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         } else {
             mergeDataCache.put(indicator);
         }
-
-        mergeDataCache.getLast().collection().forEach(indicator1 -> {
-            if (modelName.equals("all_heatmap")) {
-                AllHeatmapIndicator allHeatmapIndicator = (AllHeatmapIndicator)indicator1;
-                logger.warn("aggregate indicator aggregate method: {}", allHeatmapIndicator.getDetailGroup().toStorageData());
-            }
-        });
 
         mergeDataCache.finishWriting();
     }
