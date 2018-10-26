@@ -33,8 +33,14 @@ public class DataCarrier<T> {
     private final int channelSize;
     private Channels<T> channels;
     private ConsumerPool<T> consumerPool;
+    private String name;
 
     public DataCarrier(int channelSize, int bufferSize) {
+        this("default", channelSize, bufferSize);
+    }
+
+    public DataCarrier(String name, int channelSize, int bufferSize) {
+        this.name = name;
         this.bufferSize = bufferSize;
         this.channelSize = channelSize;
         channels = new Channels<T>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), BufferStrategy.BLOCKING);
@@ -92,7 +98,7 @@ public class DataCarrier<T> {
         if (consumerPool != null) {
             consumerPool.close();
         }
-        consumerPool = new ConsumerPool<T>(this.channels, consumerClass, num, consumeCycle);
+        consumerPool = new ConsumerPool<T>(this.name, this.channels, consumerClass, num, consumeCycle);
         consumerPool.begin();
         return this;
     }
@@ -119,7 +125,7 @@ public class DataCarrier<T> {
         if (consumerPool != null) {
             consumerPool.close();
         }
-        consumerPool = new ConsumerPool<T>(this.channels, consumer, num, consumeCycle);
+        consumerPool = new ConsumerPool<T>(this.name, this.channels, consumer, num, consumeCycle);
         consumerPool.begin();
         return this;
     }

@@ -60,10 +60,10 @@ public enum IndicatorProcess {
         IndicatorTransWorker transWorker = new IndicatorTransWorker(WorkerIdGenerator.INSTANCES.generate(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
         WorkerInstances.INSTANCES.put(transWorker.getWorkerId(), transWorker);
 
-        IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, transWorker);
+        IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, transWorker, modelName);
         WorkerInstances.INSTANCES.put(remoteWorker.getWorkerId(), remoteWorker);
 
-        IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(WorkerIdGenerator.INSTANCES.generate(), remoteWorker);
+        IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(WorkerIdGenerator.INSTANCES.generate(), remoteWorker, modelName);
         WorkerInstances.INSTANCES.put(aggregateWorker.getWorkerId(), aggregateWorker);
 
         entryWorkers.put(indicatorClass, aggregateWorker);
