@@ -26,16 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideIndicator;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceComponentIndicator;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceMappingIndicator;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.ServiceRelationClientSideIndicator;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.ServiceRelationServerSideIndicator;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
-import org.apache.skywalking.oap.server.core.source.ServiceComponent;
-import org.apache.skywalking.oap.server.core.source.ServiceMapping;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -71,59 +67,6 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override public List<Call> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException {
         String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideIndicator.SOURCE_SERVICE_ID, ServiceRelationServerSideIndicator.DEST_SERVICE_ID, new ArrayList<>(0), true);
-    }
-
-    @Override public List<ServiceMapping> loadServiceMappings(Step step, long startTB, long endTB) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
-
-        List<ServiceMapping> serviceMappings = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + ServiceMappingIndicator.SERVICE_ID
-                    + ", " + ServiceMappingIndicator.MAPPING_SERVICE_ID
-                    + " from " + tableName + " where "
-                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? ",
-                startTB, endTB);
-            while (resultSet.next()) {
-                ServiceMapping serviceMapping = new ServiceMapping();
-                serviceMapping.setServiceId(resultSet.getInt(ServiceMappingIndicator.SERVICE_ID));
-                serviceMapping.setMappingServiceId(resultSet.getInt(ServiceMappingIndicator.MAPPING_SERVICE_ID));
-                serviceMappings.add(serviceMapping);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
-        }
-        return serviceMappings;
-    }
-
-    @Override
-    public List<ServiceComponent> loadServiceComponents(Step step, long startTB, long endTB) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, ServiceMappingIndicator.INDEX_NAME);
-
-        Connection connection = null;
-        List<ServiceComponent> serviceComponents = new ArrayList<>();
-        try {
-            connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + ServiceComponentIndicator.SERVICE_ID
-                    + ", " + ServiceComponentIndicator.COMPONENT_ID
-                    + " from " + tableName + " where "
-                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? ",
-                startTB, endTB);
-            while (resultSet.next()) {
-                ServiceComponent serviceComponent = new ServiceComponent();
-                serviceComponent.setServiceId(resultSet.getInt(ServiceComponentIndicator.SERVICE_ID));
-                serviceComponent.setComponentId(resultSet.getInt(ServiceComponentIndicator.COMPONENT_ID));
-                serviceComponents.add(serviceComponent);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
-        }
-        return serviceComponents;
     }
 
     @Override public List<Call> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
@@ -165,7 +108,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                 Call call = new Call();
                 call.setSource(resultSet.getInt(sourceCName));
                 call.setTarget(resultSet.getInt(destCName));
-                call.setId(ServiceRelation.buildEntityId(call.getSource(), call.getTarget()));
+                call.setId(ServiceRelation.buildEntityId(call.getSource(), call.getTarget(), call.getComponentId()));
                 call.setDetectPoint(isClientSide ? DetectPoint.CLIENT : DetectPoint.SERVER);
                 calls.add(call);
             }
@@ -197,7 +140,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                 Call call = new Call();
                 call.setSource(resultSet.getInt(sourceCName));
                 call.setTarget(resultSet.getInt(destCName));
-                call.setId(EndpointRelation.buildEntityId(call.getSource(), call.getTarget()));
+                call.setId(EndpointRelation.buildEntityId(call.getSource(), call.getTarget(), call.getComponentId()));
                 calls.add(call);
             }
         } catch (SQLException e) {

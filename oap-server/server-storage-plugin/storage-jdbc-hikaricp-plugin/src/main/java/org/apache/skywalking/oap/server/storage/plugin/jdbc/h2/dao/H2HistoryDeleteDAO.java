@@ -19,25 +19,14 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 
 /**
  * @author wusheng
  */
-public class H2RecordDAO extends H2SQLExecutor implements IRecordDAO<SQLExecutor> {
-    private JDBCHikariCPClient h2Client;
-    private StorageBuilder<Record> storageBuilder;
+public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
+    @Override
+    public void deleteHistory(String modelName, String timeBucketColumnName, Long timeBucketBefore) throws IOException {
 
-    public H2RecordDAO(JDBCHikariCPClient h2Client, StorageBuilder<Record> storageBuilder) {
-        this.h2Client = h2Client;
-        this.storageBuilder = storageBuilder;
-    }
-
-    @Override public SQLExecutor prepareBatchInsert(String modelName, Record record) throws IOException {
-        return getInsertExecutor(modelName, record, storageBuilder);
     }
 }

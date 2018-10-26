@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
 import java.util.Properties;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
+import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -45,6 +46,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2Aggregation
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EndpointInventoryCacheDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
@@ -59,6 +61,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * H2 Storage provider is for demonstration and preview only.
+ * I will find that haven't implemented several interfaces, because not necessary,
+ * and don't consider about performance very much.
+ *
+ * If someone wants to implement SQL-style database as storage, please just refer the logic.
+ *
  * @author wusheng
  */
 public class H2StorageProvider extends ModuleProvider {
@@ -107,6 +115,7 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO());
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO());
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {

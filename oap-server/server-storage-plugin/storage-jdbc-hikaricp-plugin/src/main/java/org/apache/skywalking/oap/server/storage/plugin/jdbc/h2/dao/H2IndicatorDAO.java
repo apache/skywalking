@@ -48,8 +48,4 @@ public class H2IndicatorDAO extends H2SQLExecutor implements IIndicatorDAO<SQLEx
     @Override public SQLExecutor prepareBatchUpdate(String modelName, Indicator indicator) throws IOException {
         return getUpdateExecutor(modelName, indicator, storageBuilder);
     }
-
-    @Override public void deleteHistory(String modelName, Long timeBucketBefore) {
-
-    }
 }

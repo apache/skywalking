@@ -70,7 +70,7 @@ public class H2TableInstaller extends ModelInstaller {
     @Override protected void createTable(Client client, Model model) throws StorageException {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
-        SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE " + model.getName() + " (");
+        SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
         tableCreateSQL.appendLine("id VARCHAR2(300), ");
         for (int i = 0; i < model.getColumns().size(); i++) {
             ModelColumn column = model.getColumns().get(i);

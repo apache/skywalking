@@ -80,7 +80,7 @@ public class H2SQLExecutor {
         }
     }
 
-    private StorageData toStorageData(ResultSet rs, String modelName,
+    protected StorageData toStorageData(ResultSet rs, String modelName,
         StorageBuilder storageBuilder) throws SQLException {
         while (rs.next()) {
             Map data = new HashMap();
