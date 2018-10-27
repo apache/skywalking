@@ -44,19 +44,19 @@ core:
     dayMetricsDataTTL: 45 # Unit is day
     monthMetricsDataTTL: 18 # Unit is month
 storage:
-  h2:
-    driver: org.h2.jdbcx.JdbcDataSource
-    url: jdbc:h2:tcp://localhost/~/test
-    user: sa
-#  elasticsearch:
-#    clusterNodes: localhost:9200
-#    indexShardsNumber: 2
-#    indexReplicasNumber:
-#    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-#    bulkActions: 2000 # Execute the bulk every 2000 requests
-#    bulkSize: 20 # flush the bulk every 20mb
-#    flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
-#    concurrentRequests: 2 # the number of concurrent requests
+  elasticsearch:
+    clusterNodes: localhost:9200
+    indexShardsNumber: 2
+    indexReplicasNumber: 0
+    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
+    bulkActions: 2000 # Execute the bulk every 2000 requests
+    bulkSize: 20 # flush the bulk every 20mb
+    flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
+    concurrentRequests: 2 # the number of concurrent requests
+#  h2:
+#    driver: org.h2.jdbcx.JdbcDataSource
+#    url: jdbc:h2:tcp://localhost/~/test
+#    user: sa
 receiver-register:
   default:
 receiver-trace:
