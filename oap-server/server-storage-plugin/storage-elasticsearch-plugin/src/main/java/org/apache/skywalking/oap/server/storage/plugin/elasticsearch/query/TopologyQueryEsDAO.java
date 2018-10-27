@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.Ser
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -148,16 +149,15 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         Terms entityTerms = response.getAggregations().get(Indicator.ENTITY_ID);
         for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
             String entityId = entityBucket.getKeyAsString();
-            String[] ids = entityId.split(Const.ID_SPLIT);
-            if (ids.length == 3) {
-                Call call = new Call();
-                call.setId(entityBucket.getKeyAsString());
-                call.setSource(Integer.valueOf(ids[0]));
-                call.setTarget(Integer.valueOf(ids[1]));
-                call.setComponentId(Integer.valueOf(ids[2]));
-                call.setDetectPoint(detectPoint);
-                calls.add(call);
-            }
+
+            Integer[] entityIds = ServiceRelation.splitEntityId(entityId);
+            Call call = new Call();
+            call.setId(entityId);
+            call.setSource(entityIds[0]);
+            call.setTarget(entityIds[1]);
+            call.setComponentId(entityIds[2]);
+            call.setDetectPoint(detectPoint);
+            calls.add(call);
         }
         return calls;
     }
