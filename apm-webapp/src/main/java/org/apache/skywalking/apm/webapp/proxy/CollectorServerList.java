@@ -36,12 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class CollectorServerList extends AbstractServerList<Server> {
-    private static final Logger logger = LoggerFactory.getLogger(CollectorServerList.class);
-
-    private final CopyOnWriteArrayList<Server> servers = new CopyOnWriteArrayList<>();
-
-    private final Gson gson = new Gson();
-
+    
     private IClientConfig clientConfig;
 
     public List<Server> getInitialListOfServers() {
@@ -69,21 +64,6 @@ public class CollectorServerList extends AbstractServerList<Server> {
     }
 
     private List<Server> fetchServer() {
-        for (Server server : derive(this.clientConfig.get(CommonClientConfigKey.ListOfServers))) {
-            try {
-                String uiServerResponse = HttpClientTools.INSTANCE.get("http://" + server.getHostPort() + "/ui/jetty", null);
-                logger.debug("uiServerResponse: {}", uiServerResponse);
-                JsonArray serverArray = gson.fromJson(uiServerResponse, JsonArray.class);
-                if (serverArray == null || serverArray.size() == 0) {
-                    logger.warn("emtry grpc server array, skip : {}", server);
-                    continue;
-                }
-                return Lists.newArrayList(StreamSupport.stream(serverArray.spliterator(), false).map(f -> new Server(f.getAsString())).collect(Collectors.toList()));
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-        logger.warn("none agentstream server return available grpc server.");
-        return servers;
+        return derive(this.clientConfig.get(CommonClientConfigKey.ListOfServers));
     }
 }
