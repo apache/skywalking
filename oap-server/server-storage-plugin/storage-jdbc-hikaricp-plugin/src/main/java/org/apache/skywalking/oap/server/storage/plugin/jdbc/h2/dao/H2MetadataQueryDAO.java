@@ -121,9 +121,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     public List<Service> getAllServices(long startTimestamp, long endTimestamp) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
-        sql.append("select * num from ").append(ServiceInventory.MODEL_NAME).append(" where ");
+        sql.append("select count(1) num from ").append(ServiceInventory.MODEL_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?limit 100");
+        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=? limit 100");
         condition.add(BooleanUtils.FALSE);
 
         Connection connection = null;

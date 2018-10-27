@@ -133,7 +133,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + sourceCName
                     + ", " + destCName
                     + " from " + tableName + " where "
-                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and"
+                    + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and "
                     + (isSourceId ? sourceCName : destCName) + "=?",
                 conditions);
             while (resultSet.next()) {

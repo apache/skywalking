@@ -110,13 +110,13 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         try {
             connection = h2Client.getConnection();
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total " + sql.toString(), parameters);) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
             }
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters)) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 

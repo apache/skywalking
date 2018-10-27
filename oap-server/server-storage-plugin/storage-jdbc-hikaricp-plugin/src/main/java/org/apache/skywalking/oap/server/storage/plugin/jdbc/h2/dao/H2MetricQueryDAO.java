@@ -23,7 +23,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
@@ -157,6 +159,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             KVInt e = new KVInt();
             e.setId(id);
             e.setValue(origin.findValue(id, 0));
+            intValues.addKVInt(e);
         });
 
         return intValues;
@@ -174,7 +177,8 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             idValues.append("'").append(ids.get(valueIdx)).append("'");
         }
 
-        List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
+        List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
+        Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
 
         Connection connection = null;
         try {
@@ -183,11 +187,14 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             int numOfSteps = 0;
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + ThermodynamicIndicator.STEP + " step, "
                 + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps, "
-                + ThermodynamicIndicator.DETAIL_GROUP + " detail_group "
+                + ThermodynamicIndicator.DETAIL_GROUP + " detail_group, "
+                + "id "
                 + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
 
+                int axisYStep = 0;
                 while (resultSet.next()) {
-                    int axisYStep = resultSet.getInt("step");
+                    axisYStep = resultSet.getInt("step");
+                    String id = resultSet.getString("id");
                     numOfSteps = resultSet.getInt("num_of_steps");
                     String value = resultSet.getString("detail_group");
                     IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
@@ -202,11 +209,20 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
                         axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
                     }
 
-                    thermodynamicValueMatrix.add(axisYValues);
+                    thermodynamicValueMatrix.put(id, axisYValues);
                 }
+
+                // try to add default values when there is no data in that time bucket.
+                ids.forEach(id -> {
+                    if (thermodynamicValueMatrix.containsKey(id)) {
+                        thermodynamicValueCollection.add(thermodynamicValueMatrix.get(id));
+                    } else {
+                        thermodynamicValueCollection.add(new ArrayList<>());
+                    }
+                });
             }
 
-            thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);
+            thermodynamic.fromMatrixData(thermodynamicValueCollection, numOfSteps);
 
             return thermodynamic;
         } catch (SQLException e) {
