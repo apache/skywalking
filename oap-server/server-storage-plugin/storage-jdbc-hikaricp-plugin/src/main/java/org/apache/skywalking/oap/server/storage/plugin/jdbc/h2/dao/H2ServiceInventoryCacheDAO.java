@@ -77,7 +77,10 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
                 connection = h2Client.getConnection();
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 10000)) {
                     while (resultSet.next()) {
-                        serviceInventories.add((ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder()));
+                        ServiceInventory serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder());
+                        if (serviceInventory != null) {
+                            serviceInventories.add(serviceInventory);
+                        }
                     }
                 }
             } catch (SQLException e) {

@@ -125,6 +125,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     basicTrace.getEndpointNames().add(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
                     basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
+                    String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
+                    basicTrace.getTraceIds().add(traceIds);
                     traceBrief.getTraces().add(basicTrace);
                 }
             }

@@ -195,7 +195,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
                 while (resultSet.next()) {
                     axisYStep = resultSet.getInt("step");
                     String id = resultSet.getString("id");
-                    numOfSteps = resultSet.getInt("num_of_steps");
+                    numOfSteps = resultSet.getInt("num_of_steps") + 1;
                     String value = resultSet.getString("detail_group");
                     IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
                     intKeyLongValues.toObject(value);

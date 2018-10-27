@@ -138,7 +138,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
             } else {
                 int axisYStep = ((Number)source.get(ThermodynamicIndicator.STEP)).intValue();
                 thermodynamic.setAxisYStep(axisYStep);
-                numOfSteps = ((Number)source.get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue();
+                numOfSteps = ((Number)source.get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue() + 1;
 
                 String value = (String)source.get(ThermodynamicIndicator.DETAIL_GROUP);
                 IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
