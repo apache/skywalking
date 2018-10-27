@@ -152,4 +152,10 @@ public class DataCarrier<T> {
             consumerPool.close();
         }
     }
+
+    public void clear() {
+        for (int i = 0; i < channels.getChannelSize(); i++) {
+            channels.getBuffer(i).clear();
+        }
+    }
 }
