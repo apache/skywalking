@@ -39,8 +39,10 @@ public class NetworkAddressInventory extends RegisterSource {
     public static final String MODEL_NAME = "network_address_inventory";
 
     private static final String NAME = "name";
+    public static final String SRC_LAYER = "src_layer";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
+    @Setter @Getter @Column(columnName = SRC_LAYER) private int srcLayer;
 
     public static String buildId(String networkAddress) {
         return networkAddress;
@@ -71,9 +73,16 @@ public class NetworkAddressInventory extends RegisterSource {
         return true;
     }
 
+    @Override public void combine(RegisterSource registerSource) {
+        super.combine(registerSource);
+        NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
+        setSrcLayer(inventory.srcLayer);
+    }
+
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.setDataIntegers(0, getSequence());
+        remoteBuilder.setDataIntegers(1, getSrcLayer());
 
         remoteBuilder.setDataLongs(0, getRegisterTime());
         remoteBuilder.setDataLongs(1, getHeartbeatTime());
@@ -84,6 +93,7 @@ public class NetworkAddressInventory extends RegisterSource {
 
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
+        setSrcLayer(remoteData.getDataIntegers(1));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -101,6 +111,7 @@ public class NetworkAddressInventory extends RegisterSource {
             NetworkAddressInventory inventory = new NetworkAddressInventory();
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setName((String)dbMap.get(NAME));
+            inventory.setSrcLayer((Integer)dbMap.get(SRC_LAYER));
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
             return inventory;
@@ -110,6 +121,7 @@ public class NetworkAddressInventory extends RegisterSource {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(NAME, storageData.getName());
+            map.put(SRC_LAYER, storageData.getSrcLayer());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
             return map;
