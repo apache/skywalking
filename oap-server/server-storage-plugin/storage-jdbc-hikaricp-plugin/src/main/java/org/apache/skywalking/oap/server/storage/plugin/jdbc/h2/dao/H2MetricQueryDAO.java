@@ -65,7 +65,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             default:
                 op = "sum";
         }
-        List<String> ids = new ArrayList<>(whereKeyValues.size());
+        List<String> ids = new ArrayList<>(20);
         StringBuilder whereSql = new StringBuilder();
         if (whereKeyValues.size() > 0) {
             whereSql.append("(");
@@ -74,13 +74,16 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
                     whereSql.append(" or ");
                 }
                 KeyValues keyValues = whereKeyValues.get(i);
-                ids.add(keyValues.getKey());
+
                 StringBuilder valueCollection = new StringBuilder();
-                for (int valueIdx = 0; valueIdx < keyValues.getValues().size(); valueIdx++) {
+                List<String> values = keyValues.getValues();
+                for (int valueIdx = 0; valueIdx < values.size(); valueIdx++) {
                     if (valueIdx != 0) {
                         valueCollection.append(",");
                     }
-                    valueCollection.append("'").append(keyValues.getValues().get(valueIdx)).append("'");
+                    String id = values.get(valueIdx);
+                    ids.add(id);
+                    valueCollection.append("'").append(id).append("'");
                 }
                 whereSql.append(keyValues.getKey()).append(" in (" + valueCollection + ")");
             }
