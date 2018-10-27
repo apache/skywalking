@@ -41,24 +41,23 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-    private static String SPECIFIED_CONFIG_PATH = "skywalking_config";
-    private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
-    private static String ENV_KEY_PREFIX = "skywalking.";
+    private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
+    private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
+    private static final String ENV_KEY_PREFIX = "skywalking.";
+    private static final String INSTANCE_UUID_NAME = "agent.instance_uuid";
+    private static final String REGISTER_STATUS_DIR = "agent.register_status_dir";
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
-     * If the specified agent config path is set, the agent will try to locate the specified agent config.
-     * If the specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the /config dictionary of agent package.
-     * <p>
-     * Also try to override the config by system.env and system.properties. All the keys in these two places should
-     * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
-     * `agent.application_code` in config file.
-     * <p>
-     * At the end, `agent.application_code` and `collector.servers` must be not blank.
+     * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
+     * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
+     * /config dictionary of agent package. <p> Also try to override the config by system.env and system.properties. All
+     * the keys in these two places should start with {@link #ENV_KEY_PREFIX}. e.g. in env
+     * `skywalking.agent.application_code=yourAppName` to override `agent.application_code` in config file. <p> At the
+     * end, `agent.application_code` and `collector.servers` must be not blank.
      */
     public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
-
         try {
             configFileStream = loadConfig();
             Properties properties = new Properties();
