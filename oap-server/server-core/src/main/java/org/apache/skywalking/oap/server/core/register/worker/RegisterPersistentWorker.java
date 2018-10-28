@@ -71,10 +71,10 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                 try {
                     sources.values().forEach(source -> {
                         try {
-                            RegisterSource newSource = registerDAO.get(modelName, source.id());
-                            if (Objects.nonNull(newSource)) {
-                                newSource.combine(source);
-                                registerDAO.forceUpdate(modelName, newSource);
+                            RegisterSource dbSource = registerDAO.get(modelName, source.id());
+                            if (Objects.nonNull(dbSource)) {
+                                dbSource.combine(source);
+                                registerDAO.forceUpdate(modelName, dbSource);
                             } else {
                                 int sequence = registerDAO.max(modelName);
                                 source.setSequence(sequence + 1);
