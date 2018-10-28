@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -70,6 +69,21 @@ public class Config {
          * Skywalking team may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
+
+        /**
+         * Specify register.status dir ,This is an option, the default is AGENT_HOME/option/reset.status.
+         */
+        public static String REGISTER_STATUS_DIR = "skywalking-agent/option";
+
+        /**
+         * Specify instance_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
+         */
+        public static String INSTANCE_UUID = "";
+        /**
+         * enabled means that the reset function is enabled, and disabled means that the reset function is not enabled. A reset can be triggered by modifying the configuration file only if the reset feature is enabled.
+         */
+        public static String RESETER_LISTENER = "disabled";
+
     }
 
     public static class Collector {
@@ -80,7 +94,7 @@ public class Config {
         /**
          * application and service registry check interval
          */
-        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
+        public static long SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL = 3;
         /**
          * Collector skywalking trace receiver service addresses.
          */
