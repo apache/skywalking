@@ -14,16 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-oap:
-	cd oap; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
-	docker build -t skywalking/oap:latest .
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: skywalking-oap
+  namespace: skywalking
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: skywalking-oap
+subjects:
+- kind: ServiceAccount
+  name: skywalking-oap
+  namespace: skywalking
 
-ui:
-	cd ui; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
-	docker build -t skywalking/ui:latest .
-	
-build: oap ui
+---
 
-.PHONY: oap ui
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: skywalking
+  name: skywalking-oap
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["watch", "list"]
