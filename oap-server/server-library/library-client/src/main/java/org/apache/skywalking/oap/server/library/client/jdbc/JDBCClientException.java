@@ -16,38 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.h2;
+package org.apache.skywalking.oap.server.library.client.jdbc;
+
+import java.io.IOException;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public abstract class H2ClientConfig {
+public class JDBCClientException extends IOException {
 
-    private String url;
-    private String userName;
-    private String password;
-
-    public String getUrl() {
-        return url;
+    public JDBCClientException(String message) {
+        super(message);
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public JDBCClientException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
+

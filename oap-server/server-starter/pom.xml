@@ -85,7 +85,7 @@
         <!-- storage module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-h2-plugin</artifactId>
+            <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

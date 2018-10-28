@@ -33,7 +33,28 @@ public class Thermodynamic {
         this.nodes = new ArrayList<>();
     }
 
-    public void setNodeValue(int columnNum, int rowNum, Long value) {
+    public void fromMatrixData(List<List<Long>> thermodynamicValueMatrix, int numOfSteps) {
+        thermodynamicValueMatrix.forEach(columnOfThermodynamic -> {
+                if (columnOfThermodynamic.size() == 0) {
+                    if (numOfSteps > 0) {
+                        for (int i = 0; i < numOfSteps; i++) {
+                            columnOfThermodynamic.add(0L);
+                        }
+                    }
+                }
+            }
+        );
+
+        for (int colNum = 0; colNum < thermodynamicValueMatrix.size(); colNum++) {
+            List<Long> column = thermodynamicValueMatrix.get(colNum);
+            for (int rowNum = 0; rowNum < column.size(); rowNum++) {
+                Long value = column.get(rowNum);
+                this.setNodeValue(colNum, rowNum, value);
+            }
+        }
+    }
+
+    private void setNodeValue(int columnNum, int rowNum, Long value) {
         List<Long> element = new ArrayList<>(3);
         element.add((long)columnNum);
         element.add((long)rowNum);
