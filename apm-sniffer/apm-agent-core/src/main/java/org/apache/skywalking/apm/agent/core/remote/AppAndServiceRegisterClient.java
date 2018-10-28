@@ -31,21 +31,16 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
-import org.apache.skywalking.apm.agent.core.listener.ResetStatus;
-import org.apache.skywalking.apm.agent.core.listener.Reseter;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
 import org.apache.skywalking.apm.network.language.agent.*;
-import org.apache.skywalking.apm.network.register.ServiceInstancePingGrpc;
-import org.apache.skywalking.apm.network.register.ServiceInstancePingPkg;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * @author wusheng
@@ -53,13 +48,13 @@ import org.apache.skywalking.apm.util.StringUtil;
 @DefaultImplementor
 public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
+    private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub;
     private volatile InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub instanceDiscoveryServiceBlockingStub;
     private volatile ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub serviceNameDiscoveryServiceBlockingStub;
     private volatile NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub networkAddressRegisterServiceBlockingStub;
-    private volatile ServiceInstancePingGrpc.ServiceInstancePingBlockingStub serviceInstancePingBlockingStub;
     private volatile ScheduledFuture<?> applicationRegisterFuture;
     private volatile long lastSegmentTime = -1;
 
@@ -71,7 +66,6 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
             instanceDiscoveryServiceBlockingStub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
             serviceNameDiscoveryServiceBlockingStub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
             networkAddressRegisterServiceBlockingStub = NetworkAddressRegisterServiceGrpc.newBlockingStub(channel);
-            serviceInstancePingBlockingStub = ServiceInstancePingGrpc.newBlockingStub(channel);
         } else {
             applicationRegisterServiceBlockingStub = null;
             instanceDiscoveryServiceBlockingStub = null;
@@ -88,13 +82,13 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     @Override
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-                @Override
-                public void handle(Throwable t) {
-                    logger.error("unexpected exception.", t);
-                }
-            }), 0, Config.Collector.SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+                .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
+                .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                    @Override
+                    public void handle(Throwable t) {
+                        logger.error("unexpected exception.", t);
+                    }
+                }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
@@ -111,17 +105,15 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
     public void run() {
         logger.debug("AppAndServiceRegisterClient running, status:{}.", status);
         boolean shouldTry = true;
-        String instanceUUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID) ? UUID.randomUUID().toString().replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
         while (GRPCChannelStatus.CONNECTED.equals(status) && shouldTry) {
             shouldTry = false;
             try {
                 if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
                         ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.applicationCodeRegister(
-                            Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
+                                Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping != null) {
                             RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication().getValue();
-                            Reseter.INSTANCE.reportToRegisterFile();
                             shouldTry = true;
                         }
                     }
@@ -130,24 +122,21 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                         if (RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID == DictionaryUtil.nullValue()) {
 
                             ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
-                                .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
-                                .setAgentUUID(instanceUUID)
-                                .setRegisterTime(System.currentTimeMillis())
-                                .setOsinfo(OSUtil.buildOSInfo())
-                                .build());
+                                    .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
+                                    .setAgentUUID(PROCESS_UUID)
+                                    .setRegisterTime(System.currentTimeMillis())
+                                    .setOsinfo(OSUtil.buildOSInfo())
+                                    .build());
                             if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
-                                    = instanceMapping.getApplicationInstanceId();
-                                Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
-
+                                        = instanceMapping.getApplicationInstanceId();
                             }
                         } else {
                             if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
-                                serviceInstancePingBlockingStub.doPing(ServiceInstancePingPkg.newBuilder()
-                                    .setServiceInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
-                                    .setServiceInstanceUUID(instanceUUID)
-                                    .setTime(System.currentTimeMillis())
-                                    .build());
+                                instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
+                                        .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
+                                        .setHeartbeatTime(System.currentTimeMillis())
+                                        .build());
                             }
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(networkAddressRegisterServiceBlockingStub);
