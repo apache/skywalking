@@ -14,25 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.3'
-services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    container_name: elasticsearch
-    restart: always
-    ports:
-      - 9200:9200
-      - 9300:9300
-    environment:
-      discovery.type: single-node
-  oap:
-    image: skywalking/oap
-    container_name: oap
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
-    restart: always
-    ports:
-      - 11800:11800
-      - 12800:12800
+FROM openjdk:8-jre-alpine
+
+ENV DIST_NAME=apache-skywalking-apm-incubating \
+    JAVA_OPTS=" -Xms256M -Xmx512M"
+
+# Install required packages
+RUN apk add --no-cache \
+    bash
+
+COPY "$DIST_NAME.tar.gz" /
+
+RUN set -ex; \
+    tar -xzf "$DIST_NAME.tar.gz"; \
+    rm -rf "$DIST_NAME.tar.gz"; rm -rf "$DIST_NAME/config"; \
+    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/oap-libs"; rm -rf "$DIST_NAME/agent";
+
+WORKDIR $DIST_NAME
+
+COPY docker-entrypoint.sh .
+COPY logback.xml webapp/
+
+EXPOSE 8080
+
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

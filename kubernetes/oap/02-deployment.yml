@@ -22,7 +22,7 @@ metadata:
   labels:
     app: oap
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: oap
@@ -30,6 +30,9 @@ spec:
     metadata:
       labels:
         app: oap
+    spec:
+      serviceAccountName: skywalking-oap
+      automountServiceAccountToken: false
     spec:
       containers:
       - name: oap
@@ -47,3 +50,10 @@ spec:
         env:
         - name: JAVA_OPTS
           value: -Xms256M -Xmx512M
+        volumeMounts:
+        - name: config
+          mountPath: /apache-skywalking-apm-incubating/config
+      volumes:
+      - name: config
+        configMap:
+          name: oap-config
