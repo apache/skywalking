@@ -80,13 +80,13 @@ public class ServiceInstanceInventoryCache implements Service {
         return serviceInstanceInventory;
     }
 
-    public int getServiceInstanceId(int serviceId, String serviceInstanceName) {
-        Integer serviceInstanceId = serviceInstanceNameCache.getIfPresent(ServiceInstanceInventory.buildId(serviceId, serviceInstanceName));
+    public int getServiceInstanceId(int serviceId, String uuid) {
+        Integer serviceInstanceId = serviceInstanceNameCache.getIfPresent(ServiceInstanceInventory.buildId(serviceId, uuid));
 
         if (Objects.isNull(serviceInstanceId) || serviceInstanceId == Const.NONE) {
-            serviceInstanceId = getCacheDAO().getServiceInstanceId(serviceId, serviceInstanceName);
+            serviceInstanceId = getCacheDAO().getServiceInstanceId(serviceId, uuid);
             if (serviceId != Const.NONE) {
-                serviceInstanceNameCache.put(ServiceInstanceInventory.buildId(serviceId, serviceInstanceName), serviceInstanceId);
+                serviceInstanceNameCache.put(ServiceInstanceInventory.buildId(serviceId, uuid), serviceInstanceId);
             }
         }
         return serviceInstanceId;
