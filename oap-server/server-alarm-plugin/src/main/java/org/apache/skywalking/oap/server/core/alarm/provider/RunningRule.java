@@ -18,15 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.indicator.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 import org.apache.skywalking.oap.server.core.source.Scope;
-import org.joda.time.*;
-import org.joda.time.format.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Minutes;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
@@ -81,6 +92,12 @@ public class RunningRule {
             return;
         }
 
+        if (CollectionUtils.isNotEmpty(includeNames)) {
+            if (!includeNames.contains(meta.getName())) {
+                return;
+            }
+        }
+
         if (valueType == null) {
             if (indicator instanceof LongValueHolder) {
                 valueType = IndicatorValueType.LONG;
@@ -91,6 +108,8 @@ public class RunningRule {
             } else if (indicator instanceof DoubleValueHolder) {
                 valueType = IndicatorValueType.DOUBLE;
                 threshold.setType(IndicatorValueType.DOUBLE);
+            } else {
+                return;
             }
             targetScope = meta.getScope();
         }
