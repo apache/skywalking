@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
@@ -91,7 +92,7 @@ public class RunningRule {
             return;
         }
 
-        if (includeNames != null) {
+        if (CollectionUtils.isNotEmpty(includeNames)) {
             if (!includeNames.contains(meta.getName())) {
                 return;
             }
