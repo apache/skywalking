@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.apm.webapp.proxy;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.Arrays;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
@@ -33,22 +35,22 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
  * @author gaohongtao
  */
 @Configuration
-@EnableWebMvc
 public class MvcConfig extends WebMvcConfigurerAdapter {
+    
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry
-            .addResourceHandler("/**")
-            .addResourceLocations("classpath:/public/")
+            .addResourceHandler("/img/node/**")
+            .addResourceLocations("classpath:/public/img/node/")
             .setCachePeriod(3600)
             .resourceChain(true)
             .addResolver(new PathResourceResolver() {
                 @Override protected Resource getResource(String resourcePath, Resource location) throws IOException {
                     Resource raw =  super.getResource(resourcePath, location);
-                    if (raw != null || !resourcePath.startsWith("img/node")) {
+                    if (raw != null) {
                         return raw;
                     }
-                    Resource resource = location.createRelative("img/node/UNDEFINED.png");
+                    Resource resource = location.createRelative("UNDEFINED.png");
                     if (!resource.exists() || !resource.isReadable()) {
                         return null;
                     }
