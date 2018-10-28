@@ -16,20 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.h2;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.library.client.ClientException;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.query.entity.Alarms;
+import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 
 /**
- * @author peng-yongsheng
+ * As a demo show env, not necessary to support alarm.
+ *
+ * @author wusheng
  */
-public class H2ClientException extends ClientException {
-
-    public H2ClientException(String message) {
-        super(message);
-    }
-
-    public H2ClientException(String message, Throwable cause) {
-        super(message, cause);
+public class H2AlarmQueryDAO implements IAlarmQueryDAO {
+    @Override
+    public Alarms getAlarm(Scope scope, String keyword, int limit, int from, long startTB,
+        long endTB) throws IOException {
+        return new Alarms();
     }
 }
