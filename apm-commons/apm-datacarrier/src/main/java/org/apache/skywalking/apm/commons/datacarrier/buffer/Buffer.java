@@ -91,10 +91,4 @@ public class Buffer<T> {
         return result;
     }
 
-    public void clear() {
-        for (Object obj : buffer) {
-            obj = null;
-        }
-    }
-
 }
