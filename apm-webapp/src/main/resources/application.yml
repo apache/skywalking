@@ -27,6 +27,7 @@ zuul:
 collector:
   path: /graphql
   ribbon:
+    # Point to all backend's restHost:restPort, split by ,
     listOfServers: 127.0.0.1:12800
 
 security:
