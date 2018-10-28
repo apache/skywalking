@@ -188,13 +188,14 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             connection = h2Client.getConnection();
             Thermodynamic thermodynamic = new Thermodynamic();
             int numOfSteps = 0;
+            int axisYStep = 0;
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + ThermodynamicIndicator.STEP + " step, "
                 + ThermodynamicIndicator.NUM_OF_STEPS + " num_of_steps, "
                 + ThermodynamicIndicator.DETAIL_GROUP + " detail_group, "
                 + "id "
                 + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
 
-                int axisYStep = 0;
+
                 while (resultSet.next()) {
                     axisYStep = resultSet.getInt("step");
                     String id = resultSet.getString("id");
@@ -226,6 +227,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             }
 
             thermodynamic.fromMatrixData(thermodynamicValueCollection, numOfSteps);
+            thermodynamic.setAxisYStep(axisYStep);
 
             return thermodynamic;
         } catch (SQLException e) {
