@@ -61,13 +61,6 @@ public enum OperationNameDictionary {
         }
     }
 
-    public void clearOperationNameDictionary() {
-        unRegisterOperationNames.clear();
-        operationNameDictionary.clear();
-
-    }
-
-
     public void syncRemoteDictionary(
         ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub serviceNameDiscoveryServiceBlockingStub) {
         if (unRegisterOperationNames.size() > 0) {
@@ -111,10 +104,6 @@ public enum OperationNameDictionary {
 
         public int getApplicationId() {
             return applicationId;
-        }
-
-        public void setApplicationId(int applicationId) {
-            this.applicationId = applicationId;
         }
 
         public String getOperationName() {
