@@ -136,6 +136,8 @@
                     <excludes>
                         <exclude>application.yml</exclude>
                         <exclude>log4j2.xml</exclude>
+                        <exclude>alarm-settings.yml</exclude>
+                        <exclude>component-libraries.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
