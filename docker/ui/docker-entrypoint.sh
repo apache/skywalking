@@ -14,16 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-oap:
-	cd oap; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
-	docker build -t skywalking/oap:latest .
+#!/bin/bash
 
-ui:
-	cd ui; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
-	docker build -t skywalking/ui:latest .
-	
-build: oap ui
+set -ex
 
-.PHONY: oap ui
+exec java -jar webapp/skywalking-webapp.jar --logging.config=webapp/logback.xml "$@"

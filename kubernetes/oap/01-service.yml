@@ -22,7 +22,6 @@ metadata:
   labels:
     service: oap
 spec:
-  clusterIP: None
   ports:
   - port: 12800
     name: rest

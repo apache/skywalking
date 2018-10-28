@@ -55,7 +55,6 @@ public class RegisterModuleProvider extends ModuleProvider {
         grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
         grpcHandlerRegister.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
 
-
         JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
         jettyHandlerRegister.addHandler(new ApplicationRegisterServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceDiscoveryServletHandler(getManager()));

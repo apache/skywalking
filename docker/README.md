@@ -1,12 +1,12 @@
 
-# Build snapshot image
+# Build all images
 
 ```shell
-make snapshot
+make build
 ```
 
-# Run oap by docker-compose
+# Run skywalking by docker-compose
 
 ```shell
-docker-compose -f stack.yml up
+docker-compose up
 ```
