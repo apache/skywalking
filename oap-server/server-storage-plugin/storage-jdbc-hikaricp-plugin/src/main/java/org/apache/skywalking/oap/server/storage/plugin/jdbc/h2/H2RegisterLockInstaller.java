@@ -16,31 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.library.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class DownsampleingModelNameBuilder {
+public class H2RegisterLockInstaller {
+    public static final String LOCK_TABLE_NAME = "register_lock";
 
-    private DownsampleingModelNameBuilder() {
-    }
+    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockInstaller.class);
 
-    public static String build(Step step, String modelName) {
-        switch (step) {
-            case MONTH:
-                modelName = modelName + Const.ID_SPLIT + Downsampling.Month.getName();
-                break;
-            case DAY:
-                modelName = modelName + Const.ID_SPLIT + Downsampling.Day.getName();
-                break;
-            case HOUR:
-                modelName = modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
-                break;
-        }
-        return modelName;
+    /**
+     * For H2 storage, no concurrency situation, so, on lock table required. If someone wants to implement a storage by
+     * referring H2, please consider to create a LOCK table.
+     *
+     * @param client
+     * @throws StorageException
+     */
+    public void install(Client client) throws StorageException {
+
     }
 }

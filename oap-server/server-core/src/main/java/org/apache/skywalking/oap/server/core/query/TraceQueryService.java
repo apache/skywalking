@@ -121,6 +121,7 @@ public class TraceQueryService implements Service {
             }
         }
 
+        trace.getSpans().clear();
         trace.getSpans().addAll(sortedSpans);
         return trace;
     }

@@ -16,20 +16,33 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.shardingjdbc;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import org.apache.skywalking.oap.server.library.client.ClientException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
- * @author linjiaqi
+ * A SQL executor.
+ *
+ * @author wusheng
  */
-public class ShardingjdbcClientException extends ClientException {
+public class SQLExecutor {
+    private String sql;
+    private List<Object> param;
 
-    public ShardingjdbcClientException(String message) {
-        super(message);
+    public SQLExecutor(String sql, List<Object> param) {
+        this.sql = sql;
+        this.param = param;
     }
 
-    public ShardingjdbcClientException(String message, Throwable cause) {
-        super(message, cause);
+    public void invoke(Connection connection) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        for (int i = 0; i < param.size(); i++) {
+            preparedStatement.setObject(i + 1, param.get(i));
+        }
+        preparedStatement.execute();
     }
 }
