@@ -14,16 +14,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-oap:
-	cd oap; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
-	docker build -t skywalking/oap:latest .
-
-ui:
-	cd ui; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
-	docker build -t skywalking/ui:latest .
-	
-build: oap ui
-
-.PHONY: oap ui
+version: '3.3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    container_name: elasticsearch
+    restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      discovery.type: single-node
+  oap:
+    image: skywalking/oap
+    container_name: oap
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    restart: always
+    ports:
+      - 11800:11800
+      - 12800:12800
+    volumes:
+      - ./config:/apache-skywalking-apm-incubating/config:ro
+  ui:
+    image: skywalking/ui
+    container_name: ui
+    depends_on:
+      - oap
+    links:
+      - oap
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      collector.ribbon.listOfServers: oap:12800
