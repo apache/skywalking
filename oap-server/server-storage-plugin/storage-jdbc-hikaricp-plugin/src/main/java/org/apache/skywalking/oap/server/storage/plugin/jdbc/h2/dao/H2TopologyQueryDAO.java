@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.Ser
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
@@ -98,25 +97,14 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         Connection connection = null;
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct "
+            ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
                     + " component_id from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? "
                     + serviceIdMatchSql.toString()
                     + " group by " + Indicator.ENTITY_ID,
                 conditions);
-            while (resultSet.next()) {
-                Call call = new Call();
-                String entityId = resultSet.getString(Indicator.ENTITY_ID);
-                Integer[] entityIds = ServiceRelation.splitEntityId(entityId);
-
-                call.setSource(entityIds[0]);
-                call.setTarget(entityIds[1]);
-                call.setComponentId(entityIds[2]);
-                call.setDetectPoint(isClientSide ? DetectPoint.CLIENT : DetectPoint.SERVER);
-                call.setId(entityId);
-                calls.add(call);
-            }
+            buildCalls(resultSet, calls, isClientSide);
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -135,24 +123,34 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         List<Call> calls = new ArrayList<>();
         try {
             connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, "select distinct " + sourceCName
-                    + ", " + destCName
+            ResultSet resultSet = h2Client.executeQuery(connection, "select "
+                    + Indicator.ENTITY_ID
                     + " from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and "
-                    + (isSourceId ? sourceCName : destCName) + "=?",
+                    + (isSourceId ? sourceCName : destCName) + "=?"
+                    + " group by " + Indicator.ENTITY_ID,
                 conditions);
-            while (resultSet.next()) {
-                Call call = new Call();
-                call.setSource(resultSet.getInt(sourceCName));
-                call.setTarget(resultSet.getInt(destCName));
-                call.setId(EndpointRelation.buildEntityId(call.getSource(), call.getTarget(), call.getComponentId()));
-                calls.add(call);
-            }
+            buildCalls(resultSet, calls, isSourceId);
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
             h2Client.close(connection);
         }
         return calls;
+    }
+
+    private void buildCalls(ResultSet resultSet, List<Call> calls, boolean isClientSide) throws SQLException {
+        while (resultSet.next()) {
+            Call call = new Call();
+            String entityId = resultSet.getString(Indicator.ENTITY_ID);
+            Integer[] entityIds = ServiceRelation.splitEntityId(entityId);
+
+            call.setSource(entityIds[0]);
+            call.setTarget(entityIds[1]);
+            call.setComponentId(entityIds[2]);
+            call.setDetectPoint(isClientSide ? DetectPoint.CLIENT : DetectPoint.SERVER);
+            call.setId(entityId);
+            calls.add(call);
+        }
     }
 }
