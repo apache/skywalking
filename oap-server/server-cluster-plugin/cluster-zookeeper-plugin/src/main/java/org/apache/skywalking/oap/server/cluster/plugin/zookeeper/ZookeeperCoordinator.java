@@ -67,6 +67,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
         List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(20);
         if (Objects.nonNull(serviceCache)) {
             List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
+
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();
                 if (instance.equals(selfInstance)) {
