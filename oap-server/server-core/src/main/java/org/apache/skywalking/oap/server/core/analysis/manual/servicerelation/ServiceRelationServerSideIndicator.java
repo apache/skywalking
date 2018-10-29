@@ -99,21 +99,24 @@ public class ServiceRelationServerSideIndicator extends Indicator {
 
     @Override public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
+
         setSourceServiceId(remoteData.getDataIntegers(0));
         setDestServiceId(remoteData.getDataIntegers(1));
         setComponentId(remoteData.getDataIntegers(2));
+
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataStrings(0, getEntityId());
-        remoteBuilder.setDataIntegers(0, getSourceServiceId());
-        remoteBuilder.setDataIntegers(1, getDestServiceId());
-        remoteBuilder.setDataIntegers(2, getComponentId());
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.addDataIntegers(getSourceServiceId());
+        remoteBuilder.addDataIntegers(getDestServiceId());
+        remoteBuilder.addDataIntegers(getComponentId());
 
+        remoteBuilder.addDataStrings(getEntityId());
+
+        remoteBuilder.addDataLongs(getTimeBucket());
         return remoteBuilder;
     }
 
