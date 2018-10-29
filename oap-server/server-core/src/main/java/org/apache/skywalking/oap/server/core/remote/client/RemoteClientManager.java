@@ -57,12 +57,17 @@ public class RemoteClientManager implements Service {
         if (logger.isDebugEnabled()) {
             logger.debug("Refresh remote nodes collection.");
         }
-        List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
-        Collections.sort(instanceList);
+        try {
+            List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
+            Collections.sort(instanceList);
 
-        if (!compare(instanceList)) {
-            buildNewClients(instanceList);
+            if (!compare(instanceList)) {
+                buildNewClients(instanceList);
+            }
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
+
     }
 
     public List<RemoteClient> getRemoteClient() {

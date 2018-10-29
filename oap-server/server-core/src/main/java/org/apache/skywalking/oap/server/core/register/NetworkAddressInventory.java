@@ -81,13 +81,13 @@ public class NetworkAddressInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, getSrcLayer());
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(getSrcLayer());
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
+        remoteBuilder.addDataStrings(name);
         return remoteBuilder;
     }
 

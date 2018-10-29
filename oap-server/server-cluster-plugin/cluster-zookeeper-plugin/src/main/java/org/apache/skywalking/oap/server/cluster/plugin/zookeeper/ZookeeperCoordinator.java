@@ -18,18 +18,10 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import org.apache.curator.x.discovery.ServiceCache;
-import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import org.apache.curator.x.discovery.*;
+import org.apache.skywalking.oap.server.core.cluster.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -72,18 +64,19 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     }
 
     @Override public List<RemoteInstance> queryRemoteNodes() {
-        List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
-
-        List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(serviceInstances.size());
-        serviceInstances.forEach(serviceInstance -> {
-            RemoteInstance instance = serviceInstance.getPayload();
-            if (instance.equals(selfInstance)) {
-                instance.setSelf(true);
-            } else {
-                instance.setSelf(false);
-            }
-            remoteInstanceDetails.add(instance);
-        });
+        List<RemoteInstance> remoteInstanceDetails = new ArrayList<>(20);
+        if (Objects.nonNull(serviceCache)) {
+            List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
+            serviceInstances.forEach(serviceInstance -> {
+                RemoteInstance instance = serviceInstance.getPayload();
+                if (instance.equals(selfInstance)) {
+                    instance.setSelf(true);
+                } else {
+                    instance.setSelf(false);
+                }
+                remoteInstanceDetails.add(instance);
+            });
+        }
         return remoteInstanceDetails;
     }
 }

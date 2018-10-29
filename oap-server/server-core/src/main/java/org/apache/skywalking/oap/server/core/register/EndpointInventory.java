@@ -80,14 +80,14 @@ public class EndpointInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, detectPoint);
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(serviceId);
+        remoteBuilder.addDataIntegers(detectPoint);
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
+        remoteBuilder.addDataStrings(name);
         return remoteBuilder;
     }
 
