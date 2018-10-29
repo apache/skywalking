@@ -53,6 +53,10 @@ storage:
     bulkSize: 20 # flush the bulk every 20mb
     flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: 2 # the number of concurrent requests
+#  h2:
+#    driver: org.h2.jdbcx.JdbcDataSource
+#    url: jdbc:h2:mem:skywalking-oap-db
+#    user: sa
 receiver-register:
   default:
 receiver-trace:

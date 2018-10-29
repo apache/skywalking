@@ -106,4 +106,23 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             logger.warn("Network address {} heartbeat, but not found in storage.");
         }
     }
+
+    @Override public void update(int addressId, int srcLayer) {
+        if (!this.compare(addressId, srcLayer)) {
+            NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
+            newNetworkAddress.setSrcLayer(srcLayer);
+            newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
+
+            InventoryProcess.INSTANCE.in(newNetworkAddress);
+        }
+    }
+
+    private boolean compare(int addressId, int srcLayer) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+
+        if (Objects.nonNull(networkAddress)) {
+            return srcLayer == networkAddress.getSrcLayer();
+        }
+        return true;
+    }
 }

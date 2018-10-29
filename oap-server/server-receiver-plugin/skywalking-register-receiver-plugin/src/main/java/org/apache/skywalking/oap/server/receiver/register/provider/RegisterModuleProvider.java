@@ -22,7 +22,10 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.*;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.ApplicationRegisterHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.InstanceDiscoveryServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.NetworkAddressRegisterServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.ServiceNameDiscoveryHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.*;
 
 /**
