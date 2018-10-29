@@ -20,20 +20,15 @@ package org.apache.skywalking.oap.server.core.register;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 /**
@@ -117,21 +112,21 @@ public class ServiceInstanceInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, language);
-        remoteBuilder.setDataIntegers(3, isAddress);
-        remoteBuilder.setDataIntegers(4, addressId);
-        remoteBuilder.setDataIntegers(5, processNo);
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(serviceId);
+        remoteBuilder.addDataIntegers(language);
+        remoteBuilder.addDataIntegers(isAddress);
+        remoteBuilder.addDataIntegers(addressId);
+        remoteBuilder.addDataIntegers(processNo);
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
-        remoteBuilder.setDataStrings(1, osName);
-        remoteBuilder.setDataStrings(2, hostName);
-        remoteBuilder.setDataStrings(3, ipv4s);
-        remoteBuilder.setDataStrings(4, instanceUUID);
+        remoteBuilder.addDataStrings(name);
+        remoteBuilder.addDataStrings(osName);
+        remoteBuilder.addDataStrings(hostName);
+        remoteBuilder.addDataStrings(ipv4s);
+        remoteBuilder.addDataStrings(instanceUUID);
         return remoteBuilder;
     }
 

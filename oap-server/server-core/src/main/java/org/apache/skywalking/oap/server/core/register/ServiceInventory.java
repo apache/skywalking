@@ -96,16 +96,16 @@ public class ServiceInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, isAddress);
-        remoteBuilder.setDataIntegers(2, addressId);
-        remoteBuilder.setDataIntegers(3, mappingServiceId);
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(isAddress);
+        remoteBuilder.addDataIntegers(addressId);
+        remoteBuilder.addDataIntegers(mappingServiceId);
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
-        remoteBuilder.setDataLongs(2, getMappingLastUpdateTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
+        remoteBuilder.addDataLongs(getMappingLastUpdateTime());
 
-        remoteBuilder.setDataStrings(0, name);
+        remoteBuilder.addDataStrings(name);
         return remoteBuilder;
     }
 
