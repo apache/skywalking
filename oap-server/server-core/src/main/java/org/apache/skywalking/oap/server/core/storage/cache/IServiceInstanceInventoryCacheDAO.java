@@ -28,7 +28,7 @@ public interface IServiceInstanceInventoryCacheDAO extends DAO {
 
     ServiceInstanceInventory get(int serviceInstanceId);
 
-    int getServiceInstanceId(int serviceId, String serviceInstanceName);
+    int getServiceInstanceId(int serviceId, String uuid);
 
     int getServiceInstanceId(int serviceId, int addressId);
 }

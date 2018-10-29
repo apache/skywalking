@@ -45,8 +45,8 @@ public class H2ServiceInstanceInventoryCacheDAO extends H2SQLExecutor implements
         }
     }
 
-    @Override public int getServiceInstanceId(int serviceId, String serviceInstanceName) {
-        String id = ServiceInstanceInventory.buildId(serviceId, serviceInstanceName);
+    @Override public int getServiceInstanceId(int serviceId, String uuid) {
+        String id = ServiceInstanceInventory.buildId(serviceId, uuid);
         return getByID(id);
     }
 

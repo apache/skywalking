@@ -62,8 +62,8 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
         }
     }
 
-    @Override public int getServiceInstanceId(int serviceId, String serviceInstanceName) {
-        String id = ServiceInstanceInventory.buildId(serviceId, serviceInstanceName);
+    @Override public int getServiceInstanceId(int serviceId, String uuid) {
+        String id = ServiceInstanceInventory.buildId(serviceId, uuid);
         return get(id);
     }
 

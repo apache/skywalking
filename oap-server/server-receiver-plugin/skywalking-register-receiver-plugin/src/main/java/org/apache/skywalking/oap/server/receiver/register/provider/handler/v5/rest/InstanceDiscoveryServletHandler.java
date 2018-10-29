@@ -22,10 +22,13 @@ import com.google.gson.*;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.*;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
 /**
@@ -36,6 +39,7 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
     private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServletHandler.class);
 
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
+    private final ServiceInventoryCache serviceInventoryCache;
     private final Gson gson = new Gson();
 
     private static final String APPLICATION_ID = "ai";
@@ -45,6 +49,7 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
     private static final String OS_INFO = "oi";
 
     public InstanceDiscoveryServletHandler(ModuleManager moduleManager) {
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
     }
 
@@ -73,7 +78,17 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
             JsonArray ipv4s = osInfoJson.get("ipv4s").getAsJsonArray();
             ipv4s.forEach(ipv4 -> agentOsInfo.getIpv4s().add(ipv4.getAsString()));
 
-            int instanceId = serviceInstanceInventoryRegister.getOrCreate(applicationId, agentUUID, registerTime, agentOsInfo);
+            ServiceInventory serviceInventory = serviceInventoryCache.get(applicationId);
+
+            String instanceName = serviceInventory.getName();
+            if (agentOsInfo.getProcessNo() != 0) {
+                instanceName += "-pid:" + agentOsInfo.getProcessNo();
+            }
+            if (StringUtils.isNotEmpty(agentOsInfo.getHostname())) {
+                instanceName += "@" + agentOsInfo.getHostname();
+            }
+
+            int instanceId = serviceInstanceInventoryRegister.getOrCreate(applicationId, instanceName, agentUUID, registerTime, agentOsInfo);
             responseJson.addProperty(APPLICATION_ID, applicationId);
             responseJson.addProperty(INSTANCE_ID, instanceId);
         } catch (IOException e) {
