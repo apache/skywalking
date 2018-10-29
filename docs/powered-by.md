@@ -47,3 +47,4 @@ or providing commercial products including Apache SkyWalking.
 1. Xiaomi. 小米. https://www.mi.com/en/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
+1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
