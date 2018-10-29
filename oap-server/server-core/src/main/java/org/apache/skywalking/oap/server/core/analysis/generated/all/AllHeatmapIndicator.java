@@ -19,15 +19,14 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.all;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -75,11 +74,11 @@ public class AllHeatmapIndicator extends ThermodynamicIndicator implements Alarm
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getStep());
-        remoteBuilder.setDataIntegers(1, getNumOfSteps());
+        remoteBuilder.addDataIntegers(getStep());
+        remoteBuilder.addDataIntegers(getNumOfSteps());
         getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
 
         return remoteBuilder;
