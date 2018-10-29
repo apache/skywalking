@@ -108,6 +108,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     }
 
     @Override public List<RemoteInstance> queryRemoteNodes() {
+        logger.debug("Query kubernetes remote nodes: {}", cache);
         return Lists.newArrayList(cache.values());
     }
 }
