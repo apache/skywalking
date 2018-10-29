@@ -27,6 +27,7 @@ or providing commercial products including Apache SkyWalking.
 1. Keking.cn 凯京集团. http://www.keking.cn
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
+1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
@@ -47,4 +48,3 @@ or providing commercial products including Apache SkyWalking.
 1. Xiaomi. 小米. https://www.mi.com/en/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
-1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
