@@ -18,14 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import lombok.*;
 
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
 public class Rules {
     private List<AlarmRule> rules;
     private List<String> webhooks;
+
+    public Rules() {
+        this.rules = new ArrayList<>();
+        this.webhooks = new ArrayList<>();
+    }
 }

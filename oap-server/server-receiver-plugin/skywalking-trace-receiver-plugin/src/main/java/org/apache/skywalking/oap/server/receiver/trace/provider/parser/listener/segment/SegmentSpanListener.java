@@ -55,7 +55,6 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
-        segment.setSegmentId(segmentCoreInfo.getSegmentId());
         segment.setServiceId(segmentCoreInfo.getApplicationId());
         segment.setLatency((int)(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
         segment.setStartTime(segmentCoreInfo.getStartTime());
@@ -85,7 +84,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
     @Override public void build() {
         if (logger.isDebugEnabled()) {
-            logger.debug("segment duration listener build");
+            logger.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
 
         if (entryEndpointId == 0) {

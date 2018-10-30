@@ -26,4 +26,6 @@ public interface StorageDataType {
     String toStorageData();
 
     void toObject(String data);
+
+    void copyFrom(Object source);
 }

@@ -24,7 +24,8 @@ import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -35,11 +36,14 @@ public class IndicatorRemoteWorker extends AbstractWorker<Indicator> {
 
     private final AbstractWorker<Indicator> nextWorker;
     private final RemoteSenderService remoteSender;
+    private final String modelName;
 
-    IndicatorRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<Indicator> nextWorker) {
+    IndicatorRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<Indicator> nextWorker,
+        String modelName) {
         super(workerId);
         this.remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
         this.nextWorker = nextWorker;
+        this.modelName = modelName;
     }
 
     @Override public final void in(Indicator indicator) {

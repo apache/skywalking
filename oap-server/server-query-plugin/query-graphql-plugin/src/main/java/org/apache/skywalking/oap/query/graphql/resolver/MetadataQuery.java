@@ -28,6 +28,9 @@ import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @author peng-yongsheng
+ */
 public class MetadataQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
@@ -81,5 +84,9 @@ public class MetadataQuery implements GraphQLQueryResolver {
     public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
         final int limit) throws IOException {
         return getMetadataQueryService().searchEndpoint(keyword, serviceId, limit);
+    }
+
+    public EndpointInfo getEndpointInfo(final int endpointId) throws IOException {
+        return getMetadataQueryService().getEndpointInfo(endpointId);
     }
 }

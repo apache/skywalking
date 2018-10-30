@@ -90,7 +90,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 sourceBuilder.sort(SegmentRecord.START_TIME, SortOrder.DESC);
                 break;
             case BY_DURATION:
-                sourceBuilder.sort(SegmentRecord.START_TIME, SortOrder.DESC);
+                sourceBuilder.sort(SegmentRecord.LATENCY, SortOrder.DESC);
                 break;
         }
         sourceBuilder.size(limit);
@@ -109,6 +109,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             basicTrace.getEndpointNames().add((String)searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             basicTrace.setDuration(((Number)searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()));
+            basicTrace.getTraceIds().add((String)searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
             traceBrief.getTraces().add(basicTrace);
         }
 

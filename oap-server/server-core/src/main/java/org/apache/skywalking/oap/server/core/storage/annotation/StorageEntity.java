@@ -30,4 +30,6 @@ public @interface StorageEntity {
     String name();
 
     Class<? extends StorageBuilder> builder();
+
+    boolean deleteHistory() default true;
 }

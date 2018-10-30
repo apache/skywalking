@@ -21,8 +21,16 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.Getter;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
 public class Topology {
-    private List<Node> nodes = new ArrayList<>();
-    private List<Call> calls = new ArrayList<>();
+    private final List<Node> nodes;
+    private final List<Call> calls;
+
+    public Topology() {
+        this.nodes = new ArrayList<>();
+        this.calls = new ArrayList<>();
+    }
 }

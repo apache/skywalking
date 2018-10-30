@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
@@ -91,6 +92,12 @@ public class RunningRule {
             return;
         }
 
+        if (CollectionUtils.isNotEmpty(includeNames)) {
+            if (!includeNames.contains(meta.getName())) {
+                return;
+            }
+        }
+
         if (valueType == null) {
             if (indicator instanceof LongValueHolder) {
                 valueType = IndicatorValueType.LONG;
@@ -101,6 +108,8 @@ public class RunningRule {
             } else if (indicator instanceof DoubleValueHolder) {
                 valueType = IndicatorValueType.DOUBLE;
                 threshold.setType(IndicatorValueType.DOUBLE);
+            } else {
+                return;
             }
             targetScope = meta.getScope();
         }
@@ -148,6 +157,7 @@ public class RunningRule {
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
                 alarmMessage.setAlarmMessage(formatter.format(meta));
+                alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
             }
         });

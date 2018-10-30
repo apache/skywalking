@@ -31,6 +31,6 @@ public class ComponentLibraryCatalogFileTest {
         Assert.assertEquals(1, service.getComponentId("Tomcat"));
         Assert.assertEquals(7, service.getServerIdBasedOnComponent(30));
         Assert.assertEquals(21, service.getServerIdBasedOnComponent(21));
-        Assert.assertEquals("Jedis", service.getServerName(30));
+        Assert.assertEquals("Redis", service.getServerNameBasedOnComponent(30));
     }
 }

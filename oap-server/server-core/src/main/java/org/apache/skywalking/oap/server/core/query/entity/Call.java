@@ -21,11 +21,15 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
 @Setter
 public class Call {
     private int source;
     private int target;
+    private int componentId;
     private String callType;
     private String id;
     private DetectPoint detectPoint;

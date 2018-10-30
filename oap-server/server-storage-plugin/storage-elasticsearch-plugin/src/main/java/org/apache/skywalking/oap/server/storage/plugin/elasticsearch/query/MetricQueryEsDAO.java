@@ -23,7 +23,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
-import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -31,6 +31,8 @@ import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.metrics.avg.Avg;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
@@ -44,7 +46,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
     public IntValues getValues(String indName, Step step, long startTB, long endTB, Where where, String valueCName,
         Function function) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
@@ -59,13 +61,26 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            Terms valueTerms = idBucket.getAggregations().get(valueCName);
-            for (Terms.Bucket valueBucket : valueTerms.getBuckets()) {
-                KVInt value = new KVInt();
-                value.setId(idBucket.getKeyAsString());
-                value.setValue(valueBucket.getKeyAsNumber().intValue());
-                intValues.getValues().add(value);
+            int value = 0;
+            switch (function) {
+                case Sum:
+                    Sum sum = idBucket.getAggregations().get(valueCName);
+                    value = (int)sum.getValue();
+                    break;
+                case Avg:
+                    Avg avg = idBucket.getAggregations().get(valueCName);
+                    value = (int)avg.getValue();
+                    break;
+                default:
+                    avg = idBucket.getAggregations().get(valueCName);
+                    value = (int)avg.getValue();
+                    break;
             }
+
+            KVInt kvInt = new KVInt();
+            kvInt.setId(idBucket.getKeyAsString());
+            kvInt.setValue(value);
+            intValues.getValues().add(kvInt);
         }
         return intValues;
     }
@@ -78,12 +93,15 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
             case Sum:
                 parentAggBuilder.subAggregation(AggregationBuilders.sum(valueCName).field(valueCName));
                 break;
+            default:
+                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
+                break;
         }
     }
 
     @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 
@@ -104,7 +122,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
     @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
         String valueCName) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 
@@ -120,7 +138,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
             } else {
                 int axisYStep = ((Number)source.get(ThermodynamicIndicator.STEP)).intValue();
                 thermodynamic.setAxisYStep(axisYStep);
-                numOfSteps = ((Number)source.get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue();
+                numOfSteps = ((Number)source.get(ThermodynamicIndicator.NUM_OF_STEPS)).intValue() + 1;
 
                 String value = (String)source.get(ThermodynamicIndicator.DETAIL_GROUP);
                 IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
@@ -139,26 +157,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
             }
         }
 
-        int defaultNumOfSteps = numOfSteps;
-
-        thermodynamicValueMatrix.forEach(columnOfThermodynamic -> {
-                if (columnOfThermodynamic.size() == 0) {
-                    if (defaultNumOfSteps > 0) {
-                        for (int i = 0; i < defaultNumOfSteps; i++) {
-                            columnOfThermodynamic.add(0L);
-                        }
-                    }
-                }
-            }
-        );
-
-        for (int colNum = 0; colNum < thermodynamicValueMatrix.size(); colNum++) {
-            List<Long> column = thermodynamicValueMatrix.get(colNum);
-            for (int rowNum = 0; rowNum < column.size(); rowNum++) {
-                Long value = column.get(rowNum);
-                thermodynamic.setNodeValue(colNum, rowNum, value);
-            }
-        }
+        thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);
 
         return thermodynamic;
     }

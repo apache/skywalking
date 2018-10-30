@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import java.text.*;
-import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import org.joda.time.LocalDateTime;
 
 /**
  * @author peng-yongsheng
@@ -52,6 +55,11 @@ public enum TimeBucketUtils {
         long second = calendar.get(Calendar.SECOND);
 
         return year * 10000000000L + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
+    }
+
+    public long getTime(LocalDateTime time) {
+        return time.getYear() * 10000000000L + time.getMonthOfYear() * 100000000 + time.getDayOfMonth() * 1000000
+            + time.getHourOfDay() * 10000 + time.getMinuteOfHour() * 100 + time.getSecondOfMinute();
     }
 
     public String formatMinuteTimeBucket(long minuteTimeBucket) throws ParseException {

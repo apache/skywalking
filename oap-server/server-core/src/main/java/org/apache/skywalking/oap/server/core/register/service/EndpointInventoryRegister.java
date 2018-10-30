@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
@@ -69,5 +70,16 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
 
     @Override public int get(int serviceId, String endpointName) {
         return getCacheService().getEndpointId(serviceId, endpointName);
+    }
+
+    @Override public void heartbeat(int endpointId, long heartBeatTime) {
+        EndpointInventory endpointInventory = getCacheService().get(endpointId);
+        if (Objects.nonNull(endpointInventory)) {
+            endpointInventory.setHeartbeatTime(heartBeatTime);
+
+            InventoryProcess.INSTANCE.in(endpointInventory);
+        } else {
+            logger.warn("Endpoint {} heartbeat, but not found in storage.");
+        }
     }
 }

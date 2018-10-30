@@ -21,11 +21,17 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
-@Setter
 public class ServiceInstance {
-    private String id;
-    private String name;
-    private List<Attribute> attributes = new ArrayList<>();
-    private Language language;
+    @Setter private String id;
+    @Setter private String name;
+    private final List<Attribute> attributes;
+    @Setter private Language language;
+
+    public ServiceInstance() {
+        this.attributes = new ArrayList<>();
+    }
 }

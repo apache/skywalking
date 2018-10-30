@@ -36,7 +36,7 @@
         <jetty.version>9.4.2.v20170220</jetty.version>
         <grpc.version>1.14.0</grpc.version>
         <guava.version>20.0</guava.version>
-        <bytebuddy.version>1.7.9</bytebuddy.version>
+        <bytebuddy.version>1.9.2</bytebuddy.version>
         <disruptor.version>3.3.6</disruptor.version>
         <apache-httpclient.version>4.5.3</apache-httpclient.version>
         <wiremock.version>2.6.0</wiremock.version>

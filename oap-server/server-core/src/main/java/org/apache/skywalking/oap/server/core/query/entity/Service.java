@@ -20,9 +20,12 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
 @Setter
 public class Service {
-    private String id;
+    private int id;
     private String name;
 }

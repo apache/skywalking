@@ -36,14 +36,18 @@ public class ServiceRelationServerSideIndicator extends Indicator {
     public static final String INDEX_NAME = "service_relation_server_side";
     public static final String SOURCE_SERVICE_ID = "source_service_id";
     public static final String DEST_SERVICE_ID = "dest_service_id";
+    public static final String COMPONENT_ID = "component_id";
 
     @Setter @Getter @Column(columnName = SOURCE_SERVICE_ID) @IDColumn private int sourceServiceId;
     @Setter @Getter @Column(columnName = DEST_SERVICE_ID) @IDColumn private int destServiceId;
+    @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
+    @Setter @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
         splitJointId += Const.ID_SPLIT + String.valueOf(sourceServiceId);
         splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
         return splitJointId;
     }
 
@@ -60,6 +64,8 @@ public class ServiceRelationServerSideIndicator extends Indicator {
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setSourceServiceId(getSourceServiceId());
         indicator.setDestServiceId(getDestServiceId());
+        indicator.setComponentId(getComponentId());
+        indicator.setEntityId(getEntityId());
         return indicator;
     }
 
@@ -68,6 +74,8 @@ public class ServiceRelationServerSideIndicator extends Indicator {
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setSourceServiceId(getSourceServiceId());
         indicator.setDestServiceId(getDestServiceId());
+        indicator.setComponentId(getComponentId());
+        indicator.setEntityId(getEntityId());
         return indicator;
     }
 
@@ -76,6 +84,8 @@ public class ServiceRelationServerSideIndicator extends Indicator {
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setSourceServiceId(getSourceServiceId());
         indicator.setDestServiceId(getDestServiceId());
+        indicator.setComponentId(getComponentId());
+        indicator.setEntityId(getEntityId());
         return indicator;
     }
 
@@ -83,22 +93,30 @@ public class ServiceRelationServerSideIndicator extends Indicator {
         int result = 17;
         result = 31 * result + sourceServiceId;
         result = 31 * result + destServiceId;
+        result = 31 * result + componentId;
         return result;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
+        setEntityId(remoteData.getDataStrings(0));
+
         setSourceServiceId(remoteData.getDataIntegers(0));
         setDestServiceId(remoteData.getDataIntegers(1));
+        setComponentId(remoteData.getDataIntegers(2));
+
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataIntegers(0, getSourceServiceId());
-        remoteBuilder.setDataIntegers(1, getDestServiceId());
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.addDataIntegers(getSourceServiceId());
+        remoteBuilder.addDataIntegers(getDestServiceId());
+        remoteBuilder.addDataIntegers(getComponentId());
 
+        remoteBuilder.addDataStrings(getEntityId());
+
+        remoteBuilder.addDataLongs(getTimeBucket());
         return remoteBuilder;
     }
 
@@ -106,6 +124,7 @@ public class ServiceRelationServerSideIndicator extends Indicator {
         int result = 17;
         result = 31 * result + sourceServiceId;
         result = 31 * result + destServiceId;
+        result = 31 * result + componentId;
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -123,6 +142,8 @@ public class ServiceRelationServerSideIndicator extends Indicator {
             return false;
         if (destServiceId != indicator.destServiceId)
             return false;
+        if (componentId != indicator.componentId)
+            return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
@@ -134,16 +155,20 @@ public class ServiceRelationServerSideIndicator extends Indicator {
 
         @Override public ServiceRelationServerSideIndicator map2Data(Map<String, Object> dbMap) {
             ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
+            indicator.setEntityId((String)dbMap.get(ENTITY_ID));
             indicator.setSourceServiceId(((Number)dbMap.get(SOURCE_SERVICE_ID)).intValue());
             indicator.setDestServiceId(((Number)dbMap.get(DEST_SERVICE_ID)).intValue());
+            indicator.setComponentId(((Number)dbMap.get(COMPONENT_ID)).intValue());
             indicator.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
             return indicator;
         }
 
         @Override public Map<String, Object> data2Map(ServiceRelationServerSideIndicator storageData) {
             Map<String, Object> map = new HashMap<>();
+            map.put(ENTITY_ID, storageData.getEntityId());
             map.put(SOURCE_SERVICE_ID, storageData.getSourceServiceId());
             map.put(DEST_SERVICE_ID, storageData.getDestServiceId());
+            map.put(COMPONENT_ID, storageData.getComponentId());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
