@@ -14,16 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash
+FROM openjdk:8-jre-alpine
 
-set -e
+ENV DIST_NAME=apache-skywalking-apm-incubating \
+    JAVA_OPTS=" -Xms256M -Xmx512M"
 
-CLASSPATH="config:$CLASSPATH"
-for i in oap-libs/*.jar
-do
-    CLASSPATH="$i:$CLASSPATH"
-done
+# Install required packages
+RUN apk add --no-cache \
+    bash
 
-java ${JAVA_OPTS} -classpath $CLASSPATH \
- -Dstorage.elasticsearch.clusterNodes=elasticsearch:9200 \
- org.apache.skywalking.oap.server.starter.OAPServerStartUp
+COPY "$DIST_NAME.tar.gz" /
+
+RUN set -ex; \
+    tar -xzf "$DIST_NAME.tar.gz"; \
+    rm -rf "$DIST_NAME.tar.gz"; rm -rf "$DIST_NAME/config/log4j2.xml"; \
+    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent";
+
+WORKDIR $DIST_NAME
+
+COPY log4j2.xml config/
+COPY docker-entrypoint.sh .
+
+EXPOSE 12800 11800
+
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

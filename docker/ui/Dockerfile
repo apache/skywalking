@@ -14,19 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: v1
-kind: Service
-metadata:
-  name: oap
-  namespace: skywalking
-  labels:
-    service: oap
-spec:
-  clusterIP: None
-  ports:
-  - port: 12800
-    name: rest
-  - port: 11800
-    name: grpc
-  selector:
-    app: oap
+FROM openjdk:8-jre-alpine
+
+ENV DIST_NAME=apache-skywalking-apm-incubating \
+    JAVA_OPTS=" -Xms256M -Xmx512M"
+
+# Install required packages
+RUN apk add --no-cache \
+    bash
+
+COPY "$DIST_NAME.tar.gz" /
+
+RUN set -ex; \
+    tar -xzf "$DIST_NAME.tar.gz"; \
+    rm -rf "$DIST_NAME.tar.gz"; rm -rf "$DIST_NAME/config"; \
+    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/oap-libs"; rm -rf "$DIST_NAME/agent";
+
+WORKDIR $DIST_NAME
+
+COPY docker-entrypoint.sh .
+COPY logback.xml webapp/
+
+EXPOSE 8080
+
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

@@ -14,19 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: v1
-kind: Service
-metadata:
-  name: elasticsearch
-  namespace: skywalking
-  labels:
-    service: elasticsearch
-spec:
-  clusterIP: None
-  ports:
-  - port: 9200
-    name: serving
-  - port: 9300
-    name: node-to-node
-  selector:
-    service: elasticsearch
+#!/bin/bash
+
+set -ex
+
+CLASSPATH="config:$CLASSPATH"
+for i in oap-libs/*.jar
+do
+    CLASSPATH="$i:$CLASSPATH"
+done
+
+exec java ${JAVA_OPTS} -classpath $CLASSPATH \
+ org.apache.skywalking.oap.server.starter.OAPServerStartUp "$@"

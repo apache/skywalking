@@ -14,25 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.3'
-services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    container_name: elasticsearch
-    restart: always
-    ports:
-      - 9200:9200
-      - 9300:9300
-    environment:
-      discovery.type: single-node
-  oap:
-    image: skywalking/oap
-    container_name: oap
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
-    restart: always
-    ports:
-      - 11800:11800
-      - 12800:12800
+#!/bin/bash
+
+set -ex
+
+exec java -jar webapp/skywalking-webapp.jar --logging.config=webapp/logback.xml "$@"
