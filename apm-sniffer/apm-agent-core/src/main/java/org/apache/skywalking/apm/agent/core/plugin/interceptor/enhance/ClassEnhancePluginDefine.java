@@ -24,6 +24,7 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
+import net.bytebuddy.implementation.attribute.MethodAttributeAppender;
 import net.bytebuddy.implementation.bind.annotation.Morph;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
@@ -203,7 +204,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             }
 
             if (staticMethodsInterceptPoint.isOverrideArgs()) {
-                newClassBuilder = newClassBuilder.method(isDeclaredBy(typeDescription)
+                newClassBuilder = newClassBuilder.method(not(isDeclaredBy(typeDescription))
                         .and(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher())))
                     .intercept(
                         MethodDelegation.withDefaultConfiguration()
@@ -211,14 +212,14 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                                 Morph.Binder.install(OverrideCallable.class)
                             )
                             .to(new StaticMethodsInterWithOverrideArgs(interceptor))
-                    );
+                    ).attribute(MethodAttributeAppender.ForInstrumentedMethod.EXCLUDING_RECEIVER);
             } else {
-                newClassBuilder = newClassBuilder.method(isDeclaredBy(typeDescription)
+                newClassBuilder = newClassBuilder.method(not(isDeclaredBy(typeDescription))
                         .and(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher())))
                     .intercept(
                         MethodDelegation.withDefaultConfiguration()
                             .to(new StaticMethodsInter(interceptor))
-                    );
+                    ).attribute(MethodAttributeAppender.ForInstrumentedMethod.EXCLUDING_RECEIVER);
             }
 
         }
