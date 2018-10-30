@@ -92,6 +92,9 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private void generateRemoteNodes() {
         for (Event event : watch) {
+            if (event == null) {
+                break;
+            }
             logger.debug("Received event {} {}-{}", event.getType(), event.getUid(), event.getHost());
             switch (event.getType()) {
                 case "ADDED":
