@@ -76,6 +76,21 @@ public class ServiceInventory extends RegisterSource {
         return result;
     }
 
+    @Override
+    public ServiceInventory clone() {
+        ServiceInventory inventory = new ServiceInventory();
+        inventory.setSequence(getSequence());
+        inventory.setRegisterTime(getRegisterTime());
+        inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setName(name);
+        inventory.setIsAddress(isAddress);
+        inventory.setAddressId(addressId);
+        inventory.setMappingLastUpdateTime(mappingLastUpdateTime);
+        inventory.setMappingServiceId(mappingServiceId);
+
+        return inventory;
+    }
+
     @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;
