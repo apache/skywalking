@@ -28,10 +28,13 @@ import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Watch;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.Event;
 import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.ReusableWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Watch the api {@literal https://v1-9.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.9/#watch-64}.
@@ -40,7 +43,7 @@ import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.ReusableWatch;
  */
 public class NamespacedPodListWatch implements ReusableWatch<Event> {
 
-    private final CoreV1Api api = new CoreV1Api();
+    private static final Logger logger = LoggerFactory.getLogger(NamespacedPodListWatch.class);
 
     private final String namespace;
 
@@ -65,6 +68,7 @@ public class NamespacedPodListWatch implements ReusableWatch<Event> {
         }
         client.getHttpClient().setReadTimeout(watchTimeoutSeconds, TimeUnit.SECONDS);
         Configuration.setDefaultApiClient(client);
+        CoreV1Api api = new CoreV1Api();
         try {
             watch = Watch.createWatch(
                 client,
@@ -72,17 +76,23 @@ public class NamespacedPodListWatch implements ReusableWatch<Event> {
                     null, labelSelector, Integer.MAX_VALUE,null,null, Boolean.TRUE,
                     null, null),
                 new TypeToken<Watch.Response<V1Pod>>() { }.getType());
-        } catch (ApiException e) {
+        } catch (final ApiException e) {
+            logger.error("code:{} header:{} body:{}", e.getCode(), e.getResponseHeaders(), e.getResponseBody());
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override public Iterator<Event> iterator() {
-        return Iterators.transform(watch.iterator(), response -> {
-            if (response == null) {
-                throw new NullPointerException("Original event is null");
-            }
-            return new Event(response.type, response.object.getMetadata().getUid(), response.object.getStatus().getPodIP());
-        });
+        try {
+            return Iterators.transform(watch.iterator(), response -> {
+                if (response == null) {
+                    throw new NullPointerException("Original event is null");
+                }
+                return new Event(response.type, response.object.getMetadata().getUid(), response.object.getStatus().getPodIP());
+            });
+        } catch (final RuntimeException exp) {
+            logger.trace("Runtime exception", exp);
+        }
+        return Collections.emptyIterator();
     }
 }

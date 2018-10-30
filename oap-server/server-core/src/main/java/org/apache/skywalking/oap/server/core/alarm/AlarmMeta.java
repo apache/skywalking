@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
@@ -33,7 +34,7 @@ public class AlarmMeta {
     public AlarmMeta(String indicatorName, Scope scope) {
         this.indicatorName = indicatorName;
         this.scope = scope;
-        this.id = id;
+        this.id = Const.EMPTY_STRING;
     }
 
     public AlarmMeta(String indicatorName, Scope scope, String id) {

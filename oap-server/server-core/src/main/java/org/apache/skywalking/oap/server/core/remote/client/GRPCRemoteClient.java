@@ -45,6 +45,7 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         int bufferSize) {
         this.streamDataClassGetter = streamDataClassGetter;
         this.client = new GRPCClient(remoteInstance.getHost(), remoteInstance.getPort());
+        this.client.initialize();
         this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
         this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
         this.carrier.consume(new RemoteMessageConsumer(), 1);

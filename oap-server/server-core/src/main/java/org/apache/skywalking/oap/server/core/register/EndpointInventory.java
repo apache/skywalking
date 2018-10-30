@@ -18,15 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
@@ -80,14 +84,14 @@ public class EndpointInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, detectPoint);
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(serviceId);
+        remoteBuilder.addDataIntegers(detectPoint);
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
         return remoteBuilder;
     }
 

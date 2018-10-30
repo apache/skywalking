@@ -80,10 +80,10 @@ public class TelemetryDataDispatcher {
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metric.getDetectPoint())) {
             toAll(decorator, minuteTimeBucket);
             toService(decorator, minuteTimeBucket);
+            toServiceInstance(decorator, minuteTimeBucket);
             toEndpoint(decorator, minuteTimeBucket);
         }
         toServiceRelation(decorator, minuteTimeBucket);
-        toServiceInstance(decorator, minuteTimeBucket);
         toServiceInstanceRelation(decorator, minuteTimeBucket);
     }
 
