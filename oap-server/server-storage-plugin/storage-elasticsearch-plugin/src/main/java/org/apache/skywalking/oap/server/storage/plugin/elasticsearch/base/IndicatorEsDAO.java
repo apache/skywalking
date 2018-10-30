@@ -28,11 +28,14 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class IndicatorEsDAO extends EsDAO implements IIndicatorDAO<IndexRequest, UpdateRequest> {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndicatorEsDAO.class);
 
     private final StorageBuilder<Indicator> storageBuilder;
 
@@ -80,8 +83,5 @@ public class IndicatorEsDAO extends EsDAO implements IIndicatorDAO<IndexRequest,
         }
         builder.endObject();
         return getClient().prepareUpdate(modelName, indicator.id(), builder);
-    }
-
-    @Override public void deleteHistory(String modelName, Long timeBucketBefore) {
     }
 }

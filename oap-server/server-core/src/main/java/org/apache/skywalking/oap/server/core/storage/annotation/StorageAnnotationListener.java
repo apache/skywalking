@@ -22,6 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorAnnotationUtils;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.slf4j.*;
@@ -47,11 +48,12 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
 
         String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
-
+        boolean deleteHistory = StorageEntityAnnotationUtils.getDeleteHistory(aClass);
+        boolean isIndicator = IndicatorAnnotationUtils.isIndicator(aClass);
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns));
+        models.add(new Model(modelName, modelColumns, isIndicator, deleteHistory));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

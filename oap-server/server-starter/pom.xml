@@ -85,7 +85,7 @@
         <!-- storage module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-h2-plugin</artifactId>
+            <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -136,6 +136,8 @@
                     <excludes>
                         <exclude>application.yml</exclude>
                         <exclude>log4j2.xml</exclude>
+                        <exclude>alarm-settings.yml</exclude>
+                        <exclude>component-libraries.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>

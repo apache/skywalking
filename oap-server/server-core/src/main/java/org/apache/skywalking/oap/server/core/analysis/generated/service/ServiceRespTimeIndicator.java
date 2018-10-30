@@ -21,15 +21,14 @@ package org.apache.skywalking.oap.server.core.analysis.generated.service;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -41,7 +40,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "service_resp_time", builder = ServiceRespTimeIndicator.Builder.class)
 public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -55,7 +54,6 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
-
 
     @Override public int remoteHashCode() {
         int result = 17;
@@ -72,7 +70,7 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
             return false;
 
         ServiceRespTimeIndicator indicator = (ServiceRespTimeIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -83,14 +81,14 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataStrings(0, getEntityId());
+        remoteBuilder.addDataStrings(getEntityId());
 
-        remoteBuilder.setDataLongs(0, getSummation());
-        remoteBuilder.setDataLongs(1, getValue());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.addDataLongs(getSummation());
+        remoteBuilder.addDataLongs(getValue());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getCount());
+        remoteBuilder.addDataIntegers(getCount());
 
         return remoteBuilder;
     }
@@ -115,36 +113,33 @@ public class ServiceRespTimeIndicator extends LongAvgIndicator implements AlarmS
     @Override
     public Indicator toHour() {
         ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         ServiceRespTimeIndicator indicator = new ServiceRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

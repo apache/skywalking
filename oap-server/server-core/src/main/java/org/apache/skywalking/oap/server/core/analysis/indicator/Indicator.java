@@ -18,18 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.*;
 
 /**
  * @author peng-yongsheng
  */
 public abstract class Indicator extends StreamData implements StorageData {
+
     private static DateTimeFormatter TIME_BUCKET_MONTH_FORMATTER = DateTimeFormat.forPattern("yyyyMM");
 
     public static final String TIME_BUCKET = "time_bucket";

@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemorypool;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
 
 /**
  * This class is auto generated. Please don't change this class manually.

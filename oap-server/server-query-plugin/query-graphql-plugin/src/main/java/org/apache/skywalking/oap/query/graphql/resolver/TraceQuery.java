@@ -29,6 +29,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * @author peng-yongsheng
+ */
 public class TraceQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;

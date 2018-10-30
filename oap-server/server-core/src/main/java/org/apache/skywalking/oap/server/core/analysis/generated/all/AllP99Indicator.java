@@ -19,15 +19,14 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.all;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -50,7 +49,6 @@ public class AllP99Indicator extends P99Indicator implements AlarmSupported {
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
-
 
     @Override public int remoteHashCode() {
         int result = 17;
@@ -76,11 +74,11 @@ public class AllP99Indicator extends P99Indicator implements AlarmSupported {
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getValue());
-        remoteBuilder.setDataIntegers(1, getPrecision());
+        remoteBuilder.addDataIntegers(getValue());
+        remoteBuilder.addDataIntegers(getPrecision());
         getDetailGroup().forEach(element -> remoteBuilder.addDataIntLongPairList(element.serialize()));
 
         return remoteBuilder;
@@ -108,33 +106,36 @@ public class AllP99Indicator extends P99Indicator implements AlarmSupported {
     @Override
     public Indicator toHour() {
         AllP99Indicator indicator = new AllP99Indicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         AllP99Indicator indicator = new AllP99Indicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         AllP99Indicator indicator = new AllP99Indicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setValue(this.getValue());
         indicator.setPrecision(this.getPrecision());
-        indicator.setDetailGroup(this.getDetailGroup());
-        indicator.setTimeBucket(this.getTimeBucket());
+        org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray newValue = new org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray();
+        newValue.copyFrom(this.getDetailGroup());
+        indicator.setDetailGroup(newValue);
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

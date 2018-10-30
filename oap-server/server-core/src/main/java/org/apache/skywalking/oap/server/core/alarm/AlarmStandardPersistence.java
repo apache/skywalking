@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
+import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.slf4j.*;
 
 /**
  * Save the alarm info into storage for UI query.
@@ -28,15 +30,22 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
  */
 public class AlarmStandardPersistence implements AlarmCallback {
 
+    private static final Logger logger = LoggerFactory.getLogger(AlarmStandardPersistence.class);
+
     @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
         alarmMessage.forEach(message -> {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Alarm message: {}", message.getAlarmMessage());
+            }
+
             AlarmRecord record = new AlarmRecord();
             record.setScope(message.getScope().ordinal());
             record.setId0(message.getId0());
             record.setId1(message.getId1());
             record.setName(message.getName());
             record.setAlarmMessage(message.getAlarmMessage());
-            record.setTimeBucket(message.getTimeBucket());
+            record.setStartTime(message.getStartTime());
+            record.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(message.getStartTime()));
 
             RecordProcess.INSTANCE.in(record);
         });

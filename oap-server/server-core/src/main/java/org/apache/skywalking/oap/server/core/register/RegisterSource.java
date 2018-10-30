@@ -36,7 +36,7 @@ public abstract class RegisterSource extends StreamData implements StorageData {
     @Getter @Setter @Column(columnName = REGISTER_TIME) private long registerTime;
     @Getter @Setter @Column(columnName = HEARTBEAT_TIME) private long heartbeatTime;
 
-    public final void combine(RegisterSource registerSource) {
+    public void combine(RegisterSource registerSource) {
         if (heartbeatTime < registerSource.getHeartbeatTime()) {
             heartbeatTime = registerSource.getHeartbeatTime();
         }

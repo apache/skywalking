@@ -11,3 +11,23 @@ Setting file of UI is  `webapp/webapp.yml` in distribution package. It is consti
 1. Backend connect info.
 1. Auth setting.
 
+```yaml
+server:
+  port: 8080
+
+collector:
+  path: /graphql
+  ribbon:
+    ReadTimeout: 10000
+    # Point to all backend's restHost:restPort, split by , 
+    listOfServers: 10.2.34.1:10800,10.2.34.2:10800
+
+security:
+  user:
+    # username
+    admin:
+      # password
+      password: admin
+
+```
+

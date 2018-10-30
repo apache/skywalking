@@ -18,11 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -46,39 +43,42 @@ public class RulesReader {
     public Rules readRules() {
         Rules rules = new Rules();
 
-        Map rulesData = (Map)yamlData.get("rules");
-        if (rulesData != null) {
-            rules.setRules(new ArrayList<>());
-            rulesData.forEach((k, v) -> {
-                if (((String)k).endsWith("_rule")) {
-                    AlarmRule alarmRule = new AlarmRule();
-                    alarmRule.setAlarmRuleName((String)k);
-                    Map settings = (Map)v;
-                    Object indicatorName = settings.get("indicator-name");
-                    if (indicatorName == null) {
-                        throw new IllegalArgumentException("indicator-name can't be null");
+        if (Objects.nonNull(yamlData)) {
+            Map rulesData = (Map)yamlData.get("rules");
+            if (rulesData != null) {
+                rules.setRules(new ArrayList<>());
+                rulesData.forEach((k, v) -> {
+                    if (((String)k).endsWith("_rule")) {
+                        AlarmRule alarmRule = new AlarmRule();
+                        alarmRule.setAlarmRuleName((String)k);
+                        Map settings = (Map)v;
+                        Object indicatorName = settings.get("indicator-name");
+                        if (indicatorName == null) {
+                            throw new IllegalArgumentException("indicator-name can't be null");
+                        }
+
+                        alarmRule.setIndicatorName((String)indicatorName);
+                        alarmRule.setIncludeNames((ArrayList)settings.getOrDefault("include-names", new ArrayList(0)));
+                        alarmRule.setThreshold(settings.get("threshold").toString());
+                        alarmRule.setOp((String)settings.get("op"));
+                        alarmRule.setPeriod((Integer)settings.getOrDefault("period", 1));
+                        alarmRule.setCount((Integer)settings.getOrDefault("count", 1));
+                        alarmRule.setSilencePeriod((Integer)settings.getOrDefault("silence-period", -1));
+                        alarmRule.setMessage((String)settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule.getAlarmRuleName()));
+
+                        rules.getRules().add(alarmRule);
                     }
-
-                    alarmRule.setIndicatorName((String)indicatorName);
-                    alarmRule.setIncludeNames((ArrayList)settings.getOrDefault("include-names", new ArrayList(0)));
-                    alarmRule.setThreshold(settings.get("threshold").toString());
-                    alarmRule.setOp((String)settings.get("op"));
-                    alarmRule.setPeriod((Integer)settings.getOrDefault("period", 1));
-                    alarmRule.setCount((Integer)settings.getOrDefault("count", 1));
-                    alarmRule.setSilencePeriod((Integer)settings.getOrDefault("silence-period", alarmRule.getPeriod()));
-                    alarmRule.setMessage((String)settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule.getAlarmRuleName()));
-
-                    rules.getRules().add(alarmRule);
-                }
-            });
+                });
+            }
+            List webhooks = (List)yamlData.get("webhooks");
+            if (webhooks != null) {
+                rules.setWebhooks(new ArrayList<>());
+                webhooks.forEach(url -> {
+                    rules.getWebhooks().add((String)url);
+                });
+            }
         }
-        List webhooks = (List)yamlData.get("webhooks");
-        if (webhooks != null) {
-            rules.setWebhooks(new ArrayList<>());
-            webhooks.forEach(url -> {
-                rules.getWebhooks().add((String)url);
-            });
-        }
+
         return rules;
     }
 }

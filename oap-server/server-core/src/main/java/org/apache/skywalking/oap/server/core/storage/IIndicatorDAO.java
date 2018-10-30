@@ -31,6 +31,4 @@ public interface IIndicatorDAO<INSERT, UPDATE> extends DAO {
     INSERT prepareBatchInsert(String modelName, Indicator indicator) throws IOException;
 
     UPDATE prepareBatchUpdate(String modelName, Indicator indicator) throws IOException;
-
-    void deleteHistory(String modelName, Long timeBucketBefore);
 }

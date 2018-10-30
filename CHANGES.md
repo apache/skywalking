@@ -11,7 +11,7 @@ tracing system with analysis and visualization capabilities. We are an **Observa
 
 The core and most important features in v6 are
 1. Support to collect telemetry data from different sources, such as multiple language agents and service mesh.
-1. Extensible stream analysis core. Make SQL and cache analysis available in core level, although not
+1. Extensible stream analysis core. Make SQL and cache analysis available in core level, although haven't
 provided in this release.
 1. Provide **Observability Analysis Language(OAL)** to make analysis metric customization available.
 1. New GraphQL query protocol. Not binding with UI now.

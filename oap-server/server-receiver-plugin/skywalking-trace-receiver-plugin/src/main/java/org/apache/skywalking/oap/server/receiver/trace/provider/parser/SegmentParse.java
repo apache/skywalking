@@ -33,7 +33,7 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> {
+public class SegmentParse {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
 
@@ -43,17 +43,13 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
     private final SegmentCoreInfo segmentCoreInfo;
     @Setter private SegmentStandardizationWorker standardizationWorker;
 
-    public SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+    private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-    }
-
-    @Override public boolean call(UpstreamSegment segment) {
-        return parse(segment, Source.Buffer);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {
@@ -219,5 +215,29 @@ public class SegmentParse implements DataStreamReader.CallBack<UpstreamSegment> 
 
     public enum Source {
         Agent, Buffer
+    }
+
+    public static class Producer implements DataStreamReader.CallBack<UpstreamSegment> {
+
+        @Setter private SegmentStandardizationWorker standardizationWorker;
+        private final ModuleManager moduleManager;
+        private final SegmentParserListenerManager listenerManager;
+
+        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+            this.moduleManager = moduleManager;
+            this.listenerManager = listenerManager;
+        }
+
+        public void send(UpstreamSegment segment, Source source) {
+            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
+            segmentParse.setStandardizationWorker(standardizationWorker);
+            segmentParse.parse(segment, source);
+        }
+
+        @Override public boolean call(UpstreamSegment segment) {
+            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
+            segmentParse.setStandardizationWorker(standardizationWorker);
+            return segmentParse.parse(segment, Source.Buffer);
+        }
     }
 }

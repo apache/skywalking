@@ -21,15 +21,14 @@ package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelatio
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -41,7 +40,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_relation_resp_time", builder = EndpointRelationRespTimeIndicator.Builder.class)
 public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
     @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
@@ -60,7 +59,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -76,7 +74,7 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
             return false;
 
         EndpointRelationRespTimeIndicator indicator = (EndpointRelationRespTimeIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -87,18 +85,18 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataStrings(0, getEntityId());
+        remoteBuilder.addDataStrings(getEntityId());
 
-        remoteBuilder.setDataLongs(0, getSummation());
-        remoteBuilder.setDataLongs(1, getValue());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.addDataLongs(getSummation());
+        remoteBuilder.addDataLongs(getValue());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getServiceId());
-        remoteBuilder.setDataIntegers(1, getChildServiceId());
-        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(3, getChildServiceInstanceId());
-        remoteBuilder.setDataIntegers(4, getCount());
+        remoteBuilder.addDataIntegers(getServiceId());
+        remoteBuilder.addDataIntegers(getChildServiceId());
+        remoteBuilder.addDataIntegers(getServiceInstanceId());
+        remoteBuilder.addDataIntegers(getChildServiceInstanceId());
+        remoteBuilder.addDataIntegers(getCount());
 
         return remoteBuilder;
     }
@@ -127,7 +125,6 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
     @Override
     public Indicator toHour() {
         EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -136,14 +133,13 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -152,14 +148,13 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         EndpointRelationRespTimeIndicator indicator = new EndpointRelationRespTimeIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -168,7 +163,7 @@ public class EndpointRelationRespTimeIndicator extends LongAvgIndicator implemen
         indicator.setSummation(this.getSummation());
         indicator.setCount(this.getCount());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 
