@@ -77,7 +77,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
-
         boolQueryBuilder.must().add(QueryBuilders.termQuery(NetworkAddressInventory.SRC_LAYER, srcLayer));
 
         sourceBuilder.query(boolQueryBuilder);
@@ -191,8 +190,15 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             serviceInstance.setName((String)sourceAsMap.get(ServiceInstanceInventory.NAME));
             int languageId = ((Number)sourceAsMap.get(ServiceInstanceInventory.LANGUAGE)).intValue();
             serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(languageId));
-            serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.OS_NAME, (String)sourceAsMap.get(ServiceInstanceInventory.OS_NAME)));
-            serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.HOST_NAME, (String)sourceAsMap.get(ServiceInstanceInventory.HOST_NAME)));
+
+            String osName = (String)sourceAsMap.get(ServiceInstanceInventory.OS_NAME);
+            if (StringUtils.isNotEmpty(osName)) {
+                serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.OS_NAME, osName));
+            }
+            String hostName = (String)sourceAsMap.get(ServiceInstanceInventory.HOST_NAME);
+            if (StringUtils.isNotEmpty(hostName)) {
+                serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.HOST_NAME, hostName));
+            }
             serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PROCESS_NO, String.valueOf(((Number)sourceAsMap.get(ServiceInstanceInventory.PROCESS_NO)).intValue())));
 
             List<String> ipv4s = ServiceInstanceInventory.AgentOsInfo.ipv4sDeserialize((String)sourceAsMap.get(ServiceInstanceInventory.IPV4S));

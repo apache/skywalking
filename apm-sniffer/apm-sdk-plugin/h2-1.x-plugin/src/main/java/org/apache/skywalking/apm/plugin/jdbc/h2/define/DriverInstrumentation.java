@@ -30,7 +30,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * @author zhangxin
  */
 public class DriverInstrumentation extends AbstractDriverInstrumentation {
-    private static final String CLASS_OF_INTERCEPT_H2_DRIVER = "org.h2.Driver";
+    private static final String CLASS_OF_INTERCEPT_H2_DRIVER = "org.jdbc.Driver";
 
     @Override
     protected ClassMatch enhanceClass() {

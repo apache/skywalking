@@ -119,6 +119,7 @@ Calculate the metric data from each request between one service and the other se
 | destServiceName | Represent the name of the destination service. | | string |
 | destServiceInstanceName | Represent the name of the destination service instance.| | string|
 | endpoint | Represent the endpoint used in this call. | | string
+| componentId | Represent the id of component used in this call. | yes | string
 | latency | Represent how much time of each request. | | int |
 | status | Represent whether success or fail of the request.| | bool(true for success) |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
@@ -139,6 +140,7 @@ Calculate the metric data from each request between one service instance and the
 | destServiceInstanceId | Represent the id of the destination service instance. | yes | int| 
 | destServiceInstanceName | Represent the name of the destination service instance. | | string |
 | endpoint | Represent the endpoint used in this call. | | string
+| componentId | Represent the id of component used in this call. | yes | string
 | latency | Represent how much time of each request. | | int |
 | status | Represent whether success or fail of the request.| | bool(true for success) |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
@@ -159,6 +161,7 @@ including auto instrument agents(like Java, .NET), OpenCensus SkyWalking exporte
 | childEndpointId | Represent the id of the endpoint being used by the parent endpoint in row(1) | yes | int| 
 | childEndpoint| Represent the endpoint being used by the parent endpoint in row(2) | | string |
 | rpcLatency | Represent the latency of the RPC from some codes in the endpoint to the childEndpoint. Exclude the latency caused by the endpoint(1) itself.
+| componentId | Represent the id of component used in this call. | yes | string
 | status | Represent whether success or fail of the request.| | bool(true for success) |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. | | int |
 | type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
