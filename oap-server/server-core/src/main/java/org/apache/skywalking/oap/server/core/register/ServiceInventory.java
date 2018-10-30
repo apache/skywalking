@@ -76,8 +76,7 @@ public class ServiceInventory extends RegisterSource {
         return result;
     }
 
-    @Override
-    public ServiceInventory clone() {
+    public ServiceInventory getClone() {
         ServiceInventory inventory = new ServiceInventory();
         inventory.setSequence(getSequence());
         inventory.setRegisterTime(getRegisterTime());

@@ -103,7 +103,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
     @Override public void updateMapping(int serviceId, int mappingServiceId) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
-            serviceInventory = serviceInventory.clone();
+            serviceInventory = serviceInventory.getClone();
             serviceInventory.setMappingServiceId(mappingServiceId);
             serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 
