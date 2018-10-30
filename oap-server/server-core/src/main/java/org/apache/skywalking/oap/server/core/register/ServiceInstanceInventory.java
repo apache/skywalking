@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
@@ -122,11 +123,11 @@ public class ServiceInstanceInventory extends RegisterSource {
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.addDataStrings(name);
-        remoteBuilder.addDataStrings(osName);
-        remoteBuilder.addDataStrings(hostName);
-        remoteBuilder.addDataStrings(ipv4s);
-        remoteBuilder.addDataStrings(instanceUUID);
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(osName, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(hostName, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(ipv4s, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(instanceUUID, Const.EMPTY_STRING));
         return remoteBuilder;
     }
 

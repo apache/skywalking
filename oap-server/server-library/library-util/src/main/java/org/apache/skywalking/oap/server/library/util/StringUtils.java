@@ -32,4 +32,8 @@ public class StringUtils {
     public static boolean isNotEmpty(Object str) {
         return !isEmpty(str);
     }
+
+    public static String getOrDefault(String value, String defaultValue) {
+        return value == null ? defaultValue : value;
+    }
 }
