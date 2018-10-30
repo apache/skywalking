@@ -27,6 +27,7 @@ or providing commercial products including Apache SkyWalking.
 1. Keking.cn 凯京集团. http://www.keking.cn
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
+1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
@@ -34,6 +35,7 @@ or providing commercial products including Apache SkyWalking.
 1. Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
+1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
 1. Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com

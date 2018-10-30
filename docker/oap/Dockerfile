@@ -27,7 +27,8 @@ COPY "$DIST_NAME.tar.gz" /
 
 RUN set -ex; \
     tar -xzf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME.tar.gz"; rm -rf config/log4j2.xml;
+    rm -rf "$DIST_NAME.tar.gz"; rm -rf "$DIST_NAME/config/log4j2.xml"; \
+    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent";
 
 WORKDIR $DIST_NAME
 
@@ -36,4 +37,4 @@ COPY docker-entrypoint.sh .
 
 EXPOSE 12800 11800
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

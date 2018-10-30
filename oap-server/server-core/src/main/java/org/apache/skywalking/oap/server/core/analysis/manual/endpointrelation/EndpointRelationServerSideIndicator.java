@@ -101,19 +101,22 @@ public class EndpointRelationServerSideIndicator extends Indicator {
         setSourceEndpointId(remoteData.getDataIntegers(0));
         setDestEndpointId(remoteData.getDataIntegers(1));
         setComponentId(remoteData.getDataIntegers(2));
+
         setTimeBucket(remoteData.getDataLongs(0));
+
         setEntityId(remoteData.getDataStrings(0));
     }
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataIntegers(0, getSourceEndpointId());
-        remoteBuilder.setDataIntegers(1, getDestEndpointId());
-        remoteBuilder.setDataIntegers(2, getComponentId());
-        remoteBuilder.setDataLongs(0, getTimeBucket());
-        remoteBuilder.setDataStrings(0, getEntityId());
+        remoteBuilder.addDataIntegers(getSourceEndpointId());
+        remoteBuilder.addDataIntegers(getDestEndpointId());
+        remoteBuilder.addDataIntegers(getComponentId());
 
+        remoteBuilder.addDataLongs(getTimeBucket());
+
+        remoteBuilder.addDataStrings(getEntityId());
         return remoteBuilder;
     }
 

@@ -41,7 +41,7 @@ public class RemoteInstance implements Comparable<RemoteInstance> {
     }
 
     @Override public String toString() {
-        return host + String.valueOf(port);
+        return host + ":" + String.valueOf(port);
     }
 
     @Override public boolean equals(Object o) {
