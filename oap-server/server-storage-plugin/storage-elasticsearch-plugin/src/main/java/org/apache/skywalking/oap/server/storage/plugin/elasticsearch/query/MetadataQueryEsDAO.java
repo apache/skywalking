@@ -149,6 +149,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
         }
 
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
 

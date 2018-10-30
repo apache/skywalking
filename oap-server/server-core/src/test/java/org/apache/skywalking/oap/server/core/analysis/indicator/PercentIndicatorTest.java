@@ -36,7 +36,7 @@ public class PercentIndicatorTest {
 
         impl.calculate();
 
-        Assert.assertEquals(33, impl.getValue());
+        Assert.assertEquals(3333, impl.getValue());
 
         impl = new PercentIndicatorImpl();
         impl.combine(new EqualMatch(), true, true);
@@ -45,7 +45,7 @@ public class PercentIndicatorTest {
 
         impl.calculate();
 
-        Assert.assertEquals(66, impl.getValue());
+        Assert.assertEquals(6666, impl.getValue());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class PercentIndicatorTest {
 
         impl.calculate();
 
-        Assert.assertEquals(50, impl.getValue());
+        Assert.assertEquals(5000, impl.getValue());
     }
 
     public class PercentIndicatorImpl extends PercentIndicator {
