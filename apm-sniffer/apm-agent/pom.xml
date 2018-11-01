@@ -79,6 +79,7 @@
                                     <exclude>*:gson</exclude>
                                     <exclude>io.grpc:*</exclude>
                                     <exclude>io.netty:*</exclude>
+                                    <exclude>io.opencensus:*</exclude>
                                     <exclude>com.google.*:*</exclude>
                                     <exclude>com.google.guava:guava</exclude>
                                 </excludes>

@@ -51,6 +51,7 @@
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
         <grpc.version>1.10.0</grpc.version>
+        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
         <jetty.version>9.4.2.v20170220</jetty.version>
         <lombok.version>1.18.0</lombok.version>
         <h2.version>1.4.196</h2.version>
@@ -98,6 +99,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>apm-network</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.skywalking</groupId>
                 <artifactId>apm-util</artifactId>
@@ -219,6 +225,11 @@
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>
                 <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-tcnative-boringssl-static</artifactId>
+                <version>${netty-tcnative-boringssl-static.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
