@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
@@ -47,6 +48,7 @@ public class TelemetryDataDispatcher {
     private static ServiceInventoryCache SERVICE_CACHE;
     private static ServiceInstanceInventoryCache SERVICE_INSTANCE_CACHE;
     private static SourceReceiver SOURCE_RECEIVER;
+    private static IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
 
     private TelemetryDataDispatcher() {
 
@@ -57,6 +59,7 @@ public class TelemetryDataDispatcher {
         SERVICE_CACHE = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
         SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
         SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
+        SERVICE_INSTANCE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
     }
 
     public static void preProcess(ServiceMeshMetric data) {
@@ -77,6 +80,7 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metric = decorator.getMetric();
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
 
+        heartbeat(decorator, minuteTimeBucket);
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metric.getDetectPoint())) {
             toAll(decorator, minuteTimeBucket);
             toService(decorator, minuteTimeBucket);
@@ -85,6 +89,12 @@ public class TelemetryDataDispatcher {
         }
         toServiceRelation(decorator, minuteTimeBucket);
         toServiceInstanceRelation(decorator, minuteTimeBucket);
+    }
+
+    private static void heartbeat(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
+        ServiceMeshMetric metric = decorator.getMetric();
+        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getSourceServiceInstanceId(), metric.getEndTime());
+        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getDestServiceInstanceId(), metric.getEndTime());
     }
 
     private static void toAll(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
@@ -143,7 +153,7 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metric = decorator.getMetric();
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setTimeBucket(minuteTimeBucket);
-        serviceInstance.setId(metric.getDestServiceId());
+        serviceInstance.setId(metric.getDestServiceInstanceId());
         serviceInstance.setName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
         serviceInstance.setServiceId(metric.getDestServiceId());
         serviceInstance.setServiceName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));
