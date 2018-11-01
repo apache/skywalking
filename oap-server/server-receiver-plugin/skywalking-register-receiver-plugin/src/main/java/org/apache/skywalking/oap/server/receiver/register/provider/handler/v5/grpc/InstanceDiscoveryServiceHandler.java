@@ -88,7 +88,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
         } else {
-            logger.warn("Can't found service instance by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
         }
 
         responseObserver.onNext(Downstream.getDefaultInstance());
