@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -63,6 +63,8 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private void onWork(RegisterSource registerSource) {
         if (!sources.containsKey(registerSource)) {
             sources.put(registerSource, registerSource);
+        } else {
+            sources.get(registerSource).combine(registerSource);
         }
 
         if (registerSource.getEndOfBatchContext().isEndOfBatch()) {
