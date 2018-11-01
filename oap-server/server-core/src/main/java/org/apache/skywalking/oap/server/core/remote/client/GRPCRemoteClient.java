@@ -72,7 +72,7 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
                 streamObserver.onNext(remoteMessage);
             }
             streamObserver.onCompleted();
-            status.wait4Finish(10);
+            status.wait4Finish();
         }
 
         @Override public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
@@ -114,30 +114,13 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
             this.status = true;
         }
 
-        /**
-         * @param maxTimeout max wait time, milliseconds.
-         */
-        private void wait4Finish(long maxTimeout) {
-            long time = 0;
+        private void wait4Finish() {
             while (!status) {
-                if (time > maxTimeout) {
-                    break;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
                 }
-                try2Sleep(5);
-                time += 5;
-            }
-        }
-
-        /**
-         * Try to sleep, and ignore the {@link InterruptedException}
-         *
-         * @param millis the length of time to sleep in milliseconds
-         */
-        private void try2Sleep(long millis) {
-            try {
-                Thread.sleep(millis);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
             }
         }
     }
