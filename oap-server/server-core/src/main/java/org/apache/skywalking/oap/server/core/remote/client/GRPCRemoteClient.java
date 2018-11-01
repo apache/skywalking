@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import io.grpc.stub.StreamObserver;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
@@ -40,6 +41,7 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
     private final GRPCClient client;
     private final DataCarrier<RemoteMessage> carrier;
     private final StreamDataClassGetter streamDataClassGetter;
+    private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
 
     public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, RemoteInstance remoteInstance, int channelSize,
         int bufferSize) {
@@ -66,13 +68,12 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         }
 
         @Override public void consume(List<RemoteMessage> remoteMessages) {
-            StreamStatus status = new StreamStatus(false);
-            StreamObserver<RemoteMessage> streamObserver = createStreamObserver(status);
+            StreamObserver<RemoteMessage> streamObserver = createStreamObserver();
+
             for (RemoteMessage remoteMessage : remoteMessages) {
                 streamObserver.onNext(remoteMessage);
             }
             streamObserver.onCompleted();
-            status.wait4Finish();
         }
 
         @Override public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
@@ -83,9 +84,27 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         }
     }
 
-    private StreamObserver<RemoteMessage> createStreamObserver(StreamStatus status) {
+    private StreamObserver<RemoteMessage> createStreamObserver() {
         RemoteServiceGrpc.RemoteServiceStub stub = RemoteServiceGrpc.newStub(client.getChannel());
 
+        int sleepTotalMillis = 0;
+        int sleepMillis = 10;
+        while (concurrentStreamObserverNumber.incrementAndGet() > 10) {
+            concurrentStreamObserverNumber.addAndGet(-1);
+
+            try {
+                Thread.sleep(sleepMillis);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            sleepTotalMillis += sleepMillis;
+
+            if (sleepTotalMillis > 60000) {
+                logger.warn("Remote client block times over 60 seconds.");
+            }
+        }
+        
         return stub.call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
@@ -95,34 +114,9 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
             }
 
             @Override public void onCompleted() {
-                status.finished();
+                concurrentStreamObserverNumber.addAndGet(-1);
             }
         });
-    }
-
-    class StreamStatus {
-
-        private final Logger logger = LoggerFactory.getLogger(StreamStatus.class);
-
-        private volatile boolean status;
-
-        StreamStatus(boolean status) {
-            this.status = status;
-        }
-
-        void finished() {
-            this.status = true;
-        }
-
-        private void wait4Finish() {
-            while (!status) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
     }
 
     @Override public int compareTo(GRPCRemoteClient o) {
