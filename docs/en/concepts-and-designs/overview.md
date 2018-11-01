@@ -36,7 +36,7 @@ The SkyWalking is logically splittd into four parts: Probes, Platform backend, S
 from probe to UI. It also provides the pluggable capabilities for incoming formats(like Zipkin's), storage implementors and cluster
  management. You even can customize aggregation and analysis by using [Observability Analysis Language](oal.md).
 - The **Storage** is open. You can, either choose an existed implementor, such as ElasticSearch, H2 or MySQL cluster managed by 
-Sharding-Sphere, or implement your own. Of source, we are very appreciated to have your contributions for new storage implementors.
+Sharding-Sphere, or implement your own. Of course, we are very appreciated to have your contributions for new storage implementors.
 - The **UI** is cool and very powerful for SkyWalking end users. It is also customizable to match your customized backend.
 
 
