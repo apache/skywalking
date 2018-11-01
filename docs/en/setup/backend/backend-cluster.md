@@ -38,7 +38,3 @@ cluster:
     labelSelector: app=collector,release=skywalking
     uidEnvName: SKYWALKING_COLLECTOR_UID
 ```
-
-TODO @hanahmily
-
-settings descriptions.

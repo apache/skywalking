@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
@@ -75,6 +76,20 @@ public class ServiceInventory extends RegisterSource {
         return result;
     }
 
+    public ServiceInventory getClone() {
+        ServiceInventory inventory = new ServiceInventory();
+        inventory.setSequence(getSequence());
+        inventory.setRegisterTime(getRegisterTime());
+        inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setName(name);
+        inventory.setIsAddress(isAddress);
+        inventory.setAddressId(addressId);
+        inventory.setMappingLastUpdateTime(mappingLastUpdateTime);
+        inventory.setMappingServiceId(mappingServiceId);
+
+        return inventory;
+    }
+
     @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -105,7 +120,7 @@ public class ServiceInventory extends RegisterSource {
         remoteBuilder.addDataLongs(getHeartbeatTime());
         remoteBuilder.addDataLongs(getMappingLastUpdateTime());
 
-        remoteBuilder.addDataStrings(name);
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
         return remoteBuilder;
     }
 
