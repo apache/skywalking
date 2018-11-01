@@ -45,7 +45,7 @@ core:
     monthMetricsDataTTL: 18 # Unit is month
 storage:
   elasticsearch:
-    clusterNodes: localhost:9200
+    clusterNodes: 0.0.0.0:9200
     indexShardsNumber: 2
     indexReplicasNumber: 0
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
