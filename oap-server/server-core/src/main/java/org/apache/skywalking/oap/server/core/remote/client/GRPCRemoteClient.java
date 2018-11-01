@@ -66,11 +66,13 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         }
 
         @Override public void consume(List<RemoteMessage> remoteMessages) {
-            StreamObserver<RemoteMessage> streamObserver = createStreamObserver();
+            StreamStatus status = new StreamStatus(false);
+            StreamObserver<RemoteMessage> streamObserver = createStreamObserver(status);
             for (RemoteMessage remoteMessage : remoteMessages) {
                 streamObserver.onNext(remoteMessage);
             }
             streamObserver.onCompleted();
+            status.wait4Finish(10);
         }
 
         @Override public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
@@ -81,10 +83,9 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         }
     }
 
-    private StreamObserver<RemoteMessage> createStreamObserver() {
+    private StreamObserver<RemoteMessage> createStreamObserver(StreamStatus status) {
         RemoteServiceGrpc.RemoteServiceStub stub = RemoteServiceGrpc.newStub(client.getChannel());
 
-        StreamStatus status = new StreamStatus(false);
         return stub.call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
@@ -109,10 +110,6 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
             this.status = status;
         }
 
-        public boolean isFinish() {
-            return status;
-        }
-
         void finished() {
             this.status = true;
         }
@@ -120,7 +117,7 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         /**
          * @param maxTimeout max wait time, milliseconds.
          */
-        public void wait4Finish(long maxTimeout) {
+        private void wait4Finish(long maxTimeout) {
             long time = 0;
             while (!status) {
                 if (time > maxTimeout) {
