@@ -61,7 +61,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
