@@ -17,7 +17,7 @@
   ~
   -->
 
-<Configuration status="INFO">
+<Configuration status="DEBUG">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout charset="UTF-8" pattern="%d - %c - %L [%t] %-5p %x - %m%n"/>
@@ -33,8 +33,9 @@
         <logger name="org.apache.http" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence" level="DEBUG"/>
-        <logger name="org.apache.skywalking.oap.server.core.remote" level="INFO"/>
-        <Root level="INFO">
+        <logger name="org.apache.skywalking.oap.server.core" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.server.library.buffer" level="INFO"/>
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

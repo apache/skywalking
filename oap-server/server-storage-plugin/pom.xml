@@ -30,7 +30,7 @@
     <artifactId>server-storage-plugin</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>storage-h2-plugin</module>
+        <module>storage-jdbc-hikaricp-plugin</module>
         <module>storage-elasticsearch-plugin</module>
     </modules>
 

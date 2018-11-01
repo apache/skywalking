@@ -50,18 +50,19 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         return serviceInstanceInventoryCache;
     }
 
-    @Override public int getOrCreate(int serviceId, String serviceInstanceName, long registerTime,
+    @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
         ServiceInstanceInventory.AgentOsInfo osInfo) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {}, registerTime: {}", serviceId, serviceInstanceName, registerTime);
+            logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {},uuid: {}, registerTime: {}", serviceId, serviceInstanceName, uuid, registerTime);
         }
 
-        int serviceInstanceId = getServiceInstanceInventoryCache().getServiceInstanceId(serviceId, serviceInstanceName);
+        int serviceInstanceId = getServiceInstanceInventoryCache().getServiceInstanceId(serviceId, uuid);
 
         if (serviceInstanceId == Const.NONE) {
             ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
             serviceInstanceInventory.setServiceId(serviceId);
             serviceInstanceInventory.setName(serviceInstanceName);
+            serviceInstanceInventory.setInstanceUUID(uuid);
             serviceInstanceInventory.setIsAddress(BooleanUtils.FALSE);
             serviceInstanceInventory.setAddressId(Const.NONE);
 

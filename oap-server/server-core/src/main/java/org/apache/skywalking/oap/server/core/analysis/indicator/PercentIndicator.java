@@ -54,7 +54,7 @@ public abstract class PercentIndicator extends Indicator implements IntValueHold
     }
 
     @Override public void calculate() {
-        percentage = (int)(match * 100 / total);
+        percentage = (int)(match * 10000 / total);
     }
 
     @Override public int getValue() {

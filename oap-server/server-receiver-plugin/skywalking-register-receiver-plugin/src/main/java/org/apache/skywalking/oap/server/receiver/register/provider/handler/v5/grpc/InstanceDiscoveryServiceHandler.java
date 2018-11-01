@@ -23,10 +23,13 @@ import java.util.Objects;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
 /**
@@ -36,11 +39,13 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
 
     private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
 
+    private final ServiceInventoryCache serviceInventoryCache;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public InstanceDiscoveryServiceHandler(ModuleManager moduleManager) {
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
         this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
         this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
@@ -56,7 +61,17 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         agentOsInfo.setProcessNo(osinfo.getProcessNo());
         agentOsInfo.getIpv4s().addAll(osinfo.getIpv4SList());
 
-        int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(request.getApplicationId(), request.getAgentUUID(), request.getRegisterTime(), agentOsInfo);
+        ServiceInventory serviceInventory = serviceInventoryCache.get(request.getApplicationId());
+
+        String instanceName = serviceInventory.getName();
+        if (osinfo.getProcessNo() != 0) {
+            instanceName += "-pid:" + osinfo.getProcessNo();
+        }
+        if (StringUtils.isNotEmpty(osinfo.getHostname())) {
+            instanceName += "@" + osinfo.getHostname();
+        }
+
+        int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(request.getApplicationId(), instanceName, request.getAgentUUID(), request.getRegisterTime(), agentOsInfo);
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(serviceInstanceId);
@@ -73,7 +88,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
         } else {
-            logger.warn("Can't found service instance by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
         }
 
         responseObserver.onNext(Downstream.getDefaultInstance());
