@@ -88,8 +88,14 @@ public class ServiceMeshMetricDataDecorator {
         if (destServiceId != Const.NONE) {
             DetectPoint point = origin.getDetectPoint();
 
-            endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
-                org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+            if (DetectPoint.client.equals(point)) {
+                endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(sourceServiceId, endpoint,
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+            } else {
+                endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+            }
+
             if (endpointId != Const.NONE) {
             } else {
                 isRegistered = false;
