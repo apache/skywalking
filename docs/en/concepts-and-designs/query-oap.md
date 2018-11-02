@@ -1,5 +1,5 @@
 # Query in OAP
-Query(s) are provided in GraphQL format. All GraphQL definition files are [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol).
+Query(s) are provided in GraphQL format. All GraphQL definition files are [here](https://github.com/apache/incubator-skywalking-query-protocol).
 
 Here are the explanation of these definitions.
 
