@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
  */
 public interface IEndpointInventoryCacheDAO extends DAO {
 
-    int getEndpointId(int serviceId, String endpointName);
+    int getEndpointId(int serviceId, String endpointName, int detectPoint);
 
     EndpointInventory get(int endpointId);
 }
