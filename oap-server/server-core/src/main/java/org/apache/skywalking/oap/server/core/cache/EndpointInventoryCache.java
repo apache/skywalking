@@ -60,13 +60,13 @@ public class EndpointInventoryCache implements Service {
         return cacheDAO;
     }
 
-    public int getEndpointId(int serviceId, String endpointName) {
-        String id = EndpointInventory.buildId(serviceId, endpointName);
+    public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
+        String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
 
         Integer endpointId = endpointNameCache.getIfPresent(id);
 
         if (Objects.isNull(endpointId) || endpointId == Const.NONE) {
-            endpointId = getCacheDAO().getEndpointId(serviceId, endpointName);
+            endpointId = getCacheDAO().getEndpointId(serviceId, endpointName, detectPoint);
             if (endpointId != Const.NONE) {
                 endpointNameCache.put(id, endpointId);
             }

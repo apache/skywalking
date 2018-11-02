@@ -18,18 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
@@ -50,18 +47,19 @@ public class EndpointInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = DETECT_POINT) private int detectPoint;
 
-    public static String buildId(int serviceId, String endpointName) {
-        return serviceId + Const.ID_SPLIT + endpointName;
+    public static String buildId(int serviceId, String endpointName, int detectPoint) {
+        return serviceId + Const.ID_SPLIT + endpointName + Const.ID_SPLIT + detectPoint;
     }
 
     @Override public String id() {
-        return buildId(serviceId, name);
+        return buildId(serviceId, name, detectPoint);
     }
 
     @Override public int hashCode() {
         int result = 17;
         result = 31 * result + serviceId;
         result = 31 * result + name.hashCode();
+        result = 31 * result + detectPoint;
         return result;
     }
 
@@ -77,6 +75,8 @@ public class EndpointInventory extends RegisterSource {
         if (serviceId != source.getServiceId())
             return false;
         if (!name.equals(source.getName()))
+            return false;
+        if (detectPoint != source.getDetectPoint())
             return false;
 
         return true;
