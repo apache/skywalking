@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
@@ -54,7 +55,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         if (standardBuilder.getEntryServiceId() == 0) {
             String entryEndpointName = StringUtils.isNotEmpty(standardBuilder.getEntryServiceName()) ? standardBuilder.getEntryServiceName() : Const.DOMAIN_OPERATION_NAME;
-            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryApplicationInstanceId()).getServiceId(), entryEndpointName);
+            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryApplicationInstanceId()).getServiceId(), entryEndpointName, DetectPoint.SERVER.ordinal());
 
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
@@ -71,7 +72,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
         if (standardBuilder.getParentServiceId() == 0) {
             String parentEndpointName = StringUtils.isNotEmpty(standardBuilder.getParentServiceName()) ? standardBuilder.getParentServiceName() : Const.DOMAIN_OPERATION_NAME;
-            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentApplicationInstanceId()).getServiceId(), parentEndpointName);
+            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentApplicationInstanceId()).getServiceId(), parentEndpointName, DetectPoint.SERVER.ordinal());
 
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
