@@ -85,21 +85,23 @@ public class ServiceMeshMetricDataDecorator {
             }
         }
         String endpoint = origin.getEndpoint();
-        if (destServiceId != Const.NONE) {
-            DetectPoint point = origin.getDetectPoint();
 
-            if (DetectPoint.client.equals(point)) {
+        DetectPoint point = origin.getDetectPoint();
+        if (DetectPoint.client.equals(point)) {
+            if (sourceServiceId != Const.NONE) {
                 endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(sourceServiceId, endpoint,
                     org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
-            } else {
+            }
+        } else {
+            if (destServiceId != Const.NONE) {
                 endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
                     org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
             }
+        }
 
-            if (endpointId != Const.NONE) {
-            } else {
-                isRegistered = false;
-            }
+        if (endpointId != Const.NONE) {
+        } else {
+            isRegistered = false;
         }
 
         return isRegistered;
