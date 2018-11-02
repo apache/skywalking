@@ -104,12 +104,13 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
                 logger.warn("Remote client block times over 60 seconds.");
             }
         }
-        
+
         return stub.call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
 
             @Override public void onError(Throwable throwable) {
+                concurrentStreamObserverNumber.addAndGet(-1);
                 logger.error(throwable.getMessage(), throwable);
             }
 
