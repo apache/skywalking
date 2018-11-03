@@ -65,10 +65,21 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
   - Password: admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
-
-
-- [See all screenshots](/docs/Screenshots.md)
+<table>
+  <tr>
+    <td width="50%" align="center"><b>Under javaagent observing</b></td>
+    <td width="50%" align="center"><b>Observe on Istio</b></td>
+  </tr>
+  <tr>
+    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Topology.png"/>
+</td>
+    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Topology.png"/>
+</td>
+   <tr>
+     <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
+     <td align="center"><a href="docs/Screenshots.md#istio">More screenshots</a></td>
+  </tr>
+</table>
 
 # Compiling project
 Follow this [document](docs/en/guides/How-to-build.md).
