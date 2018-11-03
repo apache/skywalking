@@ -208,22 +208,20 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
             }
 
             if (staticMethodsInterceptPoint.isOverrideArgs()) {
-                newClassBuilder = newClassBuilder.method(not(isDeclaredBy(typeDescription))
-                        .and(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher())))
+                newClassBuilder = newClassBuilder.method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
                         .intercept(
                                 MethodDelegation.withDefaultConfiguration()
                                         .withBinders(
                                                 Morph.Binder.install(OverrideCallable.class)
                                         )
                                         .to(new StaticMethodsInterWithOverrideArgs(interceptor))
-                        ).attribute(MethodAttributeAppender.ForInstrumentedMethod.EXCLUDING_RECEIVER);
+                        );
             } else {
-                newClassBuilder = newClassBuilder.method(not(isDeclaredBy(typeDescription))
-                        .and(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher())))
+                newClassBuilder = newClassBuilder.method(isStatic().and(staticMethodsInterceptPoint.getMethodsMatcher()))
                         .intercept(
                                 MethodDelegation.withDefaultConfiguration()
                                         .to(new StaticMethodsInter(interceptor))
-                        ).attribute(MethodAttributeAppender.ForInstrumentedMethod.EXCLUDING_RECEIVER);
+                        );
             }
 
         }
