@@ -34,7 +34,7 @@
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service.png"/>
 
 - Service instance metrics
-<img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service_instance_info.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service-instance-info.png"/>
 
 - Service metrics
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/endpoint.png"/>
