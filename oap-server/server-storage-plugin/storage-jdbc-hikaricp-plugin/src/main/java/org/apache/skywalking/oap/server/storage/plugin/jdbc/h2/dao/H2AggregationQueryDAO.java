@@ -102,7 +102,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
                 while (resultSet.next()) {
                     TopNEntity topNEntity = new TopNEntity();
                     topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
-                    topNEntity.setValue(resultSet.getInt("value"));
+                    topNEntity.setValue(resultSet.getLong("value"));
                     topNEntities.add(topNEntity);
                 }
             } catch (SQLException e) {

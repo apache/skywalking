@@ -28,5 +28,5 @@ import lombok.*;
 public class TopNEntity {
     private String name;
     private String id;
-    private int value;
+    private long value;
 }
