@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
@@ -40,13 +41,30 @@ public abstract class ModelInstaller {
 
     public final void install(Client client) throws StorageException {
         IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).getService(IModelGetter.class);
+        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).getService(DownsamplingConfigService.class);
+
         List<Model> models = modelGetter.getModels();
+        List<Model> downsamplingModels = new ArrayList<>();
+        models.forEach(model -> {
+            if (model.isIndicator()) {
+                if (downsamplingConfigService.shouldToHour()) {
+                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
+                }
+                if (downsamplingConfigService.shouldToDay()) {
+                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName()));
+                }
+                if (downsamplingConfigService.shouldToMonth()) {
+                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName()));
+                }
+            }
+        });
+        downsamplingModels.addAll(models);
 
         boolean debug = System.getProperty("debug") != null;
 
-        for (Model model : models) {
+        for (Model model : downsamplingModels) {
             if (!isExists(client, model)) {
-                logger.info("table: {} not exists", model.getName());
+                logger.info("table: {} does not exist", model.getName());
                 createTable(client, model);
             } else if (debug) {
                 logger.info("table: {} exists", model.getName());

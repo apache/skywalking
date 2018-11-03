@@ -30,28 +30,32 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
  */
 @InventoryType(scope = Scope.ServiceInstance)
 @StreamData
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class)
+@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false)
 public class ServiceInstanceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_instance_inventory";
 
     public static final String NAME = "name";
+    public static final String INSTANCE_UUID = "instance_uuid";
     public static final String SERVICE_ID = "service_id";
     private static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
-    private static final String OS_NAME = "os_name";
-    private static final String HOST_NAME = "host_name";
-    private static final String PROCESS_NO = "process_no";
-    private static final String IPV4S = "ipv4s";
+    public static final String OS_NAME = "os_name";
+    public static final String HOST_NAME = "host_name";
+    public static final String PROCESS_NO = "process_no";
+    public static final String IPV4S = "ipv4s";
     public static final String LANGUAGE = "language";
 
-    @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
+    @Setter @Getter @Column(columnName = INSTANCE_UUID, matchQuery = true)
+    private String instanceUUID = Const.EMPTY_STRING;
+    @Setter @Getter @Column(columnName = NAME) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = LANGUAGE) private int language;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
@@ -61,8 +65,8 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = PROCESS_NO) private int processNo;
     @Setter @Getter @Column(columnName = IPV4S) private String ipv4s;
 
-    public static String buildId(int serviceId, String serviceInstanceName) {
-        return serviceId + Const.ID_SPLIT + serviceInstanceName + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
+    public static String buildId(int serviceId, String uuid) {
+        return serviceId + Const.ID_SPLIT + uuid + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
     }
 
     public static String buildId(int serviceId, int addressId) {
@@ -73,14 +77,14 @@ public class ServiceInstanceInventory extends RegisterSource {
         if (BooleanUtils.TRUE == isAddress) {
             return buildId(serviceId, addressId);
         } else {
-            return buildId(serviceId, name);
+            return buildId(serviceId, instanceUUID);
         }
     }
 
     @Override public int hashCode() {
         int result = 17;
         result = 31 * result + serviceId;
-        result = 31 * result + name.hashCode();
+        result = 31 * result + instanceUUID.hashCode();
         result = 31 * result + isAddress;
         result = 31 * result + addressId;
         return result;
@@ -97,7 +101,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         ServiceInstanceInventory source = (ServiceInstanceInventory)obj;
         if (serviceId != source.getServiceId())
             return false;
-        if (name.equals(source.getName()))
+        if (!instanceUUID.equals(source.getInstanceUUID()))
             return false;
         if (isAddress != source.getIsAddress())
             return false;
@@ -109,20 +113,21 @@ public class ServiceInstanceInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, language);
-        remoteBuilder.setDataIntegers(3, isAddress);
-        remoteBuilder.setDataIntegers(4, addressId);
-        remoteBuilder.setDataIntegers(5, processNo);
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(serviceId);
+        remoteBuilder.addDataIntegers(language);
+        remoteBuilder.addDataIntegers(isAddress);
+        remoteBuilder.addDataIntegers(addressId);
+        remoteBuilder.addDataIntegers(processNo);
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
-        remoteBuilder.setDataStrings(1, osName);
-        remoteBuilder.setDataStrings(2, hostName);
-        remoteBuilder.setDataStrings(3, ipv4s);
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(osName, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(hostName, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(ipv4s, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(instanceUUID, Const.EMPTY_STRING));
         return remoteBuilder;
     }
 
@@ -141,6 +146,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         setOsName(remoteData.getDataStrings(1));
         setHostName(remoteData.getDataStrings(2));
         setIpv4s(remoteData.getDataStrings(3));
+        setInstanceUUID(remoteData.getDataStrings(4));
     }
 
     @Override public int remoteHashCode() {
@@ -165,6 +171,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             inventory.setOsName((String)dbMap.get(OS_NAME));
             inventory.setHostName((String)dbMap.get(HOST_NAME));
             inventory.setIpv4s((String)dbMap.get(IPV4S));
+            inventory.setInstanceUUID((String)dbMap.get(INSTANCE_UUID));
             return inventory;
         }
 
@@ -184,6 +191,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             map.put(OS_NAME, storageData.getOsName());
             map.put(HOST_NAME, storageData.getHostName());
             map.put(IPV4S, storageData.getIpv4s());
+            map.put(INSTANCE_UUID, storageData.getInstanceUUID());
             return map;
         }
     }

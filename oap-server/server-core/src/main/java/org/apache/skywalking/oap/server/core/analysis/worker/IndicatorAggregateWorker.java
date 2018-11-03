@@ -18,13 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
+import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -37,12 +40,14 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final DataCarrier<Indicator> dataCarrier;
     private final MergeDataCache<Indicator> mergeDataCache;
     private int messageNum;
+    private final String modelName;
 
-    IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker) {
+    IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker, String modelName) {
         super(workerId);
+        this.modelName = modelName;
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
-        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new AggregatorConsumer(this), 1);
     }
 
@@ -88,6 +93,7 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         } else {
             mergeDataCache.put(indicator);
         }
+
         mergeDataCache.finishWriting();
     }
 

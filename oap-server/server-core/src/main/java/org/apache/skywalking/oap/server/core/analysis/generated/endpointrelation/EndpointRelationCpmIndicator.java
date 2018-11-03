@@ -21,15 +21,14 @@ package org.apache.skywalking.oap.server.core.analysis.generated.endpointrelatio
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -41,7 +40,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "endpoint_relation_cpm", builder = EndpointRelationCpmIndicator.Builder.class)
 public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
     @Setter @Getter @Column(columnName = "child_service_id")  private int childServiceId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
@@ -60,7 +59,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         return result;
     }
 
-
     @Override public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
@@ -76,7 +74,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
             return false;
 
         EndpointRelationCpmIndicator indicator = (EndpointRelationCpmIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -87,17 +85,17 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataStrings(0, getEntityId());
+        remoteBuilder.addDataStrings(getEntityId());
 
-        remoteBuilder.setDataLongs(0, getValue());
-        remoteBuilder.setDataLongs(1, getTotal());
-        remoteBuilder.setDataLongs(2, getTimeBucket());
+        remoteBuilder.addDataLongs(getValue());
+        remoteBuilder.addDataLongs(getTotal());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getServiceId());
-        remoteBuilder.setDataIntegers(1, getChildServiceId());
-        remoteBuilder.setDataIntegers(2, getServiceInstanceId());
-        remoteBuilder.setDataIntegers(3, getChildServiceInstanceId());
+        remoteBuilder.addDataIntegers(getServiceId());
+        remoteBuilder.addDataIntegers(getChildServiceId());
+        remoteBuilder.addDataIntegers(getServiceInstanceId());
+        remoteBuilder.addDataIntegers(getChildServiceInstanceId());
 
         return remoteBuilder;
     }
@@ -125,7 +123,6 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
     @Override
     public Indicator toHour() {
         EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -133,14 +130,13 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -148,14 +144,13 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         EndpointRelationCpmIndicator indicator = new EndpointRelationCpmIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceId(this.getServiceId());
         indicator.setChildServiceId(this.getChildServiceId());
@@ -163,7 +158,7 @@ public class EndpointRelationCpmIndicator extends CPMIndicator implements AlarmS
         indicator.setChildServiceInstanceId(this.getChildServiceInstanceId());
         indicator.setValue(this.getValue());
         indicator.setTotal(this.getTotal());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

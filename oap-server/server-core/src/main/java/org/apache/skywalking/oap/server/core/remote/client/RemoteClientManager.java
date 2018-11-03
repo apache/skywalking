@@ -38,7 +38,7 @@ public class RemoteClientManager implements Service {
     private ClusterNodesQuery clusterNodesQuery;
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
-    private List<RemoteClient> usingClients;
+    private volatile List<RemoteClient> usingClients;
 
     public RemoteClientManager(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -50,19 +50,28 @@ public class RemoteClientManager implements Service {
     public void start() {
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).getService(ClusterNodesQuery.class);
         this.streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 1, 2, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 5, 5, TimeUnit.SECONDS);
     }
 
     private void refresh() {
         if (logger.isDebugEnabled()) {
             logger.debug("Refresh remote nodes collection.");
         }
-        List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
-        Collections.sort(instanceList);
+        try {
+            List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
+            Collections.sort(instanceList);
 
-        if (!compare(instanceList)) {
-            buildNewClients(instanceList);
+            if (logger.isDebugEnabled()) {
+                instanceList.forEach(instance -> logger.debug("Cluster instance: {}", instance.toString()));
+            }
+
+            if (!compare(instanceList)) {
+                buildNewClients(instanceList);
+            }
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
+
     }
 
     public List<RemoteClient> getRemoteClient() {
@@ -89,9 +98,7 @@ public class RemoteClientManager implements Service {
         getFreeClients().clear();
 
         Map<String, RemoteClient> currentClientsMap = new HashMap<>();
-        this.usingClients.forEach(remoteClient -> {
-            currentClientsMap.put(address(remoteClient.getHost(), remoteClient.getPort()), remoteClient);
-        });
+        this.usingClients.forEach(remoteClient -> currentClientsMap.put(address(remoteClient.getHost(), remoteClient.getPort()), remoteClient));
 
         remoteInstances.forEach(remoteInstance -> {
             String address = address(remoteInstance.getHost(), remoteInstance.getPort());

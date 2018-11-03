@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
-import org.apache.skywalking.oap.server.core.Const;
+import java.util.Objects;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
@@ -37,31 +37,32 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryRegister.class);
 
     private final ModuleManager moduleManager;
-    private IServiceInstanceInventoryCacheDAO cacheDAO;
+    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
 
     public ServiceInstanceInventoryRegister(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private IServiceInstanceInventoryCacheDAO getCacheDAO() {
-        if (isNull(cacheDAO)) {
-            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceInstanceInventoryCacheDAO.class);
+    private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
+        if (isNull(serviceInstanceInventoryCache)) {
+            serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
         }
-        return cacheDAO;
+        return serviceInstanceInventoryCache;
     }
 
-    @Override public int getOrCreate(int serviceId, String serviceInstanceName, long registerTime,
+    @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
         ServiceInstanceInventory.AgentOsInfo osInfo) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {}, registerTime: {}", serviceId, serviceInstanceName, registerTime);
+            logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {},uuid: {}, registerTime: {}", serviceId, serviceInstanceName, uuid, registerTime);
         }
 
-        int serviceInstanceId = getCacheDAO().getServiceInstanceId(serviceId, serviceInstanceName);
+        int serviceInstanceId = getServiceInstanceInventoryCache().getServiceInstanceId(serviceId, uuid);
 
         if (serviceInstanceId == Const.NONE) {
             ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
             serviceInstanceInventory.setServiceId(serviceId);
             serviceInstanceInventory.setName(serviceInstanceName);
+            serviceInstanceInventory.setInstanceUUID(uuid);
             serviceInstanceInventory.setIsAddress(BooleanUtils.FALSE);
             serviceInstanceInventory.setAddressId(Const.NONE);
 
@@ -83,7 +84,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
             logger.debug("get or create service instance by address id, service id: {}, address id: {}, registerTime: {}", serviceId, addressId, registerTime);
         }
 
-        int serviceInstanceId = getCacheDAO().getServiceInstanceId(serviceId, addressId);
+        int serviceInstanceId = getServiceInstanceInventoryCache().getServiceInstanceId(serviceId, addressId);
 
         if (serviceInstanceId == Const.NONE) {
             ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
@@ -98,5 +99,15 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
             InventoryProcess.INSTANCE.in(serviceInstanceInventory);
         }
         return serviceInstanceId;
+    }
+
+    @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
+        ServiceInstanceInventory serviceInstanceInventory = getServiceInstanceInventoryCache().get(serviceInstanceId);
+        if (Objects.nonNull(serviceInstanceInventory)) {
+            serviceInstanceInventory.setHeartbeatTime(heartBeatTime);
+            InventoryProcess.INSTANCE.in(serviceInstanceInventory);
+        } else {
+            logger.warn("Service instance {} heartbeat, but not found in storage.");
+        }
     }
 }

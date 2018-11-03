@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.cache;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
@@ -31,4 +32,6 @@ public interface IServiceInventoryCacheDAO extends DAO {
     int getServiceId(int addressId);
 
     ServiceInventory get(int serviceId);
+
+    List<ServiceInventory> loadLastMappingUpdate();
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -30,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.*;
 
 /**
@@ -55,6 +57,10 @@ public class MetricQueryService implements Service {
 
     public IntValues getValues(final String indName, final List<String> ids, final Step step, final long startTB,
         final long endTB) throws IOException {
+        if (CollectionUtils.isEmpty(ids)) {
+            throw new RuntimeException("IDs can't be null");
+        }
+
         Where where = new Where();
         KeyValues intKeyValues = new KeyValues();
         intKeyValues.setKey(Indicator.ENTITY_ID);
@@ -68,7 +74,11 @@ public class MetricQueryService implements Service {
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTB, endTB);
         List<String> ids = new ArrayList<>();
-        durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+        if (StringUtil.isEmpty(id)) {
+            durationPoints.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
+        } else {
+            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+        }
 
         return getMetricQueryDAO().getLinearIntValues(indName, step, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }

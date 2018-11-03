@@ -31,7 +31,7 @@ public class ServiceInstanceRelation extends Source {
     }
 
     @Override public String getEntityId() {
-        return String.valueOf(sourceServiceInstanceId) + Const.ID_SPLIT + String.valueOf(destServiceInstanceId);
+        return String.valueOf(sourceServiceInstanceId) + Const.ID_SPLIT + String.valueOf(destServiceInstanceId) + Const.ID_SPLIT + String.valueOf(componentId);
     }
 
     @Getter @Setter private int sourceServiceInstanceId;
@@ -43,6 +43,7 @@ public class ServiceInstanceRelation extends Source {
     @Getter @Setter private String destServiceName;
     @Getter @Setter private String destServiceInstanceName;
     @Getter @Setter private String endpoint;
+    @Getter @Setter private int componentId;
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;
     @Getter @Setter private int responseCode;

@@ -36,14 +36,18 @@ public class EndpointRelationServerSideIndicator extends Indicator {
     public static final String INDEX_NAME = "endpoint_relation_server_side";
     public static final String SOURCE_ENDPOINT_ID = "source_endpoint_id";
     public static final String DEST_ENDPOINT_ID = "dest_endpoint_id";
+    public static final String COMPONENT_ID = "component_id";
 
     @Setter @Getter @Column(columnName = SOURCE_ENDPOINT_ID) @IDColumn private int sourceEndpointId;
     @Setter @Getter @Column(columnName = DEST_ENDPOINT_ID) @IDColumn private int destEndpointId;
+    @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
+    @Setter @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
         splitJointId += Const.ID_SPLIT + String.valueOf(sourceEndpointId);
         splitJointId += Const.ID_SPLIT + String.valueOf(destEndpointId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
         return splitJointId;
     }
 
@@ -60,6 +64,8 @@ public class EndpointRelationServerSideIndicator extends Indicator {
         indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setSourceEndpointId(getSourceEndpointId());
         indicator.setDestEndpointId(getDestEndpointId());
+        indicator.setComponentId(getComponentId());
+        indicator.setEntityId(getEntityId());
         return indicator;
     }
 
@@ -68,6 +74,8 @@ public class EndpointRelationServerSideIndicator extends Indicator {
         indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setSourceEndpointId(getSourceEndpointId());
         indicator.setDestEndpointId(getDestEndpointId());
+        indicator.setComponentId(getComponentId());
+        indicator.setEntityId(getEntityId());
         return indicator;
     }
 
@@ -76,6 +84,8 @@ public class EndpointRelationServerSideIndicator extends Indicator {
         indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setSourceEndpointId(getSourceEndpointId());
         indicator.setDestEndpointId(getDestEndpointId());
+        indicator.setComponentId(getComponentId());
+        indicator.setEntityId(getEntityId());
         return indicator;
     }
 
@@ -83,22 +93,30 @@ public class EndpointRelationServerSideIndicator extends Indicator {
         int result = 17;
         result = 31 * result + sourceEndpointId;
         result = 31 * result + destEndpointId;
+        result = 31 * result + componentId;
         return result;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
         setSourceEndpointId(remoteData.getDataIntegers(0));
         setDestEndpointId(remoteData.getDataIntegers(1));
+        setComponentId(remoteData.getDataIntegers(2));
+
         setTimeBucket(remoteData.getDataLongs(0));
+
+        setEntityId(remoteData.getDataStrings(0));
     }
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.setDataIntegers(0, getSourceEndpointId());
-        remoteBuilder.setDataIntegers(1, getDestEndpointId());
-        remoteBuilder.setDataLongs(0, getTimeBucket());
+        remoteBuilder.addDataIntegers(getSourceEndpointId());
+        remoteBuilder.addDataIntegers(getDestEndpointId());
+        remoteBuilder.addDataIntegers(getComponentId());
 
+        remoteBuilder.addDataLongs(getTimeBucket());
+
+        remoteBuilder.addDataStrings(getEntityId());
         return remoteBuilder;
     }
 
@@ -106,6 +124,7 @@ public class EndpointRelationServerSideIndicator extends Indicator {
         int result = 17;
         result = 31 * result + sourceEndpointId;
         result = 31 * result + destEndpointId;
+        result = 31 * result + componentId;
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
@@ -123,6 +142,8 @@ public class EndpointRelationServerSideIndicator extends Indicator {
             return false;
         if (destEndpointId != indicator.destEndpointId)
             return false;
+        if (componentId != indicator.componentId)
+            return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
             return false;
@@ -136,7 +157,9 @@ public class EndpointRelationServerSideIndicator extends Indicator {
             EndpointRelationServerSideIndicator indicator = new EndpointRelationServerSideIndicator();
             indicator.setSourceEndpointId(((Number)dbMap.get(SOURCE_ENDPOINT_ID)).intValue());
             indicator.setDestEndpointId(((Number)dbMap.get(DEST_ENDPOINT_ID)).intValue());
+            indicator.setComponentId(((Number)dbMap.get(COMPONENT_ID)).intValue());
             indicator.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
+            indicator.setEntityId((String)dbMap.get(ENTITY_ID));
             return indicator;
         }
 
@@ -144,7 +167,9 @@ public class EndpointRelationServerSideIndicator extends Indicator {
             Map<String, Object> map = new HashMap<>();
             map.put(SOURCE_ENDPOINT_ID, storageData.getSourceEndpointId());
             map.put(DEST_ENDPOINT_ID, storageData.getDestEndpointId());
+            map.put(COMPONENT_ID, storageData.getComponentId());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
+            map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }
     }

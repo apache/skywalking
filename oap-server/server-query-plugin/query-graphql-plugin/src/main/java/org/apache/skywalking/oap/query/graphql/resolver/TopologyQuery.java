@@ -20,12 +20,16 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.text.ParseException;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @author peng-yongsheng
+ */
 public class TopologyQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
@@ -42,11 +46,14 @@ public class TopologyQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    public Topology getGlobalTopology(final Duration duration) throws IOException {
+    public Topology getGlobalTopology(final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getQueryService().getGlobalTopology(duration.getStep(), startTimeBucket, endTimeBucket);
+        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
+
+        return getQueryService().getGlobalTopology(duration.getStep(), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
     }
 
     public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {

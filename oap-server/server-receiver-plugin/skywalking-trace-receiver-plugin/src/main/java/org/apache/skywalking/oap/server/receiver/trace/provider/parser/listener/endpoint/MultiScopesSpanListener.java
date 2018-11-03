@@ -31,10 +31,9 @@ import org.slf4j.*;
 import static java.util.Objects.nonNull;
 
 /**
- *
  * Notice, in here, there are following concepts match
  *
- *       v5        |   v6
+ * v5        |   v6
  *
  * 1. Application == Service
  * 2. Server == Service Instance
@@ -92,6 +91,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                 sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
                 sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
+                sourceBuilder.setComponentId(spanDecorator.getComponentId());
                 setPublicAttrs(sourceBuilder, spanDecorator);
                 entrySourceBuilders.add(sourceBuilder);
             }
@@ -104,6 +104,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
             sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
+            sourceBuilder.setComponentId(spanDecorator.getComponentId());
 
             setPublicAttrs(sourceBuilder, spanDecorator);
             entrySourceBuilders.add(sourceBuilder);
@@ -120,6 +121,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
         int peerId = spanDecorator.getPeerId();
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
+        int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
 
         sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
@@ -127,8 +129,13 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         sourceBuilder.setSourceServiceId(segmentCoreInfo.getApplicationId());
         sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
         sourceBuilder.setDestServiceInstanceId(destInstanceId);
-        sourceBuilder.setDestServiceId(destServiceId);
+        if (Const.NONE == mappingServiceId) {
+            sourceBuilder.setDestServiceId(destServiceId);
+        } else {
+            sourceBuilder.setDestServiceId(mappingServiceId);
+        }
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
+        sourceBuilder.setComponentId(spanDecorator.getComponentId());
         setPublicAttrs(sourceBuilder, spanDecorator);
         exitSourceBuilders.add(sourceBuilder);
     }
@@ -137,7 +144,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         long latency = spanDecorator.getEndTime() - spanDecorator.getStartTime();
         sourceBuilder.setLatency((int)latency);
         sourceBuilder.setResponseCode(Const.NONE);
-        sourceBuilder.setStatus(spanDecorator.getIsError());
+        sourceBuilder.setStatus(!spanDecorator.getIsError());
 
         switch (spanDecorator.getSpanLayer()) {
             case Http:
@@ -182,7 +189,6 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
-            sourceReceiver.receive(exitSourceBuilder.toEndpointRelation());
         });
     }
 

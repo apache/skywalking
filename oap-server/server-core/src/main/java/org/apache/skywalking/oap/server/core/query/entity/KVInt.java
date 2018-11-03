@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Setter
 @Getter
 public class KVInt {

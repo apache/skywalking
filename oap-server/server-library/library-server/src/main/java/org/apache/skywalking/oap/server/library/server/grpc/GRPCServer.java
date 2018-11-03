@@ -37,6 +37,8 @@ public class GRPCServer implements Server {
 
     private final String host;
     private final int port;
+    private int maxConcurrentCallsPerConnection;
+    private int maxMessageSize;
     private io.grpc.Server server;
     private NettyServerBuilder nettyServerBuilder;
     private SslContextBuilder sslContextBuilder;
@@ -46,6 +48,16 @@ public class GRPCServer implements Server {
     public GRPCServer(String host, int port) {
         this.host = host;
         this.port = port;
+        this.maxConcurrentCallsPerConnection = 4;
+        this.maxMessageSize = Integer.MAX_VALUE;
+    }
+
+    public void setMaxConcurrentCallsPerConnection(int maxConcurrentCallsPerConnection) {
+        this.maxConcurrentCallsPerConnection = maxConcurrentCallsPerConnection;
+    }
+
+    public void setMaxMessageSize(int maxMessageSize) {
+        this.maxMessageSize = maxMessageSize;
     }
 
     /**
@@ -79,6 +91,7 @@ public class GRPCServer implements Server {
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
+        nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize);
         logger.info("Server started, host {} listening on {}", host, port);
     }
 

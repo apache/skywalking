@@ -18,14 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
+import java.util.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.*;
@@ -84,5 +86,30 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             logger.error(e.getMessage());
             return null;
         }
+    }
+
+    @Override public List<ServiceInventory> loadLastMappingUpdate() {
+        List<ServiceInventory> serviceInventories = new ArrayList<>();
+
+        try {
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.TRUE));
+            boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInventory.MAPPING_LAST_UPDATE_TIME).gte(System.currentTimeMillis() - 10000));
+
+            searchSourceBuilder.query(boolQuery);
+            searchSourceBuilder.size(50);
+
+            SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, searchSourceBuilder);
+
+            for (SearchHit searchHit : response.getHits().getHits()) {
+                serviceInventories.add(this.builder.map2Data(searchHit.getSourceAsMap()));
+            }
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+        }
+
+        return serviceInventories;
     }
 }

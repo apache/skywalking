@@ -53,7 +53,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
                 return Const.NONE;
             }
         } catch (Throwable e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e);
             return Const.NONE;
         }
     }
@@ -72,7 +72,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
                 return null;
             }
         } catch (Throwable e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e);
             return null;
         }
     }

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
 import io.grpc.*;
+import java.util.concurrent.*;
 import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
@@ -31,8 +32,12 @@ public class JVMMetricsServiceHandlerMainTest {
 
         JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
 
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> send(stub), 1, TimeUnit.SECONDS);
+    }
+
+    private static void send(JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub) {
         JVMMetrics.Builder jvmMetrics = JVMMetrics.newBuilder();
-        jvmMetrics.setApplicationInstanceId(1);
+        jvmMetrics.setApplicationInstanceId(2);
 
         JVMMetric.Builder jvmMetricBuilder = JVMMetric.newBuilder();
         jvmMetricBuilder.setTime(System.currentTimeMillis());

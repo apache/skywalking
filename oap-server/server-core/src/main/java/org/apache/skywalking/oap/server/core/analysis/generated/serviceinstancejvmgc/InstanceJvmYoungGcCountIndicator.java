@@ -21,15 +21,14 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
+import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -41,7 +40,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @StorageEntity(name = "instance_jvm_young_gc_count", builder = InstanceJvmYoungGcCountIndicator.Builder.class)
 public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
     @Setter @Getter @Column(columnName = "service_instance_id")  private int serviceInstanceId;
 
     @Override public String id() {
@@ -56,7 +55,6 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
         result = 31 * result + (int)getTimeBucket();
         return result;
     }
-
 
     @Override public int remoteHashCode() {
         int result = 17;
@@ -73,7 +71,7 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
             return false;
 
         InstanceJvmYoungGcCountIndicator indicator = (InstanceJvmYoungGcCountIndicator)obj;
-        if (entityId != indicator.entityId)
+        if (!entityId.equals(indicator.entityId))
             return false;
 
         if (getTimeBucket() != indicator.getTimeBucket())
@@ -84,13 +82,13 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataStrings(0, getEntityId());
+        remoteBuilder.addDataStrings(getEntityId());
 
-        remoteBuilder.setDataLongs(0, getValue());
-        remoteBuilder.setDataLongs(1, getTimeBucket());
+        remoteBuilder.addDataLongs(getValue());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
 
-        remoteBuilder.setDataIntegers(0, getServiceInstanceId());
+        remoteBuilder.addDataIntegers(getServiceInstanceId());
 
         return remoteBuilder;
     }
@@ -114,33 +112,30 @@ public class InstanceJvmYoungGcCountIndicator extends SumIndicator implements Al
     @Override
     public Indicator toHour() {
         InstanceJvmYoungGcCountIndicator indicator = new InstanceJvmYoungGcCountIndicator();
-        indicator.setTimeBucket(toTimeBucketInHour());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInHour());
         return indicator;
     }
 
     @Override
     public Indicator toDay() {
         InstanceJvmYoungGcCountIndicator indicator = new InstanceJvmYoungGcCountIndicator();
-        indicator.setTimeBucket(toTimeBucketInDay());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInDay());
         return indicator;
     }
 
     @Override
     public Indicator toMonth() {
         InstanceJvmYoungGcCountIndicator indicator = new InstanceJvmYoungGcCountIndicator();
-        indicator.setTimeBucket(toTimeBucketInMonth());
         indicator.setEntityId(this.getEntityId());
         indicator.setServiceInstanceId(this.getServiceInstanceId());
         indicator.setValue(this.getValue());
-        indicator.setTimeBucket(this.getTimeBucket());
+        indicator.setTimeBucket(toTimeBucketInMonth());
         return indicator;
     }
 

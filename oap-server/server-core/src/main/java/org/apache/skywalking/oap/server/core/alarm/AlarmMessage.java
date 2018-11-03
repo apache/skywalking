@@ -37,7 +37,7 @@ public class AlarmMessage {
     private int id0;
     private int id1;
     private String alarmMessage;
-    private long timeBucket;
+    private long startTime;
 
     private static class NoAlarm extends AlarmMessage {
 

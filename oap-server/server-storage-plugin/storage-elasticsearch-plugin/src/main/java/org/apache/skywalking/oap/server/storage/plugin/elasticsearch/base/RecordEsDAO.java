@@ -54,7 +54,4 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO<IndexRequest> {
         builder.endObject();
         return getClient().prepareInsert(modelName, record.id(), builder);
     }
-
-    @Override public void deleteHistory(String modelName, Long timeBucketBefore) {
-    }
 }

@@ -36,8 +36,9 @@ public class StorageModule extends ModuleDefine {
     @Override public Class[] services() {
         return new Class[] {
             IBatchDAO.class, StorageDAO.class, IRegisterLockDAO.class,
+            IHistoryDeleteDAO.class,
             IServiceInventoryCacheDAO.class, IServiceInstanceInventoryCacheDAO.class,
             IEndpointInventoryCacheDAO.class, INetworkAddressInventoryCacheDAO.class,
-            ITopologyQueryDAO.class, IMetricQueryDAO.class, ITraceQueryDAO.class, IMetadataQueryDAO.class, IAggregationQueryDAO.class};
+            ITopologyQueryDAO.class, IMetricQueryDAO.class, ITraceQueryDAO.class, IMetadataQueryDAO.class, IAggregationQueryDAO.class, IAlarmQueryDAO.class};
     }
 }

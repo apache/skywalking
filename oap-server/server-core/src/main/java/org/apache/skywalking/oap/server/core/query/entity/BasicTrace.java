@@ -21,13 +21,20 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import java.util.*;
 import lombok.*;
 
+/**
+ * @author peng-yongsheng
+ */
 @Getter
-@Setter
 public class BasicTrace {
-    private String segmentId;
-    private List<String> endpointNames = new ArrayList<>();
-    private int duration;
-    private String start;
-    private boolean isError;
-    private List<String> traceIds = new ArrayList<>();
+    @Setter private String segmentId;
+    private final List<String> endpointNames;
+    @Setter private int duration;
+    @Setter private String start;
+    @Setter private boolean isError;
+    private final List<String> traceIds;
+
+    public BasicTrace() {
+        this.endpointNames = new ArrayList<>();
+        this.traceIds = new ArrayList<>();
+    }
 }
