@@ -129,7 +129,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((int)value.getValue());
+            topNEntity.setValue((long)value.getValue());
             topNEntities.add(topNEntity);
         }
 
