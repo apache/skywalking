@@ -79,6 +79,7 @@
                                     <exclude>*:gson</exclude>
                                     <exclude>io.grpc:*</exclude>
                                     <exclude>io.netty:*</exclude>
+                                    <exclude>io.opencensus:*</exclude>
                                     <exclude>com.google.*:*</exclude>
                                     <exclude>com.google.guava:guava</exclude>
                                 </excludes>
@@ -103,6 +104,7 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete dir="${project.basedir}/../../skywalking-agent" />
                                 <mkdir dir="${project.basedir}/../../skywalking-agent" />
                                 <copy file="${project.build.directory}/skywalking-agent.jar" tofile="${project.basedir}/../../skywalking-agent/skywalking-agent.jar" overwrite="true" />
                                 <mkdir dir="${project.basedir}/../../skywalking-agent/config" />

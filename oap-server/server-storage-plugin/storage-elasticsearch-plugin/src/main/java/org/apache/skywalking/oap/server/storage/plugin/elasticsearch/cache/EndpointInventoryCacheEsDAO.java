@@ -43,9 +43,9 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
         super(client);
     }
 
-    @Override public int getEndpointId(int serviceId, String endpointName) {
+    @Override public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
         try {
-            String id = EndpointInventory.buildId(serviceId, endpointName);
+            String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
             GetResponse response = getClient().get(EndpointInventory.MODEL_NAME, id);
             if (response.isExists()) {
                 return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);

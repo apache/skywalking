@@ -22,6 +22,8 @@ storage:
 ## ElasticSearch 6
 Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
 
+> Required ElasticSearch 6.3.0 or higher.
+
 Setting fragment example
 ```yaml
 storage:
