@@ -51,7 +51,7 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
     }
 
     @Override public int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint) {
-        int endpointId = getCacheService().getEndpointId(serviceId, endpointName);
+        int endpointId = getCacheService().getEndpointId(serviceId, endpointName, detectPoint.ordinal());
 
         if (endpointId == Const.NONE) {
             EndpointInventory endpointInventory = new EndpointInventory();
@@ -68,8 +68,8 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         return endpointId;
     }
 
-    @Override public int get(int serviceId, String endpointName) {
-        return getCacheService().getEndpointId(serviceId, endpointName);
+    @Override public int get(int serviceId, String endpointName, int detectPoint) {
+        return getCacheService().getEndpointId(serviceId, endpointName, detectPoint);
     }
 
     @Override public void heartbeat(int endpointId, long heartBeatTime) {
