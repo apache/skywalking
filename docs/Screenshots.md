@@ -33,8 +33,8 @@
 - Service overview
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service.png"/>
 
-- Process(VM) metrics
-<img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service_intance_info.png"/>
+- Service instance metrics
+<img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service_instance_info.png"/>
 
 - Service metrics
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/endpoint.png"/>
