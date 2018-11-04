@@ -50,7 +50,6 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 ```shell
 switch to release version tag
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
-export RELEASE_ROUND=1 (example: RELEASE_ROUND=1)
 cd tools/releasing
 sh create_source_release.sh
 ```
@@ -78,7 +77,7 @@ with .asc, .sha512, .md5
 1. Upload distribution package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip
     * See Section "Find and download distribution in Apache Nexus Staging repositories" for more details
-    * Create .sha512 package: `shasum -a 512 file > file.sha512`
+    * Create .sha512 package: `shasum -a 512 file > file.sha512`
 1. Upload gpg public key, named KEY
 
 ## Make the internal announcements
