@@ -20,9 +20,13 @@ package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.r
 
 import com.google.gson.*;
 import java.io.IOException;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.*;
 import org.slf4j.*;
@@ -35,6 +39,8 @@ public class InstanceHeartBeatServletHandler extends JettyJsonHandler {
     private static final Logger logger = LoggerFactory.getLogger(InstanceHeartBeatServletHandler.class);
 
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
+    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
+    private final IServiceInventoryRegister serviceInventoryRegister;
     private final Gson gson = new Gson();
 
     private static final String INSTANCE_ID = "ii";
@@ -42,6 +48,8 @@ public class InstanceHeartBeatServletHandler extends JettyJsonHandler {
 
     public InstanceHeartBeatServletHandler(ModuleManager moduleManager) {
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
     }
 
     @Override public String pathSpec() {
@@ -60,6 +68,12 @@ public class InstanceHeartBeatServletHandler extends JettyJsonHandler {
             long heartBeatTime = heartBeat.get(HEARTBEAT_TIME).getAsLong();
 
             serviceInstanceInventoryRegister.heartbeat(instanceId, heartBeatTime);
+            ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(instanceId);
+            if (Objects.nonNull(serviceInstanceInventory)) {
+                serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
+            } else {
+                logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

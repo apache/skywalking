@@ -61,19 +61,19 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            int value = 0;
+            long value = 0;
             switch (function) {
                 case Sum:
                     Sum sum = idBucket.getAggregations().get(valueCName);
-                    value = (int)sum.getValue();
+                    value = (long)sum.getValue();
                     break;
                 case Avg:
                     Avg avg = idBucket.getAggregations().get(valueCName);
-                    value = (int)avg.getValue();
+                    value = (long)avg.getValue();
                     break;
                 default:
                     avg = idBucket.getAggregations().get(valueCName);
-                    value = (int)avg.getValue();
+                    value = (long)avg.getValue();
                     break;
             }
 
@@ -113,7 +113,7 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
             kvInt.setValue(0);
             Map<String, Object> source = itemResponse.getResponse().getSource();
             if (source != null) {
-                kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).intValue());
+                kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).longValue());
             }
             intValues.getValues().add(kvInt);
         }

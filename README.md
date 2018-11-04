@@ -65,10 +65,21 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
   - Password: admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
-
-
-- [See all screenshots](/docs/Screenshots.md)
+<table>
+  <tr>
+    <td width="50%" align="center"><b>Under javaagent observing</b></td>
+    <td width="50%" align="center"><b>Observe on Istio</b></td>
+  </tr>
+  <tr>
+    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Topology.png"/>
+</td>
+    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Topology.png"/>
+</td>
+   <tr>
+     <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
+     <td align="center"><a href="docs/Screenshots.md#istio">More screenshots</a></td>
+  </tr>
+</table>
 
 # Compiling project
 Follow this [document](docs/en/guides/How-to-build.md).
@@ -83,7 +94,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-09-07.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-11-02.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 

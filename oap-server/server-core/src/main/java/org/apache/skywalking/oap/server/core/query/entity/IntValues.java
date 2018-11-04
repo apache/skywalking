@@ -32,7 +32,7 @@ public class IntValues {
         values.add(e);
     }
 
-    public int findValue(String id, int defaultValue) {
+    public long findValue(String id, int defaultValue) {
         for (KVInt value : values) {
             if (value.getId().equals(id)) {
                 return value.getValue();
