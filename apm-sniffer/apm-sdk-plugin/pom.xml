@@ -169,43 +169,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <!-- ojdbc is not Apache license compatible, so it must be manually downloaded first -->
-            <id>include-ojdbc</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/../../ci-dependencies/ojdbc14-10.2.0.4.0.jar</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>oracle-10.x-plugin</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- resin-3 is not Apache license compatible, so it must be manually downloaded first -->
-            <id>include-resin-3</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/../../ci-dependencies/resin-3.0.9.jar</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>resin-3.x-plugin</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- resin-4 is not Apache license compatible, so it must be manually downloaded first -->
-            <id>include-resin-4</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/../../ci-dependencies/resin-4.0.41.jar</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>resin-4.x-plugin</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
