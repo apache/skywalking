@@ -41,7 +41,7 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 
 ## Stage the release 
 ```
-./mvnw release:perform -DskipTests
+./mvnw release:perform -DskipTests -Pauto-submodule
 ```
 1. Set version number as x.y.z, and tag as vx.y.z
 1. The release will automatically be inserted into a temporary staging repository for you.

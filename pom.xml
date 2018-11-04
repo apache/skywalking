@@ -448,4 +448,41 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>auto-submodule</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>git submodule update</id>
+                                <phase>initialize</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <executable>git</executable>
+                                    <arguments>
+                                        <argument>submodule</argument>
+                                        <argument>update</argument>
+                                        <argument>--init</argument>
+                                        <argument>--recursive</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
