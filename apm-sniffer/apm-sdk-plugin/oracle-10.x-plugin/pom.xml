@@ -18,17 +18,13 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>apm-sdk-plugin</artifactId>
-        <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-alpha-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.apache.skywalking</groupId>
     <artifactId>apm-oracle-10.x-plugin</artifactId>
+    <version>5.0.0-GA</version>
     <packaging>jar</packaging>
 
-    <name>oracle-10.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
