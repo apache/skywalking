@@ -34,6 +34,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.source.Scope;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -72,8 +73,14 @@ public class WebhookCallbackTest implements Servlet {
         remoteEndpoints.add("http://127.0.0.1:8778/webhook/receiveAlarm");
         WebhookCallback webhookCallback = new WebhookCallback(remoteEndpoints);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
-        alarmMessages.add(new AlarmMessage());
-        alarmMessages.add(new AlarmMessage());
+        AlarmMessage alarmMessage = new AlarmMessage();
+        alarmMessage.setScope(Scope.All);
+        alarmMessage.setAlarmMessage("alarmMessage with [Scope.All]");
+        alarmMessages.add(alarmMessage);
+        AlarmMessage anotherAlarmMessage = new AlarmMessage();
+        anotherAlarmMessage.setScope(Scope.Endpoint);
+        anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [Scope.Endpoint]");
+        alarmMessages.add(anotherAlarmMessage);
         webhookCallback.doAlarm(alarmMessages);
 
         Assert.assertTrue(isSuccess);
