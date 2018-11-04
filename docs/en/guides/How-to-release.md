@@ -36,7 +36,7 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 ## Prepare the release
 ```
 ./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true
+./mvnw release:prepare -DautoVersionSubmodules=true -Pauto-submodule
 ```
 
 ## Stage the release 
