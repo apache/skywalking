@@ -119,6 +119,7 @@ Release CommitID :
  * Git submodule
    * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
+   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/incubator-skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -126,7 +127,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
 
 A vote regarding the quality of this test build will be initiated
 within the next couple of days.
@@ -172,6 +173,7 @@ Release CommitID :
  * Git submodule
    * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
+   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/incubator-skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -179,7 +181,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
 
 Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PPMC members to give their vote.
 [ ] +1 Release this package.
@@ -254,6 +256,7 @@ Release CommitID :
  * Git submodule
    * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
+   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/incubator-skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -261,7 +264,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
 
 Voting will start now (xxxx date) and will remain open for at least 72 hours, Request IPMC to give their vote.
 [ ] +1 Release this package.
