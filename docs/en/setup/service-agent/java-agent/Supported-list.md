@@ -54,6 +54,7 @@
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
 * OpenTracing community supported
 
-¹Required dependencies for these components must be first manually downloaded before being built, due to license incompatibilities. For this reason these components are not by default included in the SkyWalking releases.
+¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
+ go to [OpenSkywalking java plugin extension repository](https://github.com/OpenSkywalking/java-plugin-extensions) to get these.
 
 ²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
