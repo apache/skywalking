@@ -56,7 +56,7 @@ public class SnifferConfigInitializer {
      * <p>
      * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
-    public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
+    public static void initialize(String agentOptions) throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
 
         try {
@@ -74,6 +74,17 @@ public class SnifferConfigInitializer {
             logger.error(e, "Failed to read the system env.");
         }
 
+        if (!StringUtil.isEmpty(agentOptions)) {
+            try {
+                agentOptions = agentOptions.trim();
+                logger.info("Agent options is {}.", agentOptions);
+
+                overrideConfigByAgentOptions(agentOptions);
+            } catch (Exception e) {
+                logger.error(e, "Failed to parse the agent options, val is {}.", agentOptions);
+            }
+        }
+
         if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
             throw new ExceptionInInitializerError("`agent.application_code` is missing.");
         }
@@ -82,6 +93,17 @@ public class SnifferConfigInitializer {
         }
 
         IS_INIT_COMPLETED = true;
+    }
+
+    private static void overrideConfigByAgentOptions(String agentOptions) throws IllegalAccessException {
+        Properties properties = new Properties();
+        for (String entry : agentOptions.split(",")) {
+            String[] kvPair = entry.split("=");
+            properties.put(kvPair[0], kvPair[1]);
+        }
+        if (!properties.isEmpty()) {
+            ConfigInitializer.initialize(properties, Config.class);
+        }
     }
 
     public static boolean isInitCompleted() {

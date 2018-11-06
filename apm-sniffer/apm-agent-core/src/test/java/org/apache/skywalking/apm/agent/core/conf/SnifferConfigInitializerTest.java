@@ -34,10 +34,30 @@ public class SnifferConfigInitializerTest {
         System.setProperty("skywalking.agent.application_code", "testApp");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         System.setProperty("skywalking.logging.level", "info");
-        SnifferConfigInitializer.initialize();
+        SnifferConfigInitializer.initialize(null);
         assertThat(Config.Agent.APPLICATION_CODE, is("testApp"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
+    }
+
+    @Test
+    public void testLoadConfigFromAgentOptions() throws AgentPackageNotFoundException, ConfigNotFoundException {
+        String agentOptions = "agent.application_code=testApp,collector.backend_service=127.0.0.1:8090,logging.level=info";
+        SnifferConfigInitializer.initialize(agentOptions);
+        assertThat(Config.Agent.APPLICATION_CODE, is("testApp"));
+        assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
+        assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
+    }
+
+    @Test
+    public void testConfigOverriding() throws AgentPackageNotFoundException, ConfigNotFoundException {
+        System.setProperty("skywalking.agent.application_code", "testAppFromSystem");
+        System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
+        String agentOptions = "agent.application_code=testAppFromAgentOptions,logging.level=debug";
+        SnifferConfigInitializer.initialize(agentOptions);
+        assertThat(Config.Agent.APPLICATION_CODE, is("testAppFromAgentOptions"));
+        assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
+        assertThat(Config.Logging.LEVEL, is(LogLevel.DEBUG));
     }
 
     @AfterClass
