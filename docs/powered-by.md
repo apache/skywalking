@@ -30,6 +30,7 @@ or providing commercial products including Apache SkyWalking.
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
 1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
+1. Lagou.com. 拉勾. https://www.lagou.com/
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
@@ -50,4 +51,3 @@ or providing commercial products including Apache SkyWalking.
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
-1. Lagou.com. 拉勾. https://www.lagou.com/
