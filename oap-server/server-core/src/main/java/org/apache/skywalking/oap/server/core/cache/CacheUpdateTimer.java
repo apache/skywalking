@@ -64,7 +64,7 @@ public enum CacheUpdateTimer {
                 cache.setMappingServiceId(serviceInventory.getMappingServiceId());
                 cache.setMappingLastUpdateTime(serviceInventory.getMappingLastUpdateTime());
             } else {
-                logger.warn("Unable to found the id of {} in service inventory cache.");
+                logger.warn("Unable to found the id of {} in service inventory cache.", serviceInventory.getSequence());
             }
         });
     }
