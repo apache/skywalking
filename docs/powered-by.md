@@ -35,6 +35,7 @@ or providing commercial products including Apache SkyWalking.
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
+1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
@@ -47,7 +48,6 @@ or providing commercial products including Apache SkyWalking.
 1. Tsfinance.com 重庆宜迅联供应链科技有限公司 https://www.tsfinance.com.cn/
 1. VBill Payment Co., LTD. 随行付. https://www.vbill.cn/
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
-1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
 1. Xiaomi. 小米. https://www.mi.com/en/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
