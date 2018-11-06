@@ -18,17 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.Getter;
 
 /**
  * @author peng-yongsheng
  */
 public class IntValues {
-    
-    @Getter private final List<KVInt> values;
+    @Getter private List<KVInt> values = new LinkedList<>();
 
-    public IntValues() {
-        this.values = new LinkedList<>();
+    public void addKVInt(KVInt e) {
+        values.add(e);
+    }
+
+    public long findValue(String id, int defaultValue) {
+        for (KVInt value : values) {
+            if (value.getId().equals(id)) {
+                return value.getValue();
+            }
+        }
+        return defaultValue;
     }
 }

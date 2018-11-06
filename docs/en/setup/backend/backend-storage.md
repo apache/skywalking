@@ -6,15 +6,23 @@ use is by changing the `application.yml`
 - [**ElasticSearch 6**](#elasticsearch-6)
 
 ## H2
-Active H2 as storage, set storage provider to **H2**. Default in distribution package.
+Active H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
+Please read `Database URL Overview` in [H2 official document](http://www.h2database.com/html/features.html),
+you could set the target to H2 in **Embedded**, **Server** and **Mixed** modes.
 
 Setting fragment example
 ```yaml
-
+storage:
+  h2:
+    driver: org.h2.jdbcx.JdbcDataSource
+    url: jdbc:h2:mem:skywalking-oap-db
+    user: sa
 ```
 
 ## ElasticSearch 6
 Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
+
+> Required ElasticSearch 6.3.0 or higher.
 
 Setting fragment example
 ```yaml

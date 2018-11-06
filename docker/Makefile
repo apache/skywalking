@@ -14,9 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-snapshot:
-	cd snapshot; \
+oap:
+	cd oap; \
 	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
 	docker build -t skywalking/oap:latest .
 
-.PHONY: snapshot
+ui:
+	cd ui; \
+	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
+	docker build -t skywalking/ui:latest .
+	
+build: oap ui
+
+.PHONY: oap ui

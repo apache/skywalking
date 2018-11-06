@@ -55,7 +55,6 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             sendToMemoryMetricProcess(serviceInstanceId, minuteTimeBucket, metric.getMemoryList());
             sendToMemoryPoolMetricProcess(serviceInstanceId, minuteTimeBucket, metric.getMemoryPoolList());
             sendToGCMetricProcess(serviceInstanceId, minuteTimeBucket, metric.getGcList());
-            sendToInstanceHeartBeatProcess(serviceInstanceId, metric.getTime());
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());
@@ -84,8 +83,10 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             switch (gc.getPhrase()) {
                 case NEW:
                     serviceInstanceJVMGC.setPhrase(GCPhrase.NEW);
+                    break;
                 case OLD:
                     serviceInstanceJVMGC.setPhrase(GCPhrase.OLD);
+                    break;
             }
 
             serviceInstanceJVMGC.setTime(gc.getTime());
@@ -125,16 +126,22 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             switch (memoryPool.getType()) {
                 case NEWGEN_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.NEWGEN_USAGE);
+                    break;
                 case OLDGEN_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.OLDGEN_USAGE);
+                    break;
                 case PERMGEN_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.PERMGEN_USAGE);
+                    break;
                 case SURVIVOR_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.SURVIVOR_USAGE);
+                    break;
                 case METASPACE_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.METASPACE_USAGE);
+                    break;
                 case CODE_CACHE_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.CODE_CACHE_USAGE);
+                    break;
             }
 
             serviceInstanceJVMMemoryPool.setInit(memoryPool.getInit());
@@ -144,9 +151,5 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
             serviceInstanceJVMMemoryPool.setTimeBucket(timeBucket);
             sourceReceiver.receive(serviceInstanceJVMMemoryPool);
         });
-    }
-
-    private void sendToInstanceHeartBeatProcess(int instanceId, long heartBeatTime) {
-//        instanceHeartBeatService.heartBeat(instanceId, heartBeatTime);
     }
 }

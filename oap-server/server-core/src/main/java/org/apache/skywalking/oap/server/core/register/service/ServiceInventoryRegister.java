@@ -62,24 +62,27 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
+            serviceInventory.setMappingServiceId(Const.NONE);
+            serviceInventory.setMappingLastUpdateTime(now);
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         }
         return serviceId;
     }
 
-    @Override public int getOrCreate(int addressId) {
+    @Override public int getOrCreate(int addressId, String serviceName) {
         int serviceId = getServiceInventoryCache().getServiceId(addressId);
 
         if (serviceId == Const.NONE) {
             ServiceInventory serviceInventory = new ServiceInventory();
-            serviceInventory.setName(Const.EMPTY_STRING);
+            serviceInventory.setName(serviceName);
             serviceInventory.setAddressId(addressId);
             serviceInventory.setIsAddress(BooleanUtils.TRUE);
 
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
+            serviceInventory.setMappingLastUpdateTime(now);
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         }
@@ -94,6 +97,19 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             InventoryProcess.INSTANCE.in(serviceInventory);
         } else {
             logger.warn("Service {} heartbeat, but not found in storage.");
+        }
+    }
+
+    @Override public void updateMapping(int serviceId, int mappingServiceId) {
+        ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
+        if (Objects.nonNull(serviceInventory)) {
+            serviceInventory = serviceInventory.getClone();
+            serviceInventory.setMappingServiceId(mappingServiceId);
+            serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
+
+            InventoryProcess.INSTANCE.in(serviceInventory);
+        } else {
+            logger.warn("Service {} mapping update, but not found in storage.");
         }
     }
 }

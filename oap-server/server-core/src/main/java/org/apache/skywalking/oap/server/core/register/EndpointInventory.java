@@ -27,13 +27,14 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
  */
 @InventoryType(scope = Scope.Endpoint)
 @StreamData
-@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class)
+@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false)
 public class EndpointInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "endpoint_inventory";
@@ -46,18 +47,19 @@ public class EndpointInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = DETECT_POINT) private int detectPoint;
 
-    public static String buildId(int serviceId, String endpointName) {
-        return serviceId + Const.ID_SPLIT + endpointName;
+    public static String buildId(int serviceId, String endpointName, int detectPoint) {
+        return serviceId + Const.ID_SPLIT + endpointName + Const.ID_SPLIT + detectPoint;
     }
 
     @Override public String id() {
-        return buildId(serviceId, name);
+        return buildId(serviceId, name, detectPoint);
     }
 
     @Override public int hashCode() {
         int result = 17;
         result = 31 * result + serviceId;
         result = 31 * result + name.hashCode();
+        result = 31 * result + detectPoint;
         return result;
     }
 
@@ -72,7 +74,9 @@ public class EndpointInventory extends RegisterSource {
         EndpointInventory source = (EndpointInventory)obj;
         if (serviceId != source.getServiceId())
             return false;
-        if (name.equals(source.getName()))
+        if (!name.equals(source.getName()))
+            return false;
+        if (detectPoint != source.getDetectPoint())
             return false;
 
         return true;
@@ -80,14 +84,14 @@ public class EndpointInventory extends RegisterSource {
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, serviceId);
-        remoteBuilder.setDataIntegers(2, detectPoint);
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(serviceId);
+        remoteBuilder.addDataIntegers(detectPoint);
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
         return remoteBuilder;
     }
 

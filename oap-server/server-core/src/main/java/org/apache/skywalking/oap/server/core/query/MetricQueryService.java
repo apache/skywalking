@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.*;
 
 /**
@@ -56,6 +57,10 @@ public class MetricQueryService implements Service {
 
     public IntValues getValues(final String indName, final List<String> ids, final Step step, final long startTB,
         final long endTB) throws IOException {
+        if (CollectionUtils.isEmpty(ids)) {
+            throw new RuntimeException("IDs can't be null");
+        }
+
         Where where = new Where();
         KeyValues intKeyValues = new KeyValues();
         intKeyValues.setKey(Indicator.ENTITY_ID);

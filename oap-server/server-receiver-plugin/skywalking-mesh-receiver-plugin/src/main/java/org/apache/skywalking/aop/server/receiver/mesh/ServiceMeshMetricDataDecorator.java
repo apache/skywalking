@@ -53,8 +53,10 @@ public class ServiceMeshMetricDataDecorator {
         }
         sourceServiceInstanceId = origin.getSourceServiceInstanceId();
         if (sourceServiceId != Const.NONE && sourceServiceInstanceId == Const.NONE) {
-            sourceServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(sourceServiceId, origin.getSourceServiceInstance(), origin.getEndTime(),
-                getOSInfoForMesh(origin.getSourceServiceInstance()));
+            sourceServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
+                .getOrCreate(sourceServiceId, origin.getSourceServiceInstance(), origin.getSourceServiceInstance(),
+                    origin.getEndTime(),
+                    getOSInfoForMesh(origin.getSourceServiceInstance()));
             if (sourceServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setSourceServiceInstanceId(sourceServiceInstanceId);
             } else {
@@ -72,8 +74,10 @@ public class ServiceMeshMetricDataDecorator {
         }
         destServiceInstanceId = origin.getDestServiceInstanceId();
         if (destServiceId != Const.NONE && destServiceInstanceId == Const.NONE) {
-            destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(destServiceId, origin.getDestServiceInstance(), origin.getEndTime(),
-                getOSInfoForMesh(origin.getSourceServiceInstance()));
+            destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
+                .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin.getDestServiceInstance(),
+                    origin.getEndTime(),
+                    getOSInfoForMesh(origin.getSourceServiceInstance()));
             if (destServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceInstanceId(destServiceInstanceId);
             } else {
@@ -81,15 +85,23 @@ public class ServiceMeshMetricDataDecorator {
             }
         }
         String endpoint = origin.getEndpoint();
-        if (destServiceId != Const.NONE) {
-            DetectPoint point = origin.getDetectPoint();
 
-            endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
-                org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
-            if (endpointId != Const.NONE) {
-            } else {
-                isRegistered = false;
+        DetectPoint point = origin.getDetectPoint();
+        if (DetectPoint.client.equals(point)) {
+            if (sourceServiceId != Const.NONE) {
+                endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(sourceServiceId, endpoint,
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
             }
+        } else {
+            if (destServiceId != Const.NONE) {
+                endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+            }
+        }
+
+        if (endpointId != Const.NONE) {
+        } else {
+            isRegistered = false;
         }
 
         return isRegistered;

@@ -27,24 +27,23 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
  */
 @InventoryType(scope = Scope.NetworkAddress)
 @StreamData
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class)
+@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "network_address_inventory";
 
     private static final String NAME = "name";
     public static final String SRC_LAYER = "src_layer";
-    private static final String SERVER_TYPE = "server_type";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SRC_LAYER) private int srcLayer;
-    @Setter @Getter @Column(columnName = SERVER_TYPE) private int serverType;
 
     public static String buildId(String networkAddress) {
         return networkAddress;
@@ -69,29 +68,33 @@ public class NetworkAddressInventory extends RegisterSource {
             return false;
 
         NetworkAddressInventory source = (NetworkAddressInventory)obj;
-        if (name.equals(source.getName()))
+        if (!name.equals(source.getName()))
             return false;
 
         return true;
     }
 
+    @Override public void combine(RegisterSource registerSource) {
+        super.combine(registerSource);
+        NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
+        setSrcLayer(inventory.srcLayer);
+    }
+
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.setDataIntegers(0, getSequence());
-        remoteBuilder.setDataIntegers(1, getSrcLayer());
-        remoteBuilder.setDataIntegers(2, getServerType());
+        remoteBuilder.addDataIntegers(getSequence());
+        remoteBuilder.addDataIntegers(getSrcLayer());
 
-        remoteBuilder.setDataLongs(0, getRegisterTime());
-        remoteBuilder.setDataLongs(1, getHeartbeatTime());
+        remoteBuilder.addDataLongs(getRegisterTime());
+        remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.setDataStrings(0, name);
+        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setSrcLayer(remoteData.getDataIntegers(1));
-        setServerType(remoteData.getDataIntegers(2));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -110,7 +113,6 @@ public class NetworkAddressInventory extends RegisterSource {
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setName((String)dbMap.get(NAME));
             inventory.setSrcLayer((Integer)dbMap.get(SRC_LAYER));
-            inventory.setServerType((Integer)dbMap.get(SERVER_TYPE));
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
             return inventory;
@@ -121,7 +123,6 @@ public class NetworkAddressInventory extends RegisterSource {
             map.put(SEQUENCE, storageData.getSequence());
             map.put(NAME, storageData.getName());
             map.put(SRC_LAYER, storageData.getSrcLayer());
-            map.put(SERVER_TYPE, storageData.getServerType());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
             return map;

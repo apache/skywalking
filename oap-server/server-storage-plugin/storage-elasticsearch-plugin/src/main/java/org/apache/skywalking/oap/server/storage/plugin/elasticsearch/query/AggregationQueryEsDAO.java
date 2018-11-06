@@ -23,7 +23,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.storage.TimePyramidTableNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -46,7 +46,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Step step, long startTB,
         long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
@@ -55,7 +55,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Step step,
         long startTB, long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
@@ -64,7 +64,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
         Step step, long startTB, long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -80,7 +80,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Step step, long startTB,
         long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
@@ -90,7 +90,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Step step,
         long startTB, long endTB, Order order) throws IOException {
-        String indexName = TimePyramidTableNameBuilder.build(step, indName);
+        String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -129,7 +129,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((int)value.getValue());
+            topNEntity.setValue((long)value.getValue());
             topNEntities.add(topNEntity);
         }
 

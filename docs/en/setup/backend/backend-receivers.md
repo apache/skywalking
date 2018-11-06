@@ -23,6 +23,10 @@ receiver-jvm:
   default:
 service-mesh:
   default:
+    bufferPath: ../mesh-buffer/  # Path to mesh telemetry data buffer files, suggest to use absolute path
+    bufferOffsetMaxFileSize: 100 # Unit is MB
+    bufferDataMaxFileSize: 500 # Unit is MB
+    bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
 ```

@@ -27,5 +27,5 @@ import lombok.*;
 @Getter
 public class KVInt {
     private String id;
-    private int value;
+    private long value;
 }

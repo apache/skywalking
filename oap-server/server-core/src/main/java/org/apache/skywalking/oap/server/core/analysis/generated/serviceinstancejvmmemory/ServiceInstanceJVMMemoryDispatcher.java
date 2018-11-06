@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstancejvmmemory;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
 
 /**
  * This class is auto generated. Please don't change this class manually.

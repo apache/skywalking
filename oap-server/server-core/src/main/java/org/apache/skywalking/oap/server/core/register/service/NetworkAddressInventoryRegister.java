@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
 
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
 
 /**
  * @author peng-yongsheng
@@ -69,7 +69,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         int addressId = getNetworkAddressInventoryCache().getAddressId(networkAddress);
 
         if (addressId != Const.NONE) {
-            int serviceId = getServiceInventoryRegister().getOrCreate(addressId);
+            int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress);
 
             if (serviceId != Const.NONE) {
                 int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, addressId, System.currentTimeMillis());
@@ -96,26 +96,6 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         return getNetworkAddressInventoryCache().getAddressId(networkAddress);
     }
 
-    @Override public void update(int addressId, int srcLayer, int serverType) {
-        if (!this.compare(addressId, srcLayer, serverType)) {
-            NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
-            newNetworkAddress.setSrcLayer(srcLayer);
-            newNetworkAddress.setServerType(serverType);
-            newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
-
-            InventoryProcess.INSTANCE.in(newNetworkAddress);
-        }
-    }
-
-    private boolean compare(int addressId, int srcLayer, int serverType) {
-        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
-
-        if (nonNull(networkAddress)) {
-            return srcLayer == networkAddress.getSrcLayer() && serverType == networkAddress.getServerType();
-        }
-        return true;
-    }
-
     @Override public void heartbeat(int addressId, long heartBeatTime) {
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
         if (Objects.nonNull(networkAddress)) {
@@ -125,5 +105,24 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         } else {
             logger.warn("Network address {} heartbeat, but not found in storage.");
         }
+    }
+
+    @Override public void update(int addressId, int srcLayer) {
+        if (!this.compare(addressId, srcLayer)) {
+            NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
+            newNetworkAddress.setSrcLayer(srcLayer);
+            newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
+
+            InventoryProcess.INSTANCE.in(newNetworkAddress);
+        }
+    }
+
+    private boolean compare(int addressId, int srcLayer) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+
+        if (Objects.nonNull(networkAddress)) {
+            return srcLayer == networkAddress.getSrcLayer();
+        }
+        return true;
     }
 }

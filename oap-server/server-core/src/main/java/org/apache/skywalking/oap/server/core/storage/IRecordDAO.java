@@ -27,6 +27,4 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 public interface IRecordDAO<INSERT> extends DAO {
 
     INSERT prepareBatchInsert(String modelName, Record record) throws IOException;
-
-    void deleteHistory(String modelName, Long timeBucketBefore);
 }

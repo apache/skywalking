@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
@@ -37,7 +37,7 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
 
     private final DataCarrier<SegmentStandardization> dataCarrier;
 
-    public SegmentStandardizationWorker(SegmentParse segmentParse, String path,
+    public SegmentStandardizationWorker(SegmentParse.Producer segmentParseCreator, String path,
         int offsetFileMaxSize, int dataFileMaxSize, boolean cleanWhenRestart) throws IOException {
         super(Integer.MAX_VALUE);
 
@@ -46,7 +46,7 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
         builder.dataFileMaxSize(dataFileMaxSize);
         builder.offsetFileMaxSize(offsetFileMaxSize);
         builder.parser(UpstreamSegment.parser());
-        builder.callBack(segmentParse);
+        builder.callBack(segmentParseCreator);
 
         BufferStream<UpstreamSegment> stream = builder.build();
         stream.initialize();

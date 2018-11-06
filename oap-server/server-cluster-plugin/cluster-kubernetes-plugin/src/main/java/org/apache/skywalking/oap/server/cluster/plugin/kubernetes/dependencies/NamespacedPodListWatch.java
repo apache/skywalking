@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies;
 
-import com.google.common.collect.Iterators;
 import com.google.common.reflect.TypeToken;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -29,9 +28,13 @@ import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Watch;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.Event;
 import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.ReusableWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Watch the api {@literal https://v1-9.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.9/#watch-64}.
@@ -40,7 +43,7 @@ import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.ReusableWatch;
  */
 public class NamespacedPodListWatch implements ReusableWatch<Event> {
 
-    private final CoreV1Api api = new CoreV1Api();
+    private static final Logger logger = LoggerFactory.getLogger(NamespacedPodListWatch.class);
 
     private final String namespace;
 
@@ -65,6 +68,7 @@ public class NamespacedPodListWatch implements ReusableWatch<Event> {
         }
         client.getHttpClient().setReadTimeout(watchTimeoutSeconds, TimeUnit.SECONDS);
         Configuration.setDefaultApiClient(client);
+        CoreV1Api api = new CoreV1Api();
         try {
             watch = Watch.createWatch(
                 client,
@@ -72,17 +76,40 @@ public class NamespacedPodListWatch implements ReusableWatch<Event> {
                     null, labelSelector, Integer.MAX_VALUE,null,null, Boolean.TRUE,
                     null, null),
                 new TypeToken<Watch.Response<V1Pod>>() { }.getType());
-        } catch (ApiException e) {
+        } catch (final ApiException e) {
+            logger.error("code:{} header:{} body:{}", e.getCode(), e.getResponseHeaders(), e.getResponseBody());
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override public Iterator<Event> iterator() {
-        return Iterators.transform(watch.iterator(), response -> {
-            if (response == null) {
-                throw new NullPointerException("Original event is null");
+        final Iterator<Watch.Response<V1Pod>> watchItr = watch.iterator();
+        return new Iterator<Event>() {
+            @Override public boolean hasNext() {
+                return wrap(watchItr::hasNext, false);
             }
-            return new Event(response.type, response.object.getMetadata().getUid(), response.object.getStatus().getPodIP());
-        });
+
+            @Override public Event next() {
+                return wrap(() -> {
+                    final Watch.Response<V1Pod> response = watchItr.next();
+                    return new Event(response.type, response.object.getMetadata().getUid(), response.object.getStatus().getPodIP());
+                }, null);
+            }
+
+            private <R> R wrap(final Supplier<R> action, final R defaultValue) {
+                Objects.requireNonNull(action);
+                try {
+                    return action.get();
+                } catch (final Throwable t) {
+                    logger.trace("Throwable", t);
+                    try {
+                        watch.close();
+                    } catch (IOException e) {
+                        logger.error("Close watch error", e);
+                    }
+                }
+                return defaultValue;
+            }
+        };
     }
 }
