@@ -99,7 +99,10 @@ public class SnifferConfigInitializer {
         Properties properties = new Properties();
         for (String entry : agentOptions.split(",")) {
             String[] kvPair = entry.split("=");
-            properties.put(kvPair[0], kvPair[1]);
+            // The separator for multiple values is ',' in the config file.
+            // But in agent options, it conflicts with the separator of multiple options, so we use ';'.
+            // Maybe we should change the separator of multiple options to ';'?
+            properties.put(kvPair[0], kvPair[1].replace(";", ","));
         }
         if (!properties.isEmpty()) {
             ConfigInitializer.initialize(properties, Config.class);
