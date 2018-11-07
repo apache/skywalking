@@ -18,13 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.util.ConfigInitializer;
-import org.apache.skywalking.apm.util.StringUtil;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,10 +26,15 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -113,7 +111,7 @@ public class SnifferConfigInitializer {
     }
 
     private static List<List<String>> parseAgentOptions(String agentOptions) {
-        List<List<String>> options = new LinkedList<List<String>>();
+        List<List<String>> options = new ArrayList<List<String>>();
         List<String> terms = new ArrayList<String>();
         boolean isInQuotes = false;
         StringBuilder currentTerm = new StringBuilder();
