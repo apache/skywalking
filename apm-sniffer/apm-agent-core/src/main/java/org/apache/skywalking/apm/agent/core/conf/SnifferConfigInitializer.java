@@ -18,21 +18,25 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -97,16 +101,42 @@ public class SnifferConfigInitializer {
 
     private static void overrideConfigByAgentOptions(String agentOptions) throws IllegalAccessException {
         Properties properties = new Properties();
-        for (String entry : agentOptions.split(",")) {
-            String[] kvPair = entry.split("=");
-            // The separator for multiple values is ',' in the config file.
-            // But in agent options, it conflicts with the separator of multiple options, so we use ';'.
-            // Maybe we should change the separator of multiple options to ';'?
-            properties.put(kvPair[0], kvPair[1].replace(";", ","));
+        for (List<String> terms : parseAgentOptions(agentOptions)) {
+            if (terms.size() != 2) {
+                throw new IllegalArgumentException("[" + terms + "] is not a key-value pair.");
+            }
+            properties.put(terms.get(0), terms.get(1));
         }
         if (!properties.isEmpty()) {
             ConfigInitializer.initialize(properties, Config.class);
         }
+    }
+
+    private static List<List<String>> parseAgentOptions(String agentOptions) {
+        List<List<String>> options = new LinkedList<List<String>>();
+        List<String> terms = new ArrayList<String>();
+        boolean isInQuotes = false;
+        StringBuilder currentTerm = new StringBuilder();
+        for (char c : agentOptions.toCharArray()) {
+            if (c == '\'' || c == '"') {
+                isInQuotes = !isInQuotes;
+            } else if (c == '=' && !isInQuotes) {   // key-value pair uses '=' as separator
+                terms.add(currentTerm.toString());
+                currentTerm = new StringBuilder();
+            } else if (c == ',' && !isInQuotes) {   // multiple options use ',' as separator
+                terms.add(currentTerm.toString());
+                currentTerm = new StringBuilder();
+
+                options.add(terms);
+                terms = new ArrayList<String>();
+            } else {
+                currentTerm.append(c);
+            }
+        }
+        // add the last term and option without separator
+        terms.add(currentTerm.toString());
+        options.add(terms);
+        return options;
     }
 
     public static boolean isInitCompleted() {

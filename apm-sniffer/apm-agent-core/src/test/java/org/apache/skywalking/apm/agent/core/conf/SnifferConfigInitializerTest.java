@@ -64,7 +64,7 @@ public class SnifferConfigInitializerTest {
     public void testAgentOptionsSeparator() throws AgentPackageNotFoundException, ConfigNotFoundException {
         System.setProperty("skywalking.agent.application_code", "testApp");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
-        String agentOptions = "agent.ignore_suffix=.jpg;.jpeg;.js;.css;.png;.bmp;.gif;.ico;.mp3;.mp4;.html;.svg";
+        String agentOptions = "agent.ignore_suffix='.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg'";
         SnifferConfigInitializer.initialize(agentOptions);
         assertThat(Config.Agent.IGNORE_SUFFIX, is(".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg"));
     }
