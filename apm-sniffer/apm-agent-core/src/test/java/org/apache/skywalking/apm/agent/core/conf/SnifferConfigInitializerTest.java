@@ -21,8 +21,11 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Test;
+
+import java.util.Iterator;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -85,8 +88,16 @@ public class SnifferConfigInitializerTest {
         assertThat(Config.Agent.APPLICATION_CODE, is("test=abc"));
     }
 
-    @AfterClass
-    public static void clear() {
+    @After
+    public void clear() {
+        for(Iterator<Map.Entry<Object, Object>> it = System.getProperties().entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Object, Object> entry = it.next();
+            if (entry.getKey().toString().startsWith("skywalking.")) {
+                it.remove();
+            }
+        }
+
+        Config.Agent.APPLICATION_CODE = "";
         Config.Logging.LEVEL = LogLevel.DEBUG;
     }
 }
