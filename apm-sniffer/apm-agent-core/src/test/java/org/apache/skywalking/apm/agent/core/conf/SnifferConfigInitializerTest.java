@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 public class SnifferConfigInitializerTest {
 
@@ -67,6 +68,21 @@ public class SnifferConfigInitializerTest {
         String agentOptions = "agent.ignore_suffix='.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg'";
         SnifferConfigInitializer.initialize(agentOptions);
         assertThat(Config.Agent.IGNORE_SUFFIX, is(".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg"));
+    }
+
+    @Test
+    public void testAgentOptionsParser() throws AgentPackageNotFoundException, ConfigNotFoundException {
+        System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
+        String agentOptions = "agent.application_code=test=abc";
+        try {
+            SnifferConfigInitializer.initialize(agentOptions);
+            fail("test=abc without quotes is not a valid value");
+        } catch (ExceptionInInitializerError e) {
+            // ignore
+        }
+        agentOptions = "agent.application_code='test=abc'";
+        SnifferConfigInitializer.initialize(agentOptions);
+        assertThat(Config.Agent.APPLICATION_CODE, is("test=abc"));
     }
 
     @AfterClass
