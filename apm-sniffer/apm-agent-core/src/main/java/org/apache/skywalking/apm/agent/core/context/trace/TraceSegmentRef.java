@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -24,11 +23,13 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.RefType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment},
- * use {@link #spanId} point to the exact span of the ref {@link TraceSegment}.
+ * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment}, use {@link #spanId} point to
+ * the exact span of the ref {@link TraceSegment}.
  * <p>
  * Created by wusheng on 2017/2/17.
  */
@@ -73,16 +74,20 @@ public class TraceSegmentRef {
             this.peerId = Integer.parseInt(host);
         }
         String entryOperationName = carrier.getEntryOperationName();
-        if (entryOperationName.charAt(0) == '#') {
-            this.entryOperationName = entryOperationName.substring(1);
-        } else {
-            this.entryOperationId = Integer.parseInt(entryOperationName);
+        if (!StringUtil.isEmpty(entryOperationName)) {
+            if (entryOperationName.charAt(0) == '#') {
+                this.entryOperationName = entryOperationName.substring(1);
+            } else {
+                this.entryOperationId = Integer.parseInt(entryOperationName);
+            }
         }
         String parentOperationName = carrier.getParentOperationName();
-        if (parentOperationName.charAt(0) == '#') {
-            this.parentOperationName = parentOperationName.substring(1);
-        } else {
-            this.parentOperationId = Integer.parseInt(parentOperationName);
+        if (!StringUtil.isEmpty(parentOperationName)) {
+            if (parentOperationName.charAt(0) == '#') {
+                this.parentOperationName = parentOperationName.substring(1);
+            } else {
+                this.parentOperationId = Integer.parseInt(parentOperationName);
+            }
         }
     }
 
@@ -135,13 +140,22 @@ public class TraceSegmentRef {
         refBuilder.setEntryApplicationInstanceId(entryApplicationInstanceId);
         refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
         refBuilder.setParentSpanId(spanId);
+        /**
+         * entryOperationId/entryOperationName and parentOperationId/parentOperationName could be empty at same time.
+         * This is accepted in v2 format.
+         *
+         */
         if (entryOperationId == DictionaryUtil.nullValue()) {
-            refBuilder.setEntryServiceName(entryOperationName);
+            if (!StringUtil.isEmpty(entryOperationName)) {
+                refBuilder.setEntryServiceName(entryOperationName);
+            }
         } else {
             refBuilder.setEntryServiceId(entryOperationId);
         }
         if (parentOperationId == DictionaryUtil.nullValue()) {
-            refBuilder.setParentServiceName(parentOperationName);
+            if (!StringUtil.isEmpty(parentOperationName)) {
+                refBuilder.setParentServiceName(parentOperationName);
+            }
         } else {
             refBuilder.setParentServiceId(parentOperationId);
         }
