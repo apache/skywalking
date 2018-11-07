@@ -90,7 +90,8 @@ public class SnifferConfigInitializerTest {
 
     @After
     public void clear() {
-        for(Iterator<Map.Entry<Object, Object>> it = System.getProperties().entrySet().iterator(); it.hasNext(); ) {
+        Iterator<Map.Entry<Object, Object>> it = System.getProperties().entrySet().iterator();
+        while (it.hasNext()) {
             Map.Entry<Object, Object> entry = it.next();
             if (entry.getKey().toString().startsWith("skywalking.")) {
                 it.remove();
