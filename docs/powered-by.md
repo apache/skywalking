@@ -20,20 +20,22 @@ or providing commercial products including Apache SkyWalking.
 1. DaoCloud. https://www.daocloud.io/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
-1. Haier. 海尔消费金融 https://www.haiercash.com/
-1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
-1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
-1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
-1. Ke.com. 贝壳找房. https://www.ke.com
-1. Keking.cn 凯京集团. http://www.keking.cn
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
 1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
+1. Haier. 海尔消费金融 https://www.haiercash.com/
+1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
+1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
+1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
+1. Ke.com. 贝壳找房. https://www.ke.com
+1. Keking.cn 凯京集团. http://www.keking.cn
+1. Lagou.com. 拉勾. https://www.lagou.com/
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
+1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
