@@ -18,15 +18,28 @@
 package org.apache.skywalking.apm.agent.core.base64;
 
 import java.io.UnsupportedEncodingException;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
- * Copied from {@code zipkin.internal.Base64}, adapted from {@code okio.Base64}
- * as JRE 6 doesn't have a base64Url encoder.
+ * Copied from {@code zipkin.internal.Base64}, adapted from {@code okio.Base64} as JRE 6 doesn't have a base64Url
+ * encoder.
  *
  * @author okio cited the original author as Alexander Y. Kleymenov
  */
 public final class Base64 {
+    private static final ILog logger = LogManager.getLogger(Base64.class);
+
     private Base64() {
+    }
+
+    public static String decode2UTFString(String in) {
+        try {
+            return new String(decode(in), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e, "Can't decode BASE64 text {}", in);
+            return "";
+        }
     }
 
     public static byte[] decode(String in) {
@@ -40,7 +53,7 @@ public final class Base64 {
         }
 
         // If the input includes whitespace, this output array will be longer than necessary.
-        byte[] out = new byte[(int) (limit * 6L / 8L)];
+        byte[] out = new byte[(int)(limit * 6L / 8L)];
         int outCount = 0;
         int inCount = 0;
 
@@ -75,14 +88,14 @@ public final class Base64 {
             }
 
             // Append this char's 6 bits to the word.
-            word = (word << 6) | (byte) bits;
+            word = (word << 6) | (byte)bits;
 
             // For every 4 chars of input, we accumulate 24 bits of output. Emit 3 bytes.
             inCount++;
             if (inCount % 4 == 0) {
-                out[outCount++] = (byte) (word >> 16);
-                out[outCount++] = (byte) (word >> 8);
-                out[outCount++] = (byte) word;
+                out[outCount++] = (byte)(word >> 16);
+                out[outCount++] = (byte)(word >> 8);
+                out[outCount++] = (byte)word;
             }
         }
 
@@ -93,16 +106,17 @@ public final class Base64 {
         } else if (lastWordChars == 2) {
             // We read 2 chars followed by "==". Emit 1 byte with 8 of those 12 bits.
             word = word << 12;
-            out[outCount++] = (byte) (word >> 16);
+            out[outCount++] = (byte)(word >> 16);
         } else if (lastWordChars == 3) {
             // We read 3 chars, followed by "=". Emit 2 bytes for 16 of those 18 bits.
             word = word << 6;
-            out[outCount++] = (byte) (word >> 16);
-            out[outCount++] = (byte) (word >> 8);
+            out[outCount++] = (byte)(word >> 16);
+            out[outCount++] = (byte)(word >> 8);
         }
 
         // If we sized our out array perfectly, we're done.
-        if (outCount == out.length) return out;
+        if (outCount == out.length)
+            return out;
 
         // Copy the decoded bytes to a new, right-sized array.
         byte[] prefix = new byte[outCount];
@@ -123,6 +137,15 @@ public final class Base64 {
         'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4',
         '5', '6', '7', '8', '9', '-', '_'
     };
+
+    public static String encode(String text) {
+        try {
+            return encode(text.getBytes("utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e, "Can't encode {} in BASE64", text);
+            return "";
+        }
+    }
 
     public static String encode(byte[] in) {
         return encode(in, MAP);

@@ -53,9 +53,6 @@ public class ContextCarrierV2HeaderTest {
         Assert.assertTrue(hasSW6);
     }
 
-    /**
-     * sampleFlag-segmentId-parentAppInstId-entryAppInstId-peerHost-traceId-entryEndpoint-parentEndpoint
-     */
     @Test
     public void testDeserializeV2Header() {
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -64,8 +61,7 @@ public class ContextCarrierV2HeaderTest {
             next = next.next();
             if (next.getHeadKey().equals("sw3")) {
             } else if (next.getHeadKey().equals("sw6")) {
-                //TODO, wait for base64 solution
-                next.setHeadValue("1-3.4.5-1.2.3-2-10-11-#127.0.0.1:8080--");
+                next.setHeadValue("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw--");
             } else {
                 Assert.fail("unexpected key");
             }
@@ -114,8 +110,12 @@ public class ContextCarrierV2HeaderTest {
             if (next.getHeadKey().equals("sw3")) {
                 Assert.assertEquals("", next.getHeadValue());
             } else if (next.getHeadKey().equals("sw6")) {
-                //TODO, no BASE64
-                Assert.assertEquals("1-1.2.3-4-1-1-#127.0.0.1:8080-3.4.5-#/portal-123", next.getHeadValue());
+                /**
+                 * sampleFlag-traceId-segmentId-spanId-parentAppInstId-entryAppInstId-peerHost-entryEndpoint-parentEndpoint
+                 *
+                 * "1-3.4.5-1.2.3-4-1-1-#127.0.0.1:8080-#/portal-123"
+                 */
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
             } else {
                 Assert.fail("unexpected key");
             }
@@ -130,7 +130,7 @@ public class ContextCarrierV2HeaderTest {
                     Assert.assertEquals("1.2.3|4|1|1|#127.0.0.1:8080|#/portal|123|3.4.5", next.getHeadValue());
                 } else if (next.getHeadKey().equals("sw6")) {
                     //TODO, no BASE64
-                    Assert.assertEquals("1-1.2.3-4-1-1-#127.0.0.1:8080-3.4.5-#/portal-123", next.getHeadValue());
+                    Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
                 } else {
                     Assert.fail("unexpected key");
                 }
@@ -141,5 +141,55 @@ public class ContextCarrierV2HeaderTest {
         }
 
         Assert.assertTrue(contextCarrier.isValid());
+    }
+
+    @Test
+    public void testV2HeaderAccurate() {
+        List<DistributedTraceId> distributedTraceIds = new ArrayList<DistributedTraceId>();
+        distributedTraceIds.add(new PropagatedTraceId("3.4.5"));
+
+        ContextCarrier contextCarrier = new ContextCarrier();
+        contextCarrier.setTraceSegmentId(new ID(1, 2, 3));
+        contextCarrier.setDistributedTraceIds(distributedTraceIds);
+        contextCarrier.setSpanId(4);
+        contextCarrier.setEntryApplicationInstanceId(1);
+        contextCarrier.setParentApplicationInstanceId(1);
+        contextCarrier.setPeerHost("127.0.0.1:8080");
+        contextCarrier.setEntryOperationName("/portal");
+        contextCarrier.setParentOperationId(123);
+
+        CarrierItem next = contextCarrier.items();
+        String headerValue = null;
+        while (next.hasNext()) {
+            next = next.next();
+            if (next.getHeadKey().equals("sw3")) {
+                Assert.assertEquals("", next.getHeadValue());
+            } else if (next.getHeadKey().equals("sw6")) {
+                headerValue = next.getHeadValue();
+            } else {
+                Assert.fail("unexpected key");
+            }
+        }
+
+        ContextCarrier contextCarrier2 = new ContextCarrier();
+        next = contextCarrier2.items();
+        while (next.hasNext()) {
+            next = next.next();
+            if (next.getHeadKey().equals("sw3")) {
+            } else if (next.getHeadKey().equals("sw6")) {
+                next.setHeadValue(headerValue);
+            } else {
+                Assert.fail("unexpected key");
+            }
+        }
+
+        Assert.assertTrue(contextCarrier2.isValid());
+        Assert.assertEquals(contextCarrier.getSpanId(), contextCarrier2.getSpanId());
+        Assert.assertEquals(contextCarrier.getPeerHost(), contextCarrier2.getPeerHost());
+        Assert.assertEquals(contextCarrier.getDistributedTraceId(), contextCarrier2.getDistributedTraceId());
+        Assert.assertEquals(contextCarrier.getTraceSegmentId(), contextCarrier2.getTraceSegmentId());
+        Assert.assertEquals(contextCarrier.getEntryOperationName(), contextCarrier2.getEntryOperationName());
+        Assert.assertEquals(contextCarrier.getEntryApplicationInstanceId(), contextCarrier2.getEntryApplicationInstanceId());
+        Assert.assertEquals(contextCarrier.getParentApplicationInstanceId(), contextCarrier2.getParentApplicationInstanceId());
     }
 }

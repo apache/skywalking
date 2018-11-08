@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
@@ -118,14 +119,14 @@ public class ContextCarrier implements Serializable {
                 if (Config.Agent.ACTIVE_V2_HEADER) {
                     return StringUtil.join('-',
                         "1",
-                        this.getTraceSegmentId().encode(),
+                        Base64.encode(this.getPrimaryDistributedTraceId().encode()),
+                        Base64.encode(this.getTraceSegmentId().encode()),
                         this.getSpanId() + "",
                         this.getParentApplicationInstanceId() + "",
                         this.getEntryApplicationInstanceId() + "",
-                        this.getPeerHost(),
-                        this.getPrimaryDistributedTraceId().encode(),
-                        this.getEntryOperationName(),
-                        this.getParentOperationName());
+                        Base64.encode(this.getPeerHost()),
+                        Base64.encode(this.getEntryOperationName()),
+                        Base64.encode(this.getParentOperationName()));
                 } else {
                     return "";
                 }
@@ -167,14 +168,14 @@ public class ContextCarrier implements Serializable {
                 if (parts.length == 9) {
                     try {
                         // parts[0] is sample flag, always trace if header exists.
-                        this.primaryDistributedTraceId = new PropagatedTraceId(parts[1]);
-                        this.traceSegmentId = new ID(parts[2]);
+                        this.primaryDistributedTraceId = new PropagatedTraceId(Base64.decode2UTFString(parts[1]));
+                        this.traceSegmentId = new ID(Base64.decode2UTFString(parts[2]));
                         this.spanId = Integer.parseInt(parts[3]);
                         this.parentApplicationInstanceId = Integer.parseInt(parts[4]);
                         this.entryApplicationInstanceId = Integer.parseInt(parts[5]);
-                        this.peerHost = parts[6];
-                        this.entryOperationName = parts[7];
-                        this.parentOperationName = parts[8];
+                        this.peerHost = Base64.decode2UTFString(parts[6]);
+                        this.entryOperationName = Base64.decode2UTFString(parts[7]);
+                        this.parentOperationName = Base64.decode2UTFString(parts[8]);
                     } catch (NumberFormatException e) {
 
                     }

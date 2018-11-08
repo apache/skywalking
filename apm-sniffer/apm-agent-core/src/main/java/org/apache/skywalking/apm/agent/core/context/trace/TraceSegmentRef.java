@@ -98,16 +98,20 @@ public class TraceSegmentRef {
         this.parentApplicationInstanceId = RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID;
         this.entryApplicationInstanceId = snapshot.getEntryApplicationInstanceId();
         String entryOperationName = snapshot.getEntryOperationName();
-        if (entryOperationName.charAt(0) == '#') {
-            this.entryOperationName = entryOperationName.substring(1);
-        } else {
-            this.entryOperationId = Integer.parseInt(entryOperationName);
+        if (!StringUtil.isEmpty(entryOperationName)) {
+            if (entryOperationName.charAt(0) == '#') {
+                this.entryOperationName = entryOperationName.substring(1);
+            } else {
+                this.entryOperationId = Integer.parseInt(entryOperationName);
+            }
         }
         String parentOperationName = snapshot.getParentOperationName();
-        if (parentOperationName.charAt(0) == '#') {
-            this.parentOperationName = parentOperationName.substring(1);
-        } else {
-            this.parentOperationId = Integer.parseInt(parentOperationName);
+        if (!StringUtil.isEmpty(parentOperationName)) {
+            if (parentOperationName.charAt(0) == '#') {
+                this.parentOperationName = parentOperationName.substring(1);
+            } else {
+                this.parentOperationId = Integer.parseInt(parentOperationName);
+            }
         }
     }
 

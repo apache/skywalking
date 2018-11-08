@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.List;
@@ -98,9 +97,7 @@ public class ContextSnapshot {
         return traceSegmentId != null
             && spanId > -1
             && entryApplicationInstanceId != DictionaryUtil.nullValue()
-            && primaryDistributedTraceId != null
-            && !StringUtil.isEmpty(entryOperationName)
-            && !StringUtil.isEmpty(parentOperationName);
+            && primaryDistributedTraceId != null;
     }
 
     public String getEntryOperationName() {
@@ -114,7 +111,7 @@ public class ContextSnapshot {
     public int getEntryApplicationInstanceId() {
         return entryApplicationInstanceId;
     }
-    
+
     public boolean isFromCurrent() {
         return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
     }
