@@ -79,9 +79,9 @@ public class ContextCarrier implements Serializable {
     public CarrierItem items() {
         CarrierItemHead head;
         if (Config.Agent.ACTIVE_V2_HEADER && Config.Agent.ACTIVE_V1_HEADER) {
-            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, null);
-            SW3CarrierItem carrierItem = new SW3CarrierItem(this, sw6CarrierItem);
-            head = new CarrierItemHead(carrierItem);
+            SW3CarrierItem  carrierItem = new SW3CarrierItem(this, null);
+            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, carrierItem);
+            head = new CarrierItemHead(sw6CarrierItem);
         } else if (Config.Agent.ACTIVE_V2_HEADER) {
             SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, null);
             head = new CarrierItemHead(sw6CarrierItem);
