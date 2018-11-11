@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.register.worker;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryAnnotationUtils;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -42,7 +41,7 @@ public enum InventoryProcess {
 
     public void create(ModuleManager moduleManager, Class<? extends RegisterSource> inventoryClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(inventoryClass);
-        Scope scope = InventoryAnnotationUtils.getScope(inventoryClass);
+        Scope scope = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
 
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(inventoryClass);
 
