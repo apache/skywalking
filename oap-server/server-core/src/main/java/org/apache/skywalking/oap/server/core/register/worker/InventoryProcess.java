@@ -18,13 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.core.worker.*;
+import org.apache.skywalking.oap.server.core.worker.WorkerIdGenerator;
+import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -63,5 +70,14 @@ public enum InventoryProcess {
         WorkerInstances.INSTANCES.put(distinctWorker.getWorkerId(), distinctWorker);
 
         entryWorkers.put(inventoryClass, distinctWorker);
+    }
+
+    /**
+     * @return all register source class types
+     */
+    public List<Class> getAllRegisterSources() {
+        List allSources = new ArrayList<>();
+        entryWorkers.keySet().forEach(allSources::add);
+        return allSources;
     }
 }
