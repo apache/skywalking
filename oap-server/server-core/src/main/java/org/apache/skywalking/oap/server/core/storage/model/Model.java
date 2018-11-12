@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * @author peng-yongsheng
@@ -30,15 +31,17 @@ public class Model {
     private final boolean isIndicator;
     private final boolean deleteHistory;
     private final List<ModelColumn> columns;
+    private final Scope source;
 
-    public Model(String name, List<ModelColumn> columns, boolean isIndicator, boolean deleteHistory) {
+    public Model(String name, List<ModelColumn> columns, boolean isIndicator, boolean deleteHistory, Scope source) {
         this.name = name;
         this.columns = columns;
         this.isIndicator = isIndicator;
         this.deleteHistory = deleteHistory;
+        this.source = source;
     }
 
     public Model copy(String name) {
-        return new Model(name, columns, isIndicator, deleteHistory);
+        return new Model(name, columns, isIndicator, deleteHistory, source);
     }
 }

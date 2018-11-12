@@ -35,9 +35,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtils;
 /**
  * @author peng-yongsheng
  */
-@InventoryType(scope = Scope.ServiceInstance)
+@InventoryType
 @StreamData
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false)
+@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, source = Scope.ServiceInstanceInventory)
 public class ServiceInstanceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_instance_inventory";
