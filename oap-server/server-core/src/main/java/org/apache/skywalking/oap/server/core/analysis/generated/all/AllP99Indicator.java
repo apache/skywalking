@@ -19,14 +19,15 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.all;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -35,7 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "all_p99", builder = AllP99Indicator.Builder.class)
+@StorageEntity(name = "all_p99", builder = AllP99Indicator.Builder.class, source = Scope.All)
 public class AllP99Indicator extends P99Indicator implements AlarmSupported {
 
 
