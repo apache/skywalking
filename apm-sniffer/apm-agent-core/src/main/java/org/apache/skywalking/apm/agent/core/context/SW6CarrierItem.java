@@ -16,23 +16,22 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 /**
  * @author wusheng
  */
-public class SW3CarrierItem extends CarrierItem {
-    public static final String HEADER_NAME = "sw3";
+public class SW6CarrierItem extends CarrierItem {
+    public static final String HEADER_NAME = "sw6";
     private ContextCarrier carrier;
 
-    public SW3CarrierItem(ContextCarrier carrier, CarrierItem next) {
-        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v1), next);
+    public SW6CarrierItem(ContextCarrier carrier, CarrierItem next) {
+        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v2), next);
         this.carrier = carrier;
     }
 
     @Override
     public void setHeadValue(String headValue) {
-        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v1);
+        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v2);
     }
 }
