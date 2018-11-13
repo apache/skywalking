@@ -80,7 +80,7 @@ public class ContextManagerTest {
 
     @Test
     public void createSpanWithInvalidateContextCarrier() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=", ContextCarrier.HeaderVersion.v1);
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testEntrySpan", contextCarrier);
         firstEntrySpan.setComponent(ComponentsDefine.TOMCAT);
@@ -104,7 +104,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.2343.234234234|1|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.2343.234234234|1|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -227,7 +227,7 @@ public class ContextManagerTest {
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.234.1983829|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.234.1983829|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
