@@ -175,7 +175,15 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceReceiver.receive(entrySourceBuilder.toEndpoint());
             sourceReceiver.receive(entrySourceBuilder.toServiceRelation());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstanceRelation());
-            sourceReceiver.receive(entrySourceBuilder.toEndpointRelation());
+            EndpointRelation endpointRelation = entrySourceBuilder.toEndpointRelation();
+            /**
+             * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
+             * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
+             * So, I am making this source as optional.
+             */
+            if (endpointRelation != null) {
+                sourceReceiver.receive(endpointRelation);
+            }
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {

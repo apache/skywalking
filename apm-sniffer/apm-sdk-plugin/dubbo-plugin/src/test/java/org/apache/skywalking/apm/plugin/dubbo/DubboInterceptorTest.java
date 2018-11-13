@@ -44,6 +44,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,6 +94,7 @@ public class DubboInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         dubboInterceptor = new DubboInterceptor();
 
         PowerMockito.mockStatic(RpcContext.class);
@@ -106,6 +108,11 @@ public class DubboInterceptorTest {
         allArguments = new Object[] {invoker, invocation};
         argumentTypes = new Class[] {invoker.getClass(), invocation.getClass()};
         Config.Agent.APPLICATION_CODE = "DubboTestCases-APP";
+    }
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test

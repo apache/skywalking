@@ -16,22 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.annotation;
-
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.Scope;
+package org.apache.skywalking.apm.agent.core.context;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class InventoryAnnotationUtils {
+public class SW6CarrierItem extends CarrierItem {
+    public static final String HEADER_NAME = "sw6";
+    private ContextCarrier carrier;
 
-    public static Scope getScope(Class aClass) {
-        if (aClass.isAnnotationPresent(InventoryType.class)) {
-            InventoryType annotation = (InventoryType)aClass.getAnnotation(InventoryType.class);
-            return annotation.scope();
-        } else {
-            throw new UnexpectedException("");
-        }
+    public SW6CarrierItem(ContextCarrier carrier, CarrierItem next) {
+        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v2), next);
+        this.carrier = carrier;
+    }
+
+    @Override
+    public void setHeadValue(String headValue) {
+        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v2);
     }
 }

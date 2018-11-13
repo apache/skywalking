@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.activemq;
 
 import org.apache.activemq.command.ActiveMQDestination;
@@ -24,6 +23,7 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.state.CommandVisitor;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
@@ -62,7 +62,7 @@ public class ActiveMQConsumerInterceptorTest {
 
     private MessageDispatch messageDispatch;
 
-    public  class  Des extends ActiveMQDestination {
+    public class Des extends ActiveMQDestination {
 
         @Override
         protected String getQualifiedPrefix() {
@@ -80,7 +80,7 @@ public class ActiveMQConsumerInterceptorTest {
         }
     }
 
-    public  class  Msg extends Message {
+    public class Msg extends Message {
 
         @Override
         public Message copy() {
@@ -126,22 +126,28 @@ public class ActiveMQConsumerInterceptorTest {
 
     @Before
     public void setUp() throws IOException {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         activeMQConsumerInterceptor = new ActiveMQConsumerInterceptor();
         messageDispatch = new MessageDispatch();
 
         Des des = new Des();
         des.setPhysicalName("test");
         messageDispatch.setDestination(des);
-        Message msg =  new Msg();
-        msg.setProperty("sw3","");
+        Message msg = new Msg();
+        msg.setProperty("sw3", "");
         messageDispatch.setMessage(msg);
         arguments = new Object[] {messageDispatch};
         argumentType = null;
     }
 
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
+    }
+
     @Test
     public void testConsumerWithoutMessage() throws Throwable {
-        activeMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
+        activeMQConsumerInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
         activeMQConsumerInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();

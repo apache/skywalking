@@ -19,13 +19,17 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.*;
-import org.slf4j.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -45,10 +49,10 @@ public class RegisterLockInstaller {
             if (!client.isExistsIndex(RegisterLockIndex.NAME)) {
                 createIndex();
             }
-            putIfAbsent(Scope.Endpoint.ordinal());
-            putIfAbsent(Scope.ServiceInstance.ordinal());
-            putIfAbsent(Scope.Service.ordinal());
-            putIfAbsent(Scope.NetworkAddress.ordinal());
+            for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
+                Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                putIfAbsent(sourceScope.ordinal());
+            }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
