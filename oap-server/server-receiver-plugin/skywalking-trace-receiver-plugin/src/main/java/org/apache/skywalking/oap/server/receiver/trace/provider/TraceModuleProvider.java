@@ -57,11 +57,13 @@ public class TraceModuleProvider extends ModuleProvider {
     @Override public void prepare() {
     }
 
-    @Override public void start() throws ModuleStartException {
+    @Override public void start() throws ModuleStartException, ServiceNotProvidedException {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         listenerManager.add(new MultiScopesSpanListener.Factory());
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory());
+
+        registerServiceImplementation(ISegmentParserListenerManager.class, listenerManager);
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);

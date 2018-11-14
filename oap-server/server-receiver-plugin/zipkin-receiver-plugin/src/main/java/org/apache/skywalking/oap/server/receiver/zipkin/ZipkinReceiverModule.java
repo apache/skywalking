@@ -16,24 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.module;
+package org.apache.skywalking.oap.server.receiver.zipkin;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserListenerManager;
 
 /**
- * @author peng-yongsheng
+ * Zipkin receiver module provides the HTTP, protoc serve for any SDK or agent by following Zipkin format.
+ *
+ * At this moment, Zipkin format is not compatible with SkyWalking, especially HEADERs.
+ * Please don't consider this as a Zipkin-SkyWalking integration,
+ * it is provided for adding analysis, aggregation and visualization capabilities to zipkin backend.
+ *
+ * @author wusheng
  */
-public class TraceModule extends ModuleDefine {
-    public static final String NAME = "receiver-trace";
+public class ZipkinReceiverModule extends ModuleDefine {
+    public static final String NAME = "receiver_zipkin";
 
     @Override public String name() {
         return NAME;
     }
 
     @Override public Class[] services() {
-        return new Class[] {
-            ISegmentParserListenerManager.class
-        };
+        return new Class[0];
     }
 }

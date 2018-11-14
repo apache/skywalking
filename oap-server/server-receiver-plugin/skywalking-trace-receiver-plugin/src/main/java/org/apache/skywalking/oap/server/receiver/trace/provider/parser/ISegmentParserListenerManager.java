@@ -16,24 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.module;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserListenerManager;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class TraceModule extends ModuleDefine {
-    public static final String NAME = "receiver-trace";
-
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {
-            ISegmentParserListenerManager.class
-        };
-    }
+public interface ISegmentParserListenerManager extends Service {
+    void add(SpanListenerFactory spanListenerFactory);
 }

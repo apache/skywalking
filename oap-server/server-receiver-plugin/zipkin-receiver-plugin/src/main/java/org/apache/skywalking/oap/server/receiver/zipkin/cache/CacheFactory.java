@@ -16,24 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.module;
+package org.apache.skywalking.oap.server.receiver.zipkin.cache;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.zipkin.cache.caffeine.CaffeineSpanCache;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class TraceModule extends ModuleDefine {
-    public static final String NAME = "receiver-trace";
+public class CacheFactory {
+    public static final CacheFactory INSTANCE = new CacheFactory();
 
-    @Override public String name() {
-        return NAME;
+    private ISpanCache implementor;
+
+    private CacheFactory() {
     }
 
-    @Override public Class[] services() {
-        return new Class[] {
-            ISegmentParserListenerManager.class
-        };
+    public ISpanCache get(ZipkinReceiverConfig config) {
+        if (implementor == null) {
+            synchronized (INSTANCE) {
+                if (implementor == null) {
+                    implementor = new CaffeineSpanCache(config);
+                }
+            }
+        }
+        return implementor;
     }
 }
