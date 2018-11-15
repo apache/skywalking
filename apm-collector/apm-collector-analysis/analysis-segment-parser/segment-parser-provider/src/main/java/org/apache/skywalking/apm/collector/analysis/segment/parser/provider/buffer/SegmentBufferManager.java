@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buf
 
 import java.io.*;
 import java.nio.channels.FileLock;
+import java.util.Arrays;
+
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
