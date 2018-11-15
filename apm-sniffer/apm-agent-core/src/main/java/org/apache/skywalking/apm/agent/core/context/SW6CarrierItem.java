@@ -16,15 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.oracle;
+package org.apache.skywalking.apm.agent.core.context;
 
 /**
- * Constants variables
- *
- * @author zhang xin
+ * @author wusheng
  */
-public final class Constants {
-    public static final String STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.StatementExecuteMethodsInterceptor";
+public class SW6CarrierItem extends CarrierItem {
+    public static final String HEADER_NAME = "sw6";
+    private ContextCarrier carrier;
 
-    public static final String PREPARED_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.oracle.PreparedStatementExecuteMethodsInterceptor";
+    public SW6CarrierItem(ContextCarrier carrier, CarrierItem next) {
+        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v2), next);
+        this.carrier = carrier;
+    }
+
+    @Override
+    public void setHeadValue(String headValue) {
+        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v2);
+    }
 }

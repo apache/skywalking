@@ -79,10 +79,21 @@ public class Config {
          * Specify instance_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
          */
         public static String INSTANCE_UUID = "";
+        
         /**
          * enabled means that the reset function is enabled, and disabled means that the reset function is not enabled. A reset can be triggered by modifying the configuration file only if the reset feature is enabled.
          */
         public static String RESETER_LISTENER = "disabled";
+
+        /**
+         * Active V2 header in default
+         */
+        public static boolean ACTIVE_V2_HEADER = true;
+
+        /**
+         * Deactive V1 header in default
+         */
+        public static boolean ACTIVE_V1_HEADER = false;
 
     }
 

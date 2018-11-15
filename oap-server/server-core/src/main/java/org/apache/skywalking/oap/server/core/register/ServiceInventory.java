@@ -18,24 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
  */
-@InventoryType(scope = Scope.Service)
+@InventoryType
 @StreamData
-@StorageEntity(name = ServiceInventory.MODEL_NAME, builder = ServiceInventory.Builder.class, deleteHistory = false)
+@StorageEntity(name = ServiceInventory.MODEL_NAME, builder = ServiceInventory.Builder.class, deleteHistory = false, source = Scope.ServiceInventory)
 public class ServiceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_inventory";

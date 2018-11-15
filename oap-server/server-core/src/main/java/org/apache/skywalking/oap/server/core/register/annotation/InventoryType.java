@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.register.annotation;
 
-import java.lang.annotation.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author peng-yongsheng
@@ -27,5 +29,4 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface InventoryType {
-    Scope scope();
 }

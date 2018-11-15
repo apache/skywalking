@@ -107,7 +107,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
             serviceInstanceInventory.setHeartbeatTime(heartBeatTime);
             InventoryProcess.INSTANCE.in(serviceInstanceInventory);
         } else {
-            logger.warn("Service instance {} heartbeat, but not found in storage.");
+            logger.warn("Service instance {} heartbeat, but not found in storage.", serviceInstanceId);
         }
     }
 }
