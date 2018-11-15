@@ -27,6 +27,7 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -75,12 +76,14 @@ public class SkyWalkingAgent {
 
         new AgentBuilder.Default(byteBuddy)
             .ignore(nameStartsWith("net.bytebuddy."))
-            .ignore(nameStartsWith("org.slf4j."))
-            .ignore(nameStartsWith("org.apache.logging."))
-            .ignore(nameStartsWith("org.groovy."))
-            .ignore(nameContains("javassist"))
-            .ignore(nameContains(".asm."))
-            .ignore(allSkyWalkingAgentExcludeToolkit())
+                .or(nameStartsWith("org.slf4j."))
+                .or(nameStartsWith("org.apache.logging."))
+                .or(nameStartsWith("org.groovy."))
+                .or(nameContains("javassist"))
+                .or(nameContains(".asm."))
+                .or(nameStartsWith("sun.reflect"))
+                .or(allSkyWalkingAgentExcludeToolkit()
+                .or(ElementMatchers.<TypeDescription>isSynthetic()))
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
             .with(new Listener())
