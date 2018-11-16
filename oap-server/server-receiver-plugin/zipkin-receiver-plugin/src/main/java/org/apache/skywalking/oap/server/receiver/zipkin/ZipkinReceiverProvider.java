@@ -25,8 +25,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV1JettyHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV2JettyHandler;
+import org.apache.skywalking.oap.server.receiver.zipkin.transform.Zipkin2SkyWalkingTransfer;
 
 /**
  * @author wusheng
@@ -64,9 +66,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         jettyServer.addHandler(new SpanV1JettyHandler(config));
         jettyServer.addHandler(new SpanV2JettyHandler(config));
 
-
-
-        ISegmentParseService segmentParseService = getManager().find(TraceModule.NAME).getService(ISegmentParseService.class);
+        ISegmentParserService segmentParseService = getManager().find(TraceModule.NAME).getService(ISegmentParserService.class);
         Receiver2AnalysisBridge bridge = new Receiver2AnalysisBridge(segmentParseService);
         Zipkin2SkyWalkingTransfer.INSTANCE.addListener(bridge);
     }

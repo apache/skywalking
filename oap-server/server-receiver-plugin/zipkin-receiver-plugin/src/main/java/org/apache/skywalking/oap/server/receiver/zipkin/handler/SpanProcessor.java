@@ -24,10 +24,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.ZipkinReceiverConfig;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.cache.CacheFactory;
+import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinTraceOSInfoBuilder;
 import org.apache.skywalking.oap.server.receiver.zipkin.cache.CacheFactory;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
@@ -49,9 +48,11 @@ public class SpanProcessor {
             // In Zipkin, the local service name represents the application owner.
             String applicationCode = span.localServiceName();
             if (applicationCode != null) {
-                int applicationId = registerServices.getApplicationIDService().getOrCreateForApplicationCode(applicationCode);
+                int applicationId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(applicationCode);
                 if (applicationId != 0) {
-                    registerServices.getOrCreateApplicationInstanceId(applicationId, applicationCode);
+                    CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(applicationId, applicationCode, applicationCode,
+                        span.timestampAsLong(),
+                        ZipkinTraceOSInfoBuilder.getOSInfoForZipkin(applicationCode));
                 }
             }
 
@@ -71,4 +72,5 @@ public class SpanProcessor {
 
         return requestInStream;
     }
+
 }

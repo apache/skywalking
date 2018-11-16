@@ -20,10 +20,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin.transform;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.collector.analysis.metric.define.service.IInstanceHeartBeatService;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.RegisterServices;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.SkyWalkingTrace;
-import org.apache.skywalking.apm.collector.receiver.zipkin.provider.data.ZipkinTrace;
 import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
 import org.apache.skywalking.oap.server.receiver.zipkin.data.ZipkinTrace;
 import zipkin2.Span;
@@ -49,7 +45,7 @@ public class Zipkin2SkyWalkingTransfer {
             SkyWalkingTrace skyWalkingTrace = SegmentBuilder.build(traceSpans);
 
             listeners.forEach(listener ->
-                    listener.notify(skyWalkingTrace)
+                listener.notify(skyWalkingTrace)
             );
 
         }

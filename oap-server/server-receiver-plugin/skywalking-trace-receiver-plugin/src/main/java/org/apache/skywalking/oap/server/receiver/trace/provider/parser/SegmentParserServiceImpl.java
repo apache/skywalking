@@ -16,24 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.module;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class TraceModule extends ModuleDefine {
-    public static final String NAME = "receiver-trace";
+public class SegmentParserServiceImpl implements ISegmentParserService {
+    private final SegmentParse.Producer segmentProducer;
 
-    @Override public String name() {
-        return NAME;
+    public SegmentParserServiceImpl(
+        SegmentParse.Producer segmentProducer) {
+        this.segmentProducer = segmentProducer;
     }
 
-    @Override public Class[] services() {
-        return new Class[] {
-            ISegmentParserService.class
-        };
+    @Override
+    public void send(UpstreamSegment segment) {
+        segmentProducer.send(segment, SegmentParse.Source.Agent);
     }
 }

@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author wusheng
  */
-public class ZipkinReceiverConfig {
+public class ZipkinReceiverConfig extends ModuleConfig {
     private String host;
     private int port;
     private String contextPath;

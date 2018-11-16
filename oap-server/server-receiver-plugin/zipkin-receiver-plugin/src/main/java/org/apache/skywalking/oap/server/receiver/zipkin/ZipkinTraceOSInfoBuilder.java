@@ -16,24 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.module;
+package org.apache.skywalking.oap.server.receiver.zipkin;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class TraceModule extends ModuleDefine {
-    public static final String NAME = "receiver-trace";
+public class ZipkinTraceOSInfoBuilder {
 
-    @Override public String name() {
-        return NAME;
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {
-            ISegmentParserService.class
-        };
+    public static ServiceInstanceInventory.AgentOsInfo getOSInfoForZipkin(String instanceName) {
+        ServiceInstanceInventory.AgentOsInfo osInfo = new ServiceInstanceInventory.AgentOsInfo();
+        osInfo.setHostname(instanceName);
+        return osInfo;
     }
 }

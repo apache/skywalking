@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 
 /**
  * @author wusheng
  */
-public interface ISegmentParserListenerManager extends Service {
+public interface ISegmentParserListenerManager {
     void add(SpanListenerFactory spanListenerFactory);
 }
