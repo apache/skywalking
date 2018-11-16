@@ -36,6 +36,12 @@ public class OAPServerStartUp {
         try {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
+
+            String mode = System.getProperty("mode");
+            if ("init".equals(mode)) {
+                logger.info("OAP starts up in init mode successfully, exit now...");
+                System.exit(0);
+            }
         } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException | ModuleStartException e) {
             logger.error(e.getMessage(), e);
             System.exit(1);
