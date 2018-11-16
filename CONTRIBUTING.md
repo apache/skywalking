@@ -38,6 +38,6 @@ Once we've discussed your changes and you've got your code ready, make sure that
 * References the original issue in description, e.g. "Resolves #123".
 * Has a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 
-## Do you have question   e source code?
+## Do you have questions about the source code?
 
 Ask any question about how to use SkyWalking in the [Gitter](https://gitter.im/OpenSkywalking/Lobby).
