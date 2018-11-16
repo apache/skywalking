@@ -49,23 +49,19 @@ public class PropertyPlaceholderHelperTest {
 
     @SuppressWarnings("unchecked")
     @Before
-    public void init() {
-        try {
-            Reader applicationReader = ResourceUtils.read("application.yml");
-            Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
-            if (CollectionUtils.isNotEmpty(moduleConfig)) {
-                moduleConfig.forEach((moduleName, providerConfig) -> {
-                    if (providerConfig.size() > 0) {
-                        providerConfig.forEach((name, propertiesConfig) -> {
-                            if (propertiesConfig != null) {
-                                propertiesConfig.forEach((key, value) -> properties.put(key, value));
-                            }
-                        });
-                    }
-                });
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    public void init() throws FileNotFoundException {
+        Reader applicationReader = ResourceUtils.read("application.yml");
+        Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
+        if (CollectionUtils.isNotEmpty(moduleConfig)) {
+            moduleConfig.forEach((moduleName, providerConfig) -> {
+                if (providerConfig.size() > 0) {
+                    providerConfig.forEach((name, propertiesConfig) -> {
+                        if (propertiesConfig != null) {
+                            propertiesConfig.forEach((key, value) -> properties.put(key, value));
+                        }
+                    });
+                }
+            });
         }
         placeholderHelper =
             new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
