@@ -31,7 +31,7 @@ core:
     restHost: ${REST_HOST:0.0.0.0}
     restPort: ${REST_PORT:12800}
     restContextPath: ${REST_CONTEXT_PATH:/}
-    gRPCHost: ${GRPC_HOST:0.0.0.0}
+    gRPCHost: grpc.skywalking.incubator.apache.org
     gRPCPort: ${GRPC_PORT:11800}
     downsampling:
     - Hour

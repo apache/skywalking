@@ -22,9 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -34,6 +37,15 @@ public class PropertyPlaceholderHelperTest {
     private PropertyPlaceholderHelper placeholderHelper;
     private Properties properties = new Properties();
     private final Yaml yaml = new Yaml();
+    private String restPortEnv = "12801";
+    private String cleanEnv = "true";
+    /**
+     * The EnvironmentVariables rule allows you to set environment variables for your test. All changes to environment
+     * variables are reverted after the test.
+     */
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
+        .set("REST_PORT", restPortEnv).set("RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART", cleanEnv);
 
     @SuppressWarnings("unchecked")
     @Before
@@ -63,17 +75,22 @@ public class PropertyPlaceholderHelperTest {
 
     @Test
     public void testDataType() {
-        String hostProp = "restHost";
-        String portProp = "restPort";
-        String esAddress = "clusterNodes";
-        String bufferFileCleanWhenRestartProp = "bufferFileCleanWhenRestart";
+        //tests that do not use ${name} to set config.
+        Assert.assertEquals("grpc.skywalking.incubator.apache.org",
+            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("gRPCHost"), properties)));
+
+        //tests that use ${REST_HOST:0.0.0.0} but not set REST_HOST in environmentVariables.
         Assert.assertEquals("0.0.0.0",
-            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty(hostProp), properties)));
-        Assert.assertEquals("localhost:9200",
-            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty(esAddress), properties)));
-        Assert.assertEquals(12800,
-            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty(portProp), properties)));
-        Assert.assertEquals(false,
-            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty(bufferFileCleanWhenRestartProp), properties)));
+            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restHost"), properties)));
+
+        //tests that use ${REST_PORT:12800} and set REST_PORT in environmentVariables.
+        Assert.assertEquals(12801,
+            yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
+    }
+
+    @After
+    public void afterTest() {
+        //reverted environment variables changes after the test for safe.
+        environmentVariables.clear("REST_HOST", "RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART");
     }
 }
