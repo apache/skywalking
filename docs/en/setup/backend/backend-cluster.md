@@ -13,6 +13,10 @@ by using k8s native APIs to manage cluster.
 ## Zookeeper coordinator
 Zookeeper is a very common and wide used cluster coordinator. Set the **cluster** module's implementor
 to **zookeeper** in the yml to active.
+
+Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. 
+Replace the ZooKeeper 3.5+ library with your ZooKeeper 3.4.x library from the oap-libs folder.
+
 ```yaml
 cluster:
   zookeeper:
