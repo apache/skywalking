@@ -75,14 +75,15 @@ public class SkyWalkingAgent {
             .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
         new AgentBuilder.Default(byteBuddy)
-            .ignore(nameStartsWith("net.bytebuddy."))
+            .ignore(
+                nameStartsWith("net.bytebuddy.")
                 .or(nameStartsWith("org.slf4j."))
                 .or(nameStartsWith("org.apache.logging."))
                 .or(nameStartsWith("org.groovy."))
                 .or(nameContains("javassist"))
                 .or(nameContains(".asm."))
                 .or(nameStartsWith("sun.reflect"))
-                .or(allSkyWalkingAgentExcludeToolkit()
+                .or(allSkyWalkingAgentExcludeToolkit())
                 .or(ElementMatchers.<TypeDescription>isSynthetic()))
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
