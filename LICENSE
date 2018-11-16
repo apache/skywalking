@@ -226,7 +226,7 @@ BSD licenses
 The following components are provided under a BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-   proto files from gogo protobuf: https://github.com/gogo/protobuf  BSD-3
+   proto files from gogo protobuf: https://github.com/gogo/protobuf  BSD-2
 
 
 ========================================================================
