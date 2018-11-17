@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.agent;
 
-import java.lang.instrument.Instrumentation;
-import java.util.List;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
@@ -34,15 +32,12 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
-import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
-import org.apache.skywalking.apm.agent.core.plugin.PluginException;
-import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
+import org.apache.skywalking.apm.agent.core.plugin.*;
 
-import static net.bytebuddy.matcher.ElementMatchers.nameContains;
-import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
-import static net.bytebuddy.matcher.ElementMatchers.not;
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
  * The main entrance of sky-waking agent, based on javaagent mechanism.
@@ -118,7 +113,7 @@ public class SkyWalkingAgent {
                 DynamicType.Builder<?> newBuilder = builder;
                 EnhanceContext context = new EnhanceContext();
                 for (AbstractClassEnhancePluginDefine define : pluginDefines) {
-                    DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription.getTypeName(), newBuilder, classLoader, context);
+                    DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription, newBuilder, classLoader, context);
                     if (possibleNewBuilder != null) {
                         newBuilder = possibleNewBuilder;
                     }
