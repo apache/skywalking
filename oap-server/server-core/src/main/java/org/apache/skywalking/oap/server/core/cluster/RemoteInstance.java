@@ -37,7 +37,7 @@ public class RemoteInstance implements Comparable<RemoteInstance> {
     }
 
     @Override public int compareTo(RemoteInstance o) {
-        return toString().compareTo(toString());
+        return toString().compareTo(o.toString());
     }
 
     @Override public String toString() {

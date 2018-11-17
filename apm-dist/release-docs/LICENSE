@@ -331,7 +331,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     Google: protobuf-java-util 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.3: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
-    gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-3-Clause
+    
+    gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-2-Clause
 
 ========================================================================
 MPL 2.0 licenses

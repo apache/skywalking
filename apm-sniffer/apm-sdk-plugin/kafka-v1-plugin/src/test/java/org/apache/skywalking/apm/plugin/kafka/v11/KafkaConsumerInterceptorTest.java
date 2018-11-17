@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -39,6 +40,7 @@ import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.kafka.v1.ConsumerEnhanceRequiredInfo;
 import org.apache.skywalking.apm.plugin.kafka.v1.KafkaConsumerInterceptor;
 import org.hamcrest.MatcherAssert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,6 +80,7 @@ public class KafkaConsumerInterceptorTest {
 
     @Before
     public void setUp() {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         consumerInterceptor = new KafkaConsumerInterceptor();
         consumerEnhanceRequiredInfo = new ConsumerEnhanceRequiredInfo();
 
@@ -97,6 +100,11 @@ public class KafkaConsumerInterceptorTest {
         consumerRecord.headers().add("sw3", "1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#testEntrySpan|#AQA*#AQA*Et0We0tQNQA*".getBytes());
         records.add(consumerRecord);
         messages.put(topicPartition, records);
+    }
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test

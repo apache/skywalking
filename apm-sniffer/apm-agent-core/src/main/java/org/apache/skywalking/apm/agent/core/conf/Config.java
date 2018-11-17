@@ -70,6 +70,16 @@ public class Config {
          * Skywalking team may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
+
+        /**
+         * Active V2 header in default
+         */
+        public static boolean ACTIVE_V2_HEADER = true;
+
+        /**
+         * Deactive V1 header in default
+         */
+        public static boolean ACTIVE_V1_HEADER = false;
     }
 
     public static class Collector {
