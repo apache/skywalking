@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.receiver.zipkin.transform.Zipkin2SkyWalk
 public class ZipkinReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
     private ZipkinReceiverConfig config;
+    private JettyServer jettyServer;
 
     public ZipkinReceiverProvider() {
         config = new ZipkinReceiverConfig();
@@ -60,7 +62,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         CoreRegisterLinker.setModuleManager(getManager());
 
-        JettyServer jettyServer = new JettyServer(config.getHost(), config.getPort(), config.getContextPath());
+        jettyServer = new JettyServer(config.getHost(), config.getPort(), config.getContextPath());
         jettyServer.initialize();
 
         jettyServer.addHandler(new SpanV1JettyHandler(config));
@@ -71,8 +73,12 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         Zipkin2SkyWalkingTransfer.INSTANCE.addListener(bridge);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
+    @Override public void notifyAfterCompleted() throws ModuleStartException {
+        try {
+            jettyServer.start();
+        } catch (ServerException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override public String[] requiredModules() {

@@ -238,8 +238,11 @@ public class SegmentBuilder {
             // using same span id in client and server for RPC
             // SkyWalking will build both sides of span
             ClientSideSpan clientSideSpan = clientPartSpan.get(span.id());
-            parentSegmentSpan = clientSideSpan.getBuilder();
-            parentSpan = clientSideSpan.getSpan();
+            if (clientSideSpan != null) {
+                // For the root span, there may be no ref, because of no parent.
+                parentSegmentSpan = clientSideSpan.getBuilder();
+                parentSpan = clientSideSpan.getSpan();
+            }
         }
 
         String ip = null;

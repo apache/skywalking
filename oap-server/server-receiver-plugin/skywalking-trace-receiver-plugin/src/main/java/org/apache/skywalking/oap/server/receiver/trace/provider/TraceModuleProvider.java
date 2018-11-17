@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardi
 public class TraceModuleProvider extends ModuleProvider {
 
     private final TraceServiceModuleConfig moduleConfig;
+    private SegmentParse.Producer segmentProducer;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -62,20 +63,21 @@ public class TraceModuleProvider extends ModuleProvider {
         return moduleConfig;
     }
 
-    @Override public void prepare() {
-    }
-
-    @Override public void start() throws ModuleStartException, ServiceNotProvidedException {
+    @Override public void prepare() throws ServiceNotProvidedException {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         listenerManager.add(new MultiScopesSpanListener.Factory());
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory());
 
+        segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
+        this.registerServiceImplementation(ISegmentParserService.class, new SegmentParserServiceImpl(segmentProducer));
+    }
+
+    @Override public void start() throws ModuleStartException {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
         JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
         try {
-            SegmentParse.Producer segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
-            this.registerServiceImplementation(ISegmentParserService.class, new SegmentParserServiceImpl(segmentProducer));
+
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
             jettyHandlerRegister.addHandler(new TraceSegmentServletHandler(segmentProducer));
 
