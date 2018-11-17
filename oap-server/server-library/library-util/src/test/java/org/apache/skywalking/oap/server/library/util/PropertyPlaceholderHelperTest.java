@@ -37,15 +37,13 @@ public class PropertyPlaceholderHelperTest {
     private PropertyPlaceholderHelper placeholderHelper;
     private Properties properties = new Properties();
     private final Yaml yaml = new Yaml();
-    private String restPortEnv = "12801";
-    private String cleanEnv = "true";
+
     /**
      * The EnvironmentVariables rule allows you to set environment variables for your test. All changes to environment
      * variables are reverted after the test.
      */
     @Rule
-    public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
-        .set("REST_PORT", restPortEnv).set("RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART", cleanEnv);
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables().set("REST_PORT", "12801");
 
     @SuppressWarnings("unchecked")
     @Before
@@ -86,7 +84,7 @@ public class PropertyPlaceholderHelperTest {
 
     @After
     public void afterTest() {
-        //reverted environment variables changes after the test for safe.
-        environmentVariables.clear("REST_HOST", "RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART");
+        //revert environment variables changes after the test for safe.
+        environmentVariables.clear("REST_HOST");
     }
 }
