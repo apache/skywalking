@@ -79,6 +79,7 @@ public class SegmentBuilder {
         });
 
         Span rootSpan = root.get();
+        long timestamp = 0;
         if (rootSpan != null) {
             String applicationCode = rootSpan.localServiceName();
             // If root span doesn't include applicationCode, a.k.a local service name,
@@ -87,6 +88,7 @@ public class SegmentBuilder {
             // :P Hope anyone could provide better solution.
             // Wu Sheng.
             if (StringUtils.isNotEmpty(applicationCode)) {
+                timestamp = rootSpan.timestampAsLong();
                 builder.context.addApp(applicationCode, rootSpan.timestampAsLong());
 
                 SpanObject.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
@@ -98,11 +100,12 @@ public class SegmentBuilder {
         }
 
         List<TraceSegmentObject.Builder> segmentBuilders = new LinkedList<>();
+        long finalTimestamp = timestamp;
         builder.segments.forEach(segment -> {
             TraceSegmentObject.Builder traceSegmentBuilder = segment.freeze();
             segmentBuilders.add(traceSegmentBuilder);
-            CoreRegisterLinker.getServiceInventoryRegister().heartbeat(traceSegmentBuilder.getApplicationId(), segment.getEndTime());
-            CoreRegisterLinker.getServiceInstanceInventoryRegister().heartbeat(traceSegmentBuilder.getApplicationInstanceId(), segment.getEndTime());
+            CoreRegisterLinker.getServiceInventoryRegister().heartbeat(traceSegmentBuilder.getApplicationId(), finalTimestamp);
+            CoreRegisterLinker.getServiceInstanceInventoryRegister().heartbeat(traceSegmentBuilder.getApplicationInstanceId(), finalTimestamp);
         });
         return new SkyWalkingTrace(builder.generateTraceOrSegmentId(), segmentBuilders);
     }
