@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
 import org.apache.skywalking.apm.network.language.agent.LogMessage;
 import org.apache.skywalking.apm.network.language.agent.RefType;
@@ -100,6 +101,7 @@ public class SegmentBuilder {
         builder.segments.forEach(segment -> {
             TraceSegmentObject.Builder traceSegmentBuilder = segment.freeze();
             segmentBuilders.add(traceSegmentBuilder);
+            CoreRegisterLinker.getServiceInventoryRegister().heartbeat(traceSegmentBuilder.getApplicationId(), segment.getEndTime());
             CoreRegisterLinker.getServiceInstanceInventoryRegister().heartbeat(traceSegmentBuilder.getApplicationInstanceId(), segment.getEndTime());
         });
         return new SkyWalkingTrace(builder.generateTraceOrSegmentId(), segmentBuilders);
@@ -152,12 +154,13 @@ public class SegmentBuilder {
             spanBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
         }
         Span.Kind kind = span.kind();
-        spanBuilder.setOperationName(span.name());
+        String opName = Strings.isBlank(span.name()) ? "-" : span.name();
+        spanBuilder.setOperationName(opName);
         ClientSideSpan clientSideSpan;
         switch (kind) {
             case CLIENT:
                 spanBuilder.setSpanType(SpanType.Exit);
-                String peer = endpoint2Peer(span.remoteEndpoint());
+                String peer = getPeer(parentSpan, span);
                 if (peer != null) {
                     spanBuilder.setPeer(peer);
                 }
@@ -174,7 +177,7 @@ public class SegmentBuilder {
                 break;
             case PRODUCER:
                 spanBuilder.setSpanType(SpanType.Exit);
-                peer = endpoint2Peer(span.remoteEndpoint());
+                peer = getPeer(parentSpan, span);
                 if (peer != null) {
                     spanBuilder.setPeer(peer);
                 }
@@ -206,23 +209,6 @@ public class SegmentBuilder {
         return spanBuilder;
     }
 
-    private String endpoint2Peer(Endpoint endpoint) {
-        if (endpoint == null) {
-            return null;
-        }
-        String ip = null;
-        if (StringUtils.isNotEmpty(endpoint.ipv4())) {
-            ip = endpoint.ipv4();
-        } else if (StringUtils.isNotEmpty(endpoint.ipv6())) {
-            ip = endpoint.ipv6();
-        }
-        if (StringUtils.isEmpty(ip)) {
-            return null;
-        }
-        int port = endpoint.port();
-        return port == 0 ? ip : ip + ":" + port;
-    }
-
     private void buildRef(SpanObject.Builder spanBuilder, Span span, SpanObject.Builder parentSegmentSpan,
         Span parentSpan) {
         Segment parentSegment = context.parentSegment();
@@ -245,29 +231,8 @@ public class SegmentBuilder {
             }
         }
 
-        String ip = null;
-        int port = 0;
-        Endpoint serverEndpoint = span.localEndpoint();
-        Endpoint clientEndpoint = parentSpan.remoteEndpoint();
-        if (clientEndpoint != null) {
-            if (StringUtil.isBlank(ip)) {
-                if (StringUtils.isNotEmpty(clientEndpoint.ipv4())) {
-                    ip = clientEndpoint.ipv4();
-                } else if (StringUtils.isNotEmpty(clientEndpoint.ipv6())) {
-                    ip = clientEndpoint.ipv6();
-                }
-                port = clientEndpoint.port();
-            }
-        }
-        if (serverEndpoint != null) {
-            if (StringUtils.isNotEmpty(serverEndpoint.ipv4())) {
-                ip = serverEndpoint.ipv4();
-            } else if (StringUtils.isNotEmpty(serverEndpoint.ipv6())) {
-                ip = serverEndpoint.ipv6();
-            }
-        }
-
-        if (StringUtil.isBlank(ip)) {
+        String peer = getPeer(parentSpan, span);
+        if (StringUtil.isBlank(peer)) {
             //The IP is the most important for building the ref at both sides.
             return;
         }
@@ -283,7 +248,7 @@ public class SegmentBuilder {
         refBuilder.setEntryApplicationInstanceId(rootSegment.builder().getApplicationInstanceId());
 
         // parent ref info
-        refBuilder.setNetworkAddress(port == 0 ? ip : ip + ":" + port);
+        refBuilder.setNetworkAddress(peer);
         parentSegmentSpan.setPeer(refBuilder.getNetworkAddress());
         refBuilder.setParentApplicationInstanceId(parentSegment.builder().getApplicationInstanceId());
         refBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
@@ -297,6 +262,40 @@ public class SegmentBuilder {
         refBuilder.setRefType(RefType.CrossProcess);
 
         spanBuilder.addRefs(refBuilder);
+    }
+
+    private String getPeer(Span parentSpan, Span childSpan) {
+        String peer;
+
+        Endpoint serverEndpoint = childSpan == null ? null : childSpan.localEndpoint();
+        peer = endpoint2Peer(serverEndpoint);
+
+        if (peer == null) {
+            Endpoint clientEndpoint = parentSpan == null ? null : parentSpan.remoteEndpoint();
+            peer = endpoint2Peer(clientEndpoint);
+        }
+
+        return peer;
+    }
+
+    private String endpoint2Peer(Endpoint endpoint) {
+        String ip = null;
+        Integer port = 0;
+
+        if (endpoint != null) {
+            if (StringUtils.isNotEmpty(endpoint.ipv4())) {
+                ip = endpoint.ipv4();
+                port = endpoint.port();
+            } else if (StringUtils.isNotEmpty(endpoint.ipv6())) {
+                ip = endpoint.ipv6();
+                port = endpoint.port();
+            }
+        }
+        if (ip == null) {
+            return null;
+        } else {
+            return port == null || port == 0 ? ip : ip + ":" + port;
+        }
     }
 
     /**
