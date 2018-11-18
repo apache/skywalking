@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.TracingContext;
-import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
@@ -51,7 +48,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  * @author wusheng
  */
 @DefaultImplementor
-public class AppAndServiceRegisterClient implements BootService, GRPCChannelListener, Runnable, TracingContextListener {
+public class AppAndServiceRegisterClient implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
@@ -94,12 +91,11 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                 public void handle(Throwable t) {
                     logger.error("unexpected exception.", t);
                 }
-            }), 0, Config.Collector.SERVICE_AND_ENDPOINT_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
     public void onComplete() throws Throwable {
-        TracingContext.ListenerManager.add(this);
     }
 
     @Override
@@ -139,7 +135,6 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                 RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
                                     = instanceMapping.getApplicationInstanceId();
                                 Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
-
                             }
                         } else {
                             if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
@@ -160,10 +155,5 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }
-    }
-
-    @Override
-    public void afterFinished(TraceSegment traceSegment) {
-        lastSegmentTime = System.currentTimeMillis();
     }
 }

@@ -22,8 +22,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -36,8 +35,8 @@ public class H2EndpointInventoryCacheDAO extends H2SQLExecutor implements IEndpo
         this.h2Client = h2Client;
     }
 
-    @Override public int getEndpointId(int serviceId, String endpointName) {
-        String id = EndpointInventory.buildId(serviceId, endpointName);
+    @Override public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
+        String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
         return getEntityIDByID(h2Client, EndpointInventory.SEQUENCE, EndpointInventory.MODEL_NAME, id);
     }
 
