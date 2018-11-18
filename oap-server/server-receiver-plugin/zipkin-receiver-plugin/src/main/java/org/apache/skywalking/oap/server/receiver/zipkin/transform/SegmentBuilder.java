@@ -89,7 +89,7 @@ public class SegmentBuilder {
             // Wu Sheng.
             if (StringUtils.isNotEmpty(applicationCode)) {
                 timestamp = rootSpan.timestampAsLong();
-                builder.context.addApp(applicationCode, rootSpan.timestampAsLong());
+                builder.context.addApp(applicationCode, rootSpan.timestampAsLong() / 1000);
 
                 SpanObject.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
                 builder.context.currentSegment().addSpan(rootSpanBuilder);
@@ -100,7 +100,8 @@ public class SegmentBuilder {
         }
 
         List<TraceSegmentObject.Builder> segmentBuilders = new LinkedList<>();
-        long finalTimestamp = timestamp;
+        // microseconds -> million seconds
+        long finalTimestamp = timestamp / 1000;
         builder.segments.forEach(segment -> {
             TraceSegmentObject.Builder traceSegmentBuilder = segment.freeze();
             segmentBuilders.add(traceSegmentBuilder);
@@ -129,7 +130,7 @@ public class SegmentBuilder {
 
             try {
                 if (isNewApp) {
-                    context.addApp(localServiceName, childSpan.timestampAsLong());
+                    context.addApp(localServiceName, childSpan.timestampAsLong() / 1000);
                 }
                 SpanObject.Builder childSpanBuilder = initSpan(parentSegmentSpan, parent, childSpan, isNewApp);
 
