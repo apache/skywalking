@@ -146,13 +146,4 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
 
         return loadedProviders.getFirst();
     }
-
-//    @Override
-//    public final <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedRuntimeException {
-//        try {
-//            return provider().getService(serviceType);
-//        } catch (DuplicateProviderException | ProviderNotFoundException | ServiceNotProvidedException e) {
-//            throw new ServiceNotProvidedRuntimeException(e.getMessage());
-//        }
-//    }
 }
