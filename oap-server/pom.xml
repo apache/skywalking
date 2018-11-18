@@ -36,6 +36,7 @@
         <module>server-starter</module>
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
+        <module>server-testing</module>
     </modules>
 
     <properties>

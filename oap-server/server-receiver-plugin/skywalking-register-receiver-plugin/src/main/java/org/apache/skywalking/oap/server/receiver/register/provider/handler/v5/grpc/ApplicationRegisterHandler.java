@@ -36,7 +36,7 @@ public class ApplicationRegisterHandler extends ApplicationRegisterServiceGrpc.A
     private final IServiceInventoryRegister serviceInventoryRegister;
 
     public ApplicationRegisterHandler(ModuleManager moduleManager) {
-        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     @Override

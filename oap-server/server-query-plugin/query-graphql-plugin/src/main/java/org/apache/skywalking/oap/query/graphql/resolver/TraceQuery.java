@@ -43,7 +43,7 @@ public class TraceQuery implements GraphQLQueryResolver {
 
     private TraceQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(TraceQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(TraceQueryService.class);
         }
         return queryService;
     }

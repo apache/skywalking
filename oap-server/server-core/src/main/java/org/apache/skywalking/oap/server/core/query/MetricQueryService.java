@@ -50,7 +50,7 @@ public class MetricQueryService implements Service {
 
     private IMetricQueryDAO getMetricQueryDAO() {
         if (metricQueryDAO == null) {
-            metricQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetricQueryDAO.class);
+            metricQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetricQueryDAO.class);
         }
         return metricQueryDAO;
     }

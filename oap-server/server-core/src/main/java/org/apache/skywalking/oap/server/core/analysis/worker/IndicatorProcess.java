@@ -44,7 +44,7 @@ public enum IndicatorProcess {
         String modelName = StorageEntityAnnotationUtils.getModelName(indicatorClass);
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(indicatorClass);
 
-        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).getService(StorageDAO.class);
+        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IIndicatorDAO indicatorDAO;
         try {
             indicatorDAO = storageDAO.newIndicatorDao(builderClass.newInstance());
