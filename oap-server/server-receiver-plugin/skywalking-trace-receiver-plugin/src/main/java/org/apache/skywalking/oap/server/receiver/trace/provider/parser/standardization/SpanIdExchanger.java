@@ -47,9 +47,9 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     }
 
     private SpanIdExchanger(ModuleManager moduleManager) {
-        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IEndpointInventoryRegister.class);
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
-        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).getService(IComponentLibraryCatalogService.class);
+        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
+        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int serviceId) {

@@ -51,28 +51,28 @@ public class TopologyQueryService implements Service {
 
     private IMetadataQueryDAO getMetadataQueryDAO() {
         if (metadataQueryDAO == null) {
-            metadataQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetadataQueryDAO.class);
+            metadataQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetadataQueryDAO.class);
         }
         return metadataQueryDAO;
     }
 
     private ITopologyQueryDAO getTopologyQueryDAO() {
         if (topologyQueryDAO == null) {
-            topologyQueryDAO = moduleManager.find(StorageModule.NAME).getService(ITopologyQueryDAO.class);
+            topologyQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITopologyQueryDAO.class);
         }
         return topologyQueryDAO;
     }
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
         if (componentLibraryCatalogService == null) {
-            componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).getService(IComponentLibraryCatalogService.class);
+            componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
         }
         return componentLibraryCatalogService;
     }
 
     private EndpointInventoryCache getEndpointInventoryCache() {
         if (endpointInventoryCache == null) {
-            endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+            endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         }
         return endpointInventoryCache;
     }

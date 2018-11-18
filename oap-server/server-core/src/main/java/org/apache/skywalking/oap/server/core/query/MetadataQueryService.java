@@ -45,21 +45,21 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     private IMetadataQueryDAO getMetadataQueryDAO() {
         if (metadataQueryDAO == null) {
-            metadataQueryDAO = moduleManager.find(StorageModule.NAME).getService(IMetadataQueryDAO.class);
+            metadataQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetadataQueryDAO.class);
         }
         return metadataQueryDAO;
     }
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (serviceInventoryCache == null) {
-            serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+            serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
     }
 
     private EndpointInventoryCache getEndpointInventoryCache() {
         if (endpointInventoryCache == null) {
-            endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+            endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         }
         return endpointInventoryCache;
     }

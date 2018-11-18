@@ -58,7 +58,7 @@ public enum DataTTLKeeperTimer {
 
     public void start(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).getService(ClusterNodesQuery.class);
+        this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             new RunnableWithExceptionProtection(this::delete,
@@ -79,8 +79,8 @@ public enum DataTTLKeeperTimer {
         logger.info("Metrics in day dimension before {}, are going to be removed.", timeBuckets.dayTimeBucketBefore);
         logger.info("Metrics in month dimension before {}, are going to be removed.", timeBuckets.monthTimeBucketBefore);
 
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).getService(IModelGetter.class);
-        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).getService(DownsamplingConfigService.class);
+        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
         List<Model> models = modelGetter.getModels();
         models.forEach(model -> {
             if (model.isIndicator()) {
@@ -115,7 +115,7 @@ public enum DataTTLKeeperTimer {
 
     private void execute(String modelName, long timeBucketBefore, String timeBucketColumnName) {
         try {
-            moduleManager.find(StorageModule.NAME).getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
+            moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
         } catch (IOException e) {
             logger.warn("History delete failure, error message: {}", e.getMessage());
         }

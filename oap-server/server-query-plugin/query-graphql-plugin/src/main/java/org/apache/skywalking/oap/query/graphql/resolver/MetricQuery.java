@@ -41,7 +41,7 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     private MetricQueryService getMetricQueryService() {
         if (metricQueryService == null) {
-            this.metricQueryService = moduleManager.find(CoreModule.NAME).getService(MetricQueryService.class);
+            this.metricQueryService = moduleManager.find(CoreModule.NAME).provider().getService(MetricQueryService.class);
         }
         return metricQueryService;
     }

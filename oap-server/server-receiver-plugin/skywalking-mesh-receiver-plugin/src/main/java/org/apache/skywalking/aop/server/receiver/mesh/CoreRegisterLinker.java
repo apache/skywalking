@@ -39,21 +39,21 @@ public class CoreRegisterLinker {
 
     public static IServiceInventoryRegister getServiceInventoryRegister() {
         if (SERVICE_INVENTORY_REGISTER == null) {
-            SERVICE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+            SERVICE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
         }
         return SERVICE_INVENTORY_REGISTER;
     }
 
     public static IServiceInstanceInventoryRegister getServiceInstanceInventoryRegister() {
         if (SERVICE_INSTANCE_INVENTORY_REGISTER == null) {
-            SERVICE_INSTANCE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+            SERVICE_INSTANCE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
         }
         return SERVICE_INSTANCE_INVENTORY_REGISTER;
     }
 
     public static IEndpointInventoryRegister getEndpointInventoryRegister() {
         if (ENDPOINT_INVENTORY_REGISTER == null) {
-            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).getService(IEndpointInventoryRegister.class);
+            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
         }
         return ENDPOINT_INVENTORY_REGISTER;
     }

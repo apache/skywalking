@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-public class ProviderNotFoundException extends Exception {
+public class ProviderNotFoundException extends RuntimeException {
     public ProviderNotFoundException(String message) {
         super(message);
     }

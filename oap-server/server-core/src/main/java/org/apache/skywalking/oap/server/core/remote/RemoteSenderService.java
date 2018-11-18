@@ -42,7 +42,7 @@ public class RemoteSenderService implements Service {
     }
 
     public void send(int nextWorkId, StreamData streamData, Selector selector) {
-        RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).getService(RemoteClientManager.class);
+        RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).provider().getService(RemoteClientManager.class);
 
         RemoteClient remoteClient;
         switch (selector) {

@@ -48,8 +48,8 @@ public class RemoteClientManager implements Service {
     }
 
     public void start() {
-        this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).getService(ClusterNodesQuery.class);
-        this.streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
+        this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
+        this.streamDataClassGetter = moduleManager.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 5, 5, TimeUnit.SECONDS);
     }
 
