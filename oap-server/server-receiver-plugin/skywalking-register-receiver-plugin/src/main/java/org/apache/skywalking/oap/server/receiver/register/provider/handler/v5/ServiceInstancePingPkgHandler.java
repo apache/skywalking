@@ -42,8 +42,8 @@ public class ServiceInstancePingPkgHandler extends ServiceInstancePingGrpc.Servi
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public ServiceInstancePingPkgHandler(ModuleManager moduleManager) {
-        this.instanceInventoryCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceInstanceInventoryCacheDAO.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+        this.instanceInventoryCacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IServiceInstanceInventoryCacheDAO.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
 
     }
 
