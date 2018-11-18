@@ -45,7 +45,7 @@ public enum RecordProcess {
         String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(recordClass);
 
-        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).getService(StorageDAO.class);
+        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRecordDAO recordDAO;
         try {
             recordDAO = storageDAO.newRecordDao(builderClass.newInstance());

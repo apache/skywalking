@@ -64,11 +64,11 @@ public class TelemetryDataDispatcher {
 
     public static void setCache(MeshDataBufferFileCache cache, ModuleManager moduleManager) {
         CACHE = cache;
-        SERVICE_CACHE = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
-        SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
-        SERVICE_INSTANCE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
-        SERVICE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        SERVICE_CACHE = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        SERVICE_INSTANCE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+        SERVICE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     public static void preProcess(ServiceMeshMetric data) {

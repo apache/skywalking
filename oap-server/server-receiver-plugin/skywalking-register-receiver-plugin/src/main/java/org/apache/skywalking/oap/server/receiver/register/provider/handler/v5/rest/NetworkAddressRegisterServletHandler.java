@@ -40,7 +40,7 @@ public class NetworkAddressRegisterServletHandler extends JettyJsonHandler {
     private static final String ADDRESS_ID = "i";
 
     public NetworkAddressRegisterServletHandler(ModuleManager moduleManager) {
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
     }
 
     @Override public String pathSpec() {

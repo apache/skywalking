@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.storage.cache.*;
 import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
@@ -29,8 +29,8 @@ public class StorageModule extends ModuleDefine {
 
     public static final String NAME = "storage";
 
-    @Override public String name() {
-        return NAME;
+    public StorageModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {

@@ -45,7 +45,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
         if (Objects.isNull(streamDataClassGetter)) {
-            streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
+            streamDataClassGetter = moduleManager.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
         }
 
         return new StreamObserver<RemoteMessage>() {

@@ -25,8 +25,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
  */
 public class TraceModule extends ModuleDefine {
 
-    @Override public String name() {
-        return "receiver-trace";
+    public TraceModule() {
+        super("receiver-trace");
     }
 
     @Override public Class[] services() {

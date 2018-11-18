@@ -54,35 +54,35 @@ public class TraceQueryService implements Service {
 
     private ITraceQueryDAO getTraceQueryDAO() {
         if (traceQueryDAO == null) {
-            this.traceQueryDAO = moduleManager.find(StorageModule.NAME).getService(ITraceQueryDAO.class);
+            this.traceQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITraceQueryDAO.class);
         }
         return traceQueryDAO;
     }
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (serviceInventoryCache == null) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
     }
 
     private EndpointInventoryCache getEndpointInventoryCache() {
         if (endpointInventoryCache == null) {
-            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         }
         return endpointInventoryCache;
     }
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
         if (networkAddressInventoryCache == null) {
-            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).getService(NetworkAddressInventoryCache.class);
+            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
         }
         return networkAddressInventoryCache;
     }
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
         if (componentLibraryCatalogService == null) {
-            this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).getService(IComponentLibraryCatalogService.class);
+            this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
         }
         return componentLibraryCatalogService;
     }
