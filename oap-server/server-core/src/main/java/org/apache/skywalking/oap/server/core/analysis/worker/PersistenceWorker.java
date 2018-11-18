@@ -38,7 +38,7 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
     PersistenceWorker(ModuleManager moduleManager, int workerId, int batchSize) {
         super(workerId);
         this.batchSize = batchSize;
-        this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
+        this.batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
     }
 
     void onWork(INPUT input) {

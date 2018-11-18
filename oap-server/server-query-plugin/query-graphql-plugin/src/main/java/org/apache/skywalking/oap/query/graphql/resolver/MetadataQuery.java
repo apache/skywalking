@@ -42,7 +42,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
 
     private MetadataQueryService getMetadataQueryService() {
         if (metadataQueryService == null) {
-            this.metadataQueryService = moduleManager.find(CoreModule.NAME).getService(MetadataQueryService.class);
+            this.metadataQueryService = moduleManager.find(CoreModule.NAME).provider().getService(MetadataQueryService.class);
         }
         return metadataQueryService;
     }

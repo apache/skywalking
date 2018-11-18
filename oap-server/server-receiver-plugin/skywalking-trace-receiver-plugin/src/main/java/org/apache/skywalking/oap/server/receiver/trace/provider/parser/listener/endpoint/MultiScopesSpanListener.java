@@ -54,12 +54,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
     private long minuteTimeBucket;
 
     private MultiScopesSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.entrySourceBuilders = new LinkedList<>();
         this.exitSourceBuilders = new LinkedList<>();
-        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
     }
 
     @Override public boolean containsPoint(Point point) {

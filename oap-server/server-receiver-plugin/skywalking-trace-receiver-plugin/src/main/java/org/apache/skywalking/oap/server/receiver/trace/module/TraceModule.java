@@ -27,13 +27,11 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentP
 public class TraceModule extends ModuleDefine {
     public static final String NAME = "receiver-trace";
 
-    @Override public String name() {
-        return NAME;
+    public TraceModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {
-        return new Class[] {
-            ISegmentParserService.class
-        };
+        return new Class[] {ISegmentParserService.class};
     }
 }

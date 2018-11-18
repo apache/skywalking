@@ -68,7 +68,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         jettyServer.addHandler(new SpanV1JettyHandler(config));
         jettyServer.addHandler(new SpanV2JettyHandler(config));
 
-        ISegmentParserService segmentParseService = getManager().find(TraceModule.NAME).getService(ISegmentParserService.class);
+        ISegmentParserService segmentParseService = getManager().find(TraceModule.NAME).provider().getService(ISegmentParserService.class);
         Receiver2AnalysisBridge bridge = new Receiver2AnalysisBridge(segmentParseService);
         Zipkin2SkyWalkingTransfer.INSTANCE.addListener(bridge);
     }
