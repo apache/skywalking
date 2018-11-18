@@ -18,27 +18,21 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class SegmentParserListenerManager implements ISegmentParserListenerManager {
+public class SegmentParserServiceImpl implements ISegmentParserService {
+    private final SegmentParse.Producer segmentProducer;
 
-    private List<SpanListenerFactory> spanListenerFactories;
-
-    public SegmentParserListenerManager() {
-        this.spanListenerFactories = new LinkedList<>();
+    public SegmentParserServiceImpl(
+        SegmentParse.Producer segmentProducer) {
+        this.segmentProducer = segmentProducer;
     }
 
     @Override
-    public void add(SpanListenerFactory spanListenerFactory) {
-        spanListenerFactories.add(spanListenerFactory);
-    }
-
-    List<SpanListenerFactory> getSpanListenerFactories() {
-        return spanListenerFactories;
+    public void send(UpstreamSegment segment) {
+        segmentProducer.send(segment, SegmentParse.Source.Agent);
     }
 }
