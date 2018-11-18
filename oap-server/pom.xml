@@ -61,6 +61,8 @@
         <joda-time.version>2.9.9</joda-time.version>
         <kubernetes.version>2.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
+        <zipkin.version>2.9.1</zipkin.version>
+        <caffeine.version>2.6.2</caffeine.version>
     </properties>
 
     <dependencies>
@@ -277,6 +279,18 @@
                 <artifactId>HikariCP</artifactId>
                 <version>${hikaricp.version}</version>
             </dependency>
+            <!-- for zipkin receiver -->
+            <dependency>
+                <groupId>io.zipkin.zipkin2</groupId>
+                <artifactId>zipkin</artifactId>
+                <version>${zipkin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
+            <!-- -->
         </dependencies>
     </dependencyManagement>
 </project>

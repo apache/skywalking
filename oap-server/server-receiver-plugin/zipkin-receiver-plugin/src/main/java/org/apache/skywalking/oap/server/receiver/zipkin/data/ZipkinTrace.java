@@ -16,29 +16,47 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
+package org.apache.skywalking.oap.server.receiver.zipkin.data;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import java.util.concurrent.locks.ReentrantLock;
+import zipkin2.Span;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class SegmentParserListenerManager implements ISegmentParserListenerManager {
+public class ZipkinTrace {
+    private List<Span> spans;
+    private ReentrantLock spanWriteLock;
 
-    private List<SpanListenerFactory> spanListenerFactories;
+    public ZipkinTrace() {
+        spans = new LinkedList<>();
+        spanWriteLock = new ReentrantLock();
+    }
 
-    public SegmentParserListenerManager() {
-        this.spanListenerFactories = new LinkedList<>();
+    public void addSpan(Span span) {
+        spanWriteLock.lock();
+        try {
+            spans.add(span);
+        } finally {
+            spanWriteLock.unlock();
+        }
+    }
+
+    public List<Span> getSpans() {
+        return spans;
     }
 
     @Override
-    public void add(SpanListenerFactory spanListenerFactory) {
-        spanListenerFactories.add(spanListenerFactory);
+    public String toString() {
+        return "ZipkinTrace{" +
+                "spans=" + spans +
+                '}';
     }
 
-    List<SpanListenerFactory> getSpanListenerFactories() {
-        return spanListenerFactories;
+    public static class TriggerTrace extends ZipkinTrace {
+
+
     }
 }
