@@ -41,7 +41,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
 
     private TopologyQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(TopologyQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(TopologyQueryService.class);
         }
         return queryService;
     }

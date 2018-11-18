@@ -46,21 +46,21 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
         if (isNull(networkAddressInventoryCache)) {
-            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).getService(NetworkAddressInventoryCache.class);
+            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
         }
         return this.networkAddressInventoryCache;
     }
 
     private IServiceInventoryRegister getServiceInventoryRegister() {
         if (isNull(serviceInventoryRegister)) {
-            this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+            this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
         }
         return this.serviceInventoryRegister;
     }
 
     private IServiceInstanceInventoryRegister getServiceInstanceInventoryRegister() {
         if (isNull(serviceInstanceInventoryRegister)) {
-            this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+            this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
         }
         return this.serviceInstanceInventoryRegister;
     }

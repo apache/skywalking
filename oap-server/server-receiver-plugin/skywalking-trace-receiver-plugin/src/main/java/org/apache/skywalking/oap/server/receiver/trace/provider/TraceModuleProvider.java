@@ -63,8 +63,8 @@ public class TraceModuleProvider extends ModuleProvider {
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory());
 
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         try {
             SegmentParse.Producer segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));

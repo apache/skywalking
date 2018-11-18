@@ -45,7 +45,7 @@ public class JVMModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new JVMMetricsServiceHandler(getManager()));
     }
 

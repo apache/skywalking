@@ -49,8 +49,8 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
     private static final String OS_INFO = "oi";
 
     public InstanceDiscoveryServletHandler(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
     }
 
     @Override public String pathSpec() {
