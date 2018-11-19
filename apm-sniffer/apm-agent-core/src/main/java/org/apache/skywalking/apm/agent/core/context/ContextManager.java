@@ -57,8 +57,8 @@ public class ContextManager implements TracingContextListener, BootService, Igno
                 }
                 context = new IgnoredTracerContext();
             } else {
-                if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
-                    && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
+                if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
+                    && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
                     ) {
                     context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
                 } else {

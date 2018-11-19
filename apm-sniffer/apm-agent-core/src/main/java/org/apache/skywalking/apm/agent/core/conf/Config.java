@@ -114,9 +114,9 @@ public class Config {
         /**
          * The buffer size of application codes and peer
          */
-        public static int APPLICATION_CODE_BUFFER_SIZE = 10 * 10000;
+        public static int SERVICE_CODE_BUFFER_SIZE = 10 * 10000;
 
-        public static int OPERATION_NAME_BUFFER_SIZE = 1000 * 10000;
+        public static int ENDPOINT_NAME_BUFFER_SIZE = 1000 * 10000;
     }
 
     public static class Logging {

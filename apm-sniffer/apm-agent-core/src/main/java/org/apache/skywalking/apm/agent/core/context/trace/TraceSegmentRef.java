@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.network.language.agent.RefType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -95,7 +95,7 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_THREAD;
         this.traceSegmentId = snapshot.getTraceSegmentId();
         this.spanId = snapshot.getSpanId();
-        this.parentApplicationInstanceId = RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID;
+        this.parentApplicationInstanceId = RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
         this.entryApplicationInstanceId = snapshot.getEntryApplicationInstanceId();
         String entryOperationName = snapshot.getEntryOperationName();
         if (!StringUtil.isEmpty(entryOperationName)) {
@@ -127,8 +127,8 @@ public class TraceSegmentRef {
         return entryApplicationInstanceId;
     }
 
-    public TraceSegmentReference transform() {
-        TraceSegmentReference.Builder refBuilder = TraceSegmentReference.newBuilder();
+    public SegmentReference transform() {
+        SegmentReference.Builder refBuilder = SegmentReference.newBuilder();
         if (SegmentRefType.CROSS_PROCESS.equals(type)) {
             refBuilder.setRefType(RefType.CrossProcess);
             if (peerId == DictionaryUtil.nullValue()) {
@@ -140,8 +140,8 @@ public class TraceSegmentRef {
             refBuilder.setRefType(RefType.CrossThread);
         }
 
-        refBuilder.setParentApplicationInstanceId(parentApplicationInstanceId);
-        refBuilder.setEntryApplicationInstanceId(entryApplicationInstanceId);
+        refBuilder.setParentServiceInstanceId(parentApplicationInstanceId);
+        refBuilder.setEntryServiceInstanceId(entryApplicationInstanceId);
         refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
         refBuilder.setParentSpanId(spanId);
         /**
@@ -151,17 +151,17 @@ public class TraceSegmentRef {
          */
         if (entryOperationId == DictionaryUtil.nullValue()) {
             if (!StringUtil.isEmpty(entryOperationName)) {
-                refBuilder.setEntryServiceName(entryOperationName);
+                refBuilder.setEntryEndpoint(entryOperationName);
             }
         } else {
-            refBuilder.setEntryServiceId(entryOperationId);
+            refBuilder.setEntryEndpointId(entryOperationId);
         }
         if (parentOperationId == DictionaryUtil.nullValue()) {
             if (!StringUtil.isEmpty(parentOperationName)) {
-                refBuilder.setParentServiceName(parentOperationName);
+                refBuilder.setParentEndpoint(parentOperationName);
             }
         } else {
-            refBuilder.setParentServiceId(parentOperationId);
+            refBuilder.setParentEndpointId(parentOperationId);
         }
         return refBuilder.build();
     }

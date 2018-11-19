@@ -48,8 +48,8 @@ public class IgnoredTracerContextTest {
 
     @Before
     public void setUp() throws Exception {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = 1;
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
     }
 
     @AfterClass

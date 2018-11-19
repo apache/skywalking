@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
-import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
+import org.apache.skywalking.apm.agent.core.dictionary.EndpointNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
@@ -42,23 +42,21 @@ import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceMappi
 import org.apache.skywalking.apm.network.language.agent.ApplicationMapping;
 import org.apache.skywalking.apm.network.language.agent.ApplicationRegisterServiceGrpc;
 import org.apache.skywalking.apm.network.language.agent.InstanceDiscoveryServiceGrpc;
-import org.apache.skywalking.apm.network.language.agent.NetworkAddressRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.language.agent.ServiceNameDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * @author wusheng
  */
 @DefaultImplementor
-public class AppAndServiceRegisterClient implements BootService, Runnable, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(AppAndServiceRegisterClient.class);
+public class ServiceAndEndpointRegisterClient implements BootService, Runnable, GRPCChannelListener {
+    private static final ILog logger = LogManager.getLogger(ServiceAndEndpointRegisterClient.class);
     private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub;
     private volatile InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub instanceDiscoveryServiceBlockingStub;
-    private volatile ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub serviceNameDiscoveryServiceBlockingStub;
-    private volatile NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub networkAddressRegisterServiceBlockingStub;
+    private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
     private volatile ScheduledFuture<?> applicationRegisterFuture;
 
     @Override
@@ -67,12 +65,11 @@ public class AppAndServiceRegisterClient implements BootService, Runnable, GRPCC
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             applicationRegisterServiceBlockingStub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
             instanceDiscoveryServiceBlockingStub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
-            serviceNameDiscoveryServiceBlockingStub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
-            networkAddressRegisterServiceBlockingStub = NetworkAddressRegisterServiceGrpc.newBlockingStub(channel);
+            registerBlockingStub = RegisterGrpc.newBlockingStub(channel);
         } else {
             applicationRegisterServiceBlockingStub = null;
             instanceDiscoveryServiceBlockingStub = null;
-            serviceNameDiscoveryServiceBlockingStub = null;
+            registerBlockingStub = null;
         }
         this.status = status;
     }
@@ -85,7 +82,7 @@ public class AppAndServiceRegisterClient implements BootService, Runnable, GRPCC
     @Override
     public void boot() throws Throwable {
         applicationRegisterFuture = Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("AppAndServiceRegisterClient"))
+            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ServiceAndEndpointRegisterClient"))
             .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
                 @Override
                 public void handle(Throwable t) {
@@ -105,47 +102,47 @@ public class AppAndServiceRegisterClient implements BootService, Runnable, GRPCC
 
     @Override
     public void run() {
-        logger.debug("AppAndServiceRegisterClient running, status:{}.", status);
+        logger.debug("ServiceAndEndpointRegisterClient running, status:{}.", status);
         boolean shouldTry = true;
         while (GRPCChannelStatus.CONNECTED.equals(status) && shouldTry) {
             shouldTry = false;
             try {
-                if (RemoteDownstreamConfig.Agent.APPLICATION_ID == DictionaryUtil.nullValue()) {
+                if (RemoteDownstreamConfig.Agent.SERVICE_ID == DictionaryUtil.nullValue()) {
                     if (applicationRegisterServiceBlockingStub != null) {
                         ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.applicationCodeRegister(
                             Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
                         if (applicationMapping != null) {
-                            RemoteDownstreamConfig.Agent.APPLICATION_ID = applicationMapping.getApplication().getValue();
+                            RemoteDownstreamConfig.Agent.SERVICE_ID = applicationMapping.getApplication().getValue();
                             shouldTry = true;
                         }
                     }
                 } else {
                     if (instanceDiscoveryServiceBlockingStub != null) {
-                        if (RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID == DictionaryUtil.nullValue()) {
+                        if (RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID == DictionaryUtil.nullValue()) {
 
                             ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
-                                .setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID)
+                                .setApplicationId(RemoteDownstreamConfig.Agent.SERVICE_ID)
                                 .setAgentUUID(PROCESS_UUID)
                                 .setRegisterTime(System.currentTimeMillis())
                                 .setOsinfo(OSUtil.buildOSInfo())
                                 .build());
                             if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {
-                                RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID
+                                RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID
                                     = instanceMapping.getApplicationInstanceId();
                             }
                         } else {
                             instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
-                                .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
+                                .setApplicationInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID)
                                 .setHeartbeatTime(System.currentTimeMillis())
                                 .build());
 
-                            NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(networkAddressRegisterServiceBlockingStub);
-                            OperationNameDictionary.INSTANCE.syncRemoteDictionary(serviceNameDiscoveryServiceBlockingStub);
+                            NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub);
+                            EndpointNameDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub);
                         }
                     }
                 }
             } catch (Throwable t) {
-                logger.error(t, "AppAndServiceRegisterClient execute fail.");
+                logger.error(t, "ServiceAndEndpointRegisterClient execute fail.");
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }

@@ -20,7 +20,7 @@ v2.0
 - UniqueId represents segmentId and globalTraceId. It have 3 parts(Longs), 1) applicationInstanceId, 2) ThreadId, 3) Timestamp + 10000 + seq(seq is in [0, 100000) )
 - Span data please refs to [Plugin Development Guide](../guides/Java-Plugin-Development-Guide.md)
 - Id and name both exist, please use id if possible.
-  - operationNameId/operationName 
+  - operationNameId/endpointName 
   - networkAddress/networkAddressId
   - entryServiceName/entryServiceId
   - parentServiceName/parentServiceId
@@ -36,7 +36,7 @@ Input：
     "gt": [[230150, 185809, 24040000]], 
     "sg": { //TraceSegmentObject 
       "ts": [137150, 185809, 48780000], 
-      "ai": 2, //applicationId
+      "ai": 2, //serviceId
       "ii": 3, //applicationInstanceId
       "ss": [ //SpanObject
         {
@@ -49,7 +49,7 @@ Input：
           "ci": 3, //componentId
           "cn": "", //component
           "oi": 0, //operationNameId
-          "on": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", //operationName
+          "on": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", //endpointName
           "pi": 0, //peerId
           "pn": "", //peer
           "ie": false, //isError
@@ -140,7 +140,7 @@ HTTP format http://ip:port/instance/register(default: localhost:12800)
 Input:
 ```
 {
-    ai: x, #applicationId
+    ai: x, #serviceId
     au: "", #agentUUID
     rt: x, #registerTime
     oi: "", #osinfo
@@ -150,7 +150,7 @@ Input:
 Output:
 ```
 {
-    ai: x, #applicationId
+    ai: x, #serviceId
     ii: x, #applicationInstanceId
 }
 ```
@@ -185,7 +185,7 @@ HTTP format http://ip:port/servicename/discovery(default: localhost:12800)
 Input：
 ```
 {
-    ai: x, #applicationId
+    ai: x, #serviceId
     sn: "", #serviceName
     st: x, #srcSpanType
 }
@@ -196,7 +196,7 @@ Output：
 {
     si: x, #osinfo
     el: { #element
-        ai: x, #applicationId
+        ai: x, #serviceId
         sn: "", #serviceName
         st: x, #srcSpanType
     }

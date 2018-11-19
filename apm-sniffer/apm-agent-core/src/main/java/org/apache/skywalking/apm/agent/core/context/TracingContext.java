@@ -251,7 +251,7 @@ public class TracingContext implements AbstractTracerContext {
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
                 .findOnly(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
@@ -264,7 +264,7 @@ public class TracingContext implements AbstractTracerContext {
                 });
             return entrySpan.start();
         } else {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
                 .findOnly(segment.getApplicationId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
@@ -294,19 +294,11 @@ public class TracingContext implements AbstractTracerContext {
         }
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-            .findOrPrepare4Register(segment.getApplicationId(), operationName, false, false)
-            .doInCondition(new PossibleFound.FoundAndObtain() {
-                @Override
-                public Object doProcess(int operationId) {
-                    return new LocalSpan(spanIdGenerator++, parentSpanId, operationId);
-                }
-            }, new PossibleFound.NotFoundAndObtain() {
-                @Override
-                public Object doProcess() {
-                    return new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
-                }
-            });
+        /**
+         * From v6.0.0-beta, local span doesn't do op name register.
+         * All op name register is related to entry and exit spans only.
+         */
+        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
         span.start();
         return push(span);
     }
@@ -336,7 +328,7 @@ public class TracingContext implements AbstractTracerContext {
                                 return new NoopExitSpan(peerId);
                             }
 
-                            return DictionaryManager.findOperationNameCodeSection()
+                            return DictionaryManager.findEndpointSection()
                                 .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
@@ -359,7 +351,7 @@ public class TracingContext implements AbstractTracerContext {
                                 return new NoopExitSpan(remotePeer);
                             }
 
-                            return DictionaryManager.findOperationNameCodeSection()
+                            return DictionaryManager.findEndpointSection()
                                 .findOnly(segment.getApplicationId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
