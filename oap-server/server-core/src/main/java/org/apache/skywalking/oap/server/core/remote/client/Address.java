@@ -16,48 +16,43 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.grpc;
+package org.apache.skywalking.oap.server.core.remote.client;
 
-import io.grpc.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.Const;
 
 /**
  * @author peng-yongsheng
  */
-public class GRPCClient implements Client {
+@Getter
+public class Address {
+    private final String host;
+    private final int port;
+    private final boolean isSelf;
 
-    private static final Logger logger = LoggerFactory.getLogger(GRPCClient.class);
-
-    @Getter private final String host;
-
-    @Getter private final int port;
-
-    private ManagedChannel channel;
-
-    public GRPCClient(String host, int port) {
+    public Address(String host, int port, boolean isSelf) {
         this.host = host;
         this.port = port;
+        this.isSelf = isSelf;
     }
 
-    @Override public void initialize() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
+    @Override public int hashCode() {
+        return toString().hashCode();
     }
 
-    @Override public void shutdown() {
-        try {
-            channel.shutdownNow();
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
-        }
-    }
+    @Override public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
 
-    public ManagedChannel getChannel() {
-        return channel;
+        Address address = (Address)obj;
+        return host.equals(address.host) && port == address.port;
     }
 
     @Override public String toString() {
-        return host + ":" + port;
+        return host + Const.ID_SPLIT + port;
     }
 }

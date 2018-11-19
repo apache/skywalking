@@ -23,11 +23,11 @@ import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 /**
  * @author peng-yongsheng
  */
-public interface RemoteClient {
+public interface RemoteClient extends Comparable<RemoteClient> {
 
-    String getHost();
+    Address getAddress();
 
-    int getPort();
+    void close();
 
     void push(int nextWorkerId, StreamData streamData);
 }

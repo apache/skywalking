@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
@@ -34,19 +33,21 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClient> {
+public class GRPCRemoteClient implements RemoteClient {
 
     private static final Logger logger = LoggerFactory.getLogger(GRPCRemoteClient.class);
 
+    private final Address address;
     private final GRPCClient client;
     private final DataCarrier<RemoteMessage> carrier;
     private final StreamDataClassGetter streamDataClassGetter;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
 
-    public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, RemoteInstance remoteInstance, int channelSize,
+    public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
         int bufferSize) {
         this.streamDataClassGetter = streamDataClassGetter;
-        this.client = new GRPCClient(remoteInstance.getHost(), remoteInstance.getPort());
+        this.address = address;
+        this.client = new GRPCClient(address.getHost(), address.getPort());
         this.client.initialize();
         this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
         this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
@@ -120,15 +121,15 @@ public class GRPCRemoteClient implements RemoteClient, Comparable<GRPCRemoteClie
         });
     }
 
-    @Override public int compareTo(GRPCRemoteClient o) {
-        return this.client.toString().compareTo(o.client.toString());
+    @Override public void close() {
+        client.shutdown();
     }
 
-    public String getHost() {
-        return client.getHost();
+    @Override public Address getAddress() {
+        return address;
     }
 
-    public int getPort() {
-        return client.getPort();
+    @Override public int compareTo(RemoteClient o) {
+        return address.toString().compareTo(o.getAddress().toString());
     }
 }

@@ -59,7 +59,7 @@ public class NetworkAddressRegisterServletHandler extends JettyJsonHandler {
                 String networkAddress = networkAddresses.get(i).getAsString();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("network address register, network address: {}", networkAddress);
+                    logger.debug("network getAddress register, network getAddress: {}", networkAddress);
                 }
 
                 int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress);
