@@ -23,9 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
@@ -47,11 +47,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * SegmentParseV2 is a replication of SegmentParse, but be compatible with v2 trace protocol.
+ *
+ * @author wusheng
  */
-public class SegmentParse {
+public class SegmentParseV2 {
 
-    private static final Logger logger = LoggerFactory.getLogger(SegmentParse.class);
+    private static final Logger logger = LoggerFactory.getLogger(SegmentParseV2.class);
 
     private final ModuleManager moduleManager;
     private final List<SpanListener> spanListeners;
@@ -59,22 +61,22 @@ public class SegmentParse {
     private final SegmentCoreInfo segmentCoreInfo;
     @Setter private SegmentStandardizationWorker standardizationWorker;
 
-    private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+    private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-        this.segmentCoreInfo.setV2(false);
+        this.segmentCoreInfo.setV2(true);
     }
 
-    public boolean parse(UpstreamSegment segment, Source source) {
+    public boolean parse(UpstreamSegment segment, SegmentSource source) {
         createSpanListeners();
 
         try {
             List<UniqueId> traceIds = segment.getGlobalTraceIdsList();
-            TraceSegmentObject segmentObject = parseBinarySegment(segment);
+            SegmentObject segmentObject = parseBinarySegment(segment);
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
@@ -83,7 +85,7 @@ public class SegmentParse {
                     logger.debug("This segment id exchange not success, write to buffer file, id: {}", segmentCoreInfo.getSegmentId());
                 }
 
-                if (source.equals(Source.Agent)) {
+                if (source.equals(SegmentSource.Agent)) {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
                 }
                 return false;
@@ -100,8 +102,8 @@ public class SegmentParse {
         }
     }
 
-    private TraceSegmentObject parseBinarySegment(UpstreamSegment segment) throws InvalidProtocolBufferException {
-        return TraceSegmentObject.parseFrom(segment.getSegment());
+    private SegmentObject parseBinarySegment(UpstreamSegment segment) throws InvalidProtocolBufferException {
+        return SegmentObject.parseFrom(segment.getSegment());
     }
 
     private boolean preBuild(List<UniqueId> traceIds, SegmentDecorator segmentDecorator) {
@@ -123,7 +125,7 @@ public class SegmentParse {
         segmentCoreInfo.setServiceId(segmentDecorator.getServiceId());
         segmentCoreInfo.setServiceInstanceId(segmentDecorator.getServiceInstanceId());
         segmentCoreInfo.setDataBinary(segmentDecorator.toByteArray());
-        segmentCoreInfo.setV2(false);
+        segmentCoreInfo.setV2(true);
 
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
@@ -231,10 +233,6 @@ public class SegmentParse {
         listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager)));
     }
 
-    public enum Source {
-        Agent, Buffer
-    }
-
     public static class Producer implements DataStreamReader.CallBack<UpstreamSegment> {
 
         @Setter private SegmentStandardizationWorker standardizationWorker;
@@ -246,16 +244,16 @@ public class SegmentParse {
             this.listenerManager = listenerManager;
         }
 
-        public void send(UpstreamSegment segment, Source source) {
-            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
+        public void send(UpstreamSegment segment, SegmentSource source) {
+            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager);
             segmentParse.setStandardizationWorker(standardizationWorker);
             segmentParse.parse(segment, source);
         }
 
         @Override public boolean call(UpstreamSegment segment) {
-            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
+            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager);
             segmentParse.setStandardizationWorker(standardizationWorker);
-            return segmentParse.parse(segment, Source.Buffer);
+            return segmentParse.parse(segment, SegmentSource.Buffer);
         }
     }
 }

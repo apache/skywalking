@@ -160,7 +160,7 @@ public class ContextManagerTest {
         assertThat(logs.get(0).getLogs().size(), is(4));
 
         assertThat(injectContextCarrier.getSpanId(), is(1));
-        assertThat(injectContextCarrier.getEntryOperationName(), is("#/portal/"));
+        assertThat(injectContextCarrier.getEntryEndpointName(), is("#/portal/"));
         assertThat(injectContextCarrier.getPeerHost(), is("#127.0.0.1:12800"));
     }
 
@@ -211,11 +211,11 @@ public class ContextManagerTest {
 
         assertThat(firstExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
         assertThat(firstExitSpanContextCarrier.getSpanId(), is(1));
-        assertThat(firstExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
+        assertThat(firstExitSpanContextCarrier.getEntryEndpointName(), is("#/testEntrySpan"));
 
         assertThat(secondExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
         assertThat(secondExitSpanContextCarrier.getSpanId(), is(1));
-        assertThat(secondExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
+        assertThat(secondExitSpanContextCarrier.getEntryEndpointName(), is("#/testEntrySpan"));
 
     }
 

@@ -99,7 +99,7 @@ public class IgnoredTracerContextTest {
         ContextManager.stopSpan();
 
         assertThat(abstractSpan.getClass().getName(), is(NoopSpan.class.getName()));
-        assertNull(contextCarrier.getEntryOperationName());
+        assertNull(contextCarrier.getEntryEndpointName());
         assertThat(contextCarrier.getSpanId(), is(-1));
         assertNull(contextCarrier.getPeerHost());
 

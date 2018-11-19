@@ -47,6 +47,7 @@ public class SegmentRecord extends Record {
     public static final String LATENCY = "latency";
     public static final String IS_ERROR = "is_error";
     public static final String DATA_BINARY = "data_binary";
+    public static final String VERSION = "version";
 
     @Setter @Getter @Column(columnName = SEGMENT_ID) @IDColumn private String segmentId;
     @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
@@ -58,6 +59,7 @@ public class SegmentRecord extends Record {
     @Setter @Getter @Column(columnName = LATENCY) @IDColumn private int latency;
     @Setter @Getter @Column(columnName = IS_ERROR) @IDColumn private int isError;
     @Setter @Getter @Column(columnName = DATA_BINARY) @IDColumn private byte[] dataBinary;
+    @Setter @Getter @Column(columnName = VERSION) @IDColumn private int version;
 
     @Override public String id() {
         return segmentId;
@@ -82,6 +84,7 @@ public class SegmentRecord extends Record {
             } else {
                 map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
             }
+            map.put(VERSION, storageData.getVersion());
             return map;
         }
 
@@ -102,6 +105,7 @@ public class SegmentRecord extends Record {
             } else {
                 record.setDataBinary(Base64.getDecoder().decode((String)dbMap.get(DATA_BINARY)));
             }
+            record.setVersion(((Number)dbMap.get(VERSION)).intValue());
             return record;
         }
     }

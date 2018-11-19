@@ -56,13 +56,13 @@ Input：
           "rs": [ //TraceSegmentReference
             {
               "pts": [230150, 185809, 24040000], //parentTraceSegmentId
-              "pii": 2, //parentApplicationInstanceId
+              "pii": 2, //parentServiceInstanceId
               "psp": 1, //parentSpanId
               "psi": 0, //parentServiceId
               "psn": "/dubbox-case/case/dubbox-rest", //parentServiceName
               "ni": 0,  //networkAddressId
               "nn": "172.25.0.4:20880", //networkAddress
-              "eii": 2, //entryApplicationInstanceId
+              "eii": 2, //entryServiceInstanceId
               "esi": 0, //entryServiceId
               "esn": "/dubbox-case/case/dubbox-rest", //entryServiceName
               "rv": 0 //RefTypeValue

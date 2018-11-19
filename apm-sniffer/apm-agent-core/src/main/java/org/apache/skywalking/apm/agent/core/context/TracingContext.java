@@ -112,7 +112,7 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());
 
-        carrier.setParentApplicationInstanceId(segment.getApplicationInstanceId());
+        carrier.setParentServiceInstanceId(segment.getApplicationInstanceId());
 
         if (DictionaryUtil.isNull(peerId)) {
             carrier.setPeerHost(peer);
@@ -134,21 +134,21 @@ public class TracingContext implements AbstractTracerContext {
             operationName = firstSpan.getOperationName();
             entryApplicationInstanceId = this.segment.getApplicationInstanceId();
         }
-        carrier.setEntryApplicationInstanceId(entryApplicationInstanceId);
+        carrier.setEntryServiceInstanceId(entryApplicationInstanceId);
 
         if (operationId == DictionaryUtil.nullValue()) {
             if (!StringUtil.isEmpty(operationName)) {
-                carrier.setEntryOperationName(operationName);
+                carrier.setEntryEndpointName(operationName);
             }
         } else {
-            carrier.setEntryOperationId(operationId);
+            carrier.setEntryEndpointId(operationId);
         }
 
         int parentOperationId = first().getOperationId();
         if (parentOperationId == DictionaryUtil.nullValue()) {
-            carrier.setParentOperationName(first().getOperationName());
+            carrier.setParentEndpointName(first().getOperationName());
         } else {
-            carrier.setParentOperationId(parentOperationId);
+            carrier.setParentEndpointId(parentOperationId);
         }
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());

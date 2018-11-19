@@ -65,15 +65,15 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_PROCESS;
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
-        this.parentApplicationInstanceId = carrier.getParentApplicationInstanceId();
-        this.entryApplicationInstanceId = carrier.getEntryApplicationInstanceId();
+        this.parentApplicationInstanceId = carrier.getParentServiceInstanceId();
+        this.entryApplicationInstanceId = carrier.getEntryServiceInstanceId();
         String host = carrier.getPeerHost();
         if (host.charAt(0) == '#') {
             this.peerHost = host.substring(1);
         } else {
             this.peerId = Integer.parseInt(host);
         }
-        String entryOperationName = carrier.getEntryOperationName();
+        String entryOperationName = carrier.getEntryEndpointName();
         if (!StringUtil.isEmpty(entryOperationName)) {
             if (entryOperationName.charAt(0) == '#') {
                 this.entryOperationName = entryOperationName.substring(1);
@@ -81,7 +81,7 @@ public class TraceSegmentRef {
                 this.entryOperationId = Integer.parseInt(entryOperationName);
             }
         }
-        String parentOperationName = carrier.getParentOperationName();
+        String parentOperationName = carrier.getParentEndpointName();
         if (!StringUtil.isEmpty(parentOperationName)) {
             if (parentOperationName.charAt(0) == '#') {
                 this.parentOperationName = parentOperationName.substring(1);

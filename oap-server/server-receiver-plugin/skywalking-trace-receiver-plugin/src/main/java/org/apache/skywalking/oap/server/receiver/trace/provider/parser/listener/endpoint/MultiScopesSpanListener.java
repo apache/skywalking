@@ -74,7 +74,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 ReferenceDecorator reference = spanDecorator.getRefs(i);
                 SourceBuilder sourceBuilder = new SourceBuilder();
-                sourceBuilder.setSourceEndpointId(reference.getParentServiceId());
+                sourceBuilder.setSourceEndpointId(reference.getParentEndpointId());
 
                 if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
                     int serviceIdByPeerId = serviceInventoryCache.getServiceId(reference.getNetworkAddressId());
@@ -82,12 +82,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                     sourceBuilder.setSourceServiceInstanceId(instanceIdByPeerId);
                     sourceBuilder.setSourceServiceId(serviceIdByPeerId);
                 } else {
-                    sourceBuilder.setSourceServiceInstanceId(reference.getParentApplicationInstanceId());
-                    sourceBuilder.setSourceServiceId(instanceInventoryCache.get(reference.getParentApplicationInstanceId()).getServiceId());
+                    sourceBuilder.setSourceServiceInstanceId(reference.getParentServiceInstanceId());
+                    sourceBuilder.setSourceServiceId(instanceInventoryCache.get(reference.getParentServiceInstanceId()).getServiceId());
                 }
                 sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-                sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
-                sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
+                sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
+                sourceBuilder.setDestServiceId(segmentCoreInfo.getServiceId());
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(spanDecorator.getComponentId());
                 setPublicAttrs(sourceBuilder, spanDecorator);
@@ -99,8 +99,8 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceBuilder.setSourceServiceInstanceId(Const.USER_INSTANCE_ID);
             sourceBuilder.setSourceServiceId(Const.USER_SERVICE_ID);
             sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-            sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
-            sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
+            sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
+            sourceBuilder.setDestServiceId(segmentCoreInfo.getServiceId());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(spanDecorator.getComponentId());
 
@@ -126,8 +126,8 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
 
         sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
-        sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
-        sourceBuilder.setSourceServiceId(segmentCoreInfo.getApplicationId());
+        sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
+        sourceBuilder.setSourceServiceId(segmentCoreInfo.getServiceId());
         sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
         sourceBuilder.setDestServiceInstanceId(destInstanceId);
         if (Const.NONE == mappingServiceId) {
