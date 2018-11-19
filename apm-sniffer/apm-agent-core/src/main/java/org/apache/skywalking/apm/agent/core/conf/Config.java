@@ -40,7 +40,7 @@ public class Config {
          * Application code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one
          * application's nodes share the same code.
          */
-        public static String APPLICATION_CODE = "";
+        public static String SERVICE_NAME = "";
 
         /**
          * Authentication active is based on backend setting, see application.yml for more details.

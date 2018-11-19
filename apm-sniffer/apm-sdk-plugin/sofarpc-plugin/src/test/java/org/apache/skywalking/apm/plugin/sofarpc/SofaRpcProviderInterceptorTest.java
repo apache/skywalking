@@ -110,7 +110,7 @@ public class SofaRpcProviderInterceptorTest {
         when(rpcContext.getProviderInfo()).thenReturn(providerInfo);
         allArguments = new Object[] {sofaRequest};
         argumentTypes = new Class[] {sofaRequest.getClass()};
-        Config.Agent.APPLICATION_CODE = "SOFARPC-TestCases-APP";
+        Config.Agent.SERVICE_NAME = "SOFARPC-TestCases-APP";
     }
 
     @After

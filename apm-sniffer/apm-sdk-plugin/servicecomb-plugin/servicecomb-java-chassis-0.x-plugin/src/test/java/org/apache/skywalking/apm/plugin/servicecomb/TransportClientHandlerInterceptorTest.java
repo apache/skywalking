@@ -99,7 +99,7 @@ public class TransportClientHandlerInterceptorTest {
         when(invocation.getStatus()).thenReturn(statusType);
         when(statusType.getStatusCode()).thenReturn(200);
         when(invocation.getInvocationType()).thenReturn(InvocationType.CONSUMER);
-        Config.Agent.APPLICATION_CODE = "serviceComnTestCases-APP";
+        Config.Agent.SERVICE_NAME = "serviceComnTestCases-APP";
 
         allArguments = new Object[] {invocation,};
         argumentsType = new Class[] {};

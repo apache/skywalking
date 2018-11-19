@@ -30,19 +30,21 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.EndpointNameDictionary;
+import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
-import org.apache.skywalking.apm.network.language.agent.Application;
-import org.apache.skywalking.apm.network.language.agent.ApplicationInstance;
-import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceHeartbeat;
-import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceMapping;
-import org.apache.skywalking.apm.network.language.agent.ApplicationMapping;
-import org.apache.skywalking.apm.network.language.agent.ApplicationRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.language.agent.InstanceDiscoveryServiceGrpc;
+import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
+import org.apache.skywalking.apm.network.register.v2.Service;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstance;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingGrpc;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingPkg;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstanceRegisterMapping;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstances;
+import org.apache.skywalking.apm.network.register.v2.ServiceRegisterMapping;
+import org.apache.skywalking.apm.network.register.v2.Services;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
@@ -54,22 +56,19 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
     private static final String PROCESS_UUID = UUID.randomUUID().toString().replaceAll("-", "");
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
-    private volatile ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub applicationRegisterServiceBlockingStub;
-    private volatile InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub instanceDiscoveryServiceBlockingStub;
     private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
+    private volatile ServiceInstancePingGrpc.ServiceInstancePingBlockingStub serviceInstancePingStub;
     private volatile ScheduledFuture<?> applicationRegisterFuture;
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
-            applicationRegisterServiceBlockingStub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
-            instanceDiscoveryServiceBlockingStub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
             registerBlockingStub = RegisterGrpc.newBlockingStub(channel);
+            serviceInstancePingStub = ServiceInstancePingGrpc.newBlockingStub(channel);
         } else {
-            applicationRegisterServiceBlockingStub = null;
-            instanceDiscoveryServiceBlockingStub = null;
             registerBlockingStub = null;
+            serviceInstancePingStub = null;
         }
         this.status = status;
     }
@@ -108,32 +107,43 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
             shouldTry = false;
             try {
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID == DictionaryUtil.nullValue()) {
-                    if (applicationRegisterServiceBlockingStub != null) {
-                        ApplicationMapping applicationMapping = applicationRegisterServiceBlockingStub.applicationCodeRegister(
-                            Application.newBuilder().setApplicationCode(Config.Agent.APPLICATION_CODE).build());
-                        if (applicationMapping != null) {
-                            RemoteDownstreamConfig.Agent.SERVICE_ID = applicationMapping.getApplication().getValue();
-                            shouldTry = true;
+                    if (registerBlockingStub != null) {
+                        ServiceRegisterMapping serviceRegisterMapping = registerBlockingStub.doServiceRegister(
+                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)).build());
+                        if (serviceRegisterMapping != null) {
+                            for (KeyIntValuePair registered : serviceRegisterMapping.getServicesList()) {
+                                if (Config.Agent.SERVICE_NAME.equals(registered.getKey())) {
+                                    RemoteDownstreamConfig.Agent.SERVICE_ID = registered.getValue();
+                                    shouldTry = true;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if (instanceDiscoveryServiceBlockingStub != null) {
+                    if (registerBlockingStub != null) {
                         if (RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID == DictionaryUtil.nullValue()) {
 
-                            ApplicationInstanceMapping instanceMapping = instanceDiscoveryServiceBlockingStub.registerInstance(ApplicationInstance.newBuilder()
-                                .setApplicationId(RemoteDownstreamConfig.Agent.SERVICE_ID)
-                                .setAgentUUID(PROCESS_UUID)
-                                .setRegisterTime(System.currentTimeMillis())
-                                .setOsinfo(OSUtil.buildOSInfo())
-                                .build());
-                            if (instanceMapping.getApplicationInstanceId() != DictionaryUtil.nullValue()) {
-                                RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID
-                                    = instanceMapping.getApplicationInstanceId();
+                            ServiceInstanceRegisterMapping instanceMapping = registerBlockingStub.doServiceInstanceRegister(ServiceInstances.newBuilder()
+                                .addInstances(
+                                    ServiceInstance.newBuilder()
+                                        .setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
+                                        .setInstanceUUID(PROCESS_UUID)
+                                        .setTime(System.currentTimeMillis())
+                                        .addAllProperties(OSUtil.buildOSInfo())
+                                ).build());
+                            for (KeyIntValuePair serviceInstance : instanceMapping.getServiceInstancesList()) {
+                                if (PROCESS_UUID.equals(serviceInstance.getKey())) {
+                                    int serviceInstanceId = serviceInstance.getValue();
+                                    if (serviceInstanceId != DictionaryUtil.nullValue()) {
+                                        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = serviceInstanceId;
+                                    }
+                                }
                             }
                         } else {
-                            instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
-                                .setApplicationInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID)
-                                .setHeartbeatTime(System.currentTimeMillis())
+                            serviceInstancePingStub.doPing(ServiceInstancePingPkg.newBuilder()
+                                .setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID)
+                                .setTime(System.currentTimeMillis())
+                                .setServiceInstanceUUID(PROCESS_UUID)
                                 .build());
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub);
