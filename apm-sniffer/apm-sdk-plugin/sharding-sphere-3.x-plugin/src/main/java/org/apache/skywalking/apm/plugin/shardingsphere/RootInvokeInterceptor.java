@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * {@link RootInvokeInterceptor} enhances {@link io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor}, creating a local span that records the overall execution of sql.
+ * RootInvokeInterceptor enhances io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor, creating a local span that records the overall execution of sql.
  *
  * @author zhangyonglun
  */

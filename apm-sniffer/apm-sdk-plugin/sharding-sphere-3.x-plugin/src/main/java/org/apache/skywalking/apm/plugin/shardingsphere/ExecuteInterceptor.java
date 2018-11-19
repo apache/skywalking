@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * {@link ExecuteInterceptor} enhances {@link io.shardingsphere.core.executor.sql.execute.SQLExecuteCallback)}, creating a local span that records the execution of sql.
+ * {@link ExecuteInterceptor} enhances {@link io.shardingsphere.core.executor.sql.execute.SQLExecuteCallback}, creating a local span that records the execution of sql.
  *
  * @author zhangyonglun
  */

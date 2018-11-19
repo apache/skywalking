@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * {@link ParseInterceptor} enhances {@link io.shardingsphere.core.routing.router.sharding.ParsingSQLRouter)}, creating a local span that records the parse of sql.
+ * {@link ParseInterceptor} enhances {@link io.shardingsphere.core.routing.router.sharding.ParsingSQLRouter}, creating a local span that records the parse of sql.
  *
  * @author zhangyonglun
  */

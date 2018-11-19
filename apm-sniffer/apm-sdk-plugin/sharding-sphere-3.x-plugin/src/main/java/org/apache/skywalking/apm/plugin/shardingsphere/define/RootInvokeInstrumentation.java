@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link RootInvokeInstrumentation} presents that skywalking intercepts {@link io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor}.
+ * RootInvokeInstrumentation presents that skywalking intercepts io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor.
  *
  * @author zhangyonglun
  */
