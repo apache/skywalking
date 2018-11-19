@@ -39,7 +39,7 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
     private final SourceReceiver sourceReceiver;
 
     public JVMMetricsServiceHandler(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {

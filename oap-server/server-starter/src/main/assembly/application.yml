@@ -16,6 +16,8 @@
 
 cluster:
   standalone:
+  # Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
+  # library in the oap-libs folder with your ZooKeeper 3.4.x libraru.
 #  zookeeper:
 #    hostPort: localhost:2181
 #    # Retry Policy
@@ -75,6 +77,11 @@ service-mesh:
     bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
+#receiver_zipkin:
+#  default:
+#    host: 0.0.0.0
+#    port: 9411
+#    contextPath: /
 query:
   graphql:
     path: /graphql

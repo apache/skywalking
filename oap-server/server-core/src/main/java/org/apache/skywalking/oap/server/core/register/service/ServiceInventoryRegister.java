@@ -45,7 +45,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
     }

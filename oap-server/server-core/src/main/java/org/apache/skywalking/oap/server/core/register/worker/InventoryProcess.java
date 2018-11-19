@@ -52,7 +52,7 @@ public enum InventoryProcess {
 
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(inventoryClass);
 
-        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).getService(StorageDAO.class);
+        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRegisterDAO registerDAO;
         try {
             registerDAO = storageDAO.newRegisterDao(builderClass.newInstance());

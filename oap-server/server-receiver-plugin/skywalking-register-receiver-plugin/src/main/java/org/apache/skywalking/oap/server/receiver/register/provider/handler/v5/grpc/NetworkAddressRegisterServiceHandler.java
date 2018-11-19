@@ -37,7 +37,7 @@ public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegister
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
     public NetworkAddressRegisterServiceHandler(ModuleManager moduleManager) {
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
     }
 
     @Override

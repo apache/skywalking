@@ -41,7 +41,7 @@ public class IndicatorRemoteWorker extends AbstractWorker<Indicator> {
     IndicatorRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<Indicator> nextWorker,
         String modelName) {
         super(workerId);
-        this.remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
+        this.remoteSender = moduleManager.find(CoreModule.NAME).provider().getService(RemoteSenderService.class);
         this.nextWorker = nextWorker;
         this.modelName = modelName;
     }

@@ -49,13 +49,13 @@ public class RegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new ApplicationRegisterHandler(getManager()));
         grpcHandlerRegister.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
         grpcHandlerRegister.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
 
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         jettyHandlerRegister.addHandler(new ApplicationRegisterServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceDiscoveryServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceHeartBeatServletHandler(getManager()));

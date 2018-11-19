@@ -41,7 +41,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     private AlarmQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(AlarmQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(AlarmQueryService.class);
         }
         return queryService;
     }
