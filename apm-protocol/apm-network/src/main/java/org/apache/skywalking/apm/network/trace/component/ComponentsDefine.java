@@ -100,6 +100,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
 
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(51, "ShardingSphere");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -109,7 +111,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[50];
+        components = new String[100];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -125,6 +127,7 @@ public class ComponentsDefine {
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
         addComponent(SHARDING_JDBC);
+        addComponent(SHARDING_SPHERE);
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
         addComponent(HTTP_ASYNC_CLIENT);

@@ -177,6 +177,9 @@ http:
 rpc:
   id: 50
   languages: Java,C#,Node.js
+ShardingSphere:
+  id: 51
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
