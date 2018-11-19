@@ -16,29 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
+package org.apache.skywalking.oap.server.receiver.zipkin;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * @author peng-yongsheng
+ * Zipkin receiver module provides the HTTP, protoc serve for any SDK or agent by following Zipkin format.
+ *
+ * At this moment, Zipkin format is not compatible with SkyWalking, especially HEADERs. Please don't consider this as a
+ * Zipkin-SkyWalking integration, it is provided for adding analysis, aggregation and visualization capabilities to
+ * zipkin backend.
+ *
+ * @author wusheng
  */
-public class SegmentParserListenerManager implements ISegmentParserListenerManager {
+public class ZipkinReceiverModule extends ModuleDefine {
+    public static final String NAME = "receiver_zipkin";
 
-    private List<SpanListenerFactory> spanListenerFactories;
-
-    public SegmentParserListenerManager() {
-        this.spanListenerFactories = new LinkedList<>();
+    public ZipkinReceiverModule() {
+        super(NAME);
     }
 
-    @Override
-    public void add(SpanListenerFactory spanListenerFactory) {
-        spanListenerFactories.add(spanListenerFactory);
-    }
-
-    List<SpanListenerFactory> getSpanListenerFactories() {
-        return spanListenerFactories;
+    @Override public Class[] services() {
+        return new Class[0];
     }
 }

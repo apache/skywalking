@@ -16,29 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
+package org.apache.skywalking.oap.server.receiver.zipkin.cache;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import zipkin2.Span;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class SegmentParserListenerManager implements ISegmentParserListenerManager {
-
-    private List<SpanListenerFactory> spanListenerFactories;
-
-    public SegmentParserListenerManager() {
-        this.spanListenerFactories = new LinkedList<>();
-    }
-
-    @Override
-    public void add(SpanListenerFactory spanListenerFactory) {
-        spanListenerFactories.add(spanListenerFactory);
-    }
-
-    List<SpanListenerFactory> getSpanListenerFactories() {
-        return spanListenerFactories;
-    }
+public interface ISpanCache {
+    void addSpan(Span span);
 }

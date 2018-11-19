@@ -35,9 +35,7 @@ import static java.util.Objects.nonNull;
  *
  * v5        |   v6
  *
- * 1. Application == Service
- * 2. Server == Service Instance
- * 3. Service == Endpoint
+ * 1. Application == Service 2. Server == Service Instance 3. Service == Endpoint
  *
  * @author peng-yongsheng, wusheng
  */
@@ -120,6 +118,9 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         SourceBuilder sourceBuilder = new SourceBuilder();
 
         int peerId = spanDecorator.getPeerId();
+        if (peerId == 0) {
+            return;
+        }
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);

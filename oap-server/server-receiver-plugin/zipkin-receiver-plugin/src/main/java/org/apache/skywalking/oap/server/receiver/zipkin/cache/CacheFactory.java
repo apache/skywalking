@@ -16,29 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
+package org.apache.skywalking.oap.server.receiver.zipkin.cache;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.zipkin.cache.caffeine.CaffeineSpanCache;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class SegmentParserListenerManager implements ISegmentParserListenerManager {
+public class CacheFactory {
+    public static final CacheFactory INSTANCE = new CacheFactory();
 
-    private List<SpanListenerFactory> spanListenerFactories;
+    private ISpanCache implementor;
 
-    public SegmentParserListenerManager() {
-        this.spanListenerFactories = new LinkedList<>();
+    private CacheFactory() {
     }
 
-    @Override
-    public void add(SpanListenerFactory spanListenerFactory) {
-        spanListenerFactories.add(spanListenerFactory);
-    }
-
-    List<SpanListenerFactory> getSpanListenerFactories() {
-        return spanListenerFactories;
+    public ISpanCache get(ZipkinReceiverConfig config) {
+        if (implementor == null) {
+            synchronized (INSTANCE) {
+                if (implementor == null) {
+                    implementor = new CaffeineSpanCache(config);
+                }
+            }
+        }
+        return implementor;
     }
 }

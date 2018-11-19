@@ -16,29 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
+package org.apache.skywalking.oap.server.receiver.zipkin;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class SegmentParserListenerManager implements ISegmentParserListenerManager {
+public class ZipkinTraceOSInfoBuilder {
 
-    private List<SpanListenerFactory> spanListenerFactories;
-
-    public SegmentParserListenerManager() {
-        this.spanListenerFactories = new LinkedList<>();
-    }
-
-    @Override
-    public void add(SpanListenerFactory spanListenerFactory) {
-        spanListenerFactories.add(spanListenerFactory);
-    }
-
-    List<SpanListenerFactory> getSpanListenerFactories() {
-        return spanListenerFactories;
+    public static ServiceInstanceInventory.AgentOsInfo getOSInfoForZipkin(String instanceName) {
+        ServiceInstanceInventory.AgentOsInfo osInfo = new ServiceInstanceInventory.AgentOsInfo();
+        osInfo.setHostname(instanceName);
+        return osInfo;
     }
 }
