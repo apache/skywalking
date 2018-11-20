@@ -35,9 +35,7 @@ import static java.util.Objects.nonNull;
  *
  * v5        |   v6
  *
- * 1. Application == Service
- * 2. Server == Service Instance
- * 3. Service == Endpoint
+ * 1. Application == Service 2. Server == Service Instance 3. Service == Endpoint
  *
  * @author peng-yongsheng, wusheng
  */
@@ -56,12 +54,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
     private long minuteTimeBucket;
 
     private MultiScopesSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.entrySourceBuilders = new LinkedList<>();
         this.exitSourceBuilders = new LinkedList<>();
-        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
     }
 
     @Override public boolean containsPoint(Point point) {
@@ -120,6 +118,9 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         SourceBuilder sourceBuilder = new SourceBuilder();
 
         int peerId = spanDecorator.getPeerId();
+        if (peerId == 0) {
+            return;
+        }
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);

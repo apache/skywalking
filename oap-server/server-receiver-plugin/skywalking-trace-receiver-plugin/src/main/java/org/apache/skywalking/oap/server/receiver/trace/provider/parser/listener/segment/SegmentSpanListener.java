@@ -42,8 +42,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private int firstEndpointId = 0;
 
     private SegmentSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
-        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
     }
 
     @Override public boolean containsPoint(Point point) {

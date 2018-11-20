@@ -21,11 +21,8 @@ package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
 import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.istio.telemetry.module.IstioTelemetryReceiverModule;
 
 public class IstioTelemetryReceiverProvider extends ModuleProvider {
@@ -45,7 +42,7 @@ public class IstioTelemetryReceiverProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
         service.addHandler(new IstioTelemetryGRPCHandler());
     }
 

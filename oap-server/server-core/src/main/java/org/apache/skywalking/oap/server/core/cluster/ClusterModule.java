@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
@@ -27,8 +27,8 @@ public class ClusterModule extends ModuleDefine {
 
     public static final String NAME = "cluster";
 
-    @Override public String name() {
-        return NAME;
+    public ClusterModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {

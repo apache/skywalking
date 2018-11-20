@@ -40,8 +40,8 @@ public abstract class ModelInstaller {
     }
 
     public final void install(Client client) throws StorageException {
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).getService(IModelGetter.class);
-        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).getService(DownsamplingConfigService.class);
+        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
 
         List<Model> models = modelGetter.getModels();
         List<Model> downsamplingModels = new ArrayList<>();

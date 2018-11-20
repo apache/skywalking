@@ -41,8 +41,8 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     private List<ServiceMapping> serviceMappings = new LinkedList<>();
 
     private ServiceMappingSpanListener(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     @Override public boolean containsPoint(Point point) {

@@ -38,7 +38,7 @@ public class RegisterRemoteWorker extends AbstractWorker<RegisterSource> {
 
     RegisterRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<RegisterSource> nextWorker) {
         super(workerId);
-        this.remoteSender = moduleManager.find(CoreModule.NAME).getService(RemoteSenderService.class);
+        this.remoteSender = moduleManager.find(CoreModule.NAME).provider().getService(RemoteSenderService.class);
         this.nextWorker = nextWorker;
     }
 

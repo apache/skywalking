@@ -43,7 +43,7 @@ public class AlarmQueryService implements Service {
 
     private IAlarmQueryDAO getAlarmQueryDAO() {
         if (alarmQueryDAO == null) {
-            alarmQueryDAO = moduleManager.find(StorageModule.NAME).getService(IAlarmQueryDAO.class);
+            alarmQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IAlarmQueryDAO.class);
         }
         return alarmQueryDAO;
     }

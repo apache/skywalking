@@ -72,7 +72,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        JettyHandlerRegister service = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
+        JettyHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         service.addHandler(new GraphQLQueryHandler(config.getPath(), graphQL));
     }
 
