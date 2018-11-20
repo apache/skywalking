@@ -18,15 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.*;
-import lombok.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordType;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
