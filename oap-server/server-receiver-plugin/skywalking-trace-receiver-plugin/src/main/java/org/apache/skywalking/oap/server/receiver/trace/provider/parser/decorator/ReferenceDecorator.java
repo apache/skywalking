@@ -145,7 +145,7 @@ public class ReferenceDecorator implements StandardBuilder {
             toBuilder();
         }
         if (isV2) {
-            referenceBuilderV2.setParentServiceInstanceId(value);
+            referenceBuilderV2.setParentEndpointId(value);
         } else {
             referenceBuilder.setParentServiceId(value);
         }

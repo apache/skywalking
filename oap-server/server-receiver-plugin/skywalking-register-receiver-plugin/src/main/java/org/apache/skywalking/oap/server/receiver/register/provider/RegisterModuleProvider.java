@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.re
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.NetworkAddressRegisterServletHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.ServiceNameDiscoveryServiceHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.RegisterServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.ServiceInstancePingServiceHandler;
 
 /**
  * @author peng-yongsheng
@@ -65,6 +66,7 @@ public class RegisterModuleProvider extends ModuleProvider {
 
         // v2
         grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
 
         JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         jettyHandlerRegister.addHandler(new ApplicationRegisterServletHandler(getManager()));

@@ -138,7 +138,7 @@ public class SofaRpcProviderInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
         assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
     }
 

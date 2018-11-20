@@ -137,8 +137,8 @@ public class ContextManagerTest {
 
         TraceSegmentRef ref = actualSegment.getRefs().get(0);
         MatcherAssert.assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("127.0.0.1:8080"));
-        assertThat(ref.getEntryOperationName(), is("/portal/"));
-        assertThat(ref.getEntryOperationId(), is(0));
+        assertThat(ref.getEntryEndpointName(), is("/portal/"));
+        assertThat(ref.getEntryEndpointId(), is(0));
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
         assertThat(spanList.size(), is(2));

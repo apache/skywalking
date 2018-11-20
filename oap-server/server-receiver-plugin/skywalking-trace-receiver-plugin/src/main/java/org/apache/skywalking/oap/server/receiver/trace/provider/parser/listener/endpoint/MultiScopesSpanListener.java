@@ -18,15 +18,28 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.RequestType;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 

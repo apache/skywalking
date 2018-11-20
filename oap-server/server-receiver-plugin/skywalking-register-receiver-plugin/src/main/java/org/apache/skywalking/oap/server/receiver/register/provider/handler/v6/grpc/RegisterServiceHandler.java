@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.register.v2.EndpointMapping;
@@ -27,10 +28,12 @@ import org.apache.skywalking.apm.network.register.v2.Enpoints;
 import org.apache.skywalking.apm.network.register.v2.NetAddressMapping;
 import org.apache.skywalking.apm.network.register.v2.NetAddresses;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
+import org.apache.skywalking.apm.network.register.v2.ServiceAndNetworkAddressMappings;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstanceRegisterMapping;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstances;
 import org.apache.skywalking.apm.network.register.v2.ServiceRegisterMapping;
 import org.apache.skywalking.apm.network.register.v2.Services;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -129,6 +132,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
             int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instance.getInstanceUUID(), instance.getTime(), agentOsInfo);
 
             if (serviceInstanceId != Const.NONE) {
+                logger.info("register service instance id={} [UUID:{}]", serviceInstanceId, instance.getInstanceUUID());
                 builder.addServiceInstances(KeyIntValuePair.newBuilder().setKey(instance.getInstanceUUID()).setValue(serviceInstanceId));
             }
         });
@@ -168,6 +172,45 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         });
 
         responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override public void doServiceAndNetworkAddressMappingRegister(ServiceAndNetworkAddressMappings request,
+        StreamObserver<Commands> responseObserver) {
+
+        request.getMappingsList().forEach(mapping -> {
+            int serviceId = mapping.getServiceId();
+
+            if (serviceId == Const.NONE) {
+                int serviceInstanceId = mapping.getServiceInstanceId();
+                if (serviceInstanceId == Const.NONE) {
+                    serviceId = serviceInstanceInventoryCache.get(serviceInstanceId).getServiceId();
+                } else {
+                    return;
+                }
+            }
+
+            if (serviceId == Const.NONE) {
+                return;
+            }
+
+            int networkAddressId = mapping.getNetworkAddressId();
+            if (networkAddressId == Const.NONE) {
+                String address = mapping.getNetworkAddress();
+                if (StringUtil.isEmpty(address)) {
+                    return;
+                }
+
+                networkAddressId = networkAddressInventoryRegister.getOrCreate(address);
+                if (networkAddressId == Const.NONE) {
+                    return;
+                }
+            }
+
+            serviceInventoryRegister.updateMapping(networkAddressId, serviceId);
+        });
+
+        responseObserver.onNext(Commands.getDefaultInstance());
         responseObserver.onCompleted();
     }
 }

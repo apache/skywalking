@@ -46,7 +46,7 @@ public class SegmentDecorator implements StandardBuilder {
     public SegmentDecorator(SegmentObject segmentObjectV2) {
         this.segmentObjectV2 = segmentObjectV2;
         this.segmentObject = null;
-        this.spanDecorators = new SpanDecorator[segmentObject.getSpansCount()];
+        this.spanDecorators = new SpanDecorator[segmentObjectV2.getSpansCount()];
         isV2 = true;
     }
 

@@ -125,9 +125,9 @@ public class TracingContext implements AbstractTracerContext {
         int entryApplicationInstanceId;
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            operationId = ref.getEntryOperationId();
-            operationName = ref.getEntryOperationName();
-            entryApplicationInstanceId = ref.getEntryApplicationInstanceId();
+            operationId = ref.getEntryEndpointId();
+            operationName = ref.getEntryEndpointName();
+            entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
             AbstractSpan firstSpan = first();
             operationId = firstSpan.getOperationId();
@@ -188,9 +188,9 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan firstSpan = first();
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            entryOperationId = ref.getEntryOperationId();
-            entryOperationName = ref.getEntryOperationName();
-            entryApplicationInstanceId = ref.getEntryApplicationInstanceId();
+            entryOperationId = ref.getEntryEndpointId();
+            entryOperationName = ref.getEntryEndpointName();
+            entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
             entryOperationId = firstSpan.getOperationId();
             entryOperationName = firstSpan.getOperationName();
