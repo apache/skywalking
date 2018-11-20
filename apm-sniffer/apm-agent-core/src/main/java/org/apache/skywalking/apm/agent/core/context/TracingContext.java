@@ -252,7 +252,7 @@ public class TracingContext implements AbstractTracerContext {
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
-                .findOnly(segment.getApplicationId(), operationName)
+                .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
                         return parentSpan.setOperationId(operationId);
@@ -265,7 +265,7 @@ public class TracingContext implements AbstractTracerContext {
             return entrySpan.start();
         } else {
             entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
-                .findOnly(segment.getApplicationId(), operationName)
+                .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
                         return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
@@ -329,7 +329,7 @@ public class TracingContext implements AbstractTracerContext {
                             }
 
                             return DictionaryManager.findEndpointSection()
-                                .findOnly(segment.getApplicationId(), operationName)
+                                .findOnly(segment.getServiceId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
@@ -352,7 +352,7 @@ public class TracingContext implements AbstractTracerContext {
                             }
 
                             return DictionaryManager.findEndpointSection()
-                                .findOnly(segment.getApplicationId(), operationName)
+                                .findOnly(segment.getServiceId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override

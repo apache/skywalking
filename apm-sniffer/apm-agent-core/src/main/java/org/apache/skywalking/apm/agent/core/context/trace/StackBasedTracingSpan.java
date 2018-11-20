@@ -47,7 +47,7 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
         if (--stackDepth == 0) {
             if (this.operationId == DictionaryUtil.nullValue()) {
                 this.operationId = (Integer)DictionaryManager.findEndpointSection()
-                    .findOrPrepare4Register(owner.getApplicationId(), operationName, this.isEntry(), this.isExit())
+                    .findOrPrepare4Register(owner.getServiceId(), operationName, this.isEntry(), this.isExit())
                     .doInCondition(
                         new PossibleFound.FoundAndObtain() {
                             @Override public Object doProcess(int value) {

@@ -125,7 +125,7 @@ public class TraceSegment {
         return traceSegmentId;
     }
 
-    public int getApplicationId() {
+    public int getServiceId() {
         return RemoteDownstreamConfig.Agent.SERVICE_ID;
     }
 

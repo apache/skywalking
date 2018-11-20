@@ -122,13 +122,11 @@ public enum EndpointNameDictionary {
 
             OperationNameKey key = (OperationNameKey)o;
 
-            boolean isApplicationMatch = false;
-            if (serviceId == key.serviceId) {
-                isApplicationMatch = true;
-            } else if (endpointName.equals(key.endpointName)) {
-                isApplicationMatch = true;
+            boolean isServiceMatch = false;
+            if (serviceId == key.serviceId && endpointName.equals(key.endpointName)) {
+                isServiceMatch = true;
             }
-            return isApplicationMatch && isEntry == key.isEntry
+            return isServiceMatch && isEntry == key.isEntry
                 && isExit == key.isExit;
         }
 
