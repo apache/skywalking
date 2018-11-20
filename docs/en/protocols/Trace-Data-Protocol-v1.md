@@ -8,7 +8,7 @@ uplink data to the SkyWalking backend.
 - Other services, includes Register, Trace, etc., provided by HTTP/JSON and gRPC both. 
 
 ### Version
-v2.0
+v1
 
 #### gRPC proto files
 [gRPC proto files](https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/v2.0)

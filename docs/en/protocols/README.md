@@ -21,12 +21,22 @@ service ID.
 
 
 ### Language based native agent protocol
-This protocol is combined from two parts:
-* [**SW6** Cross Process Propagation Headers Protocol](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
+There is two types of protocols to make language agents work in distributed environments.
+1. **Cross Process Propagation Headers Protocol** is in wire data format, agent/SDK usually uses HTTP/MQ/HTTP2 headers
+to carry the data with rpc request. The remote agent will receive this in the request handler, and bind the context 
+with this specific request.
+1. **Trace Data Protocol** is out of wire data, agent/SDK uses this to send traces and metrics to skywalking or other
+compatible backend. 
+
+Header protocol have two formats for compatible. Using v2 in default.
+* [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
 in-wire context propagation, started in 6.0.0-beta release. It will replace the old **SW3** protocol in the future, now both of them are supported.
-* [**SW3** Cross Process Propagation Headers Protocol](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md) is for in-wire propagation.
+* [Cross Process Propagation Headers Protocol v1](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md) is for in-wire propagation.
 By following this protocol, the trace segments in different processes could be linked.
-* [SkyWalking Trace Data Protocol](Trace-Data-Protocol.md) define the communication way and format between agent and backend.
+
+Since SkyWalking v6.0.0-beta, SkyWalking agent and backend are using Trace Data Protocol v2, and v1 is still supported in backend.
+* [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) define the communication way and format between agent and backend
+* [SkyWalking Trace Data Protocol v1](Trace-Data-Protocol.md). This protocol is used in old version. Still supported.
 
 
 ### Service Mesh probe protocol
