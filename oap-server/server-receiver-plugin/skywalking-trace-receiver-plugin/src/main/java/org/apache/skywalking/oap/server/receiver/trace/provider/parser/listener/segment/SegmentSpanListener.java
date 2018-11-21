@@ -52,7 +52,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
+        long timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(segmentCoreInfo.getStartTime());
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
         segment.setServiceId(segmentCoreInfo.getApplicationId());
