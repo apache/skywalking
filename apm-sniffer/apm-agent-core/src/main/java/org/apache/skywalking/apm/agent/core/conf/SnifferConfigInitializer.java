@@ -87,8 +87,8 @@ public class SnifferConfigInitializer {
             }
         }
 
-        if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
-            throw new ExceptionInInitializerError("`agent.application_code` is missing.");
+        if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
+            throw new ExceptionInInitializerError("`agent.service_code` is missing.");
         }
         if (StringUtil.isEmpty(Config.Collector.BACKEND_SERVICE)) {
             throw new ExceptionInInitializerError("`collector.direct_servers` and `collector.servers` cannot be empty at the same time.");

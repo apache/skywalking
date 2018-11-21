@@ -20,18 +20,18 @@ package org.apache.skywalking.oap.server.receiver.zipkin.data;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 
 /**
  * Each SkyWalkingTrace consists of segments in each application, original from {@link ZipkinTrace}s
  */
 public class SkyWalkingTrace {
     private UniqueId globalTraceId;
-    private List<TraceSegmentObject.Builder> segmentList;
+    private List<SegmentObject.Builder> segmentList;
 
-    public SkyWalkingTrace(UniqueId globalTraceId, List<TraceSegmentObject.Builder> segmentList) {
+    public SkyWalkingTrace(UniqueId globalTraceId, List<SegmentObject.Builder> segmentList) {
         this.globalTraceId = globalTraceId;
         this.segmentList = segmentList;
     }
@@ -51,7 +51,7 @@ public class SkyWalkingTrace {
         return globalTraceId;
     }
 
-    public List<TraceSegmentObject.Builder> getSegmentList() {
+    public List<SegmentObject.Builder> getSegmentList() {
         return segmentList;
     }
 }

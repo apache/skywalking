@@ -110,7 +110,7 @@ public class SofaRpcProviderInterceptorTest {
         when(rpcContext.getProviderInfo()).thenReturn(providerInfo);
         allArguments = new Object[] {sofaRequest};
         argumentTypes = new Class[] {sofaRequest.getClass()};
-        Config.Agent.APPLICATION_CODE = "SOFARPC-TestCases-APP";
+        Config.Agent.SERVICE_NAME = "SOFARPC-TestCases-APP";
     }
 
     @After
@@ -138,7 +138,7 @@ public class SofaRpcProviderInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
         assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
     }
 
