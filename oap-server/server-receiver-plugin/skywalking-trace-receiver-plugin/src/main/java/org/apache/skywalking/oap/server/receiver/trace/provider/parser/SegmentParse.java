@@ -19,16 +19,32 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.Setter;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.ReferenceIdExchanger;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanIdExchanger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -50,6 +66,7 @@ public class SegmentParse {
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
+        this.segmentCoreInfo.setV2(false);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {
@@ -103,19 +120,20 @@ public class SegmentParse {
         }
 
         segmentCoreInfo.setSegmentId(segmentIdBuilder.toString());
-        segmentCoreInfo.setApplicationId(segmentDecorator.getApplicationId());
-        segmentCoreInfo.setApplicationInstanceId(segmentDecorator.getApplicationInstanceId());
+        segmentCoreInfo.setServiceId(segmentDecorator.getServiceId());
+        segmentCoreInfo.setServiceInstanceId(segmentDecorator.getServiceInstanceId());
         segmentCoreInfo.setDataBinary(segmentDecorator.toByteArray());
+        segmentCoreInfo.setV2(false);
 
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
-            if (!SpanIdExchanger.getInstance(moduleManager).exchange(spanDecorator, segmentCoreInfo.getApplicationId())) {
+            if (!SpanIdExchanger.getInstance(moduleManager).exchange(spanDecorator, segmentCoreInfo.getServiceId())) {
                 return false;
             } else {
                 for (int j = 0; j < spanDecorator.getRefsCount(); j++) {
                     ReferenceDecorator referenceDecorator = spanDecorator.getRefs(j);
-                    if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, segmentCoreInfo.getApplicationId())) {
+                    if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, segmentCoreInfo.getServiceId())) {
                         return false;
                     }
                 }
