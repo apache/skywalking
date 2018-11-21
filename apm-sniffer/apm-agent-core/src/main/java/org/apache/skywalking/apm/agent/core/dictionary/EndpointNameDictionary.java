@@ -22,6 +22,8 @@ import io.netty.util.internal.ConcurrentSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.register.v2.Endpoint;
 import org.apache.skywalking.apm.network.register.v2.EndpointMapping;
@@ -36,6 +38,8 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.ENDPOI
  */
 public enum EndpointNameDictionary {
     INSTANCE;
+    private static final ILog logger = LogManager.getLogger(EndpointNameDictionary.class);
+
     private Map<OperationNameKey, Integer> endpointDictionary = new ConcurrentHashMap<OperationNameKey, Integer>();
     private Set<OperationNameKey> unRegisterEndpoints = new ConcurrentSet<OperationNameKey>();
 
@@ -87,7 +91,7 @@ public enum EndpointNameDictionary {
                         DetectPoint.server.equals(element.getFrom()),
                         DetectPoint.client.equals(element.getFrom()));
                     unRegisterEndpoints.remove(key);
-                    endpointDictionary.put(key, element.getServiceId());
+                    endpointDictionary.put(key, element.getEndpointId());
                 }
             }
         }
@@ -122,11 +126,11 @@ public enum EndpointNameDictionary {
 
             OperationNameKey key = (OperationNameKey)o;
 
-            boolean isServiceMatch = false;
+            boolean isServiceEndpointMatch = false;
             if (serviceId == key.serviceId && endpointName.equals(key.endpointName)) {
-                isServiceMatch = true;
+                isServiceEndpointMatch = true;
             }
-            return isServiceMatch && isEntry == key.isEntry
+            return isServiceEndpointMatch && isEntry == key.isEntry
                 && isExit == key.isExit;
         }
 
@@ -152,6 +156,15 @@ public enum EndpointNameDictionary {
             } else {
                 return DetectPoint.UNRECOGNIZED;
             }
+        }
+
+        @Override public String toString() {
+            return "OperationNameKey{" +
+                "serviceId=" + serviceId +
+                ", endpointName='" + endpointName + '\'' +
+                ", isEntry=" + isEntry +
+                ", isExit=" + isExit +
+                '}';
         }
     }
 }

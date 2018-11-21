@@ -151,7 +151,11 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
             int endpointId = inventoryService.getOrCreate(serviceId, endpointName, DetectPoint.fromNetworkProtocolDetectPoint(endpoint.getFrom()));
 
             if (endpointId != Const.NONE) {
-                builder.addElements(EndpointMappingElement.newBuilder().setServiceId(serviceId).setEndpointName(endpointName).setFrom(endpoint.getFrom()));
+                builder.addElements(EndpointMappingElement.newBuilder()
+                    .setServiceId(serviceId)
+                    .setEndpointName(endpointName)
+                    .setEndpointId(endpointId)
+                    .setFrom(endpoint.getFrom()));
             }
         });
 
