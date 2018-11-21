@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import io.grpc.ManagedChannel;
+import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
@@ -32,28 +33,63 @@ import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.slf4j.*;
 
 /**
+ * This is a wrapper of the gRPC client for sending message to each other OAP server.
+ * It contains a block queue to buffering the message and sending the message by batch.
+ *
  * @author peng-yongsheng
  */
 public class GRPCRemoteClient implements RemoteClient {
 
     private static final Logger logger = LoggerFactory.getLogger(GRPCRemoteClient.class);
 
+    private final int channelSize;
+    private final int bufferSize;
     private final Address address;
-    private final DataCarrier<RemoteMessage> carrier;
     private final StreamDataClassGetter streamDataClassGetter;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
     private GRPCClient client;
+    private DataCarrier<RemoteMessage> carrier;
     private boolean isConnect;
 
     public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
         int bufferSize) {
         this.streamDataClassGetter = streamDataClassGetter;
         this.address = address;
-        this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
-        this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
+        this.channelSize = channelSize;
+        this.bufferSize = bufferSize;
     }
 
     @Override public void connect() {
+        if (!isConnect) {
+            this.getClient().connect();
+            this.getDataCarrier().consume(new RemoteMessageConsumer(), 1);
+            this.isConnect = true;
+        }
+    }
+
+    /**
+     * Get channel state by the true value of request connection, that will reconnect
+     * when channel state is IDLE. Wait 5 seconds when state is not ready.
+     *
+     * @return a channel when the state to be ready
+     * @throws ChannelStateNotReadyException Channel state is not ready
+     */
+    ManagedChannel getChannel() throws ChannelStateNotReadyException {
+        ManagedChannel channel = getClient().getChannel();
+        ConnectivityState channelState = channel.getState(true);
+        if (ConnectivityState.READY.equals(channelState)) {
+            return channel;
+        } else {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+            throw new ChannelStateNotReadyException("Channel state is " + channelState);
+        }
+    }
+
+    GRPCClient getClient() {
         if (Objects.isNull(client)) {
             synchronized (GRPCRemoteClient.class) {
                 if (Objects.isNull(client)) {
@@ -61,18 +97,27 @@ public class GRPCRemoteClient implements RemoteClient {
                 }
             }
         }
+        return client;
+    }
 
-        if (!isConnect) {
-            this.client.connect();
-            this.carrier.consume(new RemoteMessageConsumer(), 1);
-            this.isConnect = true;
+    DataCarrier<RemoteMessage> getDataCarrier() {
+        if (Objects.isNull(this.carrier)) {
+            synchronized (GRPCRemoteClient.class) {
+                if (Objects.isNull(this.carrier)) {
+                    this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
+                    this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
+                }
+            }
         }
+        return this.carrier;
     }
 
-    public ManagedChannel getChannel() {
-        return this.client.getChannel();
-    }
-
+    /**
+     * Push stream data which need to send to another OAP server.
+     *
+     * @param nextWorkerId the id of a worker which will process this stream data.
+     * @param streamData the entity contains the values.
+     */
     @Override public void push(int nextWorkerId, StreamData streamData) {
         int streamDataId = streamDataClassGetter.findIdByClass(streamData.getClass());
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
@@ -80,7 +125,7 @@ public class GRPCRemoteClient implements RemoteClient {
         builder.setStreamDataId(streamDataId);
         builder.setRemoteData(streamData.serialize());
 
-        this.carrier.produce(builder.build());
+        this.getDataCarrier().produce(builder.build());
     }
 
     class RemoteMessageConsumer implements IConsumer<RemoteMessage> {
@@ -88,12 +133,15 @@ public class GRPCRemoteClient implements RemoteClient {
         }
 
         @Override public void consume(List<RemoteMessage> remoteMessages) {
-            StreamObserver<RemoteMessage> streamObserver = createStreamObserver();
-
-            for (RemoteMessage remoteMessage : remoteMessages) {
-                streamObserver.onNext(remoteMessage);
+            try {
+                StreamObserver<RemoteMessage> streamObserver = createStreamObserver();
+                for (RemoteMessage remoteMessage : remoteMessages) {
+                    streamObserver.onNext(remoteMessage);
+                }
+                streamObserver.onCompleted();
+            } catch (Throwable t) {
+                logger.error(t.getMessage(), t);
             }
-            streamObserver.onCompleted();
         }
 
         @Override public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
@@ -104,7 +152,15 @@ public class GRPCRemoteClient implements RemoteClient {
         }
     }
 
-    private StreamObserver<RemoteMessage> createStreamObserver() {
+    /**
+     * Create a gRPC stream observer to sending stream data, one stream observer
+     * could send multiple stream data by a single consume.
+     * The max number of concurrency allowed at the same time is 10.
+     *
+     * @return stream observer
+     * @throws ChannelStateNotReadyException Channel state is not ready
+     */
+    private StreamObserver<RemoteMessage> createStreamObserver() throws ChannelStateNotReadyException {
         RemoteServiceGrpc.RemoteServiceStub stub = RemoteServiceGrpc.newStub(getChannel());
 
         int sleepTotalMillis = 0;

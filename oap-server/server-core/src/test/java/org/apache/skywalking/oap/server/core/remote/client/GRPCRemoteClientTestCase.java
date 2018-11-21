@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import io.grpc.testing.GrpcServerRule;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
@@ -39,7 +40,7 @@ public class GRPCRemoteClientTestCase {
     private final int nextWorkerId = 1;
     private ModuleManagerTesting moduleManager;
     private StreamDataClassGetter classGetter;
-    @Rule public final GrpcServerRule grpcServerRule = new GrpcServerRule();
+    @Rule public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
     @Before
     public void before() {
@@ -55,22 +56,25 @@ public class GRPCRemoteClientTestCase {
     }
 
     @Test
-    public void testPush() throws InterruptedException {
+    public void testPush() throws InterruptedException, ChannelStateNotReadyException, IOException {
         grpcServerRule.getServiceRegistry().addService(new RemoteServiceHandler(moduleManager));
 
         Address address = new Address("not-important", 11, false);
         GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(classGetter, address, 1, 10));
-        when(remoteClient.getChannel()).thenReturn(grpcServerRule.getChannel());
-
         remoteClient.connect();
+
+        doReturn(grpcServerRule.getChannel()).when(remoteClient).getChannel();
 
         when(classGetter.findIdByClass(TestStreamData.class)).thenReturn(1);
 
         Class<?> dataClass = TestStreamData.class;
         when(classGetter.findClassById(1)).thenReturn((Class<StreamData>)dataClass);
-        remoteClient.push(nextWorkerId, new TestStreamData());
 
-        TimeUnit.SECONDS.sleep(2);
+        for (int i = 0; i < 12; i++) {
+            remoteClient.push(nextWorkerId, new TestStreamData());
+        }
+
+        TimeUnit.SECONDS.sleep(1);
     }
 
     public static class TestStreamData extends StreamData {

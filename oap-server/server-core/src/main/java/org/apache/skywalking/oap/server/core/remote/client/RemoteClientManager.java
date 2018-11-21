@@ -153,6 +153,7 @@ public class RemoteClientManager implements Service {
                         getFreeClients().add(client);
                     } else {
                         RemoteClient client = new GRPCRemoteClient(streamDataClassGetter, address, 1, 3000);
+                        client.connect();
                         getFreeClients().add(client);
                     }
                     break;
