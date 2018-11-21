@@ -37,6 +37,9 @@ public class SelfRemoteClient implements RemoteClient {
         return address;
     }
 
+    @Override public void connect() {
+    }
+
     @Override public void close() {
         throw new UnexpectedException("Self remote client invoked to close.");
     }

@@ -27,6 +27,8 @@ public interface RemoteClient extends Comparable<RemoteClient> {
 
     Address getAddress();
 
+    void connect();
+
     void close();
 
     void push(int nextWorkerId, StreamData streamData);

@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
+import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
@@ -38,20 +39,38 @@ public class GRPCRemoteClient implements RemoteClient {
     private static final Logger logger = LoggerFactory.getLogger(GRPCRemoteClient.class);
 
     private final Address address;
-    private final GRPCClient client;
     private final DataCarrier<RemoteMessage> carrier;
     private final StreamDataClassGetter streamDataClassGetter;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
+    private GRPCClient client;
+    private boolean isConnect;
 
     public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
         int bufferSize) {
         this.streamDataClassGetter = streamDataClassGetter;
         this.address = address;
-        this.client = new GRPCClient(address.getHost(), address.getPort());
-        this.client.initialize();
         this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
         this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
-        this.carrier.consume(new RemoteMessageConsumer(), 1);
+    }
+
+    @Override public void connect() {
+        if (Objects.isNull(client)) {
+            synchronized (GRPCRemoteClient.class) {
+                if (Objects.isNull(client)) {
+                    this.client = new GRPCClient(address.getHost(), address.getPort());
+                }
+            }
+        }
+
+        if (!isConnect) {
+            this.client.connect();
+            this.carrier.consume(new RemoteMessageConsumer(), 1);
+            this.isConnect = true;
+        }
+    }
+
+    public ManagedChannel getChannel() {
+        return this.client.getChannel();
     }
 
     @Override public void push(int nextWorkerId, StreamData streamData) {
@@ -86,7 +105,7 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     private StreamObserver<RemoteMessage> createStreamObserver() {
-        RemoteServiceGrpc.RemoteServiceStub stub = RemoteServiceGrpc.newStub(client.getChannel());
+        RemoteServiceGrpc.RemoteServiceStub stub = RemoteServiceGrpc.newStub(getChannel());
 
         int sleepTotalMillis = 0;
         int sleepMillis = 10;
@@ -122,7 +141,12 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     @Override public void close() {
-        client.shutdown();
+        if (Objects.nonNull(this.carrier)) {
+            this.carrier.shutdownConsumers();
+        }
+        if (Objects.nonNull(this.client)) {
+            this.client.shutdown();
+        }
     }
 
     @Override public Address getAddress() {
