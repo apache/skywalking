@@ -8,7 +8,7 @@ uplink data to the SkyWalking backend.
 - Other services, includes Register, Trace, etc., provided by HTTP/JSON and gRPC both. 
 
 ### Version
-v2.0
+v1
 
 #### gRPC proto files
 [gRPC proto files](https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/v2.0)
@@ -20,7 +20,7 @@ v2.0
 - UniqueId represents segmentId and globalTraceId. It have 3 parts(Longs), 1) applicationInstanceId, 2) ThreadId, 3) Timestamp + 10000 + seq(seq is in [0, 100000) )
 - Span data please refs to [Plugin Development Guide](../guides/Java-Plugin-Development-Guide.md)
 - Id and name both exist, please use id if possible.
-  - operationNameId/operationName 
+  - operationNameId/endpointName 
   - networkAddress/networkAddressId
   - entryServiceName/entryServiceId
   - parentServiceName/parentServiceId
@@ -36,7 +36,7 @@ Input：
     "gt": [[230150, 185809, 24040000]], 
     "sg": { //TraceSegmentObject 
       "ts": [137150, 185809, 48780000], 
-      "ai": 2, //applicationId
+      "ai": 2, //serviceId
       "ii": 3, //applicationInstanceId
       "ss": [ //SpanObject
         {
@@ -49,20 +49,20 @@ Input：
           "ci": 3, //componentId
           "cn": "", //component
           "oi": 0, //operationNameId
-          "on": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", //operationName
+          "on": "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()", //endpointName
           "pi": 0, //peerId
           "pn": "", //peer
           "ie": false, //isError
           "rs": [ //TraceSegmentReference
             {
               "pts": [230150, 185809, 24040000], //parentTraceSegmentId
-              "pii": 2, //parentApplicationInstanceId
+              "pii": 2, //parentServiceInstanceId
               "psp": 1, //parentSpanId
               "psi": 0, //parentServiceId
               "psn": "/dubbox-case/case/dubbox-rest", //parentServiceName
               "ni": 0,  //networkAddressId
               "nn": "172.25.0.4:20880", //networkAddress
-              "eii": 2, //entryApplicationInstanceId
+              "eii": 2, //entryServiceInstanceId
               "esi": 0, //entryServiceId
               "esn": "/dubbox-case/case/dubbox-rest", //entryServiceName
               "rv": 0 //RefTypeValue
@@ -140,7 +140,7 @@ HTTP format http://ip:port/instance/register(default: localhost:12800)
 Input:
 ```
 {
-    ai: x, #applicationId
+    ai: x, #serviceId
     au: "", #agentUUID
     rt: x, #registerTime
     oi: "", #osinfo
@@ -150,7 +150,7 @@ Input:
 Output:
 ```
 {
-    ai: x, #applicationId
+    ai: x, #serviceId
     ii: x, #applicationInstanceId
 }
 ```
@@ -185,7 +185,7 @@ HTTP format http://ip:port/servicename/discovery(default: localhost:12800)
 Input：
 ```
 {
-    ai: x, #applicationId
+    ai: x, #serviceId
     sn: "", #serviceName
     st: x, #srcSpanType
 }
@@ -196,7 +196,7 @@ Output：
 {
     si: x, #osinfo
     el: { #element
-        ai: x, #applicationId
+        ai: x, #serviceId
         sn: "", #serviceName
         st: x, #srcSpanType
     }
