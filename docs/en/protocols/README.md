@@ -65,6 +65,7 @@ Query protocol follows GraphQL grammar, provides data query capabilities, which 
 There are 5 dimensionality data is provided.
 1. Metadata. Metadata includes the brief info of the whole under monitoring services and their instances, endpoints, etc.
 Use multiple ways to query this meta data.
+1. Topology. Show the topology and dependency graph of services or endpoints. Including direct relationship or global map.
 1. Metric. Metric query targets all the objects defined in [OAL script](../concepts-and-designs/oal.md). You could get the 
 metric data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
 1. Aggregation. Aggregation query means the metric data need a secondary aggregation in query stage, which makes the query 
@@ -74,4 +75,4 @@ by the values.
 1. Trace. Query distributed traces by this.
 1. Alarm. Through alarm query, you can have alarm trend and details.
 
-The actual query GraphQL scrips could be found in [here](../../../apm-protocol/apm-ui-protocol/src/main/resources/ui-graphql-v6).  
+The actual query GraphQL scrips could be found in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol).  
