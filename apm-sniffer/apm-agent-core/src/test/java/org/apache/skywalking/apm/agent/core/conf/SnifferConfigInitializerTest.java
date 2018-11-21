@@ -35,38 +35,38 @@ public class SnifferConfigInitializerTest {
 
     @Test
     public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
-        System.setProperty("skywalking.agent.application_code", "testApp");
+        System.setProperty("skywalking.agent.service_name", "testApp");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         System.setProperty("skywalking.logging.level", "info");
         SnifferConfigInitializer.initialize(null);
-        assertThat(Config.Agent.APPLICATION_CODE, is("testApp"));
+        assertThat(Config.Agent.SERVICE_NAME, is("testApp"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @Test
     public void testLoadConfigFromAgentOptions() throws AgentPackageNotFoundException, ConfigNotFoundException {
-        String agentOptions = "agent.application_code=testApp,collector.backend_service=127.0.0.1:8090,logging.level=info";
+        String agentOptions = "agent.service_name=testApp,collector.backend_service=127.0.0.1:8090,logging.level=info";
         SnifferConfigInitializer.initialize(agentOptions);
-        assertThat(Config.Agent.APPLICATION_CODE, is("testApp"));
+        assertThat(Config.Agent.SERVICE_NAME, is("testApp"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @Test
     public void testConfigOverriding() throws AgentPackageNotFoundException, ConfigNotFoundException {
-        System.setProperty("skywalking.agent.application_code", "testAppFromSystem");
+        System.setProperty("skywalking.agent.service_name", "testAppFromSystem");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
-        String agentOptions = "agent.application_code=testAppFromAgentOptions,logging.level=debug";
+        String agentOptions = "agent.service_name=testAppFromAgentOptions,logging.level=debug";
         SnifferConfigInitializer.initialize(agentOptions);
-        assertThat(Config.Agent.APPLICATION_CODE, is("testAppFromAgentOptions"));
+        assertThat(Config.Agent.SERVICE_NAME, is("testAppFromAgentOptions"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.DEBUG));
     }
 
     @Test
     public void testAgentOptionsSeparator() throws AgentPackageNotFoundException, ConfigNotFoundException {
-        System.setProperty("skywalking.agent.application_code", "testApp");
+        System.setProperty("skywalking.agent.service_name", "testApp");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         String agentOptions = "agent.ignore_suffix='.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg'";
         SnifferConfigInitializer.initialize(agentOptions);
@@ -76,16 +76,16 @@ public class SnifferConfigInitializerTest {
     @Test
     public void testAgentOptionsParser() throws AgentPackageNotFoundException, ConfigNotFoundException {
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
-        String agentOptions = "agent.application_code=test=abc";
+        String agentOptions = "agent.service_name=test=abc";
         try {
             SnifferConfigInitializer.initialize(agentOptions);
             fail("test=abc without quotes is not a valid value");
         } catch (ExceptionInInitializerError e) {
             // ignore
         }
-        agentOptions = "agent.application_code='test=abc'";
+        agentOptions = "agent.service_name='test=abc'";
         SnifferConfigInitializer.initialize(agentOptions);
-        assertThat(Config.Agent.APPLICATION_CODE, is("test=abc"));
+        assertThat(Config.Agent.SERVICE_NAME, is("test=abc"));
     }
 
     @After
@@ -98,7 +98,7 @@ public class SnifferConfigInitializerTest {
             }
         }
 
-        Config.Agent.APPLICATION_CODE = "";
+        Config.Agent.SERVICE_NAME = "";
         Config.Logging.LEVEL = LogLevel.DEBUG;
     }
 }

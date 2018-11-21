@@ -112,7 +112,7 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(span.getSpanId());
 
-        carrier.setParentApplicationInstanceId(segment.getApplicationInstanceId());
+        carrier.setParentServiceInstanceId(segment.getApplicationInstanceId());
 
         if (DictionaryUtil.isNull(peerId)) {
             carrier.setPeerHost(peer);
@@ -125,30 +125,30 @@ public class TracingContext implements AbstractTracerContext {
         int entryApplicationInstanceId;
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            operationId = ref.getEntryOperationId();
-            operationName = ref.getEntryOperationName();
-            entryApplicationInstanceId = ref.getEntryApplicationInstanceId();
+            operationId = ref.getEntryEndpointId();
+            operationName = ref.getEntryEndpointName();
+            entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
             AbstractSpan firstSpan = first();
             operationId = firstSpan.getOperationId();
             operationName = firstSpan.getOperationName();
             entryApplicationInstanceId = this.segment.getApplicationInstanceId();
         }
-        carrier.setEntryApplicationInstanceId(entryApplicationInstanceId);
+        carrier.setEntryServiceInstanceId(entryApplicationInstanceId);
 
         if (operationId == DictionaryUtil.nullValue()) {
             if (!StringUtil.isEmpty(operationName)) {
-                carrier.setEntryOperationName(operationName);
+                carrier.setEntryEndpointName(operationName);
             }
         } else {
-            carrier.setEntryOperationId(operationId);
+            carrier.setEntryEndpointId(operationId);
         }
 
         int parentOperationId = first().getOperationId();
         if (parentOperationId == DictionaryUtil.nullValue()) {
-            carrier.setParentOperationName(first().getOperationName());
+            carrier.setParentEndpointName(first().getOperationName());
         } else {
-            carrier.setParentOperationId(parentOperationId);
+            carrier.setParentEndpointId(parentOperationId);
         }
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
@@ -188,9 +188,9 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan firstSpan = first();
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            entryOperationId = ref.getEntryOperationId();
-            entryOperationName = ref.getEntryOperationName();
-            entryApplicationInstanceId = ref.getEntryApplicationInstanceId();
+            entryOperationId = ref.getEntryEndpointId();
+            entryOperationName = ref.getEntryEndpointName();
+            entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
             entryOperationId = firstSpan.getOperationId();
             entryOperationName = firstSpan.getOperationName();
@@ -251,8 +251,8 @@ public class TracingContext implements AbstractTracerContext {
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                .findOnly(segment.getApplicationId(), operationName)
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
+                .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
                         return parentSpan.setOperationId(operationId);
@@ -264,8 +264,8 @@ public class TracingContext implements AbstractTracerContext {
                 });
             return entrySpan.start();
         } else {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-                .findOnly(segment.getApplicationId(), operationName)
+            entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
+                .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
                         return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
@@ -294,19 +294,11 @@ public class TracingContext implements AbstractTracerContext {
         }
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        AbstractTracingSpan span = (AbstractTracingSpan)DictionaryManager.findOperationNameCodeSection()
-            .findOrPrepare4Register(segment.getApplicationId(), operationName, false, false)
-            .doInCondition(new PossibleFound.FoundAndObtain() {
-                @Override
-                public Object doProcess(int operationId) {
-                    return new LocalSpan(spanIdGenerator++, parentSpanId, operationId);
-                }
-            }, new PossibleFound.NotFoundAndObtain() {
-                @Override
-                public Object doProcess() {
-                    return new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
-                }
-            });
+        /**
+         * From v6.0.0-beta, local span doesn't do op name register.
+         * All op name register is related to entry and exit spans only.
+         */
+        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
         span.start();
         return push(span);
     }
@@ -336,8 +328,8 @@ public class TracingContext implements AbstractTracerContext {
                                 return new NoopExitSpan(peerId);
                             }
 
-                            return DictionaryManager.findOperationNameCodeSection()
-                                .findOnly(segment.getApplicationId(), operationName)
+                            return DictionaryManager.findEndpointSection()
+                                .findOnly(segment.getServiceId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
@@ -359,8 +351,8 @@ public class TracingContext implements AbstractTracerContext {
                                 return new NoopExitSpan(remotePeer);
                             }
 
-                            return DictionaryManager.findOperationNameCodeSection()
-                                .findOnly(segment.getApplicationId(), operationName)
+                            return DictionaryManager.findEndpointSection()
+                                .findOnly(segment.getServiceId(), operationName)
                                 .doInCondition(
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
