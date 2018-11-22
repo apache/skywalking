@@ -83,6 +83,7 @@ public class RemoteClientManager implements Service {
             }
 
             List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
+            instanceList = distinct(instanceList);
             Collections.sort(instanceList);
 
             if (logger.isDebugEnabled()) {
@@ -90,11 +91,49 @@ public class RemoteClientManager implements Service {
             }
 
             if (!compare(instanceList)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("ReBuilding remote clients.");
+                }
                 reBuildRemoteClients(instanceList);
             }
-        } catch (Throwable t) {
+
+            printRemoteClientList();
+        } catch (
+            Throwable t) {
             logger.error(t.getMessage(), t);
         }
+    }
+
+    /**
+     * Print the client list into log for confirm how many clients built.
+     */
+    private void printRemoteClientList() {
+        if (logger.isDebugEnabled()) {
+            StringBuilder addresses = new StringBuilder();
+            getRemoteClient().forEach(client -> addresses.append(client.getAddress().toString()).append(","));
+            logger.debug("Remote client list: {}", addresses);
+        }
+    }
+
+    /**
+     * Because of OAP server register by the UUID which one-to-one mapping with process number.
+     * The register information not delete immediately after process shutdown because of there
+     * is always happened network fault, not really process shutdown. So, cluster module must
+     * wait a few seconds to confirm it. Then there are more than one register information in
+     * the cluster.
+     *
+     * @param instanceList the instances query from cluster module.
+     * @return distinct remote instances
+     */
+    private List<RemoteInstance> distinct(List<RemoteInstance> instanceList) {
+        Set<Address> addresses = new HashSet<>();
+        List<RemoteInstance> newInstanceList = new ArrayList<>();
+        instanceList.forEach(instance -> {
+            if (addresses.add(instance.getAddress())) {
+                newInstanceList.add(instance);
+            }
+        });
+        return newInstanceList;
     }
 
     public List<RemoteClient> getRemoteClient() {
