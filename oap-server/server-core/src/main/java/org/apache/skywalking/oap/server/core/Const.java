@@ -30,7 +30,7 @@ public class Const {
     public static final int USER_SERVICE_ID = 1;
     public static final int USER_INSTANCE_ID = 1;
     public static final int USER_ENDPOINT_ID = 1;
-    public static final String NONE_ENDPOINT_NAME = "Close";
+    public static final String NONE_ENDPOINT_NAME = "None";
     public static final String USER_CODE = "User";
     public static final String SEGMENT_SPAN_SPLIT = "S";
     public static final String UNKNOWN = "Unknown";

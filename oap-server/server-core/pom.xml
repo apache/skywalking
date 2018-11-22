@@ -37,6 +37,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-testing</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
