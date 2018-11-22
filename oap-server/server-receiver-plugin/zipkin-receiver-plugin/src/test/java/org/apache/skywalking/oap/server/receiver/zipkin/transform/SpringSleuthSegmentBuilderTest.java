@@ -99,7 +99,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
             }
 
             @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
-                String key = "VitualAppCode:" + serviceId + ",address:" + addressId;
+                String key = "VitualAppCode:" + serviceId + ",getAddress:" + addressId;
                 if (applicationInstRegister.containsKey(key)) {
                     return applicationInstRegister.get(key);
                 } else {
