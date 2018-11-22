@@ -98,8 +98,7 @@ public class RemoteClientManager implements Service {
             }
 
             printRemoteClientList();
-        } catch (
-            Throwable t) {
+        } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
     }
