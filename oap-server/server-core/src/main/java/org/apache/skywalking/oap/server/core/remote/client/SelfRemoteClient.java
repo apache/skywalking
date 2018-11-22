@@ -49,6 +49,6 @@ public class SelfRemoteClient implements RemoteClient {
     }
 
     @Override public int compareTo(RemoteClient o) {
-        return address.toString().compareTo(o.getAddress().toString());
+        return address.compareTo(o.getAddress());
     }
 }

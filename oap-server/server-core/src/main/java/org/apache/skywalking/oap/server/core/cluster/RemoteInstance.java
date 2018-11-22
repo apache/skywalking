@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.remote.client.Address;
  * @author peng-yongsheng
  */
 @Getter
-public class RemoteInstance {
+public class RemoteInstance implements Comparable<RemoteInstance> {
 
     private final Address address;
 
@@ -35,5 +35,9 @@ public class RemoteInstance {
 
     @Override public String toString() {
         return address.toString();
+    }
+
+    @Override public int compareTo(RemoteInstance o) {
+        return this.address.compareTo(o.getAddress());
     }
 }

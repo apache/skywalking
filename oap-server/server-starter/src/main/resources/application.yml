@@ -15,14 +15,14 @@
 # limitations under the License.
 
 cluster:
-  standalone:
+#  standalone:
    # Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
    # library the oap-libs folder with your ZooKeeper 3.4.x library.
-#  zookeeper:
-#    hostPort: localhost:2181
-#    # Retry Policy
-#    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
-#    maxRetries: 3 # max number of times to retry
+  zookeeper:
+    hostPort: localhost:2181
+    # Retry Policy
+    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+    maxRetries: 3 # max number of times to retry
 #  kubernetes:
 #    watchTimeoutSeconds: 60
 #    namespace: default
@@ -77,11 +77,11 @@ service-mesh:
     bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
-receiver_zipkin:
-  default:
-    host: 0.0.0.0
-    port: 9411
-    contextPath: /
+#receiver_zipkin:
+#  default:
+#    host: 0.0.0.0
+#    port: 9411
+#    contextPath: /
 query:
   graphql:
     path: /graphql

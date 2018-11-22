@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import java.util.*;
 import java.util.concurrent.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -51,7 +52,7 @@ public class RemoteClientManager implements Service {
     }
 
     public void start() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 5, 5, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 1, 5, TimeUnit.SECONDS);
     }
 
     /**
@@ -60,27 +61,29 @@ public class RemoteClientManager implements Service {
      * will send stream data to each other by hash code.
      */
     void refresh() {
-        if (Objects.isNull(clusterNodesQuery)) {
-            synchronized (RemoteClientManager.class) {
-                if (Objects.isNull(clusterNodesQuery)) {
-                    this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
-                }
-            }
-        }
-
-        if (Objects.isNull(streamDataClassGetter)) {
-            synchronized (RemoteClientManager.class) {
-                if (Objects.isNull(streamDataClassGetter)) {
-                    this.streamDataClassGetter = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(StreamDataClassGetter.class);
-                }
-            }
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Refresh remote nodes collection.");
-        }
         try {
+            if (Objects.isNull(clusterNodesQuery)) {
+                synchronized (RemoteClientManager.class) {
+                    if (Objects.isNull(clusterNodesQuery)) {
+                        this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
+                    }
+                }
+            }
+
+            if (Objects.isNull(streamDataClassGetter)) {
+                synchronized (RemoteClientManager.class) {
+                    if (Objects.isNull(streamDataClassGetter)) {
+                        this.streamDataClassGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
+                    }
+                }
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Refresh remote nodes collection.");
+            }
+
             List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
+            Collections.sort(instanceList);
 
             if (logger.isDebugEnabled()) {
                 instanceList.forEach(instance -> logger.debug("Cluster instance: {}", instance.toString()));
@@ -123,7 +126,7 @@ public class RemoteClientManager implements Service {
      *
      * @param remoteInstances Remote instance collection by query cluster config.
      */
-    private void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
+    private synchronized void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
         getFreeClients().clear();
 
         Map<Address, RemoteClient> remoteClients = new HashMap<>();

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.testing.module.*;
@@ -34,14 +35,17 @@ public class RemoteClientManagerTestCase {
     @Test
     public void refresh() {
         ModuleManagerTesting moduleManager = new ModuleManagerTesting();
-        ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
-        moduleManager.put(ClusterModule.NAME, moduleDefine);
+        ModuleDefineTesting clusterModuleDefine = new ModuleDefineTesting();
+        moduleManager.put(ClusterModule.NAME, clusterModuleDefine);
+
+        ModuleDefineTesting coreModuleDefine = new ModuleDefineTesting();
+        moduleManager.put(CoreModule.NAME, coreModuleDefine);
 
         ClusterNodesQuery clusterNodesQuery = mock(ClusterNodesQuery.class);
-        moduleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
+        clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
 
         StreamDataClassGetter streamDataClassGetter = mock(StreamDataClassGetter.class);
-        moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, streamDataClassGetter);
+        coreModuleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, streamDataClassGetter);
 
         RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
 

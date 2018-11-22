@@ -18,10 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import io.grpc.*;
+import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
@@ -68,25 +67,12 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     /**
-     * Get channel state by the true value of request connection, that will reconnect
-     * when channel state is IDLE. Wait 5 seconds when state is not ready.
+     * Get channel state by the true value of request connection.
      *
      * @return a channel when the state to be ready
-     * @throws ChannelStateNotReadyException Channel state is not ready
      */
-    ManagedChannel getChannel() throws ChannelStateNotReadyException {
-        ManagedChannel channel = getClient().getChannel();
-        ConnectivityState channelState = channel.getState(true);
-        if (ConnectivityState.READY.equals(channelState)) {
-            return channel;
-        } else {
-            try {
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-            throw new ChannelStateNotReadyException("Channel state is " + channelState);
-        }
+    ManagedChannel getChannel() {
+        return getClient().getChannel();
     }
 
     GRPCClient getClient() {
@@ -98,6 +84,10 @@ public class GRPCRemoteClient implements RemoteClient {
             }
         }
         return client;
+    }
+
+    RemoteServiceGrpc.RemoteServiceStub getStub() {
+        return RemoteServiceGrpc.newStub(getChannel());
     }
 
     DataCarrier<RemoteMessage> getDataCarrier() {
@@ -158,11 +148,8 @@ public class GRPCRemoteClient implements RemoteClient {
      * The max number of concurrency allowed at the same time is 10.
      *
      * @return stream observer
-     * @throws ChannelStateNotReadyException Channel state is not ready
      */
-    private StreamObserver<RemoteMessage> createStreamObserver() throws ChannelStateNotReadyException {
-        RemoteServiceGrpc.RemoteServiceStub stub = RemoteServiceGrpc.newStub(getChannel());
-
+    private StreamObserver<RemoteMessage> createStreamObserver() {
         int sleepTotalMillis = 0;
         int sleepMillis = 10;
         while (concurrentStreamObserverNumber.incrementAndGet() > 10) {
@@ -181,7 +168,7 @@ public class GRPCRemoteClient implements RemoteClient {
             }
         }
 
-        return stub.call(new StreamObserver<Empty>() {
+        return getStub().call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
 
@@ -210,6 +197,6 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     @Override public int compareTo(RemoteClient o) {
-        return address.toString().compareTo(o.getAddress().toString());
+        return address.compareTo(o.getAddress());
     }
 }
