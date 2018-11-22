@@ -28,15 +28,15 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * RootInvokeInterceptor enhances io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor, creating a local span that records the overall execution of sql.
+ * {@link JDBCRootInvokeInterceptor} enhances {@link io.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}, creating a local span that records the overall execution of sql.
  *
  * @author zhangyonglun
  */
-public class RootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
+public class JDBCRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/RootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+        ContextManager.createLocalSpan("/ShardingSphere/JDBCRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
         ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
     

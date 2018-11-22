@@ -20,32 +20,24 @@ package org.apache.skywalking.apm.plugin.shardingsphere;
 
 import io.shardingsphere.core.executor.ShardingExecuteDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
- * {@link ExecuteInterceptor} enhances {@link io.shardingsphere.core.executor.sql.execute.SQLExecuteCallback}, creating a local span that records the execution of sql.
+ * ProxyRootInvokeInterceptor enhances io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor, creating a local span that records the overall execution of sql.
  *
  * @author zhangyonglun
  */
-public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
+public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/executeSQL/").setComponent(ComponentsDefine.SHARDING_SPHERE);
-        ContextSnapshot contextSnapshot = (ContextSnapshot) ShardingExecuteDataMap.getDataMap().get(Constant.CONTEXT_SNAPSHOT);
-        if (null == contextSnapshot) {
-            contextSnapshot = (ContextSnapshot) ((Map) allArguments[2]).get(Constant.CONTEXT_SNAPSHOT);
-        }
-        if (null != contextSnapshot) {
-            ContextManager.continued(contextSnapshot);
-        }
+        ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+        ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
     
     @Override

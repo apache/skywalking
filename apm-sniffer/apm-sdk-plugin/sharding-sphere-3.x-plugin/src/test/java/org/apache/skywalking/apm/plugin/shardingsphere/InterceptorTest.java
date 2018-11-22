@@ -51,7 +51,9 @@ public class InterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
     
-    private RootInvokeInterceptor rootInvokeInterceptor;
+    private ProxyRootInvokeInterceptor proxyRootInvokeInterceptor;
+    
+    private JDBCRootInvokeInterceptor jdbcRootInvokeInterceptor;
     
     private ParseInterceptor parseInterceptor;
     
@@ -59,21 +61,34 @@ public class InterceptorTest {
     
     @Before
     public void setUp() {
-        rootInvokeInterceptor = new RootInvokeInterceptor();
+        proxyRootInvokeInterceptor = new ProxyRootInvokeInterceptor();
+        jdbcRootInvokeInterceptor = new JDBCRootInvokeInterceptor();
         parseInterceptor = new ParseInterceptor();
         executeInterceptor = new ExecuteInterceptor();
     }
     
     @Test
-    public void assertRootInvoke() {
-        rootInvokeInterceptor.beforeMethod(null, null, null, null, null);
-        rootInvokeInterceptor.afterMethod(null, null, null, null, null);
+    public void assertProxyRootInvoke() {
+        proxyRootInvokeInterceptor.beforeMethod(null, null, null, null, null);
+        proxyRootInvokeInterceptor.afterMethod(null, null, null, null, null);
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
-        assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/RootInvoke/"));
+        assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/ProxyRootInvoke/"));
+    }
+    
+    @Test
+    public void assertJDBCRootInvoke() {
+        jdbcRootInvokeInterceptor.beforeMethod(null, null, null, null, null);
+        jdbcRootInvokeInterceptor.afterMethod(null, null, null, null, null);
+        assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment segment = segmentStorage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
+        assertNotNull(spans);
+        assertThat(spans.size(), is(1));
+        assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/JDBCRootInvoke/"));
     }
     
     @Test
