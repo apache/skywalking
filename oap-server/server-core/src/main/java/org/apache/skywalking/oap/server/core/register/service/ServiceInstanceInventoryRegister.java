@@ -81,7 +81,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
     @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
         if (logger.isDebugEnabled()) {
-            logger.debug("get or create service instance by address id, service id: {}, address id: {}, registerTime: {}", serviceId, addressId, registerTime);
+            logger.debug("get or create service instance by getAddress id, service id: {}, getAddress id: {}, registerTime: {}", serviceId, addressId, registerTime);
         }
 
         int serviceInstanceId = getServiceInstanceInventoryCache().getServiceInstanceId(serviceId, addressId);

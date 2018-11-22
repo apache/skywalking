@@ -19,25 +19,14 @@
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
+import com.google.common.util.concurrent.*;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.slf4j.*;
 
 /**
  * Read collector pod info from api-server of kubernetes, then using all containerIp list to
@@ -63,7 +52,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     }
 
     @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
-        this.port = remoteInstance.getPort();
+        this.port = remoteInstance.getAddress().getPort();
         submitTask(MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
             .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build())));
     }
@@ -99,7 +88,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
             switch (event.getType()) {
                 case "ADDED":
                 case "MODIFIED":
-                    cache.put(event.getUid(), new RemoteInstance(event.getHost(), port, event.getUid().equals(this.uid)));
+                    cache.put(event.getUid(), new RemoteInstance(new Address(event.getHost(), port, event.getUid().equals(this.uid))));
                     break;
                 case "DELETED":
                     cache.remove(event.getUid());
