@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import io.grpc.testing.GrpcServerRule;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
@@ -56,7 +55,7 @@ public class GRPCRemoteClientTestCase {
     }
 
     @Test
-    public void testPush() throws InterruptedException, ChannelStateNotReadyException, IOException {
+    public void testPush() throws InterruptedException {
         grpcServerRule.getServiceRegistry().addService(new RemoteServiceHandler(moduleManager));
 
         Address address = new Address("not-important", 11, false);
