@@ -33,7 +33,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.BUFFER_SIZE;
 import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.CHANNEL_SIZE;
@@ -51,7 +53,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     private long segmentUplinkedCounter;
     private long segmentAbandonedCounter;
     private volatile DataCarrier<TraceSegment> carrier;
-    private volatile TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub;
+    private volatile TraceSegmentReportServiceGrpc.TraceSegmentReportServiceStub serviceStub;
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
@@ -88,9 +90,9 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     public void consume(List<TraceSegment> data) {
         if (CONNECTED.equals(status)) {
             final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-            StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.collect(new StreamObserver<Downstream>() {
+            StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.collect(new StreamObserver<Commands>() {
                 @Override
-                public void onNext(Downstream downstream) {
+                public void onNext(Commands commands) {
 
                 }
 
@@ -169,7 +171,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     public void statusChanged(GRPCChannelStatus status) {
         if (CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
-            serviceStub = TraceSegmentServiceGrpc.newStub(channel);
+            serviceStub = TraceSegmentReportServiceGrpc.newStub(channel);
         }
         this.status = status;
     }

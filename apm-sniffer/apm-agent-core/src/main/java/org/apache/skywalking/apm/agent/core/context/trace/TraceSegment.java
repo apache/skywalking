@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 
 /**
  * {@link TraceSegment} is a segment or fragment of the distributed trace. See https://github.com/opentracing/specification/blob/master/specification.md#the-opentracing-data-model
@@ -124,8 +125,8 @@ public class TraceSegment {
         return traceSegmentId;
     }
 
-    public int getApplicationId() {
-        return RemoteDownstreamConfig.Agent.APPLICATION_ID;
+    public int getServiceId() {
+        return RemoteDownstreamConfig.Agent.SERVICE_ID;
     }
 
     public boolean hasRef() {
@@ -162,7 +163,7 @@ public class TraceSegment {
         for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
             upstreamBuilder = upstreamBuilder.addGlobalTraceIds(distributedTraceId.toUniqueId());
         }
-        TraceSegmentObject.Builder traceSegmentBuilder = TraceSegmentObject.newBuilder();
+        SegmentObject.Builder traceSegmentBuilder = SegmentObject.newBuilder();
         /**
          * Trace Segment
          */
@@ -173,8 +174,8 @@ public class TraceSegment {
         for (AbstractTracingSpan span : this.spans) {
             traceSegmentBuilder.addSpans(span.transform());
         }
-        traceSegmentBuilder.setApplicationId(RemoteDownstreamConfig.Agent.APPLICATION_ID);
-        traceSegmentBuilder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
+        traceSegmentBuilder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID);
+        traceSegmentBuilder.setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
         traceSegmentBuilder.setIsSizeLimited(this.isSizeLimited);
 
         upstreamBuilder.setSegment(traceSegmentBuilder.build().toByteString());
@@ -192,6 +193,6 @@ public class TraceSegment {
     }
 
     public int getApplicationInstanceId() {
-        return RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID;
+        return RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
     }
 }

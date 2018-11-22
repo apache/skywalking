@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.cache.*;
@@ -87,7 +89,8 @@ public class TraceQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    public TraceBrief queryBasicTraces(final int serviceId, final int endpointId, final String traceId, final String endpointName,
+    public TraceBrief queryBasicTraces(final int serviceId, final int endpointId, final String traceId,
+        final String endpointName,
         final int minTraceDuration, int maxTraceDuration, final TraceState traceState, final QueryOrder queryOrder,
         final Pagination paging, final long startTB, final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
@@ -102,8 +105,15 @@ public class TraceQueryService implements Service {
         List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(traceId);
         for (SegmentRecord segment : segmentRecords) {
             if (nonNull(segment)) {
-                TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
-                trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                if (segment.getVersion() == 1) {
+                    TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
+                    trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                } else if (segment.getVersion() == 2) {
+                    SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
+                    trace.getSpans().addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                } else {
+                    throw new UnexpectedException("Unsupported version=" + segment.getVersion());
+                }
             }
         }
 
@@ -124,6 +134,111 @@ public class TraceQueryService implements Service {
         trace.getSpans().clear();
         trace.getSpans().addAll(sortedSpans);
         return trace;
+    }
+
+    private List<Span> buildSpanV2List(String traceId, String segmentId, int serviceId,
+        List<SpanObjectV2> spanObjects) {
+        List<Span> spans = new ArrayList<>();
+
+        spanObjects.forEach(spanObject -> {
+            Span span = new Span();
+            span.setTraceId(traceId);
+            span.setSegmentId(segmentId);
+            span.setSpanId(spanObject.getSpanId());
+            span.setParentSpanId(spanObject.getParentSpanId());
+            span.setStartTime(spanObject.getStartTime());
+            span.setEndTime(spanObject.getEndTime());
+            span.setError(spanObject.getIsError());
+            span.setLayer(spanObject.getSpanLayer().name());
+            span.setType(spanObject.getSpanType().name());
+
+            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getSpanId());
+            span.setSegmentSpanId(segmentSpanId);
+
+            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getParentSpanId());
+            span.setSegmentParentSpanId(segmentParentSpanId);
+
+            if (spanObject.getPeerId() == 0) {
+                span.setPeer(spanObject.getPeer());
+            } else {
+                span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
+            }
+
+            String endpointName = spanObject.getOperationName();
+            if (spanObject.getOperationNameId() != 0) {
+                EndpointInventory endpointInventory = getEndpointInventoryCache().get(spanObject.getOperationNameId());
+                if (nonNull(endpointInventory)) {
+                    endpointName = endpointInventory.getName();
+                } else {
+                    endpointName = Const.EMPTY_STRING;
+                }
+            }
+            span.setEndpointName(endpointName);
+
+            String serviceCode = getServiceInventoryCache().get(serviceId).getName();
+            span.setServiceCode(serviceCode);
+
+            if (spanObject.getComponentId() == 0) {
+                span.setComponent(spanObject.getComponent());
+            } else {
+                span.setComponent(getComponentLibraryCatalogService().getComponentName(spanObject.getComponentId()));
+            }
+
+            spanObject.getRefsList().forEach(reference -> {
+                Ref ref = new Ref();
+                ref.setTraceId(traceId);
+
+                switch (reference.getRefType()) {
+                    case CrossThread:
+                        ref.setType(RefType.CROSS_THREAD);
+                        break;
+                    case CrossProcess:
+                        ref.setType(RefType.CROSS_PROCESS);
+                        break;
+                }
+                ref.setParentSpanId(reference.getParentSpanId());
+
+                UniqueId uniqueId = reference.getParentTraceSegmentId();
+                StringBuilder segmentIdBuilder = new StringBuilder();
+                for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                    if (i == 0) {
+                        segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                    } else {
+                        segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                    }
+                }
+                ref.setParentSegmentId(segmentIdBuilder.toString());
+
+                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + String.valueOf(ref.getParentSpanId()));
+
+                span.getRefs().add(ref);
+            });
+
+            spanObject.getTagsList().forEach(tag -> {
+                KeyValue keyValue = new KeyValue();
+                keyValue.setKey(tag.getKey());
+                keyValue.setValue(tag.getValue());
+                span.getTags().add(keyValue);
+            });
+
+            spanObject.getLogsList().forEach(log -> {
+                LogEntity logEntity = new LogEntity();
+                logEntity.setTime(log.getTime());
+
+                log.getDataList().forEach(data -> {
+                    KeyValue keyValue = new KeyValue();
+                    keyValue.setKey(data.getKey());
+                    keyValue.setValue(data.getValue());
+                    logEntity.getData().add(keyValue);
+                });
+
+                span.getLogs().add(logEntity);
+            });
+
+            spans.add(span);
+        });
+
+        return spans;
     }
 
     private List<Span> buildSpanList(String traceId, String segmentId, int serviceId,

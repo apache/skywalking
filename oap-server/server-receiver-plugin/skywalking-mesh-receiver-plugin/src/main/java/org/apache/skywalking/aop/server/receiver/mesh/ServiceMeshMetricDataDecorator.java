@@ -90,12 +90,12 @@ public class ServiceMeshMetricDataDecorator {
         if (DetectPoint.client.equals(point)) {
             if (sourceServiceId != Const.NONE) {
                 endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(sourceServiceId, endpoint,
-                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromNetworkProtocolDetectPoint(point));
             }
         } else {
             if (destServiceId != Const.NONE) {
                 endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
-                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromNetworkProtocolDetectPoint(point));
             }
         }
 

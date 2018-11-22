@@ -14,10 +14,7 @@ by using k8s native APIs to manage cluster.
 Zookeeper is a very common and wide used cluster coordinator. Set the **cluster** module's implementor
 to **zookeeper** in the yml to active. 
 
-Required Zookeeper version, 3.5+
-
-Zookeeper version is required above 3.5 by Curator 4.0 lib, but actually Curator 4.0 is compatible with ZooKeeper 3.4.x.
-To make ZooKeeper 3.4.x works, please replace the ZooKeeper 3.5+ library jar in `oap-libs` folder with ZooKeeper 3.4.x library.
+Required Zookeeper version, 3.4+
 
 ```yaml
 cluster:

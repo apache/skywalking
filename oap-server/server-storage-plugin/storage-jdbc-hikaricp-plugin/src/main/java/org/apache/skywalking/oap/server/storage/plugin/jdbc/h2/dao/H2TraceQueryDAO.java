@@ -160,6 +160,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     if (StringUtils.isNotEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
+                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     segmentRecords.add(segmentRecord);
                 }
             }

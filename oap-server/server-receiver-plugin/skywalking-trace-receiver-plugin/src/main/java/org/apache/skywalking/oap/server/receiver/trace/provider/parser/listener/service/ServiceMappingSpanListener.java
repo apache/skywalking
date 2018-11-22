@@ -59,10 +59,10 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                     int serviceId = serviceInventoryCache.getServiceId(spanDecorator.getRefs(i).getNetworkAddressId());
                     int mappingServiceId = serviceInventoryCache.get(serviceId).getMappingServiceId();
-                    if (mappingServiceId != segmentCoreInfo.getApplicationId()) {
+                    if (mappingServiceId != segmentCoreInfo.getServiceId()) {
                         ServiceMapping serviceMapping = new ServiceMapping();
                         serviceMapping.setServiceId(serviceId);
-                        serviceMapping.setMappingServiceId(segmentCoreInfo.getApplicationId());
+                        serviceMapping.setMappingServiceId(segmentCoreInfo.getServiceId());
                         serviceMappings.add(serviceMapping);
                     }
                 }
