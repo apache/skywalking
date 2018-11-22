@@ -24,15 +24,15 @@ import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
  * @author wusheng
  */
 public class SegmentParserServiceImpl implements ISegmentParserService {
-    private final SegmentParse.Producer segmentProducer;
+    private final SegmentParseV2.Producer segmentProducer;
 
     public SegmentParserServiceImpl(
-        SegmentParse.Producer segmentProducer) {
+        SegmentParseV2.Producer segmentProducer) {
         this.segmentProducer = segmentProducer;
     }
 
     @Override
     public void send(UpstreamSegment segment) {
-        segmentProducer.send(segment, SegmentParse.Source.Agent);
+        segmentProducer.send(segment,SegmentSource.Agent);
     }
 }
