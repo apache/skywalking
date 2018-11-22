@@ -92,10 +92,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         sql.append(" group by ").append(Indicator.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
 
-        Connection connection = null;
         List<TopNEntity> topNEntities = new ArrayList<>();
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]));
 
             try {
@@ -108,8 +106,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             } catch (SQLException e) {
                 throw new IOException(e);
             }
-        } finally {
-            h2Client.close(connection);
+        } catch (SQLException e) {
+            throw new IOException(e);
         }
         return topNEntities;
     }

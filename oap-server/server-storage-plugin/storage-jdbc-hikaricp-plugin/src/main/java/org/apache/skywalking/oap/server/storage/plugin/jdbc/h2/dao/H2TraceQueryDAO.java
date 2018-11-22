@@ -106,9 +106,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         sql.append(" OFFSET ").append(from);
 
         TraceBrief traceBrief = new TraceBrief();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
@@ -132,8 +130,6 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
 
         return traceBrief;
@@ -141,9 +137,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId)) {
                 while (resultSet.next()) {
@@ -166,8 +160,6 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return segmentRecords;
     }

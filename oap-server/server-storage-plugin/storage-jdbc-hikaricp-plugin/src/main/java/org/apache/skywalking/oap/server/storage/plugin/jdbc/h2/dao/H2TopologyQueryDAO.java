@@ -94,9 +94,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             serviceIdMatchSql.append(")");
         }
         List<Call> calls = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
                     + " component_id from " + tableName + " where "
@@ -107,8 +105,6 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             buildCalls(resultSet, calls, isClientSide);
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return calls;
     }
@@ -119,10 +115,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         conditions[0] = startTB;
         conditions[1] = endTB;
         conditions[2] = id;
-        Connection connection = null;
         List<Call> calls = new ArrayList<>();
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
                     + " from " + tableName + " where "
@@ -133,8 +127,6 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             buildCalls(resultSet, calls, isSourceId);
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return calls;
     }

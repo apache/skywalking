@@ -48,9 +48,7 @@ public class H2SQLExecutor {
 
     protected StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
         StorageBuilder storageBuilder) throws IOException {
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
                 return toStorageData(rs, modelName, storageBuilder);
             }
@@ -58,16 +56,12 @@ public class H2SQLExecutor {
             throw new IOException(e.getMessage(), e);
         } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
-        } finally {
-            h2Client.close(connection);
         }
     }
 
     protected StorageData getByColumn(JDBCHikariCPClient h2Client, String modelName, String columnName, Object value,
         StorageBuilder storageBuilder) throws IOException {
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", value)) {
                 return toStorageData(rs, modelName, storageBuilder);
             }
@@ -75,8 +69,6 @@ public class H2SQLExecutor {
             throw new IOException(e.getMessage(), e);
         } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
-        } finally {
-            h2Client.close(connection);
         }
     }
 
@@ -94,9 +86,7 @@ public class H2SQLExecutor {
     }
 
     protected int getEntityIDByID(JDBCHikariCPClient h2Client, String entityColumnName, String modelName, String id) {
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", id)) {
                 while (rs.next()) {
                     return rs.getInt(ServiceInstanceInventory.SEQUENCE);
@@ -106,8 +96,6 @@ public class H2SQLExecutor {
             logger.error(e.getMessage(), e);
         } catch (JDBCClientException e) {
             logger.error(e.getMessage(), e);
-        } finally {
-            h2Client.close(connection);
         }
         return Const.NONE;
     }

@@ -16,34 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * @author peng-yongsheng
+ * This is a very special test case. It isn't for feature testing.
+ *
+ * In Apache, we can't redistribute MySQL Driver, because of GPL license, but we deliver MySQL solution source codes and
+ * distribution by using JDBC.
+ *
+ * @author wusheng
  */
-public class ColumnName {
-    private String fullName;
-    private String shortName;
-    private boolean useShortName = false;
-
-    public ColumnName(String fullName, String shortName) {
-        this.fullName = fullName;
-        this.shortName = shortName;
-    }
-
-    public String getName() {
-        return useShortName ? shortName : fullName;
-    }
-
-    public void useShortName() {
-        this.useShortName = true;
-    }
-
-    public void setName(String name) {
-        if (useShortName) {
-            shortName = name;
-        } else {
-            fullName = name;
+public class PreventRedistributionMySQLDriver {
+    @Test
+    public void TestMySQLDriverNotExist() {
+        boolean existDriverClassInClasspath = true;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            existDriverClassInClasspath = false;
         }
+
+        Assert.assertFalse(existDriverClassInClasspath);
     }
 }

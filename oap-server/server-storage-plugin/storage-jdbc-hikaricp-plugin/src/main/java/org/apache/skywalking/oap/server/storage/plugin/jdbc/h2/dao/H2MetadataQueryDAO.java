@@ -57,17 +57,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=0");
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             while (resultSet.next()) {
                 return resultSet.getInt("num");
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return 0;
     }
@@ -79,9 +75,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
         sql.append(" and ").append(EndpointInventory.DETECT_POINT).append("=").append(DetectPoint.SERVER.ordinal());
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
@@ -89,8 +83,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return 0;
     }
@@ -104,17 +96,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(NetworkAddressInventory.SRC_LAYER).append("=?");
         condition.add(srcLayer);
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             while (resultSet.next()) {
                 return resultSet.getInt("num");
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return 0;
     }
@@ -128,15 +116,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=? limit 100");
         condition.add(BooleanUtils.FALSE);
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             return buildServices(resultSet);
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
     }
 
@@ -153,15 +137,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
         sql.append(" limit 100");
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
             return buildServices(resultSet);
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
     }
 
@@ -174,9 +154,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.NAME).append(" = ?");
         condition.add(serviceCode);
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
@@ -187,8 +165,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
 
         return null;
@@ -209,9 +185,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" limit ").append(limit);
 
         List<Endpoint> endpoints = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
@@ -222,8 +196,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return endpoints;
     }
@@ -237,10 +209,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInstanceInventory.SERVICE_ID).append("=?");
         condition.add(serviceId);
 
-        Connection connection = null;
         List<ServiceInstance> serviceInstances = new ArrayList<>();
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
 
             while (resultSet.next()) {
@@ -269,8 +239,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return serviceInstances;
     }

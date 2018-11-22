@@ -18,32 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import org.apache.skywalking.oap.server.library.module.Service;
+
 /**
- * @author peng-yongsheng
+ * Override service provides ways to rename the existing column or table name.
+ *
+ * @author wusheng
  */
-public class ColumnName {
-    private String fullName;
-    private String shortName;
-    private boolean useShortName = false;
-
-    public ColumnName(String fullName, String shortName) {
-        this.fullName = fullName;
-        this.shortName = shortName;
-    }
-
-    public String getName() {
-        return useShortName ? shortName : fullName;
-    }
-
-    public void useShortName() {
-        this.useShortName = true;
-    }
-
-    public void setName(String name) {
-        if (useShortName) {
-            shortName = name;
-        } else {
-            fullName = name;
-        }
-    }
+public interface IModelOverride extends Service {
+    void overrideColumnName(String columnName, String newName);
 }

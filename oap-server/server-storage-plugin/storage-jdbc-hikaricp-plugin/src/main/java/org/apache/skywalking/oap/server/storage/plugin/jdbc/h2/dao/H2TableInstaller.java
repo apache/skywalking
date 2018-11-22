@@ -71,7 +71,7 @@ public class H2TableInstaller extends ModelInstaller {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
-        tableCreateSQL.appendLine("id VARCHAR2(300), ");
+        tableCreateSQL.appendLine("id VARCHAR(300), ");
         for (int i = 0; i < model.getColumns().size(); i++) {
             ModelColumn column = model.getColumns().get(i);
             ColumnName name = column.getColumnName();
@@ -83,19 +83,17 @@ public class H2TableInstaller extends ModelInstaller {
             logger.debug("creating table: " + tableCreateSQL.toStringInNewLine());
         }
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             h2Client.execute(connection, tableCreateSQL.toString());
         } catch (JDBCClientException e) {
             throw new StorageException(e.getMessage(), e);
-        } finally {
-            h2Client.close(connection);
+        } catch (SQLException e) {
+            throw new StorageException(e.getMessage(), e);
         }
 
     }
 
-    private String getColumnType(Class<?> type) {
+    protected String getColumnType(Class<?> type) {
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
