@@ -19,33 +19,16 @@
 package org.apache.skywalking.oap.server.library.util;
 
 /**
- * @author peng-yongsheng
+ * @author jian.tan
  */
-public class StringUtils {
+public class PlaceholderConfigurerSupport {
 
-    public static final String EMPTY_STRING = "";
+    /** Default placeholder prefix: {@value} */
+    public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
 
-    public static boolean isEmpty(Object str) {
-        return str == null || EMPTY_STRING.equals(str);
-    }
+    /** Default placeholder suffix: {@value} */
+    public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-    public static boolean isNotEmpty(Object str) {
-        return !isEmpty(str);
-    }
-
-    public static String getOrDefault(String value, String defaultValue) {
-        return value == null ? defaultValue : value;
-    }
-
-    public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
-        if (index + substring.length() > str.length()) {
-            return false;
-        }
-        for (int i = 0; i < substring.length(); i++) {
-            if (str.charAt(index + i) != substring.charAt(i)) {
-                return false;
-            }
-        }
-        return true;
-    }
+    /** Default value separator: {@value} */
+    public static final String DEFAULT_VALUE_SEPARATOR = ":";
 }
