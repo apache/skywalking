@@ -18,19 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.client.jdbc.hikaricp;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.zaxxer.hikari.*;
+import java.sql.*;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.ClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * JDBC Client uses HikariCP connection management lib to execute SQL.
@@ -47,7 +40,7 @@ public class JDBCHikariCPClient implements Client {
         hikariConfig = new HikariConfig(properties);
     }
 
-    @Override public void initialize() throws ClientException {
+    @Override public void connect() {
         dataSource = new HikariDataSource(hikariConfig);
     }
 

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 
@@ -26,23 +27,28 @@ import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
  */
 public class SelfRemoteClient implements RemoteClient {
 
-    private final String host;
-    private final int port;
+    private final Address address;
 
-    public SelfRemoteClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public SelfRemoteClient(Address address) {
+        this.address = address;
     }
 
-    @Override public String getHost() {
-        return host;
+    @Override public Address getAddress() {
+        return address;
     }
 
-    @Override public int getPort() {
-        return port;
+    @Override public void connect() {
+    }
+
+    @Override public void close() {
+        throw new UnexpectedException("Self remote client invoked to close.");
     }
 
     @Override public void push(int nextWorkerId, StreamData streamData) {
         WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
+    }
+
+    @Override public int compareTo(RemoteClient o) {
+        return address.compareTo(o.getAddress());
     }
 }

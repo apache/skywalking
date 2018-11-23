@@ -59,7 +59,7 @@ public class ElasticSearchClient implements Client {
         this.namespace = namespace;
     }
 
-    @Override public void initialize() {
+    @Override public void connect() {
         List<HttpHost> pairsList = parseClusterNodes(clusterNodes);
 
         client = new RestHighLevelClient(
