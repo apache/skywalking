@@ -68,8 +68,8 @@ public class ContextManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = 1;
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
     }
 
     @AfterClass
@@ -137,8 +137,8 @@ public class ContextManagerTest {
 
         TraceSegmentRef ref = actualSegment.getRefs().get(0);
         MatcherAssert.assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("127.0.0.1:8080"));
-        assertThat(ref.getEntryOperationName(), is("/portal/"));
-        assertThat(ref.getEntryOperationId(), is(0));
+        assertThat(ref.getEntryEndpointName(), is("/portal/"));
+        assertThat(ref.getEntryEndpointId(), is(0));
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
         assertThat(spanList.size(), is(2));
@@ -160,7 +160,7 @@ public class ContextManagerTest {
         assertThat(logs.get(0).getLogs().size(), is(4));
 
         assertThat(injectContextCarrier.getSpanId(), is(1));
-        assertThat(injectContextCarrier.getEntryOperationName(), is("#/portal/"));
+        assertThat(injectContextCarrier.getEntryEndpointName(), is("#/portal/"));
         assertThat(injectContextCarrier.getPeerHost(), is("#127.0.0.1:12800"));
     }
 
@@ -211,18 +211,18 @@ public class ContextManagerTest {
 
         assertThat(firstExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
         assertThat(firstExitSpanContextCarrier.getSpanId(), is(1));
-        assertThat(firstExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
+        assertThat(firstExitSpanContextCarrier.getEntryEndpointName(), is("#/testEntrySpan"));
 
         assertThat(secondExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
         assertThat(secondExitSpanContextCarrier.getSpanId(), is(1));
-        assertThat(secondExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
+        assertThat(secondExitSpanContextCarrier.getEntryEndpointName(), is("#/testEntrySpan"));
 
     }
 
     @After
     public void tearDown() throws Exception {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
+        RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
     }
 
     @Test

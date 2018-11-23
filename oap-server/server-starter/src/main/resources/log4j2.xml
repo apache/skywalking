@@ -34,6 +34,7 @@
         <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.server.core.remote.client" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.library.buffer" level="INFO"/>
         <Root level="DEBUG">
             <AppenderRef ref="Console"/>

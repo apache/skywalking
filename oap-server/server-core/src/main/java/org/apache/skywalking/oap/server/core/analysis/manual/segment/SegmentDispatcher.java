@@ -40,6 +40,7 @@ public class SegmentDispatcher implements SourceDispatcher<Segment> {
         segment.setIsError(source.getIsError());
         segment.setDataBinary(source.getDataBinary());
         segment.setTimeBucket(source.getTimeBucket());
+        segment.setVersion(source.getVersion());
 
         RecordProcess.INSTANCE.in(segment);
     }

@@ -20,7 +20,7 @@ cluster:
    # library the oap-libs folder with your ZooKeeper 3.4.x library.
 #  zookeeper:
 #    hostPort: localhost:2181
-#    # Retry Policy
+#    #Retry Policy
 #    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
 #    maxRetries: 3 # max number of times to retry
 #  kubernetes:

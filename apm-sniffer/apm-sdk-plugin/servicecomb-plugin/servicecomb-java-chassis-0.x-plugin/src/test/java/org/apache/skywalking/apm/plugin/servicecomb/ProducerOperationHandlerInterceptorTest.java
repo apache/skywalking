@@ -100,7 +100,7 @@ public class ProducerOperationHandlerInterceptorTest {
         when(statusType.getStatusCode()).thenReturn(200);
         when(method.getName()).thenReturn("producer");
         when(invocation.getInvocationType()).thenReturn(InvocationType.PRODUCER);
-        Config.Agent.APPLICATION_CODE = "serviceComnTestCases-APP";
+        Config.Agent.SERVICE_NAME = "serviceComnTestCases-APP";
 
         allArguments = new Object[] {invocation,};
         argumentsType = new Class[] {};

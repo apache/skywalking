@@ -43,10 +43,10 @@ enum ValueType {
     // A point in time.
     TIMESTAMP = 5;
 
-    // An IP address.
+    // An IP getAddress.
     IP_ADDRESS = 6;
 
-    // An email address.
+    // An email getAddress.
     EMAIL_ADDRESS = 7;
 
     // A URI.
