@@ -43,7 +43,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2RegisterLockInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageProvider;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
@@ -54,7 +53,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDele
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
@@ -107,7 +105,7 @@ public class MySQLStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
-        this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO());
+        this.registerServiceImplementation(IRegisterLockDAO.class, new MySQLRegisterTableLockDAO(h2Client));
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(h2Client));
         this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(h2Client));
@@ -130,7 +128,7 @@ public class MySQLStorageProvider extends ModuleProvider {
             MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
             installer.install(h2Client);
 
-            new H2RegisterLockInstaller().install(h2Client);
+            new MySQLRegisterLockInstaller().install(h2Client);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

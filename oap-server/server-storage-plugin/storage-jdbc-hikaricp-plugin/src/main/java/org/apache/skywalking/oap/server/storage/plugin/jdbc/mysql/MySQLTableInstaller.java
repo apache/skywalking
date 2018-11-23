@@ -18,7 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 
@@ -35,6 +42,15 @@ public class MySQLTableInstaller extends H2TableInstaller {
          */
         this.overrideColumnName("precision", "cal_precision");
         this.overrideColumnName("match", "match_num");
+    }
+
+    @Override protected void deleteTable(Client client, Model model) throws StorageException {
+        JDBCHikariCPClient jdbcClient = (JDBCHikariCPClient)client;
+        try (Connection connection = jdbcClient.getConnection()) {
+            jdbcClient.execute(connection, "drop table " + model.getName());
+        } catch (SQLException | JDBCClientException e) {
+            throw new StorageException(e.getMessage(), e);
+        }
     }
 
     @Override
