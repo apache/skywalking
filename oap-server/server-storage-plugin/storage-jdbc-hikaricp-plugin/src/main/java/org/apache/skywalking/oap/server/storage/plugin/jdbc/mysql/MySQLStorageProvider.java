@@ -126,15 +126,13 @@ public class MySQLStorageProvider extends ModuleProvider {
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            h2Client.initialize();
+            h2Client.connect();
 
             MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
             installer.install(h2Client);
 
             new H2RegisterLockInstaller().install(h2Client);
         } catch (StorageException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        } catch (ClientException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
