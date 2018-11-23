@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -29,16 +28,9 @@ import org.junit.Test;
  *
  * @author wusheng
  */
-public class PreventRedistributionMySQLDriver {
-    @Test
-    public void TestMySQLDriverNotExist() {
-        boolean existDriverClassInClasspath = true;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            existDriverClassInClasspath = false;
-        }
-
-        Assert.assertFalse(existDriverClassInClasspath);
+public class PreventRedistributionMySQLDriverTest {
+    @Test(expected = ClassNotFoundException.class)
+    public void TestMySQLDriverNotExist() throws ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
     }
 }
