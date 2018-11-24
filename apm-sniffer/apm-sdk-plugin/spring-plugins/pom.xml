@@ -35,6 +35,7 @@
         <module>mvc-annotation-3.x-plugin</module>
         <module>core-patch</module>
         <module>mvc-annotation-commons</module>
+        <module>spring-commons</module>
     </modules>
     <packaging>pom</packaging>
 
