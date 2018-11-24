@@ -1,10 +1,10 @@
 # Setup java agent
 1. Find `agent` folder in SkyWalking release package
-2. Set 
+1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
+1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
+1. Add `-javaagent:/path/to/skywalking-package/agenxt/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
 
-3. Add `-javaagent:/path/to/skywalking-package/agent/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
-
-The agent release dist is included in Apache [official release](http://skywalking.apache.org/downloads/).MeshReceiverProvider New agent package looks like this.
+The agent release dist is included in Apache [official release](http://skywalking.apache.org/downloads/). New agent package looks like this.
 ```
 +-- agent
     +-- activations

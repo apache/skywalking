@@ -31,9 +31,9 @@ public class DictionaryManager {
     }
 
     /**
-     * @return {@link OperationNameDictionary} to find service id.
+     * @return {@link EndpointNameDictionary} to find service id.
      */
-    public static OperationNameDictionary findOperationNameCodeSection() {
-        return OperationNameDictionary.INSTANCE;
+    public static EndpointNameDictionary findEndpointSection() {
+        return EndpointNameDictionary.INSTANCE;
     }
 }

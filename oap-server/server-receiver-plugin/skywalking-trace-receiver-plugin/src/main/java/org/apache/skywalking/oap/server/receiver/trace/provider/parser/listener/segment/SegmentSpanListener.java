@@ -42,8 +42,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private int firstEndpointId = 0;
 
     private SegmentSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
-        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
     }
 
     @Override public boolean containsPoint(Point point) {
@@ -52,16 +52,20 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
+        long timeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(segmentCoreInfo.getStartTime());
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
-        segment.setServiceId(segmentCoreInfo.getApplicationId());
+        segment.setServiceId(segmentCoreInfo.getServiceId());
         segment.setLatency((int)(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
         segment.setStartTime(segmentCoreInfo.getStartTime());
         segment.setEndTime(segmentCoreInfo.getEndTime());
         segment.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
         segment.setTimeBucket(timeBucket);
         segment.setDataBinary(segmentCoreInfo.getDataBinary());
+        /**
+         * Only consider v1, v2 compatible for now.
+         */
+        segment.setVersion(segmentCoreInfo.isV2() ? 2 : 1);
 
         firstEndpointId = spanDecorator.getOperationNameId();
     }

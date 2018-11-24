@@ -16,10 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
-public class DuplicateProviderException extends Exception {
+public class DuplicateProviderException extends RuntimeException {
     public DuplicateProviderException(String message) {
         super(message);
     }

@@ -49,7 +49,7 @@ public class NetworkAddressInventoryCache implements Service {
 
     private INetworkAddressInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            this.cacheDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressInventoryCacheDAO.class);
+            this.cacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(INetworkAddressInventoryCacheDAO.class);
         }
         return this.cacheDAO;
     }

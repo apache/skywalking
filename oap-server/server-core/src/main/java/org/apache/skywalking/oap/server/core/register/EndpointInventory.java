@@ -32,9 +32,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtils;
 /**
  * @author peng-yongsheng
  */
-@InventoryType(scope = Scope.Endpoint)
+@InventoryType
 @StreamData
-@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false)
+@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, source = Scope.EndpointInventory)
 public class EndpointInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "endpoint_inventory";

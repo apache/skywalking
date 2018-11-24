@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.TraceSegmentServletHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.grpc.TraceSegmentReportServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment.SegmentSpanListener;
@@ -37,6 +38,8 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardi
 public class TraceModuleProvider extends ModuleProvider {
 
     private final TraceServiceModuleConfig moduleConfig;
+    private SegmentParse.Producer segmentProducer;
+    private SegmentParseV2.Producer segmentProducerV2;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -54,24 +57,38 @@ public class TraceModuleProvider extends ModuleProvider {
         return moduleConfig;
     }
 
-    @Override public void prepare() {
-    }
-
-    @Override public void start() throws ModuleStartException {
+    @Override public void prepare() throws ServiceNotProvidedException {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         listenerManager.add(new MultiScopesSpanListener.Factory());
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory());
 
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
+        segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
+
+        listenerManager = new SegmentParserListenerManager();
+        listenerManager.add(new MultiScopesSpanListener.Factory());
+        listenerManager.add(new ServiceMappingSpanListener.Factory());
+        listenerManager.add(new SegmentSpanListener.Factory());
+
+        segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager);
+
+        this.registerServiceImplementation(ISegmentParserService.class, new SegmentParserServiceImpl(segmentProducerV2));
+    }
+
+    @Override public void start() throws ModuleStartException {
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         try {
-            SegmentParse.Producer segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
+
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
+            grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(segmentProducerV2));
             jettyHandlerRegister.addHandler(new TraceSegmentServletHandler(segmentProducer));
 
-            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(segmentProducer, moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
+            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(segmentProducer, moduleConfig.getBufferPath() + "-v5", moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
             segmentProducer.setStandardizationWorker(standardizationWorker);
+
+            SegmentStandardizationWorker standardizationWorker2 = new SegmentStandardizationWorker(segmentProducer, moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
+            segmentProducerV2.setStandardizationWorker(standardizationWorker2);
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

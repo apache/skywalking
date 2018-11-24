@@ -44,6 +44,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,6 +94,7 @@ public class DubboInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         dubboInterceptor = new DubboInterceptor();
 
         PowerMockito.mockStatic(RpcContext.class);
@@ -105,7 +107,12 @@ public class DubboInterceptorTest {
         when(rpcContext.isConsumerSide()).thenReturn(true);
         allArguments = new Object[] {invoker, invocation};
         argumentTypes = new Class[] {invoker.getClass(), invocation.getClass()};
-        Config.Agent.APPLICATION_CODE = "DubboTestCases-APP";
+        Config.Agent.SERVICE_NAME = "DubboTestCases-APP";
+    }
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
@@ -192,7 +199,7 @@ public class DubboInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
         assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
     }
 

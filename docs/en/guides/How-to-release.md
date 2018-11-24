@@ -36,12 +36,12 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 ## Prepare the release
 ```
 ./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true
+./mvnw release:prepare -DautoVersionSubmodules=true -Pauto-submodule
 ```
 
 ## Stage the release 
 ```
-./mvnw release:perform -DskipTests -Ptravis-ci-submodule
+./mvnw release:perform -DskipTests -Pauto-submodule
 ```
 1. Set version number as x.y.z, and tag as vx.y.z
 1. The release will automatically be inserted into a temporary staging repository for you.
@@ -50,7 +50,6 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 ```shell
 switch to release version tag
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
-export RELEASE_ROUND=1 (example: RELEASE_ROUND=1)
 cd tools/releasing
 sh create_source_release.sh
 ```
@@ -78,7 +77,7 @@ with .asc, .sha512, .md5
 1. Upload distribution package to the folder with .asc, .sha512
     * Package name: apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip
     * See Section "Find and download distribution in Apache Nexus Staging repositories" for more details
-    * Create .sha512 package: `shasum -a 512 file > file.sha512`
+    * Create .sha512 package: `shasum -a 512 file > file.sha512`
 1. Upload gpg public key, named KEY
 
 ## Make the internal announcements
@@ -120,6 +119,7 @@ Release CommitID :
  * Git submodule
    * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
+   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/incubator-skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -127,7 +127,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
 
 A vote regarding the quality of this test build will be initiated
 within the next couple of days.
@@ -173,6 +173,7 @@ Release CommitID :
  * Git submodule
    * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
+   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/incubator-skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -180,7 +181,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
 
 Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PPMC members to give their vote.
 [ ] +1 Release this package.
@@ -255,6 +256,7 @@ Release CommitID :
  * Git submodule
    * skywalking-ui: https://github.com/apache/incubator-skywalking-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/(Git Commit ID)
+   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/incubator-skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
@@ -262,7 +264,7 @@ Keys to verify the Release Candidate :
 
 Guide to build the release from source :
 
- * https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+ * https://github.com/apache/incubator-skywalking/blob/x.y.z/docs/en/guides/How-to-build.md
 
 Voting will start now (xxxx date) and will remain open for at least 72 hours, Request IPMC to give their vote.
 [ ] +1 Release this package.
