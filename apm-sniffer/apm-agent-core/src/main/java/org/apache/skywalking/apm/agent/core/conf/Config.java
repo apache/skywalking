@@ -40,7 +40,7 @@ public class Config {
          * Application code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one
          * application's nodes share the same code.
          */
-        public static String APPLICATION_CODE = "";
+        public static String SERVICE_NAME = "";
 
         /**
          * Authentication active is based on backend setting, see application.yml for more details.
@@ -70,6 +70,16 @@ public class Config {
          * Skywalking team may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
+
+        /**
+         * Active V2 header in default
+         */
+        public static boolean ACTIVE_V2_HEADER = true;
+
+        /**
+         * Deactive V1 header in default
+         */
+        public static boolean ACTIVE_V1_HEADER = false;
     }
 
     public static class Collector {
@@ -104,9 +114,9 @@ public class Config {
         /**
          * The buffer size of application codes and peer
          */
-        public static int APPLICATION_CODE_BUFFER_SIZE = 10 * 10000;
+        public static int SERVICE_CODE_BUFFER_SIZE = 10 * 10000;
 
-        public static int OPERATION_NAME_BUFFER_SIZE = 1000 * 10000;
+        public static int ENDPOINT_NAME_BUFFER_SIZE = 1000 * 10000;
     }
 
     public static class Logging {

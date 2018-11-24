@@ -226,11 +226,13 @@ The following components are provided under the Apache License. See project link
 The text of each license is the standard Apache 2.0 license.
 
     raphw (byte-buddy) 1.9.2: http://bytebuddy.net/ , Apache 2.0
-    Google: grpc 1.10.0: https://grpc.io/ , Apache 2.0
-    Google: gprc-java 1.10.0: https://github.com/grpc/grpc-java, Apache 2.0
-    Google: guava 19.0: https://github.com/google/guava , Apache 2.0
+    Google: grpc 1.14.0: https://grpc.io/ , Apache 2.0
+    Google: grpc 1.15.1: https://grpc.io/ , Apache 2.0
+    Google: gprc-java 1.14.0: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: gprc-java 1.15.1: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: guava 20.0: https://github.com/google/guava , Apache 2.0
     Google: gson 2.8.1: https://github.com/google/gson , Apache 2.0
-    Google: opencensus-java 0.8.0: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
+    Google: opencensus-java 0.12.3: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
     Google: proto-google-common-protos 0.1.9: https://github.com/googleapis/googleapis , Apache 2.0
     Google: jsr305 3.0.0: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Elasticsearch BV (Elasticsearch) 6.3.2: https://www.elastic.co/products/elasticsearch , Apache 2.0
@@ -331,7 +333,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     Google: protobuf-java-util 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.3: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
-    gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-3-Clause
+    
+    gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-2-Clause
 
 ========================================================================
 MPL 2.0 licenses

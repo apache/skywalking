@@ -24,7 +24,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
@@ -56,7 +58,7 @@ public class SnifferConfigInitializer {
      * <p>
      * At the end, `agent.application_code` and `collector.servers` must be not blank.
      */
-    public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
+    public static void initialize(String agentOptions) throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
 
         try {
@@ -74,14 +76,65 @@ public class SnifferConfigInitializer {
             logger.error(e, "Failed to read the system env.");
         }
 
-        if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
-            throw new ExceptionInInitializerError("`agent.application_code` is missing.");
+        if (!StringUtil.isEmpty(agentOptions)) {
+            try {
+                agentOptions = agentOptions.trim();
+                logger.info("Agent options is {}.", agentOptions);
+
+                overrideConfigByAgentOptions(agentOptions);
+            } catch (Exception e) {
+                logger.error(e, "Failed to parse the agent options, val is {}.", agentOptions);
+            }
+        }
+
+        if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
+            throw new ExceptionInInitializerError("`agent.service_code` is missing.");
         }
         if (StringUtil.isEmpty(Config.Collector.BACKEND_SERVICE)) {
             throw new ExceptionInInitializerError("`collector.direct_servers` and `collector.servers` cannot be empty at the same time.");
         }
 
         IS_INIT_COMPLETED = true;
+    }
+
+    private static void overrideConfigByAgentOptions(String agentOptions) throws IllegalAccessException {
+        Properties properties = new Properties();
+        for (List<String> terms : parseAgentOptions(agentOptions)) {
+            if (terms.size() != 2) {
+                throw new IllegalArgumentException("[" + terms + "] is not a key-value pair.");
+            }
+            properties.put(terms.get(0), terms.get(1));
+        }
+        if (!properties.isEmpty()) {
+            ConfigInitializer.initialize(properties, Config.class);
+        }
+    }
+
+    private static List<List<String>> parseAgentOptions(String agentOptions) {
+        List<List<String>> options = new ArrayList<List<String>>();
+        List<String> terms = new ArrayList<String>();
+        boolean isInQuotes = false;
+        StringBuilder currentTerm = new StringBuilder();
+        for (char c : agentOptions.toCharArray()) {
+            if (c == '\'' || c == '"') {
+                isInQuotes = !isInQuotes;
+            } else if (c == '=' && !isInQuotes) {   // key-value pair uses '=' as separator
+                terms.add(currentTerm.toString());
+                currentTerm = new StringBuilder();
+            } else if (c == ',' && !isInQuotes) {   // multiple options use ',' as separator
+                terms.add(currentTerm.toString());
+                currentTerm = new StringBuilder();
+
+                options.add(terms);
+                terms = new ArrayList<String>();
+            } else {
+                currentTerm.append(c);
+            }
+        }
+        // add the last term and option without separator
+        terms.add(currentTerm.toString());
+        options.add(terms);
+        return options;
     }
 
     public static boolean isInitCompleted() {

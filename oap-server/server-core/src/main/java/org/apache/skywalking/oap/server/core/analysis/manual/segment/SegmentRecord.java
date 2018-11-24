@@ -18,21 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.*;
-import lombok.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordType;
+import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * @author peng-yongsheng
  */
 @RecordType
-@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, deleteHistory = false)
+@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, deleteHistory = false, source = Scope.Segment)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";
@@ -46,6 +52,7 @@ public class SegmentRecord extends Record {
     public static final String LATENCY = "latency";
     public static final String IS_ERROR = "is_error";
     public static final String DATA_BINARY = "data_binary";
+    public static final String VERSION = "version";
 
     @Setter @Getter @Column(columnName = SEGMENT_ID) @IDColumn private String segmentId;
     @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
@@ -57,6 +64,7 @@ public class SegmentRecord extends Record {
     @Setter @Getter @Column(columnName = LATENCY) @IDColumn private int latency;
     @Setter @Getter @Column(columnName = IS_ERROR) @IDColumn private int isError;
     @Setter @Getter @Column(columnName = DATA_BINARY) @IDColumn private byte[] dataBinary;
+    @Setter @Getter @Column(columnName = VERSION) @IDColumn private int version;
 
     @Override public String id() {
         return segmentId;
@@ -81,6 +89,7 @@ public class SegmentRecord extends Record {
             } else {
                 map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
             }
+            map.put(VERSION, storageData.getVersion());
             return map;
         }
 
@@ -101,6 +110,7 @@ public class SegmentRecord extends Record {
             } else {
                 record.setDataBinary(Base64.getDecoder().decode((String)dbMap.get(DATA_BINARY)));
             }
+            record.setVersion(((Number)dbMap.get(VERSION)).intValue());
             return record;
         }
     }

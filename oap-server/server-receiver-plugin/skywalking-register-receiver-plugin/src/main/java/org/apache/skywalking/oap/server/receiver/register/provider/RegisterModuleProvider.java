@@ -19,14 +19,23 @@
 package org.apache.skywalking.oap.server.receiver.register.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.server.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.ApplicationRegisterHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.InstanceDiscoveryServiceHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.NetworkAddressRegisterServiceHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.ServiceNameDiscoveryHandler;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.*;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.ApplicationRegisterServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.InstanceDiscoveryServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.InstanceHeartBeatServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.NetworkAddressRegisterServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.ServiceNameDiscoveryServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.RegisterServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.ServiceInstancePingServiceHandler;
 
 /**
  * @author peng-yongsheng
@@ -49,13 +58,17 @@ public class RegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new ApplicationRegisterHandler(getManager()));
         grpcHandlerRegister.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
         grpcHandlerRegister.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
 
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
+        // v2
+        grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
+
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         jettyHandlerRegister.addHandler(new ApplicationRegisterServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceDiscoveryServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceHeartBeatServletHandler(getManager()));

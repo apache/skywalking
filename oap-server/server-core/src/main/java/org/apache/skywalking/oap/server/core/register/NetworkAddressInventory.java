@@ -32,9 +32,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtils;
 /**
  * @author peng-yongsheng
  */
-@InventoryType(scope = Scope.NetworkAddress)
+@InventoryType
 @StreamData
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false)
+@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, source = Scope.NetworkAddress)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "network_address_inventory";

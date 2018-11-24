@@ -21,14 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
+import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -37,10 +38,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_instance_cpm", builder = ServiceInstanceCpmIndicator.Builder.class)
+@StorageEntity(name = "service_instance_cpm", builder = ServiceInstanceCpmIndicator.Builder.class, source = Scope.ServiceInstance)
 public class ServiceInstanceCpmIndicator extends CPMIndicator implements AlarmSupported {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private String entityId;
+    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
     @Setter @Getter @Column(columnName = "service_id")  private int serviceId;
 
     @Override public String id() {

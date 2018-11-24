@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.core.source;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public enum Scope {
     All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
     ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    Segment;
+    Segment, Alarm, ServiceInventory, ServiceInstanceInventory, EndpointInventory;
 
     public static Scope valueOf(int ordinal) {
         if (ordinal < 0 || ordinal >= values().length) {

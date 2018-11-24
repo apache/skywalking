@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
@@ -38,8 +38,8 @@ public class CoreModule extends ModuleDefine {
 
     public static final String NAME = "core";
 
-    @Override public String name() {
-        return NAME;
+    public CoreModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {

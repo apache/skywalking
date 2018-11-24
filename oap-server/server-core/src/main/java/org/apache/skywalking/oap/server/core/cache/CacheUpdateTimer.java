@@ -53,8 +53,8 @@ public enum CacheUpdateTimer {
     }
 
     private void update(ModuleManager moduleManager) {
-        IServiceInventoryCacheDAO serviceInventoryCacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceInventoryCacheDAO.class);
-        ServiceInventoryCache serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+        IServiceInventoryCacheDAO serviceInventoryCacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IServiceInventoryCacheDAO.class);
+        ServiceInventoryCache serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         List<ServiceInventory> serviceInventories = serviceInventoryCacheDAO.loadLastMappingUpdate();
 
         serviceInventories.forEach(serviceInventory -> {
@@ -64,7 +64,7 @@ public enum CacheUpdateTimer {
                 cache.setMappingServiceId(serviceInventory.getMappingServiceId());
                 cache.setMappingLastUpdateTime(serviceInventory.getMappingLastUpdateTime());
             } else {
-                logger.warn("Unable to found the id of {} in service inventory cache.");
+                logger.warn("Unable to found the id of {} in service inventory cache.", serviceInventory.getSequence());
             }
         });
     }

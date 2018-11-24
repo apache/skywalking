@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.RefType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 
 /**
  * @author peng-yongsheng
@@ -29,131 +32,165 @@ public class ReferenceDecorator implements StandardBuilder {
     private StandardBuilder standardBuilder;
     private TraceSegmentReference referenceObject;
     private TraceSegmentReference.Builder referenceBuilder;
+    private final boolean isV2;
+    private SegmentReference referenceObjectV2;
+    private SegmentReference.Builder referenceBuilderV2;
 
     public ReferenceDecorator(TraceSegmentReference referenceObject, StandardBuilder standardBuilder) {
         this.referenceObject = referenceObject;
         this.standardBuilder = standardBuilder;
+        isV2 = false;
     }
 
     public ReferenceDecorator(TraceSegmentReference.Builder referenceBuilder, StandardBuilder standardBuilder) {
         this.referenceBuilder = referenceBuilder;
         this.standardBuilder = standardBuilder;
         this.isOrigin = false;
+        isV2 = false;
+    }
+
+    public ReferenceDecorator(SegmentReference referenceObject, StandardBuilder standardBuilder) {
+        this.referenceObjectV2 = referenceObject;
+        this.standardBuilder = standardBuilder;
+        isV2 = true;
+    }
+
+    public ReferenceDecorator(SegmentReference.Builder referenceBuilder, StandardBuilder standardBuilder) {
+        this.referenceBuilderV2 = referenceBuilder;
+        this.standardBuilder = standardBuilder;
+        this.isOrigin = false;
+        isV2 = true;
     }
 
     public RefType getRefType() {
         if (isOrigin) {
-            return referenceObject.getRefType();
+            return isV2 ? referenceObjectV2.getRefType() : referenceObject.getRefType();
         } else {
-            return referenceBuilder.getRefType();
+            return isV2 ? referenceBuilderV2.getRefType() : referenceBuilder.getRefType();
         }
     }
 
     public int getRefTypeValue() {
         if (isOrigin) {
-            return referenceObject.getRefTypeValue();
+            return isV2 ? referenceObjectV2.getRefTypeValue() : referenceObject.getRefTypeValue();
         } else {
-            return referenceBuilder.getRefTypeValue();
+            return isV2 ? referenceBuilderV2.getRefTypeValue() : referenceBuilder.getRefTypeValue();
         }
     }
 
-    public int getEntryServiceId() {
+    public int getEntryEndpointId() {
         if (isOrigin) {
-            return referenceObject.getEntryServiceId();
+            return isV2 ? referenceObjectV2.getEntryEndpointId() : referenceObject.getEntryServiceId();
         } else {
-            return referenceBuilder.getEntryServiceId();
+            return isV2 ? referenceBuilderV2.getEntryEndpointId() : referenceBuilder.getEntryServiceId();
         }
     }
 
-    public void setEntryServiceId(int value) {
+    public void setEntryEndpointId(int value) {
         if (isOrigin) {
             toBuilder();
         }
-        referenceBuilder.setEntryServiceId(value);
-    }
-
-    public String getEntryServiceName() {
-        if (isOrigin) {
-            return referenceObject.getEntryServiceName();
+        if (isV2) {
+            referenceBuilderV2.setEntryEndpointId(value);
         } else {
-            return referenceBuilder.getEntryServiceName();
+            referenceBuilder.setEntryServiceId(value);
         }
     }
 
-    public void setEntryServiceName(String value) {
+    public String getEntryEndpointName() {
+        if (isOrigin) {
+            return isV2 ? referenceObjectV2.getEntryEndpoint() : referenceObject.getEntryServiceName();
+        } else {
+            return isV2 ? referenceBuilderV2.getEntryEndpoint() : referenceBuilder.getEntryServiceName();
+        }
+    }
+
+    public void setEntryEndpointName(String value) {
         if (isOrigin) {
             toBuilder();
         }
-        referenceBuilder.setEntryServiceName(value);
-    }
-
-    public int getEntryApplicationInstanceId() {
-        if (isOrigin) {
-            return referenceObject.getEntryApplicationInstanceId();
+        if (isV2) {
+            referenceBuilderV2.setEntryEndpoint(value);
         } else {
-            return referenceBuilder.getEntryApplicationInstanceId();
+            referenceBuilder.setEntryServiceName(value);
         }
     }
 
-    public int getParentApplicationInstanceId() {
+    public int getEntryServiceInstanceId() {
         if (isOrigin) {
-            return referenceObject.getParentApplicationInstanceId();
+            return isV2 ? referenceObjectV2.getEntryServiceInstanceId() : referenceObject.getEntryApplicationInstanceId();
         } else {
-            return referenceBuilder.getParentApplicationInstanceId();
+            return isV2 ? referenceBuilderV2.getEntryServiceInstanceId() : referenceBuilder.getEntryApplicationInstanceId();
         }
     }
 
-    public int getParentServiceId() {
+    public int getParentServiceInstanceId() {
         if (isOrigin) {
-            return referenceObject.getParentServiceId();
+            return isV2 ? referenceObjectV2.getParentServiceInstanceId() : referenceObject.getParentApplicationInstanceId();
         } else {
-            return referenceBuilder.getParentServiceId();
+            return isV2 ? referenceBuilderV2.getParentServiceInstanceId() : referenceBuilder.getParentApplicationInstanceId();
         }
     }
 
-    public void setParentServiceId(int value) {
+    public int getParentEndpointId() {
+        if (isOrigin) {
+            return isV2 ? referenceObjectV2.getParentEndpointId() : referenceObject.getParentServiceId();
+        } else {
+            return isV2 ? referenceBuilderV2.getParentEndpointId() : referenceBuilder.getParentServiceId();
+        }
+    }
+
+    public void setParentEndpointId(int value) {
         if (isOrigin) {
             toBuilder();
         }
-        referenceBuilder.setParentServiceId(value);
+        if (isV2) {
+            referenceBuilderV2.setParentEndpointId(value);
+        } else {
+            referenceBuilder.setParentServiceId(value);
+        }
     }
 
     public int getParentSpanId() {
         if (isOrigin) {
-            return referenceObject.getParentSpanId();
+            return isV2 ? referenceObjectV2.getParentSpanId() : referenceObject.getParentSpanId();
         } else {
-            return referenceBuilder.getParentSpanId();
+            return isV2 ? referenceBuilderV2.getParentSpanId() : referenceBuilder.getParentSpanId();
         }
     }
 
-    public String getParentServiceName() {
+    public String getParentEndpointName() {
         if (isOrigin) {
-            return referenceObject.getParentServiceName();
+            return isV2 ? referenceObjectV2.getParentEndpoint() : referenceObject.getParentServiceName();
         } else {
-            return referenceBuilder.getParentServiceName();
+            return isV2 ? referenceBuilderV2.getParentEndpoint() : referenceBuilder.getParentServiceName();
         }
     }
 
-    public void setParentServiceName(String value) {
+    public void setParentEndpointName(String value) {
         if (isOrigin) {
             toBuilder();
         }
-        referenceBuilder.setParentServiceName(value);
+        if (isV2) {
+            referenceBuilderV2.setParentEndpoint(value);
+        } else {
+            referenceBuilder.setParentServiceName(value);
+        }
     }
 
     public UniqueId getParentTraceSegmentId() {
         if (isOrigin) {
-            return referenceObject.getParentTraceSegmentId();
+            return isV2 ? referenceObjectV2.getParentTraceSegmentId() : referenceObject.getParentTraceSegmentId();
         } else {
-            return referenceBuilder.getParentTraceSegmentId();
+            return isV2 ? referenceBuilderV2.getParentTraceSegmentId() : referenceBuilder.getParentTraceSegmentId();
         }
     }
 
     public int getNetworkAddressId() {
         if (isOrigin) {
-            return referenceObject.getNetworkAddressId();
+            return isV2 ? referenceObjectV2.getNetworkAddressId() : referenceObject.getNetworkAddressId();
         } else {
-            return referenceBuilder.getNetworkAddressId();
+            return isV2 ? referenceBuilderV2.getNetworkAddressId() : referenceBuilder.getNetworkAddressId();
         }
     }
 
@@ -161,14 +198,18 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        referenceBuilder.setNetworkAddressId(value);
+        if (isV2) {
+            referenceBuilderV2.setNetworkAddressId(value);
+        } else {
+            referenceBuilder.setNetworkAddressId(value);
+        }
     }
 
     public String getNetworkAddress() {
         if (isOrigin) {
-            return referenceObject.getNetworkAddress();
+            return isV2 ? referenceObjectV2.getNetworkAddress() : referenceObject.getNetworkAddress();
         } else {
-            return referenceBuilder.getNetworkAddress();
+            return isV2 ? referenceBuilderV2.getNetworkAddress() : referenceBuilder.getNetworkAddress();
         }
     }
 
@@ -176,13 +217,21 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        referenceBuilder.setNetworkAddress(value);
+        if (isV2) {
+            referenceBuilderV2.setNetworkAddress(value);
+        } else {
+            referenceBuilder.setNetworkAddress(value);
+        }
     }
 
     @Override public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
-            referenceBuilder = referenceObject.toBuilder();
+            if (isV2) {
+                referenceBuilderV2 = referenceObjectV2.toBuilder();
+            } else {
+                referenceBuilder = referenceObject.toBuilder();
+            }
             standardBuilder.toBuilder();
         }
     }
