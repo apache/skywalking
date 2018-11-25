@@ -46,7 +46,6 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageProvider;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
@@ -57,7 +56,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +73,7 @@ public class MySQLStorageProvider extends ModuleProvider {
     private static final Logger logger = LoggerFactory.getLogger(H2StorageProvider.class);
 
     private H2StorageConfig config;
-    private JDBCHikariCPClient h2Client;
+    private JDBCHikariCPClient mysqlClient;
 
     public MySQLStorageProvider() {
         config = new H2StorageConfig();
@@ -101,34 +99,34 @@ public class MySQLStorageProvider extends ModuleProvider {
             throw new ModuleStartException("load datasource setting file failure.", e);
         }
 
-        h2Client = new JDBCHikariCPClient(settings);
+        mysqlClient = new JDBCHikariCPClient(settings);
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));
-        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
-        this.registerServiceImplementation(IRegisterLockDAO.class, new MySQLRegisterTableLockDAO(h2Client));
+        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
+        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(mysqlClient));
+        this.registerServiceImplementation(IRegisterLockDAO.class, new MySQLRegisterTableLockDAO(mysqlClient));
 
-        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(h2Client));
+        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(mysqlClient));
+        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(mysqlClient));
+        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(mysqlClient));
+        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(mysqlClient));
 
-        this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
-        this.registerServiceImplementation(IMetricQueryDAO.class, new H2MetricQueryDAO(h2Client));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(h2Client));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO());
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO());
+        this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IMetricQueryDAO.class, new H2MetricQueryDAO(mysqlClient));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new MySQLTraceQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            h2Client.connect();
+            mysqlClient.connect();
 
             MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
-            installer.install(h2Client);
+            installer.install(mysqlClient);
 
-            new MySQLRegisterLockInstaller().install(h2Client);
+            new MySQLRegisterLockInstaller().install(mysqlClient);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

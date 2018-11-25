@@ -112,8 +112,8 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(h2Client));
         this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO());
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO());
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {

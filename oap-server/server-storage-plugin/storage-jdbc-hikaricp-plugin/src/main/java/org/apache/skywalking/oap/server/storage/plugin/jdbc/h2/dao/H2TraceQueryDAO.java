@@ -102,8 +102,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                 sql.append(" order by ").append(SegmentRecord.LATENCY).append(" ").append(SortOrder.DESC);
                 break;
         }
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
+        buildLimit(sql, from, limit);
 
         TraceBrief traceBrief = new TraceBrief();
         try (Connection connection = h2Client.getConnection()) {
@@ -133,6 +132,11 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         }
 
         return traceBrief;
+    }
+
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
+        sql.append(" LIMIT ").append(limit);
+        sql.append(" OFFSET ").append(from);
     }
 
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {

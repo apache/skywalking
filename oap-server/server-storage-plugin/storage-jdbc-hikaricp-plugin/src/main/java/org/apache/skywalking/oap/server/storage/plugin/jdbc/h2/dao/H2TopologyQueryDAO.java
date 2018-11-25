@@ -95,14 +95,15 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         }
         List<Call> calls = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, "select "
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
                     + " component_id from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? "
                     + serviceIdMatchSql.toString()
                     + " group by " + Indicator.ENTITY_ID,
-                conditions);
-            buildCalls(resultSet, calls, isClientSide);
+                conditions)) {
+                buildCalls(resultSet, calls, isClientSide);
+            }
         } catch (SQLException e) {
             throw new IOException(e);
         }
@@ -117,14 +118,15 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         conditions[2] = id;
         List<Call> calls = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, "select "
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
                     + " from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and "
                     + (isSourceId ? sourceCName : destCName) + "=?"
                     + " group by " + Indicator.ENTITY_ID,
-                conditions);
-            buildCalls(resultSet, calls, isSourceId);
+                conditions)) {
+                buildCalls(resultSet, calls, isSourceId);
+            }
         } catch (SQLException e) {
             throw new IOException(e);
         }

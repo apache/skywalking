@@ -94,17 +94,18 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
         List<TopNEntity> topNEntities = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]));
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
 
-            try {
-                while (resultSet.next()) {
-                    TopNEntity topNEntity = new TopNEntity();
-                    topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
-                    topNEntity.setValue(resultSet.getLong("value"));
-                    topNEntities.add(topNEntity);
+                try {
+                    while (resultSet.next()) {
+                        TopNEntity topNEntity = new TopNEntity();
+                        topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
+                        topNEntity.setValue(resultSet.getLong("value"));
+                        topNEntities.add(topNEntity);
+                    }
+                } catch (SQLException e) {
+                    throw new IOException(e);
                 }
-            } catch (SQLException e) {
-                throw new IOException(e);
             }
         } catch (SQLException e) {
             throw new IOException(e);
