@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.library.buffer;
 import java.util.Arrays;
 
 /**
+ * This class is a util for sort or build file name for the gRPC streaming data.
+ * Sort the files by the created time in order to read the data file sequential.
+ *
  * @author peng-yongsheng
  */
 class BufferFileUtils {
