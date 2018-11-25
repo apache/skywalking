@@ -47,6 +47,7 @@ Add `-javaagent` argument to command line in which you start your app. eg:
  ```
  
 ## Table of Agent Configuration Properties
+This is the properties list supported in `agent/config/agent.config`.
 
 property key | Description | Default |
 ----------- | ---------- | --------- | 
