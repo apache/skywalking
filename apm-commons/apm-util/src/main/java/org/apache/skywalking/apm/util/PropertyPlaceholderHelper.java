@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Utility class for working with Strings that have placeholder values in them. A placeholder takes the form {@code
@@ -31,8 +30,6 @@ import java.util.logging.Logger;
  * Values for substitution can be supplied using a {@link Properties} instance or using a {@link PlaceholderResolver}.
  */
 public class PropertyPlaceholderHelper {
-    private static final Logger logger = Logger.getLogger(PropertyPlaceholderHelper.class.getName());
-
     private static final Map<String, String> WELL_KNOWN_SIMPLE_PREFIXES = new HashMap<String, String>(4);
 
     static {
@@ -152,7 +149,6 @@ public class PropertyPlaceholderHelper {
                     // previously resolved placeholder value.
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
-                    logger.info("Resolved placeholder '" + placeholder + "'");
                     startIndex = result.indexOf(this.placeholderPrefix, startIndex + propVal.length());
                 } else if (this.ignoreUnresolvablePlaceholders) {
                     // Proceed with unprocessed value.

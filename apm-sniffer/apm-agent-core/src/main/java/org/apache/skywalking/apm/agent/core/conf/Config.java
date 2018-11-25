@@ -153,7 +153,9 @@ public class Config {
         }
 
         public static class Elasticsearch {
-
+            /**
+             * If true, trace all the DSL(Domain Specific Language), default is false.
+             */
             public static boolean TRACE_DSL = false;
         }
     }

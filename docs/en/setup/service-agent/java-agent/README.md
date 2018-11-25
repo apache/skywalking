@@ -45,6 +45,35 @@ Add `-javaagent` argument to command line in which you start your app. eg:
  ```shell
  java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
+ 
+## Table of Agent Configuration Properties
+
+property key | Description | Default |
+----------- | ---------- | --------- | 
+`agent.namespace` | Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`. | Not set | 
+`agent.service_name` | Application(5.x)/Service(6.x) code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one application's nodes share the same code. | `Your_ApplicationName` |
+`agent.sample_n_per_3_secs`|Negative or zero means off, by default.SAMPLE_N_PER_3_SECS means sampling N TraceSegment in 10 seconds tops.|Not set|
+`agent.authentication`|Authentication active is based on backend setting, see application.yml for more details.For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.|Not set|
+`agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, skywalking keep your application memory cost estimated.|Not set |
+`agent.ignore_suffix`|If the operation name of the first span is included in this set, this segment should be ignored.|Not set|
+`agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder.Skywalking team may ask for these files in order to resolve compatible problem.|Not set|
+`agent.active_v2_header`|Active V2 header in default|`true`|
+`agent.active_v1_header `|Deactive V1 header in default|`false`|
+`collector.grpc_channel_check_interval`|grpc channel status check interval|`30`|
+`collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
+`collector.backend_service`|Collector skywalking trace receiver service addresses.|`127.0.0.1:11800`|
+`logging.level`|The log level. Default is debug.|`DEBUG`|
+`logging.file_name`|Log file name.|`skywalking-api.log`|
+`logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
+`logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
+`jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
+`buffer.channel_size`|The buffer channel size.|`5`|
+`buffer.buffer_size`|The buffer size.|`300`|
+`dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
+`dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
+`plugin.mongodb.trace_param`|If true, trace all the parameters, default is false. Only trace the operation, not include parameters.|`false`|
+`plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language), default is false.|`false`|
+ 
 ## Supported middlewares, frameworks and libraries
 See [supported list](Supported-list.md).
 
