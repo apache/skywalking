@@ -22,6 +22,7 @@ or providing commercial products including Apache SkyWalking.
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
+1. Guazi.com 瓜子二手车直卖网. https://www.guazi.com/
 1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
 1. Haier. 海尔消费金融 https://www.haiercash.com/
 1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
@@ -35,6 +36,7 @@ or providing commercial products including Apache SkyWalking.
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
+1. Maodou.com 毛豆新车网. https://www.maodou.com/
 1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
@@ -52,3 +54,4 @@ or providing commercial products including Apache SkyWalking.
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
+
