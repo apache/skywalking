@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.apm.util;
 
 /**
  * @author jian.tan

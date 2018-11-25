@@ -16,7 +16,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -58,6 +59,7 @@
         <shade.org.apache.commons.source>org.apache.commons</shade.org.apache.commons.source>
         <shade.org.apache.commons.target>${shade.package}.${shade.org.apache.http.source}
         </shade.org.apache.commons.target>
+        <ststem-rules.version>1.18.0</ststem-rules.version>
     </properties>
 
     <dependencies>
@@ -141,6 +143,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-datacarrier</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>${ststem-rules.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>
