@@ -80,6 +80,7 @@ public class SnifferConfigInitializerTest {
         Properties properties = new Properties();
         properties.put("agent.service_name", "${AGENT_SERVICE_NAME:testAppFromSystem}");
         properties.put("collector.backend_service", "${AGENT_COLLECTOR_SERVER:127.0.0.1:8090}");
+        properties.put("logging.level", "INFO");
 
         PropertyPlaceholderHelper placeholderHelper =
             new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
@@ -90,6 +91,7 @@ public class SnifferConfigInitializerTest {
         ConfigInitializer.initialize(properties, Config.class);
         assertThat(Config.Agent.SERVICE_NAME, is("testAppFromSystemEnv"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("localhost:11111"));
+        assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @Test
