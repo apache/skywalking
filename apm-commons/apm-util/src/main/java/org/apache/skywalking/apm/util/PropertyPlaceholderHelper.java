@@ -16,17 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.apm.util;
 
-import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.apache.logging.log4j.core.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for working with Strings that have placeholder values in them. A placeholder takes the form {@code
@@ -34,9 +30,7 @@ import org.slf4j.LoggerFactory;
  * Values for substitution can be supplied using a {@link Properties} instance or using a {@link PlaceholderResolver}.
  */
 public class PropertyPlaceholderHelper {
-    private static final Logger logger = LoggerFactory.getLogger(PropertyPlaceholderHelper.class);
-
-    private static final Map<String, String> WELL_KNOWN_SIMPLE_PREFIXES = new HashMap<>(4);
+    private static final Map<String, String> WELL_KNOWN_SIMPLE_PREFIXES = new HashMap<String, String>(4);
 
     static {
         WELL_KNOWN_SIMPLE_PREFIXES.put("}", "{");
@@ -66,8 +60,9 @@ public class PropertyPlaceholderHelper {
      */
     public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
         String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
-        Assert.requireNonEmpty(placeholderPrefix, "'placeholderPrefix' must not be null");
-        Assert.requireNonEmpty(placeholderSuffix, "'placeholderSuffix' must not be null");
+        if (StringUtil.isEmpty(placeholderPrefix) || StringUtil.isEmpty(placeholderSuffix)) {
+            throw new UnsupportedOperationException("'placeholderPrefix or placeholderSuffix' must not be null");
+        }
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
         String simplePrefixForSuffix = WELL_KNOWN_SIMPLE_PREFIXES.get(this.placeholderSuffix);
@@ -89,16 +84,19 @@ public class PropertyPlaceholderHelper {
      * @return the supplied value with placeholders replaced inline
      */
     public String replacePlaceholders(String value, final Properties properties) {
-        Assert.requireNonEmpty(properties, "'properties' must not be null");
-        return replacePlaceholders(value, placeholderName -> this.getConfigValue(placeholderName, properties));
+        return replacePlaceholders(value, new PlaceholderResolver() {
+            @Override public String resolvePlaceholder(String placeholderName) {
+                return PropertyPlaceholderHelper.this.getConfigValue(placeholderName, properties);
+            }
+        });
     }
 
     private String getConfigValue(String key, final Properties properties) {
         String value = System.getProperty(key);
-        if (Strings.isNullOrEmpty(value)) {
+        if (StringUtil.isEmpty(value)) {
             value = System.getenv(key);
         }
-        if (Strings.isNullOrEmpty(value)) {
+        if (StringUtil.isEmpty(value)) {
             value = properties.getProperty(key);
         }
         return value;
@@ -113,7 +111,6 @@ public class PropertyPlaceholderHelper {
      * @return the supplied value with placeholders replaced inline
      */
     public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
-        Assert.requireNonEmpty(value, "'value' must not be null");
         return parseStringValue(value, placeholderResolver, new HashSet<String>());
     }
 
@@ -152,9 +149,6 @@ public class PropertyPlaceholderHelper {
                     // previously resolved placeholder value.
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Resolved placeholder '" + placeholder + "'");
-                    }
                     startIndex = result.indexOf(this.placeholderPrefix, startIndex + propVal.length());
                 } else if (this.ignoreUnresolvablePlaceholders) {
                     // Proceed with unprocessed value.
@@ -175,14 +169,14 @@ public class PropertyPlaceholderHelper {
         int index = startIndex + this.placeholderPrefix.length();
         int withinNestedPlaceholder = 0;
         while (index < buf.length()) {
-            if (StringUtils.substringMatch(buf, index, this.placeholderSuffix)) {
+            if (StringUtil.substringMatch(buf, index, this.placeholderSuffix)) {
                 if (withinNestedPlaceholder > 0) {
                     withinNestedPlaceholder--;
                     index = index + this.placeholderSuffix.length();
                 } else {
                     return index;
                 }
-            } else if (StringUtils.substringMatch(buf, index, this.simplePrefix)) {
+            } else if (StringUtil.substringMatch(buf, index, this.simplePrefix)) {
                 withinNestedPlaceholder++;
                 index = index + this.simplePrefix.length();
             } else {
