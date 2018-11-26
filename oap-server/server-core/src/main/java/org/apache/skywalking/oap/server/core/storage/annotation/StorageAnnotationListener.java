@@ -71,7 +71,7 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                modelColumns.add(new ModelColumn(new ColumnName(column.columnName(), column.columnName()), field.getType(), column.matchQuery()));
+                modelColumns.add(new ModelColumn(new ColumnName(column.columnName()), field.getType(), column.matchQuery()));
                 if (logger.isDebugEnabled()) {
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }

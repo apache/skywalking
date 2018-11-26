@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.entity.Alarms;
 import org.apache.skywalking.oap.server.core.source.Scope;
@@ -49,12 +48,12 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
 
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
-        sql.append("from ").append(SegmentRecord.INDEX_NAME).append(" where ");
+        sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
         if (startTB != 0 && endTB != 0) {
-            sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
+            sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
-            sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
+            sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endTB);
         }
 

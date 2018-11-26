@@ -75,7 +75,7 @@ public class H2TableInstaller extends ModelInstaller {
         for (int i = 0; i < model.getColumns().size(); i++) {
             ModelColumn column = model.getColumns().get(i);
             ColumnName name = column.getColumnName();
-            tableCreateSQL.appendLine(name.getName() + " " + getColumnType(column.getType()) + (i != model.getColumns().size() - 1 ? "," : ""));
+            tableCreateSQL.appendLine(name.getName() + " " + getColumnType(model, name, column.getType()) + (i != model.getColumns().size() - 1 ? "," : ""));
         }
         tableCreateSQL.appendLine(")");
 
@@ -93,7 +93,7 @@ public class H2TableInstaller extends ModelInstaller {
 
     }
 
-    protected String getColumnType(Class<?> type) {
+    protected String getColumnType(Model model, ColumnName name, Class<?> type) {
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
