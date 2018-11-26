@@ -4,6 +4,7 @@ use is by changing the `application.yml`
 
 - [**H2**](#h2)
 - [**ElasticSearch 6**](#elasticsearch-6)
+- [**MySQL**](#mysql)
 
 ## H2
 Active H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
@@ -43,6 +44,21 @@ storage:
     dayMetricDataTTL: 45 # Unit is day
     monthMetricDataTTL: 18 # Unit is month
 ```
+
+## MySQL
+Active MySQL as storage, set storage provider to **mysql**. 
+
+**NOTICE:** MySQL driver is NOT allowed in Apache official distribution and source codes. 
+Please download MySQL driver by yourself. Copy the connection driver jar to `oap-libs`.
+
+```yaml
+storage:
+  mysql:
+```
+
+All connection related settings including link url, username and password
+are in `databsource-settings.properties`. 
+This setting file follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document.
 
 
 ## More storage solution extension
