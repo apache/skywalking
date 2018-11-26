@@ -59,6 +59,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
             this.selfInstance = remoteInstance;
         } catch (Exception e) {
+            logger.error("zxxx"+e.getMessage(),e);
             throw new ServiceRegisterException(e.getMessage());
         }
     }

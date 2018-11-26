@@ -24,26 +24,26 @@ import java.io.BufferedReader;
 
 /**
  * A container of login information.
- * 
+ *
  * @author gaohongtao
  */
 class ReaderAccount implements Account {
 
     private final static Gson GSON = new GsonBuilder().disableHtmlEscaping()
         .setLenient().create();
-    
+
     private String userName;
-    
+
     private String password;
-    
+
     static ReaderAccount newReaderAccount(final BufferedReader accountReader) {
         return GSON.fromJson(accountReader, ReaderAccount.class);
     }
-    
+
     public String userName() {
         return userName;
     }
-    
+
     public String password() {
         return password;
     }

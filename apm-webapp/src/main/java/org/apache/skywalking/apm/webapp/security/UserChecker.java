@@ -26,13 +26,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * A Checker to check username and password.
- * 
+ *
  * @author gaohongtao
  */
 @Component
 @ConfigurationProperties(prefix = "security")
 public class UserChecker {
-    
+
     private Map<String, User> user = new HashMap<>();
 
     public Map<String, User> getUser() {
@@ -48,7 +48,7 @@ public class UserChecker {
         }
         return user.get(account.userName()).password.equals(account.password());
     }
-    
+
     public static class User {
         private String password;
 

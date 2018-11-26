@@ -36,6 +36,9 @@ public class SWInstanceSerializer implements InstanceSerializer<RemoteInstance> 
     }
 
     @Override public ServiceInstance<RemoteInstance> deserialize(byte[] bytes) throws Exception {
+        System.out.println("bytes"+new String(bytes));
+        System.out.println("bytes"+new TypeToken<ServiceInstance<RemoteInstance>>() {
+        }.getType());
         return gson.fromJson(new String(bytes), new TypeToken<ServiceInstance<RemoteInstance>>() {
         }.getType());
     }

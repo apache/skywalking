@@ -22,7 +22,7 @@ collector:
   ribbon:
     ReadTimeout: 10000
     # Point to all backend's restHost:restPort, split by ,
-    listOfServers: 127.0.0.1:12800
+    listOfServers: 172.16.4.56:12800
 
 security:
   user:

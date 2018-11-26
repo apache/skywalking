@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -37,6 +38,7 @@
         <apache-httpclient.version>4.5.3</apache-httpclient.version>
         <spring-cloud-dependencies.version>Edgware.SR1</spring-cloud-dependencies.version>
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
+        <org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>
@@ -54,6 +56,37 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- slf4j日志框架依赖 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-security</artifactId>-->
+            <!--<version>${spring.boot.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.springframework.security</groupId>-->
+        <!--<artifactId>spring-security-cas</artifactId>-->
+        <!--<version>${org.springframework.security.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.springframework.security</groupId>-->
+        <!--<artifactId>spring-security-taglibs</artifactId>-->
+        <!--<version>${org.springframework.security.version}</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>net.unicon.cas</groupId>
+            <artifactId>cas-client-autoconfig-support</artifactId>
+            <version>1.4.0-GA</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.jasig.cas.client</groupId>-->
+            <!--<artifactId>cas-client-core</artifactId>-->
+            <!--<version>3.1.12</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
