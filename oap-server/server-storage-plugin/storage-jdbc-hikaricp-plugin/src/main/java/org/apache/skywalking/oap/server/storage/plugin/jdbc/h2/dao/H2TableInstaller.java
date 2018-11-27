@@ -44,6 +44,7 @@ public class H2TableInstaller extends ModelInstaller {
     }
 
     @Override protected boolean isExists(Client client, Model model) throws StorageException {
+        TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         try (Connection conn = h2Client.getConnection()) {
             try (ResultSet rset = conn.getMetaData().getTables(null, null, model.getName(), null)) {
@@ -68,7 +69,6 @@ public class H2TableInstaller extends ModelInstaller {
     }
 
     @Override protected void createTable(Client client, Model model) throws StorageException {
-        TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
         tableCreateSQL.appendLine("id VARCHAR(300) PRIMARY KEY, ");

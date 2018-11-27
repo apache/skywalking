@@ -102,7 +102,6 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                 sql.append(" order by ").append(SegmentRecord.LATENCY).append(" ").append(SortOrder.DESC);
                 break;
         }
-        buildLimit(sql, from, limit);
 
         TraceBrief traceBrief = new TraceBrief();
         try (Connection connection = h2Client.getConnection()) {
@@ -112,6 +111,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
             }
+
+            buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
@@ -166,5 +167,9 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             throw new IOException(e);
         }
         return segmentRecords;
+    }
+
+    protected JDBCHikariCPClient getClient() {
+        return h2Client;
     }
 }

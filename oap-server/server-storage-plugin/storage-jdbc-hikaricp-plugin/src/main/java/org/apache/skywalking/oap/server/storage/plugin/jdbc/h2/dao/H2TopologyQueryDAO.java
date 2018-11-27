@@ -97,7 +97,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
-                    + " component_id from " + tableName + " where "
+                    + " from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? "
                     + serviceIdMatchSql.toString()
                     + " group by " + Indicator.ENTITY_ID,

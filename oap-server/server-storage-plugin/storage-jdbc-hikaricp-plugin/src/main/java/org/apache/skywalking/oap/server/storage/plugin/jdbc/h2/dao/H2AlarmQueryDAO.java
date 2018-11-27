@@ -61,7 +61,6 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
             sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%' ");
         }
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
-        this.buildLimit(sql, from, limit);
 
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
@@ -71,6 +70,8 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
                     alarms.setTotal(resultSet.getInt("total"));
                 }
             }
+
+            this.buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {

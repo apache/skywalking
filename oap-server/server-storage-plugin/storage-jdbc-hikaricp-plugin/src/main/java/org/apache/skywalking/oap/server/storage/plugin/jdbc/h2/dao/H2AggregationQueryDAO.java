@@ -113,14 +113,18 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         return topNEntities;
     }
 
-    private void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
+    public JDBCHikariCPClient getClient() {
+        return h2Client;
+    }
+
+    protected void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
         long endTimestamp) {
         sql.append(Indicator.TIME_BUCKET).append(" >= ? and ").append(Indicator.TIME_BUCKET).append(" <= ?");
         conditions.add(startTimestamp);
         conditions.add(endTimestamp);
     }
 
-    private interface AppendCondition {
+    protected interface AppendCondition {
         void append(StringBuilder sql, List<Object> conditions);
     }
 }
