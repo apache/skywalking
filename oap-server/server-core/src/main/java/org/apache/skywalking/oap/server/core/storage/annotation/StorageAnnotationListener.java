@@ -92,7 +92,7 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
                 ColumnName existColumnName = column.getColumnName();
                 String name = existColumnName.getName();
                 if (name.equals(columnName)) {
-                    existColumnName.setName(newName);
+                    existColumnName.setStorageName(newName);
                     logger.debug("Model {} column {} has been override. The new column name is {}.", model.getName(), name, newName);
                 }
             });

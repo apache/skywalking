@@ -78,7 +78,7 @@ public class H2SQLExecutor {
             Map data = new HashMap();
             List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
             for (ModelColumn column : columns) {
-                data.put(column.getColumnName().getName(), rs.getObject(column.getColumnName().getName()));
+                data.put(column.getColumnName().getName(), rs.getObject(column.getColumnName().getStorageName()));
             }
             return storageBuilder.map2Data(data);
         }
@@ -137,7 +137,7 @@ public class H2SQLExecutor {
         List<Object> param = new ArrayList<>();
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
-            sqlBuilder.append(column.getColumnName().getName() + "= ?");
+            sqlBuilder.append(column.getColumnName().getStorageName() + "= ?");
             if (i != columns.size() - 1) {
                 sqlBuilder.append(",");
             }

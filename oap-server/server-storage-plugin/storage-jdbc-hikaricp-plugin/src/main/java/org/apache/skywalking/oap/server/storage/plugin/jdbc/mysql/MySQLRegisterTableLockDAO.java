@@ -61,6 +61,8 @@ public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
                 connection.close();
             } catch (SQLException e) {
                 logger.error("release lock failure.", e);
+            } finally {
+                connection = null;
             }
         }
     }
