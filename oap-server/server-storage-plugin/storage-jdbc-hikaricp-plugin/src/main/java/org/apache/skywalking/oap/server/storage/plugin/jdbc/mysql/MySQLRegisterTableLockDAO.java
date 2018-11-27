@@ -45,9 +45,10 @@ public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
     @Override public boolean tryLock(Scope scope) {
         try {
             connection = h2Client.getTransactionConnection();
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             h2Client.execute(connection, "select * from " + MySQLRegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
             return true;
-        } catch (JDBCClientException e) {
+        } catch (JDBCClientException | SQLException e) {
             logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
             logger.error("tryLock error", e);
             return false;
@@ -58,6 +59,7 @@ public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
         if (connection != null) {
             try {
                 connection.commit();
+                connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
                 connection.close();
             } catch (SQLException e) {
                 logger.error("release lock failure.", e);
