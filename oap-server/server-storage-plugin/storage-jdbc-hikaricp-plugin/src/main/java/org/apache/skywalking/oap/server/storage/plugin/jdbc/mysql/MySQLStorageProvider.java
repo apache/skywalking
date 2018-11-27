@@ -74,6 +74,7 @@ public class MySQLStorageProvider extends ModuleProvider {
 
     private H2StorageConfig config;
     private JDBCHikariCPClient mysqlClient;
+    private MySQLRegisterTableLockDAO lockDAO;
 
     public MySQLStorageProvider() {
         config = new H2StorageConfig();
@@ -103,7 +104,8 @@ public class MySQLStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(mysqlClient));
-        this.registerServiceImplementation(IRegisterLockDAO.class, new MySQLRegisterTableLockDAO(mysqlClient));
+        lockDAO = new MySQLRegisterTableLockDAO(mysqlClient);
+        this.registerServiceImplementation(IRegisterLockDAO.class, lockDAO);
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(mysqlClient));
         this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(mysqlClient));
@@ -126,7 +128,7 @@ public class MySQLStorageProvider extends ModuleProvider {
             MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
             installer.install(mysqlClient);
 
-            new MySQLRegisterLockInstaller().install(mysqlClient);
+            new MySQLRegisterLockInstaller().install(mysqlClient, lockDAO);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

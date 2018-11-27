@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
@@ -36,26 +38,38 @@ public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
     private static final Logger logger = LoggerFactory.getLogger(MySQLRegisterTableLockDAO.class);
 
     private JDBCHikariCPClient h2Client;
-    private Connection connection;
+    private Map<Scope, Connection> onLockingConnection;
 
     public MySQLRegisterTableLockDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
+        onLockingConnection = new HashMap<>();
     }
 
-    @Override public boolean tryLock(Scope scope) {
-        try {
-            connection = h2Client.getTransactionConnection();
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            h2Client.execute(connection, "select * from " + MySQLRegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
-            return true;
-        } catch (JDBCClientException | SQLException e) {
-            logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
-            logger.error("tryLock error", e);
-            return false;
+    void init(Scope scope) {
+        if (!onLockingConnection.containsKey(scope)) {
+            onLockingConnection.put(scope, null);
         }
     }
 
+    @Override public boolean tryLock(Scope scope) {
+        if (onLockingConnection.containsKey(scope)) {
+            try {
+                Connection connection = h2Client.getTransactionConnection();
+                onLockingConnection.put(scope, connection);
+                connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                h2Client.execute(connection, "select * from " + MySQLRegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
+                return true;
+            } catch (JDBCClientException | SQLException e) {
+                logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
+                logger.error("tryLock error", e);
+                return false;
+            }
+        }
+        return false;
+    }
+
     @Override public void releaseLock(Scope scope) {
+        Connection connection = onLockingConnection.get(scope);
         if (connection != null) {
             try {
                 connection.commit();
@@ -64,7 +78,7 @@ public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
             } catch (SQLException e) {
                 logger.error("release lock failure.", e);
             } finally {
-                connection = null;
+                onLockingConnection.put(scope, null);
             }
         }
     }

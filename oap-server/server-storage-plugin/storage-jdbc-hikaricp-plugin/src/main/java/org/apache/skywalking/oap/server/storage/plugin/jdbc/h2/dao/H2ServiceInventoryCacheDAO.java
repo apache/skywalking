@@ -70,8 +70,6 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
             sql.append(" where ").append(ServiceInventory.IS_ADDRESS).append("=? ");
             sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
 
-            sql.append(" LIMIT 50 ");
-
             try (Connection connection = h2Client.getConnection()) {
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 10000)) {
                     while (resultSet.next()) {

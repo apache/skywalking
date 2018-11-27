@@ -48,7 +48,7 @@ public class MySQLRegisterLockInstaller {
      * @param client
      * @throws StorageException
      */
-    public void install(Client client) throws StorageException {
+    public void install(Client client, MySQLRegisterTableLockDAO dao) throws StorageException {
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + LOCK_TABLE_NAME + " (");
         tableCreateSQL.appendLine("id int  PRIMARY KEY, ");
@@ -64,6 +64,7 @@ public class MySQLRegisterLockInstaller {
 
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
                 Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                dao.init(sourceScope);
                 putIfAbsent(h2Client, connection, sourceScope.ordinal(), sourceScope.name());
             }
         } catch (JDBCClientException e) {
