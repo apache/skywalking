@@ -20,20 +20,29 @@ package org.apache.skywalking.oap.server.core.storage.ttl;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.DataTTL;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
-import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.DateTime;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -95,7 +104,7 @@ public enum DataTTLKeeperTimer {
     TimeBuckets convertTimeBucket(DateTime currentTime) {
         TimeBuckets timeBuckets = new TimeBuckets();
 
-        timeBuckets.recordDataTTL = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMddHHmm"));
+        timeBuckets.recordDataTTL = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
         timeBuckets.minuteTimeBucketBefore = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getMinuteMetricsDataTTL()).toString("yyyyMMddHHmm"));
         timeBuckets.hourTimeBucketBefore = Long.valueOf(currentTime.plusHours(0 - dataTTL.getHourMetricsDataTTL()).toString("yyyyMMddHH"));
         timeBuckets.dayTimeBucketBefore = Long.valueOf(currentTime.plusDays(0 - dataTTL.getDayMetricsDataTTL()).toString("yyyyMMdd"));
@@ -108,7 +117,8 @@ public enum DataTTLKeeperTimer {
         try {
             moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
         } catch (IOException e) {
-            logger.warn("History delete failure, error message: {}", e.getMessage());
+            logger.warn("History of {} delete failure, time bucket {}", modelName, timeBucketBefore);
+            logger.error(e.getMessage(), e);
         }
     }
 

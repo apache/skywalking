@@ -73,7 +73,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(EndpointInventory.MODEL_NAME).append(" where ");
-        setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
         sql.append(" and ").append(EndpointInventory.DETECT_POINT).append("=").append(DetectPoint.SERVER.ordinal());
 
         try (Connection connection = h2Client.getConnection()) {
