@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
@@ -106,6 +107,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
         this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
+        this.registerServiceImplementation(IModelOverride.class, storageAnnotationListener);
 
         this.registerServiceImplementation(ServiceInventoryCache.class, new ServiceInventoryCache(getManager()));
         this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));

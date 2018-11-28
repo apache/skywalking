@@ -91,9 +91,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
         }
 
         IntValues intValues = new IntValues();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + Indicator.ENTITY_ID + " id, " + op + "(" + valueCName + ") value from " + tableName
                     + " where " + whereSql
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=?"
@@ -109,8 +107,6 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return orderWithDefault0(intValues, ids);
     }
@@ -129,9 +125,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
 
         IntValues intValues = new IntValues();
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select id, " + valueCName + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
                 while (resultSet.next()) {
                     KVInt kv = new KVInt();
@@ -142,8 +136,6 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return orderWithDefault0(intValues, ids);
     }
@@ -183,9 +175,7 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
         List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
         Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
 
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             Thermodynamic thermodynamic = new Thermodynamic();
             int numOfSteps = 0;
             int axisYStep = 0;
@@ -232,8 +222,6 @@ public class H2MetricQueryDAO extends H2SQLExecutor implements IMetricQueryDAO {
             return thermodynamic;
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
     }
 

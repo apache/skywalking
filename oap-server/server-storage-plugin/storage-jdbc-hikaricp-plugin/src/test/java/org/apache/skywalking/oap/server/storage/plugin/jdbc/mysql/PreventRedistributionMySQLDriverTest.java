@@ -16,31 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+
+import org.junit.Test;
 
 /**
- * Short column name unsupported for now. No define in @Column annotation. The storage implementation need to use name
- * to do match.
+ * This is a very special test case. It isn't for feature testing.
  *
- * @author peng-yongsheng
+ * In Apache, we can't redistribute MySQL Driver, because of GPL license, but we deliver MySQL solution source codes and
+ * distribution by using JDBC.
+ *
+ * @author wusheng
  */
-public class ColumnName {
-    private String fullName;
-    private String storageName = null;
-
-    public ColumnName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getName() {
-        return fullName;
-    }
-
-    public String getStorageName() {
-        return storageName != null ? storageName : fullName;
-    }
-
-    public void setStorageName(String storageName) {
-        this.storageName = storageName;
+public class PreventRedistributionMySQLDriverTest {
+    @Test(expected = ClassNotFoundException.class)
+    public void TestMySQLDriverNotExist() throws ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
     }
 }

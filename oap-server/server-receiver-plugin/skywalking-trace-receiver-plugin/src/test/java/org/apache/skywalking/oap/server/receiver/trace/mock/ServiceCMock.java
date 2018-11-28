@@ -90,7 +90,7 @@ class ServiceCMock {
         reference.setRefType(RefType.CrossProcess);
 
         if (isPrepare) {
-            reference.setParentServiceName(ServiceBMock.ROCKET_MQ_ENDPOINT);
+            reference.setParentServiceName(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
             reference.setNetworkAddress(ServiceBMock.ROCKET_MQ_ADDRESS);
             reference.setEntryServiceName(ServiceAMock.REST_ENDPOINT);
         } else {

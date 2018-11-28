@@ -19,17 +19,24 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng
  */
 public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
+    private static final Logger logger = LoggerFactory.getLogger(H2RegisterDAO.class);
+
     private final JDBCHikariCPClient h2Client;
     private final StorageBuilder<RegisterSource> storageBuilder;
 
@@ -40,9 +47,7 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
     }
 
     @Override public int max(String modelName) throws IOException {
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT max(sequence) max_id FROM " + modelName)) {
                 while (rs.next()) {
                     int maxId = rs.getInt("max_id");
@@ -57,8 +62,6 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
             throw new IOException(e.getMessage(), e);
         } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
-        } finally {
-            h2Client.close(connection);
         }
         return Const.NONE;
     }

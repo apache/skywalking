@@ -31,6 +31,7 @@ class ServiceBMock {
     private final RegisterMock registerMock;
     private static int SERVICE_ID;
     static int SERVICE_INSTANCE_ID;
+    static String DUBBO_PROVIDER_ENDPOINT = "org.skywaking.apm.testcase.dubbo.services.GreetServiceImpl.doBusiness()";
     static String ROCKET_MQ_ENDPOINT = "org.apache.skywalking.RocketMQ";
     static String ROCKET_MQ_ADDRESS = "RocketMQAddress:2000";
 
@@ -98,7 +99,7 @@ class ServiceBMock {
         span.addRefs(createReference(uniqueId, isPrepare));
 
         if (isPrepare) {
-            span.setOperationName(ServiceAMock.DUBBO_ENDPOINT);
+            span.setOperationName(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
         } else {
             span.setOperationNameId(4);
         }
