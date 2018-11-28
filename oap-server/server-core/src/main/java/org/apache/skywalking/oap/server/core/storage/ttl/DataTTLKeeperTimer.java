@@ -84,19 +84,19 @@ public enum DataTTLKeeperTimer {
         List<Model> models = modelGetter.getModels();
         models.forEach(model -> {
             if (model.isIndicator()) {
-                execute(model.getName(), timeBuckets.minuteTimeBucketBefore, Indicator.TIME_BUCKET);
+                execute(model, model.getName(), timeBuckets.minuteTimeBucketBefore, Indicator.TIME_BUCKET);
 
                 if (downsamplingConfigService.shouldToHour()) {
-                    execute(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName(), timeBuckets.hourTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName(), timeBuckets.hourTimeBucketBefore, Indicator.TIME_BUCKET);
                 }
                 if (downsamplingConfigService.shouldToDay()) {
-                    execute(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName(), timeBuckets.dayTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Day.getName(), timeBuckets.dayTimeBucketBefore, Indicator.TIME_BUCKET);
                 }
                 if (downsamplingConfigService.shouldToMonth()) {
-                    execute(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName(), timeBuckets.monthTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Month.getName(), timeBuckets.monthTimeBucketBefore, Indicator.TIME_BUCKET);
                 }
             } else {
-                execute(model.getName(), timeBuckets.recordDataTTL, Record.TIME_BUCKET);
+                execute(model, model.getName(), timeBuckets.recordDataTTL, Record.TIME_BUCKET);
             }
         });
     }
@@ -113,9 +113,11 @@ public enum DataTTLKeeperTimer {
         return timeBuckets;
     }
 
-    private void execute(String modelName, long timeBucketBefore, String timeBucketColumnName) {
+    private void execute(Model model, String modelName, long timeBucketBefore, String timeBucketColumnName) {
         try {
-            moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
+            if (model.isDeleteHistory()) {
+                moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
+            }
         } catch (IOException e) {
             logger.warn("History of {} delete failure, time bucket {}", modelName, timeBucketBefore);
             logger.error(e.getMessage(), e);
