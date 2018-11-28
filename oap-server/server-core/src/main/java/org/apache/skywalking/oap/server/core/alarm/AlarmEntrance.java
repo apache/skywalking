@@ -71,8 +71,8 @@ public class AlarmEntrance {
             initLock.lock();
             try {
                 if (serviceInventoryCache == null) {
-                    serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-                    indicatorNotify = moduleManager.find(AlarmModule.NAME).getService(IndicatorNotify.class);
+                    serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+                    indicatorNotify = moduleManager.find(AlarmModule.NAME).provider().getService(IndicatorNotify.class);
                     indicatorNotify.init(new AlarmStandardPersistence());
                 }
             } finally {

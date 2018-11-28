@@ -25,9 +25,10 @@ import java.util.*;
  *
  * @author wu-sheng, peng-yongsheng
  */
-public class ModuleManager {
+public class ModuleManager implements ModuleDefineHolder {
+
     private boolean isInPrepareStage = true;
-    private Map<String, ModuleDefine> loadedModules = new HashMap<>();
+    private final Map<String, ModuleDefine> loadedModules = new HashMap<>();
 
     /**
      * Init the given modules
@@ -65,11 +66,11 @@ public class ModuleManager {
         bootstrapFlow.notifyAfterCompleted();
     }
 
-    public boolean has(String moduleName) {
+    @Override public boolean has(String moduleName) {
         return loadedModules.get(moduleName) != null;
     }
 
-    public ModuleDefine find(String moduleName) throws ModuleNotFoundRuntimeException {
+    @Override public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
         assertPreparedStage();
         ModuleDefine module = loadedModules.get(moduleName);
         if (module != null)

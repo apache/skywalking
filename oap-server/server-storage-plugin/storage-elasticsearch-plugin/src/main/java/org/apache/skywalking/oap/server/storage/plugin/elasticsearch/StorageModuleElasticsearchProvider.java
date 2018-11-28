@@ -88,7 +88,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         try {
             nameSpace.setNameSpace(config.getNameSpace());
-            elasticSearchClient.initialize();
+            elasticSearchClient.connect();
 
             StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber());
             installer.install(elasticSearchClient);

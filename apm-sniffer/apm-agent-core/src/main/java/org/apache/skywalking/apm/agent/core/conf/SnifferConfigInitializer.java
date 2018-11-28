@@ -34,6 +34,8 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -65,13 +67,22 @@ public class SnifferConfigInitializer {
             configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
+            PropertyPlaceholderHelper helper =
+                new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
+                    PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
+                    PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
+            for (String key : properties.stringPropertyNames()) {
+                String value = (String)properties.get(key);
+                //replace the key's value. properties.replace(key,value) in jdk8+
+                properties.put(key, helper.replacePlaceholders(value, properties));
+            }
             ConfigInitializer.initialize(properties, Config.class);
         } catch (Exception e) {
             logger.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
         try {
-            overrideConfigBySystemEnv();
+            overrideConfigBySystemProp();
         } catch (Exception e) {
             logger.error(e, "Failed to read the system env.");
         }
@@ -87,8 +98,8 @@ public class SnifferConfigInitializer {
             }
         }
 
-        if (StringUtil.isEmpty(Config.Agent.APPLICATION_CODE)) {
-            throw new ExceptionInInitializerError("`agent.application_code` is missing.");
+        if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
+            throw new ExceptionInInitializerError("`agent.service_code` is missing.");
         }
         if (StringUtil.isEmpty(Config.Collector.BACKEND_SERVICE)) {
             throw new ExceptionInInitializerError("`collector.direct_servers` and `collector.servers` cannot be empty at the same time.");
@@ -142,7 +153,7 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * Override the config by system env. The env key must start with `skywalking`, the reuslt should be as same as in
+     * Override the config by system properties. The env key must start with `skywalking`, the reuslt should be as same as in
      * `agent.config`
      * <p>
      * such as:
@@ -150,7 +161,7 @@ public class SnifferConfigInitializer {
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static void overrideConfigBySystemEnv() throws IllegalAccessException {
+    private static void overrideConfigBySystemProp() throws IllegalAccessException {
         Properties properties = new Properties();
         Properties systemProperties = System.getProperties();
         Iterator<Map.Entry<Object, Object>> entryIterator = systemProperties.entrySet().iterator();

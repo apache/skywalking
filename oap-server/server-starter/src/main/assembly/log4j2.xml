@@ -25,7 +25,7 @@
         <RollingFile name="RollingFile" fileName="${log-path}/skywalking-oap-server.log"
                      filePattern="${log-path}/skywalking-oap-server-%d{yyyy-MM-dd}-%i.log" >
             <PatternLayout>
-                <pattern>%d - %c -%-4r [%t] %-5p %x - %m%n</pattern>
+                <pattern>%d - %c - %L [%t] %-5p %x - %m%n</pattern>
             </PatternLayout>
             <Policies>
                 <SizeBasedTriggeringPolicy size="102400KB" />

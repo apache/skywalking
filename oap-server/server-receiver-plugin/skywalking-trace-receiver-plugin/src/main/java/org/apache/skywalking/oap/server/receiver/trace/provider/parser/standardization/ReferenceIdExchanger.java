@@ -47,43 +47,43 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IEndpointInventoryRegister.class);
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
+        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
-        if (standardBuilder.getEntryServiceId() == 0) {
-            String entryEndpointName = StringUtils.isNotEmpty(standardBuilder.getEntryServiceName()) ? standardBuilder.getEntryServiceName() : Const.DOMAIN_OPERATION_NAME;
-            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryApplicationInstanceId()).getServiceId(), entryEndpointName, DetectPoint.SERVER.ordinal());
+        if (standardBuilder.getEntryEndpointId() == 0) {
+            String entryEndpointName = StringUtils.isNotEmpty(standardBuilder.getEntryEndpointName()) ? standardBuilder.getEntryEndpointName() : Const.DOMAIN_OPERATION_NAME;
+            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), entryEndpointName, DetectPoint.SERVER.ordinal());
 
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryApplicationInstanceId()).getServiceId();
+                    int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
                     logger.debug("entry endpoint name: {} from service id: {} exchange failed", entryEndpointName, entryServiceId);
                 }
                 return false;
             } else {
                 standardBuilder.toBuilder();
-                standardBuilder.setEntryServiceId(entryEndpointId);
-                standardBuilder.setEntryServiceName(Const.EMPTY_STRING);
+                standardBuilder.setEntryEndpointId(entryEndpointId);
+                standardBuilder.setEntryEndpointName(Const.EMPTY_STRING);
             }
         }
 
-        if (standardBuilder.getParentServiceId() == 0) {
-            String parentEndpointName = StringUtils.isNotEmpty(standardBuilder.getParentServiceName()) ? standardBuilder.getParentServiceName() : Const.DOMAIN_OPERATION_NAME;
-            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentApplicationInstanceId()).getServiceId(), parentEndpointName, DetectPoint.SERVER.ordinal());
+        if (standardBuilder.getParentEndpointId() == 0) {
+            String parentEndpointName = StringUtils.isNotEmpty(standardBuilder.getParentEndpointName()) ? standardBuilder.getParentEndpointName() : Const.DOMAIN_OPERATION_NAME;
+            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId(), parentEndpointName, DetectPoint.SERVER.ordinal());
 
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentApplicationInstanceId()).getServiceId();
+                    int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
                     logger.debug("parent endpoint name: {} from service id: {} exchange failed", parentEndpointName, parentServiceId);
                 }
                 return false;
             } else {
                 standardBuilder.toBuilder();
-                standardBuilder.setParentServiceId(parentEndpointId);
-                standardBuilder.setParentServiceName(Const.EMPTY_STRING);
+                standardBuilder.setParentEndpointId(parentEndpointId);
+                standardBuilder.setParentEndpointName(Const.EMPTY_STRING);
             }
         }
 
@@ -92,7 +92,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("network address: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
+                    logger.debug("network getAddress: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
                 }
                 return false;
             } else {

@@ -76,19 +76,19 @@ ContextManager provides all major and primary APIs.
 
 1. Create EntrySpan
 ```java
-public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier)
+public static AbstractSpan createEntrySpan(String endpointName, ContextCarrier carrier)
 ```
 Create EntrySpan by operation name(e.g. service name, uri) and **ContextCarrier**.
 
 2. Create LocalSpan
 ```java
-public static AbstractSpan createLocalSpan(String operationName)
+public static AbstractSpan createLocalSpan(String endpointName)
 ```
 Create LocalSpan by operation name(e.g. full method signature)
 
 3. Create ExitSpan
 ```java
-public static AbstractSpan createExitSpan(String operationName, ContextCarrier carrier, String remotePeer)
+public static AbstractSpan createExitSpan(String endpointName, ContextCarrier carrier, String remotePeer)
 ```
 Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarrier** and peer address
 (e.g. ip+port, hostname+port)
@@ -145,7 +145,7 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      *
      * @return this Span instance, for chaining
      */
-    AbstractSpan setOperationName(String operationName);
+    AbstractSpan setOperationName(String endpointName);
 ```
 Besides set operation name, tags and logs, two attributes shoule be set, which are component and layer, 
 especially for EntrySpan and ExitSpan

@@ -48,7 +48,7 @@ public class ElasticSearchClientTestCase {
         builder.endObject();
 
         ElasticSearchClient client = new ElasticSearchClient("localhost:9200", null);
-        client.initialize();
+        client.connect();
 
         String indexName = "test";
         client.createIndex(indexName, settings, builder);

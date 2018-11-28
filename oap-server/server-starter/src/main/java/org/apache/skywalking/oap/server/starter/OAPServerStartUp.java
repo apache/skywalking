@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.server.starter;
 
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
-import org.apache.skywalking.oap.server.starter.config.ConfigFileNotFoundException;
+import org.apache.skywalking.oap.server.starter.config.*;
 import org.slf4j.*;
 
 /**

@@ -49,7 +49,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.modelName = modelName;
         this.sources = new HashMap<>();
         this.registerDAO = registerDAO;
-        this.registerLockDAO = moduleManager.find(StorageModule.NAME).getService(IRegisterLockDAO.class);
+        this.registerLockDAO = moduleManager.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scope = scope;
         this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new RegisterPersistentWorker.PersistentConsumer(this), 1);

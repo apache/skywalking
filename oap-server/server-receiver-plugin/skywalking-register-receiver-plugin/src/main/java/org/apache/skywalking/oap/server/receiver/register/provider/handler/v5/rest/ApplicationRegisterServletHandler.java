@@ -40,7 +40,7 @@ public class ApplicationRegisterServletHandler extends JettyJsonHandler {
     private static final String APPLICATION_ID = "i";
 
     public ApplicationRegisterServletHandler(ModuleManager moduleManager) {
-        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     @Override public String pathSpec() {

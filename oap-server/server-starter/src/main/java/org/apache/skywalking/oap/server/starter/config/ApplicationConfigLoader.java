@@ -18,22 +18,22 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
-
 /**
- * Initialize collector settings with following sources.
- * Use application.yml as primary setting,
- * and fix missing setting by default settings in application-default.yml.
+ * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
+ * by default settings in application-default.yml.
  *
  * At last, override setting by system.properties and system.envs if the key matches moduleName.provideName.settingKey.
  *
@@ -68,7 +68,13 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                             if (propertiesConfig != null) {
                                 propertiesConfig.forEach((key, value) -> {
                                     properties.put(key, value);
-                                    logger.info("The property with key: {}, value: {}, in {} provider", key, value, name);
+                                    PropertyPlaceholderHelper helper =
+                                        new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
+                                            PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
+                                            PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
+                                    final Object replaceValue = yaml.load(helper.replacePlaceholders(value + "", properties));
+                                    properties.replace(key, replaceValue);
+                                    logger.info("The property with key: {}, value: {}, in {} provider", key, replaceValue.toString(), name);
                                 });
                             }
                             moduleConfiguration.addProviderConfiguration(name, properties);

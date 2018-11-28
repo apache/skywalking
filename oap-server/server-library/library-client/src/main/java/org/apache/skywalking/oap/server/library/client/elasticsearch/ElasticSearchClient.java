@@ -59,7 +59,7 @@ public class ElasticSearchClient implements Client {
         this.namespace = namespace;
     }
 
-    @Override public void initialize() {
+    @Override public void connect() {
         List<HttpHost> pairsList = parseClusterNodes(clusterNodes);
 
         client = new RestHighLevelClient(
@@ -142,7 +142,6 @@ public class ElasticSearchClient implements Client {
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source, long version) throws IOException {
-        indexName = formatIndexName(indexName);
         UpdateRequest request = prepareUpdate(indexName, id, source);
         request.version(version);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
@@ -150,7 +149,6 @@ public class ElasticSearchClient implements Client {
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
-        indexName = formatIndexName(indexName);
         UpdateRequest request = prepareUpdate(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         client.update(request);

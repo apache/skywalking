@@ -22,7 +22,8 @@ package org.apache.skywalking.oap.server.library.client;
  * @author peng-yongsheng
  */
 public interface Client {
-    void initialize() throws ClientException;
+    
+    void connect() throws ClientException;
 
     void shutdown();
 }

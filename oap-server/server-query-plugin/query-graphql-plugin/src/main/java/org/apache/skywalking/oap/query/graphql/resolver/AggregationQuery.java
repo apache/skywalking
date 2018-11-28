@@ -41,7 +41,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
 
     private AggregationQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(AggregationQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(AggregationQueryService.class);
         }
         return queryService;
     }

@@ -45,7 +45,7 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
 
     private EndpointInventoryCache getCacheService() {
         if (isNull(cacheService)) {
-            cacheService = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+            cacheService = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         }
         return cacheService;
     }
