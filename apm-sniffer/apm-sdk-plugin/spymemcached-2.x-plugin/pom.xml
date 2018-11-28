@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-spymemcached-2.x-plugin</artifactId>
@@ -32,7 +32,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spymemcached.version>2.11.1</spymemcached.version>
-        <log4j-core.version>2.4.1</log4j-core.version>
     </properties>
 
     <dependencies>
@@ -42,11 +41,6 @@
             <version>${spymemcached.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j-core.version}</version>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 </project>

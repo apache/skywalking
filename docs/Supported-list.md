@@ -9,6 +9,7 @@
   * [Resin](http://www.caucho.com/resin-4.0/) 3 (Optional¹)
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
+  * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x

@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.collector.analysis.segment.parser.provider.buf
 
 import java.io.*;
 import java.nio.channels.FileLock;
+import java.util.Arrays;
+
 import org.apache.skywalking.apm.collector.core.module.ModuleManager;
 import org.apache.skywalking.apm.collector.core.util.*;
 import org.apache.skywalking.apm.network.proto.UpstreamSegment;
@@ -123,11 +125,21 @@ public enum SegmentBufferManager {
 
     private void deleteFiles() {
         File bufferDirectory = new File(BufferFileConfig.BUFFER_PATH);
-        boolean delete = bufferDirectory.delete();
-        if (delete) {
-            logger.info("Buffer directory is successfully deleted");
-        } else {
-            logger.info("Buffer directory is not deleted");
+        String[] fileList =  bufferDirectory.list();
+        if (fileList != null && fileList.length > 0) {
+            Arrays.stream(fileList).filter(fileName -> fileName.startsWith(DATA_FILE_PREFIX) || fileName.startsWith("offset")).forEach(fileName -> {
+                try {
+                    File temp = new File(BufferFileConfig.BUFFER_PATH + File.separator + fileName);
+                    boolean delete = temp.delete();
+                    if (delete) {
+                        logger.info("Buffer file {} is successfully deleted", fileName);
+                    } else {
+                        logger.info("Buffer file {} is not deleted", fileName);
+                    }
+                } catch (Exception e) {
+                    logger.info("Buffer file {} is not deleted", fileName);
+                }
+            });
         }
     }
 

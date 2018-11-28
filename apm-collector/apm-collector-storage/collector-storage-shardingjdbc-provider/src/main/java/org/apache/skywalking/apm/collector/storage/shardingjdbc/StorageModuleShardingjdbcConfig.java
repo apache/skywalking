@@ -23,5 +23,51 @@ import org.apache.skywalking.apm.collector.client.shardingjdbc.ShardingjdbcClien
 /**
  * @author linjiaqi
  */
-class StorageModuleShardingjdbcConfig extends ShardingjdbcClientConfig {
+public class StorageModuleShardingjdbcConfig extends ShardingjdbcClientConfig {
+    
+    private int traceDataTTL = 90;
+    private int minuteMetricDataTTL = 90;
+    private int hourMetricDataTTL = 36;
+    private int dayMetricDataTTL = 45;
+    private int monthMetricDataTTL = 18;
+    
+    public int getTraceDataTTL() {
+        return traceDataTTL;
+    }
+    
+    void setTraceDataTTL(int traceDataTTL) {
+        this.traceDataTTL = traceDataTTL == 0 ? 90 : traceDataTTL;
+    }
+    
+    public int getMinuteMetricDataTTL() {
+        return minuteMetricDataTTL;
+    }
+    
+    void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
+        this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 90 : minuteMetricDataTTL;
+    }
+    
+    public int getHourMetricDataTTL() {
+        return hourMetricDataTTL;
+    }
+    
+    void setHourMetricDataTTL(int hourMetricDataTTL) {
+        this.hourMetricDataTTL = hourMetricDataTTL == 0 ? 36 : hourMetricDataTTL;
+    }
+    
+    public int getDayMetricDataTTL() {
+        return dayMetricDataTTL;
+    }
+    
+    void setDayMetricDataTTL(int dayMetricDataTTL) {
+        this.dayMetricDataTTL = dayMetricDataTTL == 0 ? 45 : dayMetricDataTTL;
+    }
+    
+    public int getMonthMetricDataTTL() {
+        return monthMetricDataTTL;
+    }
+    
+    void setMonthMetricDataTTL(int monthMetricDataTTL) {
+        this.monthMetricDataTTL = monthMetricDataTTL == 0 ? 18 : monthMetricDataTTL;
+    }
 }
