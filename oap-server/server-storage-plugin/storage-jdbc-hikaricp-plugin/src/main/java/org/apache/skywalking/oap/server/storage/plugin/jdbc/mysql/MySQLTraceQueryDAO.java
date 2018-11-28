@@ -16,34 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.entity.TraceState;
-import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.elasticsearch.search.sort.SortOrder;
 
 /**
  * @author wusheng
  */
-public class H2TraceQueryDAO implements ITraceQueryDAO {
-    private JDBCHikariCPClient h2Client;
-
-    public H2TraceQueryDAO(JDBCHikariCPClient h2Client) {
-        this.h2Client = h2Client;
+public class MySQLTraceQueryDAO  extends H2TraceQueryDAO {
+    public MySQLTraceQueryDAO(JDBCHikariCPClient mysqlClient) {
+        super(mysqlClient);
     }
 
     @Override
@@ -104,9 +101,9 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         }
 
         TraceBrief traceBrief = new TraceBrief();
-        try (Connection connection = h2Client.getConnection()) {
+        try (Connection connection = getClient().getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = getClient().executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " ) AS TRACE", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
@@ -114,7 +111,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
             buildLimit(sql, from, limit);
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = getClient().executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -135,41 +132,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         return traceBrief;
     }
 
-    protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
-    }
-
-    @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        List<SegmentRecord> segmentRecords = new ArrayList<>();
-        try (Connection connection = h2Client.getConnection()) {
-
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId)) {
-                while (resultSet.next()) {
-                    SegmentRecord segmentRecord = new SegmentRecord();
-                    segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                    segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
-                    segmentRecord.setServiceId(resultSet.getInt(SegmentRecord.SERVICE_ID));
-                    segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
-                    segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                    segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
-                    segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
-                    segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
-                    String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
-                    if (StringUtils.isNotEmpty(dataBinaryBase64)) {
-                        segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
-                    }
-                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
-                    segmentRecords.add(segmentRecord);
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return segmentRecords;
-    }
-
-    protected JDBCHikariCPClient getClient() {
-        return h2Client;
+    @Override protected void buildLimit(StringBuilder sql, int from, int limit) {
+        sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
 }

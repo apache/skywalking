@@ -70,11 +70,7 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
             sql.append(" where ").append(ServiceInventory.IS_ADDRESS).append("=? ");
             sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
 
-            sql.append(" LIMIT 50 ");
-
-            Connection connection = null;
-            try {
-                connection = h2Client.getConnection();
+            try (Connection connection = h2Client.getConnection()) {
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 10000)) {
                     while (resultSet.next()) {
                         ServiceInventory serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder());
@@ -85,8 +81,6 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
                 }
             } catch (SQLException e) {
                 throw new IOException(e);
-            } finally {
-                h2Client.close(connection);
             }
         } catch (Throwable e) {
             logger.error(e.getMessage());

@@ -16,29 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
+ * Override service provides ways to rename the existing column or table name.
+ *
  * @author wusheng
  */
-public class H2RegisterLockInstaller {
-    public static final String LOCK_TABLE_NAME = "register_lock";
-
-    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockInstaller.class);
-
-    /**
-     * For H2 storage, no concurrency situation, so, on lock table required. If someone wants to implement a storage by
-     * referring H2, please consider to create a LOCK table.
-     *
-     * @param client
-     * @throws StorageException
-     */
-    public void install(Client client) throws StorageException {
-
-    }
+public interface IModelOverride extends Service {
+    void overrideColumnName(String columnName, String newName);
 }

@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 import org.apache.skywalking.oap.server.library.module.*;
 
 /**
@@ -73,6 +74,7 @@ public class CoreModule extends ModuleDefine {
 
     private void addInsideService(List<Class> classes) {
         classes.add(IModelGetter.class);
+        classes.add(IModelOverride.class);
         classes.add(StreamDataClassGetter.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -35,10 +35,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtils;
 /**
  * @author wusheng
  */
-public class H2AlarmQueryDAO implements IAlarmQueryDAO {
+public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
     private JDBCHikariCPClient client;
 
-    public H2AlarmQueryDAO(JDBCHikariCPClient client) {
+    public MySQLAlarmQueryDAO(JDBCHikariCPClient client) {
         this.client = client;
     }
 
@@ -49,7 +49,8 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
-        sql.append(" 1=1 ");
+        sql.append(" scope = ?");
+        parameters.add(scope.ordinal());
         if (startTB != 0 && endTB != 0) {
             sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
@@ -65,7 +66,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
 
-            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " ) AS alarm", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
                 }
@@ -92,7 +93,6 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
+        sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
 }

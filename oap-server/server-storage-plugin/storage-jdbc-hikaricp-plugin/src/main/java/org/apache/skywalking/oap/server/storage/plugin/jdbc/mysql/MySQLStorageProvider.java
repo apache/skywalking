@@ -16,8 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -41,45 +42,45 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AlarmQueryDAO;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageConfig;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2StorageProvider;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * H2 Storage provider is for demonstration and preview only. I will find that haven't implemented several interfaces,
- * because not necessary, and don't consider about performance very much.
+ * MySQL storage provider should be secondary choice for production usage as SkyWalking storage solution. It enhanced
+ * and came from H2StorageProvider, but consider more in using in production.
  *
- * If someone wants to implement SQL-style database as storage, please just refer the logic.
+ * Because this module is not really related to MySQL, instead, it is based on MySQL SQL style with JDBC, so, by having
+ * this storage implementation, we could also use this in MySQL-compatible projects, such as, Apache ShardingSphere,
+ * TiDB
  *
  * @author wusheng
  */
-public class H2StorageProvider extends ModuleProvider {
-
+public class MySQLStorageProvider extends ModuleProvider {
     private static final Logger logger = LoggerFactory.getLogger(H2StorageProvider.class);
 
     private H2StorageConfig config;
-    private JDBCHikariCPClient h2Client;
+    private JDBCHikariCPClient mysqlClient;
+    private MySQLRegisterTableLockDAO lockDAO;
 
-    public H2StorageProvider() {
+    public MySQLStorageProvider() {
         config = new H2StorageConfig();
     }
 
     @Override public String name() {
-        return "h2";
+        return "mysql";
     }
 
     @Override public Class<? extends ModuleDefine> module() {
@@ -92,36 +93,41 @@ public class H2StorageProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         Properties settings = new Properties();
-        settings.setProperty("dataSourceClassName", config.getDriver());
-        settings.setProperty("dataSource.url", config.getUrl());
-        settings.setProperty("dataSource.user", config.getUser());
-        settings.setProperty("dataSource.password", config.getPassword());
-        h2Client = new JDBCHikariCPClient(settings);
+        try {
+            settings.load(ResourceUtils.read("datasource-settings.properties"));
+        } catch (IOException e) {
+            throw new ModuleStartException("load datasource setting file failure.", e);
+        }
 
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));
-        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
-        this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO());
+        mysqlClient = new JDBCHikariCPClient(settings);
 
-        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(h2Client));
+        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
+        this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(mysqlClient));
+        lockDAO = new MySQLRegisterTableLockDAO(mysqlClient);
+        this.registerServiceImplementation(IRegisterLockDAO.class, lockDAO);
 
-        this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
-        this.registerServiceImplementation(IMetricQueryDAO.class, new H2MetricQueryDAO(h2Client));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(h2Client));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client));
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
+        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(mysqlClient));
+        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(mysqlClient));
+        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(mysqlClient));
+        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(mysqlClient));
+
+        this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IMetricQueryDAO.class, new H2MetricQueryDAO(mysqlClient));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new MySQLTraceQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            h2Client.connect();
+            mysqlClient.connect();
 
-            H2TableInstaller installer = new H2TableInstaller(getManager());
-            installer.install(h2Client);
+            MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
+            installer.install(mysqlClient);
+
+            new MySQLRegisterLockInstaller().install(mysqlClient, lockDAO);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
