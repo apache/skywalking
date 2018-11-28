@@ -103,5 +103,8 @@ Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) pa
   <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
 
+# Stargazers over time
+[![Stargazers over time](https://starcharts.herokuapp.com/apache/incubator-skywalking.svg)](https://starcharts.herokuapp.com/apache/incubator-skywalking)
+
 # License
 [Apache 2.0 License.](/LICENSE)
