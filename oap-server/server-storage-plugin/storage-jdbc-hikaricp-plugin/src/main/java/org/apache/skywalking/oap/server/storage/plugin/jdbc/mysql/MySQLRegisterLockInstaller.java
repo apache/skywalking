@@ -42,8 +42,7 @@ public class MySQLRegisterLockInstaller {
     private static final Logger logger = LoggerFactory.getLogger(MySQLRegisterLockInstaller.class);
 
     /**
-     * For H2 storage, no concurrency situation, so, on lock table required. If someone wants to implement a storage by
-     * referring H2, please consider to create a LOCK table.
+     * In MySQL lock storage, lock table created. The row lock is used in {@link MySQLRegisterTableLockDAO}
      *
      * @param client
      * @throws StorageException
