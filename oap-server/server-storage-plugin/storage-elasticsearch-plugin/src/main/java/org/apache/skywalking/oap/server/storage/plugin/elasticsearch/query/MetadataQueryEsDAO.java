@@ -74,11 +74,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     @Override public int numOfConjectural(long startTimestamp, long endTimestamp, int srcLayer) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(NetworkAddressInventory.SRC_LAYER, srcLayer));
-
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SRC_LAYER, srcLayer));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(NetworkAddressInventory.MODEL_NAME, sourceBuilder);
