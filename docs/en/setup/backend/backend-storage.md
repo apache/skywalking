@@ -5,6 +5,7 @@ use is by changing the `application.yml`
 - [**H2**](#h2)
 - [**ElasticSearch 6**](#elasticsearch-6)
 - [**MySQL**](#mysql)
+- [**TiDB**](#tidb)
 
 ## H2
 Active H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
