@@ -58,7 +58,7 @@ storage:
 ```
 
 All connection related settings including link url, username and password
-are in `databsource-settings.properties`. 
+are in `datasource-settings.properties`. 
 This setting file follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document.
 
 ## TiDB
@@ -71,7 +71,7 @@ storage:
 ```
 
 All connection related settings including link url, username and password
-are in `databsource-settings.properties`. And these settings can refer to the configuration of *MySQL* above.
+are in `datasource-settings.properties`. And these settings can refer to the configuration of *MySQL* above.
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 
