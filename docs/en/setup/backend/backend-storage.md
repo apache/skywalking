@@ -60,6 +60,17 @@ All connection related settings including link url, username and password
 are in `databsource-settings.properties`. 
 This setting file follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document.
 
+## TiDB
+Currently tested in version 2.0.9.
+Active TiDB as storage, set storage provider to **mysql**. 
+
+```yaml
+storage:
+  mysql:
+```
+
+All connection related settings including link url, username and password
+are in `databsource-settings.properties`. And these settings can refer to the configuration of *MySQL* above.
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 
