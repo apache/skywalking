@@ -36,7 +36,7 @@ rules:
     count: 2
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 3
-    message: Successful rate of service {name} is lower than 80% in last 2 minuts.
+    message: Successful rate of service {name} is lower than 80% in last 2 minutes.
   service_p90_sla_rule:
     # Indicator value need to be long, double or int
     indicator-name: service_p90
@@ -50,17 +50,17 @@ rules:
     indicator-name: service_instance_resp_time
     op: ">"
     period: 10
-    count: 3
+    count: 2
     silence-period: 5
-    message: Response time of service instance {name} is more than 1000ms in last 3 minutes.
-  endpoint_sla_rule:
-    indicator-name: endpoint_sla
-    op: "<"
-    threshold: 8000
+    message: Response time of service instance {name} is more than 1000ms in last 2 minutes.
+  endpoint_avg_rule:
+    indicator-name: endpoint_avg
+    op: ">"
+    threshold: 1000
     period: 10
     count: 2
-    silence-period: 3
-    message: Successful rate of endpoint {name} is lower than 80% in last 2 minuts.
+    silence-period: 5
+    message: Response time of endpoint {name} is more than 1000ms in last 2 minutes.
 
 webhooks:
 #  - http://127.0.0.1/notify/
