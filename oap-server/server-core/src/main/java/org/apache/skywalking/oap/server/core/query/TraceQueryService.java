@@ -21,19 +21,19 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.apm.network.language.agent.*;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
+import org.apache.skywalking.apm.network.language.agent.v2.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.entity.RefType;
+import org.apache.skywalking.oap.server.core.query.entity.Trace;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static java.util.Objects.nonNull;
@@ -105,14 +105,12 @@ public class TraceQueryService implements Service {
         List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(traceId);
         for (SegmentRecord segment : segmentRecords) {
             if (nonNull(segment)) {
-                if (segment.getVersion() == 1) {
-                    TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
-                    trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
-                } else if (segment.getVersion() == 2) {
+                if (segment.getVersion() == 2) {
                     SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
                     trace.getSpans().addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
                 } else {
-                    throw new UnexpectedException("Unsupported version=" + segment.getVersion());
+                    TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
+                    trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
                 }
             }
         }
