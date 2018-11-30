@@ -27,24 +27,22 @@ Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
 > Required ElasticSearch 6.3.0 or higher.
 
 Setting fragment example
+
 ```yaml
 storage:
   elasticsearch:
-    clusterNodes: localhost:9200
-    indexShardsNumber: 2
-    indexReplicasNumber: 0
+    # nameSpace: ${SW_STORAGE_ES_NAMESPACE:""}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-    bulkActions: 2000 # Execute the bulk every 2000 requests
-    bulkSize: 20 # flush the bulk every 20mb
-    flushInterval: 10 # flush the bulk every 10 seconds whatever the number of requests
-    concurrentRequests: 2 # the number of concurrent requests
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
-    traceDataTTL: 90 # Unit is minute
-    minuteMetricDataTTL: 90 # Unit is minute
-    hourMetricDataTTL: 36 # Unit is hour
-    dayMetricDataTTL: 45 # Unit is day
-    monthMetricDataTTL: 18 # Unit is month
+    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
+    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
+    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
+### About Namespace
+When namespace is set, names of all indexes in ElasticSearch will use it as prefix.
 
 ## MySQL
 Active MySQL as storage, set storage provider to **mysql**. 
