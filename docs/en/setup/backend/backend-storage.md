@@ -2,10 +2,15 @@
 SkyWalking storage is pluggable, we have provided the following storage solutions, you could easily 
 use is by changing the `application.yml`
 
-- [**H2**](#h2)
-- [**ElasticSearch 6**](#elasticsearch-6)
-- [**MySQL**](#mysql)
-- [**TiDB**](#tidb)
+Native supported storage
+- H2
+- ElasticSearch 6
+- MySQL
+- TiDB
+
+Redistribution version with supported storage.
+- ElasticSearch 5
+
 
 ## H2
 Active H2 as storage, set storage provider to **H2** In-Memory Databases. Default in distribution package.
@@ -24,7 +29,7 @@ storage:
 ## ElasticSearch 6
 Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
 
-> Required ElasticSearch 6.3.0 or higher.
+**Required ElasticSearch 6.3.0 or higher. HTTP RestHighLevelClient is used to connect server.**
 
 Setting fragment example
 
@@ -70,6 +75,10 @@ storage:
 
 All connection related settings including link url, username and password
 are in `datasource-settings.properties`. And these settings can refer to the configuration of *MySQL* above.
+
+## ElasticSearch 5
+ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
+[OpenSkywalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 
