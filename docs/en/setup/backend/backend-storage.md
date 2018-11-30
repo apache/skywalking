@@ -42,7 +42,7 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
 ### About Namespace
-Follow [Namespace](namespace.md) to understand and config the `namesapce` between agent and collector.
+When namespace is set, names of all indexes in ElasticSearch will use it as prefix.
 
 ## MySQL
 Active MySQL as storage, set storage provider to **mysql**. 
