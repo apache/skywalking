@@ -19,17 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -82,8 +78,8 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
             } catch (SQLException e) {
                 throw new IOException(e);
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
         return serviceInventories;
     }
