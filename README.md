@@ -98,11 +98,12 @@ Here is the **User Wall** of SkyWalking.
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
-# Landscape
+# Landscapes
 
 <p align="center">
+<br/><br/>
 <img src="https://landscape.cncf.io/images/cncf-landscape.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/cncf.svg" width="200"/>
-<br/>
+<br/><br/>
 SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
 
 </p>
