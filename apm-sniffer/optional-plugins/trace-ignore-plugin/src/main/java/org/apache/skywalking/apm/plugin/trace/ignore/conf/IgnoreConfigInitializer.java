@@ -24,6 +24,9 @@ import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +60,18 @@ public class IgnoreConfigInitializer {
             configFileStream = loadConfigFromAgentFolder();
             Properties properties = new Properties();
             properties.load(configFileStream);
+            PropertyPlaceholderHelper helper =
+                    new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
+                            PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
+                            PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
+            for (String key : properties.stringPropertyNames()) {
+                String value = (String)properties.get(key);
+                //replace the key's value. properties.replace(key,value) in jdk8+
+                value = helper.replacePlaceholders(value, properties);
+                if (!StringUtil.isEmpty(value)) {
+                    properties.put(key, helper.replacePlaceholders(value, properties));
+                }
+            }
             ConfigInitializer.initialize(properties, IgnoreConfig.class);
         } catch (Exception e) {
             LOGGER.error(e, "Failed to read the config file, skywalking is going to run in default config.");
