@@ -49,6 +49,7 @@ rules:
   service_instance_resp_time_rule:
     indicator-name: service_instance_resp_time
     op: ">"
+    threshold: 1000
     period: 10
     count: 2
     silence-period: 5
