@@ -79,7 +79,7 @@ All connection related settings including link url, username and password
 are in `datasource-settings.properties`. And these settings can refer to the configuration of *MySQL* above.
 
 ## ElasticSearch 5
-ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could be included in native distribution.
+ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
 [OpenSkywalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
 
 ## More storage solution extension
