@@ -22,8 +22,9 @@ package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.register.ServiceInstancePingGrpc;
-import org.apache.skywalking.apm.network.register.ServiceInstancePingPkg;
+
+import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingGrpc;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingPkg;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
