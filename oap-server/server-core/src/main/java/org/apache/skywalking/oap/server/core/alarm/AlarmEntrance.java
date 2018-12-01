@@ -54,7 +54,7 @@ public class AlarmEntrance {
 
         AlarmMeta alarmMeta = ((AlarmSupported)indicator).getAlarmMeta();
 
-        MetaInAlarm metaInAlarm = null;
+        MetaInAlarm metaInAlarm;
         switch (alarmMeta.getScope()) {
             case Service:
                 int serviceId = Integer.parseInt(alarmMeta.getId());
