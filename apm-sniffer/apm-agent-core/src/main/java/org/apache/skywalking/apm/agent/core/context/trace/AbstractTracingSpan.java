@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.apache.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -244,8 +245,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    public SpanObject.Builder transform() {
-        SpanObject.Builder spanBuilder = SpanObject.newBuilder();
+    public SpanObjectV2.Builder transform() {
+        SpanObjectV2.Builder spanBuilder = SpanObjectV2.newBuilder();
 
         spanBuilder.setSpanId(this.spanId);
         spanBuilder.setParentSpanId(parentSpanId);

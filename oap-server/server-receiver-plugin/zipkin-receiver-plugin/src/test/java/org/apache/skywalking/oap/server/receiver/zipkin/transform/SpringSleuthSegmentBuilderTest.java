@@ -18,10 +18,15 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.transform;
 
-import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -33,12 +38,6 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
-
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author wusheng
@@ -100,7 +99,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
             }
 
             @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
-                String key = "VitualAppCode:" + serviceId + ",address:" + addressId;
+                String key = "VitualAppCode:" + serviceId + ",getAddress:" + addressId;
                 if (applicationInstRegister.containsKey(key)) {
                     return applicationInstRegister.get(key);
                 } else {
@@ -143,19 +142,19 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
 
     @Override
     public void notify(SkyWalkingTrace trace) {
-        List<TraceSegmentObject.Builder> segments = trace.getSegmentList();
+        List<SegmentObject.Builder> segments = trace.getSegmentList();
         Assert.assertEquals(2, segments.size());
-        TraceSegmentObject.Builder builder = segments.get(0);
-        TraceSegmentObject.Builder builder1 = segments.get(1);
-        TraceSegmentObject.Builder front, end;
-        if (builder.getApplicationId() == applicationRegister.get("AppCode:frontend")) {
+        SegmentObject.Builder builder = segments.get(0);
+        SegmentObject.Builder builder1 = segments.get(1);
+        SegmentObject.Builder front, end;
+        if (builder.getServiceId() == applicationRegister.get("AppCode:frontend")) {
             front = builder;
             end = builder1;
-            Assert.assertEquals(applicationRegister.get("AppCode:backend").longValue(), builder1.getApplicationId());
-        } else if (builder.getApplicationId() == applicationRegister.get("AppCode:backend")) {
+            Assert.assertEquals(applicationRegister.get("AppCode:backend").longValue(), builder1.getServiceId());
+        } else if (builder.getServiceId() == applicationRegister.get("AppCode:backend")) {
             end = builder;
             front = builder1;
-            Assert.assertEquals(applicationRegister.get("AppCode:frontend").longValue(), builder1.getApplicationId());
+            Assert.assertEquals(applicationRegister.get("AppCode:frontend").longValue(), builder1.getServiceId());
         } else {
             Assert.fail("Can't find frontend and backend applications. ");
             return;
@@ -182,12 +181,12 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
             Assert.assertTrue(spanObject.getTagsCount() > 0);
         });
 
-        SpanObject spanObject = end.getSpans(0);
+        SpanObjectV2 spanObject = end.getSpans(0);
 
         Assert.assertEquals(1, spanObject.getRefsCount());
-        TraceSegmentReference spanObjectRef = spanObject.getRefs(0);
-        Assert.assertEquals("get", spanObjectRef.getEntryServiceName());
-        Assert.assertEquals("get", spanObjectRef.getParentServiceName());
+        SegmentReference spanObjectRef = spanObject.getRefs(0);
+        Assert.assertEquals("get", spanObjectRef.getEntryEndpoint());
+        Assert.assertEquals("get", spanObjectRef.getParentEndpoint());
         //Assert.assertEquals("192.168.72.220", spanObjectRef.getNetworkAddress());
         Assert.assertEquals(1, spanObjectRef.getParentSpanId());
         Assert.assertEquals(front.getTraceSegmentId(), spanObjectRef.getParentTraceSegmentId());

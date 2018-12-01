@@ -29,8 +29,8 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.apache.skywalking.apm.agent.core.dictionary.EndpointNameDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
-import org.apache.skywalking.apm.agent.core.dictionary.OperationNameDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
@@ -78,8 +78,8 @@ public enum Reseter {
         FileOutputStream outputStream = null;
         try {
             File configFile = new File(resetPath);
-            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID + "");
-            properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID + "");
+            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
+            properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID + "");
             properties.setProperty(STATUS_NAME, status.value());
             outputStream = new FileOutputStream(configFile);
             properties.store(outputStream, COMMENT);
@@ -89,10 +89,10 @@ public enum Reseter {
     }
 
     public Reseter clearID() {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
-        OperationNameDictionary.INSTANCE.clearOperationNameDictionary();
-        NetworkAddressDictionary.INSTANCE.clearApplicationDictionary();
+        RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
+        EndpointNameDictionary.INSTANCE.clearEndpointNameDictionary();
+        NetworkAddressDictionary.INSTANCE.clearNetworkAddressDictionary();
         ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class).clearCache();
         status = ResetStatus.DONE;
         logger.info("clear id successfully,begin trigger reset.");
@@ -131,8 +131,8 @@ public enum Reseter {
     public void init() throws IOException {
         FileOutputStream outputStream = null;
         try {
-            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.APPLICATION_ID + "");
-            properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID + "");
+            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
+            properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID + "");
             properties.setProperty(STATUS_NAME, status.value());
             File file = new File(resetPath);
             if (!file.getParentFile().exists()) {
