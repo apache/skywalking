@@ -55,6 +55,9 @@ public enum SegmentBufferManager {
                 if (StringUtils.isNotEmpty(writeFileName)) {
                     File dataFile = new File(BufferFileConfig.BUFFER_PATH + writeFileName);
                     if (dataFile.exists()) {
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
                         outputStream = new FileOutputStream(new File(BufferFileConfig.BUFFER_PATH + writeFileName), true);
                     } else {
                         newDataFile();
