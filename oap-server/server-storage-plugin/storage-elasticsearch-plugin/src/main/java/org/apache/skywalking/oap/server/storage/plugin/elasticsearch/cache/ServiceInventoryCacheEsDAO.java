@@ -63,8 +63,8 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             } else {
                 return Const.NONE;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return Const.NONE;
         }
     }
@@ -82,8 +82,8 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             } else {
                 return null;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return null;
         }
     }
@@ -106,8 +106,8 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             for (SearchHit searchHit : response.getHits().getHits()) {
                 serviceInventories.add(this.builder.map2Data(searchHit.getSourceAsMap()));
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
 
         return serviceInventories;
