@@ -43,6 +43,7 @@ service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectP
 service_relation_server_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).longAvg();
 
 // Service Instance Scope metric
+service_instance_sla = from(ServiceInstance.*).percent(status == true);
 service_instance_resp_time= from(ServiceInstance.latency).longAvg();
 service_instance_cpm = from(ServiceInstance.*).cpm();
 
