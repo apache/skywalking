@@ -16,29 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
+package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.Scope;
 
-/**
- * @author wusheng
- */
-public class H2RegisterLockInstaller {
-    public static final String LOCK_TABLE_NAME = "register_lock";
+@Getter(AccessLevel.PUBLIC)
+@Setter(AccessLevel.PUBLIC)
+public class EndpointMetaInAlarm extends MetaInAlarm {
+    private String indicatorName;
 
-    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockInstaller.class);
+    private int id;
+    private String name;
+    private String[] tags;
+    private String[] properties;
 
-    /**
-     * For H2 storage, no concurrency situation, so, on lock table required. If someone wants to implement a storage by
-     * referring H2, please consider to create a LOCK table.
-     *
-     * @param client
-     * @throws StorageException
-     */
-    public void install(Client client) throws StorageException {
+    @Override public Scope getScope() {
+        return Scope.Endpoint;
+    }
 
+    @Override public int getId0() {
+        return id;
+    }
+
+    @Override public int getId1() {
+        return 0;
     }
 }

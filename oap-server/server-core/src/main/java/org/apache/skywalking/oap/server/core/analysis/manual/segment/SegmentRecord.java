@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
  * @author peng-yongsheng
  */
 @RecordType
-@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, deleteHistory = false, source = Scope.Segment)
+@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, source = Scope.Segment)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";

@@ -38,6 +38,10 @@ public class NotifyHandler implements IndicatorNotify {
         switch (meta.getScope()) {
             case Service:
                 break;
+            case ServiceInstance:
+                break;
+            case Endpoint:
+                break;
             default:
                 return;
         }

@@ -56,8 +56,8 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
             } else {
                 return null;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return null;
         }
     }
@@ -80,8 +80,8 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
             } else {
                 return Const.NONE;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return Const.NONE;
         }
     }

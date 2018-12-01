@@ -51,6 +51,7 @@ storage:
     url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
     user: ${SW_STORAGE_H2_USER:sa}
 #  elasticsearch:
+#    # nameSpace: ${SW_STORAGE_ES_NAMESPACE:""}
 #    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
 #    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
 #    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
@@ -59,6 +60,7 @@ storage:
 #    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
 #    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
 #    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+#  mysql:
 receiver-register:
   default:
 receiver-trace:
@@ -67,6 +69,7 @@ receiver-trace:
     bufferOffsetMaxFileSize: ${SW_RECEIVER_BUFFER_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
     bufferDataMaxFileSize: ${SW_RECEIVER_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
     bufferFileCleanWhenRestart: ${SW_RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
+    sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
 receiver-jvm:
   default:
 service-mesh:

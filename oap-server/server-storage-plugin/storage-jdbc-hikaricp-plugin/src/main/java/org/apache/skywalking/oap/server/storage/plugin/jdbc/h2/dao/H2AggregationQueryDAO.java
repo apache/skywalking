@@ -92,36 +92,39 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         sql.append(" group by ").append(Indicator.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
 
-        Connection connection = null;
         List<TopNEntity> topNEntities = new ArrayList<>();
-        try {
-            connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]));
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
 
-            try {
-                while (resultSet.next()) {
-                    TopNEntity topNEntity = new TopNEntity();
-                    topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
-                    topNEntity.setValue(resultSet.getLong("value"));
-                    topNEntities.add(topNEntity);
+                try {
+                    while (resultSet.next()) {
+                        TopNEntity topNEntity = new TopNEntity();
+                        topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
+                        topNEntity.setValue(resultSet.getLong("value"));
+                        topNEntities.add(topNEntity);
+                    }
+                } catch (SQLException e) {
+                    throw new IOException(e);
                 }
-            } catch (SQLException e) {
-                throw new IOException(e);
             }
-        } finally {
-            h2Client.close(connection);
+        } catch (SQLException e) {
+            throw new IOException(e);
         }
         return topNEntities;
     }
 
-    private void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
+    public JDBCHikariCPClient getClient() {
+        return h2Client;
+    }
+
+    protected void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
         long endTimestamp) {
         sql.append(Indicator.TIME_BUCKET).append(" >= ? and ").append(Indicator.TIME_BUCKET).append(" <= ?");
         conditions.add(startTimestamp);
         conditions.add(endTimestamp);
     }
 
-    private interface AppendCondition {
+    protected interface AppendCondition {
         void append(StringBuilder sql, List<Object> conditions);
     }
 }
