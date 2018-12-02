@@ -17,15 +17,13 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
+package org.apache.skywalking.apm.plugin.spring.mvc.v5.define;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+public class RestControllerInstrumentation extends AbstractControllerInstrumentation {
 
-public abstract class AbstractSpring4Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    public static final String WITHNESS_CLASSES = "org.springframework.cache.interceptor.SimpleKey";
+    public static final String ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RestController";
 
-    @Override
-    protected final String[] witnessClasses() {
-        return new String[] {WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator"};
+    @Override protected String[] getEnhanceAnnotations() {
+        return new String[] {ENHANCE_ANNOTATION};
     }
 }
