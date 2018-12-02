@@ -67,7 +67,7 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
             sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
 
             try (Connection connection = h2Client.getConnection()) {
-                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 10000)) {
+                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 30 * 60 * 1000)) {
                     while (resultSet.next()) {
                         ServiceInventory serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder());
                         if (serviceInventory != null) {
