@@ -96,7 +96,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
 
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.TRUE));
-            boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInventory.MAPPING_LAST_UPDATE_TIME).gte(System.currentTimeMillis() - 10000));
+            boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInventory.MAPPING_LAST_UPDATE_TIME).gte(System.currentTimeMillis() - 30 * 60 * 1000));
 
             searchSourceBuilder.query(boolQuery);
             searchSourceBuilder.size(50);
