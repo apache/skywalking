@@ -18,13 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -40,8 +44,8 @@ public abstract class ModelInstaller {
     }
 
     public final void install(Client client) throws StorageException {
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).getService(IModelGetter.class);
-        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).getService(DownsamplingConfigService.class);
+        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
 
         List<Model> models = modelGetter.getModels();
         List<Model> downsamplingModels = new ArrayList<>();
@@ -73,6 +77,11 @@ public abstract class ModelInstaller {
             }
             columnCheck(client, model);
         }
+    }
+
+    public final void overrideColumnName(String columnName, String newName) {
+        IModelOverride modelOverride = moduleManager.find(CoreModule.NAME).provider().getService(IModelOverride.class);
+        modelOverride.overrideColumnName(columnName, newName);
     }
 
     protected abstract boolean isExists(Client client, Model model) throws StorageException;

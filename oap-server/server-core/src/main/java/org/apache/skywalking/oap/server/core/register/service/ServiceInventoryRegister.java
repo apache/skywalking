@@ -45,7 +45,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
     }
@@ -103,6 +103,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
     @Override public void updateMapping(int serviceId, int mappingServiceId) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
+            serviceInventory = serviceInventory.getClone();
             serviceInventory.setMappingServiceId(mappingServiceId);
             serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 

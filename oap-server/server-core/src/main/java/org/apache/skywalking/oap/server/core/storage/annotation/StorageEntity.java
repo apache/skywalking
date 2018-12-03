@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
@@ -30,6 +31,8 @@ public @interface StorageEntity {
     String name();
 
     Class<? extends StorageBuilder> builder();
+
+    Scope source();
 
     boolean deleteHistory() default true;
 }

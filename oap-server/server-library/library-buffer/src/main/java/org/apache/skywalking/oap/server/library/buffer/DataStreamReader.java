@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.buffer;
 
 import com.google.protobuf.*;
 import java.io.*;
+import java.util.Objects;
 import java.util.concurrent.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
@@ -78,8 +79,12 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     private void openInputStream(File readingFile) {
         try {
             this.readingFile = readingFile;
+            if (Objects.nonNull(inputStream)) {
+                inputStream.close();
+            }
+
             inputStream = new FileInputStream(readingFile);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
     }

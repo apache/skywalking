@@ -23,6 +23,7 @@ import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordType;
+import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
@@ -32,15 +33,15 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @Getter
 @Setter
 @RecordType
-@StorageEntity(name = AlarmRecord.INDEX_NAME, builder = AlarmRecord.Builder.class)
+@StorageEntity(name = AlarmRecord.INDEX_NAME, builder = AlarmRecord.Builder.class, source = Scope.Alarm)
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";
     public static final String SCOPE = "scope";
-    private static final String NAME = "name";
-    private static final String ID0 = "id0";
-    private static final String ID1 = "id1";
-    private static final String START_TIME = "start_time";
+    public static final String NAME = "name";
+    public static final String ID0 = "id0";
+    public static final String ID1 = "id1";
+    public static final String START_TIME = "start_time";
     public static final String ALARM_MESSAGE = "alarm_message";
 
     @Override public String id() {

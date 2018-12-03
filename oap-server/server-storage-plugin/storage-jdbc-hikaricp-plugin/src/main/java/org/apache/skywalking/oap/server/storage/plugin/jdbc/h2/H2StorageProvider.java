@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.library.client.ClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -61,9 +60,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * H2 Storage provider is for demonstration and preview only.
- * I will find that haven't implemented several interfaces, because not necessary,
- * and don't consider about performance very much.
+ * H2 Storage provider is for demonstration and preview only. I will find that haven't implemented several interfaces,
+ * because not necessary, and don't consider about performance very much.
  *
  * If someone wants to implement SQL-style database as storage, please just refer the logic.
  *
@@ -114,21 +112,17 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(h2Client));
         this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO());
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO());
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            h2Client.initialize();
+            h2Client.connect();
 
             H2TableInstaller installer = new H2TableInstaller(getManager());
             installer.install(h2Client);
-
-            new H2RegisterLockInstaller().install(h2Client);
         } catch (StorageException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        } catch (ClientException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }

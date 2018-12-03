@@ -30,7 +30,7 @@ The core features are following.
 - Alarm
 
 
-<img src="https://skywalkingtest.github.io/page-resources/6-alpha-overview.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/6-beta-overview.png"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats, 
@@ -65,10 +65,21 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
   - Password: admin
 
 # Screenshot
-<img src="https://skywalkingtest.github.io/page-resources/5.0.0-beta2/Dashboard.png"/>
-
-
-- [See all screenshots](/docs/Screenshots.md)
+<table>
+  <tr>
+    <td width="50%" align="center"><b>Under javaagent observing</b></td>
+    <td width="50%" align="center"><b>Observe on Istio</b></td>
+  </tr>
+  <tr>
+    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Topology.png"/>
+</td>
+    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Topology.png"/>
+</td>
+   <tr>
+     <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
+     <td align="center"><a href="docs/Screenshots.md#istio">More screenshots</a></td>
+  </tr>
+</table>
 
 # Compiling project
 Follow this [document](docs/en/guides/How-to-build.md).
@@ -83,14 +94,27 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-09-07.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-11-30.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
+
+# Landscapes
+
+<p align="center">
+<br/><br/>
+<img src="https://landscape.cncf.io/images/cncf-landscape.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/cncf.svg" width="200"/>
+<br/><br/>
+SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
+
+</p>
 
 <p align="center">
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a> 
   <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
+
+# Stargazers over time
+[![Stargazers over time](https://starcharts.herokuapp.com/apache/incubator-skywalking.svg)](https://starcharts.herokuapp.com/apache/incubator-skywalking)
 
 # License
 [Apache 2.0 License.](/LICENSE)

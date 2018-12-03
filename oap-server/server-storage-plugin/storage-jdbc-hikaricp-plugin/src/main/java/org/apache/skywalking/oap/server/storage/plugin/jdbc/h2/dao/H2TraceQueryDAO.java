@@ -102,19 +102,17 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                 sql.append(" order by ").append(SegmentRecord.LATENCY).append(" ").append(SortOrder.DESC);
                 break;
         }
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
 
         TraceBrief traceBrief = new TraceBrief();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
             }
+
+            buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
@@ -132,18 +130,19 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
 
         return traceBrief;
     }
 
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
+        sql.append(" LIMIT ").append(limit);
+        sql.append(" OFFSET ").append(from);
+    }
+
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId)) {
                 while (resultSet.next()) {
@@ -160,14 +159,17 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     if (StringUtils.isNotEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
+                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     segmentRecords.add(segmentRecord);
                 }
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return segmentRecords;
+    }
+
+    protected JDBCHikariCPClient getClient() {
+        return h2Client;
     }
 }

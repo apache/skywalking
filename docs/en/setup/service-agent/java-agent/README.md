@@ -1,10 +1,10 @@
 # Setup java agent
 1. Find `agent` folder in SkyWalking release package
-2. Set 
+1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
+1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
+1. Add `-javaagent:/path/to/skywalking-package/agenxt/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
 
-3. Add `-javaagent:/path/to/skywalking-package/agent/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
-
-The agent release dist is included in Apache [official release](http://skywalking.apache.org/downloads/).MeshReceiverProvider New agent package looks like this.
+The agent release dist is included in Apache [official release](http://skywalking.apache.org/downloads/). New agent package looks like this.
 ```
 +-- agent
     +-- activations
@@ -45,6 +45,36 @@ Add `-javaagent` argument to command line in which you start your app. eg:
  ```shell
  java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
+ 
+## Table of Agent Configuration Properties
+This is the properties list supported in `agent/config/agent.config`.
+
+property key | Description | Default |
+----------- | ---------- | --------- | 
+`agent.namespace` | Namespace isolates headers in cross process propagation. The HEADER name will be `HeaderName:Namespace`. | Not set | 
+`agent.service_name` | Application(5.x)/Service(6.x) code is showed in sky-walking-ui. Suggestion: set a unique name for each service, service instance nodes share the same code | `Your_ApplicationName` |
+`agent.sample_n_per_3_secs`|Negative or zero means off, by default.SAMPLE_N_PER_3_SECS means sampling N TraceSegment in 3 seconds tops.|Not set|
+`agent.authentication`|Authentication active is based on backend setting, see application.yml for more details.For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.|Not set|
+`agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, skywalking keep your application memory cost estimated.|Not set |
+`agent.ignore_suffix`|If the operation name of the first span is included in this set, this segment should be ignored.|Not set|
+`agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder.Skywalking team may ask for these files in order to resolve compatible problem.|Not set|
+`agent.active_v2_header`|Active V2 header in default.|`true`|
+`agent.active_v1_header `|Deactive V1 header in default.|`false`|
+`collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
+`collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
+`collector.backend_service`|Collector skywalking trace receiver service addresses.|`127.0.0.1:11800`|
+`logging.level`|The log level. Default is debug.|`DEBUG`|
+`logging.file_name`|Log file name.|`skywalking-api.log`|
+`logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
+`logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
+`jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
+`buffer.channel_size`|The buffer channel size.|`5`|
+`buffer.buffer_size`|The buffer size.|`300`|
+`dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
+`dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
+`plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
+`plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
+ 
 ## Supported middlewares, frameworks and libraries
 See [supported list](Supported-list.md).
 

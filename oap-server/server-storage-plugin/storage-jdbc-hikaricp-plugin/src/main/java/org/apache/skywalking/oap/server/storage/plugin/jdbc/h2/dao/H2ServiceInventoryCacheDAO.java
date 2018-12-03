@@ -19,17 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -70,12 +66,8 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
             sql.append(" where ").append(ServiceInventory.IS_ADDRESS).append("=? ");
             sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
 
-            sql.append(" LIMIT 50 ");
-
-            Connection connection = null;
-            try {
-                connection = h2Client.getConnection();
-                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 10000)) {
+            try (Connection connection = h2Client.getConnection()) {
+                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 30 * 60 * 1000)) {
                     while (resultSet.next()) {
                         ServiceInventory serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder());
                         if (serviceInventory != null) {
@@ -85,11 +77,9 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
                 }
             } catch (SQLException e) {
                 throw new IOException(e);
-            } finally {
-                h2Client.close(connection);
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
         return serviceInventories;
     }

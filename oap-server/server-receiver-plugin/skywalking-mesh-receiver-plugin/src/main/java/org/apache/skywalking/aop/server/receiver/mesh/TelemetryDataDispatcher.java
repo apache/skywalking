@@ -18,12 +18,16 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
+import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.servicemesh.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
@@ -35,6 +39,8 @@ import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -43,10 +49,14 @@ import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
  * @author wusheng
  */
 public class TelemetryDataDispatcher {
+    private static final Logger logger = LoggerFactory.getLogger(TelemetryDataDispatcher.class);
+
     private static MeshDataBufferFileCache CACHE;
     private static ServiceInventoryCache SERVICE_CACHE;
     private static ServiceInstanceInventoryCache SERVICE_INSTANCE_CACHE;
     private static SourceReceiver SOURCE_RECEIVER;
+    private static IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
+    private static IServiceInventoryRegister SERVICE_INVENTORY_REGISTER;
 
     private TelemetryDataDispatcher() {
 
@@ -54,9 +64,11 @@ public class TelemetryDataDispatcher {
 
     public static void setCache(MeshDataBufferFileCache cache, ModuleManager moduleManager) {
         CACHE = cache;
-        SERVICE_CACHE = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
-        SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
+        SERVICE_CACHE = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        SERVICE_INSTANCE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+        SERVICE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     public static void preProcess(ServiceMeshMetric data) {
@@ -77,6 +89,7 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metric = decorator.getMetric();
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
 
+        heartbeat(decorator, minuteTimeBucket);
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metric.getDetectPoint())) {
             toAll(decorator, minuteTimeBucket);
             toService(decorator, minuteTimeBucket);
@@ -85,6 +98,30 @@ public class TelemetryDataDispatcher {
         }
         toServiceRelation(decorator, minuteTimeBucket);
         toServiceInstanceRelation(decorator, minuteTimeBucket);
+    }
+
+    private static void heartbeat(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
+        ServiceMeshMetric metric = decorator.getMetric();
+
+        // source
+        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getSourceServiceInstanceId(), metric.getEndTime());
+        int instanceId = metric.getSourceServiceInstanceId();
+        ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
+        if (Objects.nonNull(serviceInstanceInventory)) {
+            SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
+        } else {
+            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
+        }
+
+        // dest
+        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getDestServiceInstanceId(), metric.getEndTime());
+        instanceId = metric.getDestServiceInstanceId();
+        serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
+        if (Objects.nonNull(serviceInstanceInventory)) {
+            SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
+        } else {
+            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
+        }
     }
 
     private static void toAll(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
@@ -143,7 +180,7 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metric = decorator.getMetric();
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setTimeBucket(minuteTimeBucket);
-        serviceInstance.setId(metric.getDestServiceId());
+        serviceInstance.setId(metric.getDestServiceInstanceId());
         serviceInstance.setName(getServiceInstanceName(metric.getDestServiceInstanceId(), metric.getDestServiceInstance()));
         serviceInstance.setServiceId(metric.getDestServiceId());
         serviceInstance.setServiceName(getServiceName(metric.getDestServiceId(), metric.getDestServiceName()));

@@ -58,7 +58,7 @@ public enum DataTTLKeeperTimer {
 
     public void start(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).getService(ClusterNodesQuery.class);
+        this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             new RunnableWithExceptionProtection(this::delete,
@@ -67,8 +67,8 @@ public enum DataTTLKeeperTimer {
 
     private void delete() {
         List<RemoteInstance> remoteInstances = clusterNodesQuery.queryRemoteNodes();
-        if (CollectionUtils.isNotEmpty(remoteInstances) && !remoteInstances.get(0).isSelf()) {
-            logger.info("The selected first address is {}. Skip.", remoteInstances.get(0).toString());
+        if (CollectionUtils.isNotEmpty(remoteInstances) && !remoteInstances.get(0).getAddress().isSelf()) {
+            logger.info("The selected first getAddress is {}. Skip.", remoteInstances.get(0).toString());
             return;
         }
 
@@ -79,24 +79,24 @@ public enum DataTTLKeeperTimer {
         logger.info("Metrics in day dimension before {}, are going to be removed.", timeBuckets.dayTimeBucketBefore);
         logger.info("Metrics in month dimension before {}, are going to be removed.", timeBuckets.monthTimeBucketBefore);
 
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).getService(IModelGetter.class);
-        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).getService(DownsamplingConfigService.class);
+        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
         List<Model> models = modelGetter.getModels();
         models.forEach(model -> {
             if (model.isIndicator()) {
-                execute(model.getName(), timeBuckets.minuteTimeBucketBefore, Indicator.TIME_BUCKET);
+                execute(model, model.getName(), timeBuckets.minuteTimeBucketBefore, Indicator.TIME_BUCKET);
 
                 if (downsamplingConfigService.shouldToHour()) {
-                    execute(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName(), timeBuckets.hourTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName(), timeBuckets.hourTimeBucketBefore, Indicator.TIME_BUCKET);
                 }
                 if (downsamplingConfigService.shouldToDay()) {
-                    execute(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName(), timeBuckets.dayTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Day.getName(), timeBuckets.dayTimeBucketBefore, Indicator.TIME_BUCKET);
                 }
                 if (downsamplingConfigService.shouldToMonth()) {
-                    execute(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName(), timeBuckets.monthTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Month.getName(), timeBuckets.monthTimeBucketBefore, Indicator.TIME_BUCKET);
                 }
             } else {
-                execute(model.getName(), timeBuckets.recordDataTTL, Record.TIME_BUCKET);
+                execute(model, model.getName(), timeBuckets.recordDataTTL, Record.TIME_BUCKET);
             }
         });
     }
@@ -104,7 +104,7 @@ public enum DataTTLKeeperTimer {
     TimeBuckets convertTimeBucket(DateTime currentTime) {
         TimeBuckets timeBuckets = new TimeBuckets();
 
-        timeBuckets.recordDataTTL = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMddHHmm"));
+        timeBuckets.recordDataTTL = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
         timeBuckets.minuteTimeBucketBefore = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getMinuteMetricsDataTTL()).toString("yyyyMMddHHmm"));
         timeBuckets.hourTimeBucketBefore = Long.valueOf(currentTime.plusHours(0 - dataTTL.getHourMetricsDataTTL()).toString("yyyyMMddHH"));
         timeBuckets.dayTimeBucketBefore = Long.valueOf(currentTime.plusDays(0 - dataTTL.getDayMetricsDataTTL()).toString("yyyyMMdd"));
@@ -113,11 +113,14 @@ public enum DataTTLKeeperTimer {
         return timeBuckets;
     }
 
-    private void execute(String modelName, long timeBucketBefore, String timeBucketColumnName) {
+    private void execute(Model model, String modelName, long timeBucketBefore, String timeBucketColumnName) {
         try {
-            moduleManager.find(StorageModule.NAME).getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
+            if (model.isDeleteHistory()) {
+                moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).deleteHistory(modelName, timeBucketColumnName, timeBucketBefore);
+            }
         } catch (IOException e) {
-            logger.warn("History delete failure, error message: {}", e.getMessage());
+            logger.warn("History of {} delete failure, time bucket {}", modelName, timeBucketBefore);
+            logger.error(e.getMessage(), e);
         }
     }
 

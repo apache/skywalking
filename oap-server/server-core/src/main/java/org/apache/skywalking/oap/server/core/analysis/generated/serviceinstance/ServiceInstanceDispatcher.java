@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.serviceinstance
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.source.ServiceInstance;
+import org.apache.skywalking.oap.server.core.source.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -30,10 +30,21 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 public class ServiceInstanceDispatcher implements SourceDispatcher<ServiceInstance> {
     
     @Override public void dispatch(ServiceInstance source) {
+        doServiceInstanceSla(source);
         doServiceInstanceRespTime(source);
         doServiceInstanceCpm(source);
     }
 
+    private void doServiceInstanceSla(ServiceInstance source) {
+        ServiceInstanceSlaIndicator indicator = new ServiceInstanceSlaIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
     private void doServiceInstanceRespTime(ServiceInstance source) {
         ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
 

@@ -80,6 +80,38 @@ public enum DurationUtils {
         return secondTimeBucket;
     }
 
+    public long startTimeToTimestamp(Step step, String dateStr) throws ParseException {
+        switch (step) {
+            case MONTH:
+                return new SimpleDateFormat("yyyy-MM").parse(dateStr).getTime();
+            case DAY:
+                return new SimpleDateFormat("yyyy-MM-dd").parse(dateStr).getTime();
+            case HOUR:
+                return new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr).getTime();
+            case MINUTE:
+                return new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr).getTime();
+            case SECOND:
+                return new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr).getTime();
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
+    public long endTimeToTimestamp(Step step, String dateStr) throws ParseException {
+        switch (step) {
+            case MONTH:
+                return new DateTime(new SimpleDateFormat("yyyy-MM").parse(dateStr)).plusMonths(1).getMillis();
+            case DAY:
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd").parse(dateStr)).plusDays(1).getMillis();
+            case HOUR:
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr)).plusHours(1).getMillis();
+            case MINUTE:
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr)).plusMinutes(1).getMillis();
+            case SECOND:
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr)).plusSeconds(1).getMillis();
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
     public int minutesBetween(Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
         Date startDate = formatDate(step, startTimeBucket);
         Date endDate = formatDate(step, endTimeBucket);
@@ -128,57 +160,6 @@ public enum DurationUtils {
         }
     }
 
-    private Date formatDate(Step step, long timeBucket) throws ParseException {
-        Date date = null;
-        switch (step) {
-            case MONTH:
-                date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(timeBucket));
-                break;
-            case DAY:
-                date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(timeBucket));
-                break;
-            case HOUR:
-                date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(timeBucket));
-                break;
-            case MINUTE:
-                date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(timeBucket));
-                break;
-            case SECOND:
-                date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(timeBucket));
-                break;
-        }
-        return date;
-    }
-
-    public DateTime parseToDateTime(Step step, long time) throws ParseException {
-        DateTime dateTime = null;
-
-        switch (step) {
-            case MONTH:
-                Date date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(time));
-                dateTime = new DateTime(date);
-                break;
-            case DAY:
-                date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(time));
-                dateTime = new DateTime(date);
-                break;
-            case HOUR:
-                date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(time));
-                dateTime = new DateTime(date);
-                break;
-            case MINUTE:
-                date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(time));
-                dateTime = new DateTime(date);
-                break;
-            case SECOND:
-                date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(time));
-                dateTime = new DateTime(date);
-                break;
-        }
-
-        return dateTime;
-    }
-
     public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket,
         long endTimeBucket) throws ParseException {
         DateTime dateTime = parseToDateTime(step, startTimeBucket);
@@ -225,19 +206,54 @@ public enum DurationUtils {
         return durations;
     }
 
-    public long toTimestamp(Step step, String dateStr) throws ParseException {
+    private Date formatDate(Step step, long timeBucket) throws ParseException {
+        Date date = null;
         switch (step) {
             case MONTH:
-                return new SimpleDateFormat("yyyy-MM").parse(dateStr).getTime();
+                date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(timeBucket));
+                break;
             case DAY:
-                return new SimpleDateFormat("yyyy-MM-dd").parse(dateStr).getTime();
+                date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(timeBucket));
+                break;
             case HOUR:
-                return new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr).getTime();
+                date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(timeBucket));
+                break;
             case MINUTE:
-                return new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr).getTime();
+                date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(timeBucket));
+                break;
             case SECOND:
-                return new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr).getTime();
+                date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(timeBucket));
+                break;
         }
-        throw new UnexpectedException("Unsupported step " + step.name());
+        return date;
+    }
+
+    private DateTime parseToDateTime(Step step, long time) throws ParseException {
+        DateTime dateTime = null;
+
+        switch (step) {
+            case MONTH:
+                Date date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case DAY:
+                date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case HOUR:
+                date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case MINUTE:
+                date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+            case SECOND:
+                date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(time));
+                dateTime = new DateTime(date);
+                break;
+        }
+
+        return dateTime;
     }
 }

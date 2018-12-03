@@ -54,6 +54,8 @@ We recommend you to read the feature documents in our following order.
 
 1. [Overriding settings](backend-setting-override.md) in application.yml is supported
 1. [IP and port setting](backend-ip-port.md). Introduce how IP and port set and be used.
+1. [Backend init mode startup](backend-init-mode.md). How to init the environment and exit graciously.
+Read this before you try to initial a new cluster.
 1. [Cluster management](backend-cluster.md). Guide you to set backend server in cluster mode.
 1. [Deploy in kubernetes](backend-k8s.md). Guide you to build and use SkyWalking image, and deploy in k8s.
 1. [Choose storage](backend-storage.md). As we know, in default quick start, backend is running with H2
@@ -61,6 +63,8 @@ DB. But clearly, it doesn't fit the product env. In here, you could find what ot
 Choose the one you like, we are also welcome anyone to contribute new storage implementor,
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
+1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metric accurate, only don't save some of traces
+in storage based on rate.
 1. Official [OAL scripts](../../guides/backend-oal-scripts.md). As you known from our [OAL introduction](../../concepts-and-designs/oal.md),
 most of backend analysis capabilities based on the scripts. Here is the description of official scripts,
 which helps you to understand which metric data are in process, also could be used in alarm.

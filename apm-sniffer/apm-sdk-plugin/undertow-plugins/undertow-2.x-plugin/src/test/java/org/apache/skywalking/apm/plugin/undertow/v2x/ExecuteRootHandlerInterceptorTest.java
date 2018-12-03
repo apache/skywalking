@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -36,6 +37,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -89,6 +91,7 @@ public class ExecuteRootHandlerInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         executeRootHandlerInterceptor = new ExecuteRootHandlerInterceptor();
         exchange = new HttpServerExchange(serverConnection, requestHeaders, responseHeaders, 0);
         exchange.setRequestURI("/test/testRequestURL");
@@ -96,8 +99,13 @@ public class ExecuteRootHandlerInterceptorTest {
         exchange.setDestinationAddress(new InetSocketAddress("localhost", 8080));
         exchange.setRequestScheme("http");
         exchange.setRequestMethod(HttpString.tryFromString("POST"));
-        arguments = new Object[]{httpHandler, exchange};
-        argumentType = new Class[]{httpHandler.getClass(), exchange.getClass()};
+        arguments = new Object[] {httpHandler, exchange};
+        argumentType = new Class[] {httpHandler.getClass(), exchange.getClass()};
+    }
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
@@ -164,7 +172,7 @@ public class ExecuteRootHandlerInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
     }

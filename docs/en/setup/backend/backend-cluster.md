@@ -12,7 +12,10 @@ by using k8s native APIs to manage cluster.
 
 ## Zookeeper coordinator
 Zookeeper is a very common and wide used cluster coordinator. Set the **cluster** module's implementor
-to **zookeeper** in the yml to active.
+to **zookeeper** in the yml to active. 
+
+Required Zookeeper version, 3.4+
+
 ```yaml
 cluster:
   zookeeper:
@@ -38,7 +41,3 @@ cluster:
     labelSelector: app=collector,release=skywalking
     uidEnvName: SKYWALKING_COLLECTOR_UID
 ```
-
-TODO @hanahmily
-
-settings descriptions.
