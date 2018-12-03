@@ -89,7 +89,7 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
 
             getClient().forceUpdate(RegisterLockIndex.NAME, id, source);
         } catch (Throwable t) {
-            logger.error("Release lock failure.");
+            logger.error("Release lock failure.", t);
         }
     }
 }
