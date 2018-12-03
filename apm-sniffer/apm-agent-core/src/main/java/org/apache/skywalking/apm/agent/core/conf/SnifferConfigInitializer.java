@@ -34,7 +34,6 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
-import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -51,8 +50,9 @@ public class SnifferConfigInitializer {
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
-     * If the specified agent config path is set, the agent will try to locate the specified agent config.
-     * If the specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the /config dictionary of agent package.
+     * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
+     * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
+     * /config dictionary of agent package.
      * <p>
      * Also try to override the config by system.env and system.properties. All the keys in these two places should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.application_code=yourAppName` to override
@@ -67,14 +67,10 @@ public class SnifferConfigInitializer {
             configFileStream = loadConfig();
             Properties properties = new Properties();
             properties.load(configFileStream);
-            PropertyPlaceholderHelper helper =
-                new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
-                    PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
-                    PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
             for (String key : properties.stringPropertyNames()) {
                 String value = (String)properties.get(key);
                 //replace the key's value. properties.replace(key,value) in jdk8+
-                properties.put(key, helper.replacePlaceholders(value, properties));
+                properties.put(key, PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value, properties));
             }
             ConfigInitializer.initialize(properties, Config.class);
         } catch (Exception e) {
@@ -153,11 +149,10 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * Override the config by system properties. The env key must start with `skywalking`, the reuslt should be as same as in
-     * `agent.config`
+     * Override the config by system properties. The env key must start with `skywalking`, the reuslt should be as same
+     * as in `agent.config`
      * <p>
-     * such as:
-     * Env key of `agent.application_code` shoule be `skywalking.agent.application_code`
+     * such as: Env key of `agent.application_code` shoule be `skywalking.agent.application_code`
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
