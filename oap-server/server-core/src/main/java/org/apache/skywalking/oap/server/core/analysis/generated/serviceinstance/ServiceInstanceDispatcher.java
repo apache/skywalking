@@ -30,10 +30,21 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ServiceInstanceDispatcher implements SourceDispatcher<ServiceInstance> {
     
     @Override public void dispatch(ServiceInstance source) {
+        doServiceInstanceSla(source);
         doServiceInstanceRespTime(source);
         doServiceInstanceCpm(source);
     }
 
+    private void doServiceInstanceSla(ServiceInstance source) {
+        ServiceInstanceSlaIndicator indicator = new ServiceInstanceSlaIndicator();
+
+
+        indicator.setTimeBucket(source.getTimeBucket());
+        indicator.setEntityId(source.getEntityId());
+        indicator.setServiceId(source.getServiceId());
+        indicator.combine(new org.apache.skywalking.oap.server.core.analysis.indicator.expression.EqualMatch(), source.isStatus(), true);
+        IndicatorProcess.INSTANCE.in(indicator);
+    }
     private void doServiceInstanceRespTime(ServiceInstance source) {
         ServiceInstanceRespTimeIndicator indicator = new ServiceInstanceRespTimeIndicator();
 
