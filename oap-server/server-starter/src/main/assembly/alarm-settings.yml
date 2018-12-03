@@ -54,14 +54,17 @@ rules:
     count: 2
     silence-period: 5
     message: Response time of service instance {name} is more than 1000ms in last 2 minutes.
-  endpoint_avg_rule:
-    indicator-name: endpoint_avg
-    op: ">"
-    threshold: 1000
-    period: 10
-    count: 2
-    silence-period: 5
-    message: Response time of endpoint {name} is more than 1000ms in last 2 minutes.
+#  Active endpoint related metric alarm will cost more memory than service and service instance metric alarm.
+#  Because the number of endpoint is much more than service and instance.
+#
+#  endpoint_avg_rule:
+#    indicator-name: endpoint_avg
+#    op: ">"
+#    threshold: 1000
+#    period: 10
+#    count: 2
+#    silence-period: 5
+#    message: Response time of endpoint {name} is more than 1000ms in last 2 minutes.
 
 webhooks:
 #  - http://127.0.0.1/notify/
