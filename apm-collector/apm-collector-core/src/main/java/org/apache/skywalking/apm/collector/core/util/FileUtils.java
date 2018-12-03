@@ -43,9 +43,9 @@ public enum FileUtils {
                 long position = length - 1;
                 randomAccessFile.seek(position);
                 while (position >= 0) {
-                    String line = "";
-                    if (randomAccessFile.read() == '\n' && StringUtils.isNotEmpty(line = randomAccessFile.readLine())) {
-                        return line;
+                    String lineString = "";
+                    if (randomAccessFile.read() == '\n' && StringUtils.isNotEmpty(lineString = randomAccessFile.readLine())) {
+                        return lineString;
                     }
                     randomAccessFile.seek(position);
                     if (position == 0) {
