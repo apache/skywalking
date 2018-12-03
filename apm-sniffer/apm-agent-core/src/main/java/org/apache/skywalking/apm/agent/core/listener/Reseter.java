@@ -62,12 +62,10 @@ public enum Reseter {
     public String getResetPath() throws IOException {
         if (isFirstRun == 0) {
             File statusDir = new File(Config.Agent.REGISTER_STATUS_DIR);
-
-            if (statusDir.exists() && statusDir.isDirectory()) {
-                resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
-            } else {
+            if (!statusDir.exists() || !statusDir.isDirectory()) {
                 statusDir.mkdir();
             }
+            resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
             init();
             isFirstRun = 1;
         }
