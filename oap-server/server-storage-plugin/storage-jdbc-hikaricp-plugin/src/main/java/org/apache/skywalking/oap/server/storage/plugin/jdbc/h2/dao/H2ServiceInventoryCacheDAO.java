@@ -89,8 +89,4 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
         }
         return serviceInventories;
     }
-
-    public static void main(String[] args) {
-        System.out.println(System.currentTimeMillis() - 30 * 60 * 1000);
-    }
 }
