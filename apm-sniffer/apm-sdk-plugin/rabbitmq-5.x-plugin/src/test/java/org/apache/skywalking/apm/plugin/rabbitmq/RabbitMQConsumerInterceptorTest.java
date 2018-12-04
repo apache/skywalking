@@ -70,7 +70,7 @@ public class RabbitMQConsumerInterceptorTest {
         rabbitMQConsumerInterceptor = new RabbitMQConsumerInterceptor();
         Envelope envelope = new Envelope(1111,false,"","rabbitmq-test");
         Map<String, Object> headers = new HashMap<String, Object>();
-        headers.put("sw3","");
+        headers.put("sw6","");
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
         arguments = new Object[]  {0,0,envelope,propsBuilder.headers(headers).build()};
     }
