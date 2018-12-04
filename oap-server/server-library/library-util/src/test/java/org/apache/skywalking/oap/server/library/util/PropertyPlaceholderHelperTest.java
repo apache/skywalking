@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.junit.After;
 import org.junit.Assert;
@@ -63,10 +62,7 @@ public class PropertyPlaceholderHelperTest {
                 }
             });
         }
-        placeholderHelper =
-            new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
-                PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
-                PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
+        placeholderHelper = PropertyPlaceholderHelper.INSTANCE;
     }
 
     @Test
