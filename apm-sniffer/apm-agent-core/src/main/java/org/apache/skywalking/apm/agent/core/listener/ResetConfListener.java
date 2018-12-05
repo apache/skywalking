@@ -70,7 +70,7 @@ public class ResetConfListener implements BootService, Runnable {
 
         try {
             if (Reseter.INSTANCE.predicateReset())
-                Reseter.INSTANCE.setStatus(ResetStatus.DONE).clearID().reportToRegisterFile();
+                Reseter.INSTANCE.setStatus(ResetStatus.DONE).resetRegisterStatus().reportToRegisterFile();
         } catch (SecurityException e) {
             logger.warn(e, "Denise read access to the file {}", configFile);
         } catch (FileNotFoundException e) {

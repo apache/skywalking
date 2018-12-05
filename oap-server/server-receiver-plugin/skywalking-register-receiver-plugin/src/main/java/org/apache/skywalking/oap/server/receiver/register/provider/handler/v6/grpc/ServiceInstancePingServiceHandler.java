@@ -58,7 +58,7 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
         } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't found service by service instance id from cache, service instance id is: {},instanceUUID or processId is {}", serviceInstanceId,request.getServiceInstanceUUID());
         }
 
         responseObserver.onNext(Commands.getDefaultInstance());

@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
@@ -34,6 +36,7 @@ import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * @author liu-xinyuan
@@ -41,7 +44,7 @@ import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
 public enum Reseter {
     INSTANCE;
     private static final ILog logger = LogManager.getLogger(Reseter.class);
-    private static final String APPLICATION_ID_NAM = "application_id";
+    private static final String SERVICE_ID_NAME = "service_id";
     private static final String INSTANCE_ID_NAME = "instance_id";
     private static final String STATUS_NAME = "status";
     private static final String RESET_CHILD_DIR = "/reset.status";
@@ -51,23 +54,31 @@ public enum Reseter {
     private volatile Properties properties = new Properties();
     private String resetPath;
     private ResetStatus status = ResetStatus.OFF;
-    private int isFirstRun = 0;
-    private int detectDuration = 5;
+    private boolean isFirstRun = true;
+    private int detectDuration = 5000;
 
     public Reseter setStatus(ResetStatus status) {
         this.status = status;
         return this;
     }
 
-    public String getResetPath() throws IOException {
-        if (isFirstRun == 0) {
+    public String getResetPath() throws IOException, SecurityException {
+        if (isFirstRun) {
+            if (StringUtil.isEmpty(Config.Agent.REGISTER_STATUS_DIR)) {
+                try {
+                    Config.Agent.REGISTER_STATUS_DIR = AgentPackagePath.getPath() + "/option";
+                } catch (AgentPackageNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             File statusDir = new File(Config.Agent.REGISTER_STATUS_DIR);
+
             if (!statusDir.exists() || !statusDir.isDirectory()) {
                 statusDir.mkdir();
             }
             resetPath = statusDir.getAbsolutePath() + RESET_CHILD_DIR;
             init();
-            isFirstRun = 1;
+            isFirstRun = false;
         }
         return resetPath;
     }
@@ -76,7 +87,7 @@ public enum Reseter {
         FileOutputStream outputStream = null;
         try {
             File configFile = new File(resetPath);
-            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
+            properties.setProperty(SERVICE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
             properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID + "");
             properties.setProperty(STATUS_NAME, status.value());
             outputStream = new FileOutputStream(configFile);
@@ -86,7 +97,7 @@ public enum Reseter {
         }
     }
 
-    public Reseter clearID() {
+    public Reseter resetRegisterStatus() {
         RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
         EndpointNameDictionary.INSTANCE.clearEndpointNameDictionary();
@@ -97,12 +108,12 @@ public enum Reseter {
         return this;
     }
 
-    public Boolean predicateReset() throws IOException {
+    public Boolean predicateReset() throws IOException, SecurityException {
         File resetFile = new File(getResetPath());
         FileInputStream inputStream = null;
         FileLock fileLock = null;
         FileChannel fileChannel = null;
-        if (System.currentTimeMillis() - resetFile.lastModified() < detectDuration * 1000) {
+        if (System.currentTimeMillis() - resetFile.lastModified() < detectDuration) {
             try {
                 logger.info("The file reset.status was detected to have been modified in the last {} seconds.", detectDuration);
                 inputStream = new FileInputStream(resetFile);
@@ -129,7 +140,7 @@ public enum Reseter {
     public void init() throws IOException {
         FileOutputStream outputStream = null;
         try {
-            properties.setProperty(APPLICATION_ID_NAM, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
+            properties.setProperty(SERVICE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
             properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID + "");
             properties.setProperty(STATUS_NAME, status.value());
             File file = new File(resetPath);
