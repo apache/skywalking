@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -52,8 +52,8 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
             } else {
                 return Const.NONE;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return Const.NONE;
         }
     }
@@ -71,8 +71,8 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
             } else {
                 return null;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return null;
         }
     }
