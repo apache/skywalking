@@ -39,43 +39,63 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
     public static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer";
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
-        AMQP.BasicProperties  properties = (AMQP.BasicProperties) allArguments[4];
-        String  exChangeName =  (String) allArguments[0];
-        String  queueName =  (String) allArguments[1];
-        String url = (String) objInst.getSkyWalkingDynamicField();
+        AMQP.BasicProperties properties = (AMQP.BasicProperties)allArguments[4];
+        AMQP.BasicProperties.Builder propertiesBuilder;
+
+        Map<String, Object> headers = new HashMap<String, Object>();
+        if (properties != null) {
+            propertiesBuilder = properties.builder().appId(properties.getAppId())
+                .clusterId(properties.getClusterId())
+                .contentEncoding(properties.getContentEncoding())
+                .contentType(properties.getContentType())
+                .correlationId(properties.getCorrelationId())
+                .deliveryMode(properties.getDeliveryMode())
+                .expiration(properties.getExpiration())
+                .messageId(properties.getMessageId())
+                .priority(properties.getPriority())
+                .replyTo(properties.getReplyTo())
+                .timestamp(properties.getTimestamp())
+                .type(properties.getType())
+                .userId(properties.getUserId());
+
+            // copy origin headers
+            headers.putAll(properties.getHeaders());
+        } else {
+            propertiesBuilder = new AMQP.BasicProperties.Builder();
+        }
+
+        String exChangeName = (String)allArguments[0];
+        String queueName = (String)allArguments[1];
+        String url = (String)objInst.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + "Topic/" + exChangeName + "Queue/" + queueName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
-        Tags.MQ_BROKER.set(activeSpan,url);
-        Tags.MQ_QUEUE.set(activeSpan,queueName);
-        Tags.MQ_TOPIC.set(activeSpan,exChangeName);
+        Tags.MQ_BROKER.set(activeSpan, url);
+        Tags.MQ_QUEUE.set(activeSpan, queueName);
+        Tags.MQ_TOPIC.set(activeSpan, exChangeName);
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.RABBITMQ_PRODUCER);
         CarrierItem next = contextCarrier.items();
 
-        Map<String, Object> headers = new HashMap<String, Object>();
         while (next.hasNext()) {
             next = next.next();
-            headers.put(next.getHeadKey(),next.getHeadValue().getBytes());
+            headers.put(next.getHeadKey(), next.getHeadValue());
         }
 
-        if (properties == null) {
-            AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-            properties = propsBuilder.headers(headers).build();
-            allArguments[4] = properties;
-        }
-        allArguments[4] = properties.builder().headers(headers).build();
-
+        allArguments[4] = propertiesBuilder.headers(headers).build();
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }
