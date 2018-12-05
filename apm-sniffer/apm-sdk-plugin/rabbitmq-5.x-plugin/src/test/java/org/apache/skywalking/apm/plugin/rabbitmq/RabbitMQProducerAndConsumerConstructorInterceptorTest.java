@@ -226,7 +226,7 @@ public class RabbitMQProducerAndConsumerConstructorInterceptorTest {
     }
 
     @Test
-    public void TestActiveMQConsumerAndProducerConstructorInterceptor() {
+    public void TestRabbitMQConsumerAndProducerConstructorInterceptor() {
         rabbitMQProducerAndConsumerConstructorInterceptor =  new RabbitMQProducerAndConsumerConstructorInterceptor();
         rabbitMQProducerAndConsumerConstructorInterceptor.onConstruct(enhancedInstance,new Object[] {testConnection});
         assertThat((String) enhancedInstance.getSkyWalkingDynamicField(), is("127.0.0.1:5672"));

@@ -56,7 +56,7 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
         Map<String, Object> headers = new HashMap<String, Object>();
         while (next.hasNext()) {
             next = next.next();
-            headers.put(next.getHeadKey(),next.getHeadValue());
+            headers.put(next.getHeadKey(),next.getHeadValue().getBytes());
         }
 
         if (properties == null) {

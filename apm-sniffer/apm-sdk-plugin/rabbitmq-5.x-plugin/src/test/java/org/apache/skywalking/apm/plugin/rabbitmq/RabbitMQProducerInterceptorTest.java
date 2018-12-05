@@ -69,7 +69,7 @@ public class RabbitMQProducerInterceptorTest {
     }
 
     @Test
-    public void TestActiveMQConsumerAndProducerConstructorInterceptor() throws Throwable {
+    public void TestRabbitMQProducerInterceptor() throws Throwable {
         rabbitMQProducerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
         rabbitMQProducerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
 
