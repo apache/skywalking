@@ -49,8 +49,8 @@ public enum Reseter {
     private static final String STATUS_NAME = "status";
     private static final String RESET_CHILD_DIR = "/reset.status";
     private static final String COMMENT = "#Status has three values: ON (trigger reset), DONE(reset complete), OFF(agent fist boot).\n" +
-        "Application_id: application_id of the current agent.\n" +
-        "Instance_id: the instanceid of the current agent.";
+        "service_id: the service_id of the current agent.\n" +
+        "Instance_id: the instance_id of the current agent.";
     private volatile Properties properties = new Properties();
     private String resetPath;
     private ResetStatus status = ResetStatus.OFF;
