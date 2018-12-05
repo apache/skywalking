@@ -62,7 +62,9 @@ public class RabbitMQProducerInterceptor implements InstanceMethodsAroundInterce
                 .userId(properties.getUserId());
 
             // copy origin headers
-            headers.putAll(properties.getHeaders());
+            if (properties.getHeaders() != null) {
+                headers.putAll(properties.getHeaders());
+            }
         } else {
             propertiesBuilder = new AMQP.BasicProperties.Builder();
         }
