@@ -36,7 +36,7 @@ Setting fragment example
 ```yaml
 storage:
   elasticsearch:
-    # nameSpace: ${SW_STORAGE_ES_NAMESPACE:""}
+    # nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
