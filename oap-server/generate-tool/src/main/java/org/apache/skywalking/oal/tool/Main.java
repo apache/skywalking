@@ -30,8 +30,8 @@ public class Main {
     public static void main(String[] args) throws IOException, TemplateException {
         String modulePath = args[0];
 
-        String scriptFilePath = StringUtil.join(File.pathSeparatorChar, modulePath, "src", "main", "resources", "official_analysis.oal");
-        String outputPath = StringUtil.join(File.pathSeparatorChar, modulePath, "..", "generated-analysis", "src", "main", "java",
+        String scriptFilePath = StringUtil.join(File.separatorChar, modulePath, "src", "main", "resources", "official_analysis.oal");
+        String outputPath = StringUtil.join(File.separatorChar, modulePath, "..", "generated-analysis", "src", "main", "java",
             "org", "apache", "skywalking", "oap", "server", "core", "analysis", "generated");
 
         Indicators.init();

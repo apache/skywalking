@@ -18,10 +18,16 @@
 
 package org.apache.skywalking.oal.tool.parser;
 
+import java.io.IOException;
 import java.util.List;
 import org.junit.*;
 
 public class DeepAnalysisTest {
+    @Before
+    public void init() throws IOException {
+        Indicators.init();
+    }
+
     @Test
     public void testServiceAnalysis() {
         AnalysisResult result = new AnalysisResult();
