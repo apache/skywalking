@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
 
+import com.google.common.base.Joiner;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import io.istio.HandleMetricServiceGrpc;
@@ -42,6 +43,8 @@ import org.slf4j.LoggerFactory;
 public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMetricServiceImplBase {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioTelemetryGRPCHandler.class);
+
+    private static final Joiner JOINER = Joiner.on(".");
 
     @Override public void handleMetric(IstioMetricProto.HandleMetricRequest request,
         StreamObserver<ReportProto.ReportResult> responseObserver) {
@@ -79,8 +82,8 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                 detectPoint = DetectPoint.server;
             }
             ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(requestTime.toEpochMilli())
-                .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(string(i, "sourceService"))
-                .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(string(i, "destinationService"))
+                .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(JOINER.join(string(i, "sourceService"), string(i, "sourceNamespace")))
+                .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(JOINER.join(string(i, "destinationService"), string(i, "destinationNamespace")))
                 .setDestServiceInstance(string(i, "destinationUID")).setEndpoint(endpoint).setLatency(latency)
                 .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
             logger.debug("Transformed metric {}", metric);
