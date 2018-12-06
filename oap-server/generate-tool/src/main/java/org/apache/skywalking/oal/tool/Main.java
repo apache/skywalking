@@ -32,7 +32,7 @@ public class Main {
 
         String scriptFilePath = StringUtil.join(File.separatorChar, modulePath, "src", "main", "resources", "official_analysis.oal");
         String outputPath = StringUtil.join(File.separatorChar, modulePath, "..", "generated-analysis", "src", "main", "java",
-            "org", "apache", "skywalking", "oap", "server", "core", "analysis", "generated");
+            "org", "apache", "skywalking", "oap", "server", "core", "analysis");
 
         Indicators.init();
 
