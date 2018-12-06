@@ -25,7 +25,6 @@ import org.apache.http.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.*;
 import org.elasticsearch.action.admin.indices.create.*;
 import org.elasticsearch.action.admin.indices.delete.*;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -51,10 +50,10 @@ public class ElasticSearchClient implements Client {
 
     private static final String TYPE = "type";
     private final String clusterNodes;
-    private final NameSpace namespace;
+    private final String namespace;
     private RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, NameSpace namespace) {
+    public ElasticSearchClient(String clusterNodes, String namespace) {
         this.clusterNodes = clusterNodes;
         this.namespace = namespace;
     }
@@ -182,8 +181,8 @@ public class ElasticSearchClient implements Client {
     }
 
     private String formatIndexName(String indexName) {
-        if (Objects.nonNull(namespace) && StringUtils.isNotEmpty(namespace.getNameSpace())) {
-            return namespace.getNameSpace() + "_" + indexName;
+        if (StringUtils.isNotEmpty(namespace)) {
+            return namespace + "_" + indexName;
         }
         return indexName;
     }

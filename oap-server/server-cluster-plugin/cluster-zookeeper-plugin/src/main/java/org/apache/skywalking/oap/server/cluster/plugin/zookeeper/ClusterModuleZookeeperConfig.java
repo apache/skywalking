@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.util.StringUtils;
 
@@ -25,6 +26,8 @@ import org.apache.skywalking.oap.server.library.util.StringUtils;
  * @author peng-yongsheng
  */
 class ClusterModuleZookeeperConfig extends ModuleConfig {
+
+    @Setter @Getter private String nameSpace;
     private String hostPort;
     private int baseSleepTimeMs;
     private int maxRetries;
