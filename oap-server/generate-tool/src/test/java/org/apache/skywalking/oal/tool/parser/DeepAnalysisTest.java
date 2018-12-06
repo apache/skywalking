@@ -23,7 +23,7 @@ import java.util.List;
 import org.junit.*;
 
 public class DeepAnalysisTest {
-    @Before
+    @BeforeClass
     public void init() throws IOException {
         Indicators.init();
     }
