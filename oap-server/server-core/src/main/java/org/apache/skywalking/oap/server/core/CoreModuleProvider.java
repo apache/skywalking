@@ -59,6 +59,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private final StorageAnnotationListener storageAnnotationListener;
     private final StreamAnnotationListener streamAnnotationListener;
     private final StreamDataAnnotationContainer streamDataAnnotationContainer;
+    private final SourceReceiverImpl receiver;
 
     public CoreModuleProvider() {
         super();
@@ -67,6 +68,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.storageAnnotationListener = new StorageAnnotationListener();
         this.streamAnnotationListener = new StreamAnnotationListener();
         this.streamDataAnnotationContainer = new StreamDataAnnotationContainer();
+        receiver = new SourceReceiverImpl();
     }
 
     @Override public String name() {
@@ -101,7 +103,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
 
-        this.registerServiceImplementation(SourceReceiver.class, new SourceReceiverImpl());
+        this.registerServiceImplementation(SourceReceiver.class, receiver);
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
 
@@ -143,10 +145,12 @@ public class CoreModuleProvider extends ModuleProvider {
         remoteClientManager.start();
 
         try {
+            receiver.scan();
+
             annotationScan.scan(() -> {
                 streamDataAnnotationContainer.generate(streamAnnotationListener.getStreamClasses());
             });
-        } catch (IOException e) {
+        } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
