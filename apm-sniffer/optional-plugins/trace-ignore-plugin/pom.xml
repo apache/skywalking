@@ -16,7 +16,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>optional-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -29,4 +30,17 @@
 
     <name>apm-trace-ignore-plugin</name>
     <url>http://maven.apache.org</url>
+
+    <properties>
+        <ststem-rules.version>1.18.0</ststem-rules.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>${ststem-rules.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
