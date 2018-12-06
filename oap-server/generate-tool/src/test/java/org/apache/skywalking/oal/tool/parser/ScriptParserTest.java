@@ -24,7 +24,7 @@ import org.junit.*;
 
 public class ScriptParserTest {
     @BeforeClass
-    public void init() throws IOException {
+    public static void init() throws IOException {
         Indicators.init();
     }
 

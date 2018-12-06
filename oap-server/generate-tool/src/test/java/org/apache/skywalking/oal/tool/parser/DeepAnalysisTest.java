@@ -24,7 +24,7 @@ import org.junit.*;
 
 public class DeepAnalysisTest {
     @BeforeClass
-    public void init() throws IOException {
+    public static void init() throws IOException {
         Indicators.init();
     }
 

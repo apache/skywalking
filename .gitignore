@@ -13,4 +13,3 @@ packages/
 /dist/
 /docker/snapshot/*.gz
 .mvn/wrapper/*.jar
-generated/

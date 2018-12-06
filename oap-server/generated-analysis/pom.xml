@@ -44,7 +44,9 @@
         </dependency>
     </dependencies>
 
+
     <build>
+        <sourceDirectory>target/generated-sources/oal</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -52,7 +54,7 @@
                 <version>${exec-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
