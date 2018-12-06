@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public class DispatcherManager {
 
@@ -52,6 +52,16 @@ public class DispatcherManager {
         }
     }
 
+    /**
+     * Scan all classes under `org.apache.skywalking` package,
+     *
+     * If it implement {@link org.apache.skywalking.oap.server.core.analysis.SourceDispatcher}, then, it will be added
+     * into this DispatcherManager based on the Source definition.
+     *
+     * @throws IOException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
     public void scan() throws IOException, IllegalAccessException, InstantiationException {
         ClassPath classpath = ClassPath.from(this.getClass().getClassLoader());
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
