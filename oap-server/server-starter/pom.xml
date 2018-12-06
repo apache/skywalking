@@ -41,6 +41,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>generated-analysis</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.skywalking</groupId>
+                    <artifactId>generate-tool</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- generated analysis core -->
 

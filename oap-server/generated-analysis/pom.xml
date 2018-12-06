@@ -35,11 +35,36 @@
             <artifactId>server-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- This dependency will be excluded in starter pom.xml -->
+        <!-- Use default scope because `org.apache.skywalking.oal.tool.Main` in this lib, only this could make code generate tool works -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>generate-tool</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.apache.skywalking.oal.tool.Main</mainClass>
+                            <arguments>
+                                <argument>${project.basedir}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
