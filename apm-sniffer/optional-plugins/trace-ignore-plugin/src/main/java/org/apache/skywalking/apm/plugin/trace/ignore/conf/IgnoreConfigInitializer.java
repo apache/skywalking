@@ -18,25 +18,15 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore.conf;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
+import java.io.*;
+import java.util.*;
+import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.util.ConfigInitializer;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
+import org.apache.skywalking.apm.util.*;
 
 /**
- *
  * @author liujc [liujunc1993@163.com]
- *
  */
 public class IgnoreConfigInitializer {
     private static final ILog LOGGER = LogManager.getLogger(IgnoreConfigInitializer.class);
@@ -44,7 +34,8 @@ public class IgnoreConfigInitializer {
     private static String ENV_KEY_PREFIX = "skywalking.";
 
     /**
-     * Try to locate `apm-trace-ignore-plugin.config`, which should be in the /optional-plugins/apm-trace-ignore-plugin/ dictionary of agent package.
+     * Try to locate `apm-trace-ignore-plugin.config`, which should be in the /optional-plugins/apm-trace-ignore-plugin/
+     * dictionary of agent package.
      * <p>
      * Also try to override the config by system.env and system.properties. All the keys in these two places should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.trace.ignore_path=your_path` to override
@@ -57,19 +48,25 @@ public class IgnoreConfigInitializer {
             configFileStream = loadConfigFromAgentFolder();
             Properties properties = new Properties();
             properties.load(configFileStream);
+            PropertyPlaceholderHelper helper = PropertyPlaceholderHelper.INSTANCE;
+            for (String key : properties.stringPropertyNames()) {
+                String value = (String)properties.get(key);
+                //replace the key's value. properties.replace(key,value) in jdk8+
+                properties.put(key, PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value, properties));
+            }
             ConfigInitializer.initialize(properties, IgnoreConfig.class);
         } catch (Exception e) {
             LOGGER.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
         try {
-            overrideConfigBySystemEnv();
+            overrideConfigBySystemProp();
         } catch (Exception e) {
             LOGGER.error(e, "Failed to read the system env.");
         }
     }
 
-    private static void overrideConfigBySystemEnv() throws IllegalAccessException {
+    private static void overrideConfigBySystemProp() throws IllegalAccessException {
         Properties properties = new Properties();
         Properties systemProperties = System.getProperties();
         Iterator<Map.Entry<Object, Object>> entryIterator = systemProperties.entrySet().iterator();
@@ -85,7 +82,6 @@ public class IgnoreConfigInitializer {
             ConfigInitializer.initialize(properties, IgnoreConfig.class);
         }
     }
-
 
     /**
      * Load the config file, where the agent jar is.
