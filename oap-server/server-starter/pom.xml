@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -34,6 +35,21 @@
             <artifactId>server-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- generated analysis core -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>generated-analysis</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.skywalking</groupId>
+                    <artifactId>generate-tool</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- generated analysis core -->
+
         <!-- cluster module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
