@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  *
  * @author wusheng, peng-yongsheng
  */
-@IndicatorOperator
 public abstract class PxxIndicator extends Indicator implements IntValueHolder {
     protected static final String DETAIL_GROUP = "detail_group";
     protected static final String VALUE = "value";
