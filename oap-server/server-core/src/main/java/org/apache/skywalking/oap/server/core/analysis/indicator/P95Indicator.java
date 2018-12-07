@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorFunction;
+
 /**
  * P95
  *
  * @author wusheng
  */
+@IndicatorFunction(functionName = "p95")
 public abstract class P95Indicator extends PxxIndicator {
     public P95Indicator() {
         super(95);

@@ -38,6 +38,8 @@
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
         <module>server-testing</module>
+        <module>generated-analysis</module>
+        <module>generate-tool</module>
     </modules>
 
     <properties>
