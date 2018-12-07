@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * @author wusheng
  */
-@IndicatorOperator
+@IndicatorFunction(functionName = "cpm")
 public abstract class CPMIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";
