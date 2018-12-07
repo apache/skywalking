@@ -30,6 +30,8 @@ For each official Apache release, there is a complete and independent source cod
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf**
+    * `antlr` folder in **oap-server/generate-tool/target/generated-sources/antlr4**
+    * `oal` folder in **oap-server/generated-analysis/target/generated-sources/oal**
     
 ## Setup your Eclipse IDE
 1. Import the project as a maven project
