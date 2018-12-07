@@ -74,12 +74,12 @@ public class AlarmCore {
                 boolean[] hasExecute = new boolean[] {false};
                 runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                     if (minutes > 0) {
-                        hasExecute[0] = true;
                         runningRule.moveTo(checkTime);
                         /**
                          * Don't run in the first quarter per min, avoid to trigger false alarm.
                          */
                         if (checkTime.getSecondOfMinute() > 15) {
+                            hasExecute[0] = true;
                             alarmMessageList.addAll(runningRule.check());
                         }
                     }
