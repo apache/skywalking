@@ -77,9 +77,9 @@ public class Config {
         public static String REGISTER_STATUS_DIR = "skywalking-agent/option";
 
         /**
-         * Specify instance_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
+         * Specify process_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
          */
-        public static String INSTANCE_UUID = "";
+        public static String PROCESS_UUID = "";
         
         /**
          * enabled means that the reset function is enabled, and disabled means that the reset function is not enabled. A reset can be triggered by modifying the configuration file only if the reset feature is enabled.

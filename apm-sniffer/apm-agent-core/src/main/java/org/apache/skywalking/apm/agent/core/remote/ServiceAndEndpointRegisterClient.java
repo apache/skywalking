@@ -56,7 +56,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 @DefaultImplementor
 public class ServiceAndEndpointRegisterClient implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(ServiceAndEndpointRegisterClient.class);
-    private static final String PROCESS_UUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID) ? UUID.randomUUID().toString().replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
+    private static final String PROCESS_UUID = StringUtil.isEmpty(Config.Agent.PROCESS_UUID) ? UUID.randomUUID().toString().replaceAll("-", "") : Config.Agent.PROCESS_UUID;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
