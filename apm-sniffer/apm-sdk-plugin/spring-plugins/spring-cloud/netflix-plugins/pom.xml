@@ -29,6 +29,7 @@
     <artifactId>netflix-plugins</artifactId>
     <modules>
         <module>spring-cloud-feign-1.x-plugin</module>
+        <module>spring-cloud-feign-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
