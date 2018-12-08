@@ -281,9 +281,12 @@ We are welcome everyone to contribute plugins.
 
 Please follow there steps:
 1. Submit an issue about which plugins are you going to contribute, including supported version.
-1. Create sub modules under `apm-sniffer/apm-sdk-plugin`, and the name should include supported library name and versions
+1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
 1. Follow this guide to develop. Make sure comments and test cases are provided.
 1. Develop and test.
-1. Send the pull request and ask for review, and provide the automatic test cases by following PMC members guides.
+1. Send the pull request and ask for review. 
+1. Provide the automatic test cases. 
+All test cases are hosted in [SkywalkingTest/skywalking-agent-testcases repository](https://github.com/SkywalkingTest/skywalking-agent-testcases).
+About how to write a test case, follow the [How to write](https://github.com/SkywalkingTest/skywalking-agent-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) document.
 1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 
