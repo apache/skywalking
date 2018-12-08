@@ -18,7 +18,7 @@ public class DatabaseService extends Source {
         return String.valueOf(id);
     }
 
-    @Getter @Setter private int id;
+    @Getter @Setter private long id;
     @Getter @Setter private String name;
     @Getter @Setter private String endpointName;
     @Getter @Setter private String statement;
