@@ -171,4 +171,19 @@ class SourceBuilder {
         endpointRelation.setTimeBucket(timeBucket);
         return endpointRelation;
     }
+
+    DatabaseService toDatabaseService() {
+        if (!RequestType.DATABASE.equals(type)) {
+            return null;
+        }
+        DatabaseService databaseService = new DatabaseService();
+        databaseService.setId(destServiceId);
+        databaseService.setComponentId(componentId);
+        //databaseService.setStatement(s);
+        databaseService.setLatency(latency);
+        databaseService.setName(destServiceName);
+        databaseService.setStatus(status);
+        databaseService.setTimeBucket(timeBucket);
+        return databaseService;
+    }
 }

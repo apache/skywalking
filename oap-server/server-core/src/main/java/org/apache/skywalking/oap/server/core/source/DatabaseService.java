@@ -20,7 +20,6 @@ public class DatabaseService extends Source {
 
     @Getter @Setter private long id;
     @Getter @Setter private String name;
-    @Getter @Setter private String endpointName;
     @Getter @Setter private String statement;
     @Getter @Setter private int componentId;
     @Getter @Setter private int latency;
