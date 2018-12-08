@@ -49,9 +49,18 @@ rules:
     count: 4
 ```
 
+## Default alarm rules
+We provided a default `alarm-setting.yml` in our distribution only for convenience, which including following rules
+1. Service average response time over 1s in last 3 minutes.
+1. Service success rate lower than 80% in last 2 minutes.
+1. Service 90% response time is lower than 1000ms in last 3 minutes
+1. Service Instance average response time over 1s in last 2 minutes.
+1. Endpoint average response time over 1s in last 2 minutes.
+ 
+
 
 ## List of all potential metric name
 The metric names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
-only metric from **Service** scope could be used in Alarm, we will extend in further versions. 
+metric from **Service**, **Service Instance**, **Endpoint** scopes could be used in Alarm, we will extend in further versions. 
 
 Submit issue or pull request if you want to support any other scope in alarm.

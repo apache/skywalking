@@ -35,3 +35,7 @@ In `public void prepare()`, use `this#registerServiceImplementation` method to d
 ## Example
 Take `org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider` 
 or `org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageProvider`  as a good example.
+
+## Redistribution with new storage implementation.
+You don't have to clone the main repo just for implementing the storage. You could just easy depend our Apache releases.
+Take a look at [OpenSkywalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo, SkyWalking v6 redistribution with ElasticSearch 5 TCP connection storage implemention.

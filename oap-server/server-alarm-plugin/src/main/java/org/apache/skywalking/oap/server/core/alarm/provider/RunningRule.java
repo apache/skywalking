@@ -118,14 +118,9 @@ public class RunningRule {
             Window window = windows.get(meta);
             if (window == null) {
                 window = new Window(period);
-                Window ifAbsent = windows.putIfAbsent(meta, window);
-                if (ifAbsent == null) {
-                    LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(indicator.getTimeBucket() + "");
-                    window.moveTo(timebucket);
-                } else {
-                    window = windows.get(meta);
-                }
-
+                LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(indicator.getTimeBucket() + "");
+                window.moveTo(timebucket);
+                windows.put(meta, window);
             }
 
             window.add(indicator);

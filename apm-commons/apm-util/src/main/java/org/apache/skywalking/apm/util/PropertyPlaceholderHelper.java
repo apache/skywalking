@@ -29,14 +29,11 @@ import java.util.Set;
  * ${name}}. Using {@code PropertyPlaceholderHelper} these placeholders can be substituted for user-supplied values. <p>
  * Values for substitution can be supplied using a {@link Properties} instance or using a {@link PlaceholderResolver}.
  */
-public class PropertyPlaceholderHelper {
-    private static final Map<String, String> WELL_KNOWN_SIMPLE_PREFIXES = new HashMap<String, String>(4);
+public enum PropertyPlaceholderHelper {
 
-    static {
-        WELL_KNOWN_SIMPLE_PREFIXES.put("}", "{");
-        WELL_KNOWN_SIMPLE_PREFIXES.put("]", "[");
-        WELL_KNOWN_SIMPLE_PREFIXES.put(")", "(");
-    }
+    INSTANCE(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
+        PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
+        PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
 
     private final String placeholderPrefix;
 
@@ -58,14 +55,21 @@ public class PropertyPlaceholderHelper {
      * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should be ignored ({@code
      * true}) or cause an exception ({@code false})
      */
-    public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
+    PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
         String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
         if (StringUtil.isEmpty(placeholderPrefix) || StringUtil.isEmpty(placeholderSuffix)) {
             throw new UnsupportedOperationException("'placeholderPrefix or placeholderSuffix' must not be null");
         }
+
+        final Map<String, String> wellKnownSimplePrefixes = new HashMap<String, String>(4);
+
+        wellKnownSimplePrefixes.put("}", "{");
+        wellKnownSimplePrefixes.put("]", "[");
+        wellKnownSimplePrefixes.put(")", "(");
+
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
-        String simplePrefixForSuffix = WELL_KNOWN_SIMPLE_PREFIXES.get(this.placeholderSuffix);
+        String simplePrefixForSuffix = wellKnownSimplePrefixes.get(this.placeholderSuffix);
         if (simplePrefixForSuffix != null && this.placeholderPrefix.endsWith(simplePrefixForSuffix)) {
             this.simplePrefix = simplePrefixForSuffix;
         } else {
@@ -85,7 +89,8 @@ public class PropertyPlaceholderHelper {
      */
     public String replacePlaceholders(String value, final Properties properties) {
         return replacePlaceholders(value, new PlaceholderResolver() {
-            @Override public String resolvePlaceholder(String placeholderName) {
+            @Override
+            public String resolvePlaceholder(String placeholderName) {
                 return PropertyPlaceholderHelper.this.getConfigValue(placeholderName, properties);
             }
         });
