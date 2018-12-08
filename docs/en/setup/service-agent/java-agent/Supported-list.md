@@ -35,6 +35,7 @@
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
   * [ActiveMQ](https://github.com/apache/activemq) 5.x
+  * [RabbitMQ](https://www.rabbitmq.com/) 5.x
 * NoSQL
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
