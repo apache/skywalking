@@ -12,7 +12,7 @@
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
-  * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
+  * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x , 2.0.x, 2.1.x 
   * [Okhttp](https://github.com/square/okhttp) 3.x
   * [Apache httpcomponent HttpClient](http://hc.apache.org/) 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
