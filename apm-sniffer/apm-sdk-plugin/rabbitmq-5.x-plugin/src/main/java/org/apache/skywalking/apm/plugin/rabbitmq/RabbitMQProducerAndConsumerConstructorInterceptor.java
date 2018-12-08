@@ -16,29 +16,17 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.elasticsearch.v5;
+package org.apache.skywalking.apm.plugin.rabbitmq;
 
-/**
- * @author oatiz.
- */
-class Constants {
+import com.rabbitmq.client.Connection;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-    static final String DB_TYPE = "Elasticsearch";
-
-    static final String ELASTICSEARCH_DB_OP_PREFIX = "Elasticsearch/";
-
-    static final String BASE_FUTURE_METHOD = "actionGet";
-
-    static final String ES_NODE = "node.address";
-
-    static final String ES_INDEX = "es.indices";
-
-    static final String ES_TYPE = "es.types";
-
-    static final String ES_TOOK_MILLIS = "es.took_millis";
-
-    static final String ES_TOTAL_HITS = "es.total_hits";
-
-    static final String ES_INGEST_TOOK_MILLIS = "es.ingest_took_millis";
-
+public class RabbitMQProducerAndConsumerConstructorInterceptor implements InstanceConstructorInterceptor {
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        Connection connection = (Connection)allArguments[0];
+        String url =  connection.getAddress().toString().replace("/","") + ":" + connection.getPort();
+        objInst.setSkyWalkingDynamicField(url);
+    }
 }
