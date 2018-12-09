@@ -17,6 +17,7 @@ Release Notes.
 - Support webflux
 - Support a new way to override agent.config by system env. 
 - Span tag can override by explicit way.
+- Fix Spring Controller Inherit issue.
 - Fix ElasticSearch plugin NPE.
 - Fix agent classloader dead lock in certain situation.
 - Fix agent log typo.
