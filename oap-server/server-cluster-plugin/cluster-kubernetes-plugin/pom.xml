@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>server-cluster-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -27,14 +28,6 @@
 
     <artifactId>cluster-kubernetes-plugin</artifactId>
     <packaging>jar</packaging>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <elasticsearch-client-transport.version>5.6.6</elasticsearch-client-transport.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -46,13 +39,5 @@
             <groupId>io.kubernetes</groupId>
             <artifactId>client-java</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>${elasticsearch-client-transport.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
-
-
 </project>
