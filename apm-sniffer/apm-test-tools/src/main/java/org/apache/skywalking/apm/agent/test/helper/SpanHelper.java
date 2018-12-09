@@ -21,10 +21,10 @@ package org.apache.skywalking.apm.agent.test.helper;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 
 public class SpanHelper {
     public static int getParentSpanId(AbstractSpan tracingSpan) {
@@ -61,15 +61,15 @@ public class SpanHelper {
         return Collections.emptyList();
     }
 
-    public static List<KeyValuePair> getTags(AbstractSpan tracingSpan) {
+    public static List<TagValuePair> getTags(AbstractSpan tracingSpan) {
         try {
-            List<KeyValuePair> tags = FieldGetter.get2LevelParentFieldValue(tracingSpan, "tags");
+            List<TagValuePair> tags = FieldGetter.get2LevelParentFieldValue(tracingSpan, "tags");
             if (tags != null) {
                 return tags;
             }
         } catch (Exception e) {
             try {
-                List<KeyValuePair> tags = FieldGetter.getParentFieldValue(tracingSpan, "tags");
+                List<TagValuePair> tags = FieldGetter.getParentFieldValue(tracingSpan, "tags");
                 if (tags != null) {
                     return tags;
                 }
