@@ -22,10 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,11 +67,8 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                             if (propertiesConfig != null) {
                                 propertiesConfig.forEach((key, value) -> {
                                     properties.put(key, value);
-                                    PropertyPlaceholderHelper helper =
-                                        new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
-                                            PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
-                                            PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
-                                    final Object replaceValue = yaml.load(helper.replacePlaceholders(value + "", properties));
+                                    final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE
+                                        .replacePlaceholders(value + "", properties));
                                     properties.replace(key, replaceValue);
                                     logger.info("The property with key: {}, value: {}, in {} provider", key, replaceValue.toString(), name);
                                 });

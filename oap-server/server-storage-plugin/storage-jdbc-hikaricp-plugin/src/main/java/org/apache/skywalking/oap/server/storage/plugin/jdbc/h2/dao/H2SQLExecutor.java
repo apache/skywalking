@@ -74,7 +74,7 @@ public class H2SQLExecutor {
 
     protected StorageData toStorageData(ResultSet rs, String modelName,
         StorageBuilder storageBuilder) throws SQLException {
-        while (rs.next()) {
+        if (rs.next()) {
             Map data = new HashMap();
             List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
             for (ModelColumn column : columns) {

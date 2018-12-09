@@ -22,10 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Arg;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorOperator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.SourceFrom;
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
@@ -38,7 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  *
  * @author wusheng, peng-yongsheng
  */
-@IndicatorOperator
+@IndicatorFunction(functionName = "thermodynamic")
 public abstract class ThermodynamicIndicator extends Indicator {
     public static final String DETAIL_GROUP = "detail_group";
     public static final String STEP = "step";

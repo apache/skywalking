@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * @author wusheng
  */
-@IndicatorOperator
+@IndicatorFunction(functionName = "sum")
 public abstract class SumIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";

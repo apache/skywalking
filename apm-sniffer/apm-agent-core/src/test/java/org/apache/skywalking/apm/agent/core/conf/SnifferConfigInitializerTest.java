@@ -24,7 +24,6 @@ import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.util.ConfigInitializer;
-import org.apache.skywalking.apm.util.PlaceholderConfigurerSupport;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.junit.After;
 import org.junit.Rule;
@@ -81,11 +80,7 @@ public class SnifferConfigInitializerTest {
         properties.put("agent.service_name", "${AGENT_SERVICE_NAME:testAppFromSystem}");
         properties.put("collector.backend_service", "${AGENT_COLLECTOR_SERVER:127.0.0.1:8090}");
         properties.put("logging.level", "INFO");
-
-        PropertyPlaceholderHelper placeholderHelper =
-            new PropertyPlaceholderHelper(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
-                PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
-                PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
+        PropertyPlaceholderHelper placeholderHelper = PropertyPlaceholderHelper.INSTANCE;
         properties.put("agent.service_name", placeholderHelper.replacePlaceholders((String)properties.get("agent.service_name"), properties));
         properties.put("collector.backend_service", placeholderHelper.replacePlaceholders((String)properties.get("collector.backend_service"), properties));
         ConfigInitializer.initialize(properties, Config.class);
