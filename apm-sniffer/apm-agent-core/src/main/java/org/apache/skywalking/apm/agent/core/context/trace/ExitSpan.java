@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.Component;
@@ -26,13 +27,13 @@ import org.apache.skywalking.apm.network.trace.component.Component;
 /**
  * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp client for a Http service.
  *
- * It is an exit point or a leaf span(our old name) of trace tree.
- * In a single rpc call, because of a combination of discovery libs, there maybe contain multi-layer exit point:
+ * It is an exit point or a leaf span(our old name) of trace tree. In a single rpc call, because of a combination of
+ * discovery libs, there maybe contain multi-layer exit point:
  *
  * The <code>ExitSpan</code> only presents the first one.
  *
- * Such as: Dubbox - Apache Httpcomponent - ...(Remote)
- * The <code>ExitSpan</code> represents the Dubbox span, and ignore the httpcomponent span's info.
+ * Such as: Dubbox - Apache Httpcomponent - ...(Remote) The <code>ExitSpan</code> represents the Dubbox span, and ignore
+ * the httpcomponent span's info.
  *
  * @author wusheng
  */
@@ -79,6 +80,13 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
     public ExitSpan tag(String key, String value) {
         if (stackDepth == 1) {
             super.tag(key, value);
+        }
+        return this;
+    }
+
+    @Override public AbstractTracingSpan tag(AbstractTag tag, String value) {
+        if (stackDepth == 1 || tag.isCanOverwrite()) {
+            super.tag(tag, value);
         }
         return this;
     }
