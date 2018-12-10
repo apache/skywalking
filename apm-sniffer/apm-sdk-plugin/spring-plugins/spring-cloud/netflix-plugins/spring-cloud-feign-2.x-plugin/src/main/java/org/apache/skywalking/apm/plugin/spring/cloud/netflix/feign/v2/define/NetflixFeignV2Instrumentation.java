@@ -53,19 +53,19 @@ public class NetflixFeignV2Instrumentation extends ClassInstanceMethodsEnhancePl
 
     @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-                new InstanceMethodsInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                         return named("execute");
                     }
 
-                    @Override public String getMethodsInterceptor() {
+                @Override public String getMethodsInterceptor() {
                         return INTERCEPT_CLASS;
                     }
 
-                    @Override public boolean isOverrideArgs() {
+                @Override public boolean isOverrideArgs() {
                         return false;
                     }
-                }
+            }
         };
     }
 }
