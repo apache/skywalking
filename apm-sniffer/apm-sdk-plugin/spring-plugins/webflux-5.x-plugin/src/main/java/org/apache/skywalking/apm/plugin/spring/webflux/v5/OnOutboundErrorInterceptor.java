@@ -17,51 +17,35 @@
 
 package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
+import io.netty.handler.codec.http.HttpRequest;
 import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
 
-public class OnHandlerStartInterceptor implements InstanceMethodsAroundInterceptor {
+public class OnOutboundErrorInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
+        Throwable exception = (Throwable)allArguments[0];
+        HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
         if (request != null) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(request.getHeader(next.getHeadKey()));
-            }
-
-            AbstractSpan span = ContextManager.createEntrySpan(request.getRequestURL().toString(), contextCarrier);
-            Tags.URL.set(span, request.getRequestURL().toString());
-            Tags.HTTP.METHOD.set(span, request.getMethod());
-            span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
-            SpanLayer.asHttp(span);
+            ContextManager.activeSpan().errorOccurred().log(exception);
         }
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+
     }
 }

@@ -45,7 +45,6 @@ public class StatusInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred();
-        ContextManager.activeSpan().log(t);
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

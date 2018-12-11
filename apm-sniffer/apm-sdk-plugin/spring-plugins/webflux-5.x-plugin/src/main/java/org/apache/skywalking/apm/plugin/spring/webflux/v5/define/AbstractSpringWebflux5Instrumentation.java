@@ -15,19 +15,16 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
-import io.netty.handler.codec.http.HttpRequest;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+package org.apache.skywalking.apm.plugin.spring.webflux.v5.define;
 
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
-public class ConstructorWithConnectionInterceptor implements InstanceConstructorInterceptor {
+public abstract class AbstractSpringWebflux5Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    public static final String WITHNESS_CLASSES = "org.springframework.web.reactive.BindingContext";
+
     @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        HttpRequest httpRequest = (HttpRequest)allArguments[4];
-        ContextManager.getRuntimeContext().put(WEBFLUX_REQUEST_KEY, httpRequest);
+    protected final String[] witnessClasses() {
+        return new String[] {WITHNESS_CLASSES};
     }
 }
