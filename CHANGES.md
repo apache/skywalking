@@ -2,6 +2,65 @@ Changes by Version
 ==================
 Release Notes.
 
+6.0.0-beta
+------------------
+
+#### Protocol
+- Provide Trace Data Protocol v2
+- Provide SkyWalking Cross Process Propagation Headers Protocol v2.
+
+#### Java Agent
+- Support Trace Data Protocol v2
+- Support SkyWalking Cross Process Propagation Headers Protocol v2.
+- Support SkyWalking Cross Process Propagation Headers Protocol v1 running in compatible way. Need declare open explicitly.
+- Support SpringMVC 5
+- Support webflux
+- Support a new way to override agent.config by system env. 
+- Span tag can override by explicit way.
+- Fix Spring Controller Inherit issue.
+- Fix ElasticSearch plugin NPE.
+- Fix agent classloader dead lock in certain situation.
+- Fix agent log typo.
+- Fix wrong component id in resettemplete plugin.
+- Fix use transform `ignore()` in wrong way.
+- Fix H2 query bug.
+
+#### Backend
+- Support Trace Data Protocol v2. And Trace Data Protocol v1 is still supported.
+- Support MySQL as storage.
+- Support TiDB as storage.
+- Support a new way to override application.yml by system env.
+- Support service instance and endpoint alarm.
+- Support namespace in istio receiver.
+- Support service throughput(cpm), successful rate(sla), avg response time and p99/p95/p90/p75/p50 response time.
+- Support backend trace sampling.
+- Support Zipkin format again.
+- Support init mode.
+- Support namespace in Zookeeper cluster management.
+- OAL generate tool has been integrated into main repo, in the maven `compile` stage.
+- Optimize trace paging query.
+- Fix trace query don't use fuzzy query in ElasticSearch storage.
+- Fix alarm can't be active in right way.
+- Fix unnecessary condition in database and cache number query.
+- Fix wrong namespace bug in ElasticSearch storage.
+- Fix `Remote clients selector error: / by zero `.
+- Fix segment TTL is not working.
+
+
+#### UI
+- Support service throughput(cpm), successful rate(sla), avg response time and p99/p95/p90/p75/p50 response time.
+- Fix TopN endpoint link doesn't work right.
+- Fix trace stack style.
+- Fix CI.
+
+#### Document
+- Add more agent setting documents.
+- Add more contribution documents.
+- Update user wall and powered-by page.
+- Add RocketBot UI project link in document.
+
+
+All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/31?closed=1)
 
 6.0.0-alpha
 ------------------
@@ -18,6 +77,7 @@ provided in this release.
 1. UI topology is better now.
 1. New alarm core provided. In alpha, only on service related metric.
 
+All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/29?closed=1)
 
 5.x releases
 ------------------
