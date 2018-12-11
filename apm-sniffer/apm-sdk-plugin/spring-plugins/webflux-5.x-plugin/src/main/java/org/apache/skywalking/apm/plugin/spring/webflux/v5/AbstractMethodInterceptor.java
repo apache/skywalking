@@ -29,13 +29,38 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
 
-public class OnHandlerStartInterceptor implements InstanceMethodsAroundInterceptor {
+/**
+ * the abstract method inteceptor
+ */
+public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
+    public abstract String getRequestURL(Method method);
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+
+        Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
+        /**
+         * Spring MVC plugin do nothing if current request is forward request.
+         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         */
+        if (forwardRequestFlag != null && forwardRequestFlag) {
+            return;
+        }
+
+        EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
+        String requestURL = pathMappingCache.findPathMapping(method);
+        if (requestURL == null) {
+            requestURL = getRequestURL(method);
+            pathMappingCache.addPathMapping(method, requestURL);
+            requestURL = pathMappingCache.findPathMapping(method);
+        }
+
         HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
         if (request != null) {
             ContextCarrier contextCarrier = new ContextCarrier();
@@ -45,8 +70,8 @@ public class OnHandlerStartInterceptor implements InstanceMethodsAroundIntercept
                 next.setHeadValue(request.headers().get(next.getHeadKey()));
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(request.uri(), contextCarrier);
-            Tags.URL.set(span, request.uri());
+            AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
+            Tags.URL.set(span, request.uri().toString());
             Tags.HTTP.METHOD.set(span, request.method().name());
             span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             SpanLayer.asHttp(span);
@@ -56,12 +81,26 @@ public class OnHandlerStartInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
-        ContextManager.getRuntimeContext().remove(WEBFLUX_REQUEST_KEY);
+        Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
+        /**
+         * Spring MVC plugin do nothing if current request is forward request.
+         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         */
+        if (forwardRequestFlag != null && forwardRequestFlag) {
+            return ret;
+        }
+
+        try {
+            ContextManager.stopSpan();
+        } finally {
+            ContextManager.getRuntimeContext().remove(WEBFLUX_REQUEST_KEY);
+        }
+
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

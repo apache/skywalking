@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
+
 public class StatusInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -34,6 +36,10 @@ public class StatusInterceptor implements InstanceMethodsAroundInterceptor {
             ContextManager.activeSpan().errorOccurred();
             Tags.STATUS_CODE.set(ContextManager.activeSpan(), String.valueOf(status.code()));
         }
+
+        // Some case may not execute `HttpServerOperation#onHandler` method. so must clear by manual.
+        // For example: 404
+        ContextManager.getRuntimeContext().remove(WEBFLUX_REQUEST_KEY);
     }
 
     @Override
@@ -45,7 +51,6 @@ public class StatusInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred();
-        ContextManager.activeSpan().log(t);
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

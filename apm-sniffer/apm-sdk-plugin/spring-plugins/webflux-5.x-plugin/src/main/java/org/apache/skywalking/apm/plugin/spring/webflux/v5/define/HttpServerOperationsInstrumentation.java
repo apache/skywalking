@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -33,7 +34,7 @@ public class HttpServerOperationsInstrumentation extends ClassInstanceMethodsEnh
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, "reactor.netty.Connection");
+                    return takesArgumentWithType(4, "io.netty.handler.codec.http.HttpRequest");
                 }
 
                 @Override public String getConstructorInterceptor() {
@@ -47,7 +48,7 @@ public class HttpServerOperationsInstrumentation extends ClassInstanceMethodsEnh
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("status").and(takesArgumentWithType(0, "io.netty.handler.codec.http.HttpResponseStatus"));
+                    return named("status").and(takesArguments(1));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -75,6 +76,6 @@ public class HttpServerOperationsInstrumentation extends ClassInstanceMethodsEnh
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName("reactor.netty.http.server.HttpServerOperations");
+        return byName("reactor.ipc.netty.http.server.HttpServerOperations");
     }
 }

@@ -23,14 +23,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_RESPONSE_KEY;
 
 /**
  * {@link GetBeanInterceptor} pass the {@link NativeWebRequest} object into the {@link
@@ -48,21 +45,8 @@ public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
-            Object webFluxRequest = ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
-
-            if (webFluxRequest == null) {
-                ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest());
-            } else {
-                ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, webFluxRequest);
-            }
-
-            Object webFluxResponse = ContextManager.getRuntimeContext().get(WEBFLUX_RESPONSE_KEY);
-
-            if (webFluxResponse == null){
-                ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getResponse());
-            }else {
-                ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, webFluxResponse);
-            }
+            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest());
+            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getResponse());
         }
         return ret;
     }
