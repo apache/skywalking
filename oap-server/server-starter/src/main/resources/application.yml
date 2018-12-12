@@ -15,30 +15,30 @@
 # limitations under the License.
 
 cluster:
-  #  standalone:
-  #   Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
-  #   library the oap-libs folder with your ZooKeeper 3.4.x library.
-  #  zookeeper:
-  #    nameSpace: ${SW_NAMESPACE:""}
-  #    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
-  #    #Retry Policy
-  #    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
-  #    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
-  #  kubernetes:
-  #    watchTimeoutSeconds: ${SW_CLUSTER_K8S_WATCH_TIMEOUT:60}
-  #    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
-  #    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
-  #    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
-  consul:
-    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
-    # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
-    hostPort: localhost:8500
+  standalone:
+#   Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
+#   library the oap-libs folder with your ZooKeeper 3.4.x library.
+#  zookeeper:
+#    nameSpace: ${SW_NAMESPACE:""}
+#    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
+#    #Retry Policy
+#    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
+#    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+#  kubernetes:
+#    watchTimeoutSeconds: ${SW_CLUSTER_K8S_WATCH_TIMEOUT:60}
+#    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+#    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+#    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
+#  consul:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+#    hostPort: localhost:8500
 core:
   default:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
-    gRPCHost: ${SW_CORE_GRPC_HOST:10.21.3.208}
+    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     downsampling:
       - Hour
@@ -90,8 +90,8 @@ istio-telemetry:
 #    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
 #    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
 #    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-#query:
-#  graphql:
-#    path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
+query:
+  graphql:
+    path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
 alarm:
   default:
