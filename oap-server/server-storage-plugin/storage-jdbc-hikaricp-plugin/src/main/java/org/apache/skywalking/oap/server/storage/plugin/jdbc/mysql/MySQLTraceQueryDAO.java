@@ -18,27 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
-import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
-import org.apache.skywalking.oap.server.core.query.entity.TraceState;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.elasticsearch.search.sort.SortOrder;
 
 /**
  * @author wusheng
  */
-public class MySQLTraceQueryDAO  extends H2TraceQueryDAO {
+public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
     public MySQLTraceQueryDAO(JDBCHikariCPClient mysqlClient) {
         super(mysqlClient);
     }
@@ -68,7 +62,7 @@ public class MySQLTraceQueryDAO  extends H2TraceQueryDAO {
                 parameters.add(maxDuration);
             }
         }
-        if (StringUtils.isNotEmpty(endpointName)) {
+        if (!Strings.isNullOrEmpty(endpointName)) {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like '%" + endpointName + "%'");
         }
         if (serviceId != 0) {
@@ -79,7 +73,7 @@ public class MySQLTraceQueryDAO  extends H2TraceQueryDAO {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_ID).append(" = ?");
             parameters.add(endpointId);
         }
-        if (StringUtils.isNotEmpty(traceId)) {
+        if (!Strings.isNullOrEmpty(traceId)) {
             sql.append(" and ").append(SegmentRecord.TRACE_ID).append(" = ?");
             parameters.add(traceId);
         }

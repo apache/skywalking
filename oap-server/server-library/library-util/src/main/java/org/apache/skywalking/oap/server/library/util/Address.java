@@ -18,22 +18,14 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import lombok.*;
+
 /**
  * @author peng-yongsheng
  */
-public class StringUtils {
-
-    public static final String EMPTY_STRING = "";
-
-    public static boolean isEmpty(Object str) {
-        return str == null || EMPTY_STRING.equals(str);
-    }
-
-    public static boolean isNotEmpty(Object str) {
-        return !isEmpty(str);
-    }
-
-    public static String getOrDefault(String value, String defaultValue) {
-        return value == null ? defaultValue : value;
-    }
+@Getter
+@Setter
+public class Address {
+    private String host;
+    private int port;
 }

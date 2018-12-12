@@ -31,6 +31,7 @@
         <module>cluster-zookeeper-plugin</module>
         <module>cluster-standalone-plugin</module>
         <module>cluster-kubernetes-plugin</module>
+        <module>cluster_consul_plugin</module>
     </modules>
 
     <dependencies>

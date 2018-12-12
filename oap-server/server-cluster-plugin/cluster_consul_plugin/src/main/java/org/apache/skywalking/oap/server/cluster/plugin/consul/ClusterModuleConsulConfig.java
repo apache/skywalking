@@ -16,43 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
+package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
-import com.google.common.base.Strings;
 import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author peng-yongsheng
  */
-class ClusterModuleZookeeperConfig extends ModuleConfig {
-
-    @Setter @Getter private String nameSpace;
-    private String hostPort;
-    private int baseSleepTimeMs;
-    private int maxRetries;
-
-    public String getHostPort() {
-        return Strings.isNullOrEmpty(hostPort) ? "localhost:2181" : hostPort;
-    }
-
-    public void setHostPort(String hostPort) {
-        this.hostPort = hostPort;
-    }
-
-    public int getBaseSleepTimeMs() {
-        return baseSleepTimeMs > 0 ? baseSleepTimeMs : 1000;
-    }
-
-    public void setBaseSleepTimeMs(int baseSleepTimeMs) {
-        this.baseSleepTimeMs = baseSleepTimeMs;
-    }
-
-    public int getMaxRetries() {
-        return maxRetries > 0 ? maxRetries : 3;
-    }
-
-    public void setMaxRetries(int maxRetries) {
-        this.maxRetries = maxRetries;
-    }
+class ClusterModuleConsulConfig extends ModuleConfig {
+    @Setter @Getter private String serviceName;
+    @Setter @Getter private String hostPort;
 }

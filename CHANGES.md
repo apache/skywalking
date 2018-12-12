@@ -37,6 +37,7 @@ Release Notes.
 - Support Zipkin format again.
 - Support init mode.
 - Support namespace in Zookeeper cluster management.
+- Support consul plugin in cluster module.
 - OAL generate tool has been integrated into main repo, in the maven `compile` stage.
 - Optimize trace paging query.
 - Fix trace query don't use fuzzy query in ElasticSearch storage.
@@ -45,7 +46,6 @@ Release Notes.
 - Fix wrong namespace bug in ElasticSearch storage.
 - Fix `Remote clients selector error: / by zero `.
 - Fix segment TTL is not working.
-
 
 #### UI
 - Support service throughput(cpm), successful rate(sla), avg response time and p99/p95/p90/p75/p50 response time.
@@ -58,7 +58,6 @@ Release Notes.
 - Add more contribution documents.
 - Update user wall and powered-by page.
 - Add RocketBot UI project link in document.
-
 
 All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/31?closed=1)
 
