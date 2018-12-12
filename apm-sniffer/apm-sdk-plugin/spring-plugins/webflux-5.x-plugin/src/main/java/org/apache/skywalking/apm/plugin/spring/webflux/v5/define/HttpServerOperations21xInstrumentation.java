@@ -29,16 +29,16 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class HttpServerOperationsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpServerOperations21xInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(4, "io.netty.handler.codec.http.HttpRequest");
+                    return takesArgumentWithType(3, "io.netty.handler.codec.http.HttpRequest");
                 }
 
                 @Override public String getConstructorInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.ConstructorWithConnectionInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.ConstructorInterceptor";
                 }
             }
         };
@@ -102,6 +102,6 @@ public class HttpServerOperationsInstrumentation extends ClassInstanceMethodsEnh
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName("reactor.ipc.netty.http.server.HttpServerOperations");
+        return byName("reactor.netty.http.server.HttpServerOperations");
     }
 }

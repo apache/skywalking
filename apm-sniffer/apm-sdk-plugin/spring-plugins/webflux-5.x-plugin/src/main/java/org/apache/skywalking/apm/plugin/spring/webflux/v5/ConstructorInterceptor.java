@@ -24,10 +24,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
 
-public class ConstructorWithConnectionInterceptor implements InstanceConstructorInterceptor {
+public class ConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        HttpRequest httpRequest = (HttpRequest)allArguments[4];
+        HttpRequest httpRequest = (HttpRequest)allArguments[3];
         ContextManager.getRuntimeContext().put(WEBFLUX_REQUEST_KEY, httpRequest);
     }
 }

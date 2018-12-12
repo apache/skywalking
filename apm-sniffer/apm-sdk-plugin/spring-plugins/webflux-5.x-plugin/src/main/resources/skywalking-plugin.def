@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.HttpServerOperationsInstrumentation
+spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.HttpServerOperations20xInstrumentation
+spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.HttpServerOperations21xInstrumentation
 spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.ControllerInstrumentation
-spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.HandlerMethodInstrumentation
 spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.RestControllerInstrumentation
