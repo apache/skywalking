@@ -26,8 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
 /**
- * The <code>RestMappingMethodInterceptor</code> only use the first mapping value.
- * it will inteceptor with
+ * The <code>RestMappingMethodInterceptor</code> only use the first mapping value. it will inteceptor with
  * <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>
  * <code>@DeleteMapping</code>, <code>@PatchMapping</code>
  *

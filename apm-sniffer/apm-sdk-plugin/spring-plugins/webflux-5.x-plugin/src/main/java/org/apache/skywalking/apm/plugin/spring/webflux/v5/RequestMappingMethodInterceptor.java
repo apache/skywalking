@@ -22,8 +22,8 @@ import java.lang.reflect.Method;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value.
- * it will inteceptor with <code>@RequestMapping</code>
+ * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value. it will inteceptor with
+ * <code>@RequestMapping</code>
  *
  * @author clevertension
  */
