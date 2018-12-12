@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
+import org.elasticsearch.common.Strings;
 
 /**
  * @author peng-yongsheng
@@ -123,11 +123,11 @@ public class ServiceInstanceInventory extends RegisterSource {
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(osName, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(hostName, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(ipv4s, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(instanceUUID, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(osName) ? Const.EMPTY_STRING : osName);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(hostName) ? Const.EMPTY_STRING : hostName);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(ipv4s) ? Const.EMPTY_STRING : ipv4s);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(instanceUUID) ? Const.EMPTY_STRING : instanceUUID);
         return remoteBuilder;
     }
 

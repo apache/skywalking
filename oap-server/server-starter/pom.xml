@@ -66,6 +66,11 @@
             <artifactId>cluster-kubernetes-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster_consul_plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- cluster module -->
 
         <!-- receiver module -->

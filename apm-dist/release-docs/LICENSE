@@ -304,6 +304,7 @@ The text of each license is the standard Apache 2.0 license.
     kubernetes-client 2.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
+    consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
 
 ========================================================================
 MIT licenses
