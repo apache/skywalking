@@ -19,6 +19,7 @@ cluster:
    # Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
    # library the oap-libs folder with your ZooKeeper 3.4.x library.
 #  zookeeper:
+#    nameSpace: ${SW_NAMESPACE:""}
 #    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
 #    #Retry Policy
 #    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
@@ -28,6 +29,10 @@ cluster:
 #    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
 #    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
 #    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
+#  consul:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+#    hostPort: localhost:8500
 core:
   default:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
