@@ -27,9 +27,10 @@ import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.util.*;
+import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.elasticsearch.common.Strings;
 import org.slf4j.*;
 
 /**
@@ -126,7 +127,7 @@ public class TopologyQueryService implements Service {
         if (CollectionUtils.isNotEmpty(sourceServiceIds)) {
             List<Call> sourceCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, sourceServiceIds);
             topology.getNodes().forEach(node -> {
-                if (StringUtils.isEmpty(node.getType())) {
+                if (Strings.isNullOrEmpty(node.getType())) {
                     for (Call call : sourceCalls) {
                         if (node.getId() == call.getTarget()) {
                             node.setType(getComponentLibraryCatalogService().getComponentName(call.getComponentId()));
