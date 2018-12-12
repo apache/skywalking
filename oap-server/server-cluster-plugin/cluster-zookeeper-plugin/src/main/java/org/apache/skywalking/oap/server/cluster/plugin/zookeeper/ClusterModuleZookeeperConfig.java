@@ -33,7 +33,7 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     private int maxRetries;
 
     public String getHostPort() {
-        return Strings.isNullOrEmpty(hostPort) ? hostPort : "localhost:2181";
+        return Strings.isNullOrEmpty(hostPort) ? "localhost:2181" : hostPort;
     }
 
     public void setHostPort(String hostPort) {

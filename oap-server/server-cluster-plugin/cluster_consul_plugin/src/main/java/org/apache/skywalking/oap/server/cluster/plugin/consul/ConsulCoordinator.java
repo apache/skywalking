@@ -37,6 +37,7 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final Consul client;
     private final String serviceName;
+    private volatile Address selfAddress;
 
     public ConsulCoordinator(Consul client, String serviceName) {
         this.client = client;
@@ -53,7 +54,13 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         if (CollectionUtils.isNotEmpty(nodes)) {
             nodes.forEach(node -> {
                 if (!Strings.isNullOrEmpty(node.getService().getAddress())) {
-                    remoteInstances.add(new RemoteInstance(new Address(node.getService().getAddress(), node.getService().getPort(), true)));
+                    if (Objects.nonNull(selfAddress)) {
+                        if (selfAddress.getHost().equals(node.getService().getAddress()) && selfAddress.getPort() == node.getService().getPort()) {
+                            remoteInstances.add(new RemoteInstance(new Address(node.getService().getAddress(), node.getService().getPort(), true)));
+                        } else {
+                            remoteInstances.add(new RemoteInstance(new Address(node.getService().getAddress(), node.getService().getPort(), false)));
+                        }
+                    }
                 }
             });
         }
@@ -62,6 +69,8 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         AgentClient agentClient = client.agentClient();
+
+        this.selfAddress = remoteInstance.getAddress();
 
         Registration registration = ImmutableRegistration.builder()
             .id(remoteInstance.getAddress().toString())
