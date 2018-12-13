@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>cluster_consul_plugin</artifactId>
+            <artifactId>cluster-consul-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cluster module -->
