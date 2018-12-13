@@ -19,21 +19,27 @@
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.base.Strings;
-import com.orbitz.consul.*;
-import com.orbitz.consul.model.agent.*;
+import com.orbitz.consul.AgentClient;
+import com.orbitz.consul.Consul;
+import com.orbitz.consul.HealthClient;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.ServiceHealth;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.slf4j.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author peng-yongsheng
  */
 public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
-
-    private static final Logger logger = LoggerFactory.getLogger(ConsulCoordinator.class);
 
     private final Consul client;
     private final String serviceName;
