@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
+import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorFunction;
+
 /**
  * P50
  *
  * @author wusheng
  */
+@IndicatorFunction(functionName = "p50")
 public abstract class P50Indicator extends PxxIndicator {
     public P50Indicator() {
         super(50);

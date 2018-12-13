@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * @author wusheng
  */
-@IndicatorOperator
+@IndicatorFunction(functionName = "percent")
 public abstract class PercentIndicator extends Indicator implements IntValueHolder {
     protected static final String TOTAL = "total";
     protected static final String MATCH = "match";

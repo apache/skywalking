@@ -36,6 +36,8 @@
         <module>core-patch</module>
         <module>mvc-annotation-commons</module>
         <module>spring-commons</module>
+        <module>mvc-annotation-5.x-plugin</module>
+        <module>webflux-5.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

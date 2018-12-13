@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import com.google.common.base.Strings;
 import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author peng-yongsheng
@@ -33,7 +33,7 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     private int maxRetries;
 
     public String getHostPort() {
-        return StringUtils.isNotEmpty(hostPort) ? hostPort : "localhost:2181";
+        return Strings.isNullOrEmpty(hostPort) ? "localhost:2181" : hostPort;
     }
 
     public void setHostPort(String hostPort) {

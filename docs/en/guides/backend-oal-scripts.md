@@ -1,7 +1,7 @@
 # Official OAL script
 First, read [OAL introduction](../concepts-and-designs/oal.md).
 
-Here is the official scrips is the `server-core-x.y.z.jar/official_analysis.oal` file in distribution,
+Here is the official scrips is the `generated-analysis-x.y.z.jar/official_analysis.oal` file in distribution,
 also the `server-core` module's **src/main/resources/official_analysis.oal** in source code repository.
 
 **Notice**, this file doesn't effect anything in runtime, although included in distribution.

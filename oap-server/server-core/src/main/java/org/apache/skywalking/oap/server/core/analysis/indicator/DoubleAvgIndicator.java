@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * @author peng-yongsheng
  */
-@IndicatorOperator
+@IndicatorFunction(functionName = "doubleAvg")
 public abstract class DoubleAvgIndicator extends Indicator implements DoubleValueHolder {
 
     protected static final String SUMMATION = "summation";
