@@ -43,6 +43,7 @@
     <modules>
         <module>optional-spring-plugins</module>
         <module>trace-ignore-plugin</module>
+        <module>apm-log4j2-plugin</module>
     </modules>
 
     <dependencies>

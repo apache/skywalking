@@ -86,6 +86,7 @@ Now, we have the following known plugins.
 * [Trace Spring beans](agent-optional-plugins/Spring-bean-plugins.md)
 * [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
+* [Log4j2 plugin](agent-optional-plugins/log4j2-plugin.md)
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
