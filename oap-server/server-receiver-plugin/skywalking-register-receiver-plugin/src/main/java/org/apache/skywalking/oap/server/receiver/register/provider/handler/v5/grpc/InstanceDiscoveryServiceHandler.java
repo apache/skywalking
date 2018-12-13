@@ -18,18 +18,16 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc;
 
+import com.google.common.base.Strings;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
 /**
@@ -67,7 +65,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         if (osinfo.getProcessNo() != 0) {
             instanceName += "-pid:" + osinfo.getProcessNo();
         }
-        if (StringUtils.isNotEmpty(osinfo.getHostname())) {
+        if (!Strings.isNullOrEmpty(osinfo.getHostname())) {
             instanceName += "@" + osinfo.getHostname();
         }
 

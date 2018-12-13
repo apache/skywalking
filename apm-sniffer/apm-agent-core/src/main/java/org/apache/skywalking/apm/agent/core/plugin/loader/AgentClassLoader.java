@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -45,6 +46,11 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
  * @author wusheng
  */
 public class AgentClassLoader extends ClassLoader {
+
+    static {
+        tryRegisterAsParallelCapable();
+    }
+
     private static final ILog logger = LogManager.getLogger(AgentClassLoader.class);
     /**
      * The default class loader for the agent.
@@ -54,6 +60,27 @@ public class AgentClassLoader extends ClassLoader {
     private List<File> classpath;
     private List<Jar> allJars;
     private ReentrantLock jarScanLock = new ReentrantLock();
+
+    /**
+     * Functional Description: solve the classloader dead lock when jvm start
+     * only support JDK7+, since ParallelCapable appears in JDK7+
+     */
+    private static void tryRegisterAsParallelCapable() {
+        Method[] methods = ClassLoader.class.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            String methodName = method.getName();
+            if ("registerAsParallelCapable".equalsIgnoreCase(methodName)) {
+                try {
+                    method.setAccessible(true);
+                    method.invoke(null);
+                } catch (Exception e) {
+                    logger.warn(e, "can not invoke ClassLoader.registerAsParallelCapable()");
+                }
+                return;
+            }
+        }
+    }
 
     public static AgentClassLoader getDefault() {
         return DEFAULT_LOADER;

@@ -18,17 +18,16 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest;
 
+import com.google.common.base.Strings;
 import com.google.gson.*;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.*;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
 /**
@@ -84,7 +83,7 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
             if (agentOsInfo.getProcessNo() != 0) {
                 instanceName += "-pid:" + agentOsInfo.getProcessNo();
             }
-            if (StringUtils.isNotEmpty(agentOsInfo.getHostname())) {
+            if (!Strings.isNullOrEmpty(agentOsInfo.getHostname())) {
                 instanceName += "@" + agentOsInfo.getHostname();
             }
 
