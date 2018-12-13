@@ -20,12 +20,20 @@ package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
-import java.util.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.util.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.Address;
+import org.apache.skywalking.oap.server.library.util.ConnectStringParseException;
+import org.apache.skywalking.oap.server.library.util.ConnectUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Use consul to manage all service instances in SkyWalking cluster.
@@ -33,8 +41,6 @@ import org.slf4j.*;
  * @author peng-yongsheng
  */
 public class ClusterModuleConsulProvider extends ModuleProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClusterModuleConsulProvider.class);
 
     private final ClusterModuleConsulConfig config;
     private Consul client;
