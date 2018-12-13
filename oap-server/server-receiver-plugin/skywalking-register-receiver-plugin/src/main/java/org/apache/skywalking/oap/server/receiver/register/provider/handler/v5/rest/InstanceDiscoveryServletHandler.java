@@ -70,8 +70,8 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
             JsonObject osInfoJson = instance.get(OS_INFO).getAsJsonObject();
 
             ServiceInstanceInventory.AgentOsInfo agentOsInfo = new ServiceInstanceInventory.AgentOsInfo();
-            agentOsInfo.setHostname(osInfoJson.get("osName").getAsString());
-            agentOsInfo.setOsName(osInfoJson.get("hostName").getAsString());
+            agentOsInfo.setHostname(osInfoJson.get("hostName").getAsString());
+            agentOsInfo.setOsName(osInfoJson.get("osName").getAsString());
             agentOsInfo.setProcessNo(osInfoJson.get("processId").getAsInt());
 
             JsonArray ipv4s = osInfoJson.get("ipv4s").getAsJsonArray();
