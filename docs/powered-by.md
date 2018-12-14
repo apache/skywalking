@@ -61,4 +61,4 @@ or providing commercial products including Apache SkyWalking.
 Three CentOs Machine(32 CPUs, 64G RAM, 1.3T Disk) for Collector Server
 Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
 ### Performance
-Support Over 300k Calls Per Minute, Over 50k Spans Per Second
+Support 60+ Instances, Over 300k Calls Per Minute, Over 50k Spans Per Second
