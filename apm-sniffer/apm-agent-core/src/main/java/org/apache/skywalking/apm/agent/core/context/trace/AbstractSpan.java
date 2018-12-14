@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
@@ -52,7 +53,15 @@ public interface AbstractSpan {
      *
      * @return this Span instance, for chaining
      */
+    @Deprecated
     AbstractSpan tag(String key, String value);
+
+    /**
+     * @param tag
+     * @param value
+     * @return
+     */
+    AbstractSpan tag(AbstractTag tag, String value);
 
     /**
      * Record an exception event of the current walltime timestamp.

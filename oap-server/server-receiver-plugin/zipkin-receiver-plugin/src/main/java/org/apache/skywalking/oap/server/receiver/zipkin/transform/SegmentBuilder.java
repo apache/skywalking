@@ -18,30 +18,17 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.transform;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeoutException;
+import com.google.common.base.Strings;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.RefType;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.v2.Log;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
-import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinTraceOSInfoBuilder;
+import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v2.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
 import org.eclipse.jetty.util.StringUtil;
-import zipkin2.Endpoint;
-import zipkin2.Span;
+import zipkin2.*;
 
 /**
  * @author wusheng
@@ -87,7 +74,7 @@ public class SegmentBuilder {
             // Ignore the whole trace.
             // :P Hope anyone could provide better solution.
             // Wu Sheng.
-            if (StringUtils.isNotEmpty(applicationCode)) {
+            if (!Strings.isNullOrEmpty(applicationCode)) {
                 timestamp = rootSpan.timestampAsLong();
                 builder.context.addApp(applicationCode, rootSpan.timestampAsLong() / 1000);
 
@@ -158,7 +145,7 @@ public class SegmentBuilder {
             spanBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
         }
         Span.Kind kind = span.kind();
-        String opName = Strings.isBlank(span.name()) ? "-" : span.name();
+        String opName = Strings.isNullOrEmpty(span.name()) ? "-" : span.name();
         spanBuilder.setOperationName(opName);
         ClientSideSpan clientSideSpan;
         switch (kind) {
@@ -287,10 +274,10 @@ public class SegmentBuilder {
         Integer port = 0;
 
         if (endpoint != null) {
-            if (StringUtils.isNotEmpty(endpoint.ipv4())) {
+            if (!Strings.isNullOrEmpty(endpoint.ipv4())) {
                 ip = endpoint.ipv4();
                 port = endpoint.port();
-            } else if (StringUtils.isNotEmpty(endpoint.ipv6())) {
+            } else if (!Strings.isNullOrEmpty(endpoint.ipv6())) {
                 ip = endpoint.ipv6();
                 port = endpoint.port();
             }
@@ -309,7 +296,7 @@ public class SegmentBuilder {
         private LinkedList<Segment> segmentsStack = new LinkedList<>();
 
         private boolean isAppChanged(String applicationCode) {
-            return StringUtils.isNotEmpty(applicationCode) && !applicationCode.equals(currentIDs().applicationCode);
+            return !Strings.isNullOrEmpty(applicationCode) && !applicationCode.equals(currentIDs().applicationCode);
         }
 
         private Segment addApp(String serviceCode, long registerTime) throws Exception {
@@ -394,9 +381,9 @@ public class SegmentBuilder {
 
         private void addSpan(SpanObjectV2.Builder spanBuilder) {
             String operationName = spanBuilder.getOperationName();
-            if (entryEndpointId == 0 && StringUtils.isNotEmpty(operationName)) {
+            if (entryEndpointId == 0 && !Strings.isNullOrEmpty(operationName)) {
                 if (SpanType.Entry == spanBuilder.getSpanType()) {
-                    if (StringUtils.isNotEmpty(operationName)) {
+                    if (!Strings.isNullOrEmpty(operationName)) {
                         entryEndpointName = operationName;
                     } else {
                         entryEndpointId = spanBuilder.getOperationNameId();
@@ -406,7 +393,7 @@ public class SegmentBuilder {
 
             // init by root span
             if (spanBuilder.getSpanId() == 1 && entryEndpointId == 0) {
-                if (StringUtils.isNotEmpty(operationName)) {
+                if (!Strings.isNullOrEmpty(operationName)) {
                     entryEndpointName = operationName;
                 } else {
                     entryEndpointId = spanBuilder.getOperationNameId();

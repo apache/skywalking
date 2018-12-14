@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
@@ -85,7 +85,7 @@ public class SyncHttpRequestSendInterceptorTest {
         Assert.assertEquals(1, SegmentHelper.getSpans(traceSegment).size());
         AbstractTracingSpan finishedSpan = SegmentHelper.getSpans(traceSegment).get(0);
 
-        List<KeyValuePair> tags = SpanHelper.getTags(finishedSpan);
+        List<TagValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
         assertThat(tags.get(1).getValue(), is(uri.toString()));
@@ -105,7 +105,7 @@ public class SyncHttpRequestSendInterceptorTest {
         Assert.assertEquals(1, SegmentHelper.getSpans(traceSegment).size());
         AbstractTracingSpan finishedSpan = SegmentHelper.getSpans(traceSegment).get(0);
 
-        List<KeyValuePair> tags = SpanHelper.getTags(finishedSpan);
+        List<TagValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
         assertThat(tags.get(1).getValue(), is(uri.toString()));
