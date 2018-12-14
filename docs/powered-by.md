@@ -55,3 +55,10 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 
+# User Cases
+## ke.com
+### Deployment Configuration
+Three CentOs Machine(32 CPUs, 64G RAM, 1.3T Disk) for Collector Server
+Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
+### Performance
+Support Over 300k Calls Per Minute, Over 50k Spans Per Second
