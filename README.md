@@ -45,7 +45,7 @@ including:
   - Jaeger in [Zipkin Thrift or JSON v1/v2 formats](https://github.com/jaegertracing/jaeger#backwards-compatibility-with-zipkin)
 
 # Announcement
-After SkyWalking 5.0.0-beta2 released, all core features have been provided. For 5 series, we are trying to make them stable from now. At the same time, we have already begun our works for 6 series, in branch `6.0`. It will be a long way to have the first alpha release for it. So if you want to take part in the challengeable works, welcome, but don't consider to use that. Please read the [6.0 documents](https://github.com/apache/incubator-skywalking/blob/6.0/docs/README.md) first.
+Most of project committers are working on 6.x development iteration in master branch now. See [6.x documents](https://github.com/apache/incubator-skywalking/tree/master/docs) to understand more.
 
 # Document
 - [Documents in English](docs/README.md)
