@@ -90,6 +90,7 @@ public class GRPCServer implements Server {
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
+
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize);
         logger.info("Server started, host {} listening on {}", host, port);

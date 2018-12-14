@@ -33,11 +33,9 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
-    private final Boolean debug;
     private final SegmentParseV2.Producer segmentProducer;
 
     public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer) {
-        this.debug = System.getProperty("debug") != null;
         this.segmentProducer = segmentProducer;
     }
 

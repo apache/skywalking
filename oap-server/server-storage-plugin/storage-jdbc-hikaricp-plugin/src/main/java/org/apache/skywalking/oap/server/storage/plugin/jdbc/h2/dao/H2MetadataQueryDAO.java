@@ -18,27 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.Attribute;
-import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
-import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
-import org.apache.skywalking.oap.server.core.query.entity.Service;
-import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 /**
  * @author wusheng
@@ -134,7 +123,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
-        if (StringUtils.isNotEmpty(keyword)) {
+        if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\"");
         }
         sql.append(" limit 100");
@@ -181,7 +170,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append("select * from ").append(EndpointInventory.MODEL_NAME).append(" where ");
         sql.append(EndpointInventory.SERVICE_ID).append("=?");
         condition.add(serviceId);
-        if (StringUtils.isNotEmpty(keyword)) {
+        if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(EndpointInventory.NAME).append(" like \"%").append(keyword).append("%\" ");
         }
         sql.append(" and ").append(EndpointInventory.DETECT_POINT).append(" = ?");
@@ -226,11 +215,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                     serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(languageId));
 
                     String osName = resultSet.getString(ServiceInstanceInventory.OS_NAME);
-                    if (StringUtils.isNotEmpty(osName)) {
+                    if (!Strings.isNullOrEmpty(osName)) {
                         serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.OS_NAME, osName));
                     }
                     String hostName = resultSet.getString(ServiceInstanceInventory.HOST_NAME);
-                    if (StringUtils.isNotEmpty(hostName)) {
+                    if (!Strings.isNullOrEmpty(hostName)) {
                         serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.HOST_NAME, hostName));
                     }
                     serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PROCESS_NO, resultSet.getString(ServiceInstanceInventory.PROCESS_NO)));
