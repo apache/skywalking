@@ -43,7 +43,15 @@ public class NetworkAddressInventory extends RegisterSource {
     public static final String NODE_TYPE = "node_type";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter @Getter @Column(columnName = NODE_TYPE) private int nodeType;
+    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
+
+    public void setNetworkAddressNodeType(NodeType nodeType) {
+        this.nodeType = nodeType.value();
+    }
+
+    public NodeType getNetworkAddressNodeType() {
+        return NodeType.get(this.nodeType);
+    }
 
     public static String buildId(String networkAddress) {
         return networkAddress;

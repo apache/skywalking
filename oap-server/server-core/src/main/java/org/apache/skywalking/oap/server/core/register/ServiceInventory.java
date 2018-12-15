@@ -50,9 +50,14 @@ public class ServiceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
-    @Setter @Getter @Column(columnName = NODE_TYPE) private int nodeType;
+    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
     @Setter @Getter @Column(columnName = MAPPING_LAST_UPDATE_TIME) private long mappingLastUpdateTime;
+
+
+    public NodeType getServiceNodeType() {
+        return NodeType.get(this.nodeType);
+    }
 
     public static String buildId(String serviceName) {
         return serviceName + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
@@ -60,6 +65,10 @@ public class ServiceInventory extends RegisterSource {
 
     public static String buildId(int addressId) {
         return BooleanUtils.TRUE + Const.ID_SPLIT + addressId;
+    }
+
+    public void setServiceNodeType(NodeType nodeType){
+        this.nodeType = nodeType.value();
     }
 
     @Override public String id() {

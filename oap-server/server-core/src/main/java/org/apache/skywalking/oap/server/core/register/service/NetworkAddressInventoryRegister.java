@@ -115,27 +115,36 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         }
     }
 
-    @Override public void update(int addressId, int nodeType) {
-        if (!this.compare(addressId, nodeType)) {
+    @Override public void update(int addressId, NodeType nodeType) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+
+        if (!this.compare(networkAddress, nodeType)) {
             NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
-            newNetworkAddress.setNodeType(nodeType);
+            newNetworkAddress.setNetworkAddressNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
             InventoryProcess.INSTANCE.in(newNetworkAddress);
+        }
 
-            ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(newNetworkAddress.id()));
-            newServiceInventory.setNodeType(nodeType);
+        ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(networkAddress.id()));
+        if (!this.compare(newServiceInventory, nodeType)) {
+            newServiceInventory.setServiceNodeType(nodeType);
             newServiceInventory.setHeartbeatTime(System.currentTimeMillis());
 
             InventoryProcess.INSTANCE.in(newServiceInventory);
         }
     }
 
-    private boolean compare(int addressId, int srcLayer) {
-        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+    private boolean compare(NetworkAddressInventory newNetworkAddress, NodeType srcLayer) {
+        if (Objects.nonNull(newNetworkAddress)) {
+            return srcLayer == newNetworkAddress.getNetworkAddressNodeType();
+        }
+        return true;
+    }
 
-        if (Objects.nonNull(networkAddress)) {
-            return srcLayer == networkAddress.getNodeType();
+    private boolean compare(ServiceInventory newServiceInventory, NodeType srcLayer) {
+        if (Objects.nonNull(newServiceInventory)) {
+            return srcLayer == newServiceInventory.getServiceNodeType();
         }
         return true;
     }
