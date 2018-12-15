@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.register.service;
 
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
@@ -36,12 +36,20 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
 
     private final ModuleManager moduleManager;
+    private ServiceInventoryCache serviceInventoryCache;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IServiceInventoryRegister serviceInventoryRegister;
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public NetworkAddressInventoryRegister(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+    }
+
+    private ServiceInventoryCache getServiceInventoryCache() {
+        if (isNull(serviceInventoryCache)) {
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        }
+        return this.serviceInventoryCache;
     }
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
@@ -107,13 +115,19 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         }
     }
 
-    @Override public void update(int addressId, int srcLayer) {
-        if (!this.compare(addressId, srcLayer)) {
+    @Override public void update(int addressId, int nodeType) {
+        if (!this.compare(addressId, nodeType)) {
             NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
-            newNetworkAddress.setSrcLayer(srcLayer);
+            newNetworkAddress.setNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
             InventoryProcess.INSTANCE.in(newNetworkAddress);
+
+            ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(newNetworkAddress.id()));
+            newServiceInventory.setNodeType(nodeType);
+            newServiceInventory.setHeartbeatTime(System.currentTimeMillis());
+
+            InventoryProcess.INSTANCE.in(newServiceInventory);
         }
     }
 
@@ -121,7 +135,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
 
         if (Objects.nonNull(networkAddress)) {
-            return srcLayer == networkAddress.getSrcLayer();
+            return srcLayer == networkAddress.getNodeType();
         }
         return true;
     }
