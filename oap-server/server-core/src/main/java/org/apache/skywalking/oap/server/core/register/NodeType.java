@@ -85,4 +85,14 @@ public enum NodeType {
                 throw new UnexpectedException("Unknown NodeType value");
         }
     }
+
+    /**
+     * Right now, spanLayerValue is exact same as NodeType value.
+     *
+     * @param spanLayerValue
+     * @return
+     */
+    public static NodeType fromSpanLayerValue(int spanLayerValue) {
+        return get(spanLayerValue);
+    }
 }
