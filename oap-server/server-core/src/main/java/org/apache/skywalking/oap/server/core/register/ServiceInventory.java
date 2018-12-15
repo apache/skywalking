@@ -54,7 +54,6 @@ public class ServiceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
     @Setter @Getter @Column(columnName = MAPPING_LAST_UPDATE_TIME) private long mappingLastUpdateTime;
 
-
     public NodeType getServiceNodeType() {
         return NodeType.get(this.nodeType);
     }
@@ -67,7 +66,7 @@ public class ServiceInventory extends RegisterSource {
         return BooleanUtils.TRUE + Const.ID_SPLIT + addressId;
     }
 
-    public void setServiceNodeType(NodeType nodeType){
+    public void setServiceNodeType(NodeType nodeType) {
         this.nodeType = nodeType.value();
     }
 
