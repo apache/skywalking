@@ -5,6 +5,9 @@ and also help committers to check the release for vote.
 
 
 ## Setup your development environment
+Follow [Apache maven deployment environment document](http://www.apache.org/dev/publishing-maven-artifacts.html#dev-env)
+to set gpg tool and encrypt passwords
+
 Use the following block as a template and place it in ~/.m2/settings.xml
 
 ```
@@ -43,21 +46,27 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 ```
 ./mvnw release:perform -DskipTests -Pauto-submodule
 ```
-1. Set version number as x.y.z, and tag as vx.y.z
+1. Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
 1. The release will automatically be inserted into a temporary staging repository for you.
 
 ## Build and sign the source code package
 ```shell
-switch to release version tag
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
 cd tools/releasing
 sh create_source_release.sh
 ```
 
-`RELEASE_ROUND` must be as same as your setting in `Stage the release` step.
+**NOTICE**, `create_source_release.sh` is just suitable for MacOS. Welcome anyone to contribute Windows bat and Linux shell. 
+
+This scripts should do following things
+1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
+1. Make `git submodule init/update` done.
+1. Exclude all unnecessary files in the target source tar, such as .git, .github, .gitmodules. See the script for the details.
+1. Do `gpg` and `shasum 512`. 
+
 
 The `apache-skywalking-apm-incubating-x.y.z-src.tgz` should be found in `tools/releasing` folder,
-with .asc, .sha512, .md5
+with .asc, .sha512.
 
 ## Find and download distribution in Apache Nexus Staging repositories
 1. Use ApacheId to login `https://repository.apache.org/`
