@@ -200,7 +200,7 @@ public class AntPathMatcher implements TracePathMatcher {
          *  use pattern match path
          */
         private static boolean matchStrings(String pattern, String path) {
-            if (StringUtil.isEmpty(pattern) || StringUtil.isEmpty(pattern)) {
+            if (StringUtil.isEmpty(pattern) || StringUtil.isEmpty(path)) {
                 return false;
             }
             // if this pattern has been compiled
