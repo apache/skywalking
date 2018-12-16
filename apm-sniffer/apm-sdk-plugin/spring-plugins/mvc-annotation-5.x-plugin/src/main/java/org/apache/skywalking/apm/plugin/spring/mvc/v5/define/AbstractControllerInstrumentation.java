@@ -20,12 +20,15 @@ package org.apache.skywalking.apm.plugin.spring.mvc.v5.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ControllerInstrumentation} enhance all constructor and method annotated with
@@ -35,8 +38,8 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
  * <code>ControllerConstructorInterceptor</code> set the controller base path to
  * dynamic field before execute constructor.
  *
- * <code>org.apache.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor</code> get the request path from
- * dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
+ * <code>org.apache.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor</code> get the request path
+ * from dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
  * combine the path value of current annotation on current method and the base path and set the new path to the dynamic
  * filed
  *
@@ -63,7 +66,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
+            new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return isAnnotatedWith(named("org.springframework.web.bind.annotation.RequestMapping"));
@@ -79,7 +82,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
                     return false;
                 }
             },
-            new InstanceMethodsInterceptPoint() {
+            new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return isAnnotatedWith(named("org.springframework.web.bind.annotation.GetMapping"))
