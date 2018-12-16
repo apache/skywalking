@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.spring.webflux.v5.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -64,7 +65,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpringWe
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
+            new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return isAnnotatedWith(named("org.springframework.web.bind.annotation.RequestMapping"));
@@ -80,7 +81,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpringWe
                     return false;
                 }
             },
-            new InstanceMethodsInterceptPoint() {
+            new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return isAnnotatedWith(named("org.springframework.web.bind.annotation.GetMapping"))
