@@ -107,7 +107,7 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Tracer.SpanBuilder withTag(String key, boolean value) {
-        if (Tags.ERROR.equals(key)) {
+        if (Tags.ERROR.getKey().equals(key)) {
             isError = value;
         } else {
             tags.add(new Tag(key, value ? "true" : "false"));
