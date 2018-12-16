@@ -87,7 +87,7 @@ with .asc, .sha512.
     * Package name: apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip
     * See Section "Find and download distribution in Apache Nexus Staging repositories" for more details
     * Create .sha512 package: `shasum -a 512 file > file.sha512`
-1. Upload gpg public key, named KEY
+1. Upload gpg public key, named KEYS
 
 ## Make the internal announcements
 Send an announcement mail in dev mail list.
