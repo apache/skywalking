@@ -2,6 +2,18 @@ Changes by Version
 ==================
 Release Notes.
 
+5.1.0
+------------------
+#### Agent Changes
+  - Fix spring inherit issue in another way
+  - Fix classloader dead lock in jdk7+ - 5.x
+  - Support Spring mvc 5.x
+  - Support Spring webflux 5.x
+  
+#### Collector Changes
+  - Fix too many open files.
+  - Fix the buffer file cannot delete.
+
 5.0.0-GA
 ------------------
 
