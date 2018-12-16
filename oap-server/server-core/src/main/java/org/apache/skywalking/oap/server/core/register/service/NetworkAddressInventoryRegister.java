@@ -126,7 +126,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             InventoryProcess.INSTANCE.in(newNetworkAddress);
         }
 
-        ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(networkAddress.id()));
+        ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(networkAddress.getSequence()));
         if (!this.compare(newServiceInventory, nodeType)) {
             newServiceInventory.setServiceNodeType(nodeType);
             newServiceInventory.setHeartbeatTime(System.currentTimeMillis());
@@ -135,16 +135,16 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         }
     }
 
-    private boolean compare(NetworkAddressInventory newNetworkAddress, NodeType srcLayer) {
+    private boolean compare(NetworkAddressInventory newNetworkAddress, NodeType nodeType) {
         if (Objects.nonNull(newNetworkAddress)) {
-            return srcLayer == newNetworkAddress.getNetworkAddressNodeType();
+            return nodeType == newNetworkAddress.getNetworkAddressNodeType();
         }
         return true;
     }
 
-    private boolean compare(ServiceInventory newServiceInventory, NodeType srcLayer) {
+    private boolean compare(ServiceInventory newServiceInventory, NodeType nodeType) {
         if (Objects.nonNull(newServiceInventory)) {
-            return srcLayer == newServiceInventory.getServiceNodeType();
+            return nodeType == newServiceInventory.getServiceNodeType();
         }
         return true;
     }

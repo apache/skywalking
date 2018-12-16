@@ -157,6 +157,7 @@ public class ServiceInventory extends RegisterSource {
     @Override public void combine(RegisterSource registerSource) {
         super.combine(registerSource);
         ServiceInventory serviceInventory = (ServiceInventory)registerSource;
+        nodeType = serviceInventory.nodeType;
         if (Const.NONE != serviceInventory.getMappingServiceId() && serviceInventory.getMappingLastUpdateTime() >= this.getMappingLastUpdateTime()) {
             this.mappingServiceId = serviceInventory.getMappingServiceId();
             this.mappingLastUpdateTime = serviceInventory.getMappingLastUpdateTime();
