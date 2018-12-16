@@ -29,6 +29,10 @@ cluster:
 #    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
 #    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
 #    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
+#  consul:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+#    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
 core:
   default:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
@@ -37,9 +41,9 @@ core:
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     downsampling:
-    - Hour
-    - Day
-    - Month
+      - Hour
+      - Day
+      - Month
     # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
@@ -49,7 +53,7 @@ core:
 storage:
   elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:10.67.27.213:9200}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
@@ -81,11 +85,11 @@ service-mesh:
     bufferFileCleanWhenRestart: ${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 istio-telemetry:
   default:
-receiver_zipkin:
-  default:
-    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
-    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
-    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+#receiver_zipkin:
+#  default:
+#    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
+#    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
+#    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
 query:
   graphql:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}

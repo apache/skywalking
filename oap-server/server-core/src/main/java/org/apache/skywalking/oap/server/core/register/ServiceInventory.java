@@ -18,20 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
+import org.elasticsearch.common.Strings;
 
 /**
  * @author peng-yongsheng
@@ -123,7 +120,7 @@ public class ServiceInventory extends RegisterSource {
         remoteBuilder.addDataLongs(getHeartbeatTime());
         remoteBuilder.addDataLongs(getMappingLastUpdateTime());
 
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
     }
 
