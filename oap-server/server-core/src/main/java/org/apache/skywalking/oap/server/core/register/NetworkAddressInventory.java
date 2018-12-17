@@ -40,10 +40,18 @@ public class NetworkAddressInventory extends RegisterSource {
     public static final String MODEL_NAME = "network_address_inventory";
 
     private static final String NAME = "name";
-    public static final String SRC_LAYER = "src_layer";
+    public static final String NODE_TYPE = "node_type";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter @Getter @Column(columnName = SRC_LAYER) private int srcLayer;
+    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
+
+    public void setNetworkAddressNodeType(NodeType nodeType) {
+        this.nodeType = nodeType.value();
+    }
+
+    public NodeType getNetworkAddressNodeType() {
+        return NodeType.get(this.nodeType);
+    }
 
     public static String buildId(String networkAddress) {
         return networkAddress;
@@ -77,13 +85,13 @@ public class NetworkAddressInventory extends RegisterSource {
     @Override public void combine(RegisterSource registerSource) {
         super.combine(registerSource);
         NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
-        setSrcLayer(inventory.srcLayer);
+        setNodeType(inventory.nodeType);
     }
 
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataIntegers(getSequence());
-        remoteBuilder.addDataIntegers(getSrcLayer());
+        remoteBuilder.addDataIntegers(getNodeType());
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
@@ -94,7 +102,7 @@ public class NetworkAddressInventory extends RegisterSource {
 
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
-        setSrcLayer(remoteData.getDataIntegers(1));
+        setNodeType(remoteData.getDataIntegers(1));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -112,7 +120,7 @@ public class NetworkAddressInventory extends RegisterSource {
             NetworkAddressInventory inventory = new NetworkAddressInventory();
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setSrcLayer((Integer)dbMap.get(SRC_LAYER));
+            inventory.setNodeType((Integer)dbMap.get(NODE_TYPE));
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
             return inventory;
@@ -122,7 +130,7 @@ public class NetworkAddressInventory extends RegisterSource {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(NAME, storageData.getName());
-            map.put(SRC_LAYER, storageData.getSrcLayer());
+            map.put(NODE_TYPE, storageData.getNodeType());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
             return map;
