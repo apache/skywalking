@@ -18,22 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
-import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
-import org.apache.skywalking.oap.server.core.query.entity.TraceState;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.elasticsearch.search.sort.SortOrder;
 
 /**
@@ -71,7 +64,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                 parameters.add(maxDuration);
             }
         }
-        if (StringUtils.isNotEmpty(endpointName)) {
+        if (!Strings.isNullOrEmpty(endpointName)) {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like '%" + endpointName + "%'");
         }
         if (serviceId != 0) {
@@ -82,7 +75,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_ID).append(" = ?");
             parameters.add(endpointId);
         }
-        if (StringUtils.isNotEmpty(traceId)) {
+        if (!Strings.isNullOrEmpty(traceId)) {
             sql.append(" and ").append(SegmentRecord.TRACE_ID).append(" = ?");
             parameters.add(traceId);
         }
@@ -156,7 +149,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
                     segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
                     String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
-                    if (StringUtils.isNotEmpty(dataBinaryBase64)) {
+                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
                     segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
