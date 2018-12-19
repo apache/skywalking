@@ -19,15 +19,17 @@
 package org.apache.skywalking.apm.plugin.canal;
 
 import com.alibaba.otter.canal.client.impl.SimpleCanalConnector;
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * @author withlin
@@ -37,20 +39,31 @@ public class CanalInterceptor implements InstanceMethodsAroundInterceptor {
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        ContextCarrier contextCarrier = new ContextCarrier();
         CanalEnhanceInfo canalEnhanceInfo = (CanalEnhanceInfo)objInst.getSkyWalkingDynamicField();
         SimpleCanalConnector connector = (SimpleCanalConnector) objInst;
 
         String  url = canalEnhanceInfo.getUrl();
         if (url == "" || url == null) {
             InetSocketAddress address = (InetSocketAddress)connector.getNextAddress();
-            url = address.getAddress().toString() + ":" + address.getPort();
-            url = url.replace('/',' ');
+            String runningAddress = address.getAddress().toString() + ":" + address.getPort();
+            runningAddress = runningAddress.replace('/',' ');
+            url = runningAddress;
+            List<InetSocketAddress> socketAddressList = (List<InetSocketAddress>)ContextManager.getRuntimeContext().get("currentAddress");
+            if (socketAddressList != null && socketAddressList.size() > 0) {
+                for (InetSocketAddress socketAddress : socketAddressList) {
+                    String currentAddress = socketAddress.getAddress().toString() + ":" + socketAddress.getPort();
+                    currentAddress = currentAddress.replace('/',' ');
+                    if (!currentAddress.equals(url)) {
+                        url = url + "," + runningAddress;
+                    }
+                }
+            }
         }
         String batchSize = allArguments[0].toString();
         String destination = canalEnhanceInfo.getDestination();
-        AbstractSpan activeSpan = ContextManager.createExitSpan("Canal/" + destination,url).start(System.currentTimeMillis());
+        AbstractSpan activeSpan = ContextManager.createEntrySpan("Canal/" + destination,null).start(System.currentTimeMillis());
         activeSpan.setComponent(ComponentsDefine.CANAL);
+        Tags.URL.set(activeSpan,url);
         activeSpan.tag("batchSize",batchSize);
         activeSpan.tag("destination",destination);
 

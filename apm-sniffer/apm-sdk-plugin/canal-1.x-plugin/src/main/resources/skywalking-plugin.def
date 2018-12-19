@@ -15,3 +15,4 @@
 # limitations under the License.
 
 canal-1.x=org.apache.skywalking.apm.plugin.canal.define.CanalInstrumentation
+canal-1.x=org.apache.skywalking.apm.plugin.canal.define.ClusterNodeInstrumentation
