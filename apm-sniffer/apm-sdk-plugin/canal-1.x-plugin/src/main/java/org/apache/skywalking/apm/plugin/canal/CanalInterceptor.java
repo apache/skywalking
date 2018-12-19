@@ -53,8 +53,8 @@ public class CanalInterceptor implements InstanceMethodsAroundInterceptor {
                 for (InetSocketAddress socketAddress : socketAddressList) {
                     String currentAddress = socketAddress.getAddress().toString() + ":" + socketAddress.getPort();
                     currentAddress = currentAddress.replace('/',' ');
-                    if (!currentAddress.equals(url)) {
-                        url = url + "," + runningAddress;
+                    if (!currentAddress.equals(runningAddress)) {
+                        url = url + "," + currentAddress;
                     }
                 }
             }
