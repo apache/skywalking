@@ -20,14 +20,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>optional-plugins</artifactId>
+        <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.0.0-beta-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dubbo-patch</artifactId>
+    <artifactId>dubbo-conflict-patch</artifactId>
 
+    <name>apm-dubbo-conflict-path</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dubbo.version>2.5.10</dubbo.version>
