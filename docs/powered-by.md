@@ -56,7 +56,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
-
+1. JoinTown. 九州通医药集团 http://www.jztey.com/
 
 # User Cases
 ## ke.com
