@@ -16,20 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.service;
-
-import org.apache.skywalking.oap.server.core.register.NodeType;
-import org.apache.skywalking.oap.server.library.module.Service;
+package org.apache.skywalking.apm.plugin.canal;
 
 /**
- * @author peng-yongsheng
+ * @author withlin
  */
-public interface INetworkAddressInventoryRegister extends Service {
-    int getOrCreate(String networkAddress);
+public class CanalEnhanceInfo {
 
-    int get(String networkAddress);
+    public String getUrl() {
+        return url;
+    }
 
-    void heartbeat(int addressId, long heartBeatTime);
+    public CanalEnhanceInfo setUrl(String url) {
+        this.url = url;
+        return this;
+    }
 
-    void update(int addressId, NodeType nodeType);
+    public String getDestination() {
+        return destination;
+    }
+
+    public CanalEnhanceInfo setDestination(String destination) {
+        this.destination = destination;
+        return this;
+    }
+   /**
+    * canal-server address
+    */
+    private String url;
+   /**
+    * canal destination
+    */
+    private String destination;
 }
