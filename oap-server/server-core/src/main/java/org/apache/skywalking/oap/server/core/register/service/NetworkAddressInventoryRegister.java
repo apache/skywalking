@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.register.service;
 
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
@@ -36,12 +36,20 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
 
     private final ModuleManager moduleManager;
+    private ServiceInventoryCache serviceInventoryCache;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IServiceInventoryRegister serviceInventoryRegister;
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public NetworkAddressInventoryRegister(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+    }
+
+    private ServiceInventoryCache getServiceInventoryCache() {
+        if (isNull(serviceInventoryCache)) {
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        }
+        return this.serviceInventoryCache;
     }
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
@@ -107,21 +115,36 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         }
     }
 
-    @Override public void update(int addressId, int srcLayer) {
-        if (!this.compare(addressId, srcLayer)) {
+    @Override public void update(int addressId, NodeType nodeType) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+
+        if (!this.compare(networkAddress, nodeType)) {
             NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
-            newNetworkAddress.setSrcLayer(srcLayer);
+            newNetworkAddress.setNetworkAddressNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
             InventoryProcess.INSTANCE.in(newNetworkAddress);
         }
+
+        ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(networkAddress.getSequence()));
+        if (!this.compare(newServiceInventory, nodeType)) {
+            newServiceInventory.setServiceNodeType(nodeType);
+            newServiceInventory.setHeartbeatTime(System.currentTimeMillis());
+
+            InventoryProcess.INSTANCE.in(newServiceInventory);
+        }
     }
 
-    private boolean compare(int addressId, int srcLayer) {
-        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+    private boolean compare(NetworkAddressInventory newNetworkAddress, NodeType nodeType) {
+        if (Objects.nonNull(newNetworkAddress)) {
+            return nodeType == newNetworkAddress.getNetworkAddressNodeType();
+        }
+        return true;
+    }
 
-        if (Objects.nonNull(networkAddress)) {
-            return srcLayer == networkAddress.getSrcLayer();
+    private boolean compare(ServiceInventory newServiceInventory, NodeType nodeType) {
+        if (Objects.nonNull(newServiceInventory)) {
+            return nodeType == newServiceInventory.getServiceNodeType();
         }
         return true;
     }

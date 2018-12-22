@@ -55,6 +55,7 @@
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
 * OpenTracing community supported
+* [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [OpenSkywalking java plugin extension repository](https://github.com/OpenSkywalking/java-plugin-extensions) to get these.

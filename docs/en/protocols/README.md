@@ -75,4 +75,4 @@ by the values.
 1. Trace. Query distributed traces by this.
 1. Alarm. Through alarm query, you can have alarm trend and details.
 
-The actual query GraphQL scrips could be found in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol).  
+The actual query GraphQL scrips could be found inside `query-protocol` folder in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).  
