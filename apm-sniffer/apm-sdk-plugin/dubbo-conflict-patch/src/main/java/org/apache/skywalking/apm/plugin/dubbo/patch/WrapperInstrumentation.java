@@ -26,9 +26,19 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * The dubbo conflict plugins resolve problem that the wrapper class that Dubbo generated cannot compiled. As we know,
+ * The Dubbo service class will generate wrapper class by javasist, and it traverse all the methods. all works but this
+ * class  enhance by Skywalking. The javasist cannot found the `EnhanceInstance` method when it generate wrapper class.
+ *
+ * To resolve this problem. the plugin use the way to bury the {@link org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance}
+ * methods method to ensure the correct compilation of the code.
+ *
+ * @author Zhang Xin
+ */
 public class WrapperInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
     @Override protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[]{
+        return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("makeWrapper");

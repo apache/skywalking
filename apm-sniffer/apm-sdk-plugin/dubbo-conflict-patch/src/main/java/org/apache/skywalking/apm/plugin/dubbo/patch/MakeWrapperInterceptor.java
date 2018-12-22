@@ -37,7 +37,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
+/**
+ * @author Zhang Xin
+ */
 public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
+
     private static final AtomicLong WRAPPER_CLASS_COUNTER = new AtomicLong(0);
 
     @Override
@@ -98,8 +102,11 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             c3.append(" try{");
         }
         for (Method m : methods) {
-            if (m.getDeclaringClass() == Object.class || "getSkyWalkingDynamicField".equals(m.getName()) || "setSkyWalkingDynamicField".equals(m.getName())) //ignore Object's method.
+            // ignore Object's method
+            // ignore EnhanceInstance's method
+            if (m.getDeclaringClass() == Object.class || "getSkyWalkingDynamicField".equals(m.getName()) || "setSkyWalkingDynamicField".equals(m.getName())) {
                 continue;
+            }
 
             String mn = m.getName();
             c3.append(" if( \"").append(mn).append("\".equals( $2 ) ");
