@@ -32,6 +32,7 @@
         <module>jdbc-commons</module>
         <module>httpClient-4.x-plugin</module>
         <module>jedis-2.x-plugin</module>
+        <module>redisson-3.x-plugin</module>
         <module>tomcat-7.x-8.x-plugin</module>
         <module>motan-plugin</module>
         <module>mongodb-3.x-plugin</module>

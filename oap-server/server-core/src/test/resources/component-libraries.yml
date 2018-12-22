@@ -174,6 +174,9 @@ transport-client:
 Undertow:
   id: 49
   languages: Java
+Redisson:
+  id: 55
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -255,6 +258,7 @@ Component-Server-Mappings:
   h2-jdbc-driver: H2
   mysql-connector-java: Mysql
   Jedis: Redis
+  Redisson: Redis
   StackExchange.Redis: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL

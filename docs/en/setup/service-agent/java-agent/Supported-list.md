@@ -40,6 +40,7 @@
 * NoSQL
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
+    * [Redisson](https://github.com/redisson/redisson) 3.6.x
   * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.3+
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
