@@ -32,7 +32,7 @@ public interface IMetadataQueryDAO extends DAO {
 
     int numOfEndpoint(final long startTimestamp, final long endTimestamp) throws IOException;
 
-    int numOfConjectural(final long startTimestamp, final long endTimestamp, final int srcLayer) throws IOException;
+    int numOfConjectural(final long startTimestamp, final long endTimestamp, final int nodeTypeValue) throws IOException;
 
     List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException;
 

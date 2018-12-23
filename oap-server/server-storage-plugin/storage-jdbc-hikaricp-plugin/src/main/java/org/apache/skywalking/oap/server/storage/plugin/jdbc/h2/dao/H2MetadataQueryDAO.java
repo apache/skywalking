@@ -78,12 +78,12 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override public int numOfConjectural(long startTimestamp, long endTimestamp,
-        int srcLayer) throws IOException {
+        int nodeTypeValue) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
-        sql.append("select count(*) num from ").append(NetworkAddressInventory.MODEL_NAME).append(" where ");
-        sql.append(NetworkAddressInventory.SRC_LAYER).append("=?");
-        condition.add(srcLayer);
+        sql.append("select count(*) num from ").append(ServiceInventory.MODEL_NAME).append(" where ");
+        sql.append(ServiceInventory.NODE_TYPE).append("=?");
+        condition.add(nodeTypeValue);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {

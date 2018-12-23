@@ -26,7 +26,14 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
  */
 public interface IRegisterDAO extends DAO {
 
-    int max(String modelName) throws IOException;
+    /**
+     * According modelName and register source, try to get the unique ID for this particular model.
+     * @param modelName
+     * @param registerSource
+     * @return the unique id. This ID for each model should start with 2. 1 has been reserved.
+     * @throws IOException
+     */
+    int registerId(String modelName, RegisterSource registerSource) throws IOException;
 
     RegisterSource get(String modelName, String id) throws IOException;
 

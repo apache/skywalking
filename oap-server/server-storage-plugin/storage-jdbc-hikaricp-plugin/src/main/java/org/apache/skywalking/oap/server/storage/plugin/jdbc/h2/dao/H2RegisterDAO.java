@@ -46,15 +46,16 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public int max(String modelName) throws IOException {
+    @Override public int registerId(String modelName,
+        RegisterSource registerSource) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT max(sequence) max_id FROM " + modelName)) {
                 while (rs.next()) {
                     int maxId = rs.getInt("max_id");
                     if (maxId == 0) {
-                        return 1;
+                        return 2;
                     } else {
-                        return maxId;
+                        return maxId + 1;
                     }
                 }
             }

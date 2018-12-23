@@ -17,39 +17,29 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>server-cluster-plugin</artifactId>
+        <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.0.0-GA-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cluster_consul_plugin</artifactId>
+    <artifactId>apm-canal-1.x-plugin</artifactId>
+    <name>canal-1.x-plugin</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <canal-client.version>1.1.2</canal-client.version>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.orbitz.consul</groupId>
-            <artifactId>consul-client</artifactId>
-            <version>1.2.6</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.alibaba.otter</groupId>
+            <artifactId>canal.client</artifactId>
+            <version>${canal-client.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
