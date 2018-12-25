@@ -189,6 +189,9 @@ rabbitmq-consumer:
 Canal:
   id: 54
   languages: Java
+Netty-Http-Client:
+  id: 55
+  languages: Java
 
 
 # .NET/.NET Core components
