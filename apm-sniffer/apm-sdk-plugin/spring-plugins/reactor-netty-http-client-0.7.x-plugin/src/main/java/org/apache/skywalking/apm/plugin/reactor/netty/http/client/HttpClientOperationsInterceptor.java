@@ -15,9 +15,7 @@ public class HttpClientOperationsInterceptor implements InstanceConstructorInter
             Field requestField = objInst.getClass().getDeclaredField("nettyRequest");
             requestField.setAccessible(true);
             HttpRequest httpRequest = (HttpRequest)requestField.get(objInst);
-            //objInst.setSkyWalkingDynamicField(httpRequest);
             ContextManager.getRuntimeContext().put("SW_NETTY_HTTP_CLIENT_REQUEST", httpRequest);
-            //ContextManager.getRuntimeContext().put(NETTY_REQUEST_KEY, httpRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
