@@ -19,13 +19,6 @@
             <version>0.7.12.RELEASE</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-springmvc-annotation-commons</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
 </project>
