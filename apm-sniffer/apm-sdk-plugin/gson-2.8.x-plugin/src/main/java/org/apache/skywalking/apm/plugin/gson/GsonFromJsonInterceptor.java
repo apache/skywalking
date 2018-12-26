@@ -32,31 +32,31 @@ import java.lang.reflect.Method;
  * @author withlin
  */
 public class GsonFromJsonInterceptor implements InstanceMethodsAroundInterceptor {
-	@Override
-	public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-							 Class<?>[] argumentsTypes,
-							 MethodInterceptResult result) throws Throwable {
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                             Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
 
-		AbstractSpan span = ContextManager.createLocalSpan("Gson/FromJson");
-		span.setComponent(ComponentsDefine.GSON);
-		Integer length = allArguments[0].toString().length();
-		span.tag("length", length.toString());
+        AbstractSpan span = ContextManager.createLocalSpan("Gson/FromJson");
+        span.setComponent(ComponentsDefine.GSON);
+        Integer length = allArguments[0].toString().length();
+        span.tag("length", length.toString());
 
-	}
+    }
 
-	@Override
-	public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-							  Class<?>[] argumentsTypes,
-							  Object ret) throws Throwable {
-		ContextManager.stopSpan();
-		return ret;
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                              Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+        ContextManager.stopSpan();
+        return ret;
 
-	}
+    }
 
-	@Override
-	public void handleMethodException(EnhancedInstance objInst, Method method,
-									  Object[] allArguments,
-									  Class<?>[] argumentsTypes, Throwable t) {
-		ContextManager.activeSpan().errorOccurred().log(t);
-	}
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method,
+                                      Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().errorOccurred().log(t);
+    }
 }

@@ -34,38 +34,38 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  * @author withlin
  */
 public class GsonFromJsonInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-	public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.gson.GsonFromJsonInterceptor";
-	public static final String ENHANCE_CLASS = "com.google.gson.Gson";
-	public static final String ENHANCE_METHOD_DISPATCH = "fromJson";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.gson.GsonFromJsonInterceptor";
+    public static final String ENHANCE_CLASS = "com.google.gson.Gson";
+    public static final String ENHANCE_METHOD_DISPATCH = "fromJson";
 
-	@Override
-	protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-		return new ConstructorInterceptPoint[0];
-	}
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
 
-	@Override
-	protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-		return new InstanceMethodsInterceptPoint[] {
-			new InstanceMethodsInterceptPoint() {
-				@Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-					return named(ENHANCE_METHOD_DISPATCH)
-						.and(takesArgumentWithType(0,"com.google.gson.stream.JsonReader"));
-				}
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD_DISPATCH)
+                        .and(takesArgumentWithType(0,"com.google.gson.stream.JsonReader"));
+                }
 
 
-				@Override public String getMethodsInterceptor() {
-					return INTERCEPTOR_CLASS;
-				}
+                @Override public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-				@Override public boolean isOverrideArgs() {
-					return false;
-				}
-			}
-		};
-	}
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
+    }
 
-	@Override
-	protected ClassMatch enhanceClass() {
-		return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS);
-	}
+    @Override
+    protected ClassMatch enhanceClass() {
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS);
+    }
 }
