@@ -36,7 +36,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 public class GsonToJsonInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.gson.GsonToJsonInterceptor";
     public static final String ENHANCE_CLASS = "com.google.gson.Gson";
-    public static final String ENHANCE_METHOD_DISPATCH = "toJson";
+    public static final String ENHANCE_METHOD = "toJson";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -48,9 +48,8 @@ public class GsonToJsonInstrumentation extends ClassInstanceMethodsEnhancePlugin
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD_DISPATCH)
-                        .or(takesArgumentWithType(2,"com.google.gson.stream.JsonWriter"))
-                        .or(takesArgumentWithType(1,"com.google.gson.stream.JsonWriter"));
+                    return named(ENHANCE_METHOD)
+                        .and(takesArgumentWithType(2,"com.google.gson.stream.JsonWriter"));
                 }
 
 
@@ -59,6 +58,23 @@ public class GsonToJsonInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 }
 
                 @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD)
+                        .and(takesArgumentWithType(1,"com.google.gson.stream.JsonWriter"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
