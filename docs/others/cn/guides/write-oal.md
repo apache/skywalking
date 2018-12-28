@@ -11,5 +11,5 @@ maven编译阶段。 所以，除非您想要更改工具源代码，否则无�
 运行 `./mvnw compile` 或 `./mvnw package`, 生成的oal脚本代码位于`oap-server/generate-tool/target/generated-sources/oal/*`.
 
 ## 编写并重新编译
-您可以更改`official_analysis.oal脚本, 然后重新编译代码.
+您可以更改`official_analysis.oal`脚本, 然后重新编译代码.
 生成的代码位于 **oap-server/generated-analysis/target/generated-sources/oal**.

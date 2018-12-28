@@ -27,7 +27,7 @@ ExitSpan代表一个服务客户端或MQ的生产者，在SkyWalking的早期命
 为了实现分布式跟踪，需要绑定跨进程的跟踪，并且应该传播上下文
 整个过程。 这就是ContextCarrier的职责。
 
-以下是有关如何在`A -> B`分布式调用中使用** ContextCarrier **的步骤。
+以下是有关如何在`A -> B`分布式调用中使用**ContextCarrier**的步骤。
 
 1. 在客户端，创建一个新的空的`ContextCarrier`。
 1. 通过 `ContextManager#createExitSpan` 创建一个 ExitSpan 或者 使用 `ContextManager#inject` 来初始化 `ContextCarrier`.
@@ -69,7 +69,7 @@ ExitSpan代表一个服务客户端或MQ的生产者，在SkyWalking的早期命
 以下是有关跨线程传播的三个步骤：
 1. 使用`ContextManager＃capture`获取ContextSnapshot对象。
 2. 让子线程以任何方式，通过方法参数或由现有参数携带来访问ContextSnapshot
-3. 在子线程中使用`ContextManager #continies`。
+3. 在子线程中使用`ContextManager#continies`。
 
 ## 核心 API
 ### ContextManager
