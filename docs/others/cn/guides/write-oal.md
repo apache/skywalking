@@ -1,8 +1,8 @@
 # 编写 OAL(可观测性分析语言) 脚本
-阅读 [OAL 概述](../concepts-and-designs/oal.md) 以了解oal脚本。
+阅读 [OAL 概述](../../../en/concepts-and-designs/oal.md) 以了解oal脚本。
 
 ## 在源代码中查找oal脚本
-官方official_analysis.oal在[这里](../../../oap-server/generated-analysis/src/main/resources/official_analysis.oal).
+官方official_analysis.oal在[这里](../../../../oap-server/generated-analysis/src/main/resources/official_analysis.oal).
 
 ## 生成工具
 `oap-server/generate-tool` 模块包含编译工具的源代码。 该工具已经集成在

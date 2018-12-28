@@ -373,5 +373,5 @@ of the completeness or stability of the code, it does indicate
 that the project has yet to be fully endorsed by the ASF.
 ```
 
-7. 更新网站下载页面。http://skywalking.apache.org/downloads/。包括新的下载源，分发，sha512，asc和文档，链接。 可通过遵循上述规则（3） - （6）找到链接。
+7. 更新网站下载页面。 http://skywalking.apache.org/downloads/ 。 包括新的下载源，分发，sha512，asc和文档，链接。 可通过遵循上述规则（3） - （6）找到链接。
 8. 在网站主页甚至页面上添加发布活动。 通过更改日志或主要功能宣布公开发布。
