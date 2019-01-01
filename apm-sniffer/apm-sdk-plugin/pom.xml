@@ -61,7 +61,8 @@
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
         <module>undertow-plugins</module>
-        <module>rabbitmq-5.x-plugin</module>
+	<module>rabbitmq-5.x-plugin</module>
+        <module>dubbo-conflict-patch</module>
         <module>canal-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>

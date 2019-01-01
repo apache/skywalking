@@ -516,6 +516,7 @@ d3-shape        1.2.2:  https://github.com/d3/d3-shape  BSD-3-Clause
 d3-time 1.0.10:  https://github.com/d3/d3-time   BSD-3-Clause
 d3-time-format  2.1.3:  https://github.com/d3/d3-time-format    BSD-3-Clause
 d3-timer        1.0.9:  https://github.com/d3/d3-timer  BSD-3-Clause
+d3-tip          0.9.1:  https://github.com/Caged/d3-tip BSD-3-Clause
 d3-transition   1.1.3:  https://github.com/d3/d3-transition     BSD-3-Clause
 d3-voronoi      1.1.4:  https://github.com/d3/d3-voronoi        BSD-3-Clause
 d3-zoom 1.7.3:  https://github.com/d3/d3-zoom   BSD-3-Clause
