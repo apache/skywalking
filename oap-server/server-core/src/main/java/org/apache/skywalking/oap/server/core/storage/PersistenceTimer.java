@@ -37,7 +37,7 @@ public enum PersistenceTimer {
     private final Boolean debug;
 
     PersistenceTimer() {
-        this.debug = SysteElasticSearchEnhanceInfom.getProperty("debug") != null;
+        this.debug = System.getProperty("debug") != null;
     }
 
     public void start(ModuleManager moduleManager) {
