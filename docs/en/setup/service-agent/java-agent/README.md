@@ -79,8 +79,8 @@ property key | Description | Default |
 See [supported list](Supported-list.md).
 
 ## Optional Plugins
-Java agent plugins are all pluggable. Optional plugins could be provided by source codes or in `optional-plugins` folder under agent.
-For using these plugins, you need to compile source codes by yourself, or copy the certain plugins to `/plugins`.
+Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositores.
+For using these plugins, you need to put the target plugin jar file into `/plugins`.
 
 Now, we have the following known optional plugins.
 * [Trace Spring beans](agent-optional-plugins/Spring-bean-plugins.md)
