@@ -78,11 +78,11 @@ property key | Description | Default |
 ## Supported middlewares, frameworks and libraries
 See [supported list](Supported-list.md).
 
-## Plugins
+## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided by source codes or in `optional-plugins` folder under agent.
 For using these plugins, you need to compile source codes by yourself, or copy the certain plugins to `/plugins`.
 
-Now, we have the following known plugins.
+Now, we have the following known optional plugins.
 * [Trace Spring beans](agent-optional-plugins/Spring-bean-plugins.md)
 * [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
