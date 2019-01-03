@@ -12,7 +12,7 @@ This document helps people to compile and build the project in your maven and se
 1. `git submodule init`
 1. `git submodule update`
 1. Run `./mvnw clean package -DskipTests`
-1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
+1. All packages are in `/dist` (.tar.gz for Linux and .zip for Windows).
 
 ### Build from Apache source code release
 - What is `Apache source code release`?
@@ -30,8 +30,8 @@ For each official Apache release, there is a complete and independent source cod
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf**
-    * `antlr` folder in **oap-server/generate-tool/target/generated-sources/antlr4**
-    * `oal` folder in **oap-server/generated-analysis/target/generated-sources/oal**
+    * `antlr4` folder in **oap-server/generate-tool/target/generated-sources**
+    * `oal` folder in **oap-server/generated-analysis/target/generated-sources**
     
 ## Setup your Eclipse IDE
 1. Import the project as a maven project

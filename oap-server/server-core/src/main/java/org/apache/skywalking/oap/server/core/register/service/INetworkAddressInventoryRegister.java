@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -30,5 +31,5 @@ public interface INetworkAddressInventoryRegister extends Service {
 
     void heartbeat(int addressId, long heartBeatTime);
 
-    void update(int addressId, int srcLayer);
+    void update(int addressId, NodeType nodeType);
 }

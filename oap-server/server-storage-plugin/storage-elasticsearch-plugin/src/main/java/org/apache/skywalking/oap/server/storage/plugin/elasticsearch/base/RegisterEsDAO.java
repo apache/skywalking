@@ -78,7 +78,8 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
         getClient().forceUpdate(modelName, source.id(), builder);
     }
 
-    @Override public int max(String modelName) throws IOException {
+    @Override public int registerId(String modelName,
+        RegisterSource registerSource) throws IOException {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.aggregation(AggregationBuilders.max(RegisterSource.SEQUENCE).field(RegisterSource.SEQUENCE));
         searchSourceBuilder.size(0);
@@ -91,9 +92,9 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
 
         int id = (int)agg.getValue();
         if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
-            return 1;
+            return 2;
         } else {
-            return id;
+            return id + 1;
         }
     }
 }
