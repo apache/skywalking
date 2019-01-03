@@ -3,7 +3,10 @@ First and most important thing is, SkyWalking backend startup behaviours are dri
 Understood the setting file will help you to read this document.
 
 ## Startup script
-Startup scripts are `/bin/oapService.sh`(.bat)
+The default startup scripts are `/bin/oapService.sh`(.bat). 
+Read [start up mode](backend-start-up-mode.md) document to know other options
+of starting backend.
+
 
 ## application.yml
 The core concept behind this setting file is, SkyWalking collector is based on pure modulization design. 
