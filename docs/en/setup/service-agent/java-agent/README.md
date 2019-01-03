@@ -86,6 +86,7 @@ Now, we have the following known optional plugins.
 * [Trace Spring beans](agent-optional-plugins/Spring-bean-plugins.md)
 * [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
+* Gson serialization lib in optional plugin folder
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
