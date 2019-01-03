@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.CoreModule;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -48,34 +44,46 @@ public abstract class ModelInstaller {
         DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
 
         List<Model> models = modelGetter.getModels();
-        List<Model> downsamplingModels = new ArrayList<>();
+        List<Model> allModels = new ArrayList<>();
         models.forEach(model -> {
             if (model.isIndicator()) {
                 if (downsamplingConfigService.shouldToHour()) {
-                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
                 }
                 if (downsamplingConfigService.shouldToDay()) {
-                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName()));
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName()));
                 }
                 if (downsamplingConfigService.shouldToMonth()) {
-                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName()));
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName()));
                 }
             }
         });
-        downsamplingModels.addAll(models);
+        allModels.addAll(models);
 
         boolean debug = System.getProperty("debug") != null;
 
-        for (Model model : downsamplingModels) {
-            if (!isExists(client, model)) {
-                logger.info("table: {} does not exist", model.getName());
-                createTable(client, model);
-            } else if (debug) {
-                logger.info("table: {} exists", model.getName());
-                deleteTable(client, model);
-                createTable(client, model);
+        if (RunningMode.isNoInitMode()) {
+            for (Model model : allModels) {
+                while (!isExists(client, model)) {
+                    try {
+                        logger.info("table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.", model.getName());
+                        Thread.sleep(3000L);
+                    } catch (InterruptedException e) {
+                    }
+                }
             }
-            columnCheck(client, model);
+        } else {
+            for (Model model : allModels) {
+                if (!isExists(client, model)) {
+                    logger.info("table: {} does not exist", model.getName());
+                    createTable(client, model);
+                } else if (debug) {
+                    logger.info("table: {} exists", model.getName());
+                    deleteTable(client, model);
+                    createTable(client, model);
+                }
+                columnCheck(client, model);
+            }
         }
     }
 
