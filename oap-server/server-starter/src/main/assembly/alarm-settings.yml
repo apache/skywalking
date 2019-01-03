@@ -24,7 +24,7 @@ rules:
     period: 10
     count: 3
     silence-period: 5
-    message: Response time of service {name} is more than 1000ms in last 3 minutes.
+    message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
   service_sla_rule:
     # Indicator value need to be long, double or int
     indicator-name: service_sla
@@ -36,7 +36,7 @@ rules:
     count: 2
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 3
-    message: Successful rate of service {name} is lower than 80% in last 2 minutes.
+    message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
   service_p90_sla_rule:
     # Indicator value need to be long, double or int
     indicator-name: service_p90
@@ -45,7 +45,7 @@ rules:
     period: 10
     count: 3
     silence-period: 5
-    message: 90% response time of service {name} is lower than 1000ms in last 3 minutes
+    message: 90% response time of service {name} is lower than 1000ms in 3 minutes of last 10 minutes
   service_instance_resp_time_rule:
     indicator-name: service_instance_resp_time
     op: ">"
@@ -53,7 +53,7 @@ rules:
     period: 10
     count: 2
     silence-period: 5
-    message: Response time of service instance {name} is more than 1000ms in last 2 minutes.
+    message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
 #  Active endpoint related metric alarm will cost more memory than service and service instance metric alarm.
 #  Because the number of endpoint is much more than service and instance.
 #
@@ -64,7 +64,7 @@ rules:
 #    period: 10
 #    count: 2
 #    silence-period: 5
-#    message: Response time of endpoint {name} is more than 1000ms in last 2 minutes.
+#    message: Response time of endpoint {name} is more than 1000ms in 2 minutes of last 10 minutes
 
 webhooks:
 #  - http://127.0.0.1/notify/
