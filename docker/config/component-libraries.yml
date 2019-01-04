@@ -189,8 +189,11 @@ rabbitmq-consumer:
 Canal:
   id: 54
   languages: Java
-Redisson:
+Gson:
   id: 55
+  languages: Java
+Redisson:
+  id: 56
   languages: Java
 
 # .NET/.NET Core components
