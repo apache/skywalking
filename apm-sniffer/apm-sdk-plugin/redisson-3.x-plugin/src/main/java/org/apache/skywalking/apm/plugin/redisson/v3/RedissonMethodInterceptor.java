@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
+import io.netty.channel.Channel;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -27,14 +28,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.redisson.client.RedisClient;
 import org.redisson.client.RedisConnection;
 import org.redisson.client.protocol.CommandData;
 import org.redisson.client.protocol.CommandsData;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URI;
+import java.net.InetSocketAddress;
 
 /**
  * @author zhaoyuguang
@@ -45,14 +44,11 @@ public class RedissonMethodInterceptor implements InstanceMethodsAroundIntercept
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         RedisConnection connection = (RedisConnection) objInst;
+        Channel channel = connection.getChannel();
         String peer = "";
-        if (connection.getRedisClient() != null) {
-            Field field = RedisClient.class.getDeclaredField("uri");
-            field.setAccessible(true);
-            URI uri = (URI) field.get(connection.getRedisClient());
-            if (uri != null) {
-                peer = uri.getHost() + ":" + uri.getPort();
-            }
+        if (channel.remoteAddress() instanceof InetSocketAddress) {
+            InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
+            peer = remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
         }
 
         StringBuilder command = new StringBuilder();
