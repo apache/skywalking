@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 import org.slf4j.*;
 
@@ -53,7 +54,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int serviceId) {
-        if (standardBuilder.getComponentId() == 0 && StringUtils.isNotEmpty(standardBuilder.getComponent())) {
+        if (standardBuilder.getComponentId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getComponent())) {
             int componentId = componentLibraryCatalogService.getComponentId(standardBuilder.getComponent());
 
             if (componentId == 0) {
@@ -68,7 +69,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             }
         }
 
-        if (standardBuilder.getPeerId() == 0 && StringUtils.isNotEmpty(standardBuilder.getPeer())) {
+        if (standardBuilder.getPeerId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getPeer())) {
             int peerId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getPeer());
 
             if (peerId == 0) {
@@ -81,13 +82,13 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 standardBuilder.setPeerId(peerId);
                 standardBuilder.setPeer(Const.EMPTY_STRING);
 
-                int spanLayer = standardBuilder.getSpanLayerValue();
-                networkAddressInventoryRegister.update(peerId, spanLayer);
+                int spanLayerValue = standardBuilder.getSpanLayerValue();
+                networkAddressInventoryRegister.update(peerId, NodeType.fromSpanLayerValue(spanLayerValue));
             }
         }
 
         if (standardBuilder.getOperationNameId() == 0) {
-            String endpointName = StringUtils.isNotEmpty(standardBuilder.getOperationName()) ? standardBuilder.getOperationName() : Const.DOMAIN_OPERATION_NAME;
+            String endpointName = Strings.isNullOrEmpty(standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getOperationName();
             int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder.getSpanType()));
 
             if (endpointId == 0) {

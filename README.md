@@ -86,7 +86,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
 * Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
-* Mail list: dev@skywalking.apache.org
+* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
 
@@ -102,7 +102,7 @@ Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) pa
 
 <p align="center">
 <br/><br/>
-<img src="https://landscape.cncf.io/images/cncf-landscape.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/cncf.svg" width="200"/>
+<img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>
 <br/><br/>
 SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
 

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.0.0-GA-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-plugins</artifactId>
@@ -36,6 +36,8 @@
         <module>core-patch</module>
         <module>mvc-annotation-commons</module>
         <module>spring-commons</module>
+        <module>mvc-annotation-5.x-plugin</module>
+        <module>webflux-5.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

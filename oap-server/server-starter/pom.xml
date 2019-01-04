@@ -22,7 +22,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.0.0-GA-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -64,6 +64,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>cluster-kubernetes-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-consul-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cluster module -->

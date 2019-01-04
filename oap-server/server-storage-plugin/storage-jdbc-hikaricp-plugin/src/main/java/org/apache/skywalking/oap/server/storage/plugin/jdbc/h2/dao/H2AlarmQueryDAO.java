@@ -19,18 +19,14 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
-import org.apache.skywalking.oap.server.core.query.entity.Alarms;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
+import org.elasticsearch.common.Strings;
 
 /**
  * @author wusheng
@@ -57,7 +53,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
             parameters.add(endTB);
         }
 
-        if (StringUtils.isNotEmpty(keyword)) {
+        if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%' ");
         }
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
