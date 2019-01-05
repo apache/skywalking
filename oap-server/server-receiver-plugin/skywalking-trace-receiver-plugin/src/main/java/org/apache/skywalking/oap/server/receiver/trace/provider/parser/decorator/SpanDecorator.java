@@ -92,14 +92,6 @@ public class SpanDecorator implements StandardBuilder {
         }
     }
 
-    public int getSpanTypeValue() {
-        if (isOrigin) {
-            return isV2 ? spanObjectV2.getSpanTypeValue() : spanObject.getSpanTypeValue();
-        } else {
-            return isV2 ? spanBuilderV2.getSpanTypeValue() : spanBuilder.getSpanTypeValue();
-        }
-    }
-
     public SpanLayer getSpanLayer() {
         if (isOrigin) {
             return isV2 ? spanObjectV2.getSpanLayer() : spanObject.getSpanLayer();

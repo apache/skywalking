@@ -21,20 +21,12 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
-import org.apache.skywalking.oap.server.core.source.Segment;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.library.util.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -49,7 +41,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private final EndpointInventoryCache serviceNameCacheService;
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
     private int entryEndpointId = 0;
-    private int firstEndpointId = 0;
+    private String firstSpanOperationName = "";
 
     private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
@@ -82,7 +74,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
          */
         segment.setVersion(segmentCoreInfo.isV2() ? 2 : 1);
 
-        firstEndpointId = spanDecorator.getOperationNameId();
+        firstSpanOperationName = spanDecorator.getOperationName();
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
@@ -123,8 +115,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         }
 
         if (entryEndpointId == 0) {
-            segment.setEndpointId(firstEndpointId);
-            segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
+            segment.setEndpointName(firstSpanOperationName);
         } else {
             segment.setEndpointId(entryEndpointId);
             segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());

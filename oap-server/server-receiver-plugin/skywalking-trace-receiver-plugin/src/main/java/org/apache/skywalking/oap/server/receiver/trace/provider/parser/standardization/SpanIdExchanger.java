@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
 import com.google.common.base.Strings;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.register.NodeType;
@@ -87,7 +88,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             }
         }
 
-        if (standardBuilder.getOperationNameId() == 0) {
+        if (standardBuilder.getOperationNameId() == 0 && needExchangeOperationName(standardBuilder)) {
             String endpointName = Strings.isNullOrEmpty(standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getOperationName();
             int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder.getSpanType()));
 
@@ -103,5 +104,10 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             }
         }
         return true;
+    }
+
+    private boolean needExchangeOperationName(SpanDecorator standardBuilder) {
+        return SpanType.Entry.equals(standardBuilder.getSpanType())
+            || SpanType.Exit.equals(standardBuilder.getSpanType());
     }
 }
