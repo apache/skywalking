@@ -306,6 +306,7 @@ The text of each license is the standard Apache 2.0 license.
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
+    prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
 
 ========================================================================
 MIT licenses

@@ -40,6 +40,7 @@
         <module>server-testing</module>
         <module>generated-analysis</module>
         <module>generate-tool</module>
+        <module>server-telemetry</module>
     </modules>
 
     <properties>

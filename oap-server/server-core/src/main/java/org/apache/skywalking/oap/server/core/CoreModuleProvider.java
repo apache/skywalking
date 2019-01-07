@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.slf4j.*;
 
 /**
@@ -177,6 +178,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[0];
+        return new String[] {TelemetryModule.NAME};
     }
 }
