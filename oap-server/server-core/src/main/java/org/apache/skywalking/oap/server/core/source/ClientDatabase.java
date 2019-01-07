@@ -22,13 +22,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @Author: Liu-Haoyang
+ * @author: liuhaoyang
  */
-public class DatabaseService extends Source {
+public class ClientDatabase extends Source {
 
     @Override
     public Scope scope() {
-        return Scope.DatabaseService;
+        return Scope.ClientDatabase;
     }
 
     @Override
@@ -38,8 +38,7 @@ public class DatabaseService extends Source {
 
     @Getter @Setter private long id;
     @Getter @Setter private String name;
-    @Getter @Setter private String statement;
-    @Getter @Setter private int componentId;
+    @Getter @Setter private int databaseTypeId;
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;
 }

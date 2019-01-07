@@ -51,9 +51,9 @@ public class FileGenerator {
         createFile(file);
         this.generateServiceDispatcher(new FileWriter(file));
 
-        file = new File(outputPath, "generated/databaseservice/DatabaseServiceDispatcher.java");
+        file = new File(outputPath, "generated/clientdatabase/ClientDatabaseDispatcher.java");
         createFile(file);
-        this.generateDatabaseServiceDispatcher(new FileWriter(file));
+        this.generateClientDatabaseDispatcher(new FileWriter(file));
 
         file = new File(outputPath, "generated/servicerelation/ServiceRelationDispatcher.java");
         createFile(file);
@@ -131,8 +131,8 @@ public class FileGenerator {
         configuration.getTemplate("ServiceDispatcherTemplate.ftl").process(dispatcherContext, output);
     }
 
-    void generateDatabaseServiceDispatcher(Writer output) throws IOException, TemplateException {
-        configuration.getTemplate("DatabaseServiceDispatcherTemplate.ftl").process(dispatcherContext, output);
+    void generateClientDatabaseDispatcher(Writer output) throws IOException, TemplateException {
+        configuration.getTemplate("ClientDatabaseDispatcherTemplate.ftl").process(dispatcherContext, output);
     }
 
     void generateServiceRelationDispatcher(Writer output) throws IOException, TemplateException {
@@ -209,8 +209,8 @@ public class FileGenerator {
                 case "ServiceInstanceJVMGC":
                     dispatcherContext.getServiceInstanceJVMGCIndicators().add(result);
                     break;
-                case "DatabaseService":
-                    dispatcherContext.getDatabaseServiceIndicators().add(result);
+                case "ClientDatabase":
+                    dispatcherContext.getClientDatabaseIndicators().add(result);
                     break;
                 default:
                     throw new RuntimeException("Unexpected dispatcher");

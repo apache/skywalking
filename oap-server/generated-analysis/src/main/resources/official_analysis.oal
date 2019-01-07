@@ -72,11 +72,11 @@ instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPh
 instance_jvm_young_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.NEW).sum();
 instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.OLD).sum();
 
-database_service_resp_time = from(DatabaseService.latency).longAvg();
-database_service_sla = from(DatabaseService.*).percent(status == true);
-database_service_cpm = from(DatabaseService.*).cpm();
-database_service_p99 = from(DatabaseService.latency).p99(10);
-database_service_p95 = from(DatabaseService.latency).p95(10);
-database_service_p90 = from(DatabaseService.latency).p90(10);
-database_service_p75 = from(DatabaseService.latency).p75(10);
-database_service_p50 = from(DatabaseService.latency).p50(10);
+client_database_resp_time = from(ClientDatabase.latency).longAvg();
+client_database_sla = from(ClientDatabase.*).percent(status == true);
+client_database_cpm = from(ClientDatabase.*).cpm();
+client_database_p99 = from(ClientDatabase.latency).p99(10);
+client_database_p95 = from(ClientDatabase.latency).p95(10);
+client_database_p90 = from(ClientDatabase.latency).p90(10);
+client_database_p75 = from(ClientDatabase.latency).p75(10);
+client_database_p50 = from(ClientDatabase.latency).p50(10);

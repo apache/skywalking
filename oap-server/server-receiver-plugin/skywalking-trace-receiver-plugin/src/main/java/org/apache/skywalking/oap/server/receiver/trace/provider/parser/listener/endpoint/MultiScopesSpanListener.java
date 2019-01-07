@@ -212,7 +212,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
-                sourceReceiver.receive(exitSourceBuilder.toDatabaseService());
+                sourceReceiver.receive(exitSourceBuilder.toClientDatabase());
             }
         });
     }
