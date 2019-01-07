@@ -129,6 +129,9 @@ h2-jdbc-driver:
 mysql-connector-java:
   id: 33
   languages: Java
+ojdbc:
+  id: 34
+  languages: Java
 Spymemcached:
   id: 35
   languages: Java
@@ -189,8 +192,11 @@ rabbitmq-consumer:
 Canal:
   id: 54
   languages: Java
-Netty-Http-Client:
+Gson:
   id: 55
+  languages: Java
+Netty-Http-Client:
+  id: 56
   languages: Java
 
 

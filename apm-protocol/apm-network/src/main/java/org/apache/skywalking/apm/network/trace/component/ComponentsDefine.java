@@ -106,7 +106,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent CANAL = new OfficialComponent(54, "Canal");
 
-    public static final OfficialComponent NETTY_HTTP = new OfficialComponent(55, "Netty-Http-Client");
+    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
+
+    public static final OfficialComponent NETTY_HTTP = new OfficialComponent(56, "Netty-Http-Client");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -157,6 +159,7 @@ public class ComponentsDefine {
         addComponent(RABBITMQ_PRODUCER);
         addComponent(RABBITMQ_CONSUMER);
         addComponent(CANAL);
+        addComponent(GSON);
         addComponent(NETTY_HTTP);
     }
 
