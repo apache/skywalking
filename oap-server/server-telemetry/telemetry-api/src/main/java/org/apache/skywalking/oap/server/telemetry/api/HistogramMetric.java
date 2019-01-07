@@ -26,7 +26,7 @@ import java.io.*;
  *
  * @author wusheng
  */
-public abstract class HistogramMetric implements TaggableMetric {
+public abstract class HistogramMetric {
     public Timer createTimer() {
         return new Timer(this);
     }
@@ -38,7 +38,7 @@ public abstract class HistogramMetric implements TaggableMetric {
      */
     public abstract void observe(double value);
 
-    class Timer implements Closeable {
+    public class Timer implements Closeable {
         private final HistogramMetric metric;
         private final long startNanos;
         private double duration;

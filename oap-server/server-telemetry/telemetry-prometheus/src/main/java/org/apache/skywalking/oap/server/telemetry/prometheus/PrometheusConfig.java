@@ -16,13 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.api;
+package org.apache.skywalking.oap.server.telemetry.prometheus;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * Set tag values to this metric instance.
+ * The Prometheus telemetry implementor settings.
  *
  * @author wusheng
  */
-public interface TaggableMetric {
-    void setTagValues(MetricTag.Values values);
+@Setter
+@Getter
+public class PrometheusConfig extends ModuleConfig {
+    private String host = "0.0.0.0";
+    private int port = 1234;
 }
