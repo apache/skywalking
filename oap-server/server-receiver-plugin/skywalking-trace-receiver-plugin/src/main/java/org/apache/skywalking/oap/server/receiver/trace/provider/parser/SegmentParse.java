@@ -43,6 +43,8 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardi
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanIdExchanger;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +60,9 @@ public class SegmentParse {
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
     @Setter private SegmentStandardizationWorker standardizationWorker;
+    private CounterMetric traceBufferFileRetry;
+    private CounterMetric traceBufferFileOut;
+    private CounterMetric traceParseError;
 
     private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
@@ -67,6 +72,14 @@ public class SegmentParse {
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
         this.segmentCoreInfo.setV2(false);
+
+        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        traceBufferFileRetry = metricCreator.createCounter("v5_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        traceBufferFileOut = metricCreator.createCounter("v5_trace_buffer_file_out", "The number of trace segment out of the buffer file",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        traceParseError = metricCreator.createCounter("v5_trace_parse_error", "The number of trace segment out of the buffer file",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {
@@ -85,16 +98,21 @@ public class SegmentParse {
 
                 if (source.equals(Source.Agent)) {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
+                } else{
+                    // from SegmentSource.Buffer
+                    traceBufferFileRetry.inc();
                 }
                 return false;
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
                 }
+                traceBufferFileOut.inc();
                 notifyListenerToBuild();
                 return true;
             }
         } catch (Throwable e) {
+            traceParseError.inc();
             logger.error(e.getMessage(), e);
             return true;
         }
