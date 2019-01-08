@@ -5,6 +5,9 @@ and also help committers to check the release for vote.
 
 
 ## Setup your development environment
+Follow [Apache maven deployment environment document](http://www.apache.org/dev/publishing-maven-artifacts.html#dev-env)
+to set gpg tool and encrypt passwords
+
 Use the following block as a template and place it in ~/.m2/settings.xml
 
 ```
@@ -28,7 +31,14 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 </settings>
 ```
 
+## Add your GPG public key
+1. Add your GPG public key into [SkyWalking GPG KEYS](https://dist.apache.org/repos/dist/release/incubator/skywalking/KEYS) file,
+only if you are a committer, use your Apache id and password login this svn, and update file. **Don't override the existing file.**
+1. Upload your GPG public key to public GPG site. Such as [MIT's site](http://pgp.mit.edu:11371/). This site should be in 
+Apache maven staging repository check list.
+
 ## Test your settings
+This step is only for test, if your env is set right, don't need to check every time.
 ```
 ./mvnw clean install -Papache-release (this will build artifacts, sources and sign)
 ```
@@ -38,32 +48,41 @@ Use the following block as a template and place it in ~/.m2/settings.xml
 ./mvnw release:clean
 ./mvnw release:prepare -DautoVersionSubmodules=true -Pauto-submodule
 ```
+_You could do a GPG sign before doing release, if you need input the password to sign, and the maven don't give the chance,
+but just failure. Run `gpg --sign xxx` to any file could remember the password for enough time to do release._ 
 
 ## Stage the release 
 ```
 ./mvnw release:perform -DskipTests -Pauto-submodule
 ```
-1. Set version number as x.y.z, and tag as vx.y.z
+1. Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
 1. The release will automatically be inserted into a temporary staging repository for you.
 
 ## Build and sign the source code package
 ```shell
-switch to release version tag
 export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
 cd tools/releasing
 sh create_source_release.sh
 ```
 
-`RELEASE_ROUND` must be as same as your setting in `Stage the release` step.
+**NOTICE**, `create_source_release.sh` is just suitable for MacOS. Welcome anyone to contribute Windows bat and Linux shell. 
+
+This scripts should do following things
+1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
+1. Make `git submodule init/update` done.
+1. Exclude all unnecessary files in the target source tar, such as .git, .github, .gitmodules. See the script for the details.
+1. Do `gpg` and `shasum 512`. 
+
 
 The `apache-skywalking-apm-incubating-x.y.z-src.tgz` should be found in `tools/releasing` folder,
-with .asc, .sha512, .md5
+with .asc, .sha512.
 
 ## Find and download distribution in Apache Nexus Staging repositories
 1. Use ApacheId to login `https://repository.apache.org/`
 1. Go to `https://repository.apache.org/#stagingRepositories`
 1. Search `skywalking` and find your staging repository
-1. Close the repository and wait for all checks pass.
+1. Close the repository and wait for all checks pass. In this step, your GPG KEYS will be checked. See [set PGP document](#add-your-gpg-public-key),
+if you haven't done it before.
 1. Go to `{REPO_URL}/org/apache/skywalking/apache-skywalking-apm-incubating/x.y.z`
 1. Download `.tar.gz` and `.zip` with .asc and .sha1
 
@@ -78,7 +97,6 @@ with .asc, .sha512, .md5
     * Package name: apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip
     * See Section "Find and download distribution in Apache Nexus Staging repositories" for more details
     * Create .sha512 package: `shasum -a 512 file > file.sha512`
-1. Upload gpg public key, named KEY
 
 ## Make the internal announcements
 Send an announcement mail in dev mail list.
@@ -202,6 +220,10 @@ are in `https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z` with 
 1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
 1. DISCLAIMER exists
 
+Vote result should follow these.
+1. PPMC vote is +1 binding, all others is +1 no binding.
+1. In 72 hours, you get at least 3 (+1 binding), and have more +1 than -1. Vote pass. 
+
 ## Call for a vote in Apache IPMC
 Call a vote in `general@incubator.apache.org`
 
@@ -274,8 +296,9 @@ Voting will start now (xxxx date) and will remain open for at least 72 hours, Re
 
 ## Vote result mail
 Close the vote, if
-1. In 72 hours, you got the more than 3 (+1 binding), and no -1. Vote pass.
-1. Some reviewers found some serious mistakes in this release, the team decided to stop vote and prepare a new RC.
+1. In 72 hours, you got at least 3 (+1 binding), and have more +1 than -1. Vote pass. In IPMC vote, only Incubator project PMC
+vote would be considered as +1 binding.
+1. Some reviewers found some serious mistakes in this release, the team could decide to cancel vote and prepare a new RC.
 
 Send a mail to `general@incubator.apache.org` about vote result and status.
 ```
@@ -306,9 +329,11 @@ enter your apache password
 
 ```
 2. Do release in nexus staging repo.
-3. Public download URLs under `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z`.
-4. Public KEYS, sigs and sha512 URLs under `https://www.apache.org/dist/incubator/skywalking/xxxx`
-5. Send ANNOUNCE mail to `general@incubator.apache.org` and `dev@skywalking.apache.org`.
+3. Public download source and distribution tar/zip locate in `http://www.apache.org/dyn/closer.cgi/incubator/skywalking/x.y.z/xxx`.
+We only publish Apache mirror path as release info.
+4. Public asc and sha512 locate in `https://www.apache.org/dist/incubator/skywalking/x.y.z/xxx`
+5. Public KEYS pointing to  `https://www.apache.org/dist/incubator/skywalking/KEYS`
+6. Send ANNOUNCE mail to `general@incubator.apache.org` and `dev@skywalking.apache.org`.
 ```
 Mail title: [ANNOUNCE] Release Apache SkyWalking (incubating) version x.y.z
 
@@ -351,4 +376,6 @@ of the completeness or stability of the code, it does indicate
 that the project has yet to be fully endorsed by the ASF.
 ```
 
-6. Update skywalking website download page: http://skywalking.apache.org/downloads/
+7. Update website download page. http://skywalking.apache.org/downloads/ . Include new download source, distribution, sha512, asc and document
+links. Links could be found by following above rules(3)-(6).
+8. Add an release event on website homepage and even page. Announce the public release with changelog or key features.

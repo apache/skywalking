@@ -69,21 +69,25 @@ public class AlarmCore {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
+                LocalDateTime checkTime = LocalDateTime.now();
+                int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
+                boolean[] hasExecute = new boolean[] {false};
                 runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
-                    LocalDateTime checkTime = LocalDateTime.now();
-                    int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
                     if (minutes > 0) {
                         runningRule.moveTo(checkTime);
                         /**
                          * Don't run in the first quarter per min, avoid to trigger false alarm.
                          */
                         if (checkTime.getSecondOfMinute() > 15) {
+                            hasExecute[0] = true;
                             alarmMessageList.addAll(runningRule.check());
-                            // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
-                            lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
                         }
                     }
                 }));
+                // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
+                if (hasExecute[0]) {
+                    lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
+                }
 
                 if (alarmMessageList.size() > 0) {
                     allCallbacks.forEach(callback -> callback.doAlarm(alarmMessageList));

@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.starter;
 
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
-import org.apache.skywalking.oap.server.starter.config.ConfigFileNotFoundException;
+import org.apache.skywalking.oap.server.starter.config.*;
 import org.slf4j.*;
 
 /**
@@ -31,11 +31,19 @@ public class OAPServerStartUp {
     private static final Logger logger = LoggerFactory.getLogger(OAPServerStartUp.class);
 
     public static void main(String[] args) {
+        String mode = System.getProperty("mode");
+        RunningMode.setMode(mode);
+
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
         ModuleManager manager = new ModuleManager();
         try {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
+
+            if (RunningMode.isInitMode()) {
+                logger.info("OAP starts up in init mode successfully, exit now...");
+                System.exit(0);
+            }
         } catch (ConfigFileNotFoundException | ModuleNotFoundException | ProviderNotFoundException | ServiceNotProvidedException | ModuleConfigException | ModuleStartException e) {
             logger.error(e.getMessage(), e);
             System.exit(1);

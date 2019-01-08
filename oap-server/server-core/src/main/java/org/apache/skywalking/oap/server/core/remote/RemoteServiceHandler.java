@@ -25,27 +25,36 @@ import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGe
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.*;
 
 /**
+ * This class is Server-side streaming RPC implementation. It's a common service for OAP servers
+ * to receive message from each others.
+ * The stream data id is used to find the object to deserialize message.
+ * The next worker id is used to find the worker to process message.
+ *
  * @author peng-yongsheng
  */
 public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBase implements GRPCHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RemoteServiceHandler.class);
 
-    private final ModuleManager moduleManager;
+    private final ModuleDefineHolder moduleDefineHolder;
     private StreamDataClassGetter streamDataClassGetter;
 
-    public RemoteServiceHandler(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public RemoteServiceHandler(ModuleDefineHolder moduleDefineHolder) {
+        this.moduleDefineHolder = moduleDefineHolder;
     }
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
         if (Objects.isNull(streamDataClassGetter)) {
-            streamDataClassGetter = moduleManager.find(CoreModule.NAME).getService(StreamDataClassGetter.class);
+            synchronized (RemoteServiceHandler.class) {
+                if (Objects.isNull(streamDataClassGetter)) {
+                    streamDataClassGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
+                }
+            }
         }
 
         return new StreamObserver<RemoteMessage>() {
@@ -59,8 +68,8 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                     StreamData streamData = streamDataClass.newInstance();
                     streamData.deserialize(remoteData);
                     WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    logger.warn(e.getMessage());
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
                 }
             }
 

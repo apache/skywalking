@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.servicecomb.v1;
 
+import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.servicecomb.core.Endpoint;
 import org.apache.servicecomb.core.Invocation;
 import org.apache.servicecomb.core.definition.OperationMeta;
@@ -25,13 +27,11 @@ import org.apache.servicecomb.core.definition.SchemaMeta;
 import org.apache.servicecomb.core.provider.consumer.ReferenceConfig;
 import org.apache.servicecomb.swagger.invocation.InvocationType;
 import org.apache.servicecomb.swagger.invocation.SwaggerInvocation;
-import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
@@ -99,7 +99,7 @@ public class TransportClientHandlerInterceptorTest {
         when(invocation.getStatus()).thenReturn(statusType);
         when(statusType.getStatusCode()).thenReturn(200);
         when(invocation.getInvocationType()).thenReturn(InvocationType.CONSUMER);
-        Config.Agent.APPLICATION_CODE = "serviceComnTestCases-APP";
+        Config.Agent.SERVICE_NAME = "serviceComnTestCases-APP";
 
         allArguments = new Object[] {invocation,};
         argumentsType = new Class[] {};
@@ -120,7 +120,7 @@ public class TransportClientHandlerInterceptorTest {
     private void assertCombSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("consumerTest"));
         assertThat(SpanHelper.getComponentId(span), is(28));
-        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("/bmi"));
         assertThat(span.isExit(), is(true));
     }

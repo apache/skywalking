@@ -76,19 +76,19 @@ ContextManager provides all major and primary APIs.
 
 1. Create EntrySpan
 ```java
-public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier)
+public static AbstractSpan createEntrySpan(String endpointName, ContextCarrier carrier)
 ```
 Create EntrySpan by operation name(e.g. service name, uri) and **ContextCarrier**.
 
 2. Create LocalSpan
 ```java
-public static AbstractSpan createLocalSpan(String operationName)
+public static AbstractSpan createLocalSpan(String endpointName)
 ```
 Create LocalSpan by operation name(e.g. full method signature)
 
 3. Create ExitSpan
 ```java
-public static AbstractSpan createExitSpan(String operationName, ContextCarrier carrier, String remotePeer)
+public static AbstractSpan createExitSpan(String endpointName, ContextCarrier carrier, String remotePeer)
 ```
 Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarrier** and peer address
 (e.g. ip+port, hostname+port)
@@ -145,7 +145,7 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      *
      * @return this Span instance, for chaining
      */
-    AbstractSpan setOperationName(String operationName);
+    AbstractSpan setOperationName(String endpointName);
 ```
 Besides set operation name, tags and logs, two attributes shoule be set, which are component and layer, 
 especially for EntrySpan and ExitSpan
@@ -281,9 +281,12 @@ We are welcome everyone to contribute plugins.
 
 Please follow there steps:
 1. Submit an issue about which plugins are you going to contribute, including supported version.
-1. Create sub modules under `apm-sniffer/apm-sdk-plugin`, and the name should include supported library name and versions
+1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
 1. Follow this guide to develop. Make sure comments and test cases are provided.
 1. Develop and test.
-1. Send the pull request and ask for review, and provide the automatic test cases by following PMC members guides.
+1. Send the pull request and ask for review. 
+1. Provide the automatic test cases. 
+All test cases are hosted in [SkywalkingTest/skywalking-agent-testcases repository](https://github.com/SkywalkingTest/skywalking-agent-testcases).
+About how to write a test case, follow the [How to write](https://github.com/SkywalkingTest/skywalking-agent-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) document.
 1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 

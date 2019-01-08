@@ -1,6 +1,10 @@
 # Setup
 Setup based on which kind of probes are you going to use. If you don't understand, please read [Concepts and Designs](../concepts-and-designs/README.md) first.
 
+
+**Important: Please comfirm the system time on the monitored servers are same as the time on the OAP servers.**
+
+
 ## Download official releases
 - Backend, UI and Java agent are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
 - Download .Net agent by following [Getting started document](https://github.com/OpenSkywalking/skywalking-netcore#getting-started).

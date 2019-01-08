@@ -20,3 +20,6 @@ mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.Mysql50ConnectionIn
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.CallableInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.PreparedStatementInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.StatementInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.FailoverConnectionProxyInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.LoadBalancedConnectionProxyInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.ReplicationConnectionProxyInstrumentation

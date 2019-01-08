@@ -18,13 +18,18 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -36,7 +41,7 @@ import org.apache.skywalking.apm.network.trace.component.Component;
 public abstract class AbstractTracingSpan implements AbstractSpan {
     protected int spanId;
     protected int parentSpanId;
-    protected List<KeyValuePair> tags;
+    protected List<TagValuePair> tags;
     protected String operationName;
     protected int operationId;
     protected SpanLayer layer;
@@ -89,11 +94,27 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * @return this Span instance, for chaining
      */
     @Override
+    @Deprecated
     public AbstractTracingSpan tag(String key, String value) {
+        return tag(new StringTag(key), value);
+    }
+
+    @Override
+    public AbstractTracingSpan tag(AbstractTag tag, String value) {
         if (tags == null) {
-            tags = new LinkedList<KeyValuePair>();
+            tags = new ArrayList<TagValuePair>(8);
         }
-        tags.add(new KeyValuePair(key, value));
+
+        if (tag.isCanOverwrite()) {
+            for (TagValuePair pair : tags) {
+                if (pair.sameWith(tag)) {
+                    pair.setValue(value);
+                    return this;
+                }
+            }
+        }
+
+        tags.add(new TagValuePair(tag, value));
         return this;
     }
 
@@ -244,8 +265,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    public SpanObject.Builder transform() {
-        SpanObject.Builder spanBuilder = SpanObject.newBuilder();
+    public SpanObjectV2.Builder transform() {
+        SpanObjectV2.Builder spanBuilder = SpanObjectV2.newBuilder();
 
         spanBuilder.setSpanId(this.spanId);
         spanBuilder.setParentSpanId(parentSpanId);
@@ -275,7 +296,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         }
         spanBuilder.setIsError(errorOccurred);
         if (this.tags != null) {
-            for (KeyValuePair tag : this.tags) {
+            for (TagValuePair tag : this.tags) {
                 spanBuilder.addTags(tag.transform());
             }
         }

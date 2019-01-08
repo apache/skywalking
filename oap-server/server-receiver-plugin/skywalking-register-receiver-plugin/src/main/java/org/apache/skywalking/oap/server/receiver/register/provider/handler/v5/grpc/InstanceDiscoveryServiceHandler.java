@@ -18,18 +18,16 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc;
 
+import com.google.common.base.Strings;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
 /**
@@ -45,10 +43,10 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public InstanceDiscoveryServiceHandler(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInstanceInventoryRegister.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
     }
 
     @Override
@@ -67,7 +65,7 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         if (osinfo.getProcessNo() != 0) {
             instanceName += "-pid:" + osinfo.getProcessNo();
         }
-        if (StringUtils.isNotEmpty(osinfo.getHostname())) {
+        if (!Strings.isNullOrEmpty(osinfo.getHostname())) {
             instanceName += "@" + osinfo.getHostname();
         }
 

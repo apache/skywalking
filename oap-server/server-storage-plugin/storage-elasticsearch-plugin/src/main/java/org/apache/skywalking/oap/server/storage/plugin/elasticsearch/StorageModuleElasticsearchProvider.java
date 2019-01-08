@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.cache.*;
 import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.client.NameSpace;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
@@ -38,13 +37,11 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     private static final Logger logger = LoggerFactory.getLogger(StorageModuleElasticsearchProvider.class);
 
     private final StorageModuleElasticsearchConfig config;
-    private final NameSpace nameSpace;
     private ElasticSearchClient elasticSearchClient;
 
     public StorageModuleElasticsearchProvider() {
         super();
         this.config = new StorageModuleElasticsearchConfig();
-        this.nameSpace = new NameSpace();
     }
 
     @Override
@@ -64,7 +61,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), nameSpace);
+        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), config.getNameSpace());
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
@@ -87,8 +84,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     @Override
     public void start() throws ModuleStartException {
         try {
-            nameSpace.setNameSpace(config.getNameSpace());
-            elasticSearchClient.initialize();
+            elasticSearchClient.connect();
 
             StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber());
             installer.install(elasticSearchClient);

@@ -163,7 +163,7 @@ public class MotanProviderInterceptorTest {
     private void assertRefSegment(TraceSegmentRef primaryRef) {
         assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.123.456"));
         assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(primaryRef), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(primaryRef), is(1));
         assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
     }
 

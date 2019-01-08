@@ -19,13 +19,14 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import com.google.common.base.Strings;
 import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.query.graphql.type.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 
 import static java.util.Objects.nonNull;
 
@@ -43,7 +44,7 @@ public class TraceQuery implements GraphQLQueryResolver {
 
     private TraceQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(TraceQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(TraceQueryService.class);
         }
         return queryService;
     }
@@ -53,7 +54,7 @@ public class TraceQuery implements GraphQLQueryResolver {
         long endSecondTB = 0;
         String traceId = Const.EMPTY_STRING;
 
-        if (StringUtils.isNotEmpty(condition.getTraceId())) {
+        if (!Strings.isNullOrEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
         } else if (nonNull(condition.getQueryDuration())) {
             startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());

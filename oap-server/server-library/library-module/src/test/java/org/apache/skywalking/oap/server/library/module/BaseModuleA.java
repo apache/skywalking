@@ -16,15 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
 /**
  * @author wu-sheng
  */
 public class BaseModuleA extends ModuleDefine {
-    @Override public String name() {
-        return "BaseA";
+
+    public BaseModuleA() {
+        super("BaseA");
     }
 
     @Override public Class<? extends Service>[] services() {
@@ -36,6 +36,5 @@ public class BaseModuleA extends ModuleDefine {
     }
 
     public interface ServiceABusiness2 extends Service {
-
     }
 }

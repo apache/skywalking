@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * @author peng-yongsheng
  */
-@IndicatorOperator
+@IndicatorFunction(functionName = "count")
 public abstract class CountIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";

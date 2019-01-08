@@ -41,7 +41,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     private AlarmQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(AlarmQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(AlarmQueryService.class);
         }
         return queryService;
     }
@@ -52,8 +52,8 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
         final Pagination paging) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
         return getQueryService().getAlarm(scope, keyword, paging, startTimeBucket, endTimeBucket);
     }

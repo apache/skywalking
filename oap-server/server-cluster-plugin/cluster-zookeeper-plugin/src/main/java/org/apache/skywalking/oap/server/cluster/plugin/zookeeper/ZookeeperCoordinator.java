@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 import java.util.*;
 import org.apache.curator.x.discovery.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.slf4j.*;
 
 /**
@@ -31,7 +32,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private volatile ServiceCache<RemoteInstance> serviceCache;
-    private volatile RemoteInstance selfInstance;
+    private volatile Address selfAddress;
 
     ZookeeperCoordinator(ServiceDiscovery<RemoteInstance> serviceDiscovery) {
         this.serviceDiscovery = serviceDiscovery;
@@ -44,8 +45,8 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
             ServiceInstance<RemoteInstance> thisInstance = ServiceInstance.<RemoteInstance>builder()
                 .name(remoteNamePath)
                 .id(UUID.randomUUID().toString())
-                .address(remoteInstance.getHost())
-                .port(remoteInstance.getPort())
+                .address(remoteInstance.getAddress().getHost())
+                .port(remoteInstance.getAddress().getPort())
                 .payload(remoteInstance)
                 .build();
 
@@ -57,7 +58,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
             serviceCache.start();
 
-            this.selfInstance = remoteInstance;
+            this.selfAddress = remoteInstance.getAddress();
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }
@@ -70,10 +71,10 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();
-                if (instance.equals(selfInstance)) {
-                    instance.setSelf(true);
+                if (instance.getAddress().equals(selfAddress)) {
+                    instance.getAddress().setSelf(true);
                 } else {
-                    instance.setSelf(false);
+                    instance.getAddress().setSelf(false);
                 }
                 remoteInstanceDetails.add(instance);
             });

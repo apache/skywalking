@@ -22,6 +22,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A SQL executor.
@@ -29,6 +31,8 @@ import java.util.List;
  * @author wusheng
  */
 public class SQLExecutor {
+    private final Logger logger = LoggerFactory.getLogger(SQLExecutor.class);
+
     private String sql;
     private List<Object> param;
 
@@ -43,6 +47,8 @@ public class SQLExecutor {
         for (int i = 0; i < param.size(); i++) {
             preparedStatement.setObject(i + 1, param.get(i));
         }
+
+        logger.debug("execute aql in batch: {}", sql);
         preparedStatement.execute();
     }
 }

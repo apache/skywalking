@@ -38,6 +38,10 @@ public class NotifyHandler implements IndicatorNotify {
         switch (meta.getScope()) {
             case Service:
                 break;
+            case ServiceInstance:
+                break;
+            case Endpoint:
+                break;
             default:
                 return;
         }
@@ -49,7 +53,6 @@ public class NotifyHandler implements IndicatorNotify {
         runningRules.forEach(rule -> rule.in(meta, indicator));
     }
 
-    @Override
     public void init(AlarmCallback... callbacks) {
         List<AlarmCallback> allCallbacks = new ArrayList<>();
         for (AlarmCallback callback : callbacks) {
