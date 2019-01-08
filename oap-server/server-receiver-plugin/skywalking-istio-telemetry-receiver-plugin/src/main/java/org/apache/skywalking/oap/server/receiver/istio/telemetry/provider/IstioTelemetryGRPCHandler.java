@@ -52,7 +52,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         counter = metricCreator.createCounter("istio_mesh_grpc_in_count", "The count of istio service mesh telemetry",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        histogram = metricCreator.createHistogramMetric("Istio_mesh_grpc_in_latency", "The process latency of istio service mesh telemetry",
+        histogram = metricCreator.createHistogramMetric("istio_mesh_grpc_in_latency", "The process latency of istio service mesh telemetry",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
 
