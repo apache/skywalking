@@ -129,6 +129,9 @@ h2-jdbc-driver:
 mysql-connector-java:
   id: 33
   languages: Java
+ojdbc:
+  id: 34
+  languages: Java
 Spymemcached:
   id: 35
   languages: Java
