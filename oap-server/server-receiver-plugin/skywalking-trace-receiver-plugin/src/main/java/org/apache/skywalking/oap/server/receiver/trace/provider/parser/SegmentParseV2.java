@@ -85,7 +85,7 @@ public class SegmentParseV2 {
 
                 if (source.equals(SegmentSource.Agent)) {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
-                } else{
+                } else {
                     // from SegmentSource.Buffer
                     traceBufferFileRetry.inc();
                 }

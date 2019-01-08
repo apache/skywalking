@@ -26,6 +26,9 @@ import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +44,19 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final MergeDataCache<Indicator> mergeDataCache;
     private int messageNum;
     private final String modelName;
+    private CounterMetric aggregationCounter;
 
-    IndicatorAggregateWorker(int workerId, AbstractWorker<Indicator> nextWorker, String modelName) {
+    IndicatorAggregateWorker(ModuleManager moduleManager, int workerId, AbstractWorker<Indicator> nextWorker, String modelName) {
         super(workerId);
         this.modelName = modelName;
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
         this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, 1, 10000);
         this.dataCarrier.consume(new AggregatorConsumer(this), 1);
+
+        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        aggregationCounter = metricCreator.createCounter("indicator_aggregation", "The number of rows in aggregation",
+            new MetricTag.Keys("metricName", "level"), new MetricTag.Values(modelName, "1"));
     }
 
     @Override public final void in(Indicator indicator) {
@@ -57,6 +65,7 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     }
 
     private void onWork(Indicator indicator) {
+        aggregationCounter.inc();
         messageNum++;
         aggregate(indicator);
 

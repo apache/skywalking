@@ -29,6 +29,9 @@ import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGe
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
 
 /**
@@ -49,13 +52,23 @@ public class GRPCRemoteClient implements RemoteClient {
     private GRPCClient client;
     private DataCarrier<RemoteMessage> carrier;
     private boolean isConnect;
+    private CounterMetric remoteOutCounter;
+    private CounterMetric remoteOutErrorCounter;
 
-    public GRPCRemoteClient(StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
+
+    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
         int bufferSize) {
         this.streamDataClassGetter = streamDataClassGetter;
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
+
+        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
+                new MetricTag.Keys("dest"), new MetricTag.Values(address.toString()));
+        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            .createCounter("remote_out_error_count", "The error number(client side) of inside remote inside aggregate rpc.",
+                new MetricTag.Keys("dest"), new MetricTag.Values(address.toString()));
     }
 
     @Override public void connect() {
@@ -126,10 +139,12 @@ public class GRPCRemoteClient implements RemoteClient {
             try {
                 StreamObserver<RemoteMessage> streamObserver = createStreamObserver();
                 for (RemoteMessage remoteMessage : remoteMessages) {
+                    remoteOutCounter.inc();
                     streamObserver.onNext(remoteMessage);
                 }
                 streamObserver.onCompleted();
             } catch (Throwable t) {
+                remoteOutErrorCounter.inc();
                 logger.error(t.getMessage(), t);
             }
         }

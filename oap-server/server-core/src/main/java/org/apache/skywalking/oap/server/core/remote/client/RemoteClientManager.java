@@ -196,10 +196,10 @@ public class RemoteClientManager implements Service {
                     break;
                 case Create:
                     if (address.isSelf()) {
-                        RemoteClient client = new SelfRemoteClient(address);
+                        RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         getFreeClients().add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(streamDataClassGetter, address, 1, 3000);
+                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, streamDataClassGetter, address, 1, 3000);
                         client.connect();
                         getFreeClients().add(client);
                     }

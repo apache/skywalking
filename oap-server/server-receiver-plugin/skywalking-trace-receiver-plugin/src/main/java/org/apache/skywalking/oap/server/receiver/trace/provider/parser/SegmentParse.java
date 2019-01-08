@@ -19,34 +19,18 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import lombok.Setter;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.ReferenceIdExchanger;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanIdExchanger;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -98,7 +82,7 @@ public class SegmentParse {
 
                 if (source.equals(Source.Agent)) {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
-                } else{
+                } else {
                     // from SegmentSource.Buffer
                     traceBufferFileRetry.inc();
                 }
