@@ -96,4 +96,4 @@ query:
 alarm:
   default:
 telemetry:
-  none:
+  prometheus:

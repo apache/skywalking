@@ -32,29 +32,29 @@ public interface MetricCreator extends Service {
      *
      * @param name
      * @param tips
-     * @param labels
+     * @param tagKeys
      * @return
      */
-    CounterMetric createCounter(String name, String tips, MetricTag.Keys labels);
+    CounterMetric createCounter(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues);
 
     /**
      * Create a gauge type metric instance.
      *
      * @param name
      * @param tips
-     * @param labels
+     * @param tagKeys
      * @return
      */
-    GaugeMetric createGauge(String name, String tips, MetricTag.Keys labels);
+    GaugeMetric createGauge(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues);
 
     /**
      * Create a Histogram type metric instance.
      *
      * @param name
      * @param tips
-     * @param labels
+     * @param tagKeys
      * @param buckets Time bucket for duration.
      * @return
      */
-    HistogramMetric createHistogramMetric(String name, String tips, MetricTag.Keys labels, double... buckets);
+    HistogramMetric createHistogramMetric(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues, double... buckets);
 }

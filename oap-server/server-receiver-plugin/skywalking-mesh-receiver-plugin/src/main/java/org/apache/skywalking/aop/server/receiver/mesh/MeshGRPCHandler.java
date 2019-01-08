@@ -19,14 +19,25 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetricServiceGrpc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.slf4j.*;
 
 public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
+
+    private CounterMetric counter;
+    private HistogramMetric histogram;
+
+    public MeshGRPCHandler(ModuleManager moduleManager) {
+        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        counter = metricCreator.createCounter("mesh_grpc_in_count", "The count of service mesh telemetry",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        histogram = metricCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+    }
 
     @Override
     public StreamObserver<ServiceMeshMetric> collect(StreamObserver<MeshProbeDownstream> responseObserver) {
@@ -35,7 +46,13 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
                 if (logger.isDebugEnabled()) {
                     logger.debug("Received mesh metric: {}", metric);
                 }
-                TelemetryDataDispatcher.preProcess(metric);
+                counter.inc();
+                HistogramMetric.Timer timer = histogram.createTimer();
+                try {
+                    TelemetryDataDispatcher.preProcess(metric);
+                } finally {
+                    timer.finish();
+                }
             }
 
             @Override public void onError(Throwable throwable) {

@@ -25,7 +25,7 @@ package org.apache.skywalking.oap.server.telemetry.api;
  *
  * @author wusheng
  */
-public interface CounterMetric extends TaggableMetric {
+public interface CounterMetric {
     /**
      * Increase 1 to counter
      */

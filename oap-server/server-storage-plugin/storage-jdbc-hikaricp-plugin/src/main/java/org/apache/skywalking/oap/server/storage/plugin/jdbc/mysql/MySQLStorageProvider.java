@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
@@ -138,6 +139,6 @@ public class MySQLStorageProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[0];
+        return new String[] {CoreModule.NAME};
     }
 }

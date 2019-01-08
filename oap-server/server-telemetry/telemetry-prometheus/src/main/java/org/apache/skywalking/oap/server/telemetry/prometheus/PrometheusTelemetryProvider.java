@@ -16,41 +16,58 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
+package org.apache.skywalking.oap.server.telemetry.prometheus;
 
-import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.*;
+import java.io.IOException;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.receiver.istio.telemetry.module.IstioTelemetryReceiverModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricCreator;
 
-public class IstioTelemetryReceiverProvider extends ModuleProvider {
+/**
+ * Start the Prometheus
+ *
+ * @author wusheng
+ */
+public class PrometheusTelemetryProvider extends ModuleProvider {
+    private PrometheusConfig config;
+
+    public PrometheusTelemetryProvider() {
+        config = new PrometheusConfig();
+    }
+
     @Override public String name() {
-        return "default";
+        return "prometheus";
     }
 
     @Override public Class<? extends ModuleDefine> module() {
-        return IstioTelemetryReceiverModule.class;
+        return TelemetryModule.class;
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return null;
+        return config;
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        this.registerServiceImplementation(MetricCreator.class, new PrometheusMetricCreator());
+        try {
+            new HTTPServer(config.getHost(), config.getPort());
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+
+        DefaultExports.initialize();
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        service.addHandler(new IstioTelemetryGRPCHandler(getManager()));
+
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME, MeshReceiverModule.NAME};
+        return new String[0];
     }
 }

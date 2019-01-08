@@ -23,10 +23,10 @@ package org.apache.skywalking.oap.server.telemetry.api;
  * @author wusheng
  */
 public enum TelemetryRelatedContext {
-    INTANCE;
+    INSTANCE;
 
-    private volatile String id = "default";
-    private TelemetryRelatedContext(){}
+    private volatile String id = null;
+    TelemetryRelatedContext(){}
 
     /**
      * Set a global ID to represent the current oap instance
@@ -36,9 +36,9 @@ public enum TelemetryRelatedContext {
     }
 
     /**
-     * Get the oap instance ID, if be set before, otherwise, return `default` string.
+     * Get the oap instance ID, if be set before.
      *
-     * @return id
+     * @return id or null.
      */
     public String getId() {
         return id;

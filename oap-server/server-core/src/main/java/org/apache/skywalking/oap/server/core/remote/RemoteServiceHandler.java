@@ -27,13 +27,14 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
 
 /**
- * This class is Server-side streaming RPC implementation. It's a common service for OAP servers
- * to receive message from each others.
- * The stream data id is used to find the object to deserialize message.
- * The next worker id is used to find the worker to process message.
+ * This class is Server-side streaming RPC implementation. It's a common service for OAP servers to receive message from
+ * each others. The stream data id is used to find the object to deserialize message. The next worker id is used to find
+ * the worker to process message.
  *
  * @author peng-yongsheng
  */
@@ -43,9 +44,22 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
     private final ModuleDefineHolder moduleDefineHolder;
     private StreamDataClassGetter streamDataClassGetter;
+    private CounterMetric remoteInCounter;
+    private CounterMetric remoteInErrorCounter;
+    private HistogramMetric remoteInHistogram;
 
     public RemoteServiceHandler(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
+
+        remoteInCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            .createCounter("remote_in_count", "The number(server side) of inside remote inside aggregate rpc.",
+                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            .createCounter("remote_in_error_count", "The error number(server side) of inside remote inside aggregate rpc.",
+                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            .createHistogramMetric("remote_in_latency", "The latency(server side) of inside remote inside aggregate rpc.",
+                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
@@ -59,17 +73,24 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
         return new StreamObserver<RemoteMessage>() {
             @Override public void onNext(RemoteMessage message) {
-                int streamDataId = message.getStreamDataId();
-                int nextWorkerId = message.getNextWorkerId();
-                RemoteData remoteData = message.getRemoteData();
-
-                Class<StreamData> streamDataClass = streamDataClassGetter.findClassById(streamDataId);
+                remoteInCounter.inc();
+                HistogramMetric.Timer timer = remoteInHistogram.createTimer();
                 try {
-                    StreamData streamData = streamDataClass.newInstance();
-                    streamData.deserialize(remoteData);
-                    WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
+                    int streamDataId = message.getStreamDataId();
+                    int nextWorkerId = message.getNextWorkerId();
+                    RemoteData remoteData = message.getRemoteData();
+
+                    Class<StreamData> streamDataClass = streamDataClassGetter.findClassById(streamDataId);
+                    try {
+                        StreamData streamData = streamDataClass.newInstance();
+                        streamData.deserialize(remoteData);
+                        WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
+                    } catch (Throwable t) {
+                        remoteInErrorCounter.inc();
+                        logger.error(t.getMessage(), t);
+                    }
+                } finally {
+                    timer.finish();
                 }
             }
 
