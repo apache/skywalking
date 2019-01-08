@@ -49,7 +49,7 @@ public class PrometheusHistogramMetric extends HistogramMetric {
         @Override protected Histogram.Child create(String[] labelNames, String[] labelValues) {
             Histogram.Builder builder = Histogram.build()
                 .name(name).help(tips);
-            if(builder != null){
+            if (builder != null) {
                 builder = builder.buckets(buckets);
             }
             return builder.labelNames(labelNames).register().labels(labelValues);
