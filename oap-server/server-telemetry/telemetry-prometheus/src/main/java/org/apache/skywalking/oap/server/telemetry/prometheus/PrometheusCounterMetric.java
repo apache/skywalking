@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.telemetry.api.*;
  *
  * @author wusheng
  */
-public class PrometheusCounterMetric extends BaseMetric<Counter.Child> implements CounterMetric {
+public class PrometheusCounterMetric extends BaseMetric<Counter, Counter.Child> implements CounterMetric {
 
     public PrometheusCounterMetric(String name, String tips,
         MetricTag.Keys labels, MetricTag.Values values) {
@@ -47,8 +47,8 @@ public class PrometheusCounterMetric extends BaseMetric<Counter.Child> implement
         }
     }
 
-    @Override protected Counter.Child create(String[] labelNames, String[] labelValues) {
+    @Override protected Counter create(String[] labelNames) {
         return Counter.build()
-            .name(name).help(tips).labelNames(labelNames).register().labels(labelValues);
+            .name(name).help(tips).labelNames(labelNames).register();
     }
 }

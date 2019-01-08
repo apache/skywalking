@@ -65,10 +65,10 @@ public class GRPCRemoteClient implements RemoteClient {
 
         remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest"), new MetricTag.Values(address.toString()));
+                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "N"));
         remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
             .createCounter("remote_out_error_count", "The error number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest"), new MetricTag.Values(address.toString()));
+                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "N"));
     }
 
     @Override public void connect() {

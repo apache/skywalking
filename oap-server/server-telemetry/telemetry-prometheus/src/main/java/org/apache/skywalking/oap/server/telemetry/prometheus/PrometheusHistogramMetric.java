@@ -37,22 +37,25 @@ public class PrometheusHistogramMetric extends HistogramMetric {
     }
 
     @Override public void observe(double value) {
-
+        Histogram.Child metric = inner.getMetric();
+        if (metric != null) {
+            metric.observe(value);
+        }
     }
 
-    class InnerMetricObject extends BaseMetric<Histogram.Child> {
+    class InnerMetricObject extends BaseMetric<Histogram, Histogram.Child> {
         public InnerMetricObject(String name, String tips, MetricTag.Keys labels,
             MetricTag.Values values) {
             super(name, tips, labels, values);
         }
 
-        @Override protected Histogram.Child create(String[] labelNames, String[] labelValues) {
+        @Override protected Histogram create(String[] labelNames) {
             Histogram.Builder builder = Histogram.build()
                 .name(name).help(tips);
-            if (builder != null) {
+            if (builder != null && buckets.length > 0) {
                 builder = builder.buckets(buckets);
             }
-            return builder.labelNames(labelNames).register().labels(labelValues);
+            return builder.labelNames(labelNames).register();
         }
     }
 }

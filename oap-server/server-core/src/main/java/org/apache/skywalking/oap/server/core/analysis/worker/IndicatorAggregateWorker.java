@@ -56,7 +56,7 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
 
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         aggregationCounter = metricCreator.createCounter("indicator_aggregation", "The number of rows in aggregation",
-            new MetricTag.Keys("metricName", "level"), new MetricTag.Values(modelName, "1"));
+            new MetricTag.Keys("metricName", "level", "dimensionality"), new MetricTag.Values(modelName, "1", "min"));
     }
 
     @Override public final void in(Indicator indicator) {

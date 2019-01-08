@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.telemetry.api.*;
  *
  * @author wusheng
  */
-public class PrometheusGaugeMetric extends BaseMetric<Gauge.Child> implements GaugeMetric {
+public class PrometheusGaugeMetric extends BaseMetric<Gauge, Gauge.Child> implements GaugeMetric {
     public PrometheusGaugeMetric(String name, String tips,
         MetricTag.Keys labels,
         MetricTag.Values values) {
@@ -68,8 +68,8 @@ public class PrometheusGaugeMetric extends BaseMetric<Gauge.Child> implements Ga
         }
     }
 
-    @Override protected Gauge.Child create(String[] labelNames, String[] labelValues) {
+    @Override protected Gauge create(String[] labelNames) {
         return Gauge.build()
-            .name(name).help(tips).labelNames(labelNames).register().labels(labelValues);
+            .name(name).help(tips).labelNames(labelNames).register();
     }
 }

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
+import io.prometheus.client.SimpleCollector;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.telemetry.api.*;
 
@@ -26,8 +28,10 @@ import org.apache.skywalking.oap.server.telemetry.api.*;
  *
  * @author wusheng
  */
-public abstract class BaseMetric<T> {
-    private volatile T metricInstance;
+public abstract class BaseMetric<T extends SimpleCollector, C> {
+    private static Map<String, Object> ALL_METRICS = new HashMap<>();
+
+    private volatile C metricInstance;
     protected final String name;
     protected final String tips;
     protected final MetricTag.Keys labels;
@@ -46,7 +50,7 @@ public abstract class BaseMetric<T> {
         return TelemetryRelatedContext.INSTANCE.getId() != null;
     }
 
-    protected T getMetric() {
+    protected C getMetric() {
         if (metricInstance == null) {
             if (isIDReady()) {
                 lock.lock();
@@ -64,7 +68,17 @@ public abstract class BaseMetric<T> {
                             labelValues[i + 1] = values.getValues()[i];
                         }
 
-                        metricInstance = create(labelNames, labelValues);
+                        if (!ALL_METRICS.containsKey(name)) {
+                            synchronized (ALL_METRICS) {
+                                if (!ALL_METRICS.containsKey(name)) {
+                                    ALL_METRICS.put(name, create(labelNames));
+                                }
+                            }
+                        }
+
+                        T metric = (T)ALL_METRICS.get(name);
+
+                        metricInstance = (C)metric.labels(labelValues);
                     }
                 } finally {
                     lock.unlock();
@@ -75,5 +89,5 @@ public abstract class BaseMetric<T> {
         return metricInstance;
     }
 
-    protected abstract T create(String[] labelNames, String[] labelValues);
+    protected abstract T create(String[] labelNames);
 }

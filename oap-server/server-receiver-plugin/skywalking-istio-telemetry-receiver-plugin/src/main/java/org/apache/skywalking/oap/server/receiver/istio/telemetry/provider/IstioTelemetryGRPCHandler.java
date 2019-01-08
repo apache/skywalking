@@ -21,22 +21,18 @@ package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
 import com.google.common.base.Joiner;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import io.istio.HandleMetricServiceGrpc;
-import io.istio.IstioMetricProto;
+import io.istio.*;
 import io.istio.api.mixer.adapter.model.v1beta1.ReportProto;
 import io.istio.api.policy.v1beta1.TypeProto;
-import java.time.Duration;
-import java.time.Instant;
+import java.time.*;
 import java.util.Map;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * Handle istio telemetry data.
@@ -99,9 +95,24 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                 } else {
                     detectPoint = DetectPoint.server;
                 }
+
+                String sourceServiceName;
+                if (has(i, "sourceNamespace")) {
+                    sourceServiceName = JOINER.join(string(i, "sourceService"), string(i, "sourceNamespace"));
+                } else {
+                    sourceServiceName = string(i, "sourceService");
+                }
+
+                String destServiceName;
+                if (has(i, "destinationNamespace")) {
+                    destServiceName = JOINER.join(string(i, "destinationService"), string(i, "destinationNamespace"));
+                } else {
+                    destServiceName = string(i, "destinationService");
+                }
+
                 ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(requestTime.toEpochMilli())
-                    .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(JOINER.join(string(i, "sourceService"), string(i, "sourceNamespace")))
-                    .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(JOINER.join(string(i, "destinationService"), string(i, "destinationNamespace")))
+                    .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(sourceServiceName)
+                    .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(destServiceName)
                     .setDestServiceInstance(string(i, "destinationUID")).setEndpoint(endpoint).setLatency(latency)
                     .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
                 logger.debug("Transformed metric {}", metric);
@@ -138,5 +149,10 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
         if (!map.containsKey(key)) {
             throw new IllegalArgumentException(String.format("Lack dimension %s", key));
         }
+    }
+
+    private boolean has(final IstioMetricProto.InstanceMsg instanceMsg, final String key) {
+        Map<String, TypeProto.Value> map = instanceMsg.getDimensionsMap();
+        return map.containsKey(key);
     }
 }
