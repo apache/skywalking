@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.apache.skywalking.oap.server.testing.module.*;
 import org.junit.*;
 
@@ -59,6 +61,26 @@ public class RemoteServiceHandlerTestCase {
         WorkerInstances.INSTANCES.put(testWorkerId, new TestWorker());
 
         String serverName = InProcessServerBuilder.generateName();
+        MetricCreator metricCreator = mock(MetricCreator.class);
+        when(metricCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetric() {
+            @Override public void inc() {
+
+            }
+
+            @Override public void inc(double value) {
+
+            }
+        });
+        when(metricCreator.createHistogramMetric(any(), any(), any(), any(), any())).thenReturn(
+            new HistogramMetric() {
+                @Override public void observe(double value) {
+
+                }
+            }
+        );
+        ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
+        moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
 
         gRPCCleanup.register(InProcessServerBuilder
             .forName(serverName).directExecutor().addService(new RemoteServiceHandler(moduleManager)).build().start());

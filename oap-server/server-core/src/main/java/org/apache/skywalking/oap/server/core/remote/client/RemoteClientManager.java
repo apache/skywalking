@@ -24,12 +24,13 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
 
 /**
- * This class manages the connections between OAP servers. There is a task schedule that will
- * automatically query a server list from the cluster module. Such as Zookeeper cluster module
- * or Kubernetes cluster module.
+ * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
+ * server list from the cluster module. Such as Zookeeper cluster module or Kubernetes cluster module.
  *
  * @author peng-yongsheng
  */
@@ -43,6 +44,7 @@ public class RemoteClientManager implements Service {
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
     private volatile List<RemoteClient> usingClients;
+    private GaugeMetric gauge;
 
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
@@ -56,11 +58,15 @@ public class RemoteClientManager implements Service {
     }
 
     /**
-     * Query OAP server list from the cluster module and create a new connection
-     * for the new node. Make the OAP server orderly because of each of the server
-     * will send stream data to each other by hash code.
+     * Query OAP server list from the cluster module and create a new connection for the new node. Make the OAP server
+     * orderly because of each of the server will send stream data to each other by hash code.
      */
     void refresh() {
+        if (gauge == null) {
+            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+                .createGauge("cluster_size", "Cluster size of current oap node",
+                    MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        }
         try {
             if (Objects.isNull(clusterNodesQuery)) {
                 synchronized (RemoteClientManager.class) {
@@ -85,6 +91,8 @@ public class RemoteClientManager implements Service {
             List<RemoteInstance> instanceList = clusterNodesQuery.queryRemoteNodes();
             instanceList = distinct(instanceList);
             Collections.sort(instanceList);
+
+            gauge.setValue(instanceList.size());
 
             if (logger.isDebugEnabled()) {
                 instanceList.forEach(instance -> logger.debug("Cluster instance: {}", instance.toString()));
@@ -115,11 +123,10 @@ public class RemoteClientManager implements Service {
     }
 
     /**
-     * Because of OAP server register by the UUID which one-to-one mapping with process number.
-     * The register information not delete immediately after process shutdown because of there
-     * is always happened network fault, not really process shutdown. So, cluster module must
-     * wait a few seconds to confirm it. Then there are more than one register information in
-     * the cluster.
+     * Because of OAP server register by the UUID which one-to-one mapping with process number. The register information
+     * not delete immediately after process shutdown because of there is always happened network fault, not really
+     * process shutdown. So, cluster module must wait a few seconds to confirm it. Then there are more than one register
+     * information in the cluster.
      *
      * @param instanceList the instances query from cluster module.
      * @return distinct remote instances
@@ -156,9 +163,8 @@ public class RemoteClientManager implements Service {
     }
 
     /**
-     * Compare clients between exist clients and remote instance collection. Move
-     * the clients into new client collection which are alive to avoid create a
-     * new channel. Shutdown the clients which could not find in cluster config.
+     * Compare clients between exist clients and remote instance collection. Move the clients into new client collection
+     * which are alive to avoid create a new channel. Shutdown the clients which could not find in cluster config.
      *
      * Create a gRPC client for remote instance except for self-instance.
      *
@@ -190,10 +196,10 @@ public class RemoteClientManager implements Service {
                     break;
                 case Create:
                     if (address.isSelf()) {
-                        RemoteClient client = new SelfRemoteClient(address);
+                        RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         getFreeClients().add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(streamDataClassGetter, address, 1, 3000);
+                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, streamDataClassGetter, address, 1, 3000);
                         client.connect();
                         getFreeClients().add(client);
                     }

@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.*;
 
 /**
@@ -49,6 +50,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     KubernetesCoordinator(final ReusableWatch<Event> watch, final Supplier<String> uidSupplier) {
         this.watch = watch;
         this.uid = uidSupplier.get();
+        TelemetryRelatedContext.INSTANCE.setId(uid);
     }
 
     @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {

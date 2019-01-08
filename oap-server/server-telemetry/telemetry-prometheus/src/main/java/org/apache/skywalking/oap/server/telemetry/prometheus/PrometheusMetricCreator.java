@@ -16,61 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.none;
+package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import org.apache.skywalking.oap.server.telemetry.api.*;
 
 /**
- * A no-op metric create, just create nut shell metric instance.
+ * Create metric instance for Prometheus exporter.
  *
  * @author wusheng
  */
-public class MetricCreatorNoop implements MetricCreator {
+public class PrometheusMetricCreator implements MetricCreator {
     @Override
     public CounterMetric createCounter(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues) {
-        return new CounterMetric() {
-            @Override public void inc() {
-
-            }
-
-            @Override public void inc(double value) {
-
-            }
-        };
+        return new PrometheusCounterMetric(name, tips, tagKeys, tagValues);
     }
 
     @Override
     public GaugeMetric createGauge(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues) {
-        return new GaugeMetric() {
-            @Override public void inc() {
-
-            }
-
-            @Override public void inc(double value) {
-
-            }
-
-            @Override public void dec() {
-
-            }
-
-            @Override public void dec(double value) {
-
-            }
-
-            @Override public void setValue(double value) {
-
-            }
-        };
+        return new PrometheusGaugeMetric(name, tips, tagKeys, tagValues);
     }
 
     @Override
     public HistogramMetric createHistogramMetric(String name, String tips, MetricTag.Keys tagKeys,
         MetricTag.Values tagValues, double... buckets) {
-        return new HistogramMetric() {
-            @Override public void observe(double value) {
-
-            }
-        };
+        return new PrometheusHistogramMetric(name, tips, tagKeys, tagValues, buckets);
     }
 }

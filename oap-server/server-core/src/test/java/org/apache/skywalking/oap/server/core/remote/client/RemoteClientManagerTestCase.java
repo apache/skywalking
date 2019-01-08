@@ -22,6 +22,8 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.apache.skywalking.oap.server.testing.module.*;
 import org.junit.*;
 
@@ -46,6 +48,32 @@ public class RemoteClientManagerTestCase {
 
         StreamDataClassGetter streamDataClassGetter = mock(StreamDataClassGetter.class);
         coreModuleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, streamDataClassGetter);
+
+        MetricCreator metricCreator = mock(MetricCreator.class);
+        when(metricCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetric() {
+            @Override public void inc() {
+
+            }
+
+            @Override public void inc(double value) {
+
+            }
+
+            @Override public void dec() {
+
+            }
+
+            @Override public void dec(double value) {
+
+            }
+
+            @Override public void setValue(double value) {
+
+            }
+        });
+        ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
+        moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
 
         RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
 
