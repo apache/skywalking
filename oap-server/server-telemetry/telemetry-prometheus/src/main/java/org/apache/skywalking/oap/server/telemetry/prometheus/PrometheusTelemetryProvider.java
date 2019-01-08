@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.*;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -51,10 +52,12 @@ public class PrometheusTelemetryProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(MetricCreator.class, new PrometheusMetricCreator());
         try {
-            HTTPServer server = new HTTPServer(config.getHost(), config.getPort());
+            new HTTPServer(config.getHost(), config.getPort());
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+
+        DefaultExports.initialize();
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
