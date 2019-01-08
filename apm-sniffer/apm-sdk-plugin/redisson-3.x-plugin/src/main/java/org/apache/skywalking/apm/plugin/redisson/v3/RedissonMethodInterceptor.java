@@ -19,15 +19,18 @@
 
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.redisson.client.RedisClient;
 import org.redisson.client.RedisConnection;
 import org.redisson.client.protocol.CommandData;
 import org.redisson.client.protocol.CommandsData;
@@ -38,35 +41,51 @@ import java.net.InetSocketAddress;
 /**
  * @author zhaoyuguang
  */
-public class RedissonMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class RedissonMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+        String peer = (String)objInst.getSkyWalkingDynamicField();
+
         RedisConnection connection = (RedisConnection) objInst;
         Channel channel = connection.getChannel();
-        String peer = "";
-        if (channel.remoteAddress() instanceof InetSocketAddress) {
-            InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
-            peer = remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
-        }
+        InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
+        String dbInstance = remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
 
-        StringBuilder command = new StringBuilder();
+        StringBuilder dbStatement = new StringBuilder();
+        String operationName = "Redisson/";
+
         if (allArguments[0] instanceof CommandsData) {
+            operationName = operationName + "BATCH_EXECUTE";
             CommandsData commands = (CommandsData) allArguments[0];
             for (CommandData commandData : commands.getCommands()) {
-                command.append(commandData.getCommand().getName() + "&");
+                addCommandData(dbStatement, commandData);
+                dbStatement.append(";");
             }
-            command.deleteCharAt(command.length() - 1);
         }
         if (allArguments[0] instanceof CommandData) {
-            command.append(((CommandData) allArguments[0]).getCommand().getName());
+            CommandData commandData = (CommandData) allArguments[0];
+            String command = commandData.getCommand().getName();
+            operationName = operationName + command;
+            addCommandData(dbStatement, commandData);
         }
 
-        AbstractSpan span = ContextManager.createExitSpan("Redisson/" + command, peer);
+        AbstractSpan span = ContextManager.createExitSpan(operationName, peer);
         span.setComponent(ComponentsDefine.REDISSON);
         Tags.DB_TYPE.set(span, "Redis");
+        Tags.DB_INSTANCE.set(span, dbInstance);
+        Tags.DB_STATEMENT.set(span, dbStatement.toString());
         SpanLayer.asCache(span);
+    }
+
+    private void addCommandData(StringBuilder dbStatement, CommandData commandData) {
+        dbStatement.append(commandData.getCommand().getName());
+        if (commandData.getParams() != null) {
+            for (Object param : commandData.getParams()) {
+                dbStatement.append(" ").append(param instanceof ByteBuf ? "?" : String.valueOf(param.toString()));
+            }
+        }
     }
 
     @Override
@@ -82,5 +101,12 @@ public class RedissonMethodInterceptor implements InstanceMethodsAroundIntercept
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(t);
+    }
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        RedisClient redisClient = (RedisClient)allArguments[0];
+        String peer = redisClient.getConfig().getAddress().getAuthority();
+        objInst.setSkyWalkingDynamicField(peer);
     }
 }
