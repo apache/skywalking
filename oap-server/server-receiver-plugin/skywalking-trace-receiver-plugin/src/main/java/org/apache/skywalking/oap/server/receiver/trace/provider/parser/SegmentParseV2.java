@@ -47,9 +47,9 @@ public class SegmentParseV2 {
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
     @Setter private SegmentStandardizationWorker standardizationWorker;
-    private CounterMetric traceBufferFileRetry;
-    private CounterMetric traceBufferFileOut;
-    private CounterMetric traceParseError;
+    private volatile static CounterMetric TRACE_BUFFER_FILE_RETRY;
+    private volatile static CounterMetric TRACE_BUFFER_FILE_OUT;
+    private volatile static CounterMetric TRACE_PARSE_ERROR;
 
     private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
@@ -60,13 +60,15 @@ public class SegmentParseV2 {
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
         this.segmentCoreInfo.setV2(true);
 
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        traceBufferFileRetry = metricCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        traceBufferFileOut = metricCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        traceParseError = metricCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        if (TRACE_BUFFER_FILE_RETRY == null) {
+            MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+            TRACE_BUFFER_FILE_RETRY = metricCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
+                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+            TRACE_BUFFER_FILE_OUT = metricCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file",
+                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+            TRACE_PARSE_ERROR = metricCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file",
+                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        }
     }
 
     public boolean parse(UpstreamSegment segment, SegmentSource source) {
@@ -87,19 +89,19 @@ public class SegmentParseV2 {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
                 } else {
                     // from SegmentSource.Buffer
-                    traceBufferFileRetry.inc();
+                    TRACE_BUFFER_FILE_RETRY.inc();
                 }
                 return false;
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
                 }
-                traceBufferFileOut.inc();
+
                 notifyListenerToBuild();
                 return true;
             }
         } catch (Throwable e) {
-            traceParseError.inc();
+            TRACE_PARSE_ERROR.inc();
             logger.error(e.getMessage(), e);
             return true;
         }
@@ -256,7 +258,12 @@ public class SegmentParseV2 {
         @Override public boolean call(UpstreamSegment segment) {
             SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager);
             segmentParse.setStandardizationWorker(standardizationWorker);
-            return segmentParse.parse(segment, SegmentSource.Buffer);
+            boolean parseResult = segmentParse.parse(segment, SegmentSource.Buffer);
+            if (parseResult) {
+                segmentParse.TRACE_BUFFER_FILE_OUT.inc();
+            }
+
+            return parseResult;
         }
     }
 }

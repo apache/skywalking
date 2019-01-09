@@ -38,9 +38,7 @@ public enum PersistenceTimer {
     private Boolean isStarted = false;
     private final Boolean debug;
     private CounterMetric errorCounter;
-    private CounterMetric prepareCounter;
     private HistogramMetric prepareLatency;
-    private CounterMetric executeCounter;
     private HistogramMetric executeLatency;
 
     PersistenceTimer() {
@@ -57,11 +55,7 @@ public enum PersistenceTimer {
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         errorCounter = metricCreator.createCounter("persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        prepareCounter = metricCreator.createCounter("persistence_timer_bulk_prepare_count", "Execution of the prepare stage in persistence timer",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
         prepareLatency = metricCreator.createHistogramMetric("persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        executeCounter = metricCreator.createCounter("persistence_timer_bulk_execute_count", "Execution of the execute stage in persistence timer",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
         executeLatency = metricCreator.createHistogramMetric("persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
@@ -83,7 +77,6 @@ public enum PersistenceTimer {
 
         long startTime = System.currentTimeMillis();
         try {
-            prepareCounter.inc();
             HistogramMetric.Timer timer = prepareLatency.createTimer();
 
             List batchAllCollection = new LinkedList();
@@ -114,7 +107,6 @@ public enum PersistenceTimer {
                 timer.finish();
             }
 
-            executeCounter.inc();
             HistogramMetric.Timer executeLatencyTimer = executeLatency.createTimer();
             try {
                 batchDAO.batchPersistence(batchAllCollection);
