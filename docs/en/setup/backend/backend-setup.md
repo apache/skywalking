@@ -3,7 +3,10 @@ First and most important thing is, SkyWalking backend startup behaviours are dri
 Understood the setting file will help you to read this document.
 
 ## Startup script
-Startup scripts are `/bin/oapService.sh`(.bat)
+The default startup scripts are `/bin/oapService.sh`(.bat). 
+Read [start up mode](backend-start-up-mode.md) document to know other options
+of starting backend.
+
 
 ## application.yml
 The core concept behind this setting file is, SkyWalking collector is based on pure modulization design. 
@@ -70,3 +73,7 @@ most of backend analysis capabilities based on the scripts. Here is the descript
 which helps you to understand which metric data are in process, also could be used in alarm.
 1. [Alarm](backend-alarm.md). Alarm provides a time-series based check mechanism. You could set alarm 
 rules targeting the analysis oal metric objects.
+
+## Telemetry for backend
+OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
+we provide the telemetry for OAP backend itself. Follow [document](backend-telemetry.md) to use it.

@@ -72,13 +72,13 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return (int)response.getHits().getTotalHits();
     }
 
-    @Override public int numOfConjectural(long startTimestamp, long endTimestamp, int srcLayer) throws IOException {
+    @Override public int numOfConjectural(long startTimestamp, long endTimestamp, int nodeTypeValue) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
-        sourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SRC_LAYER, srcLayer));
+        sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(NetworkAddressInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
 
         return (int)response.getHits().getTotalHits();
     }

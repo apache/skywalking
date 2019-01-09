@@ -129,6 +129,9 @@ h2-jdbc-driver:
 mysql-connector-java:
   id: 33
   languages: Java
+ojdbc:
+  id: 34
+  languages: Java  
 Spymemcached:
   id: 35
   languages: Java
@@ -185,6 +188,12 @@ rabbitmq-producer:
   languages: Java
 rabbitmq-consumer:
   id: 53
+  languages: Java
+Canal:
+  id: 54
+  languages: Java
+Gson:
+  id: 55
   languages: Java
 
 # .NET/.NET Core components

@@ -306,6 +306,7 @@ The text of each license is the standard Apache 2.0 license.
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
+    prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -485,35 +486,41 @@ tslib	1.9.0:	https://github.com/Microsoft/tslib	Apache-2.0
 ========================================
 BSD licenses
 ========================================
-d3      4.13.0: https://github.com/d3/d3        BSD-3-Clause
-d3-array        1.2.1:  https://github.com/d3/d3-array  BSD-3-Clause
-d3-axis 1.0.8:  https://github.com/d3/d3-axis   BSD-3-Clause
-d3-brush        1.0.4:  https://github.com/d3/d3-brush  BSD-3-Clause
-d3-chord        1.0.4:  https://github.com/d3/d3-chord  BSD-3-Clause
-d3-collection   1.0.4:  https://github.com/d3/d3-collection     BSD-3-Clause
-d3-color        1.0.3:  https://github.com/d3/d3-color  BSD-3-Clause
-d3-dispatch     1.0.3:  https://github.com/d3/d3-dispatch       BSD-3-Clause
-d3-drag 1.2.1:  https://github.com/d3/d3-drag   BSD-3-Clause
-d3-dsv  1.0.8:  https://github.com/d3/d3-dsv    BSD-3-Clause
-d3-ease 1.0.3:  https://github.com/d3/d3-ease   BSD-3-Clause
-d3-force        1.1.0:  https://github.com/d3/d3-force  BSD-3-Clause
-d3-format       1.2.2:  https://github.com/d3/d3-format BSD-3-Clause
-d3-hierarchy    1.1.5:  https://github.com/d3/d3-hierarchy      BSD-3-Clause
-d3-interpolate  1.1.6:  https://github.com/d3/d3-interpolate    BSD-3-Clause
-d3-path 1.0.5:  https://github.com/d3/d3-path   BSD-3-Clause
-d3-polygon      1.0.3:  https://github.com/d3/d3-polygon        BSD-3-Clause
-d3-quadtree     1.0.3:  https://github.com/d3/d3-quadtree       BSD-3-Clause
+d3      5.7.0: https://github.com/d3/d3        BSD-3-Clause
+d3-array        1.2.4:  https://github.com/d3/d3-array  BSD-3-Clause
+d3-axis 1.0.12:  https://github.com/d3/d3-axis   BSD-3-Clause
+d3-brush        1.0.6:  https://github.com/d3/d3-brush  BSD-3-Clause
+d3-chord        1.0.6:  https://github.com/d3/d3-chord  BSD-3-Clause
+d3-collection   1.0.7:  https://github.com/d3/d3-collection     BSD-3-Clause
+d3-color        1.2.3:  https://github.com/d3/d3-color  BSD-3-Clause
+d3-contour      1.3.2:  https://github.com/d3/d3-contour  BSD-3-Clause
+d3-dispatch     1.0.5:  https://github.com/d3/d3-dispatch       BSD-3-Clause
+d3-drag 1.2.3:  https://github.com/d3/d3-drag   BSD-3-Clause
+d3-dsv  1.0.10:  https://github.com/d3/d3-dsv    BSD-3-Clause
+d3-ease 1.0.5:  https://github.com/d3/d3-ease   BSD-3-Clause
+d3-fetch 1.1.2:  https://github.com/d3/d3-fetch   BSD-3-Clause
+d3-force        1.1.2:  https://github.com/d3/d3-force  BSD-3-Clause
+d3-format       1.3.2:  https://github.com/d3/d3-format BSD-3-Clause
+d3-geo          1.11.1:  https://github.com/d3/d3-geo BSD-3-Clause
+d3-hierarchy    1.1.8:  https://github.com/d3/d3-hierarchy      BSD-3-Clause
+d3-interpolate  1.3.2:  https://github.com/d3/d3-interpolate    BSD-3-Clause
+d3-path 1.0.7:  https://github.com/d3/d3-path   BSD-3-Clause
+d3-polygon      1.0.5:  https://github.com/d3/d3-polygon        BSD-3-Clause
+d3-quadtree     1.0.5:  https://github.com/d3/d3-quadtree       BSD-3-Clause
 d3-queue        3.0.7:  https://github.com/d3/d3-queue  BSD-3-Clause
-d3-random       1.1.0:  https://github.com/d3/d3-random BSD-3-Clause
+d3-random       1.1.2:  https://github.com/d3/d3-random BSD-3-Clause
 d3-request      1.0.6:  https://github.com/d3/d3-request        BSD-3-Clause
-d3-selection    1.3.0:  https://github.com/d3/d3-selection      BSD-3-Clause
-d3-shape        1.2.0:  https://github.com/d3/d3-shape  BSD-3-Clause
-d3-time 1.0.8:  https://github.com/d3/d3-time   BSD-3-Clause
-d3-time-format  2.1.1:  https://github.com/d3/d3-time-format    BSD-3-Clause
-d3-timer        1.0.7:  https://github.com/d3/d3-timer  BSD-3-Clause
-d3-transition   1.1.1:  https://github.com/d3/d3-transition     BSD-3-Clause
-d3-voronoi      1.1.2:  https://github.com/d3/d3-voronoi        BSD-3-Clause
-d3-zoom 1.7.1:  https://github.com/d3/d3-zoom   BSD-3-Clause
+d3-scale      2.1.2:  https://github.com/d3/d3-scale        BSD-3-Clause
+d3-scale-chromatic      1.3.3:  https://github.com/d3/d3-scale-chromatic        BSD-3-Clause
+d3-selection    1.3.2:  https://github.com/d3/d3-selection      BSD-3-Clause
+d3-shape        1.2.2:  https://github.com/d3/d3-shape  BSD-3-Clause
+d3-time 1.0.10:  https://github.com/d3/d3-time   BSD-3-Clause
+d3-time-format  2.1.3:  https://github.com/d3/d3-time-format    BSD-3-Clause
+d3-timer        1.0.9:  https://github.com/d3/d3-timer  BSD-3-Clause
+d3-tip          0.9.1:  https://github.com/Caged/d3-tip BSD-3-Clause
+d3-transition   1.1.3:  https://github.com/d3/d3-transition     BSD-3-Clause
+d3-voronoi      1.1.4:  https://github.com/d3/d3-voronoi        BSD-3-Clause
+d3-zoom 1.7.3:  https://github.com/d3/d3-zoom   BSD-3-Clause
 exenv   1.2.2:  https://github.com/JedWatson/exenv      BSD-3-Clause
 hoist-non-react-statics 2.5.0:  https://github.com/mridgway/hoist-non-react-statics     BSD-3-Clause
 qs      6.5.1:  https://github.com/ljharb/qs    BSD-3-Clause

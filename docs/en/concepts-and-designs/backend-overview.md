@@ -19,7 +19,7 @@ As usual, all services provided by gRPC and HTTP protocol to make integration ea
 ## Tracing in OAP
 Tracing in OAP has two ways to process.
 1. Traditional way in SkyWalking 5 series. Format tracing data in SkyWalking trace segment and span formats, 
-even for Zipkin data format. The AOP analysis the segments to get metrics, and push the metric data into
+even for Zipkin data format. The OAP analysis the segments to get metrics, and push the metric data into
 the streaming aggregation.
 1. Consider tracing as some kinds of logging only. Just provide save and visualization capabilities for trace. 
 
@@ -30,5 +30,5 @@ These formats could be processed in the two ways too.
 Metric in OAP is totally new feature in 6 series. Build observability for a distributed system based on metric of connected nodes.
 No tracing data is required.
 
-Metric data are aggregated inside AOP cluster in streaming mode. See about [Observability Analysis Language](oal.md),
+Metric data are aggregated inside OAP cluster in streaming mode. See about [Observability Analysis Language](oal.md),
 which provides the easy way to do aggregation and analysis in script style. 
