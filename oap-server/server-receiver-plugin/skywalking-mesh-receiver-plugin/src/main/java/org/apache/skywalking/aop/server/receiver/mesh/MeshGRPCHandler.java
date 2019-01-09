@@ -28,13 +28,10 @@ import org.slf4j.*;
 public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
 
-    private CounterMetric counter;
     private HistogramMetric histogram;
 
     public MeshGRPCHandler(ModuleManager moduleManager) {
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        counter = metricCreator.createCounter("mesh_grpc_in_count", "The count of service mesh telemetry",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
         histogram = metricCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
@@ -46,7 +43,6 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
                 if (logger.isDebugEnabled()) {
                     logger.debug("Received mesh metric: {}", metric);
                 }
-                counter.inc();
                 HistogramMetric.Timer timer = histogram.createTimer();
                 try {
                     TelemetryDataDispatcher.preProcess(metric);
