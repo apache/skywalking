@@ -37,14 +37,11 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
     private final SegmentParseV2.Producer segmentProducer;
-    private CounterMetric counter;
     private HistogramMetric histogram;
 
     public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer, ModuleManager moduleManager) {
         this.segmentProducer = segmentProducer;
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        counter = metricCreator.createCounter("trace_grpc_v6_in_count", "The count of service mesh telemetry",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
         histogram = metricCreator.createHistogramMetric("trace_grpc_v6_in_latency", "The process latency of service mesh telemetry",
             MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
@@ -56,7 +53,6 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                     logger.debug("receive segment");
                 }
 
-                counter.inc();
                 HistogramMetric.Timer timer = histogram.createTimer();
                 try {
                     segmentProducer.send(segment, SegmentSource.Agent);
