@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.starter;
 
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
 import org.apache.skywalking.oap.server.starter.config.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
@@ -43,9 +42,9 @@ public class OAPServerStartUp {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
 
-            // Set uptime to second
             manager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class).createGauge("uptime",
                 "oap server start up time", MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE)
+                // Set uptime to second
                 .setValue(System.currentTimeMillis() / 1000);
 
             if (RunningMode.isInitMode()) {
