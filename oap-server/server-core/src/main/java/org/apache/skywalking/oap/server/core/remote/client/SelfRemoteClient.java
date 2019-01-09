@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.core.remote.client;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 
 /**
  * @author peng-yongsheng
@@ -28,9 +31,13 @@ import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 public class SelfRemoteClient implements RemoteClient {
 
     private final Address address;
+    private CounterMetric remoteOutCounter;
 
-    public SelfRemoteClient(Address address) {
+    public SelfRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address) {
         this.address = address;
+        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
+                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "Y"));
     }
 
     @Override public Address getAddress() {
