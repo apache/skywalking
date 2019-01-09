@@ -45,7 +45,8 @@ public class OAPServerStartUp {
 
             manager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class).createGauge("uptime",
                 "oap server start up time", MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE)
-                .setValue(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(System.currentTimeMillis()));
+                // Set uptime to second
+                .setValue(System.currentTimeMillis() / 1000);
 
             if (RunningMode.isInitMode()) {
                 logger.info("OAP starts up in init mode successfully, exit now...");
