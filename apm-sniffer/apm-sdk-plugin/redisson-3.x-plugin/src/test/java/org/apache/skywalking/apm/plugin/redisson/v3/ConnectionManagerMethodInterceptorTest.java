@@ -48,12 +48,12 @@ public class ConnectionManagerMethodInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private ConnectionManagerMethodInterceptor interceptor;
+    private ConnectionManagerInterceptor interceptor;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Before
     public void setUp() throws Exception {
-        interceptor = new ConnectionManagerMethodInterceptor();
+        interceptor = new ConnectionManagerInterceptor();
     }
 
     @Test

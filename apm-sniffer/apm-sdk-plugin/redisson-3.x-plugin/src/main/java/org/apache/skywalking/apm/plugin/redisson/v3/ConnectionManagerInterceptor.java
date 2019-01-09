@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -34,6 +36,8 @@ import java.util.Collection;
  */
 public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterceptor {
 
+    private static final ILog logger = LogManager.getLogger(ConnectionManagerInterceptor.class);
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
@@ -42,38 +46,42 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ConnectionManager connectionManager = (ConnectionManager) objInst;
-        Config config = connectionManager.getCfg();
+        try {
+            ConnectionManager connectionManager = (ConnectionManager) objInst;
+            Config config = connectionManager.getCfg();
 
-        SentinelServersConfig sentinelServersConfig = (SentinelServersConfig) getServersConfig(config, "sentinelServersConfig");
-        MasterSlaveServersConfig masterSlaveServersConfig = (MasterSlaveServersConfig) getServersConfig(config, "masterSlaveServersConfig");
-        ClusterServersConfig clusterServersConfig = (ClusterServersConfig) getServersConfig(config, "clusterServersConfig");
-        ReplicatedServersConfig replicatedServersConfig = (ReplicatedServersConfig) getServersConfig(config, "replicatedServersConfig");
+            SentinelServersConfig sentinelServersConfig = (SentinelServersConfig) getServersConfig(config, "sentinelServersConfig");
+            MasterSlaveServersConfig masterSlaveServersConfig = (MasterSlaveServersConfig) getServersConfig(config, "masterSlaveServersConfig");
+            ClusterServersConfig clusterServersConfig = (ClusterServersConfig) getServersConfig(config, "clusterServersConfig");
+            ReplicatedServersConfig replicatedServersConfig = (ReplicatedServersConfig) getServersConfig(config, "replicatedServersConfig");
 
-        StringBuilder peer = new StringBuilder();
-        EnhancedInstance retInst = (EnhancedInstance) ret;
+            StringBuilder peer = new StringBuilder();
+            EnhancedInstance retInst = (EnhancedInstance) ret;
 
-        if (sentinelServersConfig != null) {
-            appendAddresses(peer, sentinelServersConfig.getSentinelAddresses());
-            retInst.setSkyWalkingDynamicField(peer.toString());
-            return ret;
-        }
-        if (masterSlaveServersConfig != null) {
-            URI masterAddress = masterSlaveServersConfig.getMasterAddress();
-            peer.append(masterAddress.getHost()).append(":").append(masterAddress.getPort());
-            appendAddresses(peer, masterSlaveServersConfig.getSlaveAddresses());
-            retInst.setSkyWalkingDynamicField(peer.toString());
-            return ret;
-        }
-        if (clusterServersConfig != null) {
-            appendAddresses(peer, clusterServersConfig.getNodeAddresses());
-            retInst.setSkyWalkingDynamicField(peer.toString());
-            return ret;
-        }
-        if (replicatedServersConfig != null) {
-            appendAddresses(peer, replicatedServersConfig.getNodeAddresses());
-            retInst.setSkyWalkingDynamicField(peer.toString());
-            return ret;
+            if (sentinelServersConfig != null) {
+                appendAddresses(peer, sentinelServersConfig.getSentinelAddresses());
+                retInst.setSkyWalkingDynamicField(peer.toString());
+                return ret;
+            }
+            if (masterSlaveServersConfig != null) {
+                URI masterAddress = masterSlaveServersConfig.getMasterAddress();
+                peer.append(masterAddress.getHost()).append(":").append(masterAddress.getPort());
+                appendAddresses(peer, masterSlaveServersConfig.getSlaveAddresses());
+                retInst.setSkyWalkingDynamicField(peer.toString());
+                return ret;
+            }
+            if (clusterServersConfig != null) {
+                appendAddresses(peer, clusterServersConfig.getNodeAddresses());
+                retInst.setSkyWalkingDynamicField(peer.toString());
+                return ret;
+            }
+            if (replicatedServersConfig != null) {
+                appendAddresses(peer, replicatedServersConfig.getNodeAddresses());
+                retInst.setSkyWalkingDynamicField(peer.toString());
+                return ret;
+            }
+        } catch (Exception e) {
+            logger.warn("redisClient set peer error: ", e);
         }
         return ret;
     }
