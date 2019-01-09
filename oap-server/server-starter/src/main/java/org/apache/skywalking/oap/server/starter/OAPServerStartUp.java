@@ -43,9 +43,9 @@ public class OAPServerStartUp {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
 
+            // Set uptime to second
             manager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class).createGauge("uptime",
                 "oap server start up time", MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE)
-                // Set uptime to second
                 .setValue(System.currentTimeMillis() / 1000);
 
             if (RunningMode.isInitMode()) {
