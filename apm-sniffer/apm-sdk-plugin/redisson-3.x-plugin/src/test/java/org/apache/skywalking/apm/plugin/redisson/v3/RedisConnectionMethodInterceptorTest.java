@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class RedissonMethodInterceptorTest {
+public class RedisConnectionMethodInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -61,44 +61,28 @@ public class RedissonMethodInterceptorTest {
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
     @Mock
-    private MockInstance mockInstance;
+    private EnhancedInstance enhancedInstance;
 
-    private RedissonMethodInterceptor interceptor;
+    private RedisConnectionMethodInterceptor interceptor;
 
     private Object[] arguments;
 
     private Class[] argumentTypes;
 
-    private class MockInstance extends RedisConnection implements EnhancedInstance {
-
-        public MockInstance() throws IllegalAccessException, InstantiationException {
-            super(null);
-        }
-
-        @Override
-        public Object getSkyWalkingDynamicField() {
-            return null;
-        }
-
-        @Override
-        public void setSkyWalkingDynamicField(Object value) {
-
-        }
-    }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Before
     public void setUp() throws Exception {
-        interceptor = new RedissonMethodInterceptor();
+        interceptor = new RedisConnectionMethodInterceptor();
         arguments = new Object[]{new CommandData(null, null, RedisCommands.SET, null)};
         argumentTypes = new Class[]{CommandData.class};
-        when(mockInstance.getRedisClient()).thenReturn(null);
+        when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:6379;127.0.0.1:6378;");
     }
 
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.beforeMethod(mockInstance, getExecuteMethod(), arguments, argumentTypes, null);
-        interceptor.afterMethod(mockInstance, getExecuteMethod(), arguments, argumentTypes, null);
+        interceptor.beforeMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
+        interceptor.afterMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -107,9 +91,9 @@ public class RedissonMethodInterceptorTest {
 
     @Test
     public void testInterceptWithException() throws Throwable {
-        interceptor.beforeMethod(mockInstance, getExecuteMethod(), arguments, argumentTypes, null);
-        interceptor.handleMethodException(mockInstance, getExecuteMethod(), arguments, argumentTypes, new RuntimeException());
-        interceptor.afterMethod(mockInstance, getExecuteMethod(), arguments, argumentTypes, null);
+        interceptor.beforeMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
+        interceptor.handleMethodException(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, new RuntimeException());
+        interceptor.afterMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
 
         MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);

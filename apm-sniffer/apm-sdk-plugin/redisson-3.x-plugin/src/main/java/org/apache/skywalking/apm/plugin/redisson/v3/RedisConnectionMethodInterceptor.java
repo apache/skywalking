@@ -41,12 +41,12 @@ import java.net.InetSocketAddress;
 /**
  * @author zhaoyuguang
  */
-public class RedissonMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        String peer = (String)objInst.getSkyWalkingDynamicField();
+        String peer = (String) objInst.getSkyWalkingDynamicField();
 
         RedisConnection connection = (RedisConnection) objInst;
         Channel channel = connection.getChannel();
@@ -105,8 +105,10 @@ public class RedissonMethodInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        RedisClient redisClient = (RedisClient)allArguments[0];
-        String peer = redisClient.getConfig().getAddress().getAuthority();
+        String peer = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+        if (peer == null) {
+            peer = ((RedisClient) allArguments[0]).getConfig().getAddress().getAuthority();
+        }
         objInst.setSkyWalkingDynamicField(peer);
     }
 }

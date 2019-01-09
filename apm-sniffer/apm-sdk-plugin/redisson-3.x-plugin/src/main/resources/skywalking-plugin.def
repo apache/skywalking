@@ -14,4 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.RedissonInstrumentation
+redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.ConnectionManagerInstrumentation
+redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.RedisConnectionInstrumentation
+redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.RedisClientInstrumentation
