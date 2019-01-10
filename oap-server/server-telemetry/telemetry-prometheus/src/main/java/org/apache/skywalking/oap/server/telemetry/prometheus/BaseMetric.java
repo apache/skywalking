@@ -57,7 +57,7 @@ public abstract class BaseMetric<T extends SimpleCollector, C> {
                 try {
                     if (metricInstance == null) {
                         String[] labelNames = new String[labels.getKeys().length + 1];
-                        labelNames[0] = "instance";
+                        labelNames[0] = "sw_backend_instance";
                         for (int i = 0; i < labels.getKeys().length; i++) {
                             labelNames[i + 1] = labels.getKeys()[i];
                         }
