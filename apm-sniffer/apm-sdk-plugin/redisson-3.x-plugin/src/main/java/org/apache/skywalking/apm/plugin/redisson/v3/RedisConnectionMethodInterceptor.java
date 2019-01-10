@@ -63,8 +63,7 @@ public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundIn
                 addCommandData(dbStatement, commandData);
                 dbStatement.append(";");
             }
-        }
-        if (allArguments[0] instanceof CommandData) {
+        } else if (allArguments[0] instanceof CommandData) {
             CommandData commandData = (CommandData) allArguments[0];
             String command = commandData.getCommand().getName();
             operationName = operationName + command;
