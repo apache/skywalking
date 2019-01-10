@@ -94,7 +94,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-11-30.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2019-01-10.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
