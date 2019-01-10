@@ -131,7 +131,7 @@ mysql-connector-java:
   languages: Java
 ojdbc:
   id: 34
-  languages: Java  
+  languages: Java
 Spymemcached:
   id: 35
   languages: Java
@@ -195,6 +195,7 @@ Canal:
 Gson:
   id: 55
   languages: Java
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
