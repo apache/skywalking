@@ -101,7 +101,7 @@ public class TraceModuleProvider extends ModuleProvider {
 
             SegmentStandardizationWorker standardizationWorker2 = new SegmentStandardizationWorker(getManager(), segmentProducer,
                 moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart(),
-                false);
+                true);
             segmentProducerV2.setStandardizationWorker(standardizationWorker2);
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
