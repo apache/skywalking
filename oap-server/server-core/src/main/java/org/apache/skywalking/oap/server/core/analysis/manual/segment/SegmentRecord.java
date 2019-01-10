@@ -40,6 +40,7 @@ public class SegmentRecord extends Record {
     public static final String SEGMENT_ID = "segment_id";
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
+    public static final String SERVICE_INSTANCE_ID = "service_instance_id";
     public static final String ENDPOINT_NAME = "endpoint_name";
     public static final String ENDPOINT_ID = "endpoint_id";
     public static final String START_TIME = "start_time";
@@ -52,6 +53,7 @@ public class SegmentRecord extends Record {
     @Setter @Getter @Column(columnName = SEGMENT_ID) @IDColumn private String segmentId;
     @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
     @Setter @Getter @Column(columnName = SERVICE_ID) @IDColumn private int serviceId;
+    @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) @IDColumn private int serviceInstanceId;
     @Setter @Getter @Column(columnName = ENDPOINT_NAME, matchQuery = true) @IDColumn private String endpointName;
     @Setter @Getter @Column(columnName = ENDPOINT_ID) @IDColumn private int endpointId;
     @Setter @Getter @Column(columnName = START_TIME) @IDColumn private long startTime;
@@ -72,6 +74,7 @@ public class SegmentRecord extends Record {
             map.put(SEGMENT_ID, storageData.getSegmentId());
             map.put(TRACE_ID, storageData.getTraceId());
             map.put(SERVICE_ID, storageData.getServiceId());
+            map.put(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
             map.put(ENDPOINT_NAME, storageData.getEndpointName());
             map.put(ENDPOINT_ID, storageData.getEndpointId());
             map.put(START_TIME, storageData.getStartTime());
@@ -93,6 +96,7 @@ public class SegmentRecord extends Record {
             record.setSegmentId((String)dbMap.get(SEGMENT_ID));
             record.setTraceId((String)dbMap.get(TRACE_ID));
             record.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
+            record.setServiceInstanceId(((Number)dbMap.get(SERVICE_INSTANCE_ID)).intValue());
             record.setEndpointName((String)dbMap.get(ENDPOINT_NAME));
             record.setEndpointId(((Number)dbMap.get(ENDPOINT_ID)).intValue());
             record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
