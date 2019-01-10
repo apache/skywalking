@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.hamcrest.CoreMatchers;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,16 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.redisson.client.RedisConnection;
-import org.redisson.client.protocol.CommandData;
-import org.redisson.client.protocol.RedisCommands;
-
-import java.lang.reflect.Method;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * @author zhaoyuguang
@@ -61,62 +47,39 @@ public class RedisConnectionMethodInterceptorTest {
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
     @Mock
-    private EnhancedInstance enhancedInstance;
+    private MockInstance mockRedisClientInstance;
+    @Mock
+    private MockInstance mockRedisConnectionInstance;
 
     private RedisConnectionMethodInterceptor interceptor;
 
-    private Object[] arguments;
+    private class MockInstance implements EnhancedInstance {
+        private Object object;
 
-    private Class[] argumentTypes;
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return object;
+        }
 
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            this.object = value;
+        }
+    }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Before
     public void setUp() throws Exception {
+        mockRedisConnectionInstance = new MockInstance();
+        mockRedisClientInstance = new MockInstance();
+        mockRedisClientInstance.setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:6378;");
         interceptor = new RedisConnectionMethodInterceptor();
-        arguments = new Object[]{new CommandData(null, null, RedisCommands.SET, null)};
-        argumentTypes = new Class[]{CommandData.class};
-        when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:6379;127.0.0.1:6378;");
     }
+
 
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
-        interceptor.afterMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
-        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertRedissonSpan(spans.get(0));
+        interceptor.onConstruct(mockRedisConnectionInstance, new Object[]{mockRedisClientInstance});
+        MatcherAssert.assertThat((String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
     }
-
-    @Test
-    public void testInterceptWithException() throws Throwable {
-        interceptor.beforeMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
-        interceptor.handleMethodException(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, new RuntimeException());
-        interceptor.afterMethod(enhancedInstance, getExecuteMethod(), arguments, argumentTypes, null);
-
-        MatcherAssert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertRedissonSpan(spans.get(0));
-        List<LogDataEntity> logDataEntities = SpanHelper.getLogs(spans.get(0));
-        assertThat(logDataEntities.size(), is(1));
-        SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);
-    }
-
-    private void assertRedissonSpan(AbstractTracingSpan span) {
-        assertThat(span.getOperationName(), is("Redisson/SET"));
-        assertThat(SpanHelper.getComponentId(span), is(ComponentsDefine.REDISSON.getId()));
-        assertThat(span.isExit(), is(true));
-        assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.CACHE));
-    }
-
-    private Method getExecuteMethod() {
-        try {
-            return RedisConnection.class.getMethod("send");
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
-
 }
