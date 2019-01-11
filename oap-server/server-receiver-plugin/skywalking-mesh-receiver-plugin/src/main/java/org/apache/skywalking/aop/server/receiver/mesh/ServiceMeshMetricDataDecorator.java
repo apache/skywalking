@@ -44,7 +44,7 @@ public class ServiceMeshMetricDataDecorator {
         boolean isRegistered = true;
         sourceServiceId = origin.getSourceServiceId();
         if (sourceServiceId == Const.NONE) {
-            sourceServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getSourceServiceName());
+            sourceServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getSourceServiceName(), null);
             if (sourceServiceId != Const.NONE) {
                 getNewDataBuilder().setSourceServiceId(sourceServiceId);
             } else {
@@ -65,7 +65,7 @@ public class ServiceMeshMetricDataDecorator {
         }
         destServiceId = origin.getDestServiceId();
         if (destServiceId == Const.NONE) {
-            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName());
+            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName(), null);
             if (destServiceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceId(destServiceId);
             } else {
