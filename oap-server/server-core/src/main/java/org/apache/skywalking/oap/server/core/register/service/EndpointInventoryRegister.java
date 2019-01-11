@@ -79,7 +79,7 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
 
             InventoryProcess.INSTANCE.in(endpointInventory);
         } else {
-            logger.warn("Endpoint {} heartbeat, but not found in storage.");
+            logger.warn("Endpoint {} heartbeat, but not found in storage.", endpointId);
         }
     }
 }
