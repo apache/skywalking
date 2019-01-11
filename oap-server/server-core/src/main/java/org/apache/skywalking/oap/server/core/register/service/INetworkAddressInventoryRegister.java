@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -25,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * @author peng-yongsheng
  */
 public interface INetworkAddressInventoryRegister extends Service {
-    int getOrCreate(String networkAddress);
+    int getOrCreate(String networkAddress, JsonObject properties);
 
     int get(String networkAddress);
 

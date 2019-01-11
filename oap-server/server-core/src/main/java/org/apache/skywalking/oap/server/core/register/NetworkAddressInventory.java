@@ -82,6 +82,17 @@ public class NetworkAddressInventory extends RegisterSource {
         return true;
     }
 
+    public NetworkAddressInventory getClone() {
+        NetworkAddressInventory inventory = new NetworkAddressInventory();
+        inventory.setSequence(getSequence());
+        inventory.setRegisterTime(getRegisterTime());
+        inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setName(name);
+        inventory.setNodeType(nodeType);
+
+        return inventory;
+    }
+
     @Override public void combine(RegisterSource registerSource) {
         super.combine(registerSource);
         NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;

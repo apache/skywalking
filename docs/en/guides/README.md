@@ -37,6 +37,8 @@ and private plugin developer should read this.
 - [Storage extension development guide](storage-extention.md). Help potential contributors to build a new 
 storage implementor besides the official.
 - [Customize analysis by oal script](write-oal.md). Guide you to use oal script to make your own metric available.
+- [Backend Inventory entity extension](inventory-extension.md). If you want to extend SkyWalking inventory entities, and
+want to push upstream back to our Apache OSS repo, please read these principles.
 
 ### UI developer
 Our UI is constituted by static pages and web container.

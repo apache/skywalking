@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.transform;
 
+import com.google.gson.JsonObject;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,7 +28,7 @@ import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
@@ -52,7 +53,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
     public void testTransform() throws Exception {
 
         IServiceInventoryRegister applicationIDService = new IServiceInventoryRegister() {
-            @Override public int getOrCreate(String serviceName) {
+            @Override public int getOrCreate(String serviceName, JsonObject properties) {
                 String key = "AppCode:" + serviceName;
                 if (applicationRegister.containsKey(key)) {
                     return applicationRegister.get(key);
@@ -63,7 +64,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public int getOrCreate(int addressId, String serviceName) {
+            @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
                 String key = "Address:" + serviceName;
                 if (applicationRegister.containsKey(key)) {
                     return applicationRegister.get(key);
@@ -72,6 +73,9 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                     applicationRegister.put(key, id);
                     return id;
                 }
+            }
+
+            @Override public void updateProperties(int serviceId, JsonObject properties) {
             }
 
             @Override public void heartbeat(int serviceId, long heartBeatTime) {
