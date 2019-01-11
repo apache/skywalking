@@ -55,7 +55,7 @@ public class ServiceInventory extends RegisterSource {
     @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
     @Setter @Getter @Column(columnName = MAPPING_LAST_UPDATE_TIME) private long mappingLastUpdateTime;
-    @Getter(AccessLevel.PRIVATE) @Column(columnName = MAPPING_LAST_UPDATE_TIME) private String prop;
+    @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop;
     @Getter private JsonObject properties;
 
     public NodeType getServiceNodeType() {
