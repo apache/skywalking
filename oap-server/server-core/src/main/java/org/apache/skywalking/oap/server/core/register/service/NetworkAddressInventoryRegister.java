@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
@@ -73,11 +74,11 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         return this.serviceInstanceInventoryRegister;
     }
 
-    @Override public int getOrCreate(String networkAddress) {
+    @Override public int getOrCreate(String networkAddress, JsonObject properties) {
         int addressId = getNetworkAddressInventoryCache().getAddressId(networkAddress);
 
         if (addressId != Const.NONE) {
-            int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress);
+            int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress, properties);
 
             if (serviceId != Const.NONE) {
                 int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, addressId, System.currentTimeMillis());
@@ -107,6 +108,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     @Override public void heartbeat(int addressId, long heartBeatTime) {
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
         if (Objects.nonNull(networkAddress)) {
+            networkAddress = networkAddress.getClone();
             networkAddress.setHeartbeatTime(heartBeatTime);
 
             InventoryProcess.INSTANCE.in(networkAddress);
@@ -119,7 +121,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
 
         if (!this.compare(networkAddress, nodeType)) {
-            NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
+            NetworkAddressInventory newNetworkAddress = networkAddress.getClone();
             newNetworkAddress.setNetworkAddressNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
@@ -128,6 +130,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
         ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(networkAddress.getSequence()));
         if (!this.compare(newServiceInventory, nodeType)) {
+            newServiceInventory = newServiceInventory.getClone();
             newServiceInventory.setServiceNodeType(nodeType);
             newServiceInventory.setHeartbeatTime(System.currentTimeMillis());
 

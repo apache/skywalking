@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.apm.network.language.agent.SpanObject;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
+import java.util.*;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 
 import static java.util.Objects.isNull;
@@ -281,6 +281,14 @@ public class SpanDecorator implements StandardBuilder {
         return referenceDecorators[index];
     }
 
+    public List<KeyStringValuePair> getAllTags() {
+        if (isOrigin) {
+            return isV2 ? spanObjectV2.getTagsList() : convert(spanObject.getTagsList());
+        } else {
+            return isV2 ? spanBuilderV2.getTagsList() : convert(spanBuilder.getTagsList());
+        }
+    }
+
     @Override public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
@@ -291,5 +299,17 @@ public class SpanDecorator implements StandardBuilder {
             }
             standardBuilder.toBuilder();
         }
+    }
+
+    private List<KeyStringValuePair> convert(List<KeyWithStringValue> list) {
+        List<KeyStringValuePair> result = new ArrayList<>();
+        if (list != null) {
+            list.forEach(element -> {
+                result.add(KeyStringValuePair.newBuilder()
+                    .setKey(element.getKey())
+                    .setValue(element.getValue()).build());
+            });
+        }
+        return result;
     }
 }
