@@ -94,7 +94,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-11-30.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2019-01-10.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
@@ -102,7 +102,7 @@ Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) pa
 
 <p align="center">
 <br/><br/>
-<img src="https://landscape.cncf.io/images/cncf-landscape.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/cncf.svg" width="200"/>
+<img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>
 <br/><br/>
 SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
 

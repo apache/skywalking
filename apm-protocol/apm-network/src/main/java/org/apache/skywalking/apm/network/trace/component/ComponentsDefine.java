@@ -106,6 +106,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
 
+    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -115,7 +117,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[55];
+        components = new String[56];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -155,6 +157,7 @@ public class ComponentsDefine {
         addComponent(RABBITMQ_PRODUCER);
         addComponent(RABBITMQ_CONSUMER);
         addComponent(CANAL);
+        addComponent(GSON);
     }
 
     private void addComponent(OfficialComponent component) {

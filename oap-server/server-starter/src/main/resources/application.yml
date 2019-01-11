@@ -95,3 +95,5 @@ query:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
 alarm:
   default:
+telemetry:
+  prometheus:

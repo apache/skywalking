@@ -43,6 +43,7 @@
     <modules>
         <module>optional-spring-plugins</module>
         <module>trace-ignore-plugin</module>
+        <module>gson-2.8.x-plugin</module>
     </modules>
 
     <dependencies>
