@@ -63,7 +63,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
             if (logger.isDebugEnabled()) {
                 logger.debug("Register service, service code: {}", serviceName);
             }
-            int serviceId = serviceInventoryRegister.getOrCreate(serviceName);
+            int serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
 
             if (serviceId != Const.NONE) {
                 KeyIntValuePair value = KeyIntValuePair.newBuilder().setKey(serviceName).setValue(serviceId).build();
@@ -149,7 +149,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         NetAddressMapping.Builder builder = NetAddressMapping.newBuilder();
 
         request.getAddressesList().forEach(networkAddress -> {
-            int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress);
+            int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress, null);
 
             if (addressId != Const.NONE) {
                 builder.addAddressIds(KeyIntValuePair.newBuilder().setKey(networkAddress).setValue(addressId));
@@ -186,7 +186,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                     return;
                 }
 
-                networkAddressId = networkAddressInventoryRegister.getOrCreate(address);
+                networkAddressId = networkAddressInventoryRegister.getOrCreate(address, null);
                 if (networkAddressId == Const.NONE) {
                     return;
                 }
