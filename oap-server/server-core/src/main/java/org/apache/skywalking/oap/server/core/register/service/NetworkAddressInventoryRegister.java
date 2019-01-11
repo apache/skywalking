@@ -113,7 +113,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
             InventoryProcess.INSTANCE.in(networkAddress);
         } else {
-            logger.warn("Network getAddress {} heartbeat, but not found in storage.");
+            logger.warn("Network getAddress {} heartbeat, but not found in storage.", addressId);
         }
     }
 
