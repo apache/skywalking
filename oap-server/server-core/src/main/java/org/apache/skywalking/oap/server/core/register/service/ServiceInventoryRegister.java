@@ -96,7 +96,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         } else {
-            logger.warn("Service {} heartbeat, but not found in storage.");
+            logger.warn("Service {} heartbeat, but not found in storage.", serviceId);
         }
     }
 
@@ -109,7 +109,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         } else {
-            logger.warn("Service {} mapping update, but not found in storage.");
+            logger.warn("Service {} mapping update, but not found in storage.", serviceId);
         }
     }
 }
