@@ -301,7 +301,7 @@ public class SegmentBuilder {
 
         private Segment addApp(String serviceCode, long registerTime) throws Exception {
             int serviceId = waitForExchange(() ->
-                    CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(serviceCode),
+                    CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(serviceCode, null),
                 10
             );
 
