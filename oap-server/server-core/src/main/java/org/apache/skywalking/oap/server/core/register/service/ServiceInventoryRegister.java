@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -100,7 +100,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         } else {
-            logger.warn("Service {} properties update, but not found in storage.");
+            logger.warn("Service {} properties update, but not found in storage.", serviceId);
         }
     }
 
