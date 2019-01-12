@@ -21,7 +21,7 @@
    <img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
 
 - **探针**  基于不同的来源是不同的。它们收集数据并根据SkyWalking需求重新格式化。
-- **平台后端**  是一个后端服务，支持集群部署。它用于聚合，分析和驱动从探针到UI的流程。它还提供可插拔能力为不同的数据源（如Zipkin）、存储器实现和集群管理。您甚至可以使用[Observability Analysis Language](oal-cn.md)自定义聚合和分析。
+- **平台后端**  是一个后端服务，支持集群部署。它用于聚合，分析和驱动从探针到UI的流程。它还提供可插拔能力为不同的数据源（如Zipkin）、存储器实现和集群管理。您甚至可以使用[观察分析语言](oal-cn.md)自定义聚合和分析。
 - **存储**  是开放的。您可以选择现有的实现，例如由Sharding-Sphere管理的ElasticSearch、H2或MySQL集群，也可以实现自己的。当然，非常感谢您为新的存储实现做出贡献。
 - **UI**  酷炫且非常强大，你也可以根据自己需要自己定制后端。
    
