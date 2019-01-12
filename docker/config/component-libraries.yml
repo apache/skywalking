@@ -286,6 +286,7 @@ Component-Server-Mappings:
   mysql-connector-java: Mysql
   Jedis: Redis
   Redisson: Redis
+  Lettuce: Redis
   StackExchange.Redis: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL

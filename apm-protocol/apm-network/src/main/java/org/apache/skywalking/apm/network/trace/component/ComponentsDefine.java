@@ -110,7 +110,7 @@ public class ComponentsDefine {
   
     public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
 
-    public static final OfficialComponent LETTUCE =  new OfficialComponent(56, "Lettuce");
+    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 

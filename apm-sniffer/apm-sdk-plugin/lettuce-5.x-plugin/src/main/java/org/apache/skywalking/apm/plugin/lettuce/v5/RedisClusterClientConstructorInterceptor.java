@@ -24,8 +24,6 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-import java.util.Collection;
-
 /**
  * @author zhaoyuguang
  */
@@ -34,15 +32,13 @@ public class RedisClusterClientConstructorInterceptor implements InstanceConstru
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         @SuppressWarnings("unchecked")
-        Collection<RedisURI> redisURIs = (Collection<RedisURI>) allArguments[1];
+        Iterable<RedisURI> redisURIs = (Iterable<RedisURI>) allArguments[1];
         RedisClusterClient redisClusterClient = (RedisClusterClient) objInst;
         StringBuilder peer = new StringBuilder();
-        if (redisURIs != null && !redisURIs.isEmpty()) {
-            for (RedisURI redisURI : redisURIs) {
-                peer.append(redisURI.getHost()).append(":").append(redisURI.getPort()).append(";");
-            }
-            EnhancedInstance resourcesInst = (EnhancedInstance) redisClusterClient.getResources();
-            resourcesInst.setSkyWalkingDynamicField(peer);
+        for (RedisURI redisURI : redisURIs) {
+            peer.append(redisURI.getHost()).append(":").append(redisURI.getPort()).append(";");
         }
+        EnhancedInstance resourcesInst = (EnhancedInstance) redisClusterClient.getResources();
+        resourcesInst.setSkyWalkingDynamicField(peer.toString());
     }
 }

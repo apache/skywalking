@@ -44,7 +44,7 @@ public class RedisClusterClientInstrumentation extends ClassInstanceMethodsEnhan
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(1, "java.util.Collection");
+                    return takesArgumentWithType(1, "java.lang.Iterable");
                 }
 
                 @Override
