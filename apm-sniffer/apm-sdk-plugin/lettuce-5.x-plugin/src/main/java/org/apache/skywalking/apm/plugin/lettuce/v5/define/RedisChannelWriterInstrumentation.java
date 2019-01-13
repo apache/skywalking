@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * The writeToChannel method is used in versions lower than 5.0.2.RELEASE
+ * The writeAndFlush method is used in versions lower than 5.0.2.RELEASE
  *
  * @author zhaoyuguang
  */
@@ -64,7 +64,7 @@ public class RedisChannelWriterInstrumentation extends ClassInstanceMethodsEnhan
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("writeToChannelAndFlush").or(named("writeToChannel"));
+                    return named("writeToChannelAndFlush").or(named("writeAndFlush"));
                 }
 
                 @Override
