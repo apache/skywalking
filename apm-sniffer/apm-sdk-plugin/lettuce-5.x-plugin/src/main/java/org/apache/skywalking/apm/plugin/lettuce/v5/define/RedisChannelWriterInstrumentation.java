@@ -45,7 +45,7 @@ public class RedisChannelWriterInstrumentation extends ClassInstanceMethodsEnhan
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(1, "io.lettuce.core.resource.ClientResources");
+                    return takesArgumentWithType(0, "io.lettuce.core.ClientOptions");
                 }
 
                 @Override

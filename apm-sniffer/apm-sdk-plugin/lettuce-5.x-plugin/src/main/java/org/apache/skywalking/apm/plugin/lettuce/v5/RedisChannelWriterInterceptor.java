@@ -83,7 +83,7 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        EnhancedInstance resourcesInst = (EnhancedInstance) allArguments[1];
-        objInst.setSkyWalkingDynamicField(resourcesInst.getSkyWalkingDynamicField());
+        EnhancedInstance optionsInst = (EnhancedInstance) allArguments[0];
+        objInst.setSkyWalkingDynamicField(optionsInst.getSkyWalkingDynamicField());
     }
 }

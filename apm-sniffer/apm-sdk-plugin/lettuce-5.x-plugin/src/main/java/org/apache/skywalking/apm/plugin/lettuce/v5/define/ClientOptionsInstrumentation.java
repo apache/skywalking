@@ -32,11 +32,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * @author zhaoyuguang
  */
-public class ClientResourcesInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ClientOptionsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.lettuce.core.resource.DefaultClientResources";
+    private static final String ENHANCE_CLASS = "io.lettuce.core.ClientOptions";
 
-    private static final String CLIENT_RESOURCES_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.lettuce.v5.ClientResourcesConstructorInterceptor";
+    private static final String CLIENT_OPTIONS_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.lettuce.v5.ClientOptionsConstructorInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -49,7 +49,7 @@ public class ClientResourcesInstrumentation extends ClassInstanceMethodsEnhanceP
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return CLIENT_RESOURCES_CONSTRUCTOR_INTERCEPTOR_CLASS;
+                    return CLIENT_OPTIONS_CONSTRUCTOR_INTERCEPTOR_CLASS;
                 }
             }
         };

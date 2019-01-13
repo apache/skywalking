@@ -62,7 +62,7 @@ public class RedisChannelWriterInterceptorTest {
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
     @Mock
-    private MockInstance mockClientResourcesInstance;
+    private MockInstance mockClientOptionsInstance;
     @Mock
     private MockInstance mockRedisChannelWriterInstance;
 
@@ -86,15 +86,15 @@ public class RedisChannelWriterInterceptorTest {
     @Before
     public void setUp() throws Exception {
         mockRedisChannelWriterInstance = new MockInstance();
-        mockClientResourcesInstance = new MockInstance();
-        mockClientResourcesInstance.setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:6378;");
+        mockClientOptionsInstance = new MockInstance();
+        mockClientOptionsInstance.setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:6378;");
         interceptor = new RedisChannelWriterInterceptor();
     }
 
 
     @Test
     public void testInterceptor() throws Throwable {
-        interceptor.onConstruct(mockRedisChannelWriterInstance, new Object[]{null, mockClientResourcesInstance});
+        interceptor.onConstruct(mockRedisChannelWriterInstance, new Object[]{mockClientOptionsInstance});
         RedisCommand redisCommand = new Command(CommandType.SET, null);
         interceptor.beforeMethod(mockRedisChannelWriterInstance, null, new Object[]{redisCommand}, null, null);
         interceptor.afterMethod(mockRedisChannelWriterInstance, null, null, null, null);

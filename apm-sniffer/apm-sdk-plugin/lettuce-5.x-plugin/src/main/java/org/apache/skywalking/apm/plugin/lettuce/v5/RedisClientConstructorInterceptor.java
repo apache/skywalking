@@ -33,7 +33,7 @@ public class RedisClientConstructorInterceptor implements InstanceConstructorInt
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         RedisURI redisURI = (RedisURI) allArguments[1];
         RedisClient redisClient = (RedisClient) objInst;
-        EnhancedInstance resourcesInst = (EnhancedInstance) redisClient.getResources();
-        resourcesInst.setSkyWalkingDynamicField(redisURI.getHost() + ":" + redisURI.getPort());
+        EnhancedInstance optionsInst = (EnhancedInstance) redisClient.getOptions();
+        optionsInst.setSkyWalkingDynamicField(redisURI.getHost() + ":" + redisURI.getPort());
     }
 }

@@ -23,13 +23,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * ClientResources is the link between RedisChannelWriter and AbstractRedisClient.
- * to enhance ClientResources for bring peer(the cluster configuration information)
+ * ClientOptions is the link between RedisChannelWriter and AbstractRedisClient.
+ * to enhance ClientOptions for bring peer(the cluster configuration information)
  * in AbstractRedisClient to RedisChannelWriter.
  *
  * @author zhaoyuguang
  */
-public class ClientResourcesConstructorInterceptor implements InstanceConstructorInterceptor {
+public class ClientOptionsConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
