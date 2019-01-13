@@ -78,8 +78,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             }
         }
 
-        int peerId = 0;
-        if (standardBuilder.getPeerId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getPeer())) {
+        int peerId = standardBuilder.getPeerId();
+        if (peerId == 0 && !Strings.isNullOrEmpty(standardBuilder.getPeer())) {
             peerId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getPeer(), buildServiceProperties(standardBuilder));
 
             if (peerId == Const.NONE) {
@@ -96,19 +96,23 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
         if (peerId != Const.NONE) {
             int spanLayerValue = standardBuilder.getSpanLayerValue();
-            networkAddressInventoryRegister.update(peerId, NodeType.fromSpanLayerValue(spanLayerValue));
+            NodeType nodeType = NodeType.fromSpanLayerValue(spanLayerValue);
+            networkAddressInventoryRegister.update(peerId, nodeType);
 
             /**
              * In some case, conjecture node, such as Database node, could be registered by agents.
              * At here, if the target service properties need to be updated,
              * it will only be updated at the first time for now.
              */
+
+            JsonObject properties = null;
+            ServiceInventory newServiceInventory = serviceInventoryCacheDAO.get(serviceInventoryCacheDAO.getServiceId(peerId));
             if (SpanLayer.Database.equals(standardBuilder.getSpanLayer())) {
-                ServiceInventory newServiceInventory = serviceInventoryCacheDAO.get(serviceInventoryCacheDAO.getServiceId(peerId));
                 if (!newServiceInventory.hasProperties()) {
-                    serviceInventoryRegister.updateProperties(newServiceInventory.getSequence(), buildServiceProperties(standardBuilder));
+                    properties = buildServiceProperties(standardBuilder);
                 }
             }
+            serviceInventoryRegister.update(newServiceInventory.getSequence(), nodeType, properties);
         }
 
         if (standardBuilder.getOperationNameId() == Const.NONE) {

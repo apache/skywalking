@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc;
 
-import com.google.common.base.Strings;
+import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
+import java.util.*;
 import org.apache.skywalking.apm.network.common.*;
 import org.apache.skywalking.apm.network.register.v2.*;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -32,6 +33,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.InstanceDiscoveryServiceHandler;
 import org.slf4j.*;
+
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
 
 /**
  * @author wusheng
@@ -83,34 +86,39 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         request.getInstancesList().forEach(instance -> {
             ServiceInventory serviceInventory = serviceInventoryCache.get(instance.getServiceId());
 
-            ServiceInstanceInventory.AgentOsInfo agentOsInfo = new ServiceInstanceInventory.AgentOsInfo();
+            JsonObject instanceProperties = new JsonObject();
+            List<String> ipv4s = new ArrayList<>();
+
             for (KeyStringValuePair property : instance.getPropertiesList()) {
                 String key = property.getKey();
                 switch (key) {
-                    case "OSName":
-                        agentOsInfo.setOsName(property.getValue());
+                    case HOST_NAME:
+                        instanceProperties.addProperty(HOST_NAME, property.getValue());
+                    case OS_NAME:
+                        instanceProperties.addProperty(OS_NAME, property.getValue());
                         break;
-                    case "hostname":
-                        agentOsInfo.setHostname(property.getValue());
+                    case LANGUAGE:
+                        instanceProperties.addProperty(LANGUAGE, property.getValue());
                         break;
                     case "ipv4":
-                        agentOsInfo.getIpv4s().add(property.getValue());
+                        ipv4s.add(property.getValue());
                         break;
-                    case "ProcessNo":
-                        agentOsInfo.setProcessNo(Integer.parseInt(property.getValue()));
+                    case PROCESS_NO:
+                        instanceProperties.addProperty(PROCESS_NO, property.getValue());
                         break;
                 }
             }
+            instanceProperties.addProperty(IPV4S, ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4s));
 
             String instanceName = serviceInventory.getName();
-            if (agentOsInfo.getProcessNo() != 0) {
-                instanceName += "-pid:" + agentOsInfo.getProcessNo();
+            if (instanceProperties.has(PROCESS_NO)) {
+                instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();
             }
-            if (!Strings.isNullOrEmpty(agentOsInfo.getHostname())) {
-                instanceName += "@" + agentOsInfo.getHostname();
+            if (instanceProperties.has(HOST_NAME)) {
+                instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
             }
 
-            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instance.getInstanceUUID(), instance.getTime(), agentOsInfo);
+            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instance.getInstanceUUID(), instance.getTime(), instanceProperties);
 
             if (serviceInstanceId != Const.NONE) {
                 logger.info("register service instance id={} [UUID:{}]", serviceInstanceId, instance.getInstanceUUID());

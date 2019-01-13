@@ -127,27 +127,11 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
             InventoryProcess.INSTANCE.in(newNetworkAddress);
         }
-
-        ServiceInventory newServiceInventory = getServiceInventoryCache().get(getServiceInventoryCache().getServiceId(networkAddress.getSequence()));
-        if (!this.compare(newServiceInventory, nodeType)) {
-            newServiceInventory = newServiceInventory.getClone();
-            newServiceInventory.setServiceNodeType(nodeType);
-            newServiceInventory.setHeartbeatTime(System.currentTimeMillis());
-
-            InventoryProcess.INSTANCE.in(newServiceInventory);
-        }
     }
 
     private boolean compare(NetworkAddressInventory newNetworkAddress, NodeType nodeType) {
         if (Objects.nonNull(newNetworkAddress)) {
-            return nodeType == newNetworkAddress.getNetworkAddressNodeType();
-        }
-        return true;
-    }
-
-    private boolean compare(ServiceInventory newServiceInventory, NodeType nodeType) {
-        if (Objects.nonNull(newServiceInventory)) {
-            return nodeType == newServiceInventory.getServiceNodeType();
+            return nodeType.equals(newNetworkAddress.getNetworkAddressNodeType());
         }
         return true;
     }
