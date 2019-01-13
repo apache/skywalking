@@ -20,22 +20,14 @@ package org.apache.skywalking.oap.server.receiver.zipkin.transform;
 
 import com.google.gson.JsonObject;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
-import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
+import org.apache.skywalking.apm.network.language.agent.v2.*;
+import org.apache.skywalking.oap.server.core.register.NodeType;
+import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.ZipkinTrace;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.receiver.zipkin.data.*;
+import org.junit.*;
 import org.powermock.reflect.Whitebox;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
@@ -75,7 +67,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public void updateProperties(int serviceId, JsonObject properties) {
+            @Override public void update(int serviceId, NodeType nodeType, JsonObject properties) {
             }
 
             @Override public void heartbeat(int serviceId, long heartBeatTime) {
@@ -85,7 +77,6 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
             @Override public void updateMapping(int serviceId, int mappingServiceId) {
 
             }
-
 
         };
 
