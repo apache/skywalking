@@ -91,7 +91,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
 
         IServiceInstanceInventoryRegister instanceIDService = new IServiceInstanceInventoryRegister() {
             @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
-                ServiceInstanceInventory.AgentOsInfo osInfo) {
+                JsonObject osInfo) {
                 String key = "AppCode:" + serviceId + ",UUID:" + uuid;
                 if (applicationInstRegister.containsKey(key)) {
                     return applicationInstRegister.get(key);

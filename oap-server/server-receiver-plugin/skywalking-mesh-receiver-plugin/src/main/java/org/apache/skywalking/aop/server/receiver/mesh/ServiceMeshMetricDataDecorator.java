@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.Const;
@@ -129,9 +130,9 @@ public class ServiceMeshMetricDataDecorator {
         return newDataBuilder;
     }
 
-    private ServiceInstanceInventory.AgentOsInfo getOSInfoForMesh(String instanceName) {
-        ServiceInstanceInventory.AgentOsInfo osInfo = new ServiceInstanceInventory.AgentOsInfo();
-        osInfo.setHostname(instanceName);
-        return osInfo;
+    private JsonObject getOSInfoForMesh(String instanceName) {
+        JsonObject properties = new JsonObject();
+        properties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, instanceName);
+        return properties;
     }
 }

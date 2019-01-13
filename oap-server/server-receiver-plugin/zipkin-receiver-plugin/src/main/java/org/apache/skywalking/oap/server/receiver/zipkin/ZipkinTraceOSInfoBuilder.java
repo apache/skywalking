@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 
 /**
@@ -25,9 +26,9 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
  */
 public class ZipkinTraceOSInfoBuilder {
 
-    public static ServiceInstanceInventory.AgentOsInfo getOSInfoForZipkin(String instanceName) {
-        ServiceInstanceInventory.AgentOsInfo osInfo = new ServiceInstanceInventory.AgentOsInfo();
-        osInfo.setHostname(instanceName);
-        return osInfo;
+    public static JsonObject getOSInfoForZipkin(String instanceName) {
+        JsonObject properties = new JsonObject();
+        properties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, instanceName);
+        return properties;
     }
 }
