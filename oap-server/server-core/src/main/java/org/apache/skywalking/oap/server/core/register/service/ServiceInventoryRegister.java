@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -91,16 +91,19 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceId;
     }
 
-    @Override public void updateProperties(int serviceId, JsonObject properties) {
+    @Override public void update(int serviceId, NodeType nodeType, JsonObject properties) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
-            serviceInventory = serviceInventory.getClone();
-            serviceInventory.setProperties(properties);
-            serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
+            if (properties != null || !compare(serviceInventory, nodeType)) {
+                serviceInventory = serviceInventory.getClone();
+                serviceInventory.setServiceNodeType(nodeType);
+                serviceInventory.setProperties(properties);
+                serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 
-            InventoryProcess.INSTANCE.in(serviceInventory);
+                InventoryProcess.INSTANCE.in(serviceInventory);
+            }
         } else {
-            logger.warn("Service {} properties update, but not found in storage.", serviceId);
+            logger.warn("Service {} nodeType/properties update, but not found in storage.", serviceId);
         }
     }
 
@@ -127,5 +130,12 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         } else {
             logger.warn("Service {} mapping update, but not found in storage.", serviceId);
         }
+    }
+
+    private boolean compare(ServiceInventory newServiceInventory, NodeType nodeType) {
+        if (Objects.nonNull(newServiceInventory)) {
+            return nodeType.equals(newServiceInventory.getServiceNodeType());
+        }
+        return true;
     }
 }
