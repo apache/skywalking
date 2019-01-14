@@ -45,19 +45,19 @@
         <dependency>
             <groupId>io.shardingsphere</groupId>
             <artifactId>sharding-core</artifactId>
-            <version>[3.0.0,)</version>
+            <version>[3.0.0,4.0.0)</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.shardingsphere</groupId>
             <artifactId>sharding-jdbc-core</artifactId>
-            <version>[3.0.0,)</version>
+            <version>[3.0.0,4.0.0)</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.shardingsphere</groupId>
             <artifactId>sharding-proxy</artifactId>
-            <version>[3.0.0,)</version>
+            <version>[3.0.0,4.0.0)</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
