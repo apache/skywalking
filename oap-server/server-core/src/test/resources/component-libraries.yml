@@ -129,6 +129,9 @@ h2-jdbc-driver:
 mysql-connector-java:
   id: 33
   languages: Java
+ojdbc:
+  id: 34
+  languages: Java
 Spymemcached:
   id: 35
   languages: Java
@@ -173,6 +176,9 @@ transport-client:
   languages: Java
 Undertow:
   id: 49
+  languages: Java
+Redisson:
+  id: 56
   languages: Java
 
 # .NET/.NET Core components
@@ -255,6 +261,7 @@ Component-Server-Mappings:
   h2-jdbc-driver: H2
   mysql-connector-java: Mysql
   Jedis: Redis
+  Redisson: Redis
   StackExchange.Redis: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL

@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng
  */
-public class StorageAnnotationListener implements AnnotationListener, IModelGetter {
+public class StorageAnnotationListener implements AnnotationListener, IModelGetter, IModelOverride {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageAnnotationListener.class);
 
@@ -70,7 +71,7 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                modelColumns.add(new ModelColumn(new ColumnName(column.columnName(), column.columnName()), field.getType(), column.matchQuery()));
+                modelColumns.add(new ModelColumn(new ColumnName(column.columnName()), field.getType(), column.matchQuery()));
                 if (logger.isDebugEnabled()) {
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
@@ -83,5 +84,18 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         if (Objects.nonNull(clazz.getSuperclass())) {
             retrieval(clazz.getSuperclass(), modelName, modelColumns);
         }
+    }
+
+    @Override public void overrideColumnName(String columnName, String newName) {
+        models.forEach(model -> {
+            model.getColumns().forEach(column -> {
+                ColumnName existColumnName = column.getColumnName();
+                String name = existColumnName.getName();
+                if (name.equals(columnName)) {
+                    existColumnName.setStorageName(newName);
+                    logger.debug("Model {} column {} has been override. The new column name is {}.", model.getName(), name, newName);
+                }
+            });
+        });
     }
 }

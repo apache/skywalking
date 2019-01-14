@@ -94,21 +94,18 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             serviceIdMatchSql.append(")");
         }
         List<Call> calls = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, "select "
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
-                    + " component_id from " + tableName + " where "
+                    + " from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? "
                     + serviceIdMatchSql.toString()
                     + " group by " + Indicator.ENTITY_ID,
-                conditions);
-            buildCalls(resultSet, calls, isClientSide);
+                conditions)) {
+                buildCalls(resultSet, calls, isClientSide);
+            }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return calls;
     }
@@ -119,22 +116,19 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         conditions[0] = startTB;
         conditions[1] = endTB;
         conditions[2] = id;
-        Connection connection = null;
         List<Call> calls = new ArrayList<>();
-        try {
-            connection = h2Client.getConnection();
-            ResultSet resultSet = h2Client.executeQuery(connection, "select "
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select "
                     + Indicator.ENTITY_ID
                     + " from " + tableName + " where "
                     + Indicator.TIME_BUCKET + ">= ? and " + Indicator.TIME_BUCKET + "<=? and "
                     + (isSourceId ? sourceCName : destCName) + "=?"
                     + " group by " + Indicator.ENTITY_ID,
-                conditions);
-            buildCalls(resultSet, calls, isSourceId);
+                conditions)) {
+                buildCalls(resultSet, calls, isSourceId);
+            }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return calls;
     }

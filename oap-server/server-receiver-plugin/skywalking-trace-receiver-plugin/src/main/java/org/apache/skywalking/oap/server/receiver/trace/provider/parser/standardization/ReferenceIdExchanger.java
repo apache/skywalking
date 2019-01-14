@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
 import org.slf4j.*;
 
@@ -54,7 +54,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         if (standardBuilder.getEntryEndpointId() == 0) {
-            String entryEndpointName = StringUtils.isNotEmpty(standardBuilder.getEntryEndpointName()) ? standardBuilder.getEntryEndpointName() : Const.DOMAIN_OPERATION_NAME;
+            String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
             int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), entryEndpointName, DetectPoint.SERVER.ordinal());
 
             if (entryEndpointId == 0) {
@@ -71,7 +71,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentEndpointId() == 0) {
-            String parentEndpointName = StringUtils.isNotEmpty(standardBuilder.getParentEndpointName()) ? standardBuilder.getParentEndpointName() : Const.DOMAIN_OPERATION_NAME;
+            String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getParentEndpointName();
             int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId(), parentEndpointName, DetectPoint.SERVER.ordinal());
 
             if (parentEndpointId == 0) {
@@ -87,12 +87,12 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             }
         }
 
-        if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getNetworkAddress());
+        if (standardBuilder.getNetworkAddressId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getNetworkAddress())) {
+            int networkAddressId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getNetworkAddress(), null);
 
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("network address: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
+                    logger.debug("network getAddress: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
                 }
                 return false;
             } else {

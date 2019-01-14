@@ -16,22 +16,32 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
-
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
-import org.junit.After;
-import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 public class SnifferConfigInitializerTest {
+    /**
+     * The EnvironmentVariables rule allows you to set environment variables for your test. All changes to environment
+     * variables are reverted after the test.
+     */
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
+        .set("AGENT_SERVICE_NAME", "testAppFromSystemEnv").set("AGENT_COLLECTOR_SERVER", "localhost:11111");
 
     @Test
     public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
@@ -62,6 +72,21 @@ public class SnifferConfigInitializerTest {
         assertThat(Config.Agent.SERVICE_NAME, is("testAppFromAgentOptions"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.DEBUG));
+    }
+
+    @Test
+    public void testConfigOverridingFromSystemEnv() throws IllegalAccessException {
+        Properties properties = new Properties();
+        properties.put("agent.service_name", "${AGENT_SERVICE_NAME:testAppFromSystem}");
+        properties.put("collector.backend_service", "${AGENT_COLLECTOR_SERVER:127.0.0.1:8090}");
+        properties.put("logging.level", "INFO");
+        PropertyPlaceholderHelper placeholderHelper = PropertyPlaceholderHelper.INSTANCE;
+        properties.put("agent.service_name", placeholderHelper.replacePlaceholders((String)properties.get("agent.service_name"), properties));
+        properties.put("collector.backend_service", placeholderHelper.replacePlaceholders((String)properties.get("collector.backend_service"), properties));
+        ConfigInitializer.initialize(properties, Config.class);
+        assertThat(Config.Agent.SERVICE_NAME, is("testAppFromSystemEnv"));
+        assertThat(Config.Collector.BACKEND_SERVICE, is("localhost:11111"));
+        assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @Test

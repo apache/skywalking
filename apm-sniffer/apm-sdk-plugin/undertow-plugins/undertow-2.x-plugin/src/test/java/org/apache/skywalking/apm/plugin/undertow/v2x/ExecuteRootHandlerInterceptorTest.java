@@ -18,6 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.ServerConnection;
+import io.undertow.util.HeaderMap;
+import io.undertow.util.HttpString;
+import java.net.InetSocketAddress;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -25,7 +32,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
@@ -46,15 +53,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.server.ServerConnection;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.HttpString;
 
 import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.hamcrest.CoreMatchers.is;
@@ -147,7 +145,7 @@ public class ExecuteRootHandlerInterceptorTest {
 
         assertThat(spans.size(), is(1));
 
-        List<KeyValuePair> tags = SpanHelper.getTags(spans.get(0));
+        List<TagValuePair> tags = SpanHelper.getTags(spans.get(0));
         assertThat(tags.size(), is(3));
         assertThat(tags.get(2).getValue(), is("500"));
 

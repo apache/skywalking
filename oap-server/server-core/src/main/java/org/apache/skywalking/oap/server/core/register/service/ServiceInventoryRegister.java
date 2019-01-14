@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -50,7 +51,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceInventoryCache;
     }
 
-    @Override public int getOrCreate(String serviceName) {
+    @Override public int getOrCreate(String serviceName, JsonObject properties) {
         int serviceId = getServiceInventoryCache().getServiceId(serviceName);
 
         if (serviceId == Const.NONE) {
@@ -64,13 +65,14 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setHeartbeatTime(now);
             serviceInventory.setMappingServiceId(Const.NONE);
             serviceInventory.setMappingLastUpdateTime(now);
+            serviceInventory.setProperties(properties);
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         }
         return serviceId;
     }
 
-    @Override public int getOrCreate(int addressId, String serviceName) {
+    @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
         int serviceId = getServiceInventoryCache().getServiceId(addressId);
 
         if (serviceId == Const.NONE) {
@@ -89,14 +91,31 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceId;
     }
 
+    @Override public void update(int serviceId, NodeType nodeType, JsonObject properties) {
+        ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
+        if (Objects.nonNull(serviceInventory)) {
+            if (properties != null || !compare(serviceInventory, nodeType)) {
+                serviceInventory = serviceInventory.getClone();
+                serviceInventory.setServiceNodeType(nodeType);
+                serviceInventory.setProperties(properties);
+                serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
+
+                InventoryProcess.INSTANCE.in(serviceInventory);
+            }
+        } else {
+            logger.warn("Service {} nodeType/properties update, but not found in storage.", serviceId);
+        }
+    }
+
     @Override public void heartbeat(int serviceId, long heartBeatTime) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
+            serviceInventory = serviceInventory.getClone();
             serviceInventory.setHeartbeatTime(heartBeatTime);
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         } else {
-            logger.warn("Service {} heartbeat, but not found in storage.");
+            logger.warn("Service {} heartbeat, but not found in storage.", serviceId);
         }
     }
 
@@ -109,7 +128,14 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
             InventoryProcess.INSTANCE.in(serviceInventory);
         } else {
-            logger.warn("Service {} mapping update, but not found in storage.");
+            logger.warn("Service {} mapping update, but not found in storage.", serviceId);
         }
+    }
+
+    private boolean compare(ServiceInventory newServiceInventory, NodeType nodeType) {
+        if (Objects.nonNull(newServiceInventory)) {
+            return nodeType.equals(newServiceInventory.getServiceNodeType());
+        }
+        return true;
     }
 }

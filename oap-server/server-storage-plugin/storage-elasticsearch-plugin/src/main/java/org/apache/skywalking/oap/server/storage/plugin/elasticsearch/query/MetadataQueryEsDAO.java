@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.common.base.Strings;
+import com.google.gson.*;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -25,7 +27,7 @@ import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.*;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -33,10 +35,13 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
+
 /**
  * @author peng-yongsheng
  */
 public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
+    private static final Gson GSON = new Gson();
 
     public MetadataQueryEsDAO(ElasticSearchClient client) {
         super(client);
@@ -71,17 +76,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return (int)response.getHits().getTotalHits();
     }
 
-    @Override public int numOfConjectural(long startTimestamp, long endTimestamp, int srcLayer) throws IOException {
+    @Override
+    public int numOfConjectural(long startTimestamp, long endTimestamp, int nodeTypeValue) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(NetworkAddressInventory.SRC_LAYER, srcLayer));
-
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(NetworkAddressInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
 
         return (int)response.getHits().getTotalHits();
     }
@@ -111,7 +113,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
 
-        if (StringUtils.isNotEmpty(keyword)) {
+        if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(ServiceInventory.NAME);
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
         }
@@ -143,7 +145,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
 
-        if (StringUtils.isNotEmpty(keyword)) {
+        if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(EndpointInventory.NAME);
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
         }
@@ -189,23 +191,31 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(String.valueOf(sourceAsMap.get(ServiceInstanceInventory.SEQUENCE)));
             serviceInstance.setName((String)sourceAsMap.get(ServiceInstanceInventory.NAME));
-            int languageId = ((Number)sourceAsMap.get(ServiceInstanceInventory.LANGUAGE)).intValue();
-            serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(languageId));
 
-            String osName = (String)sourceAsMap.get(ServiceInstanceInventory.OS_NAME);
-            if (StringUtils.isNotEmpty(osName)) {
-                serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.OS_NAME, osName));
-            }
-            String hostName = (String)sourceAsMap.get(ServiceInstanceInventory.HOST_NAME);
-            if (StringUtils.isNotEmpty(hostName)) {
-                serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.HOST_NAME, hostName));
-            }
-            serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PROCESS_NO, String.valueOf(((Number)sourceAsMap.get(ServiceInstanceInventory.PROCESS_NO)).intValue())));
+            String propertiesString = (String)sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
+            if (!Strings.isNullOrEmpty(propertiesString)) {
+                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+                if (properties.has(LANGUAGE)) {
+                    serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(properties.get(LANGUAGE).getAsString()));
+                }
 
-            List<String> ipv4s = ServiceInstanceInventory.AgentOsInfo.ipv4sDeserialize((String)sourceAsMap.get(ServiceInstanceInventory.IPV4S));
-            for (String ipv4 : ipv4s) {
-                serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.IPV4S, ipv4));
+                if (properties.has(OS_NAME)) {
+                    serviceInstance.getAttributes().add(new Attribute(OS_NAME, properties.get(OS_NAME).getAsString()));
+                }
+                if (properties.has(HOST_NAME)) {
+                    serviceInstance.getAttributes().add(new Attribute(HOST_NAME, properties.get(HOST_NAME).getAsString()));
+                }
+                if (properties.has(PROCESS_NO)) {
+                    serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, properties.get(PROCESS_NO).getAsString()));
+                }
+                if (properties.has(IPV4S)) {
+                    List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
+                    for (String ipv4 : ipv4s) {
+                        serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
+                    }
+                }
             }
+
             serviceInstances.add(serviceInstance);
         }
 

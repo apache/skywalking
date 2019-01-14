@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.*;
@@ -36,12 +37,20 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
 
     private final ModuleManager moduleManager;
+    private ServiceInventoryCache serviceInventoryCache;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IServiceInventoryRegister serviceInventoryRegister;
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     public NetworkAddressInventoryRegister(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+    }
+
+    private ServiceInventoryCache getServiceInventoryCache() {
+        if (isNull(serviceInventoryCache)) {
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        }
+        return this.serviceInventoryCache;
     }
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
@@ -65,11 +74,11 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         return this.serviceInstanceInventoryRegister;
     }
 
-    @Override public int getOrCreate(String networkAddress) {
+    @Override public int getOrCreate(String networkAddress, JsonObject properties) {
         int addressId = getNetworkAddressInventoryCache().getAddressId(networkAddress);
 
         if (addressId != Const.NONE) {
-            int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress);
+            int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress, properties);
 
             if (serviceId != Const.NONE) {
                 int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, addressId, System.currentTimeMillis());
@@ -99,29 +108,30 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     @Override public void heartbeat(int addressId, long heartBeatTime) {
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
         if (Objects.nonNull(networkAddress)) {
+            networkAddress = networkAddress.getClone();
             networkAddress.setHeartbeatTime(heartBeatTime);
 
             InventoryProcess.INSTANCE.in(networkAddress);
         } else {
-            logger.warn("Network address {} heartbeat, but not found in storage.");
+            logger.warn("Network getAddress {} heartbeat, but not found in storage.", addressId);
         }
     }
 
-    @Override public void update(int addressId, int srcLayer) {
-        if (!this.compare(addressId, srcLayer)) {
-            NetworkAddressInventory newNetworkAddress = getNetworkAddressInventoryCache().get(addressId);
-            newNetworkAddress.setSrcLayer(srcLayer);
+    @Override public void update(int addressId, NodeType nodeType) {
+        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+
+        if (!this.compare(networkAddress, nodeType)) {
+            NetworkAddressInventory newNetworkAddress = networkAddress.getClone();
+            newNetworkAddress.setNetworkAddressNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
             InventoryProcess.INSTANCE.in(newNetworkAddress);
         }
     }
 
-    private boolean compare(int addressId, int srcLayer) {
-        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
-
-        if (Objects.nonNull(networkAddress)) {
-            return srcLayer == networkAddress.getSrcLayer();
+    private boolean compare(NetworkAddressInventory newNetworkAddress, NodeType nodeType) {
+        if (Objects.nonNull(newNetworkAddress)) {
+            return nodeType.equals(newNetworkAddress.getNetworkAddressNodeType());
         }
         return true;
     }

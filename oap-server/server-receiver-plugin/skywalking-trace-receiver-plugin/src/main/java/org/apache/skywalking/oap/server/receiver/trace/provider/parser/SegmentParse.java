@@ -19,32 +19,18 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import lombok.Setter;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.ReferenceIdExchanger;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanIdExchanger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -58,6 +44,9 @@ public class SegmentParse {
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
     @Setter private SegmentStandardizationWorker standardizationWorker;
+    private volatile static CounterMetric TRACE_BUFFER_FILE_RETRY;
+    private volatile static CounterMetric TRACE_BUFFER_FILE_OUT;
+    private volatile static CounterMetric TRACE_PARSE_ERROR;
 
     private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
         this.moduleManager = moduleManager;
@@ -67,6 +56,14 @@ public class SegmentParse {
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
         this.segmentCoreInfo.setV2(false);
+
+        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        TRACE_BUFFER_FILE_RETRY = metricCreator.createCounter("v5_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        TRACE_BUFFER_FILE_OUT = metricCreator.createCounter("v5_trace_buffer_file_out", "The number of trace segment out of the buffer file",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        TRACE_PARSE_ERROR = metricCreator.createCounter("v5_trace_parse_error", "The number of trace segment out of the buffer file",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
 
     public boolean parse(UpstreamSegment segment, Source source) {
@@ -85,16 +82,21 @@ public class SegmentParse {
 
                 if (source.equals(Source.Agent)) {
                     writeToBufferFile(segmentCoreInfo.getSegmentId(), segment);
+                } else {
+                    // from SegmentSource.Buffer
+                    TRACE_BUFFER_FILE_RETRY.inc();
                 }
                 return false;
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
                 }
+                TRACE_BUFFER_FILE_OUT.inc();
                 notifyListenerToBuild();
                 return true;
             }
         } catch (Throwable e) {
+            TRACE_PARSE_ERROR.inc();
             logger.error(e.getMessage(), e);
             return true;
         }
@@ -255,7 +257,12 @@ public class SegmentParse {
         @Override public boolean call(UpstreamSegment segment) {
             SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
             segmentParse.setStandardizationWorker(standardizationWorker);
-            return segmentParse.parse(segment, Source.Buffer);
+            boolean parseResult = segmentParse.parse(segment, Source.Buffer);
+            if (parseResult) {
+                segmentParse.TRACE_BUFFER_FILE_OUT.inc();
+            }
+
+            return parseResult;
         }
     }
 }

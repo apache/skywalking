@@ -44,35 +44,52 @@ public abstract class ModelInstaller {
         DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
 
         List<Model> models = modelGetter.getModels();
-        List<Model> downsamplingModels = new ArrayList<>();
+        List<Model> allModels = new ArrayList<>();
         models.forEach(model -> {
             if (model.isIndicator()) {
                 if (downsamplingConfigService.shouldToHour()) {
-                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
                 }
                 if (downsamplingConfigService.shouldToDay()) {
-                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName()));
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName()));
                 }
                 if (downsamplingConfigService.shouldToMonth()) {
-                    downsamplingModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName()));
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName()));
                 }
             }
         });
-        downsamplingModels.addAll(models);
+        allModels.addAll(models);
 
         boolean debug = System.getProperty("debug") != null;
 
-        for (Model model : downsamplingModels) {
-            if (!isExists(client, model)) {
-                logger.info("table: {} does not exist", model.getName());
-                createTable(client, model);
-            } else if (debug) {
-                logger.info("table: {} exists", model.getName());
-                deleteTable(client, model);
-                createTable(client, model);
+        if (RunningMode.isNoInitMode()) {
+            for (Model model : allModels) {
+                while (!isExists(client, model)) {
+                    try {
+                        logger.info("table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.", model.getName());
+                        Thread.sleep(3000L);
+                    } catch (InterruptedException e) {
+                    }
+                }
             }
-            columnCheck(client, model);
+        } else {
+            for (Model model : allModels) {
+                if (!isExists(client, model)) {
+                    logger.info("table: {} does not exist", model.getName());
+                    createTable(client, model);
+                } else if (debug) {
+                    logger.info("table: {} exists", model.getName());
+                    deleteTable(client, model);
+                    createTable(client, model);
+                }
+                columnCheck(client, model);
+            }
         }
+    }
+
+    public final void overrideColumnName(String columnName, String newName) {
+        IModelOverride modelOverride = moduleManager.find(CoreModule.NAME).provider().getService(IModelOverride.class);
+        modelOverride.overrideColumnName(columnName, newName);
     }
 
     protected abstract boolean isExists(Client client, Model model) throws StorageException;

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.0.0-GA-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -32,6 +32,7 @@
         <module>jdbc-commons</module>
         <module>httpClient-4.x-plugin</module>
         <module>jedis-2.x-plugin</module>
+        <module>redisson-3.x-plugin</module>
         <module>tomcat-7.x-8.x-plugin</module>
         <module>motan-plugin</module>
         <module>mongodb-3.x-plugin</module>
@@ -61,6 +62,9 @@
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
         <module>undertow-plugins</module>
+        <module>rabbitmq-5.x-plugin</module>
+        <module>dubbo-conflict-patch</module>
+        <module>canal-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

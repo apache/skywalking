@@ -30,7 +30,7 @@ The core features are following.
 - Alarm
 
 
-<img src="https://skywalkingtest.github.io/page-resources/6-alpha-overview.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/6-beta-overview.png"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats, 
@@ -86,7 +86,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
 * Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
-* Mail list: dev@skywalking.apache.org
+* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
 
@@ -94,14 +94,27 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-11-02.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2019-01-10.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
+
+# Landscapes
+
+<p align="center">
+<br/><br/>
+<img src="https://landscape.cncf.io/images/left-logo.svg" width="150"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="200"/>
+<br/><br/>
+SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.
+
+</p>
 
 <p align="center">
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a> 
   <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
+
+# Stargazers over time
+[![Stargazers over time](https://starcharts.herokuapp.com/apache/incubator-skywalking.svg)](https://starcharts.herokuapp.com/apache/incubator-skywalking)
 
 # License
 [Apache 2.0 License.](/LICENSE)

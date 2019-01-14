@@ -18,27 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import lombok.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordType;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * @author peng-yongsheng
  */
 @RecordType
-@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, deleteHistory = false, source = Scope.Segment)
+@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, source = Scope.Segment)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";
@@ -57,7 +52,7 @@ public class SegmentRecord extends Record {
     @Setter @Getter @Column(columnName = SEGMENT_ID) @IDColumn private String segmentId;
     @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
     @Setter @Getter @Column(columnName = SERVICE_ID) @IDColumn private int serviceId;
-    @Setter @Getter @Column(columnName = ENDPOINT_NAME) @IDColumn private String endpointName;
+    @Setter @Getter @Column(columnName = ENDPOINT_NAME, matchQuery = true) @IDColumn private String endpointName;
     @Setter @Getter @Column(columnName = ENDPOINT_ID) @IDColumn private int endpointId;
     @Setter @Getter @Column(columnName = START_TIME) @IDColumn private long startTime;
     @Setter @Getter @Column(columnName = END_TIME) @IDColumn private long endTime;

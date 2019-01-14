@@ -22,13 +22,23 @@ package org.apache.skywalking.apm.agent.core.context.tag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 public abstract class AbstractTag<T> {
+
+    private int id;
+
+    private boolean canOverwrite;
     /**
      * The key of this Tag.
      */
     protected final String key;
 
-    public AbstractTag(String tagKey) {
+    public AbstractTag(int id, String tagKey, boolean canOverwrite) {
+        this.id = id;
         this.key = tagKey;
+        this.canOverwrite = canOverwrite;
+    }
+
+    public AbstractTag(String key) {
+        this(-1, key, false);
     }
 
     protected abstract void set(AbstractSpan span, T tagValue);
@@ -38,5 +48,17 @@ public abstract class AbstractTag<T> {
      */
     public String key() {
         return this.key;
+    }
+
+    public boolean sameWith(AbstractTag<T> tag) {
+        return canOverwrite && tag.id == tag.id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isCanOverwrite() {
+        return canOverwrite;
     }
 }

@@ -18,18 +18,18 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc;
 
+import com.google.common.base.Strings;
+import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
 /**
@@ -55,11 +55,12 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
     public void registerInstance(ApplicationInstance request,
         StreamObserver<ApplicationInstanceMapping> responseObserver) {
         OSInfo osinfo = request.getOsinfo();
-        ServiceInstanceInventory.AgentOsInfo agentOsInfo = new ServiceInstanceInventory.AgentOsInfo();
-        agentOsInfo.setHostname(osinfo.getHostname());
-        agentOsInfo.setOsName(osinfo.getOsName());
-        agentOsInfo.setProcessNo(osinfo.getProcessNo());
-        agentOsInfo.getIpv4s().addAll(osinfo.getIpv4SList());
+
+        JsonObject instanceProperties = new JsonObject();
+        instanceProperties.addProperty(PropertyUtil.HOST_NAME, osinfo.getHostname());
+        instanceProperties.addProperty(PropertyUtil.OS_NAME, osinfo.getOsName());
+        instanceProperties.addProperty(PropertyUtil.PROCESS_NO, osinfo.getProcessNo() + "");
+        instanceProperties.addProperty(PropertyUtil.IPV4S, PropertyUtil.ipv4sSerialize(osinfo.getIpv4SList()));
 
         ServiceInventory serviceInventory = serviceInventoryCache.get(request.getApplicationId());
 
@@ -67,11 +68,11 @@ public class InstanceDiscoveryServiceHandler extends InstanceDiscoveryServiceGrp
         if (osinfo.getProcessNo() != 0) {
             instanceName += "-pid:" + osinfo.getProcessNo();
         }
-        if (StringUtils.isNotEmpty(osinfo.getHostname())) {
+        if (!Strings.isNullOrEmpty(osinfo.getHostname())) {
             instanceName += "@" + osinfo.getHostname();
         }
 
-        int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(request.getApplicationId(), instanceName, request.getAgentUUID(), request.getRegisterTime(), agentOsInfo);
+        int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(request.getApplicationId(), instanceName, request.getAgentUUID(), request.getRegisterTime(), instanceProperties);
         ApplicationInstanceMapping.Builder builder = ApplicationInstanceMapping.newBuilder();
         builder.setApplicationId(request.getApplicationId());
         builder.setApplicationInstanceId(serviceInstanceId);

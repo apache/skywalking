@@ -18,44 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
-import java.util.Objects;
-import lombok.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
 
 /**
  * @author peng-yongsheng
  */
+@Getter
 public class RemoteInstance implements Comparable<RemoteInstance> {
 
-    @Getter private final String host;
-    @Getter private final int port;
-    @Getter @Setter private boolean isSelf = false;
+    private final Address address;
 
-    public RemoteInstance(String host, int port, boolean isSelf) {
-        this.host = host;
-        this.port = port;
-        this.isSelf = isSelf;
-    }
-
-    @Override public int compareTo(RemoteInstance o) {
-        return toString().compareTo(o.toString());
+    public RemoteInstance(Address address) {
+        this.address = address;
     }
 
     @Override public String toString() {
-        return host + ":" + String.valueOf(port);
+        return address.toString();
     }
 
-    @Override public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        RemoteInstance instance = (RemoteInstance)o;
-        return port == instance.port &&
-            Objects.equals(host, instance.host);
-    }
-
-    @Override public int hashCode() {
-
-        return Objects.hash(host, port);
+    @Override public int compareTo(RemoteInstance o) {
+        return this.address.compareTo(o.getAddress());
     }
 }

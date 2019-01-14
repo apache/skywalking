@@ -3,12 +3,13 @@
   * [Tomcat](https://github.com/apache/tomcat) 8
   * [Tomcat](https://github.com/apache/tomcat) 9
   * [Spring Boot](https://github.com/spring-projects/spring-boot) Web 4.x
-  * Spring MVC 3.x, 4.x with servlet 3.x
+  * Spring MVC 3.x, 4.x 5.x with servlet 3.x
   * [Nutz Web Framework](https://github.com/nutzam/nutz)  1.x
   * [Struts2 MVC](http://struts.apache.org/)  2.3.x -> 2.5.x
   * [Resin](http://www.caucho.com/resin-4.0/) 3 (Optional¹)
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
+  * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
@@ -35,9 +36,11 @@
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
   * [ActiveMQ](https://github.com/apache/activemq) 5.x
+  * [RabbitMQ](https://www.rabbitmq.com/) 5.x
 * NoSQL
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
+    * [Redisson](https://github.com/redisson/redisson) Easy Java Redis client 3.5.2+
   * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.3+
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
@@ -53,6 +56,9 @@
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
 * OpenTracing community supported
+* [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
+* JSON
+  * [GSON](https://github.com/google/gson) 2.8.x (Optional²)
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [OpenSkywalking java plugin extension repository](https://github.com/OpenSkywalking/java-plugin-extensions) to get these.

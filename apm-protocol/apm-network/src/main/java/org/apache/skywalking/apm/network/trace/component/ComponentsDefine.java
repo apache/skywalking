@@ -100,7 +100,17 @@ public class ComponentsDefine {
 
     public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
 
-    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(51, "ShardingSphere");
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52,"rabbitmq-producer");
+
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
+
+    public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
+  
+    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
+  
+    public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
+
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(57, "ShardingSphere");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -149,6 +159,11 @@ public class ComponentsDefine {
         addComponent(ACTIVEMQ_PRODUCER);
         addComponent(ACTIVEMQ_CONSUMER);
         addComponent(UNDERTOW);
+        addComponent(RABBITMQ_PRODUCER);
+        addComponent(RABBITMQ_CONSUMER);
+        addComponent(CANAL);
+        addComponent(GSON);
+        addComponent(REDISSON);
     }
 
     private void addComponent(OfficialComponent component) {

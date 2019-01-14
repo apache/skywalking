@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.register.service;
 
+import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -51,7 +52,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
     }
 
     @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
-        ServiceInstanceInventory.AgentOsInfo osInfo) {
+        JsonObject properties) {
         if (logger.isDebugEnabled()) {
             logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {},uuid: {}, registerTime: {}", serviceId, serviceInstanceName, uuid, registerTime);
         }
@@ -69,10 +70,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
             serviceInstanceInventory.setRegisterTime(registerTime);
             serviceInstanceInventory.setHeartbeatTime(registerTime);
 
-            serviceInstanceInventory.setOsName(osInfo.getOsName());
-            serviceInstanceInventory.setHostName(osInfo.getHostname());
-            serviceInstanceInventory.setProcessNo(osInfo.getProcessNo());
-            serviceInstanceInventory.setIpv4s(ServiceInstanceInventory.AgentOsInfo.ipv4sSerialize(osInfo.getIpv4s()));
+            serviceInstanceInventory.setProperties(properties);
 
             InventoryProcess.INSTANCE.in(serviceInstanceInventory);
         }
@@ -81,7 +79,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
     @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
         if (logger.isDebugEnabled()) {
-            logger.debug("get or create service instance by address id, service id: {}, address id: {}, registerTime: {}", serviceId, addressId, registerTime);
+            logger.debug("get or create service instance by getAddress id, service id: {}, getAddress id: {}, registerTime: {}", serviceId, addressId, registerTime);
         }
 
         int serviceInstanceId = getServiceInstanceInventoryCache().getServiceInstanceId(serviceId, addressId);
