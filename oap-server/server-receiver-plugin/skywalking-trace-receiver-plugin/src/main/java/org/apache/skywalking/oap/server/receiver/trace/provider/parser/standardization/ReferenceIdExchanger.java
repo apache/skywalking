@@ -55,7 +55,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         if (standardBuilder.getEntryEndpointId() == 0) {
             String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
-            int entryEndpointId = getEndpointId(standardBuilder,entryEndpointName);
+            int entryEndpointId = getEndpointId(standardBuilder, entryEndpointName);
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
                     int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
@@ -71,7 +71,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
         if (standardBuilder.getParentEndpointId() == 0) {
             String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getParentEndpointName();
-            int parentEndpointId = getEndpointId(standardBuilder,parentEndpointName);
+            int parentEndpointId = getEndpointId(standardBuilder, parentEndpointName);
             
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
@@ -104,10 +104,14 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
     
     /**
-     * Get the endpointId,Because the spanType of the refs cannot be obtained
-     * Get it from all possible situations.
-     * Because the local span does not initiate registration in the agent,
-     * and the ref resolves, the string must be encountered. The endpoint cache needs to be looked up, and the data cannot be read at this time.
+     * Endpoint in ref could be local or exit span's operation name.
+     * Especially if it is local span operation name,
+     * exchange may not happen at agent, such as Java agent,
+     * then put literal endpoint string in the header,
+     * Need to try to get the id by assuming the endpoint name is detected at server, local or client.
+     *
+     * If agent does the exchange, then always use endpoint id.
+     * 
      * @param standardBuilder
      * @param endpointName
      * @return
