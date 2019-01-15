@@ -113,17 +113,13 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
      * @return
      */
     private int getEndpointId(ReferenceDecorator standardBuilder,String endpointName) {
-        int endpointId = Const.NONE;
-        for (DetectPoint detectPoint:DetectPoint.values()) {
-            if (detectPoint.equals(DetectPoint.PROXY)) {
-                continue;
-            }
-            endpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), endpointName, detectPoint.ordinal());
-            if (endpointId != Const.NONE) {
-                break;
+        int endpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), endpointName, DetectPoint.SERVER.ordinal());
+        if (endpointId == Const.NONE) {
+            endpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), endpointName, DetectPoint.CLIENT.ordinal());
+            if (endpointId == Const.NONE) {
+                endpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), endpointName, DetectPoint.UNRECOGNIZED.ordinal());
             }
         }
-
         return endpointId;
     }
 }
