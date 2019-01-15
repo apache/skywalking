@@ -55,8 +55,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         if (standardBuilder.getEntryEndpointId() == 0) {
             String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
-            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), entryEndpointName, DetectPoint.SERVER.ordinal());
-
+            int entryEndpointId = getEndpointId(standardBuilder,entryEndpointName);
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
                     int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
@@ -72,8 +71,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
         if (standardBuilder.getParentEndpointId() == 0) {
             String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getParentEndpointName();
-            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId(), parentEndpointName, DetectPoint.SERVER.ordinal());
-
+            int parentEndpointId = getEndpointId(standardBuilder,parentEndpointName);
+            
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
                     int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
@@ -102,5 +101,29 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             }
         }
         return true;
+    }
+    
+    /**
+     * Get the endpointId,Because the spanType of the refs cannot be obtained
+     * Get it from all possible situations.
+     * Because the local span does not initiate registration in the agent,
+     * and the ref resolves, the string must be encountered. The endpoint cache needs to be looked up, and the data cannot be read at this time.
+     * @param standardBuilder
+     * @param endpointName
+     * @return
+     */
+    private int getEndpointId(ReferenceDecorator standardBuilder,String endpointName) {
+        int endpointId = Const.NONE;
+        for (DetectPoint detectPoint:DetectPoint.values()) {
+            if (detectPoint.equals(DetectPoint.PROXY)) {
+                continue;
+            }
+            endpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), endpointName, detectPoint.ordinal());
+            if (endpointId != Const.NONE) {
+                break;
+            }
+        }
+
+        return endpointId;
     }
 }
