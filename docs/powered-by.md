@@ -60,6 +60,8 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
+1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
+1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 
 # User Cases
 ## ke.com
