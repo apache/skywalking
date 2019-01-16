@@ -48,6 +48,7 @@ public class ServiceInventory extends RegisterSource {
     public static final String MAPPING_SERVICE_ID = "mapping_service_id";
     public static final String MAPPING_LAST_UPDATE_TIME = "mapping_last_update_time";
     public static final String PROPERTIES = "properties";
+    private static final Gson GSON = new Gson();
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
@@ -100,7 +101,7 @@ public class ServiceInventory extends RegisterSource {
     private void setProp(String prop) {
         this.prop = prop;
         if (!Strings.isNullOrEmpty(prop)) {
-            this.properties = new Gson().fromJson(prop, JsonObject.class);
+            this.properties = GSON.fromJson(prop, JsonObject.class);
         }
     }
 
