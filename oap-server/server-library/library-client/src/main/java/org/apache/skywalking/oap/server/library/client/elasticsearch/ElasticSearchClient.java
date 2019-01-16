@@ -112,7 +112,7 @@ public class ElasticSearchClient implements Client {
         request.settings(settings);
         request.mapping(TYPE, mappingBuilder);
         CreateIndexResponse response = client.indices().create(request);
-        logger.info("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -121,7 +121,7 @@ public class ElasticSearchClient implements Client {
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         DeleteIndexResponse response;
         response = client.indices().delete(request);
-        logger.info("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        logger.debug("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -196,7 +196,7 @@ public class ElasticSearchClient implements Client {
             "}";
         HttpEntity entity = new NStringEntity(jsonString, ContentType.APPLICATION_JSON);
         Response response = client.getLowLevelClient().performRequest("POST", "/" + indexName + "/_delete_by_query", params, entity);
-        logger.info("delete indexName: {}, jsonString : {}", indexName, jsonString);
+        logger.debug("delete indexName: {}, jsonString : {}", indexName, jsonString);
         return response.getStatusLine().getStatusCode();
     }
 
