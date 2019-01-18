@@ -18,23 +18,12 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.Channel;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
-import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import io.grpc.*;
+import java.util.*;
+import java.util.concurrent.*;
+import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
@@ -81,7 +70,9 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void shutdown() throws Throwable {
-        connectCheckFuture.cancel(true);
+        if (connectCheckFuture != null) {
+            connectCheckFuture.cancel(true);
+        }
         if (managedChannel != null) {
             managedChannel.shutdownNow();
         }

@@ -222,6 +222,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                         JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                         if (properties.has(LANGUAGE)) {
                             serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(properties.get(LANGUAGE).getAsString()));
+                        } else {
+                            serviceInstance.setLanguage(Language.UNKNOWN);
                         }
 
                         if (properties.has(OS_NAME)) {
