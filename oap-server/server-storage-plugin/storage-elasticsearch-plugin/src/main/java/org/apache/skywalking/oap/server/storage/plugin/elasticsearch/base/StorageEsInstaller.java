@@ -18,16 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.io.IOException;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.*;
-import org.slf4j.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * @author peng-yongsheng
@@ -81,9 +86,9 @@ public class StorageEsInstaller extends ModelInstaller {
         Settings settings = createSettingBuilder();
         try {
             mappingBuilder = createMappingBuilder(tableDefine);
-            logger.info("index {}'s mapping builder str: {}", tableDefine.getName(), Strings.toString(mappingBuilder.prettyPrint()));
+            logger.info("index {}'s mapping builder str: {}", esClient.formatIndexName(tableDefine.getName()), Strings.toString(mappingBuilder.prettyPrint()));
         } catch (Exception e) {
-            logger.error("create {} index mapping builder error, error message: {}", tableDefine.getName(), e.getMessage());
+            logger.error("create {} index mapping builder error, error message: {}", esClient.formatIndexName(tableDefine.getName()), e.getMessage());
         }
 
         boolean isAcknowledged;
@@ -92,10 +97,10 @@ public class StorageEsInstaller extends ModelInstaller {
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
-        logger.info("create {} index finished, isAcknowledged: {}", tableDefine.getName(), isAcknowledged);
+        logger.info("create {} index finished, isAcknowledged: {}", esClient.formatIndexName(tableDefine.getName()), isAcknowledged);
 
         if (!isAcknowledged) {
-            throw new StorageException("create " + tableDefine.getName() + " index failure, ");
+            throw new StorageException("create " + esClient.formatIndexName(tableDefine.getName()) + " index failure, ");
         }
     }
 

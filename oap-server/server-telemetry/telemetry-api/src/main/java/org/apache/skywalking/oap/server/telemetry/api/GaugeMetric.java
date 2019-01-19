@@ -23,28 +23,35 @@ package org.apache.skywalking.oap.server.telemetry.api;
  *
  * @author wusheng
  */
-public interface GaugeMetric extends TaggableMetric {
+public interface GaugeMetric {
     /**
-     * Increase 1 to counter
+     * Increase 1 to gauge
      */
     void inc();
 
     /**
-     * Increase the given value to the counter
+     * Increase the given value to the gauge
      *
      * @param value
      */
     void inc(double value);
 
     /**
-     * Decrease 1 to counter
+     * Decrease 1 to gauge
      */
     void dec();
 
     /**
-     * Decrease the given value to the counter
+     * Decrease the given value to the gauge
      *
      * @param value
      */
     void dec(double value);
+
+    /**
+     * Set the given value to the gauge
+     *
+     * @param value
+     */
+    void setValue(double value);
 }

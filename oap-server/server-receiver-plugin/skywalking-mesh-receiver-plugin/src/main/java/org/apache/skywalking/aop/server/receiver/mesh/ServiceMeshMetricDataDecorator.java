@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.Const;
@@ -44,7 +45,7 @@ public class ServiceMeshMetricDataDecorator {
         boolean isRegistered = true;
         sourceServiceId = origin.getSourceServiceId();
         if (sourceServiceId == Const.NONE) {
-            sourceServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getSourceServiceName());
+            sourceServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getSourceServiceName(), null);
             if (sourceServiceId != Const.NONE) {
                 getNewDataBuilder().setSourceServiceId(sourceServiceId);
             } else {
@@ -65,7 +66,7 @@ public class ServiceMeshMetricDataDecorator {
         }
         destServiceId = origin.getDestServiceId();
         if (destServiceId == Const.NONE) {
-            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName());
+            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName(), null);
             if (destServiceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceId(destServiceId);
             } else {
@@ -129,9 +130,9 @@ public class ServiceMeshMetricDataDecorator {
         return newDataBuilder;
     }
 
-    private ServiceInstanceInventory.AgentOsInfo getOSInfoForMesh(String instanceName) {
-        ServiceInstanceInventory.AgentOsInfo osInfo = new ServiceInstanceInventory.AgentOsInfo();
-        osInfo.setHostname(instanceName);
-        return osInfo;
+    private JsonObject getOSInfoForMesh(String instanceName) {
+        JsonObject properties = new JsonObject();
+        properties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, instanceName);
+        return properties;
     }
 }

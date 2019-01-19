@@ -23,9 +23,12 @@ import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGe
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.testing.module.*;
 import org.junit.Assert;
 
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 /**
  * @author peng-yongsheng
@@ -34,7 +37,22 @@ public class GRPCRemoteClientRealClient {
 
     public static void main(String[] args) throws InterruptedException {
         Address address = new Address("localhost", 10000, false);
-        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(new TestClassGetter(), address, 1, 10));
+        ModuleManagerTesting moduleManager = new ModuleManagerTesting();
+        MetricCreator metricCreator = mock(MetricCreator.class);
+        when(metricCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetric() {
+            @Override public void inc() {
+
+            }
+
+            @Override public void inc(double value) {
+
+            }
+        });
+        ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
+        moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+
+        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, new TestClassGetter(), address, 1, 10));
         remoteClient.connect();
 
         for (int i = 0; i < 10000; i++) {

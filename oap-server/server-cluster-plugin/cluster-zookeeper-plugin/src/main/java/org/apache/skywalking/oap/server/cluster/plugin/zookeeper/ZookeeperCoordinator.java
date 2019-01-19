@@ -22,6 +22,7 @@ import java.util.*;
 import org.apache.curator.x.discovery.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.*;
 
 /**
@@ -59,6 +60,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
             serviceCache.start();
 
             this.selfAddress = remoteInstance.getAddress();
+            TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }
