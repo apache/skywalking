@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
@@ -32,19 +32,19 @@ import org.slf4j.*;
 /**
  * @author wusheng, peng-yongsheng
  */
-public class MySQLRegisterLockInstaller {
+public class H2RegisterLockInstaller {
 
-    private static final Logger logger = LoggerFactory.getLogger(MySQLRegisterLockInstaller.class);
+    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockInstaller.class);
 
     static final String LOCK_TABLE_NAME = "register_lock";
 
     /**
-     * In MySQL lock storage, lock table created. The row lock is used in {@link MySQLRegisterTableLockDAO}
+     * In MySQL lock storage, lock table created. The row lock is used in {@link H2RegisterLockDAO}
      *
      * @param client
      * @throws StorageException
      */
-    public void install(Client client, MySQLRegisterTableLockDAO dao) throws StorageException {
+    public void install(Client client, H2RegisterLockDAO dao) throws StorageException {
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + LOCK_TABLE_NAME + " (");
         tableCreateSQL.appendLine("id int PRIMARY KEY, ");

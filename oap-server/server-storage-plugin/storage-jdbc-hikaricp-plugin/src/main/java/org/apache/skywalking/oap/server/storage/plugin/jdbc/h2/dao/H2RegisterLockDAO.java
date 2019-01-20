@@ -18,21 +18,70 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.slf4j.*;
 
 /**
- * No need to create any lock table. In SQL based database, could use `select... for update` to avoid lock table.
+ * In MySQL, use a row lock of LOCK table.
  *
  * @author wusheng, peng-yongsheng
  */
 public class H2RegisterLockDAO implements IRegisterLockDAO {
 
+    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockDAO.class);
+
+    private JDBCHikariCPClient h2Client;
+    private Map<Scope, Connection> onLockingConnection;
+
+    public H2RegisterLockDAO(JDBCHikariCPClient h2Client) {
+        this.h2Client = h2Client;
+        onLockingConnection = new HashMap<>();
+    }
+
+    void init(Scope scope) {
+        if (!onLockingConnection.containsKey(scope)) {
+            onLockingConnection.put(scope, null);
+        }
+    }
+
     @Override public int tryLockAndIncrement(Scope scope) {
+        if (onLockingConnection.containsKey(scope)) {
+            try {
+                Connection connection = h2Client.getTransactionConnection();
+                onLockingConnection.put(scope, connection);
+                ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
+                while (resultSet.next()) {
+                    int sequence = resultSet.getInt("sequence");
+                    sequence++;
+                    h2Client.execute(connection, "update " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scope.ordinal());
+                    return sequence;
+                }
+            } catch (JDBCClientException | SQLException e) {
+                logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
+                logger.error("tryLock error", e);
+                return Const.NONE;
+            }
+        }
         return Const.NONE;
     }
 
     @Override public void releaseLock(Scope scope) {
+        Connection connection = onLockingConnection.get(scope);
+        if (connection != null) {
+            try {
+                connection.commit();
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("release lock failure.", e);
+            } finally {
+                onLockingConnection.put(scope, null);
+            }
+        }
     }
 }
