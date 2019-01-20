@@ -150,7 +150,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
         }
     }
 
-    private synchronized void reCall() {
+    private void reCall() {
         int maxCycle = 10;
         for (int i = 1; i <= maxCycle; i++) {
             if (bufferDataCollection.size() > 0) {
@@ -161,6 +161,12 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                             bufferDataCollection.add(data);
                         }
                     }
+                }
+
+                try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
                 }
             } else {
                 break;

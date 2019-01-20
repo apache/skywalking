@@ -43,10 +43,18 @@ public class RegisterLockInstaller {
     }
 
     public void install() throws StorageException {
+        boolean debug = System.getProperty("debug") != null;
+
         try {
             if (!client.isExistsIndex(RegisterLockIndex.NAME)) {
+                logger.info("table: {} does not exist", RegisterLockIndex.NAME);
+                createIndex();
+            } else if (debug) {
+                logger.info("table: {} exists", RegisterLockIndex.NAME);
+                deleteIndex();
                 createIndex();
             }
+
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
                 Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
                 putIfAbsent(sourceScope.ordinal());
@@ -54,6 +62,10 @@ public class RegisterLockInstaller {
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
+    }
+
+    private void deleteIndex() throws IOException {
+        client.deleteIndex(RegisterLockIndex.NAME);
     }
 
     private void createIndex() throws IOException {
