@@ -57,7 +57,7 @@ public class ApplicationRegisterServletHandler extends JettyJsonHandler {
             JsonArray applicationCodes = gson.fromJson(req.getReader(), JsonArray.class);
             for (int i = 0; i < applicationCodes.size(); i++) {
                 String applicationCode = applicationCodes.get(i).getAsString();
-                int applicationId = serviceInventoryRegister.getOrCreate(applicationCode);
+                int applicationId = serviceInventoryRegister.getOrCreate(applicationCode, null);
                 JsonObject mapping = new JsonObject();
                 mapping.addProperty(APPLICATION_CODE, applicationCode);
                 mapping.addProperty(APPLICATION_ID, applicationId);

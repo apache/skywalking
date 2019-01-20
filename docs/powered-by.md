@@ -19,6 +19,7 @@ or providing commercial products including Apache SkyWalking.
 1. Dangdang.com. 当当网. http://www.dangdang.com/
 1. DaoCloud. https://www.daocloud.io/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
+1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
@@ -43,6 +44,7 @@ or providing commercial products including Apache SkyWalking.
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
 1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com . Integrated in Primeton EOS PLATFORM 8.
+1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
 1. Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
@@ -51,6 +53,7 @@ or providing commercial products including Apache SkyWalking.
 1. Successchannel 苏州渠成易销网络科技有限公司. http://www.successchannel.com
 1. Today36524.com Today便利店
 1. Tsfinance.com 重庆宜迅联供应链科技有限公司 https://www.tsfinance.com.cn/
+1. Tuya. 涂鸦智能. https://www.tuya.com
 1. VBill Payment Co., LTD. 随行付. https://www.vbill.cn/
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 1. Wochu. 我厨买菜. https://www.wochu.cn
@@ -58,7 +61,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
-1. Tuya. 涂鸦智能. https://www.tuya.com
+1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 
 # User Cases
 ## ke.com

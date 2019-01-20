@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import com.google.common.base.Strings;
+import com.google.gson.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
@@ -29,10 +30,14 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
+
 /**
  * @author wusheng
  */
 public class H2MetadataQueryDAO implements IMetadataQueryDAO {
+    private static final Gson GSON = new Gson();
+
     private JDBCHikariCPClient h2Client;
 
     public H2MetadataQueryDAO(JDBCHikariCPClient h2Client) {
@@ -211,22 +216,33 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                     ServiceInstance serviceInstance = new ServiceInstance();
                     serviceInstance.setId(resultSet.getString(ServiceInstanceInventory.SEQUENCE));
                     serviceInstance.setName(resultSet.getString(ServiceInstanceInventory.NAME));
-                    int languageId = resultSet.getInt(ServiceInstanceInventory.LANGUAGE);
-                    serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(languageId));
 
-                    String osName = resultSet.getString(ServiceInstanceInventory.OS_NAME);
-                    if (!Strings.isNullOrEmpty(osName)) {
-                        serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.OS_NAME, osName));
-                    }
-                    String hostName = resultSet.getString(ServiceInstanceInventory.HOST_NAME);
-                    if (!Strings.isNullOrEmpty(hostName)) {
-                        serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.HOST_NAME, hostName));
-                    }
-                    serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PROCESS_NO, resultSet.getString(ServiceInstanceInventory.PROCESS_NO)));
+                    String propertiesString = resultSet.getString(ServiceInstanceInventory.PROPERTIES);
+                    if (!Strings.isNullOrEmpty(propertiesString)) {
+                        JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+                        if (properties.has(LANGUAGE)) {
+                            serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(properties.get(LANGUAGE).getAsString()));
+                        } else {
+                            serviceInstance.setLanguage(Language.UNKNOWN);
+                        }
 
-                    List<String> ipv4s = ServiceInstanceInventory.AgentOsInfo.ipv4sDeserialize(resultSet.getString(ServiceInstanceInventory.IPV4S));
-                    for (String ipv4 : ipv4s) {
-                        serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.IPV4S, ipv4));
+                        if (properties.has(OS_NAME)) {
+                            serviceInstance.getAttributes().add(new Attribute(OS_NAME, properties.get(OS_NAME).getAsString()));
+                        }
+                        if (properties.has(HOST_NAME)) {
+                            serviceInstance.getAttributes().add(new Attribute(HOST_NAME, properties.get(HOST_NAME).getAsString()));
+                        }
+                        if (properties.has(PROCESS_NO)) {
+                            serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, properties.get(PROCESS_NO).getAsString()));
+                        }
+                        if (properties.has(IPV4S)) {
+                            List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
+                            for (String ipv4 : ipv4s) {
+                                serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
+                            }
+                        }
+                    } else {
+                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
 
                     serviceInstances.add(serviceInstance);

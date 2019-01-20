@@ -35,7 +35,7 @@ The core features are following.
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats, 
 including 
-1. Java, .NET Core and NodeJS auto-instrument agents in SkyWalking format
+1. Java, .NET Core, NodeJS and PHP auto-instrument agents in SkyWalking format
 1. Istio telemetry format
 1. Zipkin v1/v2 formats
 
@@ -94,7 +94,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2018-11-30.png"/>
+<img src="https://skywalkingtest.github.io/page-resources/users/users-2019-01-10.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
