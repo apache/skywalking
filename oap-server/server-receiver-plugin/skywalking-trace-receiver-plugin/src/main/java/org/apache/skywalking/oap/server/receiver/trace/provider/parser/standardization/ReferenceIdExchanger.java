@@ -53,6 +53,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
+        boolean exchanged = true;
+
         if (standardBuilder.getEntryEndpointId() == 0) {
             String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
             int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
@@ -61,7 +63,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("entry endpoint name: {} from service id: {} exchange failed", entryEndpointName, entryServiceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setEntryEndpointId(entryEndpointId);
@@ -78,7 +81,8 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("parent endpoint name: {} from service id: {} exchange failed", parentEndpointName, parentServiceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setParentEndpointId(parentEndpointId);
@@ -93,14 +97,15 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("network getAddress: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setNetworkAddressId(networkAddressId);
                 standardBuilder.setNetworkAddress(Const.EMPTY_STRING);
             }
         }
-        return true;
+        return exchanged;
     }
 
     /**
