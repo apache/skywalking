@@ -18,23 +18,22 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * In MySQL, use a row lock of LOCK table.
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
+
     private static final Logger logger = LoggerFactory.getLogger(MySQLRegisterTableLockDAO.class);
 
     private JDBCHikariCPClient h2Client;
@@ -51,21 +50,26 @@ public class MySQLRegisterTableLockDAO implements IRegisterLockDAO {
         }
     }
 
-    @Override public boolean tryLock(Scope scope) {
+    @Override public int tryLockAndIncrement(Scope scope) {
         if (onLockingConnection.containsKey(scope)) {
             try {
                 Connection connection = h2Client.getTransactionConnection();
                 onLockingConnection.put(scope, connection);
                 connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-                h2Client.execute(connection, "select * from " + MySQLRegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
-                return true;
+                ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + MySQLRegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
+                while (resultSet.next()) {
+                    int sequence = resultSet.getInt("sequence");
+                    sequence++;
+                    h2Client.execute(connection, "update " + MySQLRegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scope.ordinal());
+                    return sequence;
+                }
             } catch (JDBCClientException | SQLException e) {
                 logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
                 logger.error("tryLock error", e);
-                return false;
+                return Const.NONE;
             }
         }
-        return false;
+        return Const.NONE;
     }
 
     @Override public void releaseLock(Scope scope) {

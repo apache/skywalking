@@ -18,10 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -30,16 +27,16 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class MySQLRegisterLockInstaller {
-    public static final String LOCK_TABLE_NAME = "register_lock";
 
     private static final Logger logger = LoggerFactory.getLogger(MySQLRegisterLockInstaller.class);
+
+    static final String LOCK_TABLE_NAME = "register_lock";
 
     /**
      * In MySQL lock storage, lock table created. The row lock is used in {@link MySQLRegisterTableLockDAO}
@@ -50,7 +47,8 @@ public class MySQLRegisterLockInstaller {
     public void install(Client client, MySQLRegisterTableLockDAO dao) throws StorageException {
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + LOCK_TABLE_NAME + " (");
-        tableCreateSQL.appendLine("id int  PRIMARY KEY, ");
+        tableCreateSQL.appendLine("id int PRIMARY KEY, ");
+        tableCreateSQL.appendLine("sequence int, ");
         tableCreateSQL.appendLine("name VARCHAR(100)");
         tableCreateSQL.appendLine(")");
 
@@ -66,9 +64,7 @@ public class MySQLRegisterLockInstaller {
                 dao.init(sourceScope);
                 putIfAbsent(h2Client, connection, sourceScope.ordinal(), sourceScope.name());
             }
-        } catch (JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        } catch (SQLException e) {
+        } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
         }
     }
@@ -84,9 +80,10 @@ public class MySQLRegisterLockInstaller {
             throw new StorageException(e.getMessage(), e);
         }
         if (!existed) {
-            try (PreparedStatement statement = connection.prepareStatement("insert into " + LOCK_TABLE_NAME + "(id, name)  values (?, ?)")) {
+            try (PreparedStatement statement = connection.prepareStatement("insert into " + LOCK_TABLE_NAME + "(id, sequence, name)  values (?, ?, ?)")) {
                 statement.setInt(1, scopeId);
-                statement.setString(2, scopeName);
+                statement.setInt(2, 1);
+                statement.setString(3, scopeName);
 
                 statement.execute();
             } catch (SQLException e) {

@@ -18,20 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 
 /**
  * No need to create any lock table. In SQL based database, could use `select... for update` to avoid lock table.
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2RegisterLockDAO implements IRegisterLockDAO {
-    @Override public boolean tryLock(Scope scope) {
-        return true;
+
+    @Override public int tryLockAndIncrement(Scope scope) {
+        return Const.NONE;
     }
 
     @Override public void releaseLock(Scope scope) {
-
     }
 }
