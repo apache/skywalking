@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.library.buffer;
 
 import com.google.protobuf.*;
 import java.io.*;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
@@ -38,6 +38,8 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     private final Offset.ReadOffset readOffset;
     private final Parser<MESSAGE_TYPE> parser;
     private final CallBack<MESSAGE_TYPE> callBack;
+    private final int collectionSize = 100;
+    private final BufferDataCollection<MESSAGE_TYPE> bufferDataCollection;
     private File readingFile;
     private InputStream inputStream;
 
@@ -47,6 +49,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
         this.readOffset = readOffset;
         this.parser = parser;
         this.callBack = callBack;
+        this.bufferDataCollection = new BufferDataCollection<>(collectionSize);
     }
 
     void initialize() {
@@ -114,25 +117,32 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
             }
 
             while (readOffset.getOffset() < readingFile.length()) {
+                BufferData<MESSAGE_TYPE> bufferData = new BufferData<>(parser.parseDelimitedFrom(inputStream));
 
-                MESSAGE_TYPE messageType = parser.parseDelimitedFrom(inputStream);
-                if (messageType != null) {
-                    int i = 0;
-                    while (!callBack.call(messageType)) {
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(500);
-                        } catch (InterruptedException e) {
-                            logger.error(e.getMessage());
-                        }
-
-                        i++;
-                        if (i == 10) {
-                            break;
-                        }
-                    }
-                    final int serialized = messageType.getSerializedSize();
+                if (bufferData.getMessageType() != null) {
+                    boolean isComplete = callBack.call(bufferData);
+                    final int serialized = bufferData.getMessageType().getSerializedSize();
                     final int offset = CodedOutputStream.computeUInt32SizeNoTag(serialized) + serialized;
                     readOffset.setOffset(readOffset.getOffset() + offset);
+
+                    if (!isComplete) {
+                        if (bufferDataCollection.size() == collectionSize) {
+                            reCall();
+                        }
+                        bufferDataCollection.add(bufferData);
+                    }
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("collection size: {}, max size: {}", bufferDataCollection.size(), collectionSize);
+                    }
+                } else if (bufferDataCollection.size() > 0) {
+                    reCall();
+                } else {
+                    try {
+                        TimeUnit.SECONDS.sleep(5);
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -140,7 +150,25 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
         }
     }
 
+    private synchronized void reCall() {
+        int maxCycle = 10;
+        for (int i = 1; i <= maxCycle; i++) {
+            if (bufferDataCollection.size() > 0) {
+                List<BufferData<MESSAGE_TYPE>> bufferDataList = bufferDataCollection.export();
+                for (BufferData<MESSAGE_TYPE> data : bufferDataList) {
+                    if (!callBack.call(data)) {
+                        if (i != maxCycle) {
+                            bufferDataCollection.add(data);
+                        }
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
     public interface CallBack<MESSAGE_TYPE extends GeneratedMessageV3> {
-        boolean call(MESSAGE_TYPE message);
+        boolean call(BufferData<MESSAGE_TYPE> bufferData);
     }
 }
