@@ -55,10 +55,10 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         if (standardBuilder.getEntryEndpointId() == 0) {
             String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
-            int entryEndpointId = getEndpointId(standardBuilder, entryEndpointName);
+            int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
+            int entryEndpointId = getEndpointId(entryServiceId, entryEndpointName);
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
                     logger.debug("entry endpoint name: {} from service id: {} exchange failed", entryEndpointName, entryServiceId);
                 }
                 return false;
@@ -71,11 +71,11 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
         if (standardBuilder.getParentEndpointId() == 0) {
             String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getParentEndpointName();
-            int parentEndpointId = getEndpointId(standardBuilder, parentEndpointName);
-            
+            int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
+            int parentEndpointId = getEndpointId(parentServiceId, parentEndpointName);
+
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
                     logger.debug("parent endpoint name: {} from service id: {} exchange failed", parentEndpointName, parentServiceId);
                 }
                 return false;
@@ -102,7 +102,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
         return true;
     }
-    
+
     /**
      * Endpoint in ref could be local or exit span's operation name.
      * Especially if it is local span operation name,
@@ -111,13 +111,12 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
      * Need to try to get the id by assuming the endpoint name is detected at server, local or client.
      *
      * If agent does the exchange, then always use endpoint id.
-     * 
-     * @param standardBuilder
+     *
+     * @param serviceId
      * @param endpointName
      * @return
      */
-    private int getEndpointId(ReferenceDecorator standardBuilder,String endpointName) {
-        int serviceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
+    private int getEndpointId(int serviceId, String endpointName) {
         int endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.SERVER.ordinal());
         if (endpointId == Const.NONE) {
             endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.CLIENT.ordinal());

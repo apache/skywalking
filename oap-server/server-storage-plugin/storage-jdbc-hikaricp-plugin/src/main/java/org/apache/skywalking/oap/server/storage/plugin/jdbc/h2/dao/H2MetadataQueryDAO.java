@@ -241,6 +241,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                                 serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
                             }
                         }
+                    } else {
+                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
 
                     serviceInstances.add(serviceInstance);
