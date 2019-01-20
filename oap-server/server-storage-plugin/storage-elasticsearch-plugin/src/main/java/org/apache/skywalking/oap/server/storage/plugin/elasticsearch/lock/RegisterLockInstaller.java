@@ -26,10 +26,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnn
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.common.xcontent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -74,6 +72,9 @@ public class RegisterLockInstaller {
             .startObject(RegisterLockIndex.COLUMN_LOCKABLE)
             .field("type", "boolean")
             .endObject()
+            .startObject(RegisterLockIndex.COLUMN_SEQUENCE)
+            .field("type", "integer")
+            .endObject()
             .endObject()
             .endObject();
 
@@ -86,6 +87,7 @@ public class RegisterLockInstaller {
             XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
             builder.field(RegisterLockIndex.COLUMN_EXPIRE, Long.MIN_VALUE);
             builder.field(RegisterLockIndex.COLUMN_LOCKABLE, true);
+            builder.field(RegisterLockIndex.COLUMN_SEQUENCE, 1);
             builder.endObject();
 
             client.forceInsert(RegisterLockIndex.NAME, String.valueOf(scopeId), builder);
