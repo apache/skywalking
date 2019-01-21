@@ -69,7 +69,7 @@ ExitSpan代表一个服务客户端或MQ的生产者，在SkyWalking的早期命
 以下是有关跨线程传播的三个步骤：
 1. 使用`ContextManager＃capture`获取ContextSnapshot对象。
 2. 让子线程以任何方式，通过方法参数或由现有参数携带来访问ContextSnapshot
-3. 在子线程中使用`ContextManager#continies`。
+3. 在子线程中使用`ContextManager#continued`。
 
 ## 核心 API
 ### ContextManager
