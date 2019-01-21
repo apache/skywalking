@@ -70,25 +70,36 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
         if (sources.size() > 1000 || registerSource.getEndOfBatchContext().isEndOfBatch()) {
             sources.values().forEach(source -> {
-                int sequence;
-                if ((sequence = registerLockDAO.tryLockAndIncrement(scope)) != Const.NONE) {
-                    try {
-                        RegisterSource dbSource = registerDAO.get(modelName, source.id());
-                        if (Objects.nonNull(dbSource)) {
-                            if (dbSource.combine(source)) {
-                                registerDAO.forceUpdate(modelName, dbSource);
+                try {
+                    RegisterSource dbSource = registerDAO.get(modelName, source.id());
+                    if (Objects.nonNull(dbSource)) {
+                        if (dbSource.combine(source)) {
+                            registerDAO.forceUpdate(modelName, dbSource);
+                        }
+                    } else {
+                        int sequence;
+                        if ((sequence = registerLockDAO.tryLockAndIncrement(scope)) != Const.NONE) {
+                            try {
+                                dbSource = registerDAO.get(modelName, source.id());
+                                if (Objects.nonNull(dbSource)) {
+                                    if (dbSource.combine(source)) {
+                                        registerDAO.forceUpdate(modelName, dbSource);
+                                    }
+                                } else {
+                                    source.setSequence(sequence);
+                                    registerDAO.forceInsert(modelName, source);
+                                }
+                            } catch (Throwable t) {
+                                logger.error(t.getMessage(), t);
+                            } finally {
+                                registerLockDAO.releaseLock(scope);
                             }
                         } else {
-                            source.setSequence(sequence);
-                            registerDAO.forceInsert(modelName, source);
+                            logger.info("{} inventory register try lock and increment sequence failure.", scope.name());
                         }
-                    } catch (Throwable t) {
-                        logger.error(t.getMessage(), t);
-                    } finally {
-                        registerLockDAO.releaseLock(scope);
                     }
-                } else {
-                    logger.info("{} inventory register try lock and increment sequence failure.", scope.name());
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
                 }
             });
             sources.clear();
