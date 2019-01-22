@@ -41,7 +41,7 @@
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
     * [Redisson](https://github.com/redisson/redisson) Easy Java Redis client 3.5.2+
-    * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x
+    * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x (Optional²)
   * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.3+
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
