@@ -15,7 +15,7 @@ core:
     restHost: 0.0.0.0
     restPort: 12800
     restContextPath: /
-    gRPCHost: 0.0.0.
+    gRPCHost: 0.0.0.0
     gRPCPort: 11800
 ```
 
@@ -35,7 +35,7 @@ core:
     restHost: ${REST_HOST:0.0.0.0}
     restPort: 12800
     restContextPath: /
-    gRPCHost: 0.0.0.
+    gRPCHost: 0.0.0.0
     gRPCPort: 11800
 ```
 
