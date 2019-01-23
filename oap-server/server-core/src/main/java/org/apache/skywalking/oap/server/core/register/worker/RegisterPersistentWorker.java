@@ -78,7 +78,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                         }
                     } else {
                         int sequence;
-                        if ((sequence = registerLockDAO.tryLockAndIncrement(scope)) != Const.NONE) {
+                        if ((sequence = registerLockDAO.lockAndGetId(scope)) != Const.NONE) {
                             try {
                                 dbSource = registerDAO.get(modelName, source.id());
                                 if (Objects.nonNull(dbSource)) {
@@ -91,8 +91,6 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                                 }
                             } catch (Throwable t) {
                                 logger.error(t.getMessage(), t);
-                            } finally {
-                                registerLockDAO.releaseLock(scope);
                             }
                         } else {
                             logger.info("{} inventory register try lock and increment sequence failure.", scope.name());

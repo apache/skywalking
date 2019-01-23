@@ -44,34 +44,38 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         this.timeout = timeout;
     }
 
-    @Override public int tryLockAndIncrement(Scope scope) {
-        String id = String.valueOf(scope.ordinal());
-
-        int sequence = Const.NONE;
+    @Override public int lockAndGetId(Scope scope) {
         try {
-            GetResponse response = getClient().get(RegisterLockIndex.NAME, id);
-            if (response.isExists()) {
-                Map<String, Object> source = response.getSource();
+            String id = String.valueOf(scope.ordinal());
 
-                long expire = ((Number)source.get(RegisterLockIndex.COLUMN_EXPIRE)).longValue();
-                boolean lockable = (boolean)source.get(RegisterLockIndex.COLUMN_LOCKABLE);
-                sequence = ((Number)source.get(RegisterLockIndex.COLUMN_SEQUENCE)).intValue();
-                long version = response.getVersion();
+            int sequence = Const.NONE;
+            try {
+                GetResponse response = getClient().get(RegisterLockIndex.NAME, id);
+                if (response.isExists()) {
+                    Map<String, Object> source = response.getSource();
 
-                sequence++;
+                    long expire = ((Number)source.get(RegisterLockIndex.COLUMN_EXPIRE)).longValue();
+                    boolean lockable = (boolean)source.get(RegisterLockIndex.COLUMN_LOCKABLE);
+                    sequence = ((Number)source.get(RegisterLockIndex.COLUMN_SEQUENCE)).intValue();
+                    long version = response.getVersion();
 
-                if (lockable || System.currentTimeMillis() > expire) {
-                    lock(id, sequence, timeout, version);
-                } else {
-                    TimeUnit.SECONDS.sleep(1);
-                    return Const.NONE;
+                    sequence++;
+
+                    if (lockable || System.currentTimeMillis() > expire) {
+                        lock(id, sequence, timeout, version);
+                    } else {
+                        TimeUnit.SECONDS.sleep(1);
+                        return Const.NONE;
+                    }
                 }
+            } catch (Throwable t) {
+                logger.warn("Try to lock the row with the id {} failure, error message: {}", id, t.getMessage());
+                return Const.NONE;
             }
-        } catch (Throwable t) {
-            logger.warn("Try to lock the row with the id {} failure, error message: {}", id, t.getMessage());
-            return Const.NONE;
+            return sequence;
+        } finally {
+            releaseLock(scope);
         }
-        return sequence;
     }
 
     private void lock(String id, int sequence, int timeout, long version) throws IOException {
@@ -84,7 +88,7 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         getClient().forceUpdate(RegisterLockIndex.NAME, id, source, version);
     }
 
-    @Override public void releaseLock(Scope scope) {
+    public void releaseLock(Scope scope) {
         String id = String.valueOf(scope.ordinal());
 
         try {
