@@ -103,6 +103,8 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .addManagedChannelBuilder(new TLSChannelBuilder())
                             .addChannelDecorator(new AuthenticationDecorator())
                             .build();
+
+                        notify(GRPCChannelStatus.CONNECTED);
                     }
 
                     reconnect = false;
