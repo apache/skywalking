@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
@@ -41,7 +42,7 @@ public class H2RegisterLockDAO implements IRegisterLockDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public int lockAndGetId(Scope scope) {
+    @Override public int getId(Scope scope, RegisterSource registerSource) {
         try (Connection connection = h2Client.getTransactionConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
             while (resultSet.next()) {

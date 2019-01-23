@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
@@ -34,5 +35,5 @@ public interface IRegisterLockDAO extends DAO {
      * @param scope for the id. IDs at different scopes could be same, but unique in same scope.
      * @return Unique ID.
      */
-    int lockAndGetId(Scope scope);
+    int getId(Scope scope, RegisterSource registerSource);
 }
