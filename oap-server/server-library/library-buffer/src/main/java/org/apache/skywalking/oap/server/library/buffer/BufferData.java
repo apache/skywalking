@@ -16,16 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.library.buffer;
 
-import org.apache.skywalking.oap.server.core.source.Scope;
+import com.google.protobuf.GeneratedMessageV3;
+import lombok.*;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 
 /**
  * @author peng-yongsheng
  */
-public interface IRegisterLockDAO extends DAO {
+@Getter
+public class BufferData<MESSAGE_TYPE extends GeneratedMessageV3> {
+    private MESSAGE_TYPE messageType;
+    @Setter private TraceSegmentObject v1Segment;
+    @Setter private SegmentObject v2Segment;
 
-    int tryLockAndIncrement(Scope scope);
-
-    void releaseLock(Scope scope);
+    public BufferData(MESSAGE_TYPE messageType) {
+        this.messageType = messageType;
+    }
 }

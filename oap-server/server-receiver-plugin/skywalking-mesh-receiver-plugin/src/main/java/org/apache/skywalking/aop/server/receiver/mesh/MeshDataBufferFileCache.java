@@ -23,8 +23,7 @@ import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.oap.server.library.buffer.BufferStream;
-import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
+import org.apache.skywalking.oap.server.library.buffer.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
@@ -97,11 +96,11 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
     /**
      * File buffer callback. Block reading from buffer file, until metadata register done.
      *
-     * @param message
+     * @param bufferData
      * @return
      */
-    @Override public boolean call(ServiceMeshMetric message) {
-        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(message);
+    @Override public boolean call(BufferData<ServiceMeshMetric> bufferData) {
+        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(bufferData.getMessageType());
         if (decorator.tryMetaDataRegister()) {
             meshBufferFileOut.inc();
             TelemetryDataDispatcher.doDispatch(decorator);

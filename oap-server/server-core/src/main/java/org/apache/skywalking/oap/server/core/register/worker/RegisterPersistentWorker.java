@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.register.worker;
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.Scope;
@@ -52,7 +53,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.registerLockDAO = moduleManager.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scope = scope;
         this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
-        this.dataCarrier.consume(new RegisterPersistentWorker.PersistentConsumer(this), 1);
+        this.dataCarrier.consume(new RegisterPersistentWorker.PersistentConsumer(this), 1, 200);
     }
 
     @Override public final void in(RegisterSource registerSource) {
@@ -67,31 +68,41 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
 
-        if (registerSource.getEndOfBatchContext().isEndOfBatch()) {
-
-            if (registerLockDAO.tryLock(scope)) {
+        if (sources.size() > 1000 || registerSource.getEndOfBatchContext().isEndOfBatch()) {
+            sources.values().forEach(source -> {
                 try {
-                    sources.values().forEach(source -> {
-                        try {
-                            RegisterSource dbSource = registerDAO.get(modelName, source.id());
-                            if (Objects.nonNull(dbSource)) {
-                                dbSource.combine(source);
-                                registerDAO.forceUpdate(modelName, dbSource);
-                            } else {
-                                int sequence = registerDAO.registerId(modelName, source);
-                                source.setSequence(sequence);
-                                registerDAO.forceInsert(modelName, source);
-                            }
-                        } catch (Throwable t) {
-                            logger.error(t.getMessage(), t);
+                    RegisterSource dbSource = registerDAO.get(modelName, source.id());
+                    if (Objects.nonNull(dbSource)) {
+                        if (dbSource.combine(source)) {
+                            registerDAO.forceUpdate(modelName, dbSource);
                         }
-                    });
-                } finally {
-                    registerLockDAO.releaseLock(scope);
+                    } else {
+                        int sequence;
+                        if ((sequence = registerLockDAO.tryLockAndIncrement(scope)) != Const.NONE) {
+                            try {
+                                dbSource = registerDAO.get(modelName, source.id());
+                                if (Objects.nonNull(dbSource)) {
+                                    if (dbSource.combine(source)) {
+                                        registerDAO.forceUpdate(modelName, dbSource);
+                                    }
+                                } else {
+                                    source.setSequence(sequence);
+                                    registerDAO.forceInsert(modelName, source);
+                                }
+                            } catch (Throwable t) {
+                                logger.error(t.getMessage(), t);
+                            } finally {
+                                registerLockDAO.releaseLock(scope);
+                            }
+                        } else {
+                            logger.info("{} inventory register try lock and increment sequence failure.", scope.name());
+                        }
+                    }
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
                 }
-            } else {
-                logger.info("Inventory register try lock failure.");
-            }
+            });
+            sources.clear();
         }
     }
 
