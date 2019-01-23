@@ -39,6 +39,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private Random random = new Random();
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
     private volatile List<String> grpcServers;
+    private volatile int selectedIdx = -1;
 
     @Override
     public void prepare() throws Throwable {
@@ -87,21 +88,24 @@ public class GRPCChannelManager implements BootService, Runnable {
                 String server = "";
                 try {
                     int index = Math.abs(random.nextInt()) % grpcServers.size();
-                    server = grpcServers.get(index);
-                    String[] ipAndPort = server.split(":");
+                    if (index != selectedIdx) {
+                        selectedIdx = index;
 
-                    managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                        .addManagedChannelBuilder(new StandardChannelBuilder())
-                        .addManagedChannelBuilder(new TLSChannelBuilder())
-                        .addChannelDecorator(new AuthenticationDecorator())
-                        .build();
+                        server = grpcServers.get(index);
+                        String[] ipAndPort = server.split(":");
 
-                    if (!managedChannel.isShutdown() && !managedChannel.isTerminated()) {
-                        reconnect = false;
-                        notify(GRPCChannelStatus.CONNECTED);
-                    } else {
-                        notify(GRPCChannelStatus.DISCONNECT);
+                        if(managedChannel != null){
+                            managedChannel.shutdownNow();
+                        }
+
+                        managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                            .addManagedChannelBuilder(new StandardChannelBuilder())
+                            .addManagedChannelBuilder(new TLSChannelBuilder())
+                            .addChannelDecorator(new AuthenticationDecorator())
+                            .build();
                     }
+
+                    reconnect = false;
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
