@@ -42,7 +42,6 @@ public class GRPCChannelManagerTest {
         GRPCChannelManager manager = new GRPCChannelManager();
         manager.addChannelListener(new GRPCChannelListener() {
             @Override public void statusChanged(GRPCChannelStatus status) {
-                System.out.println(status);
             }
         });
 
