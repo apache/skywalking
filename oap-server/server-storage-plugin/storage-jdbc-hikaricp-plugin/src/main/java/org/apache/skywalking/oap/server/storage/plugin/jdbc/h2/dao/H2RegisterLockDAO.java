@@ -49,9 +49,9 @@ public class H2RegisterLockDAO implements IRegisterLockDAO {
                 int sequence = resultSet.getInt("sequence");
                 sequence++;
                 h2Client.execute(connection, "update " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scope.ordinal());
+                connection.commit();
                 return sequence;
             }
-            connection.commit();
         } catch (JDBCClientException | SQLException e) {
             logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
             logger.error("tryLock error", e);
