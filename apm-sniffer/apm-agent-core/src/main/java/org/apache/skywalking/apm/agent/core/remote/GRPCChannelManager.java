@@ -94,7 +94,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                         server = grpcServers.get(index);
                         String[] ipAndPort = server.split(":");
 
-                        if(managedChannel != null){
+                        if (managedChannel != null) {
                             managedChannel.shutdownNow();
                         }
 
@@ -111,7 +111,6 @@ public class GRPCChannelManager implements BootService, Runnable {
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
-                    notify(GRPCChannelStatus.DISCONNECT);
                 }
             }
 
