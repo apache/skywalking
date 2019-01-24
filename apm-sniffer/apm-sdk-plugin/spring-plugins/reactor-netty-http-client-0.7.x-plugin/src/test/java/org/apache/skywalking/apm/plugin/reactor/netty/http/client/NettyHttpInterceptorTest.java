@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.plugin.reactor.netty.http.client;
 
 import io.netty.handler.codec.http.*;
 import java.util.List;
-import java.util.regex.Pattern;
-
 import org.apache.skywalking.apm.agent.core.context.trace.*;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

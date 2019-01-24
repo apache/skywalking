@@ -119,7 +119,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[56];
+        components = new String[57];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);

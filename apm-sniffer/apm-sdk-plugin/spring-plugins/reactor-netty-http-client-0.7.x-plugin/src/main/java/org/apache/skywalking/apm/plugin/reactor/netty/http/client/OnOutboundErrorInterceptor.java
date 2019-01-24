@@ -18,17 +18,23 @@
 
 package org.apache.skywalking.apm.plugin.reactor.netty.http.client;
 
+import io.netty.channel.*;
 import io.netty.handler.codec.http.HttpRequest;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.*;
+import reactor.ipc.netty.channel.ChannelOperations;
 
 public class OnOutboundErrorInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        Field channelField = ChannelOperations.class.getDeclaredField("channel");
+        channelField.setAccessible(true);
+        ChannelId channelId = ((Channel)channelField.get(objInst)).id();
+
         Throwable exception = (Throwable)allArguments[0];
-        HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get("SW_NETTY_HTTP_CLIENT_REQUEST");
+        HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(channelId.asLongText());
         if (request != null) {
             ContextManager.activeSpan().errorOccurred().log(exception);
         }

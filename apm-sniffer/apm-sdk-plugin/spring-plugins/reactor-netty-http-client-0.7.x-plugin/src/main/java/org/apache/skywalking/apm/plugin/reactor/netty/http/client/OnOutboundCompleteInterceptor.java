@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.apm.plugin.reactor.netty.http.client;
 
+import io.netty.channel.*;
 import io.netty.handler.codec.http.HttpRequest;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import org.apache.skywalking.apm.agent.core.context.*;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.*;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.*;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import reactor.ipc.netty.channel.ChannelOperations;
 
 /**
  * @author jian.tan
@@ -39,16 +41,20 @@ public class OnOutboundCompleteInterceptor implements InstanceMethodsAroundInter
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        HttpRequest httpRequest = (HttpRequest)ContextManager.getRuntimeContext().get("SW_NETTY_HTTP_CLIENT_REQUEST");
+        Field channelField = ChannelOperations.class.getDeclaredField("channel");
+        channelField.setAccessible(true);
+        ChannelId channelId = ((Channel)channelField.get(objInst)).id();
+
+        HttpRequest httpRequest = (HttpRequest)ContextManager.getRuntimeContext().get(channelId.asLongText());
         if (httpRequest != null) {
             ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(httpRequest.headers().get(next.getHeadKey()));
+            CarrierItem items = contextCarrier.items();
+            while (items.hasNext()) {
+                items = items.next();
+                items.setHeadValue(httpRequest.headers().get(items.getHeadKey()));
             }
 
-            AbstractSpan span = ContextManager.createExitSpan(httpRequest.uri(), contextCarrier, "");
+            AbstractSpan span = ContextManager.createExitSpan(httpRequest.uri(), contextCarrier, httpRequest.headers().get("host"));
             Tags.URL.set(span, httpRequest.uri());
             Tags.HTTP.METHOD.set(span, httpRequest.method().name());
             span.setComponent(ComponentsDefine.NETTY_HTTP);
