@@ -83,7 +83,7 @@ public enum Reseter {
         return resetPath;
     }
 
-    public void reportToRegisterFile() throws IOException {
+    public synchronized void reportToRegisterFile() throws IOException {
         FileOutputStream outputStream = null;
         try {
             File configFile = new File(resetPath);
@@ -108,7 +108,7 @@ public enum Reseter {
         return this;
     }
 
-    public Boolean predicateReset() throws IOException, SecurityException {
+    public synchronized Boolean  predicateReset() throws IOException, SecurityException {
         File resetFile = new File(getResetPath());
         FileInputStream inputStream = null;
         FileLock fileLock = null;
@@ -137,7 +137,7 @@ public enum Reseter {
 
     }
 
-    public void init() throws IOException {
+    public synchronized void init() throws IOException {
         FileOutputStream outputStream = null;
         try {
             properties.setProperty(SERVICE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
