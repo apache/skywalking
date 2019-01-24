@@ -16,13 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.api;
+
+package org.apache.skywalking.apm.plugin.redisson.v3;
+
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * Set tag values to this metric instance.
+ * RedisClient is the link between RedisConnection and ConnectionManager.
+ * to enhance RedisClient for bring peer(the cluster configuration information) in ConnectionManager to RedisConnection.
  *
- * @author wusheng
+ * @author zhaoyuguang
  */
-public interface TaggableMetric {
-    void setTagValues(MetricTag.Values values);
+public class RedisClientConstructorInterceptor implements InstanceConstructorInterceptor {
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    }
 }

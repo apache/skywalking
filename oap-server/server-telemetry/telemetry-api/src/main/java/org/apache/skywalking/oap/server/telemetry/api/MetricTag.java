@@ -24,7 +24,10 @@ package org.apache.skywalking.oap.server.telemetry.api;
  * The tag values should be set in putting value phase.
  */
 public class MetricTag {
-    public class Keys {
+    public static final Keys EMPTY_KEY = new Keys();
+    public static final Values EMPTY_VALUE = new Values();
+
+    public static class Keys {
         private String[] keys;
 
         public Keys() {
@@ -40,7 +43,7 @@ public class MetricTag {
         }
     }
 
-    public class Values {
+    public static class Values {
         private String[] values;
 
         public Values(Keys keys) {

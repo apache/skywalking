@@ -26,16 +26,51 @@ import org.apache.skywalking.oap.server.telemetry.api.*;
  * @author wusheng
  */
 public class MetricCreatorNoop implements MetricCreator {
-    @Override public CounterMetric createCounter(String name, String tips, MetricTag.Keys labels) {
-        return null;
-    }
+    @Override
+    public CounterMetric createCounter(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues) {
+        return new CounterMetric() {
+            @Override public void inc() {
 
-    @Override public GaugeMetric createGauge(String name, String tips, MetricTag.Keys labels) {
-        return null;
+            }
+
+            @Override public void inc(double value) {
+
+            }
+        };
     }
 
     @Override
-    public HistogramMetric createHistogramMetric(String name, String tips, MetricTag.Keys labels, double... buckets) {
-        return null;
+    public GaugeMetric createGauge(String name, String tips, MetricTag.Keys tagKeys, MetricTag.Values tagValues) {
+        return new GaugeMetric() {
+            @Override public void inc() {
+
+            }
+
+            @Override public void inc(double value) {
+
+            }
+
+            @Override public void dec() {
+
+            }
+
+            @Override public void dec(double value) {
+
+            }
+
+            @Override public void setValue(double value) {
+
+            }
+        };
+    }
+
+    @Override
+    public HistogramMetric createHistogramMetric(String name, String tips, MetricTag.Keys tagKeys,
+        MetricTag.Values tagValues, double... buckets) {
+        return new HistogramMetric() {
+            @Override public void observe(double value) {
+
+            }
+        };
     }
 }

@@ -19,22 +19,14 @@
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.base.Strings;
-import com.orbitz.consul.AgentClient;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.HealthClient;
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
+import com.orbitz.consul.*;
+import com.orbitz.consul.model.agent.*;
 import com.orbitz.consul.model.health.ServiceHealth;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
  * @author peng-yongsheng
@@ -77,6 +69,7 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         AgentClient agentClient = client.agentClient();
 
         this.selfAddress = remoteInstance.getAddress();
+        TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
 
         Registration registration = ImmutableRegistration.builder()
             .id(remoteInstance.getAddress().toString())

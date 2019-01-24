@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment.SegmentSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 /**
  * @author peng-yongsheng
@@ -90,13 +91,17 @@ public class TraceModuleProvider extends ModuleProvider {
         try {
 
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
-            grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(segmentProducerV2));
+            grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(segmentProducerV2, getManager()));
             jettyHandlerRegister.addHandler(new TraceSegmentServletHandler(segmentProducer));
 
-            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(segmentProducer, moduleConfig.getBufferPath() + "v5", moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
+            SegmentStandardizationWorker standardizationWorker = new SegmentStandardizationWorker(getManager(), segmentProducer,
+                moduleConfig.getBufferPath() + "v5", moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart(),
+                false);
             segmentProducer.setStandardizationWorker(standardizationWorker);
 
-            SegmentStandardizationWorker standardizationWorker2 = new SegmentStandardizationWorker(segmentProducer, moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart());
+            SegmentStandardizationWorker standardizationWorker2 = new SegmentStandardizationWorker(getManager(), segmentProducer,
+                moduleConfig.getBufferPath(), moduleConfig.getBufferOffsetMaxFileSize(), moduleConfig.getBufferDataMaxFileSize(), moduleConfig.isBufferFileCleanWhenRestart(),
+                true);
             segmentProducerV2.setStandardizationWorker(standardizationWorker2);
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
@@ -108,6 +113,6 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME};
     }
 }

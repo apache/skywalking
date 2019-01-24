@@ -104,11 +104,13 @@ public class ComponentsDefine {
 
     public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53, "rabbitmq-consumer");
 
-    public static final OfficialComponent CANAL = new OfficialComponent(54, "Canal");
+    public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
 
     public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
 
-    public static final OfficialComponent NETTY_HTTP = new OfficialComponent(56, "Netty-Http-Client");
+    public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
+
+    public static final OfficialComponent NETTY_HTTP = new OfficialComponent(57, "Netty-Http-Client");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -119,7 +121,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[57];
+        components = new String[58];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -161,6 +163,7 @@ public class ComponentsDefine {
         addComponent(CANAL);
         addComponent(GSON);
         addComponent(NETTY_HTTP);
+        addComponent(REDISSON);
     }
 
     private void addComponent(OfficialComponent component) {
