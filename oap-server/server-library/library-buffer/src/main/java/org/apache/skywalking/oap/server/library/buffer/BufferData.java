@@ -16,24 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.library.buffer;
 
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import com.google.protobuf.GeneratedMessageV3;
+import lombok.*;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 
 /**
- * Entity register and ID generator.
- *
- * @author peng-yongsheng, wusheng
+ * @author peng-yongsheng
  */
-public interface IRegisterLockDAO extends DAO {
-    /**
-     * This method is also executed by one thread in each oap instance, but in cluster environment, it could be executed
-     * in concurrent way, so no `sync` in method level, but the implementation must make sure the return id is unique no
-     * matter the cluster size.
-     *
-     * @param scope for the id. IDs at different scopes could be same, but unique in same scope.
-     * @return Unique ID.
-     */
-    int getId(Scope scope, RegisterSource registerSource);
+@Getter
+public class BufferData<MESSAGE_TYPE extends GeneratedMessageV3> {
+    private MESSAGE_TYPE messageType;
+    @Setter private TraceSegmentObject v1Segment;
+    @Setter private SegmentObject v2Segment;
+
+    public BufferData(MESSAGE_TYPE messageType) {
+        this.messageType = messageType;
+    }
 }

@@ -181,15 +181,18 @@ public class ServiceInventory extends RegisterSource {
         return 0;
     }
 
-    @Override public void combine(RegisterSource registerSource) {
+    @Override public boolean combine(RegisterSource registerSource) {
         super.combine(registerSource);
         ServiceInventory serviceInventory = (ServiceInventory)registerSource;
+
         nodeType = serviceInventory.nodeType;
         setProp(serviceInventory.getProp());
         if (Const.NONE != serviceInventory.getMappingServiceId() && serviceInventory.getMappingLastUpdateTime() >= this.getMappingLastUpdateTime()) {
             this.mappingServiceId = serviceInventory.getMappingServiceId();
             this.mappingLastUpdateTime = serviceInventory.getMappingLastUpdateTime();
         }
+
+        return true;
     }
 
     public static class Builder implements StorageBuilder<ServiceInventory> {
