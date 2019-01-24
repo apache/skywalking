@@ -18,13 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.reactor.netty.http.client;
 
-import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.*;
-import reactor.ipc.netty.channel.ChannelOperations;
 
 public class OnInboundNextInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -46,13 +44,10 @@ public class OnInboundNextInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        Field channelField = ChannelOperations.class.getDeclaredField("channel");
-        channelField.setAccessible(true);
-        ChannelId channelId = ((Channel)channelField.get(objInst)).id();
-        HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(channelId.asLongText());
+        HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get("SW_NETTY_HTTP_CLIENT_REQUEST");
         if (request != null) {
             ContextManager.stopSpan();
-            ContextManager.getRuntimeContext().remove(channelId.asLongText());
+            ContextManager.getRuntimeContext().remove("SW_NETTY_HTTP_CLIENT_REQUEST");
         }
         return ret;
     }

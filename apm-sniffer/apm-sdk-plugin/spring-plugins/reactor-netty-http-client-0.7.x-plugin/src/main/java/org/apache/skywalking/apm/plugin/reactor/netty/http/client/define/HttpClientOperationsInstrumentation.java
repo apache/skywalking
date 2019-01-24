@@ -38,7 +38,7 @@ public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnh
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
+                    return takesArguments(3);
                 }
 
                 @Override public String getConstructorInterceptor() {
