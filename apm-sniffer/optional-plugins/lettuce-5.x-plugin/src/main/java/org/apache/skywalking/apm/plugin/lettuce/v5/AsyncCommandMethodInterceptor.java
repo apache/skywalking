@@ -39,9 +39,10 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         AsyncCommand asyncCommand = (AsyncCommand) objInst;
-        AbstractSpan span = ContextManager.createLocalSpan("AsyncCommand/" + asyncCommand.getType().name() + "/onComplete");
+        String operationName = "Lettuce/" + asyncCommand.getType().name();
+        AbstractSpan span = ContextManager.createLocalSpan(operationName + "/onComplete");
         span.setComponent(ComponentsDefine.LETTUCE);
-        allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture());
+        allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture(), operationName);
     }
 
     @Override

@@ -32,15 +32,17 @@ public class SWConsumer<T> implements Consumer<T> {
 
     private Consumer<T> consumer;
     private ContextSnapshot snapshot;
+    private String operationName;
 
-    SWConsumer(Consumer<T> consumer, ContextSnapshot snapshot) {
+    SWConsumer(Consumer<T> consumer, ContextSnapshot snapshot, String operationName) {
         this.consumer = consumer;
         this.snapshot = snapshot;
+        this.operationName = operationName;
     }
 
     @Override
     public void accept(T t) {
-        AbstractSpan span = ContextManager.createLocalSpan("SWConsumer/accept");
+        AbstractSpan span = ContextManager.createLocalSpan(operationName + "/accept");
         span.setComponent(ComponentsDefine.LETTUCE);
         try {
             ContextManager.continued(snapshot);
