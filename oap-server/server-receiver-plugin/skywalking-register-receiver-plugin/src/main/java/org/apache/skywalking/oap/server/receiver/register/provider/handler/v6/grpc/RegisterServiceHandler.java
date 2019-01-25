@@ -94,6 +94,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                 switch (key) {
                     case HOST_NAME:
                         instanceProperties.addProperty(HOST_NAME, property.getValue());
+                        break;
                     case OS_NAME:
                         instanceProperties.addProperty(OS_NAME, property.getValue());
                         break;

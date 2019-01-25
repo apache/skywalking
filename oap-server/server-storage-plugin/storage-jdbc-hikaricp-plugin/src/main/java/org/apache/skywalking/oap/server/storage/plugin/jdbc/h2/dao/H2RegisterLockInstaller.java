@@ -61,7 +61,6 @@ public class H2RegisterLockInstaller {
 
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
                 Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                dao.init(sourceScope);
                 putIfAbsent(h2Client, connection, sourceScope.ordinal(), sourceScope.name());
             }
         } catch (JDBCClientException | SQLException e) {
