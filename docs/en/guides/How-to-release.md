@@ -216,7 +216,7 @@ All PPMC members and committers should check these before vote +1.
 are in `https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z` with .asc, .sha512
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum -c apache-skywalking-apm-incubating-x.y.z-src.tgz.sha512`
-1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
+1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/How-to-build.md#build-from-apache-source-code-release).
 1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
 1. DISCLAIMER exists
 
