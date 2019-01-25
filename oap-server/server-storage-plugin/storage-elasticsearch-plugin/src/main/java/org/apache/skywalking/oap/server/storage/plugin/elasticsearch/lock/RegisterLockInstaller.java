@@ -78,12 +78,6 @@ public class RegisterLockInstaller {
         XContentBuilder source = XContentFactory.jsonBuilder()
             .startObject()
             .startObject("properties")
-            .startObject(RegisterLockIndex.COLUMN_EXPIRE)
-            .field("type", "long")
-            .endObject()
-            .startObject(RegisterLockIndex.COLUMN_LOCKABLE)
-            .field("type", "boolean")
-            .endObject()
             .startObject(RegisterLockIndex.COLUMN_SEQUENCE)
             .field("type", "integer")
             .endObject()
@@ -97,8 +91,6 @@ public class RegisterLockInstaller {
         GetResponse response = client.get(RegisterLockIndex.NAME, String.valueOf(scopeId));
         if (!response.isExists()) {
             XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-            builder.field(RegisterLockIndex.COLUMN_EXPIRE, Long.MIN_VALUE);
-            builder.field(RegisterLockIndex.COLUMN_LOCKABLE, true);
             builder.field(RegisterLockIndex.COLUMN_SEQUENCE, 1);
             builder.endObject();
 

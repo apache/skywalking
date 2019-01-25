@@ -88,7 +88,7 @@ public class Config {
          */
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
-         * application and service registry check interval
+         * service and endpoint registry check interval
          */
         public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
         /**
