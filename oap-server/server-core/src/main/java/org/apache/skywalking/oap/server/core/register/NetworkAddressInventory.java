@@ -93,10 +93,16 @@ public class NetworkAddressInventory extends RegisterSource {
         return inventory;
     }
 
-    @Override public void combine(RegisterSource registerSource) {
-        super.combine(registerSource);
+    @Override public boolean combine(RegisterSource registerSource) {
+        boolean isCombine = super.combine(registerSource);
         NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
-        setNodeType(inventory.nodeType);
+
+        if (nodeType != inventory.nodeType) {
+            setNodeType(inventory.nodeType);
+            return true;
+        } else {
+            return isCombine;
+        }
     }
 
     @Override public RemoteData.Builder serialize() {

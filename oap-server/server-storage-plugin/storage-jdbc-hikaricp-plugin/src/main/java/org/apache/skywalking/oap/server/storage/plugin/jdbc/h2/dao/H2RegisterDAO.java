@@ -19,52 +19,26 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import org.apache.skywalking.oap.server.core.Const;
+import java.sql.*;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
  */
 public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
+
     private static final Logger logger = LoggerFactory.getLogger(H2RegisterDAO.class);
 
     private final JDBCHikariCPClient h2Client;
     private final StorageBuilder<RegisterSource> storageBuilder;
 
-    public H2RegisterDAO(JDBCHikariCPClient h2Client,
-        StorageBuilder<RegisterSource> storageBuilder) {
+    public H2RegisterDAO(JDBCHikariCPClient h2Client, StorageBuilder<RegisterSource> storageBuilder) {
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
-    }
-
-    @Override public int registerId(String modelName,
-        RegisterSource registerSource) throws IOException {
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT max(sequence) max_id FROM " + modelName)) {
-                while (rs.next()) {
-                    int maxId = rs.getInt("max_id");
-                    if (maxId == 0) {
-                        return 2;
-                    } else {
-                        return maxId + 1;
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
-            throw new IOException(e.getMessage(), e);
-        }
-        return Const.NONE;
     }
 
     @Override public RegisterSource get(String modelName, String id) throws IOException {
@@ -74,9 +48,7 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
     @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
             getInsertExecutor(modelName, source, storageBuilder).invoke(connection);
-        } catch (SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
     }
@@ -84,9 +56,7 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
     @Override public void forceUpdate(String modelName, RegisterSource source) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
             getUpdateExecutor(modelName, source, storageBuilder).invoke(connection);
-        } catch (SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
     }

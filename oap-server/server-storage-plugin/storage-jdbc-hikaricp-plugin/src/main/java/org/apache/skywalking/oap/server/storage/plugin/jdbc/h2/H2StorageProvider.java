@@ -34,7 +34,7 @@ import org.slf4j.*;
  *
  * If someone wants to implement SQL-style database as storage, please just refer the logic.
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2StorageProvider extends ModuleProvider {
 
@@ -42,6 +42,7 @@ public class H2StorageProvider extends ModuleProvider {
 
     private H2StorageConfig config;
     private JDBCHikariCPClient h2Client;
+    private H2RegisterLockDAO lockDAO;
 
     public H2StorageProvider() {
         config = new H2StorageConfig();
@@ -69,7 +70,9 @@ public class H2StorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
-        this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO());
+
+        lockDAO = new H2RegisterLockDAO(h2Client);
+        this.registerServiceImplementation(IRegisterLockDAO.class, lockDAO);
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(h2Client));
         this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(h2Client));
@@ -91,6 +94,8 @@ public class H2StorageProvider extends ModuleProvider {
 
             H2TableInstaller installer = new H2TableInstaller(getManager());
             installer.install(h2Client);
+
+            new H2RegisterLockInstaller().install(h2Client, lockDAO);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

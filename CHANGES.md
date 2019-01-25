@@ -23,6 +23,10 @@ Release Notes.
 - Add test case for span limit mechanism.
 - Add telemetry module and prometheus implementation, with grafana setting.
 - A refactor for register API in storage module.
+- Fix H2 and MySQL endpoint dependency map miss upstream side.
+- Optimize the inventory register and refactor the implementation.
+- Speed up the trace buffer read.
+- Fix and removed unnecessary inventory register operations.
 
 #### UI
 - Add new trace view.
