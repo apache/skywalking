@@ -74,13 +74,13 @@ public class Config {
         /**
          * Specify register.status dir ,This is an option, the default is AGENT_HOME/option/reset.status.
          */
-        public static String REGISTER_STATUS_DIR = "skywalking-agent/option";
+        public static String REGISTER_STATUS_DIR = "";
 
         /**
          * Specify process_uuid to ensure that the whole show is unique, for example: applicationName_ip_12
          */
         public static String PROCESS_UUID = "";
-        
+
         /**
          * enabled means that the reset function is enabled, and disabled means that the reset function is not enabled. A reset can be triggered by modifying the configuration file only if the reset feature is enabled.
          */

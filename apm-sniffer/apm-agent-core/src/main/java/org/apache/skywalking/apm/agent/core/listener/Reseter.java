@@ -51,7 +51,7 @@ public enum Reseter {
     private static final String COMMENT = "#Status has three values: ON (trigger reset), DONE(reset complete), OFF(agent fist boot).\n" +
         "service_id: the service_id of the current agent.\n" +
         "Instance_id: the instance_id of the current agent.";
-    private volatile Properties properties = new Properties();
+    private Properties properties = new Properties();
     private String resetPath;
     private ResetStatus status = ResetStatus.OFF;
     private boolean isFirstRun = true;
@@ -68,7 +68,7 @@ public enum Reseter {
                 try {
                     Config.Agent.REGISTER_STATUS_DIR = AgentPackagePath.getPath() + "/option";
                 } catch (AgentPackageNotFoundException e) {
-                    e.printStackTrace();
+                    logger.error("unexpected exception.", e);
                 }
             }
             File statusDir = new File(Config.Agent.REGISTER_STATUS_DIR);
@@ -86,7 +86,7 @@ public enum Reseter {
     public synchronized void reportToRegisterFile() throws IOException {
         FileOutputStream outputStream = null;
         try {
-            File configFile = new File(resetPath);
+            File configFile = new File(getResetPath());
             properties.setProperty(SERVICE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_ID + "");
             properties.setProperty(INSTANCE_ID_NAME, RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID + "");
             properties.setProperty(STATUS_NAME, status.value());
@@ -108,7 +108,7 @@ public enum Reseter {
         return this;
     }
 
-    public synchronized Boolean  predicateReset() throws IOException, SecurityException {
+    public synchronized Boolean predicateReset() throws IOException, SecurityException {
         File resetFile = new File(getResetPath());
         FileInputStream inputStream = null;
         FileLock fileLock = null;
@@ -129,7 +129,7 @@ public enum Reseter {
                 fileChannel.close();
                 closeFileStream(inputStream);
             }
-            if (properties.get(STATUS_NAME) != null && properties.getProperty(STATUS_NAME).equals(ResetStatus.ON.value())) {
+            if (ResetStatus.ON.value().equals(properties.getProperty(STATUS_NAME))) {
                 return true;
             }
         }

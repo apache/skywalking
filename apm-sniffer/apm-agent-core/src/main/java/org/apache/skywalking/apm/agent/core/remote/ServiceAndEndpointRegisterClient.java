@@ -117,7 +117,9 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                             for (KeyIntValuePair registered : serviceRegisterMapping.getServicesList()) {
                                 if (Config.Agent.SERVICE_NAME.equals(registered.getKey())) {
                                     RemoteDownstreamConfig.Agent.SERVICE_ID = registered.getValue();
-                                    Reseter.INSTANCE.reportToRegisterFile();
+                                    if ("enabled".equals(Config.Agent.RESETER_LISTENER)) {
+                                        Reseter.INSTANCE.reportToRegisterFile();
+                                    }
                                     shouldTry = true;
                                 }
                             }
@@ -140,7 +142,9 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                                     int serviceInstanceId = serviceInstance.getValue();
                                     if (serviceInstanceId != DictionaryUtil.nullValue()) {
                                         RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = serviceInstanceId;
-                                        Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
+                                        if ("enabled".equals(Config.Agent.RESETER_LISTENER)) {
+                                            Reseter.INSTANCE.setStatus(ResetStatus.OFF).reportToRegisterFile();
+                                        }
 
                                     }
                                 }
