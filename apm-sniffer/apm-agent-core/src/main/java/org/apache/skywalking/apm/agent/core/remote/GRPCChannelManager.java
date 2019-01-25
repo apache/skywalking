@@ -18,23 +18,12 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.Channel;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
-import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import io.grpc.*;
+import java.util.*;
+import java.util.concurrent.*;
+import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
@@ -50,6 +39,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private Random random = new Random();
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
     private volatile List<String> grpcServers;
+    private volatile int selectedIdx = -1;
 
     @Override
     public void prepare() throws Throwable {
@@ -81,7 +71,9 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void shutdown() throws Throwable {
-        connectCheckFuture.cancel(true);
+        if (connectCheckFuture != null) {
+            connectCheckFuture.cancel(true);
+        }
         if (managedChannel != null) {
             managedChannel.shutdownNow();
         }
@@ -96,25 +88,29 @@ public class GRPCChannelManager implements BootService, Runnable {
                 String server = "";
                 try {
                     int index = Math.abs(random.nextInt()) % grpcServers.size();
-                    server = grpcServers.get(index);
-                    String[] ipAndPort = server.split(":");
+                    if (index != selectedIdx) {
+                        selectedIdx = index;
 
-                    managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                        .addManagedChannelBuilder(new StandardChannelBuilder())
-                        .addManagedChannelBuilder(new TLSChannelBuilder())
-                        .addChannelDecorator(new AuthenticationDecorator())
-                        .build();
+                        server = grpcServers.get(index);
+                        String[] ipAndPort = server.split(":");
 
-                    if (!managedChannel.isShutdown() && !managedChannel.isTerminated()) {
-                        reconnect = false;
+                        if (managedChannel != null) {
+                            managedChannel.shutdownNow();
+                        }
+
+                        managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                            .addManagedChannelBuilder(new StandardChannelBuilder())
+                            .addManagedChannelBuilder(new TLSChannelBuilder())
+                            .addChannelDecorator(new AuthenticationDecorator())
+                            .build();
+
                         notify(GRPCChannelStatus.CONNECTED);
-                    } else {
-                        notify(GRPCChannelStatus.DISCONNECT);
                     }
+
+                    reconnect = false;
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
-                    notify(GRPCChannelStatus.DISCONNECT);
                 }
             }
 

@@ -2,6 +2,46 @@ Changes by Version
 ==================
 Release Notes.
 
+6.0.0-GA
+------------------
+
+#### Java Agent
+- Support gson plugin(optional).
+- Support canal plugin.
+- Fix missing ojdbc component id.
+- Fix dubbo plugin conflict.
+- Fix OpenTracing tag match bug.
+- Fix a missing check in ignore plugin.
+
+#### Backend
+- Adjust service inventory entity, to add properties.
+- Adjust service instance inventory entity, to add properties.
+- Add nodeType to service inventory entity.
+- Fix when operation name of local and exit spans in ref, the segment lost.
+- Fix the index names don't show right in logs. 
+- Fix wrong alarm text.
+- Add test case for span limit mechanism.
+- Add telemetry module and prometheus implementation, with grafana setting.
+- A refactor for register API in storage module.
+- Fix H2 and MySQL endpoint dependency map miss upstream side.
+- Optimize the inventory register and refactor the implementation.
+- Speed up the trace buffer read.
+- Fix and removed unnecessary inventory register operations.
+
+#### UI
+- Add new trace view.
+- Add word-break to tag value. 
+
+#### Document
+- Add two startup modes document.
+- Add PHP agent links.
+- Add some cn documents.
+- Update year to 2019
+- User wall updated.
+- Fix a wrong description in `how-to-build` doc.
+
+All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/30?closed=1)
+
 6.0.0-beta
 ------------------
 

@@ -195,6 +195,9 @@ Canal:
 Gson:
   id: 55
   languages: Java
+Redisson:
+  id: 56
+  languages: Java
 
 
 # .NET/.NET Core components
@@ -280,6 +283,7 @@ Component-Server-Mappings:
   mysql-connector-java: Mysql
   Jedis: Redis
   StackExchange.Redis: Redis
+  Redisson: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql

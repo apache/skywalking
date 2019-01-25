@@ -19,6 +19,7 @@ or providing commercial products including Apache SkyWalking.
 1. Dangdang.com. 当当网. http://www.dangdang.com/
 1. DaoCloud. https://www.daocloud.io/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
+1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
@@ -43,6 +44,7 @@ or providing commercial products including Apache SkyWalking.
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
 1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com . Integrated in Primeton EOS PLATFORM 8.
+1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
 1. Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com

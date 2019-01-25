@@ -4,10 +4,11 @@ so you should need cluster management always in product env.
  
 Backend provides several ways to do cluster management. Choose the one you need/want.
 
-- [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let backend detects and communicates
+- [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let backend instance detects and communicates
 with each other.
 - [Kubernetes](#kubernetes). When backend cluster are deployed inside kubernetes, you could choose this
 by using k8s native APIs to manage cluster.
+- [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
 
 
 ## Zookeeper coordinator

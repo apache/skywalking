@@ -48,7 +48,7 @@ public class SpanProcessor {
             // In Zipkin, the local service name represents the application owner.
             String applicationCode = span.localServiceName();
             if (applicationCode != null) {
-                int applicationId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(applicationCode);
+                int applicationId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(applicationCode, null);
                 if (applicationId != 0) {
                     CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(applicationId, applicationCode, applicationCode,
                         span.timestampAsLong(),

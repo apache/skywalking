@@ -82,10 +82,27 @@ public class NetworkAddressInventory extends RegisterSource {
         return true;
     }
 
-    @Override public void combine(RegisterSource registerSource) {
-        super.combine(registerSource);
+    public NetworkAddressInventory getClone() {
+        NetworkAddressInventory inventory = new NetworkAddressInventory();
+        inventory.setSequence(getSequence());
+        inventory.setRegisterTime(getRegisterTime());
+        inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setName(name);
+        inventory.setNodeType(nodeType);
+
+        return inventory;
+    }
+
+    @Override public boolean combine(RegisterSource registerSource) {
+        boolean isCombine = super.combine(registerSource);
         NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
-        setNodeType(inventory.nodeType);
+
+        if (nodeType != inventory.nodeType) {
+            setNodeType(inventory.nodeType);
+            return true;
+        } else {
+            return isCombine;
+        }
     }
 
     @Override public RemoteData.Builder serialize() {
