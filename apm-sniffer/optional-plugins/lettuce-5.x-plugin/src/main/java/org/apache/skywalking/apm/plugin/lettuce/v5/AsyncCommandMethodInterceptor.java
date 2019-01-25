@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.lettuce.v5;
 
+import io.lettuce.core.protocol.AsyncCommand;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -37,7 +38,8 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        AbstractSpan span = ContextManager.createLocalSpan("AsyncCommand/onComplete");
+        AsyncCommand asyncCommand = (AsyncCommand) objInst;
+        AbstractSpan span = ContextManager.createLocalSpan("AsyncCommand/" + asyncCommand.getType().name() + "/onComplete");
         span.setComponent(ComponentsDefine.LETTUCE);
         allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture());
     }
