@@ -198,6 +198,9 @@ Gson:
 Redisson:
   id: 56
   languages: Java
+Lettuce:
+  id: 57
+  languages: Java
 
 
 # .NET/.NET Core components
@@ -283,6 +286,7 @@ Component-Server-Mappings:
   mysql-connector-java: Mysql
   Jedis: Redis
   Redisson: Redis
+  Lettuce: Redis
   StackExchange.Redis: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL
