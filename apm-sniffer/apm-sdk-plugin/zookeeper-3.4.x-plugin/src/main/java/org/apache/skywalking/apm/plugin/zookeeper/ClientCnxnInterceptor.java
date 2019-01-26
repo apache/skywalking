@@ -76,23 +76,21 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (objInst.getSkyWalkingDynamicField() == null) {
-            StaticHostProvider hostProvider = (StaticHostProvider) allArguments[1];
-            try {
-                Field field = StaticHostProvider.class.getDeclaredField("serverAddresses");
-                field.setAccessible(true);
-                @SuppressWarnings("unchecked")
-                List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
-                StringBuilder peer = new StringBuilder();
-                for (InetSocketAddress address : serverAddresses) {
-                    peer.append(address.getHostName()).append(":").append(address.getPort()).append(";");
-                }
-                objInst.setSkyWalkingDynamicField(peer.toString());
-            } catch (NoSuchFieldException e) {
-                logger.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
-            } catch (IllegalAccessException e) {
-                logger.warn("IllegalAccessException, not be compatible with this version of zookeeper", e);
+        StaticHostProvider hostProvider = (StaticHostProvider) allArguments[1];
+        try {
+            Field field = StaticHostProvider.class.getDeclaredField("serverAddresses");
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
+            StringBuilder peer = new StringBuilder();
+            for (InetSocketAddress address : serverAddresses) {
+                peer.append(address.getHostName()).append(":").append(address.getPort()).append(";");
             }
+            objInst.setSkyWalkingDynamicField(peer.toString());
+        } catch (NoSuchFieldException e) {
+            logger.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
+        } catch (IllegalAccessException e) {
+            logger.warn("IllegalAccessException, not be compatible with this version of zookeeper", e);
         }
     }
 }
