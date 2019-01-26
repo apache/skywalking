@@ -200,7 +200,7 @@ public class ServiceInventory extends RegisterSource {
         public static final String DATABASE = "database";
     }
 
-        public static class Builder implements StorageBuilder<ServiceInventory> {
+    public static class Builder implements StorageBuilder<ServiceInventory> {
 
         @Override public ServiceInventory map2Data(Map<String, Object> dbMap) {
             ServiceInventory inventory = new ServiceInventory();
