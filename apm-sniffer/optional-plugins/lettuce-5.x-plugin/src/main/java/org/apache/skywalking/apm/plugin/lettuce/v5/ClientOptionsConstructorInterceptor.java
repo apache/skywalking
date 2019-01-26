@@ -16,24 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
+package org.apache.skywalking.apm.plugin.lettuce.v5;
+
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * Entity register and ID generator.
+ * ClientOptions is the link between RedisChannelWriter and AbstractRedisClient.
+ * to enhance ClientOptions for bring peer(the cluster configuration information)
+ * in AbstractRedisClient to RedisChannelWriter.
  *
- * @author peng-yongsheng, wusheng
+ * @author zhaoyuguang
  */
-public interface IRegisterLockDAO extends DAO {
-    /**
-     * This method is also executed by one thread in each oap instance, but in cluster environment, it could be executed
-     * in concurrent way, so no `sync` in method level, but the implementation must make sure the return id is unique no
-     * matter the cluster size.
-     *
-     * @param scope for the id. IDs at different scopes could be same, but unique in same scope.
-     * @return Unique ID.
-     */
-    int getId(Scope scope, RegisterSource registerSource);
+public class ClientOptionsConstructorInterceptor implements InstanceConstructorInterceptor {
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    }
 }
