@@ -16,19 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * @author: liuhaoyang
- * @create: 2019-01-26 17:32
- **/
-@Getter
-@Setter
-public class ClientDatabase {
-    private int id;
-    private String name;
-    private String dbType;
+ */
+public class DatabaseAccess extends Source {
+
+    @Override
+    public Scope scope() {
+        return Scope.DatabaseAccess;
+    }
+
+    @Override
+    public String getEntityId() {
+        return String.valueOf(id);
+    }
+
+    @Getter @Setter private long id;
+    @Getter @Setter private String name;
+    @Getter @Setter private int databaseTypeId;
+    @Getter @Setter private int latency;
+    @Getter @Setter private boolean status;
 }

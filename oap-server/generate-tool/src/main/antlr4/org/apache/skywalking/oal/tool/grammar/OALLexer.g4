@@ -37,7 +37,7 @@ SRC_SERVICE_INSTANCE_JVM_CPU: 'ServiceInstanceJVMCPU';
 SRC_SERVICE_INSTANCE_JVM_MEMORY: 'ServiceInstanceJVMMemory';
 SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL: 'ServiceInstanceJVMMemoryPool';
 SRC_SERVICE_INSTANCE_JVM_GC: 'ServiceInstanceJVMGC';
-SRC_CLIENT_DATABASE: 'ClientDatabase';
+SRC_DATABASE_ACCESS: 'DatabaseAccess';
 
 // Literals
 

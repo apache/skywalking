@@ -172,17 +172,17 @@ class SourceBuilder {
         return endpointRelation;
     }
 
-    ClientDatabase toClientDatabase() {
+    DatabaseAccess toDatabaseAccess() {
         if (!RequestType.DATABASE.equals(type)) {
             return null;
         }
-        ClientDatabase databaseClient = new ClientDatabase();
-        databaseClient.setId(destServiceId);
-        databaseClient.setDatabaseTypeId(componentId);
-        databaseClient.setLatency(latency);
-        databaseClient.setName(destServiceName);
-        databaseClient.setStatus(status);
-        databaseClient.setTimeBucket(timeBucket);
-        return databaseClient;
+        DatabaseAccess databaseAccess = new DatabaseAccess();
+        databaseAccess.setId(destServiceId);
+        databaseAccess.setDatabaseTypeId(componentId);
+        databaseAccess.setLatency(latency);
+        databaseAccess.setName(destServiceName);
+        databaseAccess.setStatus(status);
+        databaseAccess.setTimeBucket(timeBucket);
+        return databaseAccess;
     }
 }

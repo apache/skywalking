@@ -106,8 +106,33 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<ClientDatabase> getAllClientDatabases() throws IOException {
-        return null;
+    public List<Database> getAllDatabases() throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, 1));
+
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(100);
+
+        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+
+        List<Database> databases = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits()) {
+            Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+            Database database = new Database();
+            database.setId(((Number)sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
+            database.setName((String)sourceAsMap.get(ServiceInventory.NAME));
+            String propertiesString = (String) sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
+            if (!Strings.isNullOrEmpty(propertiesString)) {
+                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+                if (properties.has(DATABASE)) {
+                    database.setType(properties.get(DATABASE).getAsString());
+                }
+            }
+            databases.add(database);
+        }
+        return databases;
     }
 
     @Override public List<Service> searchServices(long startTimestamp, long endTimestamp,

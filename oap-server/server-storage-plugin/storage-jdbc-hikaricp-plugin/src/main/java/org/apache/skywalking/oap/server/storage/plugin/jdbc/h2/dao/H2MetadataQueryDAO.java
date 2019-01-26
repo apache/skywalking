@@ -126,7 +126,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<ClientDatabase> getAllClientDatabases() throws IOException {
+    public List<Database> getAllDatabases() throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(1);
         sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
@@ -135,21 +135,21 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                List<ClientDatabase> clientDatabases = new ArrayList<>();
+                List<Database> databases = new ArrayList<>();
                 while (resultSet.next()) {
-                    ClientDatabase clientDatabase = new ClientDatabase();
-                    clientDatabase.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
-                    clientDatabase.setName(resultSet.getString(ServiceInventory.NAME));
+                    Database database = new Database();
+                    database.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
+                    database.setName(resultSet.getString(ServiceInventory.NAME));
                     String propertiesString = resultSet.getString(ServiceInstanceInventory.PROPERTIES);
                     if (!Strings.isNullOrEmpty(propertiesString)) {
                         JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                         if (properties.has(DATABASE)) {
-                            clientDatabase.setDbType(properties.get(DATABASE).getAsString());
+                            database.setType(properties.get(DATABASE).getAsString());
                         }
                     }
-                    clientDatabases.add(clientDatabase);
+                    databases.add(database);
                 }
-                return clientDatabases;
+                return databases;
             }
         } catch (SQLException e) {
             throw new IOException(e);

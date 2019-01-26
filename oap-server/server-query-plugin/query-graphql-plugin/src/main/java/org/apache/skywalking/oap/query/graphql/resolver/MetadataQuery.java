@@ -90,7 +90,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
         return getMetadataQueryService().getEndpointInfo(endpointId);
     }
 
-    public List<ClientDatabase> getAllClientDatabases(final Duration duration) throws IOException {
-        return getMetadataQueryService().getAllClientDatabases();
+    public List<Database> getAllDatabases(final Duration duration) throws IOException {
+        return getMetadataQueryService().getAllDatabases();
     }
 }

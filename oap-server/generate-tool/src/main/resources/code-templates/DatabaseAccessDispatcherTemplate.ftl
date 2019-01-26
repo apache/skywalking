@@ -16,12 +16,12 @@
 *
 */
 
-package org.apache.skywalking.oap.server.core.analysis.generated.clientdatabase;
+package org.apache.skywalking.oap.server.core.analysis.generated.databaseaccess;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-<#if (clientDatabaseIndicators?size>0)>
+<#if (databaseAccessIndicators?size>0)>
     import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-    <#list clientDatabaseIndicators as indicator>
+    <#list databaseAccessIndicators as indicator>
         <#if indicator.filterExpressions??>
             import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
             <#break>
@@ -35,16 +35,16 @@ import org.apache.skywalking.oap.server.core.source.*;
 *
 * @author Observability Analysis Language code generator
 */
-public class ClientDatabaseDispatcher implements SourceDispatcher<ClientDatabase> {
+public class DatabaseAccessDispatcher implements SourceDispatcher<DatabaseAccess> {
 
-    @Override public void dispatch(ClientDatabase source) {
-    <#list clientDatabaseIndicators as indicator>
+    @Override public void dispatch(DatabaseAccess source) {
+    <#list databaseAccessIndicators as indicator>
         do${indicator.metricName}(source);
     </#list>
     }
 
-    <#list clientDatabaseIndicators as indicator>
-    private void do${indicator.metricName}(ClientDatabase source) {
+    <#list databaseAccessIndicators as indicator>
+    private void do${indicator.metricName}(DatabaseAccess source) {
         ${indicator.metricName}Indicator indicator = new ${indicator.metricName}Indicator();
 
         <#if indicator.filterExpressions??>
