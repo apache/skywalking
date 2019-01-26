@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.databaseaccess;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 <#if (databaseAccessIndicators?size>0)>
-    import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
     <#list databaseAccessIndicators as indicator>
         <#if indicator.filterExpressions??>
             import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
