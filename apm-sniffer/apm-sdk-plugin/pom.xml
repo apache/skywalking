@@ -64,6 +64,7 @@
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
         <module>canal-1.x-plugin</module>
+        <module>zookeeper-3.4.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
