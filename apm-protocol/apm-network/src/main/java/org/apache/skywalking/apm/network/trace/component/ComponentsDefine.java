@@ -110,6 +110,8 @@ public class ComponentsDefine {
   
     public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
 
+    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -119,7 +121,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[57];
+        components = new String[58];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -161,6 +163,7 @@ public class ComponentsDefine {
         addComponent(CANAL);
         addComponent(GSON);
         addComponent(REDISSON);
+        addComponent(LETTUCE);
     }
 
     private void addComponent(OfficialComponent component) {
