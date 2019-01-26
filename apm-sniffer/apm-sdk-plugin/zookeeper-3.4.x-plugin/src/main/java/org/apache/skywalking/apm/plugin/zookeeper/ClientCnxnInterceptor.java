@@ -52,7 +52,7 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
         String peer = (String) objInst.getSkyWalkingDynamicField();
         RequestHeader header = (RequestHeader) allArguments[0];
         String operationName = ZooOpt.getOperationName(header.getType());
-        AbstractSpan span = ContextManager.createExitSpan(operationName, peer == null ? "" : peer);
+        AbstractSpan span = ContextManager.createExitSpan(operationName, peer);
         span.setComponent(ComponentsDefine.ZOOKEEPER);
         Tags.DB_TYPE.set(span, "Zookeeper");
         ZooOpt.setTags(span, (Record) allArguments[2]);
