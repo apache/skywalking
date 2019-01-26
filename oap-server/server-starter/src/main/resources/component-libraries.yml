@@ -195,12 +195,14 @@ Canal:
 Gson:
   id: 55
   languages: Java
-
 Redisson:
   id: 56
   languages: Java
-Netty-Http-Client:
+Lettuce:
   id: 57
+  languages: Java
+Netty-Http-Client:
+  id: 58
   languages: Java
 
 
@@ -288,6 +290,7 @@ Component-Server-Mappings:
   Jedis: Redis
   StackExchange.Redis: Redis
   Redisson: Redis
+  Lettuce: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql

@@ -64,11 +64,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
-    public static final OfficialComponent HYSTRIX = new OfficialComponent(29, "Hystrix");
+    public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
 
-    public static final OfficialComponent JEDIS = new OfficialComponent(30, "Jedis");
+    public static final OfficialComponent JEDIS =  new OfficialComponent(30, "Jedis");
 
-    public static final OfficialComponent H2_JDBC_DRIVER = new OfficialComponent(32, "jdbc-jdbc-driver");
+    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "jdbc-jdbc-driver");
 
     public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
 
@@ -90,27 +90,29 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MONGO_DRIVER = new OfficialComponent(42, "mongodb-driver");
 
-    public static final OfficialComponent SOFARPC = new OfficialComponent(43, "SOFARPC");
+    public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
 
-    public static final OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45, "activemq-producer");
+    public static final  OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45,"activemq-producer");
 
-    public static final OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46, "activemq-consumer");
+    public static final  OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46,"activemq-consumer");
 
-    public static final OfficialComponent TRANSPORT_CLIENT = new OfficialComponent(48, "transport-client");
+    public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
 
-    public static final OfficialComponent UNDERTOW = new OfficialComponent(49, "Undertow");
+    public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
 
-    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52, "rabbitmq-producer");
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52,"rabbitmq-producer");
 
-    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53, "rabbitmq-consumer");
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
 
     public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
-
+  
     public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
-
+  
     public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
 
-    public static final OfficialComponent NETTY_HTTP = new OfficialComponent(57, "Netty-Http-Client");
+    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
+
+    public static final OfficialComponent NETTY_HTTP = new OfficialComponent(58, "Netty-Http-Client");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -162,8 +164,9 @@ public class ComponentsDefine {
         addComponent(RABBITMQ_CONSUMER);
         addComponent(CANAL);
         addComponent(GSON);
-        addComponent(NETTY_HTTP);
         addComponent(REDISSON);
+        addComponent(LETTUCE);
+        addComponent(NETTY_HTTP);
     }
 
     private void addComponent(OfficialComponent component) {
