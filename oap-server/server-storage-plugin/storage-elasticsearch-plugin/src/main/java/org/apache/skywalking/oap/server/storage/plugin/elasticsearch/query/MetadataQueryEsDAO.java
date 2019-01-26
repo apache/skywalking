@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
 import com.google.gson.*;
+
 import java.io.IOException;
 import java.util.*;
+
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -110,7 +112,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, 1));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Database.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(100);
@@ -121,13 +123,15 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
             Database database = new Database();
-            database.setId(((Number)sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
-            database.setName((String)sourceAsMap.get(ServiceInventory.NAME));
+            database.setId(((Number) sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
+            database.setName((String) sourceAsMap.get(ServiceInventory.NAME));
             String propertiesString = (String) sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
-                if (properties.has(DATABASE)) {
-                    database.setType(properties.get(DATABASE).getAsString());
+                if (properties.has(ServiceInventory.PropertyUtil.DATABASE)) {
+                    database.setType(properties.get(ServiceInventory.PropertyUtil.DATABASE).getAsString());
+                } else {
+                    database.setType("UNKNOWN");
                 }
             }
             databases.add(database);

@@ -131,7 +131,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(1);
         sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
         sql.append(ServiceInventory.NODE_TYPE).append("=? limit 100");
-        condition.add(1);
+        condition.add(NodeType.Database.value());
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
@@ -143,8 +143,10 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                     String propertiesString = resultSet.getString(ServiceInstanceInventory.PROPERTIES);
                     if (!Strings.isNullOrEmpty(propertiesString)) {
                         JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
-                        if (properties.has(DATABASE)) {
-                            database.setType(properties.get(DATABASE).getAsString());
+                        if (properties.has(ServiceInventory.PropertyUtil.DATABASE)) {
+                            database.setType(properties.get(ServiceInventory.PropertyUtil.DATABASE).getAsString());
+                        } else {
+                            database.setType("UNKNOWN");
                         }
                     }
                     databases.add(database);
