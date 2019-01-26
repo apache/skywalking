@@ -199,6 +199,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         public static final String PROCESS_NO = "process_no";
         public static final String IPV4S = "ipv4s";
         public static final String LANGUAGE = "language";
+        public static final String DATABASE = "database";
 
         public static String ipv4sSerialize(List<String> ipv4) {
             Gson gson = new Gson();

@@ -105,6 +105,11 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return buildServices(response);
     }
 
+    @Override
+    public List<ClientDatabase> getAllClientDatabases() throws IOException {
+        return null;
+    }
+
     @Override public List<Service> searchServices(long startTimestamp, long endTimestamp,
         String keyword) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
