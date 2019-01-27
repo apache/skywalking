@@ -71,3 +71,12 @@ instance_jvm_young_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GC
 instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPhrase.OLD).longAvg();
 instance_jvm_young_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.NEW).sum();
 instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.OLD).sum();
+
+database_access_resp_time = from(DatabaseAccess.latency).longAvg();
+database_access_sla = from(DatabaseAccess.*).percent(status == true);
+database_access_cpm = from(DatabaseAccess.*).cpm();
+database_access_p99 = from(DatabaseAccess.latency).p99(10);
+database_access_p95 = from(DatabaseAccess.latency).p95(10);
+database_access_p90 = from(DatabaseAccess.latency).p90(10);
+database_access_p75 = from(DatabaseAccess.latency).p75(10);
+database_access_p50 = from(DatabaseAccess.latency).p50(10);
