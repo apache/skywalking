@@ -18,18 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-/**
- * @author peng-yongsheng, wusheng
- */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    Segment, Alarm, ServiceInventory, ServiceInstanceInventory, EndpointInventory, DatabaseAccess;
+import lombok.Getter;
+import lombok.Setter;
 
-    public static Scope valueOf(int ordinal) {
-        if (ordinal < 0 || ordinal >= values().length) {
-            throw new IndexOutOfBoundsException("Invalid ordinal");
-        }
-        return values()[ordinal];
+/**
+ * @author: liuhaoyang
+ */
+public class DatabaseAccess extends Source {
+
+    @Override
+    public Scope scope() {
+        return Scope.DatabaseAccess;
     }
+
+    @Override
+    public String getEntityId() {
+        return String.valueOf(id);
+    }
+
+    @Getter @Setter private long id;
+    @Getter @Setter private String name;
+    @Getter @Setter private int databaseTypeId;
+    @Getter @Setter private int latency;
+    @Getter @Setter private boolean status;
 }

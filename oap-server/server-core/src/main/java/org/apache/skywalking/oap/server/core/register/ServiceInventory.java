@@ -195,6 +195,11 @@ public class ServiceInventory extends RegisterSource {
         return true;
     }
 
+    public static class PropertyUtil {
+
+        public static final String DATABASE = "database";
+    }
+
     public static class Builder implements StorageBuilder<ServiceInventory> {
 
         @Override public ServiceInventory map2Data(Map<String, Object> dbMap) {
