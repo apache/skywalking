@@ -16,20 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.query.entity;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * @author peng-yongsheng, wusheng
- */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    Segment, Alarm, ServiceInventory, ServiceInstanceInventory, EndpointInventory, DatabaseAccess;
-
-    public static Scope valueOf(int ordinal) {
-        if (ordinal < 0 || ordinal >= values().length) {
-            throw new IndexOutOfBoundsException("Invalid ordinal");
-        }
-        return values()[ordinal];
-    }
+ * @author: liuhaoyang
+ **/
+@Getter
+@Setter
+public class Database {
+    private int id;
+    private String name;
+    private String type;
 }
