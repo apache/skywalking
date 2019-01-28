@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.remote.selector;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -30,6 +31,9 @@ public class RollingSelector implements RemoteClientSelector {
     private int index = 0;
 
     @Override public RemoteClient select(List<RemoteClient> clients, StreamData streamData) {
+        if (clients == null || clients.size() ==0) {
+            return  null;
+        }
         int size = clients.size();
         index++;
         int selectIndex = Math.abs(index) % size;

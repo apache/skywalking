@@ -48,15 +48,21 @@ public class RemoteSenderService implements Service {
         switch (selector) {
             case HashCode:
                 remoteClient = hashCodeSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkId, streamData);
+                if (remoteClient != null) {
+                    remoteClient.push(nextWorkId, streamData);
+                }
                 break;
             case Rolling:
                 remoteClient = rollingSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkId, streamData);
+                if (remoteClient != null) {
+                    remoteClient.push(nextWorkId, streamData);
+                }
                 break;
             case ForeverFirst:
                 remoteClient = foreverFirstSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkId, streamData);
+                if (remoteClient != null) {
+                    remoteClient.push(nextWorkId, streamData);
+                }
                 break;
         }
     }
