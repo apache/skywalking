@@ -31,7 +31,7 @@ public class RollingSelector implements RemoteClientSelector {
     private int index = 0;
 
     @Override public RemoteClient select(List<RemoteClient> clients, StreamData streamData) {
-        if (clients == null || clients.size() ==0) {
+        if (clients == null || clients.size() == 0) {
             return  null;
         }
         int size = clients.size();

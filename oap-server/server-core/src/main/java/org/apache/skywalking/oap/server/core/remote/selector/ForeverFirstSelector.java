@@ -33,7 +33,7 @@ public class ForeverFirstSelector implements RemoteClientSelector {
     private static final Logger logger = LoggerFactory.getLogger(ForeverFirstSelector.class);
 
     @Override public RemoteClient select(List<RemoteClient> clients, StreamData streamData) {
-        if (clients == null || clients.size() ==0) {
+        if (clients == null || clients.size() == 0) {
             return  null;
         }
         if (logger.isDebugEnabled()) {
