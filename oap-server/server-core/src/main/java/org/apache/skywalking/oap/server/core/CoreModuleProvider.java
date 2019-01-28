@@ -85,7 +85,7 @@ public class CoreModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException {
-        grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
+        grpcServer = new GRPCServer(moduleConfig.getGRPCBindHost(), moduleConfig.getGRPCPort());
         if (moduleConfig.getMaxConcurrentCallsPerConnection() > 0) {
             grpcServer.setMaxConcurrentCallsPerConnection(moduleConfig.getMaxConcurrentCallsPerConnection());
         }
@@ -165,7 +165,7 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
+        RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCDiscoveryHost(), moduleConfig.getGRPCPort(), true));
         this.getManager().find(ClusterModule.NAME).provider().getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
 
         PersistenceTimer.INSTANCE.start(getManager());

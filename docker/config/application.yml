@@ -38,7 +38,11 @@ core:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
-    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
+    # 0.0.0.0 means all IPv4 addresses on the local machine. So, we suggest you bind gRPC address to 0.0.0.0
+    # that let you can connect to this machine by using any IPv4 address of this machine.
+    gRPCBindHost: ${SW_CORE_GRPC_BIND_HOST:0.0.0.0}
+    # Must be specify a LAN address or internet address to let all the OAP servers are reachable to each other.
+    gRPCDiscoveryHost: ${SW_CORE_GRPC_DISCOVERY_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     downsampling:
     - Hour

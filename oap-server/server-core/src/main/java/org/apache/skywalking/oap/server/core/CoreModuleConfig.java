@@ -31,7 +31,8 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private String restHost;
     @Setter private int restPort;
     @Setter private String restContextPath;
-    @Setter private String gRPCHost;
+    @Setter private String gRPCBindHost;
+    @Setter private String gRPCDiscoveryHost;
     @Setter private int gRPCPort;
     @Setter private int maxConcurrentCallsPerConnection;
     @Setter private int maxMessageSize;
