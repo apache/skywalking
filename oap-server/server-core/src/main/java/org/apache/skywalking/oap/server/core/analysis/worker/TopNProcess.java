@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import org.apache.skywalking.oap.server.core.analysis.manual.database.TopNDatabaseStatement;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -35,5 +36,9 @@ public enum TopNProcess {
     public void create(ModuleManager moduleManager, Class<? extends TopN> topN) {
         String modelName = StorageEntityAnnotationUtils.getModelName(topN);
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(topN);
+    }
+
+    public void in(TopNDatabaseStatement statement) {
+
     }
 }

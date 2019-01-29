@@ -18,18 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-/**
- * @author peng-yongsheng, wusheng
- */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    Segment, Alarm, ServiceInventory, ServiceInstanceInventory, EndpointInventory, DatabaseAccess, DatabaseSlowStatement;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
-    public static Scope valueOf(int ordinal) {
-        if (ordinal < 0 || ordinal >= values().length) {
-            throw new IndexOutOfBoundsException("Invalid ordinal");
-        }
-        return values()[ordinal];
+/**
+ * @author wusheng
+ */
+@SourceType
+public class DatabaseSlowStatement extends Source {
+    @Getter @Setter private int databaseServiceId;
+    @Getter @Setter private String statement;
+    @Getter @Setter private long duration;
+    @Getter @Setter private String traceId;
+
+    @Override public Scope scope() {
+        return Scope.DatabaseSlowStatement;
     }
+
+    @Override public String getEntityId() {
+        return Const.EMPTY_STRING;
+    }
+
 }
