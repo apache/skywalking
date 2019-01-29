@@ -19,21 +19,20 @@
 package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.*;
 
-/**
- * @author peng-yongsheng
- */
-public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements SWCollection<STORAGE_DATA> {
+public class LimitedSizeDataCollection<STORAGE_DATA extends ComparableStorageData> implements SWCollection<STORAGE_DATA> {
 
-    private final List<STORAGE_DATA> data;
+    private final LinkedList<STORAGE_DATA> data;
+    private final int limitedSize;
     private volatile boolean writing;
     private volatile boolean reading;
 
-    NonMergeDataCollection() {
-        this.data = new ArrayList<>();
+    LimitedSizeDataCollection(int limitedSize) {
+        this.data = new LinkedList<>();
         this.writing = false;
         this.reading = false;
+        this.limitedSize = limitedSize;
     }
 
     public void finishWriting() {
@@ -69,15 +68,36 @@ public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements
     }
 
     @Override public boolean containsKey(STORAGE_DATA key) {
-        throw new UnsupportedOperationException("Non merge data collection doesn't support containsKey operation.");
+        throw new UnsupportedOperationException("Limited size data collection doesn't support containsKey operation.");
     }
 
     @Override public STORAGE_DATA get(STORAGE_DATA key) {
-        throw new UnsupportedOperationException("Non merge data collection doesn't support get operation.");
+        throw new UnsupportedOperationException("Limited size data collection doesn't support get operation.");
     }
 
     @Override public void put(STORAGE_DATA value) {
-        data.add(value);
+        if (data.size() < limitedSize) {
+            data.add(value);
+            return;
+        }
+
+        for (int i = 0; i < data.size(); i++) {
+            STORAGE_DATA storageData = this.data.get(i);
+            if (value.compareTo(storageData) <= 0) {
+                if (i == 0) {
+                    // input value is less than the smallest in top N list, ignore
+                } else {
+                    // Remove the smallest in top N list
+                    // add the current value into the right position
+                    data.removeFirst();
+                    data.add(i, value);
+                }
+                return;
+            }
+        }
+
+        // Add the value as biggest in top N list
+        data.addLast(value);
     }
 
     @Override public Collection<STORAGE_DATA> collection() {
