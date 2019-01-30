@@ -15,3 +15,4 @@
 # limitations under the License.
 
 zookeeper-3.4.x=org.apache.skywalking.apm.plugin.zookeeper.define.ClientCnxnInstrumentation
+zookeeper-3.4.x=org.apache.skywalking.apm.plugin.zookeeper.define.EventThreadInstrumentation

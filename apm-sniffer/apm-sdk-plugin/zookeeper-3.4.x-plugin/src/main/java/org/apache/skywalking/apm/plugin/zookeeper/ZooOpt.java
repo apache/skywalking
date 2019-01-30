@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.zookeeper;
 
 import org.apache.jute.Record;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.proto.*;
 
@@ -36,6 +37,7 @@ class ZooOpt {
     private static final String VERSION = "version";
     private static final String WATCH = "watch";
     private static final String MAX_CHILDREN = "max";
+    private static final String KEEPER_STATE = "state";
 
     static {
         OPTS.put(ZooDefs.OpCode.notification, "notification");
@@ -64,7 +66,6 @@ class ZooOpt {
         String operationName = OPTS.get(opCode);
         return operationName == null ? "unknown" : operationName;
     }
-
 
     /**
      * Add the tag attribute only for the implementation of the Request suffix
@@ -124,5 +125,16 @@ class ZooOpt {
             SyncRequest recordImpl = (SyncRequest) record;
             span.tag(PATH, recordImpl.getPath());
         }
+    }
+
+    /**
+     * Add the necessary tags for the WatchedEvent
+     *
+     * @param span  SkyWalking AbstractSpan.class
+     * @param event Zookeeper WatchedEvent.class
+     */
+    static void setTags(AbstractSpan span, WatchedEvent event) {
+        span.tag(PATH, event.getPath());
+        span.tag(KEEPER_STATE, event.getState().name());
     }
 }
