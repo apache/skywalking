@@ -43,7 +43,7 @@ public class EventThreadMethodInterceptor implements InstanceMethodsAroundInterc
             Field field = allArguments[0].getClass().getDeclaredField("event");
             field.setAccessible(true);
             WatchedEvent event = (WatchedEvent) field.get(allArguments[0]);
-            AbstractSpan span = ContextManager.createLocalSpan("Zookeeper/" + event.getType().name());
+            AbstractSpan span = ContextManager.createLocalSpan("Zookeeper/WatchedEvent/" + event.getType().name());
             ZooOpt.setTags(span, event);
             span.setComponent(ComponentsDefine.ZOOKEEPER);
             Tags.DB_TYPE.set(span, "Zookeeper");
