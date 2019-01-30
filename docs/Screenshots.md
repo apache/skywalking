@@ -12,7 +12,7 @@
 - Process(VM) metrics
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Service_instance_info.png"/>
 
-- Service metrics
+- Endpoint metrics
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/endpoint.png"/>
 
 - Trace
@@ -36,5 +36,5 @@
 - Service instance metrics
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Service-instance-info.png"/>
 
-- Service metrics
+- Endpoint metrics
 <img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/endpoint.png"/>
