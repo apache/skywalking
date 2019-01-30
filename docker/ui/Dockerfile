@@ -16,7 +16,7 @@
 
 FROM openjdk:8-jre-alpine
 
-ENV DIST_NAME=apache-skywalking-apm-incubating \
+ENV DIST_NAME=apache-skywalking-apm-incubating-bin \
     JAVA_OPTS=" -Xms256M -Xmx512M"
 
 # Install required packages
