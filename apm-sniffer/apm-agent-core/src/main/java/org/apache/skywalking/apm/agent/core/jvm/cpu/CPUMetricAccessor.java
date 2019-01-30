@@ -46,6 +46,6 @@ public abstract class CPUMetricAccessor {
         long now = System.nanoTime();
 
         CPU.Builder cpuBuilder = CPU.newBuilder();
-        return cpuBuilder.setUsagePercent(cpuCost * 1.0d / ((now - lastSampleTimeNs) * cpuCoreNum)).build();
+        return cpuBuilder.setUsagePercent(cpuCost * 1.0d / ((now - lastSampleTimeNs) * cpuCoreNum) * 100).build();
     }
 }
