@@ -41,7 +41,7 @@ public class EventThreadInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0] ;
+        return new ConstructorInterceptPoint[0];
     }
 
     @Override
