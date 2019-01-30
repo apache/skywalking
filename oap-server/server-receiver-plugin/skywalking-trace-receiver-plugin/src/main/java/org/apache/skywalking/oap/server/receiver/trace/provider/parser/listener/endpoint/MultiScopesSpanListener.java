@@ -211,12 +211,16 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
+                sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
+            }
         });
     }
 
     public static class Factory implements SpanListenerFactory {
 
-        @Override public SpanListener create(ModuleManager moduleManager) {
+        @Override
+        public SpanListener create(ModuleManager moduleManager) {
             return new MultiScopesSpanListener(moduleManager);
         }
     }

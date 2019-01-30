@@ -171,4 +171,18 @@ class SourceBuilder {
         endpointRelation.setTimeBucket(timeBucket);
         return endpointRelation;
     }
+
+    DatabaseAccess toDatabaseAccess() {
+        if (!RequestType.DATABASE.equals(type)) {
+            return null;
+        }
+        DatabaseAccess databaseAccess = new DatabaseAccess();
+        databaseAccess.setId(destServiceId);
+        databaseAccess.setDatabaseTypeId(componentId);
+        databaseAccess.setLatency(latency);
+        databaseAccess.setName(destServiceName);
+        databaseAccess.setStatus(status);
+        databaseAccess.setTimeBucket(timeBucket);
+        return databaseAccess;
+    }
 }
