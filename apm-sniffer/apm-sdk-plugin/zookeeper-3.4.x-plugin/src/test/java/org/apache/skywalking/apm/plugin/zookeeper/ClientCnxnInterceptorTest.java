@@ -104,7 +104,7 @@ public class ClientCnxnInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
-        assertThat(spans.get(0).getOperationName(), is("create"));
+        assertThat(spans.get(0).getOperationName(), is("Zookeeper/create"));
         assertThat(spans.get(0).isExit(), is(true));
         assertThat(SpanHelper.getComponentId(spans.get(0)), is(58));
         List<TagValuePair> tags = SpanHelper.getTags(spans.get(0));
