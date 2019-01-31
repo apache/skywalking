@@ -16,12 +16,12 @@
 
 oap:
 	cd oap; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
+	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./ ; \
 	docker build -t skywalking/oap:latest .
 
 ui:
 	cd ui; \
-	cp ../../dist/apache-skywalking-apm-incubating.tar.gz ./ ; \
+	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./ ; \
 	docker build -t skywalking/ui:latest .
 	
 build: oap ui
