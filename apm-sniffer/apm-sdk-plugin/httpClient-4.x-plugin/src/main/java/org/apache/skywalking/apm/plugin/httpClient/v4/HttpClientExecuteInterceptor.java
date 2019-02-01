@@ -108,7 +108,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
     private boolean isUrl(String uri) {
         String lowerUrl = uri.toLowerCase();
-        return (lowerUrl.startsWith("http") || lowerUrl.startsWith("https"));
+        return lowerUrl.startsWith("http") || lowerUrl.startsWith("https");
     }
 
     private String buildSpanValue(HttpHost httpHost, String uri) {
