@@ -109,7 +109,7 @@ public class HttpClientExecuteInterceptorTest {
 
             @Override
             public String getUri() {
-                return "http://127.0.0.1:8080/test-web/test";
+                return "/test-web/test";
             }
         });
         when(httpHost.getPort()).thenReturn(8080);
