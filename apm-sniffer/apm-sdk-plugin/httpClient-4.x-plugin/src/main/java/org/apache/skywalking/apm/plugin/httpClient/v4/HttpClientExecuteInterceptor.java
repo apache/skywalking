@@ -19,7 +19,8 @@
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
 import java.lang.reflect.Method;
-
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -49,11 +50,13 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
 
         String remotePeer = httpHost.getHostName() + ":" + port(httpHost);
 
-        String operationName = httpRequest.getRequestLine().getUri();
+        String uri = httpRequest.getRequestLine().getUri();
+        String requestURI = getRequestURI(uri);
+        String operationName = requestURI;
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
-        Tags.URL.set(span, url(httpHost, httpRequest));
+        Tags.URL.set(span, buildSpanValue(httpHost,uri));
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
@@ -62,21 +65,6 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
             next = next.next();
             httpRequest.setHeader(next.getHeadKey(), next.getHeadValue());
         }
-    }
-
-    private String url(HttpHost httpHost, HttpRequest httpRequest) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(httpHost.getSchemeName());
-        buff.append("://");
-        buff.append(httpHost.getHostName());
-        buff.append(":");
-        buff.append(port(httpHost));
-        buff.append(httpRequest.getRequestLine().getUri());
-        return buff.toString();
-    }
-
-    private int port(HttpHost httpHost) {
-        return httpHost.getPort() > 0 ? httpHost.getPort() : "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80;
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -107,5 +95,39 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();
         activeSpan.log(t);
+    }
+
+    private String getRequestURI(String uri) throws MalformedURLException {
+        if (isUrl(uri)) {
+            String requestPath = new URL(uri).getPath();
+            return requestPath != null && requestPath.length() > 0 ? requestPath : "/";
+        } else {
+            return uri;
+        }
+    }
+
+    private boolean isUrl(String uri) {
+        String lowerUrl = uri.toLowerCase();
+        return (lowerUrl.startsWith("http") || lowerUrl.startsWith("https"));
+    }
+
+    private String buildSpanValue(HttpHost httpHost, String uri) {
+        if (isUrl(uri)) {
+            return uri;
+        } else {
+            StringBuilder buff = new StringBuilder();
+            buff.append(httpHost.getSchemeName().toLowerCase());
+            buff.append("://");
+            buff.append(httpHost.getHostName());
+            buff.append(":");
+            buff.append(port(httpHost));
+            buff.append(uri);
+            return buff.toString();
+        }
+    }
+
+    private int port(HttpHost httpHost) {
+        int port = httpHost.getPort();
+        return port > 0 ? port : "https".equals(httpHost.getSchemeName().toLowerCase()) ? 443 : 80;
     }
 }
