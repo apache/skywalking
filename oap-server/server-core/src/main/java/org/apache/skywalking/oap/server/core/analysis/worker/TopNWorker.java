@@ -39,10 +39,10 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     private final String modelName;
     private final DataCarrier<TopN> dataCarrier;
 
-    public TopNWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
+    public TopNWorker(int workerId, String modelName, ModuleManager moduleManager,
         int topNSize,
         IRecordDAO recordDAO) {
-        super(moduleManager, workerId, batchSize);
+        super(moduleManager, workerId, -1);
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
         this.modelName = modelName;

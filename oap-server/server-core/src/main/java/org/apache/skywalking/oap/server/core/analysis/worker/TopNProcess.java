@@ -18,10 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.util.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.database.TopNDatabaseStatement;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
+import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -33,12 +38,29 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public enum TopNProcess {
     INSTANCE;
 
-    public void create(ModuleManager moduleManager, Class<? extends TopN> topN) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(topN);
-        Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(topN);
+    @Getter private List<TopNWorker> persistentWorkers = new ArrayList<>();
+    private Map<Class<? extends Record>, TopNWorker> workers = new HashMap<>();
+
+    public void create(ModuleManager moduleManager, Class<? extends TopN> topNClass) {
+        String modelName = StorageEntityAnnotationUtils.getModelName(topNClass);
+        Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(topNClass);
+
+        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
+        IRecordDAO recordDAO;
+        try {
+            recordDAO = storageDAO.newRecordDao(builderClass.newInstance());
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new UnexpectedException("");
+        }
+
+        TopNWorker persistentWorker = new TopNWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, moduleManager,
+            50, recordDAO);
+        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        persistentWorkers.add(persistentWorker);
+        workers.put(topNClass, persistentWorker);
     }
 
     public void in(TopNDatabaseStatement statement) {
-
+        workers.get(statement.getClass()).in(statement);
     }
 }

@@ -19,17 +19,17 @@
 package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
 
 public class LimitedSizeDataCollection<STORAGE_DATA extends ComparableStorageData> implements SWCollection<STORAGE_DATA> {
 
-    private final LinkedList<STORAGE_DATA> data;
+    private final HashMap<STORAGE_DATA, LinkedList<STORAGE_DATA>> data;
     private final int limitedSize;
     private volatile boolean writing;
     private volatile boolean reading;
 
     LimitedSizeDataCollection(int limitedSize) {
-        this.data = new LinkedList<>();
+        this.data = new HashMap<>();
         this.writing = false;
         this.reading = false;
         this.limitedSize = limitedSize;
@@ -76,31 +76,39 @@ public class LimitedSizeDataCollection<STORAGE_DATA extends ComparableStorageDat
     }
 
     @Override public void put(STORAGE_DATA value) {
-        if (data.size() < limitedSize) {
-            data.add(value);
+        LinkedList<STORAGE_DATA> storageDataList = this.data.get(value);
+        if (storageDataList == null) {
+            storageDataList = new LinkedList<>();
+            data.put(value, storageDataList);
+        }
+
+        if (storageDataList.size() < limitedSize) {
+            storageDataList.add(value);
             return;
         }
 
-        for (int i = 0; i < data.size(); i++) {
-            STORAGE_DATA storageData = this.data.get(i);
+        for (int i = 0; i < storageDataList.size(); i++) {
+            STORAGE_DATA storageData = storageDataList.get(i);
             if (value.compareTo(storageData) <= 0) {
                 if (i == 0) {
                     // input value is less than the smallest in top N list, ignore
                 } else {
                     // Remove the smallest in top N list
                     // add the current value into the right position
-                    data.removeFirst();
-                    data.add(i, value);
+                    storageDataList.removeFirst();
+                    storageDataList.add(i, value);
                 }
                 return;
             }
         }
 
         // Add the value as biggest in top N list
-        data.addLast(value);
+        storageDataList.addLast(value);
     }
 
     @Override public Collection<STORAGE_DATA> collection() {
-        return data;
+        List<STORAGE_DATA> collection = new ArrayList<>();
+        data.values().forEach(e -> e.forEach(collection::add));
+        return collection;
     }
 }

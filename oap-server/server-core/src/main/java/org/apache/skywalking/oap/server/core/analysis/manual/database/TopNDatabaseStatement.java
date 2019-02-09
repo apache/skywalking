@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.database;
 
 import java.util.*;
 import lombok.*;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.topn.annotation.TopNType;
 import org.apache.skywalking.oap.server.core.source.Scope;
@@ -39,10 +39,22 @@ public class TopNDatabaseStatement extends TopN {
     public static final String DATABASE_SERVICE_ID = "db_service_id";
 
     @Getter @Setter @Column(columnName = DATABASE_SERVICE_ID) private int databaseServiceId;
-    private final long recordNanoSec = System.nanoTime();
 
     @Override public String id() {
-        return TIME_BUCKET + Const.ID_SPLIT + recordNanoSec;
+        throw new UnexpectedException("id() should not be called.");
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        TopNDatabaseStatement statement = (TopNDatabaseStatement)o;
+        return databaseServiceId == statement.databaseServiceId;
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(databaseServiceId);
     }
 
     public static class Builder implements StorageBuilder<TopNDatabaseStatement> {
