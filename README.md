@@ -43,13 +43,6 @@ including
 # Document
 - [6.x Documents](docs/README.md). 
 
-```
-5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
-You can go to 5.x branch. At there, you have everything you need.
-```
-
-- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x). Also 5.x document is [here](https://github.com/apache/incubator-skywalking/blob/5.x/docs/README.md).
-
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
@@ -94,7 +87,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2019-01-10.png"/>
+<img src="http://skywalking.apache.org/assets/users-20190209.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
