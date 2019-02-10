@@ -56,7 +56,12 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     }
 
     @Override void onWork(TopN data) {
-        limitedSizeDataCache.add(data);
+        limitedSizeDataCache.writing();
+        try {
+            limitedSizeDataCache.add(data);
+        } finally {
+            limitedSizeDataCache.finishWriting();
+        }
     }
 
     /**
@@ -72,13 +77,24 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         return limitedSizeDataCache;
     }
 
-    @Override public List<Object> prepareBatch(LimitedSizeDataCache<TopN> cache) {
+    /**
+     * The top N worker persistent cycle is much less than the others, override `flushAndSwitch` to extend the execute
+     * time windows.
+     *
+     * Switch and persistent attempt happens based on reportCycle.
+     *
+     * @return
+     */
+    @Override public boolean flushAndSwitch() {
         long now = System.currentTimeMillis();
         if (now - lastReportTimestamp <= reportCycle) {
-            return new ArrayList<>(0);
+            return false;
         }
         lastReportTimestamp = now;
+        return super.flushAndSwitch();
+    }
 
+    @Override public List<Object> prepareBatch(LimitedSizeDataCache<TopN> cache) {
         List<Object> batchCollection = new LinkedList<>();
         cache.getLast().collection().forEach(record -> {
             try {
@@ -91,7 +107,7 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     }
 
     @Override public void in(TopN n) {
-        limitedSizeDataCache.add(n);
+        dataCarrier.produce(n);
     }
 
     private class TopNConsumer implements IConsumer<TopN> {

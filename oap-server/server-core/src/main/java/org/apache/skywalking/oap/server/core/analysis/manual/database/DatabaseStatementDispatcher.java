@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 public class DatabaseStatementDispatcher implements SourceDispatcher<DatabaseSlowStatement> {
     @Override public void dispatch(DatabaseSlowStatement source) {
         TopNDatabaseStatement statement = new TopNDatabaseStatement();
+        statement.setId(source.getId());
         statement.setDatabaseServiceId(source.getDatabaseServiceId());
         statement.setLatency(source.getLatency());
         statement.setStatement(source.getStatement());

@@ -35,13 +35,14 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @TopNType
 @StorageEntity(name = TopNDatabaseStatement.INDEX_NAME, builder = TopNDatabaseStatement.Builder.class, source = Scope.DatabaseSlowStatement)
 public class TopNDatabaseStatement extends TopN {
-    public static final String INDEX_NAME = "TOP_N_DATABASE_STATEMENT";
+    public static final String INDEX_NAME = "top_n_database_statement";
     public static final String DATABASE_SERVICE_ID = "db_service_id";
 
+    @Setter private String id;
     @Getter @Setter @Column(columnName = DATABASE_SERVICE_ID) private int databaseServiceId;
 
     @Override public String id() {
-        throw new UnexpectedException("id() should not be called.");
+        return id;
     }
 
     @Override public boolean equals(Object o) {

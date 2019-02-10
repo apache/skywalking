@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
  */
 @SourceType
 public class DatabaseSlowStatement extends Source {
+    @Getter @Setter private String id;
     @Getter @Setter private int databaseServiceId;
     @Getter @Setter private String statement;
     @Getter @Setter private long latency;

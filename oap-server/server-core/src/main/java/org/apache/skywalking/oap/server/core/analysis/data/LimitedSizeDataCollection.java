@@ -104,6 +104,7 @@ public class LimitedSizeDataCollection<STORAGE_DATA extends ComparableStorageDat
 
         // Add the value as biggest in top N list
         storageDataList.addLast(value);
+        storageDataList.removeFirst();
     }
 
     @Override public Collection<STORAGE_DATA> collection() {

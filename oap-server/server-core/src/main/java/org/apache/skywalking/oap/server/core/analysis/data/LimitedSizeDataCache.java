@@ -22,11 +22,13 @@ import org.apache.skywalking.oap.server.core.storage.*;
 
 public class LimitedSizeDataCache<STORAGE_DATA extends ComparableStorageData> extends Window<STORAGE_DATA> implements DataCache {
 
-    private SWCollection<STORAGE_DATA> lockedMergeDataCollection;
+    private SWCollection<STORAGE_DATA> limitedSizeDataCollection;
     private final int limitSize;
 
     public LimitedSizeDataCache(int limitSize) {
+        super(false);
         this.limitSize = limitSize;
+        init();
     }
 
     @Override public SWCollection<STORAGE_DATA> collectionInstance() {
@@ -34,16 +36,16 @@ public class LimitedSizeDataCache<STORAGE_DATA extends ComparableStorageData> ex
     }
 
     public void add(STORAGE_DATA data) {
-        lockedMergeDataCollection.put(data);
+        limitedSizeDataCollection.put(data);
     }
 
     @Override public void writing() {
-        lockedMergeDataCollection = getCurrentAndWriting();
+        limitedSizeDataCollection = getCurrentAndWriting();
     }
 
     @Override public void finishWriting() {
-        lockedMergeDataCollection.finishWriting();
-        lockedMergeDataCollection = null;
+        limitedSizeDataCollection.finishWriting();
+        limitedSizeDataCollection = null;
     }
 }
 
