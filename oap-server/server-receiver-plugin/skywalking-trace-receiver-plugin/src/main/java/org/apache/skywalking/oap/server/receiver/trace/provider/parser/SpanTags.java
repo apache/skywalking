@@ -16,14 +16,8 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-
-/**
- * @author peng-yongsheng
- */
-public interface SpanListenerFactory {
-    SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
+public class SpanTags {
+    public static final String DB_STATEMENT = "db.statement";
 }

@@ -30,15 +30,15 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 public abstract class TopN extends Record implements ComparableStorageData {
     public static final String STATEMENT = "statement";
-    public static final String DURATION = "duration";
+    public static final String LATENCY = "latency";
     public static final String TRACE_ID = "trace_id";
 
     @Getter @Setter @Column(columnName = STATEMENT) private String statement;
-    @Getter @Setter @Column(columnName = DURATION) private long duration;
+    @Getter @Setter @Column(columnName = LATENCY) private long latency;
     @Getter @Setter @Column(columnName = TRACE_ID) private String traceId;
 
     @Override public int compareTo(Object o) {
         TopN target = (TopN)o;
-        return (int)(duration - target.duration);
+        return (int)(latency - target.latency);
     }
 }

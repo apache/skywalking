@@ -73,14 +73,14 @@ public class TraceModuleProvider extends ModuleProvider {
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory(moduleConfig.getSampleRate()));
 
-        segmentProducer = new SegmentParse.Producer(getManager(), listenerManager);
+        segmentProducer = new SegmentParse.Producer(getManager(), listenerManager, moduleConfig);
 
         listenerManager = new SegmentParserListenerManager();
         listenerManager.add(new MultiScopesSpanListener.Factory());
         listenerManager.add(new ServiceMappingSpanListener.Factory());
         listenerManager.add(new SegmentSpanListener.Factory(moduleConfig.getSampleRate()));
 
-        segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager);
+        segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager, moduleConfig);
 
         this.registerServiceImplementation(ISegmentParserService.class, new SegmentParserServiceImpl(segmentProducerV2));
     }

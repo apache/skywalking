@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 public class DatabaseSlowStatement extends Source {
     @Getter @Setter private int databaseServiceId;
     @Getter @Setter private String statement;
-    @Getter @Setter private long duration;
+    @Getter @Setter private long latency;
     @Getter @Setter private String traceId;
 
     @Override public Scope scope() {

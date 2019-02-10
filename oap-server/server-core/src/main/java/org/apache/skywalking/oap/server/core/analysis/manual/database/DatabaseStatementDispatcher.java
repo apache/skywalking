@@ -29,7 +29,7 @@ public class DatabaseStatementDispatcher implements SourceDispatcher<DatabaseSlo
     @Override public void dispatch(DatabaseSlowStatement source) {
         TopNDatabaseStatement statement = new TopNDatabaseStatement();
         statement.setDatabaseServiceId(source.getDatabaseServiceId());
-        statement.setDuration(source.getDuration());
+        statement.setLatency(source.getLatency());
         statement.setStatement(source.getStatement());
         statement.setTimeBucket(source.getTimeBucket());
         statement.setTraceId(source.getTraceId());

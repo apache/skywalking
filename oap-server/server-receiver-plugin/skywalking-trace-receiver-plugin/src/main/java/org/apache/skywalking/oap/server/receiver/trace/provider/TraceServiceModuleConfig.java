@@ -34,4 +34,10 @@ public class TraceServiceModuleConfig extends ModuleConfig {
      * 10000 means 100% sample in default.
      */
     @Setter @Getter private int sampleRate = 10000;
+
+    /**
+     * The threshold used to check the slow database access.
+     * Unit, millisecond.
+     */
+    @Setter @Getter private int slowDBAccessThreshold = 200;
 }

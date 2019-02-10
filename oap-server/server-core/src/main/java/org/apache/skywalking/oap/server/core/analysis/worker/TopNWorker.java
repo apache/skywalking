@@ -38,6 +38,8 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     private final IRecordDAO recordDAO;
     private final String modelName;
     private final DataCarrier<TopN> dataCarrier;
+    private long reportCycle;
+    private volatile long lastReportTimestamp;
 
     public TopNWorker(int workerId, String modelName, ModuleManager moduleManager,
         int topNSize,
@@ -48,6 +50,9 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         this.modelName = modelName;
         this.dataCarrier = new DataCarrier<>(1, 10000);
         this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
+        this.lastReportTimestamp = System.currentTimeMillis();
+        // Top N persistent only works per 10 minutes.
+        this.reportCycle = 10 * 60 * 1000L;
     }
 
     @Override void onWork(TopN data) {
@@ -68,6 +73,12 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     }
 
     @Override public List<Object> prepareBatch(LimitedSizeDataCache<TopN> cache) {
+        long now = System.currentTimeMillis();
+        if (now - lastReportTimestamp <= reportCycle) {
+            return new ArrayList<>(0);
+        }
+        lastReportTimestamp = now;
+
         List<Object> batchCollection = new LinkedList<>();
         cache.getLast().collection().forEach(record -> {
             try {
