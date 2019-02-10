@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.provider.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
@@ -148,8 +148,9 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         setPublicAttrs(sourceBuilder, spanDecorator);
         exitSourceBuilders.add(sourceBuilder);
 
-        if (sourceBuilder.getType().equals(RequestType.DATABASE)
-            && sourceBuilder.getLatency() > config.getSlowDBAccessThreshold()) {
+        if (sourceBuilder.getType().equals(RequestType.DATABASE)) {
+            boolean isSlowDBAccess = false;
+
             DatabaseSlowStatement statement = new DatabaseSlowStatement();
             statement.setId(segmentCoreInfo.getSegmentId() + "-" + spanDecorator.getSpanId());
             statement.setDatabaseServiceId(sourceBuilder.getDestServiceId());
@@ -159,11 +160,20 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     statement.setStatement(tag.getValue());
-                    slowDatabaseAccesses.add(statement);
-                    break;
+
+                } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
+                    String dbType = tag.getValue();
+                    DBLatencyThresholds thresholds = config.getDbLatencyThresholds();
+                    int threshold = thresholds.getThreshold(dbType);
+                    if (sourceBuilder.getLatency() > threshold) {
+                        isSlowDBAccess = true;
+                    }
                 }
             }
 
+            if (isSlowDBAccess) {
+                slowDatabaseAccesses.add(statement);
+            }
         }
     }
 
