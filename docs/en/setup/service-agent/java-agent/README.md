@@ -108,5 +108,5 @@ our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md)
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
-* [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
-* [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
+* [Plugin Test](https://github.com/SkyAPMTest/agent-integration-test-report)
+* [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)

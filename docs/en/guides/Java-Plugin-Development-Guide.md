@@ -286,7 +286,5 @@ Please follow there steps:
 1. Develop and test.
 1. Send the pull request and ask for review. 
 1. Provide the automatic test cases. 
-All test cases are hosted in [SkywalkingTest/skywalking-agent-testcases repository](https://github.com/SkywalkingTest/skywalking-agent-testcases).
-About how to write a test case, follow the [How to write](https://github.com/SkywalkingTest/skywalking-agent-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) document.
 1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 

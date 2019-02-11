@@ -1,7 +1,7 @@
 Apache SkyWalking
 ==========
 
-<img src="https://skywalkingtest.github.io/page-resources/logo/sw-big-dark-1200.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking**: an APM(application performance monitor) system, especially designed for 
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
@@ -30,7 +30,7 @@ The core features are following.
 - Alarm
 
 
-<img src="https://skywalkingtest.github.io/page-resources/6-beta-overview.png"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats, 
@@ -64,9 +64,9 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
     <td width="50%" align="center"><b>Observe on Istio</b></td>
   </tr>
   <tr>
-    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Topology.png"/>
+    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Topology.png"/>
 </td>
-    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Topology.png"/>
+    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Istio/Topology.png"/>
 </td>
    <tr>
      <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
