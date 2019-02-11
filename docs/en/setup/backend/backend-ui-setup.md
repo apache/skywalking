@@ -28,7 +28,7 @@ In Java, .NetCore, Node.js, Istio agents/probe, set the gRPC service address to 
 After the quick start, you should want to deploy the backend and UI in the distributed env.
 Before that, you should know how agent/probe, backend, UI communicate with each other.
 
-<img src="https://skywalkingtest.github.io/page-resources/6.0.0/communication-net.png"/>
+<img src="http://skywalking.apache.org/doc-graph/communication-net.png"/>
 
 - All native agents and probes, either language based or mesh probe, are using gRPC service(`core/default/gRPC*` in `application.yml`) to report
 data to backend. Also, jetty service supported in JSON format. 
