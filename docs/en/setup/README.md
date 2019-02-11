@@ -12,8 +12,8 @@ Setup based on which kind of probes are you going to use. If you don't understan
 
 - [Java agent](service-agent/java-agent/README.md). Introduce how to install java agent to your service, without change any codes.
 
-The following agents and SDKs are maintained by the 3rd-party. They are not part of Apache SkyWalking, but compatible
-with the SkyWalking's formats and protocols.
+The following agents and SDKs are compatible with the SkyWalking's formats and protocols, but maintained by the 3rd-party.
+You could go to their project repositories to find out the releases and how to use them.
 - [SkyAPM .NET Core agent](https://github.com/SkyAPM/SkyAPM-dotnet). See .NET Core agent project document for more details.
 - [SkyAPM Node.js agent](https://github.com/SkyAPM/SkyAPM-nodejs). See Node.js server side agent project document for more details.
 - [SkyAPM PHP SDK](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
