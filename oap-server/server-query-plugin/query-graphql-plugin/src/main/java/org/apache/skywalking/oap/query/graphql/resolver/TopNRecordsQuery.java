@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -44,7 +45,7 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
         return topNRecordsQueryService;
     }
 
-    public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) {
+    public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) throws IOException {
         long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getStart());
         long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getEnd());
 

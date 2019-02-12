@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITopNRecordsQueryDAO extends Service {
     List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order);
+        int topN, Order order) throws IOException;
 }

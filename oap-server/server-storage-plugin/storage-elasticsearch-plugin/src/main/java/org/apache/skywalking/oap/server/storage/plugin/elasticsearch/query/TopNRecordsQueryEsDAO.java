@@ -18,14 +18,50 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
-public class TopNRecordsQueryEsDAO implements ITopNRecordsQueryDAO {
+/**
+ * @author wusheng
+ */
+public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO {
+    public TopNRecordsQueryEsDAO(ElasticSearchClient client) {
+        super(client);
+    }
+
     @Override
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order) {
-        return new ArrayList<>();
+        int topN, Order order) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(topN).sort(TopN.LATENCY, order.equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
+        SearchResponse response = getClient().search(metricName, sourceBuilder);
+
+        List<TopNRecord> results = new ArrayList<>();
+
+        for (SearchHit searchHit : response.getHits().getHits()) {
+            TopNRecord record = new TopNRecord();
+            record.setStatement((String)searchHit.getSourceAsMap().get(TopN.STATEMENT));
+            record.setTraceId((String)searchHit.getSourceAsMap().get(TopN.TRACE_ID));
+            record.setLatency(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).longValue());
+            results.add(record);
+        }
+
+        return results;
     }
 }

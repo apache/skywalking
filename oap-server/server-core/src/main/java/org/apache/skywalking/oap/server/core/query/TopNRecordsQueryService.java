@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -44,7 +45,7 @@ public class TopNRecordsQueryService implements Service {
     }
 
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order) {
+        int topN, Order order) throws IOException {
         return getTopNRecordsQueryDAO().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
     }
 }
