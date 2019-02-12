@@ -65,7 +65,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                 TopNRecord record = new TopNRecord();
                 record.setStatement(resultSet.getString(TopN.STATEMENT));
                 record.setTraceId(resultSet.getString(TopN.TRACE_ID));
-                record.setLatency(resultSet.getLong(SegmentRecord.IS_ERROR));
+                record.setLatency(resultSet.getLong(TopN.LATENCY));
                 results.add(record);
             }
         } catch (SQLException e) {

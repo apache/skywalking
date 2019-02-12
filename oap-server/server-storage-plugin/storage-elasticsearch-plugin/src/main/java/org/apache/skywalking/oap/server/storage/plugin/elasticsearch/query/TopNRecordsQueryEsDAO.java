@@ -58,7 +58,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
             TopNRecord record = new TopNRecord();
             record.setStatement((String)searchHit.getSourceAsMap().get(TopN.STATEMENT));
             record.setTraceId((String)searchHit.getSourceAsMap().get(TopN.TRACE_ID));
-            record.setLatency(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).longValue());
+            record.setLatency(((Number)searchHit.getSourceAsMap().get(TopN.LATENCY)).longValue());
             results.add(record);
         }
 
