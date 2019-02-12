@@ -84,6 +84,7 @@ public enum PersistenceTimer {
                 List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
                 persistenceWorkers.addAll(IndicatorProcess.INSTANCE.getPersistentWorkers());
                 persistenceWorkers.addAll(RecordProcess.INSTANCE.getPersistentWorkers());
+                persistenceWorkers.addAll(TopNProcess.INSTANCE.getPersistentWorkers());
 
                 persistenceWorkers.forEach(worker -> {
                     if (logger.isDebugEnabled()) {
