@@ -16,14 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.analysis.topn.annotation;
 
+import java.lang.annotation.Annotation;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNProcess;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public interface SpanListenerFactory {
-    SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
+public class TopNTypeListener implements AnnotationListener {
+
+    private final ModuleManager moduleManager;
+
+    public TopNTypeListener(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    @Override public Class<? extends Annotation> annotation() {
+        return TopNType.class;
+    }
+
+    @Override public void notify(Class aClass) {
+        TopNProcess.INSTANCE.create(moduleManager, aClass);
+    }
 }
