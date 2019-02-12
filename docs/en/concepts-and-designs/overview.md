@@ -27,9 +27,9 @@ In addition to all these, you can have distributed tracing from SkyWalking nativ
 and OpenCensus.
 
 ## Architecture
-The SkyWalking is logically splittd into four parts: Probes, Platform backend, Storage and UI.
+The SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.
 
-<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg"/>
 
 - The **Probe**s are different based on different sources. They collect data and reformat them in SkyWalking requirements.
 - The **Platform backend** is a backend, supported cluster for sure. It is for aggregation, analysis and driving process flow
