@@ -35,7 +35,7 @@ public class DBLatencyThresholds {
                 thresholds.put(typeValue[0].toLowerCase(), Integer.parseInt(typeValue[1]));
             }
         }
-        if (thresholds.containsKey("default")) {
+        if (!thresholds.containsKey("default")) {
             thresholds.put("default", 10000);
         }
     }

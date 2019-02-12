@@ -117,6 +117,7 @@ class ServiceBMock {
         span.setComponentId(ComponentsDefine.MONGO_DRIVER.getId());
         span.setIsError(true);
         span.addTags(KeyWithStringValue.newBuilder().setKey("db.statement").setValue("select * from database where complex = 1;").build());
+        span.addTags(KeyWithStringValue.newBuilder().setKey("db.type").setValue("mongodb").build());
 
         if (isPrepare) {
             span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
