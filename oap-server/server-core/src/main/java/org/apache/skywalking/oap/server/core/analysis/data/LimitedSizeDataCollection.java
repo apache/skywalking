@@ -95,8 +95,8 @@ public class LimitedSizeDataCollection<STORAGE_DATA extends ComparableStorageDat
                 } else {
                     // Remove the smallest in top N list
                     // add the current value into the right position
-                    storageDataList.removeFirst();
                     storageDataList.add(i, value);
+                    storageDataList.removeFirst();
                 }
                 return;
             }
