@@ -16,17 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 
-@Getter
-@Setter
-public class TopNRecordsCondition {
-    private int serviceId;
-    private String metricName;
-    private int topN;
-    private Order order;
-    private Duration duration;
+public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
+    @Override
+    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
+        int topN, Order order) {
+        return new ArrayList<>();
+    }
 }

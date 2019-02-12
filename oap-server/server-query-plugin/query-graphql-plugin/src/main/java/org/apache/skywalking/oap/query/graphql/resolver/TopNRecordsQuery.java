@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
-import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.*;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -29,12 +31,28 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  */
 public class TopNRecordsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
+    private TopNRecordsQueryService topNRecordsQueryService;
 
     public TopNRecordsQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
+    private TopNRecordsQueryService getTopNRecordsQueryService() {
+        if (topNRecordsQueryService == null) {
+            this.topNRecordsQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TopNRecordsQueryService.class);
+        }
+        return topNRecordsQueryService;
+    }
+
     public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) {
-        return null;
+        long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getStart());
+        long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getEnd());
+
+        String metricName = condition.getMetricName();
+        Order order = condition.getOrder();
+        int topN = condition.getTopN();
+        int serviceId = condition.getServiceId();
+
+        return getTopNRecordsQueryService().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
     }
 }
