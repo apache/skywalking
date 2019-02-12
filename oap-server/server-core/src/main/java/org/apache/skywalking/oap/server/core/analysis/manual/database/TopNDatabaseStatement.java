@@ -36,10 +36,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @StorageEntity(name = TopNDatabaseStatement.INDEX_NAME, builder = TopNDatabaseStatement.Builder.class, source = Scope.DatabaseSlowStatement)
 public class TopNDatabaseStatement extends TopN {
     public static final String INDEX_NAME = "top_n_database_statement";
-    public static final String DATABASE_SERVICE_ID = "db_service_id";
+
 
     @Setter private String id;
-    @Getter @Setter @Column(columnName = DATABASE_SERVICE_ID) private int databaseServiceId;
 
     @Override public String id() {
         return id;
@@ -51,11 +50,11 @@ public class TopNDatabaseStatement extends TopN {
         if (o == null || getClass() != o.getClass())
             return false;
         TopNDatabaseStatement statement = (TopNDatabaseStatement)o;
-        return databaseServiceId == statement.databaseServiceId;
+        return getServiceId() == statement.getServiceId();
     }
 
     @Override public int hashCode() {
-        return Objects.hash(databaseServiceId);
+        return Objects.hash(getServiceId());
     }
 
     public static class Builder implements StorageBuilder<TopNDatabaseStatement> {
@@ -65,7 +64,7 @@ public class TopNDatabaseStatement extends TopN {
             statement.setStatement((String)dbMap.get(STATEMENT));
             statement.setTraceId((String)dbMap.get(TRACE_ID));
             statement.setLatency(((Number)dbMap.get(LATENCY)).longValue());
-            statement.setDatabaseServiceId(((Number)dbMap.get(DATABASE_SERVICE_ID)).intValue());
+            statement.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
             return statement;
         }
 
@@ -74,7 +73,7 @@ public class TopNDatabaseStatement extends TopN {
             map.put(STATEMENT, storageData.getStatement());
             map.put(TRACE_ID, storageData.getTraceId());
             map.put(LATENCY, storageData.getLatency());
-            map.put(DATABASE_SERVICE_ID, storageData.getDatabaseServiceId());
+            map.put(SERVICE_ID, storageData.getServiceId());
             return map;
         }
     }
