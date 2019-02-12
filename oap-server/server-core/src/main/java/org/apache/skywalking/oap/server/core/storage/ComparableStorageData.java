@@ -16,14 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
-
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+package org.apache.skywalking.oap.server.core.storage;
 
 /**
- * @author peng-yongsheng
+ * Storage data with comparable capability.
+ *
+ * @author wusheng
  */
-public interface SpanListenerFactory {
-    SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
+public interface ComparableStorageData extends StorageData, Comparable {
 }
