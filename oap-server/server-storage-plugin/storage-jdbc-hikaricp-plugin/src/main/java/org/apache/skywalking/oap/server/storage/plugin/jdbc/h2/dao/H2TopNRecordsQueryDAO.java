@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
@@ -46,9 +45,9 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         sql.append(" service_id = ? ");
         parameters.add(serviceId);
 
-        sql.append(" and ").append(TopN.LATENCY).append(" >= ?");
+        sql.append(" and ").append(TopN.TIME_BUCKET).append(" >= ?");
         parameters.add(startSecondTB);
-        sql.append(" and ").append(TopN.LATENCY).append(" <= ?");
+        sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
         parameters.add(endSecondTB);
 
         sql.append(" order by ").append(TopN.LATENCY);
@@ -62,11 +61,13 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         List<TopNRecord> results = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
-                TopNRecord record = new TopNRecord();
-                record.setStatement(resultSet.getString(TopN.STATEMENT));
-                record.setTraceId(resultSet.getString(TopN.TRACE_ID));
-                record.setLatency(resultSet.getLong(TopN.LATENCY));
-                results.add(record);
+                while (resultSet.next()) {
+                    TopNRecord record = new TopNRecord();
+                    record.setStatement(resultSet.getString(TopN.STATEMENT));
+                    record.setTraceId(resultSet.getString(TopN.TRACE_ID));
+                    record.setLatency(resultSet.getLong(TopN.LATENCY));
+                    results.add(record);
+                }
             }
         } catch (SQLException e) {
             throw new IOException(e);
