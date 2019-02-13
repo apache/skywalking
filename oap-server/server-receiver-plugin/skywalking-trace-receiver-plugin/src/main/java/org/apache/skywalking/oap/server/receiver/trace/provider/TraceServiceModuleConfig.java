@@ -30,8 +30,13 @@ public class TraceServiceModuleConfig extends ModuleConfig {
     @Setter @Getter private int bufferDataMaxFileSize;
     @Setter @Getter private boolean bufferFileCleanWhenRestart;
     /**
-     * The sample rate precision is 1/10000.
-     * 10000 means 100% sample in default.
+     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
      */
     @Setter @Getter private int sampleRate = 10000;
+
+    /**
+     * The threshold used to check the slow database access. Unit, millisecond.
+     */
+    @Setter @Getter private String slowDBAccessThreshold = "default:200";
+    @Setter @Getter private DBLatencyThresholds dbLatencyThresholds;
 }

@@ -87,6 +87,7 @@ Now, we have the following known optional plugins.
 * [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
 * Gson serialization lib in optional plugin folder
+* Lettuce 5.x(JRE1.8+) in optional plugin folder 
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
@@ -107,5 +108,5 @@ our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md)
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
-* [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
-* [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
+* [Plugin Test](https://github.com/SkyAPMTest/agent-integration-test-report)
+* [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)

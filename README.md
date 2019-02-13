@@ -1,7 +1,7 @@
 Apache SkyWalking
 ==========
 
-<img src="https://skywalkingtest.github.io/page-resources/logo/sw-big-dark-1200.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
 
 **SkyWalking**: an APM(application performance monitor) system, especially designed for 
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
@@ -30,7 +30,7 @@ The core features are following.
 - Alarm
 
 
-<img src="https://skywalkingtest.github.io/page-resources/6-beta-overview.png"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats, 
@@ -42,13 +42,6 @@ including
 
 # Document
 - [6.x Documents](docs/README.md). 
-
-```
-5.x is still supported by SkyWalking community, and the agent-backend protocol is compatible with 6.x.
-You can go to 5.x branch. At there, you have everything you need.
-```
-
-- Go to [5.x pages](https://github.com/apache/incubator-skywalking/tree/5.x). Also 5.x document is [here](https://github.com/apache/incubator-skywalking/blob/5.x/docs/README.md).
 
 
 # Downloads
@@ -71,9 +64,9 @@ Please report unacceptable behavior to dev@skywalking.apache.org .
     <td width="50%" align="center"><b>Observe on Istio</b></td>
   </tr>
   <tr>
-    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Topology.png"/>
+    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Topology.png"/>
 </td>
-    <td><img src="https://skywalkingtest.github.io/page-resources/6.0.0-alpha/Istio/Topology.png"/>
+    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Istio/Topology.png"/>
 </td>
    <tr>
      <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
@@ -94,7 +87,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="https://skywalkingtest.github.io/page-resources/users/users-2019-01-10.png"/>
+<img src="http://skywalking.apache.org/assets/users-20190209.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 

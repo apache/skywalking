@@ -48,7 +48,7 @@
     </dependencies>
 
     <build>
-        <finalName>apache-skywalking-apm-incubating</finalName>
+        <finalName>apache-skywalking-apm-incubating-bin</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -81,8 +81,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.directory}/apache-skywalking-apm-incubating.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-incubating.tar.gz" overwrite="true" />
-                                <copy file="${project.build.directory}/apache-skywalking-apm-incubating.zip" tofile="${project.basedir}/../dist/apache-skywalking-apm-incubating.zip" overwrite="true" />
+                                <copy file="${project.build.directory}/apache-skywalking-apm-incubating-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-incubating-bin.tar.gz" overwrite="true" />
+                                <copy file="${project.build.directory}/apache-skywalking-apm-incubating-bin.zip" tofile="${project.basedir}/../dist/apache-skywalking-apm-incubating-bin.zip" overwrite="true" />
                             </tasks>
                         </configuration>
                     </execution>

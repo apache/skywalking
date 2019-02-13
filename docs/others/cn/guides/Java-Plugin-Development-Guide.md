@@ -69,7 +69,7 @@ ExitSpan代表一个服务客户端或MQ的生产者，在SkyWalking的早期命
 以下是有关跨线程传播的三个步骤：
 1. 使用`ContextManager＃capture`获取ContextSnapshot对象。
 2. 让子线程以任何方式，通过方法参数或由现有参数携带来访问ContextSnapshot
-3. 在子线程中使用`ContextManager#continies`。
+3. 在子线程中使用`ContextManager#continued`。
 
 ## 核心 API
 ### ContextManager
@@ -293,7 +293,7 @@ public interface InstanceMethodsAroundInterceptor {
 1. 开发并测试。
 1. 发送拉取请求并要求审核。
 1. 提供自动测试用例。 
-所有测试用例都托管在[SkywalkingTest/skywalking-agent-testcases repository](https://github.com/SkywalkingTest/skywalking-agent-testcases).
-关于如何编写测试用例，请按照[如何编写](https://github.com/SkywalkingTest/skywalking-agent-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) 文档来实现.
+所有测试用例都托管在[SkyAPMTest/agent-auto-integration-testcases repository](https://github.com/SkyAPMTest/agent-auto-integration-testcases).
+关于如何编写测试用例，请按照[如何编写](https://github.com/SkyAPMTest/agent-auto-integration-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) 文档来实现.
 1. 在提供自动测试用例并在CI中递交测试后，插件提交者会批准您的插件。
 1. SkyWalking接受的插件。 

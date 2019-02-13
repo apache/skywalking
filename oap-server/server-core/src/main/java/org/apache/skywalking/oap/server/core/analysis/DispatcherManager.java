@@ -47,6 +47,10 @@ public class DispatcherManager {
     }
 
     public void forward(Source source) {
+        if (source == null) {
+            return;
+        }
+
         for (SourceDispatcher dispatcher : dispatcherMap.get(source.scope())) {
             dispatcher.dispatch(source);
         }
