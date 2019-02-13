@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
-public interface SpanListenerFactory {
-    SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
+public interface ITopNRecordsQueryDAO extends Service {
+    List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
+        int topN, Order order) throws IOException;
 }

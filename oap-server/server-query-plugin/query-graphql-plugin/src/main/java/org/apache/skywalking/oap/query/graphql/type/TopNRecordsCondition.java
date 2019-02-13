@@ -16,14 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.query.graphql.type;
 
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import lombok.*;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
 
-/**
- * @author peng-yongsheng
- */
-public interface SpanListenerFactory {
-    SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
+@Getter
+@Setter
+public class TopNRecordsCondition {
+    private int serviceId;
+    private String metricName;
+    private int topN;
+    private Order order;
+    private Duration duration;
 }

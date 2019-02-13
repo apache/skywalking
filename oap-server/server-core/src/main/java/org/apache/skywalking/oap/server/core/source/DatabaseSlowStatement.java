@@ -16,27 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider;
+package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class TraceServiceModuleConfig extends ModuleConfig {
-    @Setter @Getter private String bufferPath;
-    @Setter @Getter private int bufferOffsetMaxFileSize;
-    @Setter @Getter private int bufferDataMaxFileSize;
-    @Setter @Getter private boolean bufferFileCleanWhenRestart;
-    /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
-     */
-    @Setter @Getter private int sampleRate = 10000;
+@SourceType
+public class DatabaseSlowStatement extends Source {
+    @Getter @Setter private String id;
+    @Getter @Setter private int databaseServiceId;
+    @Getter @Setter private String statement;
+    @Getter @Setter private long latency;
+    @Getter @Setter private String traceId;
 
-    /**
-     * The threshold used to check the slow database access. Unit, millisecond.
-     */
-    @Setter @Getter private String slowDBAccessThreshold = "default:200";
-    @Setter @Getter private DBLatencyThresholds dbLatencyThresholds;
+    @Override public Scope scope() {
+        return Scope.DatabaseSlowStatement;
+    }
+
+    @Override public String getEntityId() {
+        return Const.EMPTY_STRING;
+    }
+
 }
