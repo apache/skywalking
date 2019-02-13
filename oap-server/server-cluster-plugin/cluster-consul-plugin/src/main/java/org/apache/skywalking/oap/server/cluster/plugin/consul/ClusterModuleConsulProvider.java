@@ -80,7 +80,7 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        ConsulCoordinator coordinator = new ConsulCoordinator(client, config.getServiceName());
+        ConsulCoordinator coordinator = new ConsulCoordinator(config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
