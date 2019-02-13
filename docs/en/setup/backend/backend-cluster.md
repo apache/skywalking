@@ -43,7 +43,7 @@ zookeeper:
   baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
   maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
   internalComHost: 172.10.4.10
-  internalComPort: 8080
+  internalComPort: 11800
 ``` 
 
 
