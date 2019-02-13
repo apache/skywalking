@@ -31,6 +31,8 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     private String hostPort;
     private int baseSleepTimeMs;
     private int maxRetries;
+    @Setter @Getter private String internalComHost;
+    @Setter @Getter private int internalComPort = -1;
 
     public String getHostPort() {
         return Strings.isNullOrEmpty(hostPort) ? "localhost:2181" : hostPort;
