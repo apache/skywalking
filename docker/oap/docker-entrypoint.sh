@@ -24,5 +24,5 @@ do
     CLASSPATH="$i:$CLASSPATH"
 done
 
-exec java ${JAVA_OPTS} -classpath $CLASSPATH \
- org.apache.skywalking.oap.server.starter.OAPServerStartUp "$@"
+exec java  -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap \
+     ${JAVA_OPTS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp "$@"
