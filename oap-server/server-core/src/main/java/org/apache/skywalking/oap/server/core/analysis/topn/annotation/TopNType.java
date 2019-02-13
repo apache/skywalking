@@ -16,14 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
+package org.apache.skywalking.oap.server.core.analysis.topn.annotation;
 
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import java.lang.annotation.*;
 
-/**
- * @author peng-yongsheng
- */
-public interface SpanListenerFactory {
-    SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TopNType {
 }

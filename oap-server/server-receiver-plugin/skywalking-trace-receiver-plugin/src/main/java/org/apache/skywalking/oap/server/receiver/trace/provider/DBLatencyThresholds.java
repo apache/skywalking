@@ -18,25 +18,34 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.util.*;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class TraceServiceModuleConfig extends ModuleConfig {
-    @Setter @Getter private String bufferPath;
-    @Setter @Getter private int bufferOffsetMaxFileSize;
-    @Setter @Getter private int bufferDataMaxFileSize;
-    @Setter @Getter private boolean bufferFileCleanWhenRestart;
-    /**
-     * The sample rate precision is 1/10000. 10000 means 100% sample in default.
-     */
-    @Setter @Getter private int sampleRate = 10000;
+public class DBLatencyThresholds {
+    private Map<String, Integer> thresholds;
 
-    /**
-     * The threshold used to check the slow database access. Unit, millisecond.
-     */
-    @Setter @Getter private String slowDBAccessThreshold = "default:200";
-    @Setter @Getter private DBLatencyThresholds dbLatencyThresholds;
+    DBLatencyThresholds(String config) {
+        thresholds = new HashMap<>();
+        String[] settings = config.split(",");
+        for (String setting : settings) {
+            String[] typeValue = setting.split(":");
+            if (typeValue.length == 2) {
+                thresholds.put(typeValue[0].toLowerCase(), Integer.parseInt(typeValue[1]));
+            }
+        }
+        if (!thresholds.containsKey("default")) {
+            thresholds.put("default", 10000);
+        }
+    }
+
+    public int getThreshold(String type) {
+        type = type.toLowerCase();
+        if (thresholds.containsKey(type)) {
+            return thresholds.get(type);
+        } else {
+            return thresholds.get("default");
+        }
+    }
 }

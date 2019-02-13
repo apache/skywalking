@@ -293,7 +293,7 @@ public interface InstanceMethodsAroundInterceptor {
 1. 开发并测试。
 1. 发送拉取请求并要求审核。
 1. 提供自动测试用例。 
-所有测试用例都托管在[SkywalkingTest/skywalking-agent-testcases repository](https://github.com/SkywalkingTest/skywalking-agent-testcases).
-关于如何编写测试用例，请按照[如何编写](https://github.com/SkywalkingTest/skywalking-agent-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) 文档来实现.
+所有测试用例都托管在[SkyAPMTest/agent-auto-integration-testcases repository](https://github.com/SkyAPMTest/agent-auto-integration-testcases).
+关于如何编写测试用例，请按照[如何编写](https://github.com/SkyAPMTest/agent-auto-integration-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) 文档来实现.
 1. 在提供自动测试用例并在CI中递交测试后，插件提交者会批准您的插件。
 1. SkyWalking接受的插件。 
