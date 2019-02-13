@@ -150,6 +150,7 @@ public class DataCarrier<T> {
     public DataCarrier consume(ConsumerPool consumerPool, IConsumer<T> consumer) {
         driver = consumerPool;
         consumerPool.add(this.name, channels, consumer);
+        driver.begin(channels);
         return this;
     }
 
