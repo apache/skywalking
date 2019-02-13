@@ -20,13 +20,12 @@ package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
 
 /**
  * Pool of consumers <p> Created by wusheng on 2016/10/25.
  */
-public class ConsumeDriver<T> implements IDriver{
+public class ConsumeDriver<T> implements IDriver {
     private boolean running;
     private ConsumerThread[] consumerThreads;
     private Channels<T> channels;
