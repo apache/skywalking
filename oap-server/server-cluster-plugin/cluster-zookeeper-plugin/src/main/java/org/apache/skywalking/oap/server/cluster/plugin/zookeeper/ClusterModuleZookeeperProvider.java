@@ -79,7 +79,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        ZookeeperCoordinator coordinator = new ZookeeperCoordinator(serviceDiscovery);
+        ZookeeperCoordinator coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

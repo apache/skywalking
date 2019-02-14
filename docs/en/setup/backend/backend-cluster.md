@@ -4,10 +4,11 @@ so you should need cluster management always in product env.
  
 Backend provides several ways to do cluster management. Choose the one you need/want.
 
-- [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let backend detects and communicates
+- [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let backend instance detects and communicates
 with each other.
 - [Kubernetes](#kubernetes). When backend cluster are deployed inside kubernetes, you could choose this
 by using k8s native APIs to manage cluster.
+- [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
 
 
 ## Zookeeper coordinator
@@ -28,6 +29,22 @@ cluster:
 
 - `hostPort` is the list of zookeeper servers. Format is `IP1:PORT1,IP2:PORT2,...,IPn:PORTn`
 - `hostPort`, `baseSleepTimeMs` and `maxRetries` are settings of Zookeeper curator client.
+
+In some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+The following setting are provided to set the hot and port manually, based on your own LAN env.
+- internalComHost, the host registered and other oap node use this to communicate with current node.
+- internalComPort, the port registered and other oap node use this to communicate with current node.
+
+```yaml
+zookeeper:
+  nameSpace: ${SW_NAMESPACE:""}
+  hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
+  #Retry Policy
+  baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
+  maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+  internalComHost: 172.10.4.10
+  internalComPort: 11800
+``` 
 
 
 ## Kubernetes
@@ -55,3 +72,9 @@ cluster:
     # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
 ```
+
+Same as Zookeeper coordinator,
+in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
+The following setting are provided to set the hot and port manually, based on your own LAN env.
+- internalComHost, the host registered and other oap node use this to communicate with current node.
+- internalComPort, the port registered and other oap node use this to communicate with current node.

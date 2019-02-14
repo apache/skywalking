@@ -121,7 +121,8 @@ public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
             return this;
         }
 
-        public Builder<MESSAGE_TYPE> callBack(DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
+        public Builder<MESSAGE_TYPE> callBack(
+            DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
             this.callBack = callBack;
             return this;
         }

@@ -2,7 +2,7 @@
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
-1. Add `-javaagent:/path/to/skywalking-package/agenxt/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
+1. Add `-javaagent:/path/to/skywalking-package/agent/skywalking-agent.jar` to JVM argument. And make sure to add it before the `-jar` argument.
 
 The agent release dist is included in Apache [official release](http://skywalking.apache.org/downloads/). New agent package looks like this.
 ```
@@ -87,6 +87,7 @@ Now, we have the following known optional plugins.
 * [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
 * Gson serialization lib in optional plugin folder
+* Lettuce 5.x(JRE1.8+) in optional plugin folder 
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
@@ -107,5 +108,5 @@ our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md)
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
-* [Plugin Test](https://github.com/SkywalkingTest/agent-integration-test-report)
-* [Java Agent Performance Test](https://skywalkingtest.github.io/Agent-Benchmarks/)
+* [Plugin Test](https://github.com/SkyAPMTest/agent-integration-test-report)
+* [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)
