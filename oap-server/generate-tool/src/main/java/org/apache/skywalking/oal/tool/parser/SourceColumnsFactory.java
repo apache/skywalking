@@ -90,6 +90,12 @@ public class SourceColumnsFactory {
                 SourceColumn destServiceInstance = new SourceColumn("childServiceInstanceId", "child_service_instance_id", int.class, false);
                 columnList.add(destServiceInstance);
                 return columnList;
+            case "DatabaseAccess":
+                columnList = new LinkedList<>();
+                // Service id;
+                idColumn = new SourceColumn("entityId", "entity_id", String.class, true);
+                columnList.add(idColumn);
+                return columnList;
             default:
                 throw new IllegalArgumentException("Illegal source :" + source);
         }
