@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
- * The Consumer pool could support data consumer from multiple {@link DataCarrier}s,
- * by using different consume thread management models.
+ * The driver of consumer.
  *
  * @author wusheng
  */
-public interface ConsumerPool extends IDriver {
-    void add(String name, Channels channels, IConsumer consumer);
+public interface IDriver {
+    boolean isRunning(Channels channels);
+    void close(Channels channels);
+    void begin(Channels channels);
 }

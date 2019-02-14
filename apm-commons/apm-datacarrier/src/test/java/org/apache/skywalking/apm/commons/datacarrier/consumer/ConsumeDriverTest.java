@@ -30,28 +30,28 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 /**
  * Created by wusheng on 2016/10/26.
  */
-public class ConsumerPoolTest {
+public class ConsumeDriverTest {
     @Test
-    public void testBeginConsumerPool() throws IllegalAccessException {
+    public void testBeginConsumeDriver() throws IllegalAccessException {
         Channels<SampleData> channels = new Channels<SampleData>(2, 100, new SimpleRollingPartitioner<SampleData>(), BufferStrategy.BLOCKING);
-        ConsumerPool<SampleData> pool = new ConsumerPool<SampleData>("default", channels, new SampleConsumer(), 2, 20);
-        pool.begin();
+        ConsumeDriver<SampleData> pool = new ConsumeDriver<SampleData>("default", channels, new SampleConsumer(), 2, 20);
+        pool.begin(channels);
 
-        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumerPool.class, "consumerThreads").get(pool);
+        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumeDriver.class, "consumerThreads").get(pool);
         Assert.assertEquals(2, threads.length);
         Assert.assertTrue(threads[0].isAlive());
         Assert.assertTrue(threads[1].isAlive());
     }
 
     @Test
-    public void testCloseConsumerPool() throws InterruptedException, IllegalAccessException {
+    public void testCloseConsumeDriver() throws InterruptedException, IllegalAccessException {
         Channels<SampleData> channels = new Channels<SampleData>(2, 100, new SimpleRollingPartitioner<SampleData>(), BufferStrategy.BLOCKING);
-        ConsumerPool<SampleData> pool = new ConsumerPool<SampleData>("default", channels, new SampleConsumer(), 2, 20);
-        pool.begin();
+        ConsumeDriver<SampleData> pool = new ConsumeDriver<SampleData>("default", channels, new SampleConsumer(), 2, 20);
+        pool.begin(channels);
 
         Thread.sleep(5000);
-        pool.close();
-        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumerPool.class, "consumerThreads").get(pool);
+        pool.close(channels);
+        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumeDriver.class, "consumerThreads").get(pool);
 
         Assert.assertEquals(2, threads.length);
         Assert.assertFalse((Boolean)MemberModifier.field(ConsumerThread.class, "running").get(threads[0]));
