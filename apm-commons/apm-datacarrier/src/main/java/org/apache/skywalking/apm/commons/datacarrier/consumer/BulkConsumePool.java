@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
+import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
@@ -29,24 +30,60 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
  * @author wusheng
  */
 public class BulkConsumePool implements ConsumerPool {
+    private List<MultipleChannelsConsumer> allConsumers;
+    private volatile boolean isStarted = false;
 
-    public BulkConsumePool(int size) {
-
+    public BulkConsumePool(String name, int size, long consumeCycle) {
+        allConsumers = new ArrayList<MultipleChannelsConsumer>(size);
+        for (int i = 0; i < size; i++) {
+            MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer("DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle);
+            multipleChannelsConsumer.setDaemon(true);
+            allConsumers.add(multipleChannelsConsumer);
+        }
     }
 
-    @Override public void add(String name, Channels channels, IConsumer consumer) {
-
+    @Override synchronized public void add(String name, Channels channels, IConsumer consumer) {
+        MultipleChannelsConsumer multipleChannelsConsumer = getLowestPayload();
+        multipleChannelsConsumer.addNewTarget(channels, consumer);
     }
 
+    /**
+     * Get the lowest payload consumer thread based on current allocate status.
+     *
+     * @return the lowest consumer.
+     */
+    private MultipleChannelsConsumer getLowestPayload() {
+        MultipleChannelsConsumer winner = allConsumers.get(0);
+        for (int i = 1; i < allConsumers.size(); i++) {
+            MultipleChannelsConsumer option = allConsumers.get(i);
+            if (option.size() < winner.size()) {
+                return option;
+            }
+        }
+        return winner;
+    }
+
+    /**
+     * @param channels
+     * @return
+     */
     @Override public boolean isRunning(Channels channels) {
-        return false;
+        return isStarted;
     }
 
     @Override public void close(Channels channels) {
-
+        for (MultipleChannelsConsumer consumer : allConsumers) {
+            consumer.shutdown();
+        }
     }
 
     @Override public void begin(Channels channels) {
-
+        if (isStarted) {
+            return;
+        }
+        for (MultipleChannelsConsumer consumer : allConsumers) {
+            consumer.start();
+        }
+        isStarted = true;
     }
 }

@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.ArrayList;
-import jdk.nashorn.internal.objects.annotations.Getter;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
+import java.util.*;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
 
 /**
  * MultipleChannelsConsumer represent a single consumer thread, but support multiple channels with their {@link
@@ -29,11 +28,62 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
  * @author wusheng
  */
 public class MultipleChannelsConsumer extends Thread {
+    private volatile boolean running;
     private volatile ArrayList<Group> consumeTargets;
     private volatile long size;
+    private final long consumeCycle;
 
-    public MultipleChannelsConsumer() {
+    public MultipleChannelsConsumer(String threadName, long consumeCycle) {
+        super(threadName);
         this.consumeTargets = new ArrayList<Group>();
+        this.consumeCycle = consumeCycle;
+    }
+
+    @Override
+    public void run() {
+        running = true;
+
+        while (running) {
+            boolean hasData = false;
+            for (Group target : consumeTargets) {
+                hasData = hasData || consume(target);
+            }
+
+            if (!hasData) {
+                try {
+                    Thread.sleep(consumeCycle);
+                } catch (InterruptedException e) {
+                }
+            }
+
+        }
+
+        // consumer thread is going to stop
+        // consume the last time
+        for (Group target : consumeTargets) {
+            consume(target);
+
+            target.consumer.onExit();
+        }
+    }
+
+    private boolean consume(Group target) {
+        boolean hasData;
+        LinkedList consumeList = new LinkedList();
+        for (int i = 0; i < target.channels.getChannelSize(); i++) {
+            Buffer buffer = target.channels.getBuffer(i);
+            consumeList.addAll(buffer.obtain());
+        }
+        hasData = consumeList.size() > 0;
+
+        if (consumeList.size() > 0) {
+            try {
+                target.consumer.consume(consumeList);
+            } catch (Throwable t) {
+                target.consumer.onError(consumeList, t);
+            }
+        }
+        return hasData;
     }
 
     /**
@@ -56,6 +106,10 @@ public class MultipleChannelsConsumer extends Thread {
 
     public long size() {
         return size;
+    }
+
+    void shutdown() {
+        running = false;
     }
 
     private class Group {
