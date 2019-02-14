@@ -40,13 +40,13 @@ Apache maven staging repository check list.
 ## Test your settings
 This step is only for test, if your env is set right, don't need to check every time.
 ```
-mvn clean install -Papache-release (this will build artifacts, sources and sign)
+./mvnw clean install -Papache-release (this will build artifacts, sources and sign)
 ```
 
 ## Prepare the release
 ```
-mvn release:clean
-mvn release:prepare -DautoVersionSubmodules=true -Pauto-submodule
+./mvnw release:clean
+./mvnw release:prepare -DautoVersionSubmodules=true -Pauto-submodule
 ```
 
 - Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
@@ -56,7 +56,7 @@ but just failure. Run `gpg --sign xxx` to any file could remember the password f
 
 ## Stage the release 
 ```
-mvn release:perform -DskipTests -Pauto-submodule
+./mvnw release:perform -DskipTests -Pauto-submodule
 ```
 
 - The release will automatically be inserted into a temporary staging repository for you.
@@ -220,7 +220,7 @@ are in `https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z` with 
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum -c apache-skywalking-apm-incubating-x.y.z-src.tgz.sha512`
 1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/How-to-build.md#build-from-apache-source-code-release).
-1. Apache RAT check. Run `mvn apache-rat:check`. (No binary in source codes)
+1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
 1. DISCLAIMER exists
 
 Vote result should follow these.
