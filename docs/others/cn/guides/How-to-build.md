@@ -11,7 +11,7 @@
 1. 使用`git checkout [tagname]`切换对应的标签代码版本(可选项，如果要从源代码构建版本，则切换）
 1. `git submodule init`
 1. `git submodule update`
-1. 运行 `./mvnw clean package -DskipTests`
+1. 运行 `mvn clean package -DskipTests`
 1. 打包后的代码在`/dist`文件夹中(Linux系统使用.tar.gz文件 and Windows使用.zip文件)。
 
 ### 从Apache源代码发行版本构建
@@ -20,12 +20,12 @@
 对于每个正式的Apache发行版本，都有一个完整且独立的源代码tar包，其中包含所有源代码。您可以从[SkyWalking Apache 下载页面](http://skywalking.apache.org/downloads/)下载它。 编译时不需要与git相关的东西。 只需按照以下步骤操作
 
 1. 准备JDK8和maven3
-1. 运行 `./mvnw clean package -DskipTests`
+1. 运行 `mvn clean package -DskipTests`
 1. 打包后的代码在`/dist`文件夹中(Linux系统使用.tar.gz文件 and Windows使用.zip文件)。
 
 ## 设置IntelliJ IDEA
 1. 将项目按照maven项目的形式导入进来。
-1. 运行 `./mvnw compile -Dmaven.test.skip=true`编译项目并生成源代码。 因为Skywalking使用gRPC和protobuf。
+1. 运行 `mvn compile -Dmaven.test.skip=true`编译项目并生成源代码。 因为Skywalking使用gRPC和protobuf。
 1. 所以还需要设置 **Generated Source Codes** 文件夹.
     * **apm-protocol/apm-network/target/generated-sources/protobuf** 文件夹下的`grpc-java` 和 `java`
     * **oap-server/server-core/target/generated-sources/protobuf** 文件夹下的`grpc-java` 和 `java`
@@ -100,7 +100,7 @@
    <version>24.0-jre</version>
 </dependency>
 ```
-5. 运行 `./mvnw compile -Dmaven.test.skip=true`
+5. 运行 `mvn compile -Dmaven.test.skip=true`
 6. 运行 `maven update`. update命令前不能有clean(这将清除complie生成的proto转换Java文件)
-7. 运行 `./mvnw compile` 编译 collector-remote-grpc-provider 和 apm-protocol
+7. 运行 `mvn compile` 编译 collector-remote-grpc-provider 和 apm-protocol
 8. 刷新项目

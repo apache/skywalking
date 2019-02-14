@@ -63,9 +63,13 @@ public enum ConsumerPoolFactory {
             }
         }
 
+        /**
+         * Always return true.
+         * @param channels
+         * @return
+         */
         @Override public boolean isRunning(Channels channels) {
-            ConsumeDriver driver = allDrivers.get(channels);
-            return driver == null ? false : driver.isRunning(channels);
+            return true;
         }
 
         @Override public void close(Channels channels) {

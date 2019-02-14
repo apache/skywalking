@@ -37,7 +37,7 @@ Apache SkyWalking 发布指南
 ## 测试你的配置
 此步骤仅用于测试，如果您的env设置正确，则不需要每次都检查。
 ```
-./mvnw clean install -Papache-release (这将构建工件，来源和标志)
+mvn clean install -Papache-release (这将构建工件，来源和标志)
 ```
 
 ## 准备发布
