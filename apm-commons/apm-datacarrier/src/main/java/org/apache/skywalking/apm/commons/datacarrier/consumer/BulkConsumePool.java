@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
@@ -35,6 +36,14 @@ public class BulkConsumePool implements ConsumerPool {
 
     public BulkConsumePool(String name, int size, long consumeCycle) {
         allConsumers = new ArrayList<MultipleChannelsConsumer>(size);
+        String threadNum = System.getenv(name + "_THREAD");
+        if (threadNum != null) {
+            try {
+                size = Integer.parseInt(threadNum);
+            } catch (NumberFormatException e) {
+
+            }
+        }
         for (int i = 0; i < size; i++) {
             MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer("DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle);
             multipleChannelsConsumer.setDaemon(true);
@@ -85,5 +94,32 @@ public class BulkConsumePool implements ConsumerPool {
             consumer.start();
         }
         isStarted = true;
+    }
+
+    /**
+     * The creator for {@link BulkConsumePool}.
+     */
+    public static class Creator implements Callable<ConsumerPool> {
+        private String name;
+        private int size;
+        private long consumeCycle;
+
+        public Creator(String name, int size, long consumeCycle) {
+            this.name = name;
+            this.size = size;
+            this.consumeCycle = consumeCycle;
+        }
+
+        @Override public ConsumerPool call() {
+            return new BulkConsumePool(name, size, consumeCycle);
+        }
+
+        public static int recommendMaxSize() {
+            int processorNum = Runtime.getRuntime().availableProcessors();
+            if (processorNum > 1) {
+                processorNum -= 1;
+            }
+            return processorNum;
+        }
     }
 }
