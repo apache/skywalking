@@ -56,7 +56,7 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
         BufferStream<UpstreamSegment> stream = builder.build();
         stream.initialize();
 
-        dataCarrier = new DataCarrier<>(1, 1024);
+        dataCarrier = new DataCarrier<>("SegmentStandardizationWorker", 1, 1024);
         dataCarrier.consume(new Consumer(stream), 1, 200);
 
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
