@@ -104,9 +104,9 @@ public class BulkConsumePool implements ConsumerPool {
         private int size;
         private long consumeCycle;
 
-        public Creator(String name, int size, long consumeCycle) {
+        public Creator(String name, int poolSize, long consumeCycle) {
             this.name = name;
-            this.size = size;
+            this.size = poolSize;
             this.consumeCycle = consumeCycle;
         }
 
