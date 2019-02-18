@@ -81,6 +81,14 @@ public class Channels<T> {
         return this.bufferChannels.length;
     }
 
+    public int getBufferSize() {
+        return bufferChannels[0].getBufferSize();
+    }
+
+    public long size() {
+        return (long)getChannelSize() * getBufferSize();
+    }
+
     public Buffer<T> getBuffer(int index) {
         return this.bufferChannels[index];
     }

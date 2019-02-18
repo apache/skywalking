@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
-import java.net.InetSocketAddress;
 import java.util.Objects;
+import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.*;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.*;
 
 /**
@@ -34,13 +36,19 @@ public class JettyServer implements Server {
     private final String host;
     private final int port;
     private final String contextPath;
+    private final int selectorNum;
     private org.eclipse.jetty.server.Server server;
     private ServletContextHandler servletContextHandler;
 
     public JettyServer(String host, int port, String contextPath) {
+        this(host, port, contextPath, -1);
+    }
+
+    public JettyServer(String host, int port, String contextPath, int selectorNum) {
         this.host = host;
         this.port = port;
         this.contextPath = contextPath;
+        this.selectorNum = selectorNum;
     }
 
     @Override
@@ -55,7 +63,20 @@ public class JettyServer implements Server {
 
     @Override
     public void initialize() {
-        server = new org.eclipse.jetty.server.Server(new InetSocketAddress(host, port));
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        if (selectorNum > 0) {
+            threadPool.setMaxThreads(selectorNum * 2 + 2);
+        }
+
+        server = new org.eclipse.jetty.server.Server(threadPool);
+
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        ServerConnector http = new ServerConnector(server, null, null, null,
+            1, selectorNum, new HttpConnectionFactory(httpConfig));
+        http.setPort(port);
+        http.setHost(host);
+
+        server.addConnector(http);
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(contextPath);
