@@ -27,6 +27,7 @@ The core features are following.
 - Slow services and endpoints detected
 - Performance optimization
 - Distributed tracing and context propagation
+- Database access metric. Detect slow database access statements(including SQL statements).
 - Alarm
 
 
