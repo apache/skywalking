@@ -73,7 +73,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.TraceIds.equals(point);
     }
 
     @Override
