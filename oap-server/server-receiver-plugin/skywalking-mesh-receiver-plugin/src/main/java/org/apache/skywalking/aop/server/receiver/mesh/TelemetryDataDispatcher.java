@@ -91,13 +91,14 @@ public class TelemetryDataDispatcher {
     private static void heartbeat(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
 
+        int heartbeatCycle = 10000;
         // source
-        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getSourceServiceInstanceId(), metric.getEndTime());
         int instanceId = metric.getSourceServiceInstanceId();
         ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
-            if (metric.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > 10 * 1000L) {
+            if (metric.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
                 // trigger heartbeat every 10s.
+                SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getSourceServiceInstanceId(), metric.getEndTime());
                 SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
             }
         } else {
@@ -105,12 +106,12 @@ public class TelemetryDataDispatcher {
         }
 
         // dest
-        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getDestServiceInstanceId(), metric.getEndTime());
         instanceId = metric.getDestServiceInstanceId();
         serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
-            if (metric.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > 10 * 1000L) {
+            if (metric.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
                 // trigger heartbeat every 10s.
+                SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getDestServiceInstanceId(), metric.getEndTime());
                 SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
             }
         } else {
