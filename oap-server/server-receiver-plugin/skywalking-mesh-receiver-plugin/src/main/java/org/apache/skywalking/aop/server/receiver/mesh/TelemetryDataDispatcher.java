@@ -89,7 +89,7 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metric = decorator.getMetric();
         long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getStartTime());
 
-        heartbeat(decorator, minuteTimeBucket);
+        //heartbeat(decorator, minuteTimeBucket);
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metric.getDetectPoint())) {
             toAll(decorator, minuteTimeBucket);
             toService(decorator, minuteTimeBucket);
