@@ -153,7 +153,7 @@ public class PreparedStatementWrapper extends StatementWrapper implements Prepar
     @Override public boolean execute() throws SQLException {
         return TracingUtils.trace(connectionInfo, "execute", sql, stateType, new TracingUtils.Executable<Boolean>() {
             @Override public Boolean exe(String sql) throws SQLException {
-                return statement.execute(sql);
+                return statement.execute();
             }
         });
     }
