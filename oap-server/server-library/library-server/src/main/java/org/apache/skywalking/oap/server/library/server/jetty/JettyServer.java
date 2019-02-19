@@ -20,11 +20,8 @@ package org.apache.skywalking.oap.server.library.server.jetty;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;
-import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.*;
-import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.*;
 
 /**

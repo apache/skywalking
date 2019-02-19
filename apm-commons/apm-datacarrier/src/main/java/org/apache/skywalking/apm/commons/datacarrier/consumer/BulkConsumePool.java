@@ -115,11 +115,7 @@ public class BulkConsumePool implements ConsumerPool {
         }
 
         public static int recommendMaxSize() {
-            int processorNum = Runtime.getRuntime().availableProcessors();
-            if (processorNum > 1) {
-                processorNum -= 1;
-            }
-            return processorNum;
+            return Runtime.getRuntime().availableProcessors() * 2;
         }
     }
 }
