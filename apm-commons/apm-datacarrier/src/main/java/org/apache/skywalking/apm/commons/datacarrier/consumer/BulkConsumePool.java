@@ -66,7 +66,7 @@ public class BulkConsumePool implements ConsumerPool {
         for (int i = 1; i < allConsumers.size(); i++) {
             MultipleChannelsConsumer option = allConsumers.get(i);
             if (option.size() < winner.size()) {
-                return option;
+                winner = option;
             }
         }
         return winner;
