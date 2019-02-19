@@ -42,7 +42,6 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>${coveralls-maven-plugin.version}</version>
                 <configuration>
-                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
