@@ -8,4 +8,4 @@ install:
   - ./mvnw javadoc:javadoc -Dmaven.test.skip=true --quiet
 
 after_success:
-- ./mvnw clean cobertura:cobertura coveralls:report
+- ./mvnw clean test jacoco:report coveralls:report --quiet
