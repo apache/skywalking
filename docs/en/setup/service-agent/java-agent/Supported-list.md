@@ -50,6 +50,8 @@
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
+* Distributed Coordination
+  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.x (Optional² & Except 3.4.4)
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x
@@ -62,6 +64,6 @@
   * [GSON](https://github.com/google/gson) 2.8.x (Optional²)
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
- go to [OpenSkywalking java plugin extension repository](https://github.com/OpenSkywalking/java-plugin-extensions) to get these.
+ go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 
 ²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.

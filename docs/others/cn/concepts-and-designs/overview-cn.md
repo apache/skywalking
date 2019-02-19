@@ -18,7 +18,7 @@
 
    SkyWalking在逻辑上分为四个部分：探针，平台后端，存储和UI。
    
-   <img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+   <img src="http://skywalking.apache.org/assets/frame.jpeg"/>
 
 - **探针**  基于不同的来源是不同的。它们收集数据并根据SkyWalking需求重新格式化。
 - **平台后端**  是一个后端服务，支持集群部署。它用于聚合，分析和驱动从探针到UI的流程。它还提供可插拔能力为不同的数据源（如Zipkin）、存储器实现和集群管理。您甚至可以使用[观察分析语言](oal-cn.md)自定义聚合和分析。

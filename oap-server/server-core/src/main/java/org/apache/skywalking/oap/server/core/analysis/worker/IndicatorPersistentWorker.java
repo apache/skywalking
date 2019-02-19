@@ -23,7 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
@@ -55,8 +56,21 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         this.mergeDataCache = new MergeDataCache<>();
         this.indicatorDAO = indicatorDAO;
         this.nextWorker = nextWorker;
-        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 10000);
-        this.dataCarrier.consume(new IndicatorPersistentWorker.PersistentConsumer(this), 1);
+
+        String name = "INDICATOR_L2_AGGREGATION";
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 4;
+        if (size == 0) {
+            size = 1;
+        }
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 20);
+        try {
+            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
+        } catch (Exception e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+
+        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 2000);
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
     }
 
     @Override void onWork(Indicator indicator) {

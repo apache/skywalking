@@ -16,8 +16,8 @@
 
 FROM openjdk:8-jre-alpine
 
-ENV DIST_NAME=apache-skywalking-apm-incubating-bin \
-    JAVA_OPTS=" -Xms256M -Xmx512M"
+ENV DIST_NAME=skywalking \
+    JAVA_OPTS=" -Xms256M "
 
 # Install required packages
 RUN apk add --no-cache \

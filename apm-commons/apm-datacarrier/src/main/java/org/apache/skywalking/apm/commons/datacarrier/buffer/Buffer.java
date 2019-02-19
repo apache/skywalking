@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 
@@ -78,6 +77,10 @@ public class Buffer<T> {
 
     public int getBufferSize() {
         return buffer.length;
+    }
+
+    public LinkedList<T> obtain() {
+        return this.obtain(0, buffer.length);
     }
 
     public LinkedList<T> obtain(int start, int end) {

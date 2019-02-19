@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-oap:
+oap: 
 	cd oap; \
-	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./ ; \
+	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./skywalking.tar.gz ; \
 	docker build -t skywalking/oap:latest .
 
 ui:
 	cd ui; \
-	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./ ; \
+	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./skywalking.tar.gz ; \
 	docker build -t skywalking/ui:latest .
 	
 build: oap ui

@@ -6,7 +6,7 @@ or providing commercial products including Apache SkyWalking.
 1. 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 1. 4399.com 四三九九网络股份有限公司. http://www.4399.com/
 1. 5i5j. 上海我爱我家房地产经纪有限公司 https://sh.5i5j.com/about/
-1. Alibaba Cloud, 阿里云, http://aliyun.com Support SkyWalking agents and formats in cloud service.
+1. Alibaba Cloud, 阿里云, http://aliyun.com 
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
@@ -17,6 +17,7 @@ or providing commercial products including Apache SkyWalking.
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. Cmft.com. 招商局金融科技. https://www.cmft.com/
+1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
 1. Dangdang.com. 当当网. http://www.dangdang.com/
 1. DaoCloud. https://www.daocloud.io/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
@@ -45,7 +46,7 @@ or providing commercial products including Apache SkyWalking.
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
-1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com . Integrated in Primeton EOS PLATFORM 8.
+1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com . 
 1. qiniu.com 七牛云 http://qiniu.com 
 1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
 1. Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
@@ -67,9 +68,18 @@ or providing commercial products including Apache SkyWalking.
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 
 # User Cases
+## Alibaba Cloud
+Support SkyWalking agents and formats in Tracing Analysis cloud service.
+
+## Qiniu Cloud
+Provide a customized version SkyWalking agent. It could provide distributed tracing and integrated in its intelligence log management platform.
+
+## Primeton
+Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
+
 ## ke.com
-### Deployment Configuration
-Three CentOs Machine(32 CPUs, 64G RAM, 1.3T Disk) for Collector Server
-Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
-### Performance
+Deploy SkyWalking in production enviroments. 
+- Three CentOs Machines(32 CPUs, 64G RAM, 1.3T Disk) for Collector Server
+- Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
+
 Support 60+ Instances, Over 300k Calls Per Minute, Over 50k Spans Per Second
