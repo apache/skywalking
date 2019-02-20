@@ -32,7 +32,7 @@ public class DBLatencyThresholds {
         for (String setting : settings) {
             String[] typeValue = setting.split(":");
             if (typeValue.length == 2) {
-                thresholds.put(typeValue[0].toLowerCase(), Integer.parseInt(typeValue[1]));
+                thresholds.put(typeValue[0].trim().toLowerCase(), Integer.parseInt(typeValue[1].trim()));
             }
         }
         if (!thresholds.containsKey("default")) {

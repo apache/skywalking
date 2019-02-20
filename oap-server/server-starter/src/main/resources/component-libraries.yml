@@ -201,6 +201,9 @@ Redisson:
 Lettuce:
   id: 57
   languages: Java
+Zookeeper:
+  id: 58
+  languages: Java
 
 
 # .NET/.NET Core components
@@ -288,6 +291,7 @@ Component-Server-Mappings:
   StackExchange.Redis: Redis
   Redisson: Redis
   Lettuce: Redis
+  Zookeeper: Zookeeper
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql

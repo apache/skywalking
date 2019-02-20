@@ -48,7 +48,7 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
         this.modelName = modelName;
-        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier = new DataCarrier<>("TopNWorker", 1, 1000);
         this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
         this.lastReportTimestamp = System.currentTimeMillis();
         // Top N persistent only works per 10 minutes.
