@@ -45,7 +45,11 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
         this.sources = new HashMap<>();
         this.dataCarrier = new DataCarrier<>(1, 1000);
         String name = "REGISTER_L1";
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, 1, 200);
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
+        if (size == 0) {
+            size = 1;
+        }
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 200);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
