@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.*;
 import java.util.concurrent.Callable;
+import org.apache.skywalking.apm.commons.datacarrier.EnvUtil;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
@@ -35,15 +36,8 @@ public class BulkConsumePool implements ConsumerPool {
     private volatile boolean isStarted = false;
 
     public BulkConsumePool(String name, int size, long consumeCycle) {
+        size = EnvUtil.getInt(name + "_THREAD", size);
         allConsumers = new ArrayList<MultipleChannelsConsumer>(size);
-        String threadNum = System.getenv(name + "_THREAD");
-        if (threadNum != null) {
-            try {
-                size = Integer.parseInt(threadNum);
-            } catch (NumberFormatException e) {
-
-            }
-        }
         for (int i = 0; i < size; i++) {
             MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer("DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle);
             multipleChannelsConsumer.setDaemon(true);

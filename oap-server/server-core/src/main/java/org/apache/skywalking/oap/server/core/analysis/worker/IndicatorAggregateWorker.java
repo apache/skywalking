@@ -43,7 +43,6 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private AbstractWorker<Indicator> nextWorker;
     private final DataCarrier<Indicator> dataCarrier;
     private final MergeDataCache<Indicator> mergeDataCache;
-    private int messageNum;
     private final String modelName;
     private CounterMetric aggregationCounter;
 
@@ -53,9 +52,9 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         this.modelName = modelName;
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
-        this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, 1, 10000);
-
         String name = "INDICATOR_L1_AGGREGATION";
+        this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, name, 2, 10000);
+
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
@@ -76,12 +75,10 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
 
     private void onWork(Indicator indicator) {
         aggregationCounter.inc();
-        messageNum++;
         aggregate(indicator);
 
-        if (messageNum >= 1000 || indicator.getEndOfBatchContext().isEndOfBatch()) {
+        if (indicator.getEndOfBatchContext().isEndOfBatch()) {
             sendToNext();
-            messageNum = 0;
         }
     }
 
