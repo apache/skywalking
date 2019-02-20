@@ -58,7 +58,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         this.nextWorker = nextWorker;
 
         String name = "INDICATOR_L2_AGGREGATION";
-        int size = BulkConsumePool.Creator.recommendMaxSize() / 4;
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
         if (size == 0) {
             size = 1;
         }

@@ -47,7 +47,8 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final String modelName;
     private CounterMetric aggregationCounter;
 
-    IndicatorAggregateWorker(ModuleManager moduleManager, int workerId, AbstractWorker<Indicator> nextWorker, String modelName) {
+    IndicatorAggregateWorker(ModuleManager moduleManager, int workerId, AbstractWorker<Indicator> nextWorker,
+        String modelName) {
         super(workerId);
         this.modelName = modelName;
         this.nextWorker = nextWorker;
@@ -55,7 +56,7 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, 1, 10000);
 
         String name = "INDICATOR_L1_AGGREGATION";
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize(), 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
