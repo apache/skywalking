@@ -18,20 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.Iterator;
-import java.util.List;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
+import java.util.*;
+import org.apache.skywalking.apm.commons.datacarrier.*;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
-import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
+import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -45,6 +42,8 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final MergeDataCache<Indicator> mergeDataCache;
     private final String modelName;
     private CounterMetric aggregationCounter;
+    private final long l2AggregationSendCycle;
+    private long lastSendTimestamp;
 
     IndicatorAggregateWorker(ModuleManager moduleManager, int workerId, AbstractWorker<Indicator> nextWorker,
         String modelName) {
@@ -66,6 +65,9 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         aggregationCounter = metricCreator.createCounter("indicator_aggregation", "The number of rows in aggregation",
             new MetricTag.Keys("metricName", "level", "dimensionality"), new MetricTag.Values(modelName, "1", "min"));
+        lastSendTimestamp = System.currentTimeMillis();
+
+        l2AggregationSendCycle = EnvUtil.getLong("INDICATOR_L1_AGGREGATION_SEND_CYCLE", 1000);
     }
 
     @Override public final void in(Indicator indicator) {
@@ -78,8 +80,20 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         aggregate(indicator);
 
         if (indicator.getEndOfBatchContext().isEndOfBatch()) {
-            sendToNext();
+            if (shouldSend()) {
+                sendToNext();
+            }
         }
+    }
+
+    private boolean shouldSend() {
+        long now = System.currentTimeMillis();
+        // Continue L2 aggregation in certain cycle.
+        if (now - lastSendTimestamp > l2AggregationSendCycle) {
+            lastSendTimestamp = now;
+            return true;
+        }
+        return false;
     }
 
     private void sendToNext() {

@@ -36,4 +36,17 @@ public class EnvUtil {
         }
         return value;
     }
+
+    public static long getLong(String envName, long defaultValue) {
+        long value = defaultValue;
+        String envValue = System.getenv(envName);
+        if (envValue != null) {
+            try {
+                value = Integer.parseInt(envValue);
+            } catch (NumberFormatException e) {
+
+            }
+        }
+        return value;
+    }
 }
