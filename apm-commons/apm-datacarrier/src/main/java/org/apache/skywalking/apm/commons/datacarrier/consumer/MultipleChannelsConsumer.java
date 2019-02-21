@@ -28,10 +28,11 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
  * @author wusheng
  */
 public class MultipleChannelsConsumer extends Thread {
+    private final long consumeCycle;
     private volatile boolean running;
     private volatile ArrayList<Group> consumeTargets;
     private volatile long size;
-    private final long consumeCycle;
+    private volatile long lastConsumeTimestamp = 0;
 
     public MultipleChannelsConsumer(String threadName, long consumeCycle) {
         super(threadName);
@@ -44,18 +45,11 @@ public class MultipleChannelsConsumer extends Thread {
         running = true;
 
         while (running) {
-            boolean hasData = false;
+            waitUntil();
+
             for (Group target : consumeTargets) {
-                hasData = hasData || consume(target);
+                consume(target);
             }
-
-            if (!hasData) {
-                try {
-                    Thread.sleep(consumeCycle);
-                } catch (InterruptedException e) {
-                }
-            }
-
         }
 
         // consumer thread is going to stop
@@ -65,6 +59,19 @@ public class MultipleChannelsConsumer extends Thread {
 
             target.consumer.onExit();
         }
+    }
+
+    private void waitUntil() {
+        long now = System.currentTimeMillis();
+
+        long waitTime = consumeCycle - (now - lastConsumeTimestamp);
+        if (waitTime > 0) {
+            try {
+                Thread.sleep(waitTime);
+            } catch (InterruptedException e) {
+            }
+        }
+        lastConsumeTimestamp = System.currentTimeMillis();
     }
 
     private boolean consume(Group target) {

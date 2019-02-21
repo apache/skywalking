@@ -62,7 +62,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         if (size == 0) {
             size = 1;
         }
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 100);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {

@@ -53,9 +53,9 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
         String name = "INDICATOR_L1_AGGREGATION";
-        this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, name, 2, 10000);
+        this.dataCarrier = new DataCarrier<>("IndicatorAggregateWorker." + modelName, name, 4, 10000);
 
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 1000);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
