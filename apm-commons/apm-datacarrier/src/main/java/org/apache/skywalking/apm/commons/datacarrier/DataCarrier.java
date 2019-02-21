@@ -33,13 +33,17 @@ public class DataCarrier<T> {
     private String name;
 
     public DataCarrier(int channelSize, int bufferSize) {
-        this("default", channelSize, bufferSize);
+        this("DEFAULT", channelSize, bufferSize);
     }
 
     public DataCarrier(String name, int channelSize, int bufferSize) {
+        this(name, name, channelSize, bufferSize);
+    }
+
+    public DataCarrier(String name, String envPrefix, int channelSize, int bufferSize) {
         this.name = name;
-        this.bufferSize = bufferSize;
-        this.channelSize = channelSize;
+        this.bufferSize = EnvUtil.getInt(envPrefix + "_BUFFER_SIZE", bufferSize);
+        this.channelSize = EnvUtil.getInt(envPrefix + "_CHANNEL_SIZE", channelSize);
         channels = new Channels<T>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), BufferStrategy.BLOCKING);
     }
 
