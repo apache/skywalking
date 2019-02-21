@@ -45,7 +45,7 @@ rules:
     period: 10
     count: 3
     silence-period: 5
-    message: 90% response time of service {name} is lower than 1000ms in 3 minutes of last 10 minutes
+    message: 90% response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes
   service_instance_resp_time_rule:
     indicator-name: service_instance_resp_time
     op: ">"
