@@ -14,7 +14,7 @@ or providing commercial products including Apache SkyWalking.
 1. hellobanma 斑马网络 https://www.hellobanma.com/
 1. bestsign. 上上签. https://www.bestsign.cn/page/
 1. Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
-1. China Eastern Airlines 中国东方航空
+1. China Eastern Airlines 中国东方航空. http://www.ceair.com/
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
