@@ -41,7 +41,15 @@ public class MemcachedMethodInterceptor implements InstanceMethodsAroundIntercep
         span.setComponent(ComponentsDefine.SPYMEMCACHED);
         Tags.DB_TYPE.set(span, ComponentsDefine.SPYMEMCACHED.getName());
         SpanLayer.asCache(span);
-        Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
+        Tags.DB_STATEMENT.set(span, getStatement(method, allArguments));
+    }
+
+    private String getStatement(Method method, Object[] allArguments) {
+        if (allArguments != null && allArguments.length > 0) {
+            return method.getName() + ' ' + allArguments[0];
+        } else {
+            return method.getName();
+        }
     }
 
     @Override
