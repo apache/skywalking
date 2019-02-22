@@ -69,7 +69,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
             throw new UnexpectedException(e.getMessage(), e);
         }
 
-        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 2000);
+        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, name, 1, 2000);
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
     }
 

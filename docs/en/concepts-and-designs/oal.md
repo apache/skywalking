@@ -5,7 +5,7 @@ OAL focuses on metric in Service, Service Instance and Endpoint. Because of that
 learn and use.
 
 Considering performance, reading and debugging, OAL is defined as a compile language. 
-The OAL scrips will be compiled to normal Java codes in package stage.
+The OAL scripts will be compiled to normal Java codes in package stage.
 
 ## Grammar
 Scripts should be named as `*.oal`
