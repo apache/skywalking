@@ -16,25 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oal.tool.parser;
+package org.apache.skywalking.oal.tool.meta;
 
-import java.util.*;
-import org.apache.skywalking.oal.tool.meta.*;
+import java.io.InputStream;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * @author wusheng
  */
-public class SourceColumnsFactory {
-    private static Map<String, ScopeMeta> SETTINGS;
+public class MetaReader {
+    public MetaSettings read(InputStream settingFileStream) {
+        Yaml yaml = new Yaml();
+        MetaSettings settings = yaml.loadAs(settingFileStream, MetaSettings.class);
 
-    public static void setSettings(MetaSettings settings) {
-        SourceColumnsFactory.SETTINGS = new HashMap<>();
-        settings.getScopes().forEach(scope -> {
-            SourceColumnsFactory.SETTINGS.put(scope.getName(), scope);
-        });
-    }
-
-    public static List<SourceColumn> getColumns(String source) {
-        return SETTINGS.get(source).getColumns();
+        return settings;
     }
 }

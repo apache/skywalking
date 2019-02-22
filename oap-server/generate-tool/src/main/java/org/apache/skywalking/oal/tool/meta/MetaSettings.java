@@ -16,25 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oal.tool.parser;
+package org.apache.skywalking.oal.tool.meta;
 
-import java.util.*;
-import org.apache.skywalking.oal.tool.meta.*;
+import java.util.List;
+import lombok.*;
 
 /**
  * @author wusheng
  */
-public class SourceColumnsFactory {
-    private static Map<String, ScopeMeta> SETTINGS;
-
-    public static void setSettings(MetaSettings settings) {
-        SourceColumnsFactory.SETTINGS = new HashMap<>();
-        settings.getScopes().forEach(scope -> {
-            SourceColumnsFactory.SETTINGS.put(scope.getName(), scope);
-        });
-    }
-
-    public static List<SourceColumn> getColumns(String source) {
-        return SETTINGS.get(source).getColumns();
-    }
+@Setter
+@Getter
+public class MetaSettings {
+    private List<ScopeMeta> scopes;
 }

@@ -21,10 +21,19 @@ package org.apache.skywalking.oal.tool.output;
 import freemarker.template.TemplateException;
 import java.io.*;
 import java.util.*;
+import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.parser.*;
 import org.junit.*;
 
 public class FileGeneratorTest {
+    @BeforeClass
+    public static void init() {
+        MetaReader reader = new MetaReader();
+        InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
+        MetaSettings metaSettings = reader.read(stream);
+        SourceColumnsFactory.setSettings(metaSettings);
+    }
+
     private AnalysisResult buildResult() {
         AnalysisResult result = new AnalysisResult();
         result.setVarName("generate_indicator");
