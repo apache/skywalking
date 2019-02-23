@@ -125,6 +125,6 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
                 }
             }
         );
-       return this;
+        return this;
     }
 }
