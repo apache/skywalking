@@ -218,7 +218,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             /**
              * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
              * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
-             * So, I am making this source as optional.
+             * So, I am making this sourceScopeId as optional.
              */
             if (endpointRelation != null) {
                 sourceReceiver.receive(endpointRelation);

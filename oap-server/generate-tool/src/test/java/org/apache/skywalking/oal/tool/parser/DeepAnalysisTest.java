@@ -47,7 +47,7 @@ public class DeepAnalysisTest {
 
         EntryMethod method = result.getEntryMethod();
         Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("source.getLatency()", method.getArgsExpressions().get(0));
+        Assert.assertEquals("sourceScopeId.getLatency()", method.getArgsExpressions().get(0));
         Assert.assertEquals("1", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
@@ -71,7 +71,7 @@ public class DeepAnalysisTest {
 
         EntryMethod method = result.getEntryMethod();
         Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("source.getLatency()", method.getArgsExpressions().get(0));
+        Assert.assertEquals("sourceScopeId.getLatency()", method.getArgsExpressions().get(0));
         Assert.assertEquals("1", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
@@ -100,7 +100,7 @@ public class DeepAnalysisTest {
 
         EntryMethod method = result.getEntryMethod();
         Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("source.getLatency()", method.getArgsExpressions().get(0));
+        Assert.assertEquals("sourceScopeId.getLatency()", method.getArgsExpressions().get(0));
         Assert.assertEquals("1", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
@@ -113,7 +113,7 @@ public class DeepAnalysisTest {
         Assert.assertEquals(1, filterExpressions.size());
         FilterExpression filterExpression = filterExpressions.get(0);
         Assert.assertEquals("EqualMatch", filterExpression.getExpressionObject());
-        Assert.assertEquals("source.getName()", filterExpression.getLeft());
+        Assert.assertEquals("sourceScopeId.getName()", filterExpression.getLeft());
         Assert.assertEquals("\"/service/prod/save\"", filterExpression.getRight());
     }
 }

@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @IndicatorType
 @StreamData
 @StorageEntity(name = ServiceRelationServerSideIndicator.INDEX_NAME, builder = ServiceRelationServerSideIndicator.Builder.class,
-    source = Scope.ServiceRelation)
+    sourceScopeId = Scope.SERVICE_RELATION)
 public class ServiceRelationServerSideIndicator extends Indicator {
 
     public static final String INDEX_NAME = "service_relation_server_side";

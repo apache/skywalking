@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 @IndicatorType
 @StreamData
-@StorageEntity(name = EndpointRelationServerSideIndicator.INDEX_NAME, builder = EndpointRelationServerSideIndicator.Builder.class, source = Scope.EndpointRelation)
+@StorageEntity(name = EndpointRelationServerSideIndicator.INDEX_NAME, builder = EndpointRelationServerSideIndicator.Builder.class, sourceScopeId = Scope.ENDPOINT_RELATION)
 public class EndpointRelationServerSideIndicator extends Indicator {
 
     public static final String INDEX_NAME = "endpoint_relation_server_side";

@@ -39,7 +39,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             }
 
             AlarmRecord record = new AlarmRecord();
-            record.setScope(message.getScope().ordinal());
+            record.setScope(message.getScopeId());
             record.setId0(message.getId0());
             record.setId1(message.getId1());
             record.setName(message.getName());

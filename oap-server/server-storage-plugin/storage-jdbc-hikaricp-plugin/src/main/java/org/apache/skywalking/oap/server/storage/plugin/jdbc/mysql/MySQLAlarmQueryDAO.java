@@ -39,14 +39,14 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
     }
 
     @Override
-    public Alarms getAlarm(Scope scope, String keyword, int limit, int from, long startTB,
+    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
         long endTB) throws IOException {
 
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
-        sql.append(" scope = ?");
-        parameters.add(scope.ordinal());
+        sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
+        parameters.add(scopeId.intValue());
         if (startTB != 0 && endTB != 0) {
             sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
@@ -76,7 +76,8 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
                     message.setId(resultSet.getString(AlarmRecord.ID0));
                     message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
-                    message.setScope(Scope.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
+                    message.setScope(Scope.nameOf(resultSet.getInt(AlarmRecord.SCOPE)));
+                    message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
 
                     alarms.getMsgs().add(message);
                 }

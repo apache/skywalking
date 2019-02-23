@@ -41,8 +41,8 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         super(client);
     }
 
-    @Override public int getId(Scope scope, RegisterSource registerSource) {
-        String id = String.valueOf(scope.ordinal());
+    @Override public int getId(int scopeId, RegisterSource registerSource) {
+        String id = scopeId + "";
 
         int sequence = Const.NONE;
         try {

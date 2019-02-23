@@ -98,7 +98,7 @@ public class MockSourceColumnsFactory {
                 columnList.add(idColumn);
                 return columnList;
             default:
-                throw new IllegalArgumentException("Illegal source :" + source);
+                throw new IllegalArgumentException("Illegal sourceScopeId :" + source);
         }
     }
 }

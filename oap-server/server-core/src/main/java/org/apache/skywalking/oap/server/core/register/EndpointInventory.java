@@ -34,7 +34,7 @@ import org.elasticsearch.common.Strings;
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, source = Scope.EndpointInventory)
+@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, sourceScopeId = Scope.ENDPOINT_INVENTORY)
 public class EndpointInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "endpoint_inventory";

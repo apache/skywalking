@@ -37,7 +37,7 @@ import org.elasticsearch.common.Strings;
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, source = Scope.ServiceInstanceInventory)
+@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, sourceScopeId = Scope.SERVICE_INSTANCE_INVENTORY)
 public class ServiceInstanceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_instance_inventory";

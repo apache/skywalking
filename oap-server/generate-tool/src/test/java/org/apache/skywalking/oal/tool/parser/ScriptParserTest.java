@@ -71,7 +71,7 @@ public class ScriptParserTest {
         EntryMethod entryMethod = endpointPercent.getEntryMethod();
         List<String> methodArgsExpressions = entryMethod.getArgsExpressions();
         Assert.assertEquals(3, methodArgsExpressions.size());
-        Assert.assertEquals("source.isStatus()", methodArgsExpressions.get(1));
+        Assert.assertEquals("sourceScopeId.isStatus()", methodArgsExpressions.get(1));
         Assert.assertEquals("true", methodArgsExpressions.get(2));
     }
 

@@ -42,18 +42,18 @@ public class H2RegisterLockDAO implements IRegisterLockDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public int getId(Scope scope, RegisterSource registerSource) {
+    @Override public int getId(int scopeId, RegisterSource registerSource) {
         try (Connection connection = h2Client.getTransactionConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scope.ordinal() + " for update");
+            ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scopeId + " for update");
             while (resultSet.next()) {
                 int sequence = resultSet.getInt("sequence");
                 sequence++;
-                h2Client.execute(connection, "update " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scope.ordinal());
+                h2Client.execute(connection, "update " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scopeId);
                 connection.commit();
                 return sequence;
             }
         } catch (JDBCClientException | SQLException e) {
-            logger.error("try inventory register lock for scope id={} name={} failure.", scope.ordinal(), scope.name());
+            logger.error("try inventory register lock for scope id={} name={} failure.", scopeId, scopeId);
             logger.error("tryLock error", e);
             return Const.NONE;
         }

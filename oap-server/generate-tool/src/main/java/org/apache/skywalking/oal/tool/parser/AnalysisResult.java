@@ -115,7 +115,7 @@ public class AnalysisResult {
                     serializeFields.addLongField(sourceColumn.getFieldName());
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field type [" + type + "] of source sourceColumn [" + sourceColumn.getFieldName() + "]");
+                    throw new IllegalStateException("Unexpected field type [" + type + "] of sourceScopeId sourceColumn [" + sourceColumn.getFieldName() + "]");
             }
         }
 

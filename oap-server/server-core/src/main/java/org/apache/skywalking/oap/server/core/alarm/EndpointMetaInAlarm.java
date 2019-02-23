@@ -33,8 +33,8 @@ public class EndpointMetaInAlarm extends MetaInAlarm {
     private String[] tags;
     private String[] properties;
 
-    @Override public Scope getScope() {
-        return Scope.Endpoint;
+    @Override public int getScopeId() {
+        return Scope.ENDPOINT;
     }
 
     @Override public int getId0() {

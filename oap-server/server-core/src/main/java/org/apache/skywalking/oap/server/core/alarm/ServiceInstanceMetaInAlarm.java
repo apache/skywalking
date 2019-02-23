@@ -33,8 +33,8 @@ public class ServiceInstanceMetaInAlarm extends MetaInAlarm {
     private String[] tags;
     private String[] properties;
 
-    @Override public Scope getScope() {
-        return Scope.ServiceInstance;
+    @Override public int getScopeId() {
+        return Scope.SERVICE_INSTANCE;
     }
 
     @Override public int getId0() {

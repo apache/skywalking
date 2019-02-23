@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
-        // 1. Set sub package name by source.metric
+        // 1. Set sub package name by sourceScopeId.metric
         result.setPackageName(result.getSourceName().toLowerCase());
 
         Class<? extends Indicator> indicatorClass = Indicators.find(result.getAggregationFunctionName());
@@ -43,12 +43,12 @@ public class DeepAnalysis {
                 FilterExpression filterExpression = new FilterExpression();
                 if ("booleanMatch".equals(expression.getExpressionType())) {
                     filterExpression.setExpressionObject("EqualMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toIsMethod(expression.getAttribute()) + "()");
+                    filterExpression.setLeft("sourceScopeId." + ClassMethodUtil.toIsMethod(expression.getAttribute()) + "()");
                     filterExpression.setRight(expression.getValue());
                     result.addFilterExpressions(filterExpression);
                 } else if ("stringMatch".equals(expression.getExpressionType())) {
                     filterExpression.setExpressionObject("EqualMatch");
-                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                    filterExpression.setLeft("sourceScopeId." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
                     filterExpression.setRight(expression.getValue());
                     result.addFilterExpressions(filterExpression);
                 } else {
@@ -86,7 +86,7 @@ public class DeepAnalysis {
             }
             Annotation annotation = parameterAnnotations[0];
             if (annotation instanceof SourceFrom) {
-                entryMethod.addArg("source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
+                entryMethod.addArg("sourceScopeId." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
             } else if (annotation instanceof ConstOne) {
                 entryMethod.addArg("1");
             } else if (annotation instanceof Expression) {
@@ -95,9 +95,9 @@ public class DeepAnalysis {
                 if (result.getFuncConditionExpressions().size() == 1) {
                     ConditionExpression conditionExpression = result.getFuncConditionExpressions().get(0);
                     if ("booleanMatch".equals(conditionExpression.getExpressionType())) {
-                        entryMethod.addArg("source." + ClassMethodUtil.toIsMethod(conditionExpression.getAttribute()) + "()");
+                        entryMethod.addArg("sourceScopeId." + ClassMethodUtil.toIsMethod(conditionExpression.getAttribute()) + "()");
                     } else if ("stringMatch".equals(conditionExpression.getExpressionType())) {
-                        entryMethod.addArg("source." + ClassMethodUtil.toGetMethod(conditionExpression.getAttribute()) + "()");
+                        entryMethod.addArg("sourceScopeId." + ClassMethodUtil.toGetMethod(conditionExpression.getAttribute()) + "()");
                     } else {
                         throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument has @ExpressionArg0, but expression type is not supported");
                     }

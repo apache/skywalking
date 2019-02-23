@@ -18,18 +18,104 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.lang.annotation.Annotation;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+
+import static org.apache.skywalking.oap.server.core.source.Scope.*;
+
 /**
  * @author peng-yongsheng, wusheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    Segment, Alarm, ServiceInventory, ServiceInstanceInventory, EndpointInventory, DatabaseAccess, DatabaseSlowStatement;
+@ScopeDeclaration(id = ALL, name = "All")
+@ScopeDeclaration(id = SERVICE, name = "Service")
+@ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance")
+@ScopeDeclaration(id = ENDPOINT, name = "Endpoint")
+@ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation")
+@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
+@ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
+@ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_CPU, name = "ServiceInstanceJVMCPU")
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory")
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORYPOOL, name = "ServiceInstanceJVMMemoryPool")
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_GC, name = "ServiceInstanceJVMGC")
+@ScopeDeclaration(id = SEGMENT, name = "Segment")
+@ScopeDeclaration(id = ALARM, name = "Alarm")
+@ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
+@ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
+@ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
+@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
+@ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
+public class Scope {
+    private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
+    private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
 
-    public static Scope valueOf(int ordinal) {
-        if (ordinal < 0 || ordinal >= values().length) {
-            throw new IndexOutOfBoundsException("Invalid ordinal");
+    public static final int ALL = 0;
+    public static final int SERVICE = 1;
+    public static final int SERVICE_INSTANCE = 2;
+    public static final int ENDPOINT = 3;
+    public static final int SERVICE_RELATION = 4;
+    public static final int SERVICE_INSTANCE_RELATION = 5;
+    public static final int ENDPOINT_RELATION = 6;
+    public static final int NETWORK_ADDRESS = 7;
+    public static final int SERVICE_INSTANCE_JVM_CPU = 8;
+    public static final int SERVICE_INSTANCE_JVM_MEMORY = 9;
+    public static final int SERVICE_INSTANCE_JVM_MEMORYPOOL = 10;
+    public static final int SERVICE_INSTANCE_JVM_GC = 11;
+    public static final int SEGMENT = 12;
+    public static final int ALARM = 13;
+    public static final int SERVICE_INVENTORY = 14;
+    public static final int SERVICE_INSTANCE_INVENTORY = 15;
+    public static final int ENDPOINT_INVENTORY = 16;
+    public static final int DATABASE_ACCESS = 17;
+    public static final int DATABASE_SLOW_STATEMENT = 18;
+
+    public static class Listener implements AnnotationListener {
+
+        @Override public Class<? extends Annotation> annotation() {
+            return ScopeDeclaration.class;
         }
-        return values()[ordinal];
+
+        @Override public void notify(Class originalClass) {
+            ScopeDeclarations declarations = (ScopeDeclarations)originalClass.getAnnotation(ScopeDeclarations.class);
+            if (declarations != null) {
+                ScopeDeclaration[] scopeDeclarations = declarations.value();
+                if (scopeDeclarations != null) {
+                    for (ScopeDeclaration declaration : scopeDeclarations) {
+                        addNewScope(declaration, originalClass);
+                    }
+                }
+            }
+        }
+    }
+
+    public static final void addNewScope(ScopeDeclaration declaration, Class originalClass) {
+        int id = declaration.id();
+        if (ID_2_NAME.containsKey(id)) {
+            throw new UnexpectedException("ScopeDeclaration id=" + id + " at " + originalClass.getName() + " has conflict with another named " + ID_2_NAME.get(id));
+        }
+        String name = declaration.name();
+        if (NAME_2_ID.containsKey(name)) {
+            throw new UnexpectedException("ScopeDeclaration name=" + name + " at " + originalClass.getName() + " has conflict with another id= " + NAME_2_ID.get(name));
+        }
+        ID_2_NAME.put(id, name);
+        NAME_2_ID.put(name, id);
+    }
+
+    public static String nameOf(int id) {
+        String name = ID_2_NAME.get(id);
+        if (name == null) {
+            throw new UnexpectedException("Scope id = " + id + " not found.");
+        }
+        return name;
+    }
+
+    public static int valueOf(String name) {
+        Integer id = NAME_2_ID.get(name);
+        if (id == null) {
+            throw new UnexpectedException("Scope name = " + name + " not found.");
+        }
+        return id;
     }
 }

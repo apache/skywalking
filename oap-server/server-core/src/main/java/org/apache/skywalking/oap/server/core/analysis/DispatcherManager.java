@@ -87,7 +87,7 @@ public class DispatcherManager {
                         Object source = ((Class)argument).newInstance();
 
                         if (!Source.class.isAssignableFrom(source.getClass())) {
-                            throw new UnexpectedException("unexpected type argument of class " + aClass.getName() + ", should be `org.apache.skywalking.oap.server.core.source.Source`. ");
+                            throw new UnexpectedException("unexpected type argument of class " + aClass.getName() + ", should be `org.apache.skywalking.oap.server.core.sourceScopeId.Source`. ");
                         }
 
                         Source dispatcherSource = (Source)source;

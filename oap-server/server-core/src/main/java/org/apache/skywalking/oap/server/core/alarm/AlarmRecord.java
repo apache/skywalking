@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
 @Getter
 @Setter
 @RecordType
-@StorageEntity(name = AlarmRecord.INDEX_NAME, builder = AlarmRecord.Builder.class, source = Scope.Alarm)
+@StorageEntity(name = AlarmRecord.INDEX_NAME, builder = AlarmRecord.Builder.class, sourceScopeId = Scope.ALARM)
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";

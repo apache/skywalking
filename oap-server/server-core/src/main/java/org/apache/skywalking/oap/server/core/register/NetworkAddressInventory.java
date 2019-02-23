@@ -34,7 +34,7 @@ import org.elasticsearch.common.Strings;
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, source = Scope.NetworkAddress)
+@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, sourceScopeId = Scope.NETWORK_ADDRESS)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "network_address_inventory";

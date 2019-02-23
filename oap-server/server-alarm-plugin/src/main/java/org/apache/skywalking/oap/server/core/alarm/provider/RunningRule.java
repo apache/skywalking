@@ -57,7 +57,7 @@ public class RunningRule {
     private final int silencePeriod;
     private Map<MetaInAlarm, Window> windows;
     private volatile IndicatorValueType valueType;
-    private Scope targetScope;
+    private int targetScopeId;
     private List<String> includeNames;
     private AlarmMessageFormatter formatter;
 
@@ -111,7 +111,7 @@ public class RunningRule {
             } else {
                 return;
             }
-            targetScope = meta.getScope();
+            targetScopeId = meta.getScopeId();
         }
 
         if (valueType != null) {
@@ -147,7 +147,7 @@ public class RunningRule {
             Window window = entry.getValue();
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
-                alarmMessage.setScope(meta.getScope());
+                alarmMessage.setScopeId(meta.getScopeId());
                 alarmMessage.setName(meta.getName());
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());

@@ -41,15 +41,15 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         super(client);
     }
 
-    public Alarms getAlarm(final Scope scope, final String keyword, final int limit, final int from, final long startTB,
+    public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from, final long startTB,
         final long endTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
 
-        if (Objects.nonNull(scope)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AlarmRecord.SCOPE, scope.ordinal()));
+        if (Objects.nonNull(scopeId)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(AlarmRecord.SCOPE, scopeId.intValue()));
         }
 
         if (!Strings.isNullOrEmpty(keyword)) {
@@ -74,7 +74,8 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
             message.setId(String.valueOf(alarmRecord.getId0()));
             message.setMessage(alarmRecord.getAlarmMessage());
             message.setStartTime(alarmRecord.getStartTime());
-            message.setScope(Scope.valueOf(alarmRecord.getScope()));
+            message.setScope(Scope.nameOf(alarmRecord.getScope()));
+            message.setScopeId(alarmRecord.getScope());
             alarms.getMsgs().add(message);
         }
         return alarms;
