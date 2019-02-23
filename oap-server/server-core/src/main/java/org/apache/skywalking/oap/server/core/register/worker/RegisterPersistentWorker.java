@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -106,7 +106,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                                 logger.error(t.getMessage(), t);
                             }
                         } else {
-                            logger.info("{} inventory register try lock and increment sequence failure.", Scope.nameOf(scopeId));
+                            logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
                         }
                     }
                 } catch (Throwable t) {

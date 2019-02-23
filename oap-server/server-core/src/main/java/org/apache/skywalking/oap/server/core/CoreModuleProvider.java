@@ -87,7 +87,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         AnnotationScan scopeScan = new AnnotationScan();
-        scopeScan.registerListener(new Scope.Listener());
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
         try {
             scopeScan.scan(null);
         } catch (IOException e) {

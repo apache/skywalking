@@ -26,8 +26,8 @@ import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
  */
 @SourceType
 public class Service extends Source {
-    @Override public Scope scope() {
-        return Scope.Service;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE;
     }
 
     @Override public String getEntityId() {

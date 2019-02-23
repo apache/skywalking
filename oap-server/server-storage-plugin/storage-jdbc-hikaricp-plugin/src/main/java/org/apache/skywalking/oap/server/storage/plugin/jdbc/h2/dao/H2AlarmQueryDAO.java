@@ -23,11 +23,10 @@ import java.sql.*;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.index.query.QueryBuilders;
 
 /**
  * @author wusheng
@@ -78,7 +77,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
                     message.setId(resultSet.getString(AlarmRecord.ID0));
                     message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
-                    message.setScope(Scope.nameOf(resultSet.getInt(AlarmRecord.SCOPE)));
+                    message.setScope(DefaultScopeDefine.nameOf(resultSet.getInt(AlarmRecord.SCOPE)));
                     message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
 
                     alarms.getMsgs().add(message);

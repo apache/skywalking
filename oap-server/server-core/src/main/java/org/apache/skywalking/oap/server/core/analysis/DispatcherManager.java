@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class DispatcherManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DispatcherManager.class);
 
-    private Map<Scope, List<SourceDispatcher>> dispatcherMap;
+    private Map<Integer, List<SourceDispatcher>> dispatcherMap;
 
     public DispatcherManager() {
         this.dispatcherMap = new HashMap<>();
@@ -93,17 +93,17 @@ public class DispatcherManager {
                         Source dispatcherSource = (Source)source;
                         SourceDispatcher dispatcher = (SourceDispatcher)aClass.newInstance();
 
-                        Scope scope = dispatcherSource.scope();
+                        int scopeId = dispatcherSource.scope();
 
-                        List<SourceDispatcher> dispatchers = this.dispatcherMap.get(scope);
+                        List<SourceDispatcher> dispatchers = this.dispatcherMap.get(scopeId);
                         if (dispatchers == null) {
                             dispatchers = new ArrayList<>();
-                            this.dispatcherMap.put(scope, dispatchers);
+                            this.dispatcherMap.put(scopeId, dispatchers);
                         }
 
                         dispatchers.add(dispatcher);
 
-                        logger.info("Dispatcher {} is added into Scope {}.", dispatcher.getClass().getName(), scope);
+                        logger.info("Dispatcher {} is added into DefaultScopeDefine {}.", dispatcher.getClass().getName(), scopeId);
                     }
                 }
             }

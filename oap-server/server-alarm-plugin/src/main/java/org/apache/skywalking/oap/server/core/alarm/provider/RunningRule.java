@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.DoubleValueHolde
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;

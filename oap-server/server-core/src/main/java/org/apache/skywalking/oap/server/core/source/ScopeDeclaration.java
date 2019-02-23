@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.source;
 import java.lang.annotation.*;
 
 /**
- * Scope id declaration.
+ * DefaultScopeDefine id declaration.
  *
  * @author wusheng
  */

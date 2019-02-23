@@ -34,7 +34,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -74,12 +74,12 @@ public class WebhookCallbackTest implements Servlet {
         WebhookCallback webhookCallback = new WebhookCallback(remoteEndpoints);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScope(Scope.All);
-        alarmMessage.setAlarmMessage("alarmMessage with [Scope.All]");
+        alarmMessage.setScope(DefaultScopeDefine.All);
+        alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
-        anotherAlarmMessage.setScope(Scope.Endpoint);
-        anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [Scope.Endpoint]");
+        anotherAlarmMessage.setScope(DefaultScopeDefine.Endpoint);
+        anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         webhookCallback.doAlarm(alarmMessages);
 

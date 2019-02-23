@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.alarm.IndicatorNotify;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 
-import static org.apache.skywalking.oap.server.core.source.Scope.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
 public class NotifyHandler implements IndicatorNotify {
     private final AlarmCore core;

@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -50,7 +50,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return new AlarmTrend();
     }
 
-    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
+    public Alarms getAlarm(final Duration duration, final DefaultScopeDefine scope, final String keyword,
         final Pagination paging) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());

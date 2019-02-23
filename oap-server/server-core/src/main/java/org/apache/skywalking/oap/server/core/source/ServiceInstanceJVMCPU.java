@@ -26,8 +26,8 @@ import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
  */
 @SourceType
 public class ServiceInstanceJVMCPU extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMCPU;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_CPU;
     }
 
     @Override public String getEntityId() {

@@ -21,23 +21,23 @@ package org.apache.skywalking.oap.server.core.alarm;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 /**
  * @author wusheng
  */
 public class AlarmMeta {
     @Setter @Getter private String indicatorName;
-    @Setter @Getter private Scope scope;
+    @Setter @Getter private int scope;
     @Setter @Getter private String id;
 
-    public AlarmMeta(String indicatorName, Scope scope) {
+    public AlarmMeta(String indicatorName, int scope) {
         this.indicatorName = indicatorName;
         this.scope = scope;
         this.id = Const.EMPTY_STRING;
     }
 
-    public AlarmMeta(String indicatorName, Scope scope, String id) {
+    public AlarmMeta(String indicatorName, int scope, String id) {
         this.indicatorName = indicatorName;
         this.scope = scope;
         this.id = id;

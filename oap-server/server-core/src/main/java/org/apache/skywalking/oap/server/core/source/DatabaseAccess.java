@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * @author: liuhaoyang
@@ -27,8 +26,8 @@ import lombok.Setter;
 public class DatabaseAccess extends Source {
 
     @Override
-    public Scope scope() {
-        return Scope.DatabaseAccess;
+    public int scope() {
+        return DefaultScopeDefine.DATABASE_ACCESS;
     }
 
     @Override

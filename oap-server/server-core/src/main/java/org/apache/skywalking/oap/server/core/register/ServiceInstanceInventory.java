@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -37,7 +37,7 @@ import org.elasticsearch.common.Strings;
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, sourceScopeId = Scope.SERVICE_INSTANCE_INVENTORY)
+@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY)
 public class ServiceInstanceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_instance_inventory";

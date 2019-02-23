@@ -23,7 +23,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
-import static org.apache.skywalking.oap.server.core.source.Scope.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
 /**
  * @author peng-yongsheng, wusheng
@@ -47,7 +47,7 @@ import static org.apache.skywalking.oap.server.core.source.Scope.*;
 @ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
 @ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
 @ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
-public class Scope {
+public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
 
@@ -106,7 +106,7 @@ public class Scope {
     public static String nameOf(int id) {
         String name = ID_2_NAME.get(id);
         if (name == null) {
-            throw new UnexpectedException("Scope id = " + id + " not found.");
+            throw new UnexpectedException("DefaultScopeDefine id = " + id + " not found.");
         }
         return name;
     }
@@ -114,7 +114,7 @@ public class Scope {
     public static int valueOf(String name) {
         Integer id = NAME_2_ID.get(name);
         if (id == null) {
-            throw new UnexpectedException("Scope name = " + name + " not found.");
+            throw new UnexpectedException("DefaultScopeDefine name = " + name + " not found.");
         }
         return id;
     }

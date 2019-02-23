@@ -22,7 +22,7 @@ import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.topn.annotation.TopNType;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  * @author wusheng
  */
 @TopNType
-@StorageEntity(name = TopNDatabaseStatement.INDEX_NAME, builder = TopNDatabaseStatement.Builder.class, sourceScopeId = Scope.DATABASE_SLOW_STATEMENT)
+@StorageEntity(name = TopNDatabaseStatement.INDEX_NAME, builder = TopNDatabaseStatement.Builder.class, sourceScopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT)
 public class TopNDatabaseStatement extends TopN {
     public static final String INDEX_NAME = "top_n_database_statement";
 

@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
 @SourceType
 public class All extends Source {
-    @Override public Scope scope() {
-        return Scope.All;
+    @Override public int scope() {
+        return DefaultScopeDefine.ALL;
     }
-
 
     @Override public String getEntityId() {
         return "";

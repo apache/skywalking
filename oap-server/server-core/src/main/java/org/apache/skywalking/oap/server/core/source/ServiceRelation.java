@@ -26,8 +26,8 @@ import org.apache.skywalking.oap.server.core.Const;
  */
 public class ServiceRelation extends Source {
 
-    @Override public Scope scope() {
-        return Scope.ServiceRelation;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_RELATION;
     }
 
     @Override public String getEntityId() {

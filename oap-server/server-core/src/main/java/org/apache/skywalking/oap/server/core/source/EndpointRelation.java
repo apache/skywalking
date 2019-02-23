@@ -26,8 +26,8 @@ import org.apache.skywalking.oap.server.core.Const;
  */
 public class EndpointRelation extends Source {
 
-    @Override public Scope scope() {
-        return Scope.EndpointRelation;
+    @Override public int scope() {
+        return DefaultScopeDefine.ENDPOINT_RELATION;
     }
 
     @Override public String getEntityId() {

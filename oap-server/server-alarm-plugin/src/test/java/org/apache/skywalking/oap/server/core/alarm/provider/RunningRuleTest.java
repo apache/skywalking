@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.*;
 import org.junit.*;
@@ -184,7 +184,7 @@ public class RunningRuleTest {
     private MetaInAlarm getMetaInAlarm(int id) {
         return new MetaInAlarm() {
             @Override public int getScopeId() {
-                return Scope.SERVICE;
+                return DefaultScopeDefine.SERVICE;
             }
 
             @Override public String getName() {

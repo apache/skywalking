@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
@@ -74,7 +74,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
             message.setId(String.valueOf(alarmRecord.getId0()));
             message.setMessage(alarmRecord.getAlarmMessage());
             message.setStartTime(alarmRecord.getStartTime());
-            message.setScope(Scope.nameOf(alarmRecord.getScope()));
+            message.setScope(DefaultScopeDefine.nameOf(alarmRecord.getScope()));
             message.setScopeId(alarmRecord.getScope());
             alarms.getMsgs().add(message);
         }

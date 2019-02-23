@@ -26,8 +26,8 @@ import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
  */
 @SourceType
 public class ServiceInstanceJVMGC extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMGC;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_GC;
     }
 
     @Override public String getEntityId() {
