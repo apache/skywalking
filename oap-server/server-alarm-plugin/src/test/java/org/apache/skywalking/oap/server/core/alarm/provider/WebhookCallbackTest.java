@@ -18,30 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.gson.*;
+import java.io.*;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.jetty.servlet.*;
+import org.junit.*;
 
 public class WebhookCallbackTest implements Servlet {
     private Server server;
@@ -74,11 +61,11 @@ public class WebhookCallbackTest implements Servlet {
         WebhookCallback webhookCallback = new WebhookCallback(remoteEndpoints);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setScope(DefaultScopeDefine.All);
+        alarmMessage.setScopeId(DefaultScopeDefine.ALL);
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
-        anotherAlarmMessage.setScope(DefaultScopeDefine.Endpoint);
+        anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         webhookCallback.doAlarm(alarmMessages);

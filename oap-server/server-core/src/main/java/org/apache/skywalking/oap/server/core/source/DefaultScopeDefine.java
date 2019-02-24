@@ -72,7 +72,6 @@ public class DefaultScopeDefine {
     public static final int DATABASE_SLOW_STATEMENT = 18;
 
     public static class Listener implements AnnotationListener {
-
         @Override public Class<? extends Annotation> annotation() {
             return ScopeDeclarations.class;
         }
@@ -117,5 +116,10 @@ public class DefaultScopeDefine {
             throw new UnexpectedException("ScopeDefine name = " + name + " not found.");
         }
         return id;
+    }
+
+    public static void reset() {
+        NAME_2_ID.clear();
+        ID_2_NAME.clear();
     }
 }

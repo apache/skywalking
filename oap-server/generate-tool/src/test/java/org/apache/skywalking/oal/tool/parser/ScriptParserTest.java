@@ -21,6 +21,8 @@ package org.apache.skywalking.oal.tool.parser;
 import java.io.*;
 import java.util.List;
 import org.apache.skywalking.oal.tool.meta.*;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.junit.*;
 
 public class ScriptParserTest {
@@ -31,6 +33,15 @@ public class ScriptParserTest {
         MetaSettings metaSettings = reader.read(stream);
         SourceColumnsFactory.setSettings(metaSettings);
         Indicators.init();
+
+        AnnotationScan scopeScan = new AnnotationScan();
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.scan(null);
+    }
+
+    @AfterClass
+    public static void clear() {
+        DefaultScopeDefine.reset();
     }
 
     @Test
@@ -71,7 +82,7 @@ public class ScriptParserTest {
         EntryMethod entryMethod = endpointPercent.getEntryMethod();
         List<String> methodArgsExpressions = entryMethod.getArgsExpressions();
         Assert.assertEquals(3, methodArgsExpressions.size());
-        Assert.assertEquals("sourceScopeId.isStatus()", methodArgsExpressions.get(1));
+        Assert.assertEquals("source.isStatus()", methodArgsExpressions.get(1));
         Assert.assertEquals("true", methodArgsExpressions.get(2));
     }
 
