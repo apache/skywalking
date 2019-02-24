@@ -24,6 +24,7 @@ import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorAnnotationUtils;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.slf4j.*;
 
@@ -50,6 +51,8 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
         boolean deleteHistory = StorageEntityAnnotationUtils.getDeleteHistory(aClass);
         int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(aClass);
+        // Check this scope id is valid.
+        DefaultScopeDefine.nameOf(sourceScopeId);
         List<ModelColumn> modelColumns = new LinkedList<>();
         boolean isIndicator = IndicatorAnnotationUtils.isIndicator(aClass);
         retrieval(aClass, modelName, modelColumns);
