@@ -26,7 +26,7 @@ import lombok.*;
 @Getter
 @Setter
 public class AlarmMessage {
-    private String scope;
+    private Scope scope;
     private int scopeId;
     private String id;
     private String message;

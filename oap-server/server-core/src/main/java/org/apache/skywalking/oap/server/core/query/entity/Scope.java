@@ -16,10 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.entity;
 
+import java.util.HashMap;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 /**
  * @author wusheng
@@ -37,5 +39,19 @@ public enum Scope {
 
     Scope(int scopeId) {
         this.scopeId = scopeId;
+        Finder.ALL_QUERY_SCOPES.put(scopeId, this);
     }
+
+    public static class Finder {
+        private static HashMap<Integer, Scope> ALL_QUERY_SCOPES = new HashMap<>();
+
+        public static Scope valueOf(int scopeId) {
+            Scope scope = ALL_QUERY_SCOPES.get(scopeId);
+            if (scope == null) {
+                throw new UnexpectedException("Can't find scope id =" + scopeId);
+            }
+            return scope;
+        }
+    }
+
 }
