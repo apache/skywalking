@@ -25,10 +25,16 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.output.FileGenerator;
 import org.apache.skywalking.oal.tool.parser.*;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 public class Main {
 
     public static void main(String[] args) throws IOException, TemplateException {
+        AnnotationScan scopeScan = new AnnotationScan();
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.scan(null);
+
         String modulePath = args[0];
 
         String scriptFilePath = StringUtil.join(File.separatorChar, modulePath, "src", "main", "resources", "official_analysis.oal");

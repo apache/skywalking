@@ -38,6 +38,7 @@ public class FileGeneratorTest {
         AnalysisResult result = new AnalysisResult();
         result.setVarName("generate_indicator");
         result.setSourceName("Service");
+        result.setSourceScopeId(1);
         result.setPackageName("service.serviceavg");
         result.setTableName("service_avg");
         result.setSourceAttribute("latency");
@@ -47,14 +48,14 @@ public class FileGeneratorTest {
 
         FilterExpression expression = new FilterExpression();
         expression.setExpressionObject("EqualMatch");
-        expression.setLeft("sourceScopeId.getName()");
+        expression.setLeft("source.getName()");
         expression.setRight("\"/service/prod/save\"");
         result.addFilterExpressions(expression);
 
         EntryMethod method = new EntryMethod();
         method.setMethodName("combine");
         method.setArgsExpressions(new LinkedList<>());
-        method.getArgsExpressions().add("sourceScopeId.getLatency()");
+        method.getArgsExpressions().add("source.getLatency()");
         method.getArgsExpressions().add("1");
         result.setEntryMethod(method);
         result.addPersistentField("summation", "summation", long.class);

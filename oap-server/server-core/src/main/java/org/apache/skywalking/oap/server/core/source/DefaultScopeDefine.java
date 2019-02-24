@@ -38,7 +38,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 @ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
 @ScopeDeclaration(id = SERVICE_INSTANCE_JVM_CPU, name = "ServiceInstanceJVMCPU")
 @ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORYPOOL, name = "ServiceInstanceJVMMemoryPool")
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY_POOL, name = "ServiceInstanceJVMMemoryPool")
 @ScopeDeclaration(id = SERVICE_INSTANCE_JVM_GC, name = "ServiceInstanceJVMGC")
 @ScopeDeclaration(id = SEGMENT, name = "Segment")
 @ScopeDeclaration(id = ALARM, name = "Alarm")
@@ -61,7 +61,7 @@ public class DefaultScopeDefine {
     public static final int NETWORK_ADDRESS = 7;
     public static final int SERVICE_INSTANCE_JVM_CPU = 8;
     public static final int SERVICE_INSTANCE_JVM_MEMORY = 9;
-    public static final int SERVICE_INSTANCE_JVM_MEMORYPOOL = 10;
+    public static final int SERVICE_INSTANCE_JVM_MEMORY_POOL = 10;
     public static final int SERVICE_INSTANCE_JVM_GC = 11;
     public static final int SEGMENT = 12;
     public static final int ALARM = 13;
@@ -74,7 +74,7 @@ public class DefaultScopeDefine {
     public static class Listener implements AnnotationListener {
 
         @Override public Class<? extends Annotation> annotation() {
-            return ScopeDeclaration.class;
+            return ScopeDeclarations.class;
         }
 
         @Override public void notify(Class originalClass) {
@@ -106,7 +106,7 @@ public class DefaultScopeDefine {
     public static String nameOf(int id) {
         String name = ID_2_NAME.get(id);
         if (name == null) {
-            throw new UnexpectedException("DefaultScopeDefine id = " + id + " not found.");
+            throw new UnexpectedException("ScopeDefine id = " + id + " not found.");
         }
         return name;
     }
@@ -114,7 +114,7 @@ public class DefaultScopeDefine {
     public static int valueOf(String name) {
         Integer id = NAME_2_ID.get(name);
         if (id == null) {
-            throw new UnexpectedException("DefaultScopeDefine name = " + name + " not found.");
+            throw new UnexpectedException("ScopeDefine name = " + name + " not found.");
         }
         return id;
     }

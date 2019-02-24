@@ -45,7 +45,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "${tableName}", builder = ${metricName}Indicator.Builder.class, source = Scope.${sourceName})
+@StorageEntity(name = "${tableName}", builder = ${metricName}Indicator.Builder.class, sourceScopeId = ${sourceScopeId})
 public class ${metricName}Indicator extends ${indicatorClassName} implements AlarmSupported {
 
 <#list fieldsFromSource as sourceField>
@@ -172,7 +172,7 @@ public class ${metricName}Indicator extends ${indicatorClassName} implements Ala
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("${varName}", Scope.${sourceName}<#if (fieldsFromSource?size>0) ><#list fieldsFromSource as field><#if field.isID()>, ${field.fieldName}</#if></#list></#if>);
+        return new AlarmMeta("${varName}", ${sourceScopeId}<#if (fieldsFromSource?size>0) ><#list fieldsFromSource as field><#if field.isID()>, ${field.fieldName}</#if></#list></#if>);
     }
 
     @Override

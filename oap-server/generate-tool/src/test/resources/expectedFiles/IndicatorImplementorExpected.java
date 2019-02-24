@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
  */
 @IndicatorType
 @StreamData
-@StorageEntity(name = "service_avg", builder = ServiceAvgIndicator.Builder.class, sourceScopeId = DefaultScopeDefine.Service)
+@StorageEntity(name = "service_avg", builder = ServiceAvgIndicator.Builder.class, sourceScopeId = 1)
 public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSupported {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
@@ -110,7 +110,7 @@ public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSuppor
     }
 
     @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("generate_indicator", DefaultScopeDefine.Service, entityId);
+        return new AlarmMeta("generate_indicator", 1, entityId);
     }
 
     @Override

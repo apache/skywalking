@@ -90,7 +90,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                 int latency = Math.toIntExact(Duration.between(requestTime, responseTime).toMillis());
 
                 DetectPoint detectPoint;
-                if (reporter.equals("sourceScopeId")) {
+                if (reporter.equals("source")) {
                     detectPoint = DetectPoint.client;
                 } else {
                     detectPoint = DetectPoint.server;

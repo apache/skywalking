@@ -25,7 +25,7 @@ import lombok.*;
  */
 public class ServiceInstanceJVMMemoryPool extends Source {
     @Override public int scope() {
-        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORYPOOL;
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY_POOL;
     }
 
     @Override public String getEntityId() {

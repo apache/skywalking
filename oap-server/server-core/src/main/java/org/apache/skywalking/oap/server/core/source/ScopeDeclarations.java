@@ -24,7 +24,7 @@ import java.lang.annotation.*;
  * @author wusheng
  */
 @Target({ElementType.TYPE})
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ScopeDeclarations {
     ScopeDeclaration[] value();
 }
