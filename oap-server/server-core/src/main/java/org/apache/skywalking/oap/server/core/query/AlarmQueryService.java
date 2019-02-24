@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -48,9 +47,9 @@ public class AlarmQueryService implements Service {
         return alarmQueryDAO;
     }
 
-    public Alarms getAlarm(final DefaultScopeDefine scope, final String keyword, final Pagination paging, final long startTB,
+    public Alarms getAlarm(final Integer scopeId, final String keyword, final Pagination paging, final long startTB,
         final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
-        return getAlarmQueryDAO().getAlarm(scope, keyword, page.getLimit(), page.getFrom(), startTB, endTB);
+        return getAlarmQueryDAO().getAlarm(scopeId, keyword, page.getLimit(), page.getFrom(), startTB, endTB);
     }
 }

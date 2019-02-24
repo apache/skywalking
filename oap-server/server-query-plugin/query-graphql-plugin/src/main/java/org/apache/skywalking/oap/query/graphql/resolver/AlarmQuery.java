@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.query.graphql.type.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -50,11 +50,11 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return new AlarmTrend();
     }
 
-    public Alarms getAlarm(final Duration duration, final DefaultScopeDefine scope, final String keyword,
+    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
         final Pagination paging) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getQueryService().getAlarm(scope, keyword, paging, startTimeBucket, endTimeBucket);
+        return getQueryService().getAlarm(scope.getScopeId(), keyword, paging, startTimeBucket, endTimeBucket);
     }
 }

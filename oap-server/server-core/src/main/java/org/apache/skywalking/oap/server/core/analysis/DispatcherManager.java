@@ -21,17 +21,11 @@ package org.apache.skywalking.oap.server.core.analysis;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.core.source.Source;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, wusheng

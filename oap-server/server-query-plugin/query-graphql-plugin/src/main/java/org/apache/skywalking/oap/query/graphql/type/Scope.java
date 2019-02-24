@@ -16,36 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.Const;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.source.*;
 
 /**
  * @author wusheng
  */
-public class AlarmMeta {
-    @Setter @Getter private String indicatorName;
-    @Setter @Getter private int scope;
-    @Setter @Getter private String id;
+public enum Scope {
+    Service(DefaultScopeDefine.SERVICE),
+    ServiceInstance(DefaultScopeDefine.SERVICE_INSTANCE),
+    Endpoint(DefaultScopeDefine.ENDPOINT),
+    ServiceRelation(DefaultScopeDefine.SERVICE_RELATION),
+    ServiceInstanceRelation(DefaultScopeDefine.SERVICE_INSTANCE_RELATION),
+    EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION);
 
-    public AlarmMeta(String indicatorName, int scope) {
-        this.indicatorName = indicatorName;
-        this.scope = scope;
-        this.id = Const.EMPTY_STRING;
-    }
+    @Getter
+    private int scopeId;
 
-    public AlarmMeta(String indicatorName, int scope, String id) {
-        this.indicatorName = indicatorName;
-        this.scope = scope;
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    Scope(int scopeId) {
+        this.scopeId = scopeId;
     }
 }
