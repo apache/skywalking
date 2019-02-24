@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
 import org.slf4j.*;
 
 /**
- * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to sourceScopeId
+ * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
  * dispatcher.
  *
  * @author wusheng
@@ -92,7 +92,7 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metric = decorator.getMetric();
 
         int heartbeatCycle = 10000;
-        // sourceScopeId
+        // source
         int instanceId = metric.getSourceServiceInstanceId();
         ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {

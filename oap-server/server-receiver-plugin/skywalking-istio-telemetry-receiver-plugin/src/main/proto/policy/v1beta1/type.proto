@@ -31,7 +31,7 @@ import "google/protobuf/timestamp.proto";
 // An instance field of type Value denotes that the expression for the field is of dynamic type and can evalaute to any
 // [ValueType][istio.policy.v1beta1.ValueType] enum values. For example, when
 // authoring an instance configuration for a template that has a field `data` of type `istio.policy.v1beta1.Value`,
-// both of the following expressions are valid `data: sourceScopeId.ip | ip("0.0.0.0")`, `data: request.id | ""`;
+// both of the following expressions are valid `data: source.ip | ip("0.0.0.0")`, `data: request.id | ""`;
 // the resulting type is either ValueType.IP_ADDRESS or ValueType.STRING for the two cases respectively.
 //
 // Objects of type Value are also passed to the adapters during request-time. There is a 1:1 mapping between
