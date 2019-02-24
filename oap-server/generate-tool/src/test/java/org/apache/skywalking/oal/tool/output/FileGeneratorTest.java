@@ -93,7 +93,7 @@ public class FileGeneratorTest {
 
         FileGenerator fileGenerator = new FileGenerator(results, ".");
         StringWriter writer = new StringWriter();
-        fileGenerator.generateServiceDispatcher(writer);
+        fileGenerator.generateDispatcher(result, writer);
         Assert.assertEquals(readExpectedFile("ServiceDispatcherExpected.java"), writer.toString());
 
         //fileGenerator.generateServiceDispatcher(new OutputStreamWriter(System.out));

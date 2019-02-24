@@ -20,12 +20,9 @@ package org.apache.skywalking.oal.tool.output;
 
 import java.util.*;
 import lombok.*;
-import org.apache.skywalking.oal.tool.parser.AnalysisResult;
 
 @Getter
 @Setter
-public class DispatcherContext {
-    private String source;
-    private String packageName;
-    private List<AnalysisResult> indicators = new ArrayList<>();
+public class AllDispatcherContext {
+    private Map<String, DispatcherContext> allContext = new HashMap<>();
 }
