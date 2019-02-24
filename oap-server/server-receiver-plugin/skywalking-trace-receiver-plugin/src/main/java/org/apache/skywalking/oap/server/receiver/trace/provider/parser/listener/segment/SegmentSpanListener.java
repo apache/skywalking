@@ -72,6 +72,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
         segment.setServiceId(segmentCoreInfo.getServiceId());
+        segment.setServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
         segment.setLatency((int)(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
         segment.setStartTime(segmentCoreInfo.getStartTime());
         segment.setEndTime(segmentCoreInfo.getEndTime());
