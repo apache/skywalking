@@ -77,7 +77,7 @@ in this Service scope, the id is service id, which is used in [OAL group mechani
 6. Add scope name keyword as source in parser definition file, `OALParser.g4`, which is at same fold of `OALLexer.g4`.
 
 7. Set the default columns for new scope, at `generator-scope-meta.yml` file in `generated-analysis/src/main/resources`.
-If you want to understand why need this columns, you have to understand all existing query(s). But there is an easy way, 
+If you want to understand why need these columns, you have to understand all existing query(s). But there is an easy way, 
 follow other existing scopes. Such as, if you are adding metric, connection number for service instance, follow existing `ServiceInstance`. 
 
 ___
