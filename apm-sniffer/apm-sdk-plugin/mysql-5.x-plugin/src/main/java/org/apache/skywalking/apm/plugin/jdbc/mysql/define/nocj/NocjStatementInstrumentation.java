@@ -16,29 +16,26 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.jdbc.mysql.define.nocj;
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.define.Constants;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.define.StatementInstrumentation;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link Mysql5xConnectionInstrumentation } interceptor {@link com.mysql.cj.jdbc.ConnectionImpl} and
- * com.mysql.jdbc.ConnectionImpl in mysql jdbc driver 5.1 and 5.1+
- *
- * @author zhangxin
- */
-public class Mysql5xConnectionInstrumentation extends ConnectionInstrumentation {
-    public static final String ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
+public class NocjStatementInstrumentation extends StatementInstrumentation {
 
+    private static final String STATEMENT_CLASS_NAME = "com.mysql.jdbc.StatementImpl";
 
-    @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(STATEMENT_CLASS_NAME);
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
+        return new String[] {Constants.WITNESS_MYSQL_5X_CLASS};
     }
 }

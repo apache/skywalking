@@ -52,4 +52,9 @@ public class LoadBalancedConnectionProxyInstrumentation extends ClassStaticMetho
     @Override protected ClassMatch enhanceClass() {
         return byName(INTERCEPT_CLASS);
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
+    }
 }

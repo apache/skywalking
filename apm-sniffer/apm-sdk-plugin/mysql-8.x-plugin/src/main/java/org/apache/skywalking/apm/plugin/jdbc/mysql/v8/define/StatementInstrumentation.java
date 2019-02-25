@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,18 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * {@link CallableInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the 
- * com.mysql.jdbc.CallableStatement
- * 1. execute 
- * 2. executeQuery 
- * 3. executeUpdate 
- *
- * @author zhangxin
- */
-public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "com.mysql.jdbc.cj.CallableStatement";
-    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.PreparedStatementExecuteMethodsInterceptor";
+public class StatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.v8.StatementExecuteMethodsInterceptor";
+    public static final String MYSQL8_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.StatementImpl";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -52,7 +43,12 @@ public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDe
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute")
                         .or(named("executeQuery"))
-                        .or(named("executeUpdate"));
+                        .or(named("executeUpdate"))
+                        .or(named("executeLargeUpdate"))
+                        .or(named("executeBatchInternal"))
+                        .or(named("executeUpdateInternal"))
+                        .or(named("executeQuery"))
+                        .or(named("executeBatch"));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -67,11 +63,11 @@ public class CallableInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byName(MYSQL8_STATEMENT_CLASS_NAME);
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
+        return new String[] {Constants.WITNESS_MYSQL_8X_CLASS};
     }
 }

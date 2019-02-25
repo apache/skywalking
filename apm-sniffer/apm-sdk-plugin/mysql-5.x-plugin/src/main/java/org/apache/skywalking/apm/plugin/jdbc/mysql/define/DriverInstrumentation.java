@@ -34,4 +34,9 @@ public class DriverInstrumentation extends AbstractDriverInstrumentation {
     protected ClassMatch enhanceClass() {
         return byMultiClassMatch("com.mysql.jdbc.Driver", "com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.NonRegisteringDriver");
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
+    }
 }

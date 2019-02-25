@@ -6,44 +6,60 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
 
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
+
+import com.mysql.cj.conf.HostInfo;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
+import java.util.Properties;
+
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class FailoverConnectionProxyInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
+/**
+ * @Description: interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance(HostInfo)}
+ * instead of {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
+ * @author: dingshaocheng
+ * @date: 2019/2/16
+ */
+public class ConnectionImplCreateInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
 
-    public static final String METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.CreateJdbcConnectionProxyInstanceInterceptor";
-    public static final String INTERCEPT_CLASS = "com.mysql.cj.jdbc.ha.FailoverConnectionProxy";
+    private static final String JDBC_ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
+
+    private static final String CONNECT_METHOD = "getInstance";
+
 
     @Override
     protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("createProxyInstance");
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(CONNECT_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
-                    return METHOD_INTERCEPTOR;
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.v8.ConnectionCreateInterceptor";
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
@@ -51,12 +67,12 @@ public class FailoverConnectionProxyInstrumentation extends ClassStaticMethodsEn
     }
 
     @Override
-    protected ClassMatch enhanceClass() {
-        return byName(INTERCEPT_CLASS);
+    protected String[] witnessClasses() {
+        return new String[] {Constants.WITNESS_MYSQL_8X_CLASS};
     }
 
     @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
+    protected ClassMatch enhanceClass() {
+        return byName(JDBC_ENHANCE_CLASS);
     }
 }

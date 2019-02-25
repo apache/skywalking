@@ -16,29 +16,25 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.jdbc.mysql.define.nocj;
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.define.Constants;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.define.PreparedStatementInstrumentation;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
-/**
- * {@link Mysql5xConnectionInstrumentation } interceptor {@link com.mysql.cj.jdbc.ConnectionImpl} and
- * com.mysql.jdbc.ConnectionImpl in mysql jdbc driver 5.1 and 5.1+
- *
- * @author zhangxin
- */
-public class Mysql5xConnectionInstrumentation extends ConnectionInstrumentation {
-    public static final String ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
-
-
-    @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+public class NocjPreparedStatementInstrumentation extends PreparedStatementInstrumentation {
+    private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
+    public static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME,JDBC42_PREPARED_STATEMENT_CLASS_NAME);
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
+        return new String[] {Constants.WITNESS_MYSQL_5X_CLASS};
     }
 }
