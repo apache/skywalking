@@ -21,9 +21,12 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_RELATION;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
 public class EndpointRelation extends Source {
 
     @Override public int scope() {

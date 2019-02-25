@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
 
 /**
  * @author wusheng
  */
-@SourceType
+@ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
 public class DatabaseSlowStatement extends Source {
     @Getter @Setter private String id;
     @Getter @Setter private int databaseServiceId;

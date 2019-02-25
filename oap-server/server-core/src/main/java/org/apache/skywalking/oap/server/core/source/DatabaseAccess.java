@@ -20,9 +20,12 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
+
 /**
  * @author: liuhaoyang
  */
+@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
 public class DatabaseAccess extends Source {
 
     @Override

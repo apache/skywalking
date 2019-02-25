@@ -23,30 +23,10 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
-
 /**
  * @author peng-yongsheng, wusheng
  */
-@ScopeDeclaration(id = ALL, name = "All")
-@ScopeDeclaration(id = SERVICE, name = "Service")
-@ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance")
-@ScopeDeclaration(id = ENDPOINT, name = "Endpoint")
-@ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation")
-@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
-@ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
-@ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_CPU, name = "ServiceInstanceJVMCPU")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY_POOL, name = "ServiceInstanceJVMMemoryPool")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_GC, name = "ServiceInstanceJVMGC")
-@ScopeDeclaration(id = SEGMENT, name = "Segment")
-@ScopeDeclaration(id = ALARM, name = "Alarm")
-@ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
-@ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
-@ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
-@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
-@ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
+
 public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();

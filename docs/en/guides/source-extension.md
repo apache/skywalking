@@ -12,13 +12,13 @@ public interface SourceReceiver extends Service {
 }
 ```
 
-2. All analysis data must be a **org.apache.skywalking.oap.server.core.source.Source**,
-tagged by `@SourceType` annotation,
-so it could be supported by OAL script and OAP core.
+2. All analysis data must be a **org.apache.skywalking.oap.server.core.source.Source** sub class,
+tagged by `@SourceType` annotation, and in `org.apache.skywalking` package.
+Then it could be supported by OAL script and OAP core.
 
 Such as existed source, **Service**.
 ```java
-@SourceType
+@ScopeDeclaration(id = SERVICE, name = "Service")
 public class Service extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.SERVICE;
@@ -40,37 +40,12 @@ public class Service extends Source {
 ```
 
 3. The `scope()` method in Source, returns an ID, which is not a random number. This ID need to be declared through 
-`@ScopeDeclaration` annotation. This annotation could be used in any class in `org.apache.skywalking` package. 
-But just for code style, if this scope is provided in our ASF official repo, we recommend and ask you to add it at
-`org.apache.skywalking.oap.server.core.source.DefaultScopeDefine`, like the existing ones.
-```java
-@ScopeDeclaration(id = ALL, name = "All")
-@ScopeDeclaration(id = SERVICE, name = "Service")
-@ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance")
-@ScopeDeclaration(id = ENDPOINT, name = "Endpoint")
-@ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation")
-@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
-@ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
-@ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_CPU, name = "ServiceInstanceJVMCPU")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY_POOL, name = "ServiceInstanceJVMMemoryPool")
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_GC, name = "ServiceInstanceJVMGC")
-@ScopeDeclaration(id = SEGMENT, name = "Segment")
-@ScopeDeclaration(id = ALARM, name = "Alarm")
-@ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
-@ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
-@ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
-@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
-@ScopeDeclaration(id = DATABASE_SLOW_STATEMENT, name = "DatabaseSlowStatement")
-public class DefaultScopeDefine {
-    ...
-}
-```
+`@ScopeDeclaration` annotation too. The ID in `@ScopeDeclaration` and ID in `scope()` method should be same for this Source.
 
-4. The `String getEntityId()` method in Source, request the return value representing unique entity which the scope related. 
+4. The `String getEntityId()` method in Source, requests the return value representing unique entity which the scope related. 
 Such as,
-in this Service scope, the id is service id, which is used in [OAL group mechanism](../concepts-and-designs/oal.md#group).
+in this Service scope, the id is service id, representing a particular service, like `Order` service.
+This value is used in [OAL group mechanism](../concepts-and-designs/oal.md#group).
 
 5. Add scope name as keyword to oal grammar definition file, `OALLexer.g4`, which is at `antlr4` folder of `generate-tool-grammar` module.
 

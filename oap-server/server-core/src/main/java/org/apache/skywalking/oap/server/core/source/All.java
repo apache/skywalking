@@ -19,9 +19,10 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
 
-@SourceType
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALL;
+
+@ScopeDeclaration(id = ALL, name = "All")
 public class All extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.ALL;
