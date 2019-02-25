@@ -80,3 +80,14 @@ database_access_p95 = from(DatabaseAccess.latency).p95(10);
 database_access_p90 = from(DatabaseAccess.latency).p90(10);
 database_access_p75 = from(DatabaseAccess.latency).p75(10);
 database_access_p50 = from(DatabaseAccess.latency).p50(10);
+
+// CLR instance metric
+instance_clr_cpu = from(ServiceInstanceCLRCPU.usePercent).doubleAvg();
+instance_clr_gen0_collect_count = from(ServiceInstanceCLRGC.gen0CollectCount).sum();
+instance_clr_gen1_collect_count = from(ServiceInstanceCLRGC.gen1CollectCount).sum();
+instance_clr_gen2_collect_count = from(ServiceInstanceCLRGC.gen2CollectCount).sum();
+instance_clr_heap_memory = from(ServiceInstanceCLRGC.heapMemory).longAvg();
+instance_clr_available_completion_port_threads = from(ServiceInstanceCLRThread.availableCompletionPortThreads).count();
+instance_clr_available_worker_threads = from(ServiceInstanceCLRThread.availableWorkerThreads).count();
+instance_clr_max_completion_port_threads = from(ServiceInstanceCLRThread.maxCompletionPortThreads).count();
+instance_clr_max_worker_threads = from(ServiceInstanceCLRThread.maxWorkerThreads).count();
