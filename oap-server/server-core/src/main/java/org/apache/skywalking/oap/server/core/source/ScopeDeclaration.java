@@ -27,7 +27,6 @@ import java.lang.annotation.*;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ScopeDeclarations.class)
 public @interface ScopeDeclaration {
     int id();
     String name();

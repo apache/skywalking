@@ -53,18 +53,13 @@ public class DefaultScopeDefine {
 
     public static class Listener implements AnnotationListener {
         @Override public Class<? extends Annotation> annotation() {
-            return ScopeDeclarations.class;
+            return ScopeDeclaration.class;
         }
 
         @Override public void notify(Class originalClass) {
-            ScopeDeclarations declarations = (ScopeDeclarations)originalClass.getAnnotation(ScopeDeclarations.class);
-            if (declarations != null) {
-                ScopeDeclaration[] scopeDeclarations = declarations.value();
-                if (scopeDeclarations != null) {
-                    for (ScopeDeclaration declaration : scopeDeclarations) {
-                        addNewScope(declaration, originalClass);
-                    }
-                }
+            ScopeDeclaration declaration = (ScopeDeclaration)originalClass.getAnnotation(ScopeDeclaration.class);
+            if (declaration != null) {
+                addNewScope(declaration, originalClass);
             }
         }
     }
