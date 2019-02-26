@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
+import java.net.InetSocketAddress;
 import java.util.Objects;
-import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.*;
-import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.*;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.*;
 
 /**
@@ -63,20 +61,7 @@ public class JettyServer implements Server {
 
     @Override
     public void initialize() {
-        QueuedThreadPool threadPool = new QueuedThreadPool();
-        if (selectorNum > 0) {
-            threadPool.setMaxThreads(selectorNum * 2 + 2);
-        }
-
-        server = new org.eclipse.jetty.server.Server(threadPool);
-
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        ServerConnector http = new ServerConnector(server, null, null, null,
-            1, selectorNum, new HttpConnectionFactory(httpConfig));
-        http.setPort(port);
-        http.setHost(host);
-
-        server.addConnector(http);
+        server = new org.eclipse.jetty.server.Server(new InetSocketAddress(host, port));
 
         servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath(contextPath);
