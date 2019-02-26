@@ -18,22 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.joda.time.format.*;
+import org.junit.*;
 import org.powermock.reflect.Whitebox;
 
 /**
@@ -177,7 +169,7 @@ public class RunningRuleTest {
         Assert.assertEquals(0, runningRule.check().size()); //check matches, no alarm
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
         // check at 201808301441
-        Assert.assertEquals(0,  runningRule.check().size()); //check matches, no alarm
+        Assert.assertEquals(0, runningRule.check().size()); //check matches, no alarm
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
         // check at 201808301442
         Assert.assertNotEquals(0, runningRule.check().size()); //alarm
@@ -191,8 +183,8 @@ public class RunningRuleTest {
 
     private MetaInAlarm getMetaInAlarm(int id) {
         return new MetaInAlarm() {
-            @Override public Scope getScope() {
-                return Scope.Service;
+            @Override public int getScopeId() {
+                return DefaultScopeDefine.SERVICE;
             }
 
             @Override public String getName() {

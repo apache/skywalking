@@ -21,13 +21,16 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
 public class ServiceInstanceRelation extends Source {
 
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceRelation;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
     }
 
     @Override public String getEntityId() {

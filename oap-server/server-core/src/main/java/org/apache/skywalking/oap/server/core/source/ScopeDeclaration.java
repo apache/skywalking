@@ -16,14 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source.annotation;
+package org.apache.skywalking.oap.server.core.source;
 
 import java.lang.annotation.*;
 
 /**
- * @author peng-yongsheng
+ * DefaultScopeDefine id declaration.
+ *
+ * @author wusheng
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface SourceType {
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ScopeDeclaration {
+    int id();
+    String name();
 }

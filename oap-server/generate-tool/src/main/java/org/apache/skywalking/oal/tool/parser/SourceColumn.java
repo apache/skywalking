@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.tool.parser;
 
+import java.util.Objects;
 import lombok.*;
 import org.apache.skywalking.oal.tool.util.ClassMethodUtil;
 
@@ -32,6 +33,9 @@ public class SourceColumn {
     private String fieldSetter;
     private String fieldGetter;
 
+    public SourceColumn() {
+    }
+
     public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID) {
         this.fieldName = fieldName;
         this.columnName = columnName;
@@ -43,6 +47,35 @@ public class SourceColumn {
         this.fieldSetter = ClassMethodUtil.toSetMethod(fieldName);
     }
 
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+        this.fieldGetter = ClassMethodUtil.toGetMethod(fieldName);
+        this.fieldSetter = ClassMethodUtil.toSetMethod(fieldName);
+    }
+
+    public void setTypeName(String typeName) {
+        switch (typeName) {
+            case "int":
+                this.type = int.class;
+                break;
+            case "long":
+                this.type = long.class;
+                break;
+            case "string":
+            case "String":
+                this.type = String.class;
+                typeName = "String";
+            default:
+                try {
+                    this.type = Class.forName(typeName);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+        }
+
+        this.typeName = typeName;
+    }
+
     @Override public String toString() {
         return "SourceColumn{" +
             "fieldName='" + fieldName + '\'' +
@@ -50,5 +83,24 @@ public class SourceColumn {
             ", type=" + type +
             ", isID=" + isID +
             '}';
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        SourceColumn column = (SourceColumn)o;
+        return isID == column.isID &&
+            Objects.equals(fieldName, column.fieldName) &&
+            Objects.equals(columnName, column.columnName) &&
+            Objects.equals(type, column.type) &&
+            Objects.equals(typeName, column.typeName) &&
+            Objects.equals(fieldSetter, column.fieldSetter) &&
+            Objects.equals(fieldGetter, column.fieldGetter);
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(fieldName, columnName, type, typeName, isID, fieldSetter, fieldGetter);
     }
 }

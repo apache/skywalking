@@ -25,6 +25,8 @@ import org.apache.skywalking.oap.server.core.alarm.IndicatorNotify;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+
 public class NotifyHandler implements IndicatorNotify {
     private final AlarmCore core;
     private final Rules rules;
@@ -35,12 +37,12 @@ public class NotifyHandler implements IndicatorNotify {
     }
 
     @Override public void notify(MetaInAlarm meta, Indicator indicator) {
-        switch (meta.getScope()) {
-            case Service:
+        switch (meta.getScopeId()) {
+            case SERVICE:
                 break;
-            case ServiceInstance:
+            case SERVICE_INSTANCE:
                 break;
-            case Endpoint:
+            case ENDPOINT:
                 break;
             default:
                 return;

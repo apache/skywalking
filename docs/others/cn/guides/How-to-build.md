@@ -30,7 +30,7 @@
     * **apm-protocol/apm-network/target/generated-sources/protobuf** 文件夹下的`grpc-java` 和 `java`
     * **oap-server/server-core/target/generated-sources/protobuf** 文件夹下的`grpc-java` 和 `java`
     * **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf** 文件夹下的`grpc-java` 和 `java`
-    * **oap-server/generate-tool/target/generated-sources** 文件夹下的 `antlr4`
+    * **oap-server/generate-tool-grammar/target/generated-sources** 文件夹下的 `antlr4`
     * **oap-server/generated-analysis/target/generated-sources** 文件夹下的 `oal`
     
 ## 设置Eclipse IDE

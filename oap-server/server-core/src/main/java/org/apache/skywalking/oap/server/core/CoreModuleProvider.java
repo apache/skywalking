@@ -85,7 +85,15 @@ public class CoreModuleProvider extends ModuleProvider {
         return moduleConfig;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException {
+    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        AnnotationScan scopeScan = new AnnotationScan();
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        try {
+            scopeScan.scan(null);
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+
         grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
         if (moduleConfig.getMaxConcurrentCallsPerConnection() > 0) {
             grpcServer.setMaxConcurrentCallsPerConnection(moduleConfig.getMaxConcurrentCallsPerConnection());

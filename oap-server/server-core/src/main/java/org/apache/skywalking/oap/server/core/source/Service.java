@@ -19,15 +19,16 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
 
 /**
  * @author wusheng, peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = SERVICE, name = "Service")
 public class Service extends Source {
-    @Override public Scope scope() {
-        return Scope.Service;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE;
     }
 
     @Override public String getEntityId() {
