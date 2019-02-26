@@ -33,7 +33,6 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 /**
  *
  * @author: dingshaocheng
- * @date: 2019/2/16
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionImplCreateInterceptorTest {

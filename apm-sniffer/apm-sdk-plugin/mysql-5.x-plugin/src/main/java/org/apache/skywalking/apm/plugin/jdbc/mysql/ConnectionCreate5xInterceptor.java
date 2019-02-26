@@ -27,10 +27,9 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import java.lang.reflect.Method;
 
 /**
- * @Description: ConnectionImpl#getInstance in mysql-5.x has 5 parameters such as
+ * ConnectionImpl#getInstance in mysql-5.x has 5 parameters such as
  *  getInstance(String hostToConnectTo, int portToConnectTo, Properties info, String databaseToConnectTo, String url)
  * @author: dingshaocheng
- * @date: 2019/2/16
  */
 public class ConnectionCreate5xInterceptor implements StaticMethodsAroundInterceptor {
 

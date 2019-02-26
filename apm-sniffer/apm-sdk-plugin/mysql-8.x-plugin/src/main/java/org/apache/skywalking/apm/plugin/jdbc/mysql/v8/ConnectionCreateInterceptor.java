@@ -28,9 +28,7 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import java.lang.reflect.Method;
 
 /**
- * @Description:
  * @author: dingshaocheng
- * @date: 2019/2/16
  */
 public class ConnectionCreateInterceptor implements StaticMethodsAroundInterceptor {
 

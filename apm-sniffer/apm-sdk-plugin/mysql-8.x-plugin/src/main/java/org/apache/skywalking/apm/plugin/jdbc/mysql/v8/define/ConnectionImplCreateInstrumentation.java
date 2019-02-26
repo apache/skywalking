@@ -32,10 +32,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * @Description: interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance(HostInfo)}
+ * interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance(HostInfo)}
  * instead of {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
  * @author: dingshaocheng
- * @date: 2019/2/16
  */
 public class ConnectionImplCreateInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
 
