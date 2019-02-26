@@ -24,7 +24,7 @@ import lombok.*;
  * @author peng-yongsheng
  */
 public abstract class Source {
-    public abstract Scope scope();
+    public abstract int scope();
 
     @Getter @Setter private long timeBucket;
 

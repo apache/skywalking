@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -37,7 +37,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterPersistentWorker.class);
 
-    private final Scope scope;
+    private final int scopeId;
     private final String modelName;
     private final Map<RegisterSource, RegisterSource> sources;
     private final IRegisterLockDAO registerLockDAO;
@@ -45,13 +45,13 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final DataCarrier<RegisterSource> dataCarrier;
 
     RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
-        IRegisterDAO registerDAO, Scope scope) {
+        IRegisterDAO registerDAO, int scopeId) {
         super(workerId);
         this.modelName = modelName;
         this.sources = new HashMap<>();
         this.registerDAO = registerDAO;
         this.registerLockDAO = moduleManager.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
-        this.scope = scope;
+        this.scopeId = scopeId;
         this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 1000);
 
         String name = "REGISTER_L2";
@@ -91,7 +91,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                         }
                     } else {
                         int sequence;
-                        if ((sequence = registerLockDAO.getId(scope, registerSource)) != Const.NONE) {
+                        if ((sequence = registerLockDAO.getId(scopeId, registerSource)) != Const.NONE) {
                             try {
                                 dbSource = registerDAO.get(modelName, source.id());
                                 if (Objects.nonNull(dbSource)) {
@@ -106,7 +106,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                                 logger.error(t.getMessage(), t);
                             }
                         } else {
-                            logger.info("{} inventory register try lock and increment sequence failure.", scope.name());
+                            logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
                         }
                     }
                 } catch (Throwable t) {

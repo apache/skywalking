@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
@@ -54,10 +53,10 @@ public class StorageEntityAnnotationUtils {
         }
     }
 
-    public static Scope getSourceScope(Class aClass) {
+    public static int getSourceScope(Class aClass) {
         if (aClass.isAnnotationPresent(StorageEntity.class)) {
             StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
-            return annotation.source();
+            return annotation.sourceScopeId();
         } else {
             throw new UnexpectedException("");
         }

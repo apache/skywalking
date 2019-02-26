@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * Entity register and ID generator.
@@ -32,8 +31,8 @@ public interface IRegisterLockDAO extends DAO {
      * in concurrent way, so no `sync` in method level, but the implementation must make sure the return id is unique no
      * matter the cluster size.
      *
-     * @param scope for the id. IDs at different scopes could be same, but unique in same scope.
+     * @param scopeId for the id. IDs at different scopes could be same, but unique in same scope.
      * @return Unique ID.
      */
-    int getId(Scope scope, RegisterSource registerSource);
+    int getId(int scopeId, RegisterSource registerSource);
 }
