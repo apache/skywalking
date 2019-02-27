@@ -42,7 +42,7 @@ public class ClassUtil {
     }
 
     public static Class forName(String className) throws ClassNotFoundException {
-        return PRIMITIVE.get(className) == null ? Class.forName(className) : PRIMITIVE.get(className);
+        return PRIMITIVE.containsKey(className)? PRIMITIVE.get(className) : Class.forName(className);
     }
 
 }
