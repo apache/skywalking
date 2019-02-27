@@ -16,18 +16,30 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.plugin.loader;
+package org.apache.skywalking.apm.util;
 
-import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
-
-import java.util.List;
+import java.lang.reflect.Method;
 
 /**
+ *
  * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:14 AM
+ * @Date: 2019/2/27 9:02 PM
+ *
  */
 
-public interface InstrumentationServiceLoader {
+public class MethodUtil {
 
-    List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader);
+    public static String generateOperationName(Method method) {
+        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            operationName.append(parameterTypes[i].getName());
+            if (i < (parameterTypes.length - 1)) {
+                operationName.append(",");
+            }
+        }
+        operationName.append(")");
+        return operationName.toString();
+    }
+
 }

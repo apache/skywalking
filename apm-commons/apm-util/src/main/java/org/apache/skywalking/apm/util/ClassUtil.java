@@ -16,18 +16,33 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.plugin.loader;
+package org.apache.skywalking.apm.util;
 
-import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
-
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:14 AM
+ * @Date: 2019/2/27 9:05 PM
  */
 
-public interface InstrumentationServiceLoader {
+public class ClassUtil {
 
-    List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader);
+    private static final Map<String, Class> PRIMITIVE = new HashMap<String, Class>();
+
+    static {
+        PRIMITIVE.put("boolean.class", boolean.class);
+        PRIMITIVE.put("char.class", char.class);
+        PRIMITIVE.put("byte.class", byte.class);
+        PRIMITIVE.put("short.class", short.class);
+        PRIMITIVE.put("int.class", int.class);
+        PRIMITIVE.put("long.class", long.class);
+        PRIMITIVE.put("float.class", float.class);
+        PRIMITIVE.put("double.class", double.class);
+    }
+
+    public static Class forName(String className) throws ClassNotFoundException {
+        return PRIMITIVE.get(className) == null ? Class.forName(className) : PRIMITIVE.get(className);
+    }
+
 }
