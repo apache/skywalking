@@ -16,20 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oal.tool.meta;
+
+import java.util.List;
+import lombok.*;
 
 /**
- * @author peng-yongsheng, wusheng
+ * @author wusheng
  */
-public enum Scope {
-    All, Service, ServiceInstance, Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation, NetworkAddress,
-    ServiceInstanceJVMCPU, ServiceInstanceJVMMemory, ServiceInstanceJVMMemoryPool, ServiceInstanceJVMGC,
-    Segment, Alarm, ServiceInventory, ServiceInstanceInventory, EndpointInventory, DatabaseAccess, DatabaseSlowStatement;
-
-    public static Scope valueOf(int ordinal) {
-        if (ordinal < 0 || ordinal >= values().length) {
-            throw new IndexOutOfBoundsException("Invalid ordinal");
-        }
-        return values()[ordinal];
-    }
+@Setter
+@Getter
+public class MetaSettings {
+    private List<ScopeMeta> scopes;
 }

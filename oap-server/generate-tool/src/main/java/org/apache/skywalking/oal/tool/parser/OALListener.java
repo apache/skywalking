@@ -21,6 +21,7 @@ package org.apache.skywalking.oal.tool.parser;
 import java.util.List;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.apache.skywalking.oal.tool.grammar.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 public class OALListener extends OALParserBaseListener {
     private List<AnalysisResult> results;
@@ -46,6 +47,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override public void enterSource(OALParser.SourceContext ctx) {
         current.setSourceName(ctx.getText());
+        current.setSourceScopeId(DefaultScopeDefine.valueOf(metricNameFormat(ctx.getText())));
     }
 
     @Override

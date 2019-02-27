@@ -21,14 +21,24 @@ package org.apache.skywalking.oal.tool.output;
 import freemarker.template.TemplateException;
 import java.io.*;
 import java.util.*;
+import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.parser.*;
 import org.junit.*;
 
 public class FileGeneratorTest {
+    @BeforeClass
+    public static void init() {
+        MetaReader reader = new MetaReader();
+        InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
+        MetaSettings metaSettings = reader.read(stream);
+        SourceColumnsFactory.setSettings(metaSettings);
+    }
+
     private AnalysisResult buildResult() {
         AnalysisResult result = new AnalysisResult();
         result.setVarName("generate_indicator");
         result.setSourceName("Service");
+        result.setSourceScopeId(1);
         result.setPackageName("service.serviceavg");
         result.setTableName("service_avg");
         result.setSourceAttribute("latency");
@@ -83,7 +93,7 @@ public class FileGeneratorTest {
 
         FileGenerator fileGenerator = new FileGenerator(results, ".");
         StringWriter writer = new StringWriter();
-        fileGenerator.generateServiceDispatcher(writer);
+        fileGenerator.generateDispatcher(result, writer);
         Assert.assertEquals(readExpectedFile("ServiceDispatcherExpected.java"), writer.toString());
 
         //fileGenerator.generateServiceDispatcher(new OutputStreamWriter(System.out));

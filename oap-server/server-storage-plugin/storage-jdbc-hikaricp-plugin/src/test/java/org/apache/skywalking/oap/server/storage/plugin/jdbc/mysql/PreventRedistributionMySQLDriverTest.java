@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  * This is a very special test case. It isn't for feature testing.
  *
- * In Apache, we can't redistribute MySQL Driver, because of GPL license, but we deliver MySQL solution source codes and
+ * In Apache, we can't redistribute MySQL Driver, because of GPL license, but we deliver MySQL solution sourceScopeId codes and
  * distribution by using JDBC.
  *
  * @author wusheng

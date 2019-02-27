@@ -24,17 +24,20 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.elasticsearch.common.Strings;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
 
 /**
  * @author peng-yongsheng
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, source = Scope.NetworkAddress)
+@ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
+@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.NETWORK_ADDRESS)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "network_address_inventory";
