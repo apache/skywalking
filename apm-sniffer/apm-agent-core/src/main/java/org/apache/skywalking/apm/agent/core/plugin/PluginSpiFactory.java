@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 /**
+ * The plugin can be inserted into the kernel by implementing this spi return PluginDefine list.
  *
  * @Author: zhaoyuguang
  * @Date: 2019/2/22 9:09 AM
- *
  */
 
 public enum PluginSpiFactory {
@@ -38,11 +38,14 @@ public enum PluginSpiFactory {
     INSTANCE;
 
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
-        List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
+        List<AbstractClassEnhancePluginDefine> all = new ArrayList<AbstractClassEnhancePluginDefine>();
         Iterator<InstrumentationServiceLoader> iterator = ServiceLoader.load(InstrumentationServiceLoader.class, AgentClassLoader.getDefault()).iterator();
-        while(iterator.hasNext()){
-            plugins.addAll(iterator.next().load(classLoader));
+        while (iterator.hasNext()) {
+            List<AbstractClassEnhancePluginDefine> plugins = iterator.next().load(classLoader);
+            if (plugins != null && !plugins.isEmpty()) {
+                all.addAll(plugins);
+            }
         }
-        return plugins;
+        return all;
     }
 }

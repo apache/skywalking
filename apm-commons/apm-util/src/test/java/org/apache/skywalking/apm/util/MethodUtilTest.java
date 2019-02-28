@@ -18,35 +18,21 @@
 
 package org.apache.skywalking.apm.util;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.lang.reflect.Method;
 
 /**
  * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:02 PM
+ * @Date: 2019/2/28 12:18 PM
  */
 
-public class MethodUtil {
+public class MethodUtilTest {
 
-
-    /**
-     * According to the method input parameter,
-     * return the OperationName for the span record,
-     * which can be used for the default OperationName.
-     *
-     * @param method {@link Method}
-     * @return OperationName
-     */
-    public static String generateOperationName(Method method) {
-        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(parameterTypes[i].getName());
-            if (i < (parameterTypes.length - 1)) {
-                operationName.append(",");
-            }
-        }
-        operationName.append(")");
-        return operationName.toString();
+    @Test
+    public void testClassForName() throws NoSuchMethodException {
+        Assert.assertTrue(MethodUtil.generateOperationName(MethodUtil.class.getMethod("generateOperationName", Method.class))
+                .equals("org.apache.skywalking.apm.util.MethodUtil.generateOperationName(java.lang.reflect.Method)"));
     }
-
 }
