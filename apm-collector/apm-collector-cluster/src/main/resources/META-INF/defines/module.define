@@ -1,3 +1,0 @@
-org.skywalking.apm.collector.cluster.zookeeper.ClusterZKModuleDefine
-org.skywalking.apm.collector.cluster.standalone.ClusterStandaloneModuleDefine
-org.skywalking.apm.collector.cluster.redis.ClusterRedisModuleDefine

@@ -1,7 +1,0 @@
-org.skywalking.apm.agent.core.remote.TraceSegmentServiceClient
-org.skywalking.apm.agent.core.context.ContextManager
-org.skywalking.apm.agent.core.remote.CollectorDiscoveryService
-org.skywalking.apm.agent.core.sampling.SamplingService
-org.skywalking.apm.agent.core.remote.GRPCChannelManager
-org.skywalking.apm.agent.core.jvm.JVMService
-org.skywalking.apm.agent.core.remote.AppAndServiceRegisterClient

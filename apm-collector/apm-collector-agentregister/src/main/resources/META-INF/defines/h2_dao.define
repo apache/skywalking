@@ -1,3 +1,0 @@
-org.skywalking.apm.collector.agentregister.worker.application.dao.ApplicationH2DAO
-org.skywalking.apm.collector.agentregister.worker.instance.dao.InstanceH2DAO
-org.skywalking.apm.collector.agentregister.worker.servicename.dao.ServiceNameH2DAO

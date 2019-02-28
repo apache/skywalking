@@ -1,9 +1,0 @@
-org.skywalking.apm.collector.agentstream.worker.node.component.dao.NodeComponentH2DAO
-org.skywalking.apm.collector.agentstream.worker.node.mapping.dao.NodeMappingH2DAO
-org.skywalking.apm.collector.agentstream.worker.noderef.dao.NodeReferenceH2DAO
-org.skywalking.apm.collector.agentstream.worker.segment.origin.dao.SegmentH2DAO
-org.skywalking.apm.collector.agentstream.worker.segment.cost.dao.SegmentCostH2DAO
-org.skywalking.apm.collector.agentstream.worker.global.dao.GlobalTraceH2DAO
-org.skywalking.apm.collector.agentstream.worker.service.entry.dao.ServiceEntryH2DAO
-org.skywalking.apm.collector.agentstream.worker.serviceref.dao.ServiceReferenceH2DAO
-org.skywalking.apm.collector.agentstream.worker.instance.performance.dao.InstPerformanceH2DAO

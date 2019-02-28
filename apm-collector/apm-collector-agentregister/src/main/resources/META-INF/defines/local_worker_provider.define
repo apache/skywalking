@@ -1,3 +1,0 @@
-org.skywalking.apm.collector.agentregister.worker.application.ApplicationRegisterSerialWorker$Factory
-org.skywalking.apm.collector.agentregister.worker.instance.InstanceRegisterSerialWorker$Factory
-org.skywalking.apm.collector.agentregister.worker.servicename.ServiceNameRegisterSerialWorker$Factory

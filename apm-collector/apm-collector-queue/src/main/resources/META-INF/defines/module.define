@@ -1,2 +1,0 @@
-org.skywalking.apm.collector.queue.disruptor.QueueDisruptorModuleDefine
-org.skywalking.apm.collector.queue.datacarrier.QueueDataCarrierModuleDefine

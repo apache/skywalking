@@ -1,3 +1,0 @@
-jdbc=org.skywalking.apm.plugin.jdbc.define.H2Instrumentation
-jdbc=org.skywalking.apm.plugin.jdbc.define.MysqlInstrumentation
-jdbc=org.skywalking.apm.plugin.jdbc.define.OracleInstrumentation

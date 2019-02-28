@@ -1,5 +1,0 @@
-org.skywalking.apm.collector.agentjvm.worker.cpu.dao.CpuMetricH2DAO
-org.skywalking.apm.collector.agentjvm.worker.memory.dao.MemoryMetricH2DAO
-org.skywalking.apm.collector.agentjvm.worker.memorypool.dao.MemoryPoolMetricH2DAO
-org.skywalking.apm.collector.agentjvm.worker.gc.dao.GCMetricH2DAO
-org.skywalking.apm.collector.agentjvm.worker.heartbeat.dao.InstanceHeartBeatH2DAO
