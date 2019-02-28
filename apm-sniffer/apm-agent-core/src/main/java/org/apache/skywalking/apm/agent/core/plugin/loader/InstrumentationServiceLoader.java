@@ -23,8 +23,9 @@ import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDef
 import java.util.List;
 
 /**
- * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:14 AM
+ * the spi of the InstrumentationServiceLoader.
+ *
+ * @author : zhaoyuguang
  */
 
 public interface InstrumentationServiceLoader {

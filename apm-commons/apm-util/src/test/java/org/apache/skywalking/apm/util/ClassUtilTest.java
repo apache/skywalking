@@ -18,34 +18,24 @@
 
 package org.apache.skywalking.apm.util;
 
-import java.lang.reflect.Method;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author zhaoyuguang
  */
 
-public class MethodUtil {
+public class ClassUtilTest {
 
-
-    /**
-     * According to the method input parameter,
-     * return the OperationName for the span record,
-     * which can be used for the default OperationName.
-     *
-     * @param method {@link Method}
-     * @return OperationName
-     */
-    public static String generateOperationName(Method method) {
-        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(parameterTypes[i].getName());
-            if (i < (parameterTypes.length - 1)) {
-                operationName.append(",");
-            }
-        }
-        operationName.append(")");
-        return operationName.toString();
+    @Test
+    public void testClassForName() throws ClassNotFoundException {
+        Assert.assertTrue(ClassUtil.forName("boolean.class") == boolean.class);
+        Assert.assertTrue(ClassUtil.forName("char.class") == char.class);
+        Assert.assertTrue(ClassUtil.forName("byte.class") == byte.class);
+        Assert.assertTrue(ClassUtil.forName("short.class") == short.class);
+        Assert.assertTrue(ClassUtil.forName("int.class") == int.class);
+        Assert.assertTrue(ClassUtil.forName("long.class") == long.class);
+        Assert.assertTrue(ClassUtil.forName("float.class") == float.class);
+        Assert.assertTrue(ClassUtil.forName("java.lang.String") == String.class);
     }
-
 }

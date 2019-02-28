@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:05 PM
+ * @author zhaoyuguang
  */
 
 public class ClassUtil {
@@ -41,8 +40,17 @@ public class ClassUtil {
         PRIMITIVE.put("double.class", double.class);
     }
 
+    /**
+     * Extend the Class.forName {@link Class} method,
+     * which supports Java PrimitiveType, for example: "int.class"
+     * return Class int.class
+     *
+     * @param className the fully qualified name of the desired class.
+     * @return the {@code Class} object for the class with the specified name.
+     * @throws ClassNotFoundException if the class cannot be located
+     */
     public static Class forName(String className) throws ClassNotFoundException {
-        return PRIMITIVE.containsKey(className)? PRIMITIVE.get(className) : Class.forName(className);
+        return PRIMITIVE.containsKey(className) ? PRIMITIVE.get(className) : Class.forName(className);
     }
 
 }
