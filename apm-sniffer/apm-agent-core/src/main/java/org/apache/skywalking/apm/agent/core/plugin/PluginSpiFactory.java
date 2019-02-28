@@ -29,8 +29,7 @@ import java.util.ServiceLoader;
 /**
  * The plugin can be inserted into the kernel by implementing this spi return PluginDefine list.
  *
- * @Author: zhaoyuguang
- * @Date: 2019/2/22 9:09 AM
+ * @author zhaoyuguang
  */
 
 public enum PluginSpiFactory {

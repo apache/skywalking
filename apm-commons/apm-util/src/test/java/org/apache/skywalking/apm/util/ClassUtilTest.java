@@ -22,8 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @Author: zhaoyuguang
- * @Date: 2019/2/28 12:03 PM
+ * @author zhaoyuguang
  */
 
 public class ClassUtilTest {

@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:05 PM
+ * @author zhaoyuguang
  */
 
 public class ClassUtil {

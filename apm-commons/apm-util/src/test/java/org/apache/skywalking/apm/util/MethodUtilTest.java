@@ -24,8 +24,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 
 /**
- * @Author: zhaoyuguang
- * @Date: 2019/2/28 12:18 PM
+ * @author zhaoyuguang
  */
 
 public class MethodUtilTest {

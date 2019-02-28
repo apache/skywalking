@@ -21,8 +21,7 @@ package org.apache.skywalking.apm.util;
 import java.lang.reflect.Method;
 
 /**
- * @Author: zhaoyuguang
- * @Date: 2019/2/27 9:02 PM
+ * @author zhaoyuguang
  */
 
 public class MethodUtil {
