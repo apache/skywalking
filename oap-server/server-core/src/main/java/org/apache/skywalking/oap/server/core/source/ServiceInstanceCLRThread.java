@@ -40,8 +40,8 @@ public class ServiceInstanceCLRThread extends Source {
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
     @Getter @Setter private int serviceInstanceId;
-    @Getter @Setter private int availableCompletionPortThreads;
-    @Getter @Setter private int availableWorkerThreads;
-    @Getter @Setter private int maxCompletionPortThreads;
-    @Getter @Setter private int maxWorkerThreads;
+    @Getter @Setter private long availableCompletionPortThreads;
+    @Getter @Setter private long availableWorkerThreads;
+    @Getter @Setter private long maxCompletionPortThreads;
+    @Getter @Setter private long maxWorkerThreads;
 }
