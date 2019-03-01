@@ -309,6 +309,7 @@ The text of each license is the standard Apache 2.0 license.
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
     proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
     proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
+    proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
 
 ========================================================================
 MIT licenses
