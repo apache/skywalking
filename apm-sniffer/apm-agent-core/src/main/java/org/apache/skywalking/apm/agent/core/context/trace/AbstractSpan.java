@@ -127,4 +127,6 @@ public interface AbstractSpan {
     void ref(TraceSegmentRef ref);
 
     AbstractSpan start(long starttime);
+
+    AbstractSpan setPeer(String remotePeer);
 }

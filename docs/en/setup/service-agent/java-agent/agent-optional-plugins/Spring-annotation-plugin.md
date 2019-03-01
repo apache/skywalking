@@ -1,4 +1,4 @@
-## Spring bean plugin
+## Spring annotation plugin
 This plugin allows to trace all methods of beans in Spring context, which are annotated with
 `@Bean`, `@Service`, `@Component` and `@Repository`.
 

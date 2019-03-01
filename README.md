@@ -3,7 +3,7 @@ Apache SkyWalking
 
 <img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
 
-**SkyWalking**: an APM(application performance monitor) system, especially designed for 
+**SkyWalking**: an APM(application performance monitor) system, especially designed for
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
@@ -17,7 +17,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
-in Cloud Native architecture. 
+in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint metrics analysis
@@ -34,15 +34,16 @@ The core features are following.
 <img src="http://skywalking.apache.org/assets/frame.jpeg"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
-and multiple formats, 
-including 
+and multiple formats,
+including
 1. Java, .NET Core, NodeJS and PHP auto-instrument agents in SkyWalking format
 1. Istio telemetry format
-1. Zipkin v1/v2 formats
+1. Zipkin v1/v2 format
+1. Envoy metrics format (the metric entries itself is prometheus client [metric family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
 
 
 # Document
-- [6.x Documents](docs/README.md). 
+- [6.x Documents](docs/README.md).
 
 
 # Downloads
@@ -50,7 +51,7 @@ Please head to the [releases page](http://skywalking.apache.org/downloads/) to d
 
 
 # Code of conduct
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. 
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 Please report unacceptable behavior to dev@skywalking.apache.org .
 
 # Live Demo
@@ -103,7 +104,7 @@ SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observabili
 </p>
 
 <p align="center">
-<a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a> 
+<a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a>
   <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
 
