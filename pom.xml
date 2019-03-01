@@ -319,6 +319,10 @@
 
                         <!-- Proto files of Istio and gogoproto projects -->
                         <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
+                        <exclude>**/src/main/proto/envoy/**</exclude>
+                        <exclude>**/src/main/proto/google/protobuf/*.proto</exclude>
+                        <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
+                        <exclude>**/src/main/proto/validate/validate.proto</exclude>
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                     </excludes>
