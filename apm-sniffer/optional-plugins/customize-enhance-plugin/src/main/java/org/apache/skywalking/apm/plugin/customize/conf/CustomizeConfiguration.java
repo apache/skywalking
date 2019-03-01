@@ -78,8 +78,8 @@ public enum CustomizeConfiguration {
      * @return configurations is a bridge resolver method and parser method,
      * mainly used for decoupling.
      * @throws ParserConfigurationException link {@link ParserConfigurationException}
-     * @throws IOException link {@link IOException}
-     * @throws SAXException link {@link SAXException}
+     * @throws IOException                  link {@link IOException}
+     * @throws SAXException                 link {@link SAXException}
      */
     private List<DefaultMethodConfiguration> resolver() throws ParserConfigurationException, IOException, SAXException {
         List<DefaultMethodConfiguration> customizeMethods = new ArrayList<DefaultMethodConfiguration>();
@@ -97,8 +97,8 @@ public enum CustomizeConfiguration {
      * @param file the custom enhanced files
      * @return all class description nodes
      * @throws ParserConfigurationException link {@link ParserConfigurationException}
-     * @throws IOException link {@link IOException}
-     * @throws SAXException link {@link SAXException}
+     * @throws IOException                  link {@link IOException}
+     * @throws SAXException                 link {@link SAXException}
      */
     private NodeList resolverFileClassDesc(File file) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -215,7 +215,7 @@ public enum CustomizeConfiguration {
             Method method = clz.getDeclaredMethod(methodName, parameterTypes);
             configuration.setClz(clz);
             configuration.setMethod(method);
-            if(StringUtil.isEmpty(configuration.getOperationName())){
+            if (StringUtil.isEmpty(configuration.getOperationName())) {
                 configuration.setOperationName(MethodUtil.generateOperationName(method));
             }
             return configuration;
@@ -259,11 +259,12 @@ public enum CustomizeConfiguration {
 
     /**
      * The private method for get the configuration of this method.
+     *
      * @return all method configs.
      */
     @SuppressWarnings("unchecked")
-    private Map<Method, DefaultMethodConfiguration> getMethodConfigurations(){
-        return ((Map<Method, DefaultMethodConfiguration>) Config.Customize.CONTEXT.get(Constant.CONTEXT_METHOD_CONFIGURATIONS));
+    private Map<Method, DefaultMethodConfiguration> getMethodConfigurations() {
+        return (Map<Method, DefaultMethodConfiguration>) Config.Customize.CONTEXT.get(Constant.CONTEXT_METHOD_CONFIGURATIONS);
     }
 
     /**
@@ -344,7 +345,7 @@ public enum CustomizeConfiguration {
      * @return configuration {@link DefaultMethodConfiguration}.
      */
     public DefaultMethodConfiguration getConfiguration(Method method) {
-        return  getMethodConfigurations().get(method);
+        return getMethodConfigurations().get(method);
     }
 }
 

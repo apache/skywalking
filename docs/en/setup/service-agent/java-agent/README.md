@@ -89,6 +89,7 @@ Now, we have the following known optional plugins.
 * Gson serialization lib in optional plugin folder
 * Lettuce 5.x(JRE1.8+) in optional plugin folder 
 * Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
+* [Customize enhance](agent-optional-plugins/customize-enhance-plugin.md) Implement non-intrusive custom method enhancements through description file.
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).

@@ -62,6 +62,8 @@
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON
   * [GSON](https://github.com/google/gson) 2.8.x (Optional²)
+* Customize Enhance
+  * [Default & SpEL](agent-optional-plugins/customize-enhance-plugin.md) Implement non-intrusive custom method enhancements through description file (Optional²)
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.

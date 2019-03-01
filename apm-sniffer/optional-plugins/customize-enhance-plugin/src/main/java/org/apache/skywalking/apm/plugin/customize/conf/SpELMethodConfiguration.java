@@ -29,7 +29,7 @@ import java.util.Map;
  * @author zhaoyuguang
  */
 
-public class SpELMethodConfiguration extends DefaultMethodConfiguration{
+public class SpELMethodConfiguration extends DefaultMethodConfiguration {
 
     private List<String> operationNameSuffixes = new ArrayList<String>();
     private Map<String, String> tags = new HashMap<String, String>();
