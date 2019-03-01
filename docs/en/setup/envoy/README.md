@@ -38,3 +38,7 @@ static_resources:
 A more complete static configuration, can be observed here [config.yaml].
 
 Note that Envoy can also be configured dynamically through [xDS Protocol](https://github.com/envoyproxy/data-plane-api/blob/master/XDS_PROTOCOL.md).
+
+# Metrics data
+
+Some of the Envoy statitics are listed in this [list](https://www.envoyproxy.io/docs/envoy/latest/configuration/statistics). While a sample data that contains indetifier can be found [here](indentify.json), while the metrics only can be observed [here](https://www.envoyproxy.io/docs/envoy/latest/configuration/statistics).
