@@ -35,4 +35,6 @@ static_resources:
                 port_value: 11800
 ```
 
-A more complete configuration, can be observed here [config.yaml].
+A more complete static configuration, can be observed here [config.yaml].
+
+Note that Envoy can also be configured dynamically through [xDS Protocol](https://github.com/envoyproxy/data-plane-api/blob/master/XDS_PROTOCOL.md).
