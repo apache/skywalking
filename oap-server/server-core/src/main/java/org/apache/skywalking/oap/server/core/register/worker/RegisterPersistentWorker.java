@@ -91,7 +91,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                         }
                     } else {
                         int sequence;
-                        if ((sequence = registerLockDAO.getId(scopeId, registerSource)) != Const.NONE) {
+                        if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
                             try {
                                 dbSource = registerDAO.get(modelName, source.id());
                                 if (Objects.nonNull(dbSource)) {
