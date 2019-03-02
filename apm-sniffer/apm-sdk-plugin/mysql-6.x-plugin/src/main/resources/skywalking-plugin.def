@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql5xConnectionInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql50ConnectionInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CallableInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.StatementInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.ConnectionImplCreateInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.DriverInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.ConnectionInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.CallableInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.PreparedStatementInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.StatementInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.FailoverConnectionProxyInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.LoadBalancedConnectionProxyInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.ReplicationConnectionProxyInstrumentation

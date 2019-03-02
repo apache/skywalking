@@ -24,10 +24,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-mysql-5.x-plugin</artifactId>
+    <artifactId>apm-mysql-6.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>mysql-5.x-plugin</name>
+    <name>mysql-6.x-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.44</version>
+            <version>6.0.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

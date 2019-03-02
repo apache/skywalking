@@ -16,40 +16,31 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v8;
-
-import com.mysql.cj.conf.HostInfo;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
-import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v5;
 
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-/**
- * @author: dingshaocheng
- */
-public class ConnectionCreateInterceptor implements StaticMethodsAroundInterceptor {
-
-
+public class SetCatalogInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
-
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        Object dynamicField = objInst.getSkyWalkingDynamicField();
+        if (dynamicField instanceof ConnectionInfo) {
+            ((ConnectionInfo)dynamicField).setDatabaseName(String.valueOf(allArguments[0]));
+        }
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
-        if (ret instanceof EnhancedInstance) {
-            final HostInfo hostInfo = (HostInfo) allArguments[0];
-            ConnectionInfo connectionInfo = URLParser.parser(hostInfo.getDatabaseUrl());
-            ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
-        }
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
-    @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
-
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 }
