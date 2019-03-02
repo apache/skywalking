@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -26,4 +29,6 @@ import java.io.IOException;
 public interface IHistoryDeleteDAO extends DAO {
 
     void deleteHistory(String modelName, String timeBucketColumnName, Long timeBucketBefore) throws IOException;
+
+    void historyOther(List<Model> models, long otherDataTTL);
 }

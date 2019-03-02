@@ -137,7 +137,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         sql.append(" OFFSET ").append(from);
     }
 
-    @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+    @Override public List<SegmentRecord> queryByTraceId(String traceId, long startSecondTB, long endSecondTB) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
 

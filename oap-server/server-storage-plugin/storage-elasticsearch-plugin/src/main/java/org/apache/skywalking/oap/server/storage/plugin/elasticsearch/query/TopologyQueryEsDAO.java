@@ -63,7 +63,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
         String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideIndicator.INDEX_NAME);
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTB, endTB);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
         String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideIndicator.INDEX_NAME);
-        return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+        return load(sourceBuilder, indexName, DetectPoint.CLIENT, startTB, endTB);
     }
 
     private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
@@ -105,7 +105,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
 
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTB, endTB);
     }
 
     @Override public List<Call> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException {
@@ -114,7 +114,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideIndicator.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
 
-        return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+        return load(sourceBuilder, indexName, DetectPoint.CLIENT, startTB, endTB);
     }
 
     @Override
@@ -135,14 +135,16 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         sourceBuilder.query(boolQuery);
 
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTB, endTB);
     }
 
     private List<Call> load(SearchSourceBuilder sourceBuilder, String indexName,
-        DetectPoint detectPoint) throws IOException {
+        DetectPoint detectPoint, long startTB, long endTB) throws IOException {
         sourceBuilder.aggregation(AggregationBuilders.terms(Indicator.ENTITY_ID).field(Indicator.ENTITY_ID).size(1000));
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        ElasticSearchClient client = getClient();
+        String[] indexes = client.getIndexNameByDate(indexName, startTB, endTB);
+        SearchResponse response = client.search(indexes, sourceBuilder);
 
         List<Call> calls = new ArrayList<>();
         Terms entityTerms = response.getAggregations().get(Indicator.ENTITY_ID);

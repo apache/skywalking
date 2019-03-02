@@ -59,6 +59,7 @@ public abstract class ModelInstaller {
             }
         });
         allModels.addAll(models);
+        allModels.addAll(getOtherModels(allModels, client));
 
         boolean debug = System.getProperty("debug") != null;
 
@@ -85,6 +86,10 @@ public abstract class ModelInstaller {
                 columnCheck(client, model);
             }
         }
+    }
+
+    protected List<Model> getOtherModels(List<Model> model, Client client) {
+        return new ArrayList<>();
     }
 
     public final void overrideColumnName(String columnName, String newName) {

@@ -33,5 +33,5 @@ public interface ITraceQueryDAO extends Service {
         long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
         int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException;
 
-    List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
+    List<SegmentRecord> queryByTraceId(String traceId, long startSecondTB, long endSecondTB) throws IOException;
 }

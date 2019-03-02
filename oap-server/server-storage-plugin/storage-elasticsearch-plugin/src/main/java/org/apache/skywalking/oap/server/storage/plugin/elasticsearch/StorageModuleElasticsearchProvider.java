@@ -30,6 +30,9 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.*;
 import org.slf4j.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * @author peng-yongsheng
  */
@@ -39,6 +42,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     private final StorageModuleElasticsearchConfig config;
     private ElasticSearchClient elasticSearchClient;
+    private StorageEsInstaller installer;
 
     public StorageModuleElasticsearchProvider() {
         super();
@@ -62,12 +66,13 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), config.getNameSpace());
+        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), config.getNameSpace(), new ArrayList<>(Arrays.asList(config.getCreateByDayIndexes().split(","))));
+        installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber(), new ArrayList<>(Arrays.asList(config.getCreateByDayIndexes().split(","))));
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockDAOImpl(elasticSearchClient));
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient, installer));
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new ServiceInventoryCacheEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new ServiceInstanceInventoryCacheDAO(elasticSearchClient));
@@ -88,7 +93,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         try {
             elasticSearchClient.connect();
 
-            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber());
             installer.install(elasticSearchClient);
 
             RegisterLockInstaller lockInstaller = new RegisterLockInstaller(elasticSearchClient);

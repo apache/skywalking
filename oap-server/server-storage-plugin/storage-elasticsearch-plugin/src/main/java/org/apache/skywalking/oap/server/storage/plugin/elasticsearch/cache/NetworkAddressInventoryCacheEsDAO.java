@@ -64,7 +64,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
             searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(NetworkAddressInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(new String[]{NetworkAddressInventory.MODEL_NAME}, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

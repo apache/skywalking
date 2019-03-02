@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.joda.time.DateTime;
 
 import static java.util.Objects.nonNull;
 
@@ -102,7 +103,9 @@ public class TraceQueryService implements Service {
     public Trace queryTrace(final String traceId) throws IOException {
         Trace trace = new Trace();
 
-        List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(traceId);
+        String[] idBT = traceId.split("_");
+        Long time =  Long.valueOf(new DateTime(Long.parseLong(idBT[1])).toString("yyyyMMddHHmmss"));
+        List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(idBT[0], time, time);
         for (SegmentRecord segment : segmentRecords) {
             if (nonNull(segment)) {
                 if (segment.getVersion() == 2) {

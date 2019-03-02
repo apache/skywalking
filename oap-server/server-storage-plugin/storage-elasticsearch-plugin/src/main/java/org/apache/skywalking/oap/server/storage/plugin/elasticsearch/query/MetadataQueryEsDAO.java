@@ -60,7 +60,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{ServiceInventory.MODEL_NAME}, sourceBuilder);
         return (int)response.getHits().getTotalHits();
     }
 
@@ -74,7 +74,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{EndpointInventory.MODEL_NAME}, sourceBuilder);
         return (int)response.getHits().getTotalHits();
     }
 
@@ -85,7 +85,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{ServiceInventory.MODEL_NAME}, sourceBuilder);
 
         return (int)response.getHits().getTotalHits();
     }
@@ -102,7 +102,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(100);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{ServiceInventory.MODEL_NAME}, sourceBuilder);
 
         return buildServices(response);
     }
@@ -117,7 +117,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(100);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{ServiceInventory.MODEL_NAME}, sourceBuilder);
 
         List<Database> databases = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
@@ -155,7 +155,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(100);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{ServiceInventory.MODEL_NAME}, sourceBuilder);
         return buildServices(response);
     }
 
@@ -189,7 +189,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
 
-        SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{EndpointInventory.MODEL_NAME}, sourceBuilder);
 
         List<Endpoint> endpoints = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
@@ -216,7 +216,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(100);
 
-        SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(new String[]{ServiceInstanceInventory.MODEL_NAME}, sourceBuilder);
 
         List<ServiceInstance> serviceInstances = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {

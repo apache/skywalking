@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.storage.Downsampling;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -29,10 +32,13 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -44,12 +50,14 @@ public class StorageEsInstaller extends ModelInstaller {
     private final int indexShardsNumber;
     private final int indexReplicasNumber;
     private final ColumnTypeEsMapping mapping;
+    @Getter private final List<String> createByDayIndexes;
 
-    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber) {
+    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber, List<String> createByDayIndexes) {
         super(moduleManager);
         this.indexShardsNumber = indexShardsNumber;
         this.indexReplicasNumber = indexReplicasNumber;
         this.mapping = new ColumnTypeEsMapping();
+        this.createByDayIndexes = createByDayIndexes;
     }
 
     @Override protected boolean isExists(Client client, Model tableDefine) throws StorageException {
@@ -59,6 +67,28 @@ public class StorageEsInstaller extends ModelInstaller {
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
+    }
+
+    @Override protected List<Model> getOtherModels(List<Model> models, Client client) {
+        List<Model> modelList = new ArrayList<>();
+        List<Model> byDayModel = new ArrayList<>();
+        ElasticSearchClient esClient = (ElasticSearchClient)client;
+
+        DateTime currentTime = new DateTime();
+        models.forEach(module -> {
+            if (createByDayIndexes.contains(module.getName()) && module.isDeleteHistory()) {
+                byDayModel.add(module);
+                modelList.add(module.copy(module.getName() + Const.ID_SPLIT + currentTime.plusDays(-1).toString("yyyyMMdd")));
+                modelList.add(module.copy(module.getName() + Const.ID_SPLIT + currentTime.toString("yyyyMMdd")));
+                modelList.add(module.copy(module.getName() + Const.ID_SPLIT + currentTime.plusDays(1).toString("yyyyMMdd")));
+                modelList.add(module.copy(module.getName() + Const.ID_SPLIT + currentTime.plusDays(2).toString("yyyyMMdd")));
+            } else if (!module.isDeleteHistory() || module.getName().endsWith(Downsampling.Month.getName()) || module.getName().endsWith(Downsampling.Day.getName())) {
+                createByDayIndexes.remove(module.getName());
+                esClient.getCreateByDayIndexes().remove(module.getName());
+            }
+        });
+        models.removeAll(byDayModel);
+        return modelList;
     }
 
     @Override protected void columnCheck(Client client, Model tableDefine) {

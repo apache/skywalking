@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +64,30 @@ public enum DataTTLKeeperTimer {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             new RunnableWithExceptionProtection(this::delete,
                 t -> logger.error("Remove data in background failure.", t)), 1, 5, TimeUnit.MINUTES);
+
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                new RunnableWithExceptionProtection(this::deleteAndCreateOther,
+                        t -> logger.error("delete index in background failure.", t)), 1, 2, TimeUnit.HOURS);
+    }
+
+    private void deleteAndCreateOther() {
+        TimeBuckets timeBuckets = convertTimeBucket(new DateTime());
+        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        List<Model> models = modelGetter.getModels();
+        DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
+        List<Model> allModels = new ArrayList<>();
+        models.forEach(model -> {
+            allModels.add(model);
+            if (model.isIndicator()) {
+                if (downsamplingConfigService.shouldToHour()) {
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
+                }
+                if (downsamplingConfigService.shouldToDay()) {
+                    allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName()));
+                }
+            }
+        });
+        moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).historyOther(allModels, timeBuckets.otherDataTTL);
     }
 
     private void delete() {
@@ -104,6 +129,7 @@ public enum DataTTLKeeperTimer {
     TimeBuckets convertTimeBucket(DateTime currentTime) {
         TimeBuckets timeBuckets = new TimeBuckets();
 
+        timeBuckets.otherDataTTL = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMdd"));
         timeBuckets.recordDataTTL = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
         timeBuckets.minuteTimeBucketBefore = Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getMinuteMetricsDataTTL()).toString("yyyyMMddHHmm"));
         timeBuckets.hourTimeBucketBefore = Long.valueOf(currentTime.plusHours(0 - dataTTL.getHourMetricsDataTTL()).toString("yyyyMMddHH"));
@@ -125,6 +151,7 @@ public enum DataTTLKeeperTimer {
     }
 
     class TimeBuckets {
+        private long otherDataTTL;
         private long recordDataTTL;
         private long minuteTimeBucketBefore;
         private long hourTimeBucketBefore;

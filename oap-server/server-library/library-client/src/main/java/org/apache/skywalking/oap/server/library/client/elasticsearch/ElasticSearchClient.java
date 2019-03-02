@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -40,6 +41,7 @@ import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Response;
@@ -71,10 +73,12 @@ public class ElasticSearchClient implements Client {
     private final String clusterNodes;
     private final String namespace;
     private RestHighLevelClient client;
+    @Getter private final List<String> createByDayIndexes;
 
-    public ElasticSearchClient(String clusterNodes, String namespace) {
+    public ElasticSearchClient(String clusterNodes, String namespace, List<String> createByDayIndexes) {
         this.clusterNodes = clusterNodes;
         this.namespace = namespace;
+        this.createByDayIndexes = createByDayIndexes;
     }
 
     @Override public void connect() {
@@ -132,9 +136,10 @@ public class ElasticSearchClient implements Client {
         return client.indices().exists(request);
     }
 
-    public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
+    public SearchResponse search(String[] indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
         indexName = formatIndexName(indexName);
         SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
         searchRequest.types(TYPE);
         searchRequest.source(searchSourceBuilder);
         return client.search(searchRequest);
@@ -205,6 +210,28 @@ public class ElasticSearchClient implements Client {
             return namespace + "_" + indexName;
         }
         return indexName;
+    }
+
+    private String[] formatIndexName(String[] indexName) {
+        String[] formatIndex = new String[indexName.length];
+        for (int i = 0; i < indexName.length; i++) {
+            if (StringUtils.isNotEmpty(namespace)) {
+                formatIndex[i] = namespace + "_" + indexName[i];
+            } else {
+                formatIndex[i] = indexName[i];
+            }
+        }
+        return formatIndex;
+    }
+
+    public String[] getIndexNameByDate(String indexName, long startSecondTB, long endSecondTB) {
+        String[] indexes;
+        if (this.createByDayIndexes.contains(indexName)) {
+            indexes = ElasticSearchUtil.getEsIndexByDate(indexName, startSecondTB, endSecondTB);
+        } else {
+            indexes = new String[]{indexName};
+        }
+        return indexes;
     }
 
     public BulkProcessor createBulkProcessor(int bulkActions, int bulkSize, int flushInterval,

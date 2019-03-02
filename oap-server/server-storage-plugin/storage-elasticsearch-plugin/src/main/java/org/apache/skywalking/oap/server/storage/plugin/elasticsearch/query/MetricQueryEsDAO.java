@@ -56,7 +56,9 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        ElasticSearchClient client = getClient();
+        String[] indexes = client.getIndexNameByDate(indexName, startTB, endTB);
+        SearchResponse response = client.search(indexes, sourceBuilder);
 
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
