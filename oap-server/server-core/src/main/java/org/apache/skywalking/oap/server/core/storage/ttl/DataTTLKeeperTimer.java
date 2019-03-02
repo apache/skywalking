@@ -65,9 +65,7 @@ public enum DataTTLKeeperTimer {
             new RunnableWithExceptionProtection(this::delete,
                 t -> logger.error("Remove data in background failure.", t)), 1, 5, TimeUnit.MINUTES);
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(this::deleteAndCreateOther,
-                        t -> logger.error("delete index in background failure.", t)), 1, 2, TimeUnit.HOURS);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new RunnableWithExceptionProtection(this::deleteAndCreateOther, t -> logger.error("delete index in background failure.", t)), 1, 2, TimeUnit.HOURS);
     }
 
     private void deleteAndCreateOther() {
