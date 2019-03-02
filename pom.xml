@@ -30,33 +30,6 @@
         <version>21</version>
     </parent>
 
-    <developers>
-        <developer>
-            <name>Wu Sheng</name>
-            <email>wu.sheng@foxmail.com</email>
-            <url>https://github.com/wu-sheng</url>
-            <roles>
-                <role>Founder</role>
-                <role>PMC member</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>Peng Yongsheng</name>
-            <email>8082209@qq.com</email>
-            <url>https://github.com/peng-yongsheng</url>
-            <roles>
-                <role>PMC member</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>Zhang Xin</name>
-            <url>https://github.com/ascrutae</url>
-            <roles>
-                <role>PMC member</role>
-            </roles>
-        </developer>
-    </developers>
-
     <modules>
         <module>oap-server</module>
         <module>apm-commons</module>
@@ -194,6 +167,30 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>git submodule update</id>
+                            <phase>initialize</phase>
+                            <inherited>false</inherited>
+                            <configuration>
+                                <executable>git</executable>
+                                <arguments>
+                                    <argument>submodule</argument>
+                                    <argument>update</argument>
+                                    <argument>--init</argument>
+                                    <argument>--recursive</argument>
+                                </arguments>
+                            </configuration>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
                 <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
                 <plugin>
                     <groupId>io.takari</groupId>
@@ -322,6 +319,10 @@
 
                         <!-- Proto files of Istio and gogoproto projects -->
                         <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
+                        <exclude>**/src/main/proto/envoy/**</exclude>
+                        <exclude>**/src/main/proto/google/protobuf/*.proto</exclude>
+                        <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
+                        <exclude>**/src/main/proto/validate/validate.proto</exclude>
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                     </excludes>
@@ -442,41 +443,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>auto-submodule</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>git submodule update</id>
-                                <phase>initialize</phase>
-                                <inherited>false</inherited>
-                                <configuration>
-                                    <executable>git</executable>
-                                    <arguments>
-                                        <argument>submodule</argument>
-                                        <argument>update</argument>
-                                        <argument>--init</argument>
-                                        <argument>--recursive</argument>
-                                    </arguments>
-                                </configuration>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 </project>

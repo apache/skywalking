@@ -74,9 +74,8 @@ public class MultipleChannelsConsumer extends Thread {
             Buffer buffer = target.channels.getBuffer(i);
             consumeList.addAll(buffer.obtain());
         }
-        hasData = consumeList.size() > 0;
 
-        if (consumeList.size() > 0) {
+        if (hasData = consumeList.size() > 0) {
             try {
                 target.consumer.consume(consumeList);
             } catch (Throwable t) {

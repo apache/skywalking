@@ -19,15 +19,16 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_CPU;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_CPU, name = "ServiceInstanceJVMCPU")
 public class ServiceInstanceJVMCPU extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMCPU;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_CPU;
     }
 
     @Override public String getEntityId() {

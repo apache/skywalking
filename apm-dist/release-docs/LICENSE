@@ -307,6 +307,9 @@ The text of each license is the standard Apache 2.0 license.
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
+    proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
+    proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
+    proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -336,7 +339,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     Google: protobuf-java-util 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.3: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
-    
+
     gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-2-Clause
 
 ========================================================================

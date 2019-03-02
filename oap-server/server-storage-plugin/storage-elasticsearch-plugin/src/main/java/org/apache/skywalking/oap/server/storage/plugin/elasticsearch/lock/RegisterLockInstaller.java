@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -56,8 +55,8 @@ public class RegisterLockInstaller {
             }
 
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(sourceScope.ordinal());
+                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                putIfAbsent(sourceScopeId);
             }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());

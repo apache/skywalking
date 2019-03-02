@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 
 public class AlarmMessageFormatterTest {
     @Test
@@ -29,8 +27,8 @@ public class AlarmMessageFormatterTest {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc words {sdf");
         String message = formatter.format(new MetaInAlarm() {
 
-            @Override public Scope getScope() {
-                return null;
+            @Override public int getScopeId() {
+                return -1;
             }
 
             @Override public String getName() {
@@ -58,8 +56,8 @@ public class AlarmMessageFormatterTest {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc} words {name} - {id} .. {");
         String message = formatter.format(new MetaInAlarm() {
 
-            @Override public Scope getScope() {
-                return null;
+            @Override public int getScopeId() {
+                return -1;
             }
 
             @Override public String getName() {

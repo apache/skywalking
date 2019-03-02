@@ -18,17 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
 
 /**
  * @author: liuhaoyang
  */
+@ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
 public class DatabaseAccess extends Source {
 
     @Override
-    public Scope scope() {
-        return Scope.DatabaseAccess;
+    public int scope() {
+        return DefaultScopeDefine.DATABASE_ACCESS;
     }
 
     @Override

@@ -1,0 +1,695 @@
+{
+  "identifier": {
+    "node": {
+      "buildVersion": "e8ecf08f92941c4a2a892efc9b7dd672cfbb3fe8/1.10.0-dev/Modified/DEBUG/BoringSSL"
+    }
+  },
+  "envoyMetrics": [
+    {
+      "name": "cluster.service_google.membership_change",
+      "metric": [
+        {
+          "counter": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_google.update_attempt",
+      "metric": [
+        {
+          "counter": {
+            "value": 60
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_google.update_success",
+      "metric": [
+        {
+          "counter": {
+            "value": 60
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_pending_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.internal.upstream_rq_completed",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.internal.upstream_rq_5xx",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_503",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_5xx",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.update_attempt",
+      "metric": [
+        {
+          "counter": {
+            "value": 61
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_tx_bytes_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 2080
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_destroy_remote_with_active_rq",
+      "metric": [
+        {
+          "counter": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.membership_change",
+      "metric": [
+        {
+          "counter": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_rx_bytes_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 48
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_destroy_with_active_rq",
+      "metric": [
+        {
+          "counter": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.internal.upstream_rq_503",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_completed",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.update_success",
+      "metric": [
+        {
+          "counter": {
+            "value": 61
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_http2_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_pending_failure_eject",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_connect_fail",
+      "metric": [
+        {
+          "counter": {
+            "value": 58
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "http.async-client.rq_total",
+      "metric": [
+        {
+          "counter": {
+            "value": 59
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "listener_manager.listener_added",
+      "metric": [
+        {
+          "counter": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "listener_manager.listener_create_success",
+      "metric": [
+        {
+          "counter": {
+            "value": 4
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster_manager.cluster_added",
+      "metric": [
+        {
+          "counter": {
+            "value": 2
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "runtime.deprecated_feature_use",
+      "metric": [
+        {
+          "counter": {
+            "value": 18
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_google.membership_degraded",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_google.membership_healthy",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_google.membership_total",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.membership_total",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.membership_healthy",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.membership_degraded",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_active",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_rq_pending_active",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.circuit_breakers.default.rq_open",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_active",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.circuit_breakers.default.rq_pending_open",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_rx_bytes_buffered",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.parent_connections",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.total_connections",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.concurrency",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 4
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.memory_allocated",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 4238160
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.hot_restart_epoch",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.days_until_first_cert_expiring",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 2147483647
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "listener_manager.total_listeners_active",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster_manager.active_clusters",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 2
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "listener_manager.total_listeners_warming",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster_manager.warming_clusters",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.version",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 15265008
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.uptime",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 301
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.live",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 1
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "server.memory_heap_size",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {
+            "value": 5242880
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "runtime.num_keys",
+      "type": "GAUGE",
+      "metric": [
+        {
+          "gauge": {},
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_length_ms",
+      "type": "SUMMARY",
+      "metric": [
+        {
+          "summary": {
+            "quantile": [
+              {},
+              {
+                "quantile": 0.25
+              },
+              {
+                "quantile": 0.5
+              },
+              {
+                "quantile": 0.75
+              },
+              {
+                "quantile": 0.9
+              },
+              {
+                "quantile": 0.95
+              },
+              {
+                "quantile": 0.99
+              },
+              {
+                "quantile": 0.995
+              },
+              {
+                "quantile": 0.999
+              },
+              {
+                "quantile": 1
+              }
+            ]
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    },
+    {
+      "name": "cluster.service_stats.upstream_cx_connect_ms",
+      "type": "SUMMARY",
+      "metric": [
+        {
+          "summary": {
+            "quantile": [
+              {
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.25,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.5,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.75,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.9,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.95,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.99,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.995,
+                "value": "NaN"
+              },
+              {
+                "quantile": 0.999,
+                "value": "NaN"
+              },
+              {
+                "quantile": 1,
+                "value": "NaN"
+              }
+            ]
+          },
+          "timestampMs": "1551412080125"
+        }
+      ]
+    }
+  ]
+}

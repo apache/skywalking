@@ -58,7 +58,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
         this.nextWorker = nextWorker;
 
         String name = "INDICATOR_L2_AGGREGATION";
-        int size = BulkConsumePool.Creator.recommendMaxSize() / 4;
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
         if (size == 0) {
             size = 1;
         }
@@ -69,7 +69,7 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
             throw new UnexpectedException(e.getMessage(), e);
         }
 
-        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 2000);
+        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, name, 1, 2000);
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
     }
 

@@ -217,7 +217,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(EndpointInventory.SERVICE_ID).append("=?");
         condition.add(serviceId);
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(EndpointInventory.NAME).append(" like \"%").append(keyword).append("%\" ");
+            sql.append(" and ").append(EndpointInventory.NAME).append(" like '%").append(keyword).append("%' ");
         }
         sql.append(" and ").append(EndpointInventory.DETECT_POINT).append(" = ?");
         condition.add(DetectPoint.SERVER.ordinal());

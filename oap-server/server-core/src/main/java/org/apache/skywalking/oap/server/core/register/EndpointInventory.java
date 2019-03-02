@@ -24,17 +24,20 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.elasticsearch.common.Strings;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
 
 /**
  * @author peng-yongsheng
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, source = Scope.EndpointInventory)
+@ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
+@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.ENDPOINT_INVENTORY)
 public class EndpointInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "endpoint_inventory";

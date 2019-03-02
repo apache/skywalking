@@ -29,6 +29,7 @@ public class Channels<T> {
     private final Buffer<T>[] bufferChannels;
     private IDataPartitioner<T> dataPartitioner;
     private BufferStrategy strategy;
+    private final long size;
 
     public Channels(int channelSize, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
         this.dataPartitioner = partitioner;
@@ -37,6 +38,7 @@ public class Channels<T> {
         for (int i = 0; i < channelSize; i++) {
             bufferChannels[i] = new Buffer<T>(bufferSize, strategy);
         }
+        size = channelSize * bufferSize;
     }
 
     public boolean save(T data) {
@@ -81,12 +83,8 @@ public class Channels<T> {
         return this.bufferChannels.length;
     }
 
-    public int getBufferSize() {
-        return bufferChannels[0].getBufferSize();
-    }
-
     public long size() {
-        return (long)getChannelSize() * getBufferSize();
+        return size;
     }
 
     public Buffer<T> getBuffer(int index) {
