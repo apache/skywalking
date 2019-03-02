@@ -19,15 +19,16 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_GC;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_GC, name = "ServiceInstanceJVMGC")
 public class ServiceInstanceJVMGC extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMGC;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_GC;
     }
 
     @Override public String getEntityId() {

@@ -18,14 +18,30 @@
 
 package org.apache.skywalking.oal.tool.parser;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
+import org.apache.skywalking.oal.tool.meta.*;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.junit.*;
 
 public class ScriptParserTest {
     @BeforeClass
     public static void init() throws IOException {
+        MetaReader reader = new MetaReader();
+        InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
+        MetaSettings metaSettings = reader.read(stream);
+        SourceColumnsFactory.setSettings(metaSettings);
         Indicators.init();
+
+        AnnotationScan scopeScan = new AnnotationScan();
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.scan(null);
+    }
+
+    @AfterClass
+    public static void clear() {
+        DefaultScopeDefine.reset();
     }
 
     @Test

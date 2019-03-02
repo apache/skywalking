@@ -20,12 +20,15 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory")
 public class ServiceInstanceJVMMemory extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMMemory;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY;
     }
 
     @Override public String getEntityId() {

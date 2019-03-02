@@ -40,6 +40,7 @@
         <module>generated-analysis</module>
         <module>generate-tool</module>
         <module>server-telemetry</module>
+        <module>generate-tool-grammar</module>
     </modules>
 
     <properties>

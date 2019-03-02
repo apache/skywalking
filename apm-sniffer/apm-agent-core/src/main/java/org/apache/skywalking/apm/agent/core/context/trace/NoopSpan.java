@@ -111,4 +111,8 @@ public class NoopSpan implements AbstractSpan {
     @Override public AbstractSpan start(long startTime) {
         return this;
     }
+
+    @Override public AbstractSpan setPeer(String remotePeer) {
+        return this;
+    }
 }

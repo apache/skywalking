@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
 
 /**
  * @author peng-yongsheng
@@ -28,6 +27,7 @@ import org.apache.skywalking.oap.server.core.source.Scope;
 @Setter
 public class AlarmMessage {
     private Scope scope;
+    private int scopeId;
     private String id;
     private String message;
     private Long startTime;
