@@ -19,4 +19,5 @@ mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql50Connectio
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CallableInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.StatementInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CacheIpsInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.ConnectionImplCreateInstrumentation
