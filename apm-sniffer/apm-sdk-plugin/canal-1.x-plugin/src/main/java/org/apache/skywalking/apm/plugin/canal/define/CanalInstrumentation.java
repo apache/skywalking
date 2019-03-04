@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.canal.define;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -44,7 +45,7 @@ public class CanalInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgument(4, int.class);
+                    return takesArgument(4, int.class).or(takesArgumentWithType(0,"123"));
                 }
 
                 @Override public String getConstructorInterceptor() {

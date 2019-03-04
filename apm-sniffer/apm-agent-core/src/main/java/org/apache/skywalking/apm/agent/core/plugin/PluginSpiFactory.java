@@ -38,7 +38,7 @@ public enum PluginSpiFactory {
 
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
         List<AbstractClassEnhancePluginDefine> all = new ArrayList<AbstractClassEnhancePluginDefine>();
-        Iterator<InstrumentationServiceLoader> iterator = ServiceLoader.load(InstrumentationServiceLoader.class, AgentClassLoader.getDefault()).iterator();
+        Iterator<InstrumentationServiceLoader> iterator = ServiceLoader.load(InstrumentationServiceLoader.class, classLoader).iterator();
         while (iterator.hasNext()) {
             List<AbstractClassEnhancePluginDefine> plugins = iterator.next().load(classLoader);
             if (plugins != null && !plugins.isEmpty()) {

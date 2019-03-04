@@ -24,7 +24,7 @@ package org.apache.skywalking.apm.plugin.customize.constants;
  * @author zhaoyuguang
  */
 
-public class Constant {
+public class Constants {
 
     public static final String OPERATION_NAME_SEPARATOR = "/";
 
@@ -40,7 +40,7 @@ public class Constant {
 
     public static final String XML_ELEMENT_METHOD = "method";
 
-    public static final String XML_ELEMENT_LANGUAGE = "language";
+    public static final String XML_ELEMENT_METHOD_IS_STATIC = "static";
 
     public static final String XML_ELEMENT_OPERATION_NAME = "operation_name";
 
@@ -59,4 +59,26 @@ public class Constant {
     public static final String CONTEXT_METHOD_CONFIGURATIONS = "CONTEXT_METHOD_CONFIGURATIONS";
 
     public static final String CONTEXT_ENHANCE_CLASSES = "CONTEXT_ENHANCE_CLASSES";
+
+    public static final String CONFIGURATION_ATTRIBUTE_METHOD = "CONFIGURATION_ATTRIBUTE_METHOD";
+
+    public static final String CONFIGURATION_ATTRIBUTE_METHOD_NAME = "CONFIGURATION_ATTRIBUTE_METHOD_NAME";
+
+    public static final String CONFIGURATION_ATTRIBUTE_ARGUMENTS = "CONFIGURATION_ATTRIBUTE_ARGUMENTS";
+
+    public static final String CONFIGURATION_ATTRIBUTE_IS_STATIC = "CONFIGURATION_ATTRIBUTE_IS_STATIC";
+
+    public static final String CONFIGURATION_ATTRIBUTE_CLZ = "CONFIGURATION_ATTRIBUTE_CLZ";
+
+    public static final String CONFIGURATION_ATTRIBUTE_OPERATION_NAME = "CONFIGURATION_ATTRIBUTE_OPERATION_NAME";
+
+    public static final String CONFIGURATION_ATTRIBUTE_CLOSE_BEFORE_METHOD = "CONFIGURATION_ATTRIBUTE_CLOSE_BEFORE_METHOD";
+
+    public static final String CONFIGURATION_ATTRIBUTE_CLOSE_AFTER_METHOD = "CONFIGURATION_ATTRIBUTE_CLOSE_AFTER_METHOD";
+
+    public static final String CONFIGURATION_ATTRIBUTE_OPERATION_NAME_SUFFIXES = "CONFIGURATION_ATTRIBUTE_OPERATION_NAME_SUFFIXES";
+
+    public static final String CONFIGURATION_ATTRIBUTE_TAGS = "CONFIGURATION_ATTRIBUTE_TAGS";
+
+    public static final String CONFIGURATION_ATTRIBUTE_LOGS = "CONFIGURATION_ATTRIBUTE_LOGS";
 }

@@ -45,15 +45,14 @@ public class CustomizeInstrumentationLoader implements InstrumentationServiceLoa
 
     @Override
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
-
         List<AbstractClassEnhancePluginDefine> instrumentations = new ArrayList<AbstractClassEnhancePluginDefine>();
         CustomizeConfiguration.INSTANCE.load();
-        Set<Pair<Class, Boolean>> enhanceClasses = CustomizeConfiguration.INSTANCE.getInstrumentations();
+        Set<Pair<String, Boolean>> enhanceClasses = CustomizeConfiguration.INSTANCE.getInstrumentations();
         try {
-            for (Pair<Class, Boolean> pair : enhanceClasses) {
+            for (Pair<String, Boolean> pair : enhanceClasses) {
                 AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(
                         pair.getValue() ? CustomizeStaticInstrumentation.class.getName() : CustomizeInstanceInstrumentation.class.getName(),
-                        true, classLoader).getConstructor(Class.class).newInstance(pair.getKey());
+                        true, classLoader).getConstructor(String.class).newInstance(pair.getKey());
                 instrumentations.add(plugin);
             }
         } catch (Exception e) {

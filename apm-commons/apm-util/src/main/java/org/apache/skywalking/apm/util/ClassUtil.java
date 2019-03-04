@@ -41,16 +41,24 @@ public class ClassUtil {
     }
 
     /**
-     * Extend the Class.forName {@link Class} method,
-     * which supports Java PrimitiveType, for example: "int.class"
-     * return Class int.class
+     * Determine if classname is a class of Primitive type.
      *
-     * @param className the fully qualified name of the desired class.
-     * @return the {@code Class} object for the class with the specified name.
-     * @throws ClassNotFoundException if the class cannot be located
+     * @param className such as int.class.
+     * @return Whether Primitive types of class.
      */
-    public static Class forName(String className) throws ClassNotFoundException {
-        return PRIMITIVE.containsKey(className) ? PRIMITIVE.get(className) : Class.forName(className);
+    public static boolean isPrimitive(String className) {
+        return PRIMITIVE.containsKey(className);
+    }
+
+    /**
+     * If the class name is of the Primitive type,
+     * then return the class of the Primitive type.
+     *
+     * @param className such as int.class
+     * @return class of the Primitive type
+     */
+    public static Class getPrimitiveClass(String className) {
+        return PRIMITIVE.get(className);
     }
 
 }

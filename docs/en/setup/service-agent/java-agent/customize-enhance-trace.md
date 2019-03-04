@@ -14,12 +14,16 @@ Implementing enhancements to custom classes requires two steps.
 <?xml version="1.0" encoding="UTF-8"?>
 
 <enhanced>
-    <class class_name="com.xyz.demo.order.Payment">
-        <method method="pay(com.xyz.demo.order.CheckDO)" operation_name="/generating_one" language="SpEL">
-
+    <class class_name="test.apache.skywalking.testcase.customize.service.TestService1">
+        <method method="staticMethod()" operation_name="/test_static" static="true"></method>
+        <method method="method(java.lang.String,int.class)" operation_name="/test" static="false">
+            <operation_name_suffix>arg[0]</operation_name_suffix>
+            <tag key="str">arg[0]</tag>
+            <log key="num">arg[1]</log>
         </method>
     </class>
 </enhanced>
 ```
+ 3. The For a clearer usage, please see org.apache.skywalking.apm.plugin.customize.util.CustomizeExpressionTest.java
 
 

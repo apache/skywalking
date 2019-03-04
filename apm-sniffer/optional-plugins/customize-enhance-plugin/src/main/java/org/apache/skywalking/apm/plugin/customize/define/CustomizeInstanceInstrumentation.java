@@ -26,11 +26,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
-import org.apache.skywalking.apm.plugin.customize.constants.CustomizeLanguage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The instance of customize instrumentation.
@@ -40,9 +35,9 @@ import java.util.Map;
 
 public class CustomizeInstanceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private Class enhanceClass;
+    private String enhanceClass;
 
-    public CustomizeInstanceInstrumentation(Class enhanceClass) {
+    public CustomizeInstanceInstrumentation(String enhanceClass) {
         this.enhanceClass = enhanceClass;
     }
 
@@ -53,35 +48,33 @@ public class CustomizeInstanceInstrumentation extends ClassInstanceMethodsEnhanc
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        final Map<CustomizeLanguage, ElementMatcher> configurations = CustomizeConfiguration.INSTANCE.getInterceptPoints(enhanceClass, false);
-        if (configurations == null) {
+        final ElementMatcher matcher = CustomizeConfiguration.INSTANCE.getInterceptPoints(enhanceClass, false);
+        if (matcher == null) {
             return new InstanceMethodsInterceptPoint[0];
         } else {
-            List<InstanceMethodsInterceptPoint> interceptPoints = new ArrayList<InstanceMethodsInterceptPoint>();
-            for (final CustomizeLanguage language : configurations.keySet()) {
-                interceptPoints.add(new InstanceMethodsInterceptPoint() {
+            return new InstanceMethodsInterceptPoint[]{
+                new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return configurations.get(language);
+                        return matcher;
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return language.getInterceptor(false).getName();
+                        return "org.apache.skywalking.apm.plugin.customize.interceptor.CustomizeInstanceInterceptor";
                     }
 
                     @Override
                     public boolean isOverrideArgs() {
                         return false;
                     }
-                });
-            }
-            return interceptPoints.toArray(new InstanceMethodsInterceptPoint[interceptPoints.size()]);
+                }
+            };
         }
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(enhanceClass.getName());
+        return NameMatch.byName(enhanceClass);
     }
 }

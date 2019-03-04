@@ -25,11 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStat
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
-import org.apache.skywalking.apm.plugin.customize.constants.CustomizeLanguage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The static of customize instrumentation.
@@ -38,44 +33,42 @@ import java.util.Map;
  */
 
 public class CustomizeStaticInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
-    private Class enhanceClass;
+    private String enhanceClass;
 
 
-    public CustomizeStaticInstrumentation(Class enhanceClass) {
+    public CustomizeStaticInstrumentation(String enhanceClass) {
         this.enhanceClass = enhanceClass;
     }
 
     @Override
     protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        final Map<CustomizeLanguage, ElementMatcher> configurations = CustomizeConfiguration.INSTANCE.getInterceptPoints(enhanceClass, true);
-        if (configurations == null) {
+        final ElementMatcher matcher = CustomizeConfiguration.INSTANCE.getInterceptPoints(enhanceClass, true);
+        if (matcher == null) {
             return new StaticMethodsInterceptPoint[0];
         } else {
-            List<StaticMethodsInterceptPoint> interceptPoints = new ArrayList<StaticMethodsInterceptPoint>();
-            for (final CustomizeLanguage language : configurations.keySet()) {
-                interceptPoints.add(new StaticMethodsInterceptPoint() {
+            return new StaticMethodsInterceptPoint[]{
+                new StaticMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return configurations.get(language);
+                        return matcher;
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return language.getInterceptor(true).getName();
+                        return "org.apache.skywalking.apm.plugin.customize.interceptor.CustomizeStaticInterceptor";
                     }
 
                     @Override
                     public boolean isOverrideArgs() {
                         return false;
                     }
-                });
-            }
-            return interceptPoints.toArray(new StaticMethodsInterceptPoint[interceptPoints.size()]);
+                }
+            };
         }
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(enhanceClass.getName());
+        return NameMatch.byName(enhanceClass);
     }
 }

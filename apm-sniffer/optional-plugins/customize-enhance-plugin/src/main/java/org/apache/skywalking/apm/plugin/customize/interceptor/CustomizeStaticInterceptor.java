@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.customize.interceptor.spel;
+package org.apache.skywalking.apm.plugin.customize.interceptor;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
@@ -27,10 +27,10 @@ import java.lang.reflect.Method;
  * @author zhaoyuguang
  */
 
-public class SpELStaticInterceptor extends BaseSpELInterceptorMethods implements StaticMethodsAroundInterceptor {
+public class CustomizeStaticInterceptor extends BaseInterceptorMethods implements StaticMethodsAroundInterceptor {
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
-        super.beforeMethod(method);
+        super.beforeMethod(method, allArguments);
     }
 
     @Override

@@ -29,13 +29,13 @@ public class ClassUtilTest {
 
     @Test
     public void testClassForName() throws ClassNotFoundException {
-        Assert.assertTrue(ClassUtil.forName("boolean.class") == boolean.class);
-        Assert.assertTrue(ClassUtil.forName("char.class") == char.class);
-        Assert.assertTrue(ClassUtil.forName("byte.class") == byte.class);
-        Assert.assertTrue(ClassUtil.forName("short.class") == short.class);
-        Assert.assertTrue(ClassUtil.forName("int.class") == int.class);
-        Assert.assertTrue(ClassUtil.forName("long.class") == long.class);
-        Assert.assertTrue(ClassUtil.forName("float.class") == float.class);
-        Assert.assertTrue(ClassUtil.forName("java.lang.String") == String.class);
+        Assert.assertTrue(ClassUtil.isPrimitive("boolean.class"));
+        Assert.assertTrue(ClassUtil.isPrimitive("char.class"));
+        Assert.assertTrue(ClassUtil.getPrimitiveClass("byte.class") == byte.class);
+        Assert.assertTrue(ClassUtil.getPrimitiveClass("short.class") == short.class);
+        Assert.assertTrue(ClassUtil.getPrimitiveClass("int.class") == int.class);
+        Assert.assertTrue(ClassUtil.getPrimitiveClass("long.class") == long.class);
+        Assert.assertTrue(ClassUtil.getPrimitiveClass("float.class") == float.class);
+        Assert.assertTrue(ClassUtil.getPrimitiveClass("java.lang.String") == String.class);
     }
 }
