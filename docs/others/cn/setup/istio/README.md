@@ -1,2 +1,0 @@
-# 配合Istio
-TODO
