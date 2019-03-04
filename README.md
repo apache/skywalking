@@ -52,7 +52,7 @@ Please head to the [releases page](http://skywalking.apache.org/downloads/) to d
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
-Please report unacceptable behavior to dev@skywalking.apache.org .
+Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
 - Host in Beijing. [goto](http://106.75.237.45:8080/)
