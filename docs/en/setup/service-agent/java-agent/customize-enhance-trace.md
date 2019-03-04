@@ -4,7 +4,9 @@ Here is an optional plugin `apm-customize-enhance-plugin`
 ## Introduce
 - The purpose of this plugin is to achieve Class enhancements to some extent through non-intrusive forms.
 - The core idea is that there is no intrusion, so that no code related to this project appears in the project code.
-- Implemented a custom enhancement of the two languages, the first is 'default', it looks more like [@Trace](Application-toolkit-trace.md) non-intrusive implementation, internal tag records need to be used, ActiveSpan.tag to achieve, of course, 'defalut' is to support static methods, The two are 'SpEL'. On the basis of default, you can use SpEL to extend the operationName suffix, already log, and tag extension.                                                                                                      
+- Implemented a custom enhancement of the custom languages, it looks more like [@Trace](Application-toolkit-trace.md) non-intrusive implementation,
+internal tag records need to be used, ActiveSpan.tag to achieve, of course, it is to support static methods, 
+you can use the custom languages to extend the operationName suffix, already log, and tag extension.                                                                                                      
 
 ## How to configure
 Implementing enhancements to custom classes requires two steps.
