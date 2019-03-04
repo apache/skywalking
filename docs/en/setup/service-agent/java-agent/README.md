@@ -24,6 +24,11 @@ The agent release dist is included in Apache [official release](http://skywalkin
 
 - Start your application.
 
+## Supported middlewares, frameworks and libraries
+SkyWalking agent has supported various middlewares, framdworks and libraries.
+Read [supported list](Supported-list.md) to get them and supported version.
+If the plugin is in **Optional²** catalog, go to [optional plugins](#optional-plugins) section to learn how to active it.
+
 ## Advanced features
 - All plugins are in `/plugins` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
 - The default logging output folder is `/logs`.
@@ -74,9 +79,6 @@ property key | Description | Default |
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
- 
-## Supported middlewares, frameworks and libraries
-See [supported list](Supported-list.md).
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositores.
