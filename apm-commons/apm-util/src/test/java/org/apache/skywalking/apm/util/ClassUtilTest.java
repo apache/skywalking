@@ -36,6 +36,5 @@ public class ClassUtilTest {
         Assert.assertTrue(ClassUtil.getPrimitiveClass("int.class") == int.class);
         Assert.assertTrue(ClassUtil.getPrimitiveClass("long.class") == long.class);
         Assert.assertTrue(ClassUtil.getPrimitiveClass("float.class") == float.class);
-        Assert.assertTrue(ClassUtil.getPrimitiveClass("java.lang.String") == String.class);
     }
 }
