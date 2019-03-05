@@ -80,7 +80,7 @@ class BaseInterceptorMethods {
                     }
                 }
                 if (!spanLogs.isEmpty()) {
-                    span.log(System.currentTimeMillis(), logs);
+                    span.log(System.currentTimeMillis(), spanLogs);
                 }
             }
         }
