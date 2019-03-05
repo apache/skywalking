@@ -42,16 +42,4 @@ public class MethodUtil {
         operationName.append(")");
         return operationName.toString();
     }
-
-    public static String generateOperationName(String className, String methodName, String[] parameterTypes) {
-        StringBuilder operationName = new StringBuilder(className + "." + methodName + "(");
-        for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(ClassUtil.isPrimitive(parameterTypes[i]) ? ClassUtil.getPrimitiveClass(parameterTypes[i]).getName() : parameterTypes[i]);
-            if (i < (parameterTypes.length - 1)) {
-                operationName.append(",");
-            }
-        }
-        operationName.append(")");
-        return operationName.toString();
-    }
 }

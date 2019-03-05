@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+package org.apache.skywalking.apm.plugin.customize.util;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,16 +25,16 @@ import org.junit.Test;
  * @author zhaoyuguang
  */
 
-public class ClassUtilTest {
+public class CustomizeUtilTest {
 
     @Test
     public void testClassForName() throws ClassNotFoundException {
-        Assert.assertTrue(ClassUtil.isPrimitive("boolean.class"));
-        Assert.assertTrue(ClassUtil.isPrimitive("char.class"));
-        Assert.assertTrue(ClassUtil.getPrimitiveClass("byte.class") == byte.class);
-        Assert.assertTrue(ClassUtil.getPrimitiveClass("short.class") == short.class);
-        Assert.assertTrue(ClassUtil.getPrimitiveClass("int.class") == int.class);
-        Assert.assertTrue(ClassUtil.getPrimitiveClass("long.class") == long.class);
-        Assert.assertTrue(ClassUtil.getPrimitiveClass("float.class") == float.class);
+        Assert.assertTrue(CustomizeUtil.isJavaClass("boolean.class"));
+        Assert.assertTrue(CustomizeUtil.isJavaClass("char.class"));
+        Assert.assertTrue(CustomizeUtil.getJavaClass("byte.class") == byte.class);
+        Assert.assertTrue(CustomizeUtil.getJavaClass("short.class") == short.class);
+        Assert.assertTrue(CustomizeUtil.getJavaClass("int.class") == int.class);
+        Assert.assertTrue(CustomizeUtil.getJavaClass("long.class") == long.class);
+        Assert.assertTrue(CustomizeUtil.getJavaClass("float.class") == float.class);
     }
 }

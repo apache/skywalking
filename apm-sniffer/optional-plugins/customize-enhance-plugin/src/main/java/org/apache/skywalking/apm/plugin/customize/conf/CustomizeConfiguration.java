@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.plugin.customize.constants.Constants;
-import org.apache.skywalking.apm.util.ClassUtil;
+import org.apache.skywalking.apm.plugin.customize.util.CustomizeUtil;
 import org.apache.skywalking.apm.util.MethodUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.w3c.dom.Document;
@@ -188,7 +188,7 @@ public enum CustomizeConfiguration {
     /**
      * Parse class and method,
      * if no error log is printed in this JVM, and return null.
-     * primitive desc impl by {@link ClassUtil}
+     * primitive desc impl by {@link CustomizeUtil}
      * At the bottom, the default operation name is added.
      *
      * @param className     class name.
@@ -203,7 +203,7 @@ public enum CustomizeConfiguration {
             String methodName = methodDesc.substring(0, openParen);
             String[] arguments = methodDesc.substring(openParen + 1, closeParen).split(Constants.COMMA);
             MethodConfiguration.setClz(configuration, className);
-            MethodConfiguration.setMethod(configuration, MethodUtil.generateOperationName(className, methodName, arguments));
+            MethodConfiguration.setMethod(configuration, CustomizeUtil.generateOperationName(className, methodName, arguments));
             MethodConfiguration.setMethodName(configuration, methodName);
             MethodConfiguration.setArguments(configuration, StringUtil.isEmpty(arguments[0]) ? new String[0] : arguments);
             if (StringUtil.isEmpty(MethodConfiguration.getOperationName(configuration))) {
@@ -282,8 +282,8 @@ public enum CustomizeConfiguration {
         if (arguments.length > 0) {
             for (int i = 0; i < arguments.length; i++) {
                 matcher = ((ElementMatcher.Junction) matcher).and(
-                        ClassUtil.isPrimitive(arguments[i]) ?
-                                takesArgument(i, ClassUtil.getPrimitiveClass(arguments[i])) :
+                        CustomizeUtil.isJavaClass(arguments[i]) ?
+                                takesArgument(i, CustomizeUtil.getJavaClass(arguments[i])) :
                                 takesArgumentWithType(i, arguments[i]));
             }
         }
