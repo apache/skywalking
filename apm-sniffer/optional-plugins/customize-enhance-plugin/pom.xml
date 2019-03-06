@@ -30,17 +30,4 @@
     <artifactId>apm-customize-enhance-plugin</artifactId>
     <name>customize-enhance-plugin</name>
     <packaging>jar</packaging>
-
-    <properties>
-        <spring-expression.version>4.3.18.RELEASE</spring-expression.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <version>${spring-expression.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 </project>
