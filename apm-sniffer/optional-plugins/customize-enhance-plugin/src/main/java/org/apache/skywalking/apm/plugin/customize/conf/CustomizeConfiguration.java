@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.customize.conf;
 
-import javafx.util.Pair;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -235,7 +234,7 @@ public enum CustomizeConfiguration {
      */
     private void init() {
         Config.Customize.CONTEXT.put(Constants.CONTEXT_METHOD_CONFIGURATIONS, new HashMap<String, Map<String, Object>>());
-        Config.Customize.CONTEXT.put(Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<Pair<Class, Boolean>, ElementMatcher>());
+        Config.Customize.CONTEXT.put(Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<String, ElementMatcher>());
     }
 
     /**
@@ -264,8 +263,8 @@ public enum CustomizeConfiguration {
      * @param configuration {@link MethodConfiguration}
      */
     private void addContextEnhanceClass(Map<String, Object> configuration) {
-        Pair<String, Boolean> key = new Pair<String, Boolean>(MethodConfiguration.getClz(configuration), MethodConfiguration.isStatic(configuration));
-        HashMap<Pair<String, Boolean>, ElementMatcher> enhanceClasses = getEnhanceClasses();
+        String key = CustomizeUtil.generateClassDesc(MethodConfiguration.getClz(configuration), MethodConfiguration.isStatic(configuration));
+        HashMap<String, ElementMatcher> enhanceClasses = getEnhanceClasses();
         ElementMatcher matcher = enhanceClasses.get(key);
         enhanceClasses.put(key, matcher == null ? parserMethodsMatcher(configuration) : ((ElementMatcher.Junction) matcher).or(parserMethodsMatcher(configuration)));
     }
@@ -300,8 +299,8 @@ public enum CustomizeConfiguration {
      * @return all the interceptPoints.
      */
     public ElementMatcher getInterceptPoints(String enhanceClass, boolean isStatic) {
-        HashMap<Pair<String, Boolean>, ElementMatcher> enhanceClasses = getEnhanceClasses();
-        return enhanceClasses.get(new Pair<String, Boolean>(enhanceClass, isStatic));
+        HashMap<String, ElementMatcher> enhanceClasses = getEnhanceClasses();
+        return enhanceClasses.get(CustomizeUtil.generateClassDesc(enhanceClass, isStatic));
     }
 
     /**
@@ -309,8 +308,8 @@ public enum CustomizeConfiguration {
      *
      * @return all the custom instrumentation.
      */
-    public Set<Pair<String, Boolean>> getInstrumentations() {
-        HashMap<Pair<String, Boolean>, ElementMatcher> enhanceClasses = getEnhanceClasses();
+    public Set<String> getInstrumentations() {
+        HashMap<String, ElementMatcher> enhanceClasses = getEnhanceClasses();
         return enhanceClasses.keySet();
     }
 
@@ -320,8 +319,8 @@ public enum CustomizeConfiguration {
      * @return all config of the custom instrumentation.
      */
     @SuppressWarnings("unchecked")
-    private HashMap<Pair<String, Boolean>, ElementMatcher> getEnhanceClasses() {
-        return (HashMap<Pair<String, Boolean>, ElementMatcher>) Config.Customize.CONTEXT.get(Constants.CONTEXT_ENHANCE_CLASSES);
+    private HashMap<String, ElementMatcher> getEnhanceClasses() {
+        return (HashMap<String, ElementMatcher>) Config.Customize.CONTEXT.get(Constants.CONTEXT_ENHANCE_CLASSES);
     }
 
     public Map<String, Object> getConfiguration(Method method) {

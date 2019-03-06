@@ -35,7 +35,6 @@ import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 public class CustomizeStaticInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
     private String enhanceClass;
 
-
     public CustomizeStaticInstrumentation(String enhanceClass) {
         this.enhanceClass = enhanceClass;
     }

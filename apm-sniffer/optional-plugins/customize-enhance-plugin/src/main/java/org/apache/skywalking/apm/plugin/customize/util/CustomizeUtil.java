@@ -61,4 +61,12 @@ public class CustomizeUtil {
         operationName.append(")");
         return operationName.toString();
     }
+
+    public static String generateClassDesc(String className, boolean isStatic) {
+        return className + ":" + isStatic;
+    }
+
+    public static String[] getClassDesc(String enhanceClass) {
+        return enhanceClass.split(":");
+    }
 }

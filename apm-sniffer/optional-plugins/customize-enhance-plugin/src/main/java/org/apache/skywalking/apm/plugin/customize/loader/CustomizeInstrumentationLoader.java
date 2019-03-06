@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.customize.loader;
 
-import javafx.util.Pair;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -27,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.InstrumentationService
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 import org.apache.skywalking.apm.plugin.customize.define.CustomizeInstanceInstrumentation;
 import org.apache.skywalking.apm.plugin.customize.define.CustomizeStaticInstrumentation;
+import org.apache.skywalking.apm.plugin.customize.util.CustomizeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,12 +47,13 @@ public class CustomizeInstrumentationLoader implements InstrumentationServiceLoa
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
         List<AbstractClassEnhancePluginDefine> instrumentations = new ArrayList<AbstractClassEnhancePluginDefine>();
         CustomizeConfiguration.INSTANCE.load();
-        Set<Pair<String, Boolean>> enhanceClasses = CustomizeConfiguration.INSTANCE.getInstrumentations();
+        Set<String> enhanceClasses = CustomizeConfiguration.INSTANCE.getInstrumentations();
         try {
-            for (Pair<String, Boolean> pair : enhanceClasses) {
+            for (String enhanceClass : enhanceClasses) {
+                String[] classDesc = CustomizeUtil.getClassDesc(enhanceClass);
                 AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(
-                        pair.getValue() ? CustomizeStaticInstrumentation.class.getName() : CustomizeInstanceInstrumentation.class.getName(),
-                        true, classLoader).getConstructor(String.class).newInstance(pair.getKey());
+                        Boolean.valueOf(classDesc[1]) ? CustomizeStaticInstrumentation.class.getName() : CustomizeInstanceInstrumentation.class.getName(),
+                        true, classLoader).getConstructor(String.class).newInstance(classDesc[0]);
                 instrumentations.add(plugin);
             }
         } catch (Exception e) {
