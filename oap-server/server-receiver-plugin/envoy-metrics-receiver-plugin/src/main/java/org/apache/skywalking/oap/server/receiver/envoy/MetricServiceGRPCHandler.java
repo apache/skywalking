@@ -110,7 +110,18 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                 case GAUGE:
                                     for (Metrics.Metric metric : metricFamily.getMetricList()) {
                                         timestamp = metric.getTimestampMs();
-                                        value = metric.getCounter().getValue();
+                                        value = metric.getGauge().getValue();
+
+                                        EnvoyInstanceMetric metricSource = new EnvoyInstanceMetric();
+                                        metricSource.setServiceId(serviceId);
+                                        metricSource.setServiceName(serviceName);
+                                        metricSource.setId(serviceInstanceId);
+                                        metricSource.setServiceInstanceId(serviceInstanceId);
+                                        metricSource.setName(serviceInstanceName);
+                                        metricSource.setMetricName(metricFamily.getName());
+                                        metricSource.setValue(value);
+                                        metricSource.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timestamp));
+                                        sourceReceiver.receive(metricSource);
                                     }
                                     break;
                                 default:
@@ -121,17 +132,6 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                 serviceInventoryRegister.heartbeat(serviceId, timestamp);
                                 serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, timestamp);
                             }
-
-                            EnvoyInstanceMetric metric = new EnvoyInstanceMetric();
-                            metric.setServiceId(serviceId);
-                            metric.setServiceName(serviceName);
-                            metric.setId(serviceInstanceId);
-                            metric.setServiceInstanceId(serviceInstanceId);
-                            metric.setName(serviceInstanceName);
-                            metric.setMetricName(metricFamily.getName());
-                            metric.setValue(value);
-                            metric.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timestamp));
-                            sourceReceiver.receive(metric);
                         } finally {
                             timer.finish();
                         }
@@ -141,10 +141,12 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
 
             @Override public void onError(Throwable throwable) {
                 logger.error("Error in receiving metric from envoy", throwable);
+                responseObserver.onCompleted();
             }
 
             @Override public void onCompleted() {
-
+                responseObserver.onNext(StreamMetricsResponse.newBuilder().build());
+                responseObserver.onCompleted();
             }
         };
     }

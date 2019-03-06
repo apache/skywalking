@@ -38,23 +38,65 @@ identifier {
       build_version: "caf7ab123964cedd172a2d4cb29b2f2e05ca9156/1.10.0-dev/Clean/RELEASE/BoringSSL"
     }
 }
-envoy_metrics {
-  name: "cluster.service_stats.update_attempt",
-  metric [
+envoy_metrics [
     {
-      counter {
-        value: 1
-      },
-      timestamp_ms: 1551781658343
-    }
-  ]
-  name: "cluster.service_stats.membership_change",
-  metric [
+        name: "cluster.service_stats.update_attempt",
+        type: COUNTER
+        metric [
+            {
+              counter {
+                value: 1
+              },
+              timestamp_ms: 1551781658343
+            }
+        ]
+    },
     {
-      counter {
-        value: 1
-      },
-      timestamp_ms: 1551781658343
+        name: "cluster.service_stats.membership_change",
+        type: COUNTER
+        metric [
+            {
+              counter {
+                value: 1
+              },
+              timestamp_ms: 1551781658343
+            }
+        ]
+    },
+    {
+        name: "server.parent_connections",
+        type: GAUGE
+        metric [
+          {
+            gauge {
+              value: 50
+            },
+            timestamp_ms: 1551781658343
+          }
+        ]
+    },
+    {
+        name: "server.total_connections",
+        type: GAUGE
+        metric [
+          {
+            gauge {
+              value: 14
+            },
+            timestamp_ms: 1551781658343
+          }
+        ]
+    },
+    {
+        name: "server.memory_heap_size",
+        type: GAUGE
+        metric [
+          {
+            gauge {
+              value: 3145728
+            },
+            timestamp_ms: 1551781658343
+          }
+        ]
     }
-  ]
-}
+]
