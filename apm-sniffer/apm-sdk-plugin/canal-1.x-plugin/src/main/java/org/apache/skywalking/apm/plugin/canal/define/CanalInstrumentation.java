@@ -45,7 +45,7 @@ public class CanalInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgument(4, int.class).or(takesArgumentWithType(0,"123"));
+                    return takesArgument(4, int.class);
                 }
 
                 @Override public String getConstructorInterceptor() {
