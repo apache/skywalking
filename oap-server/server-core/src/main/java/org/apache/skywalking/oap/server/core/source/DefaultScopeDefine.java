@@ -31,6 +31,11 @@ public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
 
+    /**
+     * All metric IDs in [0, 10,000) are reserved in Apache SkyWalking.
+     *
+     * If you want to extend the scope, recommend to start with 10,000.
+     */
     public static final int ALL = 0;
     public static final int SERVICE = 1;
     public static final int SERVICE_INSTANCE = 2;
@@ -54,12 +59,6 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_CLR_GC = 20;
     public static final int SERVICE_INSTANCE_CLR_THREAD = 21;
     public static final int ENVOY_INSTANCE_METRIC = 22;
-
-    /**
-     * All metric IDs in [0, 10,000) are reserved in Apache SkyWalking.
-     *
-     * If you want to extend the scope, recommend to start with 10,000.
-     */
 
     public static class Listener implements AnnotationListener {
         @Override public Class<? extends Annotation> annotation() {

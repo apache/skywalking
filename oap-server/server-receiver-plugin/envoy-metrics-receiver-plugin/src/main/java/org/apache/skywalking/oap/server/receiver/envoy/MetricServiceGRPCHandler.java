@@ -22,8 +22,15 @@ import io.envoyproxy.envoy.api.v2.core.Node;
 import io.envoyproxy.envoy.service.metrics.v2.*;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Metrics;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
 
 /**
@@ -32,8 +39,21 @@ import org.slf4j.*;
 public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(MetricServiceGRPCHandler.class);
 
-    public MetricServiceGRPCHandler(ModuleManager moduleManager
-    ) {
+    private final IServiceInventoryRegister serviceInventoryRegister;
+    private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
+    private final SourceReceiver sourceReceiver;
+    private CounterMetric counter;
+    private HistogramMetric histogram;
+
+    public MetricServiceGRPCHandler(ModuleManager moduleManager) {
+        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+        serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+        sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        counter = metricCreator.createCounter("envoy_metric_in_count", "The count of envoy service metric received",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        histogram = metricCreator.createHistogramMetric("envoy_metric_in_latency", "The process latency of service metric receiver",
+            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
     }
 
     @Override
@@ -41,6 +61,9 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
         return new StreamObserver<StreamMetricsMessage>() {
             private boolean isFirst = true;
             private String serviceName = null;
+            private int serviceId = Const.NONE;
+            private String serviceInstanceName = null;
+            private int serviceInstanceId = Const.NONE;
 
             @Override public void onNext(StreamMetricsMessage message) {
                 if (isFirst) {
@@ -50,24 +73,74 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                     if (node != null) {
                         String nodeId = node.getId();
                         if (!StringUtil.isEmpty(nodeId)) {
-                            serviceName = nodeId;
+                            serviceInstanceName = nodeId;
                             String cluster = node.getCluster();
                             if (!StringUtil.isEmpty(cluster)) {
-                                serviceName = nodeId + "." + cluster;
+                                serviceName = cluster;
                             }
+                        }
+                    }
+
+                    if (serviceName == null) {
+                        serviceName = serviceInstanceName;
+                    }
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Envoy metric reported from service[{}], service instance[{}]", serviceName, serviceInstanceName);
+                    }
+
+                    if (serviceInstanceName != null) {
+                        serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
+                        if (serviceId != Const.NONE) {
+                            serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(serviceId, serviceInstanceName, serviceInstanceName, System.currentTimeMillis(), null);
                         }
                     }
                 }
 
-                if (serviceName != null) {
-                    for (Metrics.MetricFamily metricFamily : message.getEnvoyMetricsList()) {
+                if (serviceInstanceId != Const.NONE) {
+                    List<Metrics.MetricFamily> list = message.getEnvoyMetricsList();
+                    for (int i = 0; i < list.size(); i++) {
+                        counter.inc();
+                        HistogramMetric.Timer timer = histogram.createTimer();
+                        try {
+                            Metrics.MetricFamily metricFamily = list.get(i);
+                            double value = 0;
+                            long timestamp = 0;
+                            switch (metricFamily.getType()) {
+                                case GAUGE:
+                                    for (Metrics.Metric metric : metricFamily.getMetricList()) {
+                                        timestamp = metric.getTimestampMs();
+                                        value = metric.getCounter().getValue();
+                                    }
+                                    break;
+                                default:
+                                    continue;
+                            }
+                            if (i == 0) {
+                                // Send heartbeat
+                                serviceInventoryRegister.heartbeat(serviceId, timestamp);
+                                serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, timestamp);
+                            }
 
+                            EnvoyInstanceMetric metric = new EnvoyInstanceMetric();
+                            metric.setServiceId(serviceId);
+                            metric.setServiceName(serviceName);
+                            metric.setId(serviceInstanceId);
+                            metric.setServiceInstanceId(serviceInstanceId);
+                            metric.setName(serviceInstanceName);
+                            metric.setMetricName(metricFamily.getName());
+                            metric.setValue(value);
+                            metric.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timestamp));
+                            sourceReceiver.receive(metric);
+                        } finally {
+                            timer.finish();
+                        }
                     }
                 }
             }
 
             @Override public void onError(Throwable throwable) {
-
+                logger.error("Error in receiving metric from envoy", throwable);
             }
 
             @Override public void onCompleted() {
