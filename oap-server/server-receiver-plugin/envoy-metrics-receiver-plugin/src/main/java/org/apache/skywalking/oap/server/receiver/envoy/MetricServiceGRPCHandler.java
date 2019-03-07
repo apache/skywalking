@@ -59,7 +59,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
     @Override
     public StreamObserver<StreamMetricsMessage> streamMetrics(StreamObserver<StreamMetricsResponse> responseObserver) {
         return new StreamObserver<StreamMetricsMessage>() {
-            private boolean isFirst = true;
+            private volatile boolean isFirst = true;
             private String serviceName = null;
             private int serviceId = Const.NONE;
             private String serviceInstanceName = null;
@@ -69,14 +69,18 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                 if (isFirst) {
                     isFirst = false;
                     StreamMetricsMessage.Identifier identifier = message.getIdentifier();
+                    logger.debug("Received identifier msg {}", identifier);
                     Node node = identifier.getNode();
                     if (node != null) {
                         String nodeId = node.getId();
                         if (!StringUtil.isEmpty(nodeId)) {
                             serviceInstanceName = nodeId;
-                            String cluster = node.getCluster();
-                            if (!StringUtil.isEmpty(cluster)) {
-                                serviceName = cluster;
+                        }
+                        String cluster = node.getCluster();
+                        if (!StringUtil.isEmpty(cluster)) {
+                            serviceName = cluster;
+                            if (serviceInstanceName == null) {
+                                serviceInstanceName = serviceName;
                             }
                         }
                     }
@@ -84,17 +88,10 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                     if (serviceName == null) {
                         serviceName = serviceInstanceName;
                     }
+                }
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Envoy metric reported from service[{}], service instance[{}]", serviceName, serviceInstanceName);
-                    }
-
-                    if (serviceInstanceName != null) {
-                        serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
-                        if (serviceId != Const.NONE) {
-                            serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(serviceId, serviceInstanceName, serviceInstanceName, System.currentTimeMillis(), null);
-                        }
-                    }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Envoy metric reported from service[{}], service instance[{}]", serviceName, serviceInstanceName);
                 }
 
                 if (serviceInstanceId != Const.NONE) {
@@ -135,6 +132,15 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                         } finally {
                             timer.finish();
                         }
+                    }
+                } else if (serviceName != null && serviceInstanceName != null) {
+                    if (serviceId == Const.NONE) {
+                        logger.debug("Register envoy service [{}].", serviceName);
+                        serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
+                    }
+                    if (serviceId != Const.NONE) {
+                        logger.debug("Register envoy service instance [{}].", serviceInstanceName);
+                        serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(serviceId, serviceInstanceName, serviceInstanceName, System.currentTimeMillis(), null);
                     }
                 }
             }
