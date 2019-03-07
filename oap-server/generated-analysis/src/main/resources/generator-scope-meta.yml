@@ -164,3 +164,13 @@ scopes:
         columnName: service_instance_id
         typeName: int
         ID: false
+  - name: EnvoyInstanceMetric
+    columns:
+    - fieldName: entityId
+      columnName: entity_id
+      typeName: java.lang.String
+      ID: true
+    - fieldName: serviceInstanceId
+      columnName: service_instance_id
+      typeName: int
+      ID: false

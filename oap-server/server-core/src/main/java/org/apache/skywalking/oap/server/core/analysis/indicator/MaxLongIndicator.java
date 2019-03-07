@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * @author liuhaoyang
  **/
 @IndicatorFunction(functionName = "max")
-public abstract class MaxIndicator extends Indicator implements LongValueHolder {
+public abstract class MaxLongIndicator extends Indicator implements LongValueHolder {
 
     protected static final String VALUE = "value";
 
@@ -43,7 +43,7 @@ public abstract class MaxIndicator extends Indicator implements LongValueHolder 
     }
 
     @Override public final void combine(Indicator indicator) {
-        MaxIndicator countIndicator = (MaxIndicator)indicator;
+        MaxLongIndicator countIndicator = (MaxLongIndicator)indicator;
         combine(countIndicator.value);
     }
 
