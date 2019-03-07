@@ -16,15 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.indicator.expression;
+package org.apache.skywalking.oap.server.receiver.envoy;
+
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- *
+ * Envoy metric receiver module
  *
  * @author wusheng
  */
-public class EqualMatch extends BinaryMatchExpression {
-    @Override public boolean match() {
-        return left.equals(right);
+public class EnvoyMetricReceiverModule extends ModuleDefine {
+    public static final String NAME = "envoy-metric";
+
+    public EnvoyMetricReceiverModule() {
+        super(NAME);
+    }
+
+    @Override public Class[] services() {
+        return new Class[0];
     }
 }
