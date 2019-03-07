@@ -5,7 +5,7 @@ ways to do so. But ultimately they are same, just collect and reformat data, the
 
 In high level, there are three typical groups in all SkyWalking probes.
 - **Language based native agent**. This kind of agents runs in target service user space, like a part of user codes. Such as
-SkyWalking Java agent, use `-javaagent` commend line argument to manipulate codes in runtime, `manipulate` means change and inject
+SkyWalking Java agent, use `-javaagent` command line argument to manipulate codes in runtime, `manipulate` means change and inject
 user's codes. Another kind of agents is using some hook or intercept mechanism provided by target libraries. So you can see, these kinds
 of agents based on languages and libraries.
  
