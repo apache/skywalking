@@ -38,4 +38,4 @@ or `org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageProvi
 
 ## Redistribution with new storage implementation.
 You don't have to clone the main repo just for implementing the storage. You could just easy depend our Apache releases.
-Take a look at [OpenSkywalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo, SkyWalking v6 redistribution with ElasticSearch 5 TCP connection storage implemention.
+Take a look at [SkyAPM/SkyWalking-With-Es5x-Storage](https://github.com/SkyAPM/SkyWalking-With-Es5x-Storage) repo, SkyWalking v6 redistribution with ElasticSearch 5 TCP connection storage implemention.
