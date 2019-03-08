@@ -44,7 +44,6 @@ public class EnvoyInstanceMetric extends Source {
      */
     @Getter @Setter private int id;
     @Getter @Setter private int serviceId;
-    @Getter @Setter private int serviceInstanceId;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
     @Getter @Setter private String metricName;

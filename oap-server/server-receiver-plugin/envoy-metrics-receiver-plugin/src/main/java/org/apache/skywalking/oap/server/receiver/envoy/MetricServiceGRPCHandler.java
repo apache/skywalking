@@ -113,7 +113,6 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                         metricSource.setServiceId(serviceId);
                                         metricSource.setServiceName(serviceName);
                                         metricSource.setId(serviceInstanceId);
-                                        metricSource.setServiceInstanceId(serviceInstanceId);
                                         metricSource.setName(serviceInstanceName);
                                         metricSource.setMetricName(metricFamily.getName());
                                         metricSource.setValue(value);
