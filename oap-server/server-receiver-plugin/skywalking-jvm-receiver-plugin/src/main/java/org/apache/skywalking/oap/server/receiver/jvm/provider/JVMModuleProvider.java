@@ -20,12 +20,10 @@ package org.apache.skywalking.oap.server.receiver.jvm.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.jvm.module.JVMModule;
-import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMMetricReportServiceHandler;
-import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMMetricsServiceHandler;
+import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.*;
+import org.apache.skywalking.oap.server.receiver.share.server.ShareServerModule;
 
 /**
  * @author peng-yongsheng
@@ -48,7 +46,7 @@ public class JVMModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(ShareServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new JVMMetricsServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new JVMMetricReportServiceHandler(getManager()));
     }
@@ -58,6 +56,6 @@ public class JVMModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {CoreModule.NAME, ShareServerModule.NAME};
     }
 }

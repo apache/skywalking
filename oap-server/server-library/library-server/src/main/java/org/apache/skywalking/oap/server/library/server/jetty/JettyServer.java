@@ -71,6 +71,8 @@ public class JettyServer implements Server {
     }
 
     public void addHandler(JettyHandler handler) {
+        logger.info("Bind handler {} into jetty server {}:{}", handler.getClass().getSimpleName(), host, port);
+
         ServletHolder servletHolder = new ServletHolder();
         servletHolder.setServlet(handler);
         servletContextHandler.addServlet(servletHolder, handler.pathSpec());
