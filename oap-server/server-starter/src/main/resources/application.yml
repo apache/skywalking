@@ -88,6 +88,8 @@ service-mesh:
     bufferFileCleanWhenRestart: ${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 istio-telemetry:
   default:
+envoy-metric:
+  default:
 #receiver_zipkin:
 #  default:
 #    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}

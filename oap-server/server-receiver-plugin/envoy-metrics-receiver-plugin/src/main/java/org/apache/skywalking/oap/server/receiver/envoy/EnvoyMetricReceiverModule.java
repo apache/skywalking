@@ -16,29 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.receiver.envoy;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CLR_CPU;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * @author liuhaoyang
- **/
-@ScopeDeclaration(id = SERVICE_INSTANCE_CLR_CPU, name = "ServiceInstanceCLRCPU")
-public class ServiceInstanceCLRCPU extends Source {
-    @Override public int scope() {
-        return DefaultScopeDefine.SERVICE_INSTANCE_CLR_CPU;
+ * Envoy metric receiver module
+ *
+ * @author wusheng
+ */
+public class EnvoyMetricReceiverModule extends ModuleDefine {
+    public static final String NAME = "envoy-metric";
+
+    public EnvoyMetricReceiverModule() {
+        super(NAME);
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(id);
+    @Override public Class[] services() {
+        return new Class[0];
     }
-
-    @Getter @Setter private int id;
-    @Getter @Setter private String name;
-    @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceId;
-    @Getter @Setter private double usePercent;
 }

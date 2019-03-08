@@ -41,6 +41,7 @@ SRC_DATABASE_ACCESS: 'DatabaseAccess';
 SRC_SERVICE_INSTANCE_CLR_CPU: 'ServiceInstanceCLRCPU';
 SRC_SERVICE_INSTANCE_CLR_GC: 'ServiceInstanceCLRGC';
 SRC_SERVICE_INSTANCE_CLR_THREAD: 'ServiceInstanceCLRThread';
+SRC_ENVOY_INSTANCE_METRIC: 'EnvoyInstanceMetric';
 
 // Literals
 

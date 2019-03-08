@@ -8,8 +8,9 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-trace**. gRPC and HTTPRestful services to accept SkyWalking format traces.
 1. **receiver-register**. gRPC and HTTPRestful services to provide service, service instance and endpoint register.
 1. **service-mesh**. gRPC services accept data from inbound mesh probes.
-1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
 1. **receiver-jvm**. gRPC services accept JVM metric data.
+1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
+1. **envoy-metric**. Envoy `metrics_service` supported by this receiver. OAL script support all GAUGE type metrics. 
 1. **receiver_zipkin**. HTTP service accepts Span in Zipkin v1 and v2 formats. Notice, this receiver only
 works as expected in backend single node mode. Cluster mode is not supported. Welcome anyone to improve this.
 
@@ -33,6 +34,8 @@ service-mesh:
     bufferDataMaxFileSize: 500 # Unit is MB
     bufferFileCleanWhenRestart: false
 istio-telemetry:
+  default:
+envoy-metric:
   default:
 receiver_zipkin:
   default:
