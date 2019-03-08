@@ -83,6 +83,11 @@ public class Config {
          * Deactive V1 header in default
          */
         public static boolean ACTIVE_V1_HEADER = false;
+
+        /**
+         * The identify of the instance
+         */
+        public static String INSTANCE_UUID = "";
     }
 
     public static class Collector {

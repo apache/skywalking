@@ -39,7 +39,7 @@ public class ServiceInstanceCLRGC extends Source {
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter private int serviceId;
     @Getter @Setter private int gen0CollectCount;
     @Getter @Setter private int gen1CollectCount;
     @Getter @Setter private int gen2CollectCount;

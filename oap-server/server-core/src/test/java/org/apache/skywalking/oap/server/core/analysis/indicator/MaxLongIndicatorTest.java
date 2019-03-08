@@ -25,11 +25,11 @@ import org.junit.Test;
 /**
  * @author liuhaoyang
  **/
-public class MaxIndicatorTest {
+public class MaxLongIndicatorTest {
 
     @Test
     public void testEntranceCombine() {
-        MaxIndicatorImpl impl = new MaxIndicatorImpl();
+        MaxLongIndicatorImpl impl = new MaxLongIndicatorImpl();
         impl.combine(10);
         impl.combine(5);
         impl.combine(20);
@@ -39,11 +39,11 @@ public class MaxIndicatorTest {
 
     @Test
     public void testSelfCombine() {
-        MaxIndicatorImpl impl = new MaxIndicatorImpl();
+        MaxLongIndicatorImpl impl = new MaxLongIndicatorImpl();
         impl.combine(10);
         impl.combine(5);
 
-        MaxIndicatorImpl impl2 = new MaxIndicatorImpl();
+        MaxLongIndicatorImpl impl2 = new MaxLongIndicatorImpl();
         impl.combine(2);
         impl.combine(6);
 
@@ -51,7 +51,7 @@ public class MaxIndicatorTest {
         Assert.assertEquals(10, impl.getValue());
     }
 
-    public class MaxIndicatorImpl extends MaxIndicator {
+    public class MaxLongIndicatorImpl extends MaxLongIndicator {
 
         @Override public String id() {
             return null;
