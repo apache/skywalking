@@ -96,6 +96,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
 
                 if (serviceInstanceId != Const.NONE) {
                     List<Metrics.MetricFamily> list = message.getEnvoyMetricsList();
+                    boolean needHeartbeatUpdate = true;
                     for (int i = 0; i < list.size(); i++) {
                         counter.inc();
                         HistogramMetric.Timer timer = histogram.createTimer();
@@ -123,10 +124,11 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                 default:
                                     continue;
                             }
-                            if (i == 0) {
+                            if (needHeartbeatUpdate) {
                                 // Send heartbeat
                                 serviceInventoryRegister.heartbeat(serviceId, timestamp);
                                 serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, timestamp);
+                                needHeartbeatUpdate = false;
                             }
                         } finally {
                             timer.finish();
