@@ -54,10 +54,10 @@ In this case, calls of each service.
 > All_p99 = from(All.latency).p99(10);
 
 In this case, p99 value of all incoming requests.
-- `thermodynamic`. Read [Headmap in WIKI](https://en.wikipedia.org/wiki/Heat_map))
+- `thermodynamic`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map))
 > All_heatmap = from(All.latency).thermodynamic(100, 20);
 
-In this case, thermodynamic headmap of all incoming requests.
+In this case, thermodynamic heatmap of all incoming requests.
 
 ## Metric name
 The metric name for storage implementor, alarm and query modules. The type inference supported by core.
