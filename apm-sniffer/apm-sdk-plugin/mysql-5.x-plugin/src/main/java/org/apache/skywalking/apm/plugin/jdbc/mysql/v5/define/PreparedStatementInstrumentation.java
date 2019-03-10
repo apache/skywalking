@@ -41,7 +41,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
  *
  * @author zhangxin
  */
-public class PreparedStatementInstrumentation extends AbstractMysqlInstanceMethodInstrumentation {
+public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String SERVICE_METHOD_INTERCEPTOR = Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
     public static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";

@@ -18,12 +18,31 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 
 /**
  * @author: dingshaocheng
  */
-public abstract class AbstractMysqlStaticMethodInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
+public abstract class AbstractMysqlInstrumentation extends ClassEnhancePluginDefine {
+
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return null;
+    }
+    @Override
+    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return null;
+    }
+
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return null;
+    }
+
+
     @Override
     protected String[] witnessClasses() {
         return new String[]{Constants.WITNESS_MYSQL_8X_CLASS};

@@ -37,7 +37,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *
  * @author zhangxin
  */
-public class CallableInstrumentation extends AbstractMysqlInstanceMethodInstrumentation {
+public class CallableInstrumentation extends AbstractMysqlInstrumentation {
     private static final String ENHANCE_CLASS = "com.mysql.jdbc.cj.CallableStatement";
     private static final String SERVICE_METHOD_INTERCEPTOR = org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
 

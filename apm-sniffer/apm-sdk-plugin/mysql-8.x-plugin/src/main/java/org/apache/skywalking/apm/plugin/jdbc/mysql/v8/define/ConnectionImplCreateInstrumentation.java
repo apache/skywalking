@@ -35,7 +35,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * instead of {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
  * @author: dingshaocheng
  */
-public class ConnectionImplCreateInstrumentation extends AbstractMysqlStaticMethodInstrumentation {
+public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String JDBC_ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
 
