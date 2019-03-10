@@ -19,95 +19,20 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.define.AbstractConnectionInstrumentation;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 
-public class ConnectionInstrumentation extends AbstractClassInstanceMethodInstrumentation {
-
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
-    }
-
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME);
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.CREATE_PREPARED_STATEMENT_INTERCEPTOR;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.PREPARE_CALL_METHOD_NAME);
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.CREATE_CALLABLE_STATEMENT_INTERCEPTOR;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.CREATE_STATEMENT_METHOD_NAME).and(takesArguments(2));
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.CREATE_STATEMENT_INTERCEPTOR;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(Constants.COMMIT_METHOD_NAME).or(named(Constants.ROLLBACK_METHOD_NAME)).or(named(Constants.CLOSE_METHOD_NAME)).or(named(Constants.RELEASE_SAVE_POINT_METHOD_NAME));
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return Constants.SERVICE_METHOD_INTERCEPT_CLASS;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("setCatalog");
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SET_CATALOG_INTERCEPTOR;
-                }
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
-
-    }
+public class ConnectionInstrumentation extends AbstractConnectionInstrumentation {
 
     @Override protected ClassMatch enhanceClass() {
         return byName("com.mysql.cj.jdbc.ConnectionImpl");
-    };
+    }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{Constants.WITNESS_MYSQL_8X_CLASS};
+    }
 }

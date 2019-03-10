@@ -17,12 +17,13 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
@@ -30,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link ConnectionInstrumentation} intercepts the following methods that the class which extend
+ * {@link AbstractConnectionInstrumentation} intercepts the following methods that the class which extend
  * com.mysql.jdbc.ConnectionImpl. 
  *
  * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
@@ -40,7 +41,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  *
  * @author zhangxin
  */
-public abstract class ConnectionInstrumentation extends AbstractClassInstanceMethodInstrumentation {
+public abstract class AbstractConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -67,7 +68,7 @@ public abstract class ConnectionInstrumentation extends AbstractClassInstanceMet
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.v5.CreateCallableStatementInterceptor";
+                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.CREATE_CALLABLE_STATEMENT_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -106,7 +107,7 @@ public abstract class ConnectionInstrumentation extends AbstractClassInstanceMet
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.v5.SetCatalogInterceptor";
+                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SET_CATALOG_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {

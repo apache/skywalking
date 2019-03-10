@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.define.AbstractConnectionInstrumentation;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -29,10 +30,14 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *
  * @author zhangxin
  */
-public class Mysql5xConnectionInstrumentation extends ConnectionInstrumentation {
+public class Mysql5xConnectionInstrumentation extends AbstractConnectionInstrumentation {
     public static final String ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
 
     @Override protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
+    }
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{Constants.WITNESS_MYSQL_5X_CLASS};
     }
 }
