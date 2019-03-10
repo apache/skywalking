@@ -16,16 +16,16 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 
 /**
  * @author: dingshaocheng
  */
-public abstract class AbstractClassInstanceMethodInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public abstract class AbstractMysqlStaticMethodInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
     @Override
     protected String[] witnessClasses() {
-        return new String[]{Constants.WITNESS_MYSQL_6X_CLASS};
+        return new String[]{Constants.WITNESS_MYSQL_8X_CLASS};
     }
 }

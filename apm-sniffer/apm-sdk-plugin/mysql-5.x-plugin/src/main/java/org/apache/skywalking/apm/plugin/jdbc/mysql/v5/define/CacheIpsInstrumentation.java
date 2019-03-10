@@ -30,7 +30,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 /**
  * @author: dingshaocheng
  */
-public class CacheIpsInstrumentation extends AbstractClassInstanceMethodInstrumentation {
+public class CacheIpsInstrumentation extends AbstractMysqlInstanceMethodInstrumentation {
 
     private static final String ENHANCE_CLASS_NON_REG_REP = "com.mysql.jdbc.NonRegisteringReplicationDriver";
     private static final String ENHANCE_CLASS = "com.mysql.jdbc.Driver";

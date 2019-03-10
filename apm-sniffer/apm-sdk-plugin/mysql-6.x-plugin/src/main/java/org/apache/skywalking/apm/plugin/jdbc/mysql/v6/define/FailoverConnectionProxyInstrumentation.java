@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class FailoverConnectionProxyInstrumentation extends AbstractClassStaticMethodInstrumentation {
+public class FailoverConnectionProxyInstrumentation extends AbstractMysqlStaticMethodInstrumentation {
 
     public static final String METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.v6.CreateJdbcConnectionProxyInstanceInterceptor";
     public static final String INTERCEPT_CLASS = "com.mysql.cj.jdbc.ha.FailoverConnectionProxy";

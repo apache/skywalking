@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.plugin.jdbc.mysql.Constants;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
-public class PreparedStatementInstrumentation extends AbstractClassInstanceMethodInstrumentation {
+public class PreparedStatementInstrumentation extends AbstractMysqlInstanceMethodInstrumentation {
 
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
     private static final String PREPARED_STATEMENT_SERVERSIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";

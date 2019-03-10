@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 /**
  * @author: dingshaocheng
  */
-public abstract class AbstractClassInstanceMethodInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public abstract class AbstractMysqlInstanceMethodInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     protected String[] witnessClasses() {
         return new String[]{Constants.WITNESS_MYSQL_8X_CLASS};

@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class StatementInstrumentation extends AbstractClassInstanceMethodInstrumentation {
+public class StatementInstrumentation extends AbstractMysqlInstanceMethodInstrumentation {
     private static final String SERVICE_METHOD_INTERCEPTOR =  org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
     public static final String MYSQL8_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.StatementImpl";
 

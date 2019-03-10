@@ -43,7 +43,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *
  * @author zhangxin
  */
-public class StatementInstrumentation extends AbstractClassInstanceMethodInstrumentation {
+public class StatementInstrumentation extends AbstractMysqlInstanceMethodInstrumentation {
     private static final String SERVICE_METHOD_INTERCEPTOR = org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
     public static final String MYSQL_STATEMENT_CLASS_NAME = "com.mysql.jdbc.StatementImpl";
 
