@@ -16,23 +16,16 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
-
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 
 /**
- * {@link Mysql5xConnectionInstrumentation } interceptor {@link com.mysql.jdbc.ConnectionImpl} and
- * com.mysql.jdbc.ConnectionImpl in mysql jdbc driver 5.1 and 5.1+
- *
- * @author zhangxin
+ * @author: dingshaocheng
  */
-public class Mysql5xConnectionInstrumentation extends ConnectionInstrumentation {
-    public static final String ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
-
-    @Override protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+public abstract class AbstractClassStaticMethodInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{Constants.WITNESS_MYSQL_6X_CLASS};
     }
 }

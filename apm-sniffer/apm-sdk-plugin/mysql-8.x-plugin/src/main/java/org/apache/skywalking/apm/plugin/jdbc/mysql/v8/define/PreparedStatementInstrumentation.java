@@ -23,17 +23,18 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
-public class PreparedStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class PreparedStatementInstrumentation extends AbstractClassInstanceMethodInstrumentation {
 
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
     private static final String PREPARED_STATEMENT_SERVERSIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
-    private static final String SERVICE_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.v8.PreparedStatementExecuteMethodsInterceptor";
+
+    private static final String SERVICE_METHOD_INTERCEPTOR =  Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
 
     @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -62,10 +63,5 @@ public class PreparedStatementInstrumentation extends ClassInstanceMethodsEnhanc
 
     @Override protected ClassMatch enhanceClass() {
         return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME,PREPARED_STATEMENT_SERVERSIDE_CLASS_NAME);
-    }
-
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_8X_CLASS};
     }
 }

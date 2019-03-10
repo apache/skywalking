@@ -21,11 +21,10 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
@@ -41,7 +40,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  *
  * @author zhangxin
  */
-public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public abstract class ConnectionInstrumentation extends AbstractClassInstanceMethodInstrumentation {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -55,7 +54,7 @@ public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnha
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.v5.CreatePreparedStatementInterceptor";
+                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.CREATE_PREPARED_STATEMENT_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -81,7 +80,7 @@ public abstract class ConnectionInstrumentation extends ClassInstanceMethodsEnha
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.jdbc.mysql.v5.CreateStatementInterceptor";
+                    return org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.CREATE_STATEMENT_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {
