@@ -23,9 +23,6 @@ Also, if you have some related to us, welcome to submit a pull request to add.
 if you see some problem. 
 Or better yet, submit your own contributions through pull request to help make them better.
 
-For documents in other languages, contributed by our community.
-- [中文 :cn:](others/cn/README.md)
-
 ___
 ### Users from 5.x
 SkyWalking 5.x is still supported by the community. For the user plans to upgrade from 5.x to 6.x, you should know there are some definitions of concepts changed.
