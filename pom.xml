@@ -317,12 +317,16 @@
                         <exclude>skywalking-ui/package.json</exclude>
                         <exclude>skywalking-ui/package-lock.json</exclude>
 
-                        <!-- Proto files of Istio and gogoproto projects -->
+                        <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
                         <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
                         <exclude>**/src/main/proto/envoy/**</exclude>
                         <exclude>**/src/main/proto/google/protobuf/*.proto</exclude>
                         <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
                         <exclude>**/src/main/proto/validate/validate.proto</exclude>
+
+                        <!-- generated file from antlr -->
+                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/tool/grammar/OALLexer.tokens</exclude>
+
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                     </excludes>
