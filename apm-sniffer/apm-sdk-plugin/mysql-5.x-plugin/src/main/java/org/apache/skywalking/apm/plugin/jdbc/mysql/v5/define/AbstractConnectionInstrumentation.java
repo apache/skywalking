@@ -17,13 +17,12 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
@@ -41,7 +40,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
  *
  * @author zhangxin
  */
-public abstract class AbstractConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public abstract class AbstractConnectionInstrumentation extends AbstractMysqlInstrumentation {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

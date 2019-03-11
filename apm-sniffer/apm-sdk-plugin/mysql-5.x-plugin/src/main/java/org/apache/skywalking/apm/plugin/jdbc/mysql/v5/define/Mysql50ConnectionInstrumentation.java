@@ -20,7 +20,6 @@
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.mysql.define.AbstractConnectionInstrumentation;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
