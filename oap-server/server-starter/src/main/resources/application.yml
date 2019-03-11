@@ -15,15 +15,15 @@
 # limitations under the License.
 
 cluster:
-  #  standalone:
+    standalone:
   #   Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
   #   library the oap-libs folder with your ZooKeeper 3.4.x library.
-  zookeeper:
-    nameSpace: ${SW_NAMESPACE:""}
-    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
+#  zookeeper:
+#    nameSpace: ${SW_NAMESPACE:""}
+#    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
     #    #Retry Policy
-    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
-    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+#    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
+#    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
 #  kubernetes:
 #    watchTimeoutSeconds: ${SW_CLUSTER_K8S_WATCH_TIMEOUT:60}
 #    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
