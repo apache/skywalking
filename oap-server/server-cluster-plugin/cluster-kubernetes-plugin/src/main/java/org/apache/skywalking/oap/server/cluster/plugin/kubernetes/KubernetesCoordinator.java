@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.*;
 
@@ -43,7 +43,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private static final Logger logger = LoggerFactory.getLogger(KubernetesCoordinator.class);
 
-    private final ModuleManager manager;
+    private final ModuleDefineHolder manager;
 
     private final String uid;
 
@@ -55,7 +55,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private volatile int port = -1;
 
-    KubernetesCoordinator(ModuleManager manager,
+    KubernetesCoordinator(ModuleDefineHolder manager,
         final ReusableWatch<Event> watch, final Supplier<String> uidSupplier) {
         this.manager = manager;
         this.watch = watch;
