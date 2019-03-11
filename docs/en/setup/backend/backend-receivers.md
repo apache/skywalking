@@ -43,3 +43,20 @@ receiver_zipkin:
     port: 9411
     contextPath: /
 ```
+
+## gRPC/HTTP server for receiver
+In default, all gRPC/HTTP services should be served at `core/gRPC` and `core/rest`.
+But the `receiver-sharing-server` module provide a way to make all receivers serving at
+different ip:port, if you set them explicitly. 
+```yaml
+receiver-sharing-server:
+  default:
+    restHost: ${SW_SHARING_SERVER_REST_HOST:0.0.0.0}
+    restPort: ${SW_SHARING_SERVER_REST_PORT:12800}
+    restContextPath: ${SW_SHARING_SERVER_REST_CONTEXT_PATH:/}
+    gRPCHost: ${SW_SHARING_SERVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_SHARING_SERVER_GRPC_PORT:11800}
+```
+
+Notice, if you add these settings, make sure they are not as same as core module,
+because gRPC/HTTP servers of core are still used for UI and OAP internal communications.
