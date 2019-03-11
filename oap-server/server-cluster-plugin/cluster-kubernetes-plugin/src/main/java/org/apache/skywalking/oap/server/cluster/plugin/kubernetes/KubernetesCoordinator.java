@@ -58,6 +58,9 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
         this.watch = watch;
         this.uid = uidSupplier.get();
         TelemetryRelatedContext.INSTANCE.setId(uid);
+    }
+
+    public void start() {
         submitTask(MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
             .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build())));
     }

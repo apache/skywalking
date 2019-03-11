@@ -18,13 +18,9 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies.NamespacedPodListWatch;
-import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies.UidEnvSupplier;
-import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies.*;
+import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * Use kubernetes to manage all instances in Skywalking cluster.
@@ -34,6 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 public class ClusterModuleKubernetesProvider extends ModuleProvider {
 
     private final ClusterModuleKubernetesConfig config;
+    private KubernetesCoordinator coordinator;
 
     public ClusterModuleKubernetesProvider() {
         super();
@@ -53,7 +50,7 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException {
-        KubernetesCoordinator coordinator = new KubernetesCoordinator(getManager(),
+        coordinator = new KubernetesCoordinator(getManager(),
             new NamespacedPodListWatch(config.getNamespace(), config.getLabelSelector(), config.getWatchTimeoutSeconds()),
             new UidEnvSupplier(config.getUidEnvName()));
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
@@ -65,7 +62,7 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() {
-
+        coordinator.start();
     }
 
     @Override public String[] requiredModules() {
