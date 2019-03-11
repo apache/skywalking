@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class MeshReceiverProvider extends ModuleProvider {
@@ -56,7 +56,7 @@ public class MeshReceiverProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
         CoreRegisterLinker.setModuleManager(getManager());
-        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
         service.addHandler(new MeshGRPCHandler(getManager()));
     }
 
@@ -65,6 +65,6 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME};
     }
 }
