@@ -66,10 +66,13 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
             private int serviceInstanceId = Const.NONE;
 
             @Override public void onNext(StreamMetricsMessage message) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Received msg {}", message);
+                }
+
                 if (isFirst) {
                     isFirst = false;
                     StreamMetricsMessage.Identifier identifier = message.getIdentifier();
-                    logger.debug("Received identifier msg {}", identifier);
                     Node node = identifier.getNode();
                     if (node != null) {
                         String nodeId = node.getId();
