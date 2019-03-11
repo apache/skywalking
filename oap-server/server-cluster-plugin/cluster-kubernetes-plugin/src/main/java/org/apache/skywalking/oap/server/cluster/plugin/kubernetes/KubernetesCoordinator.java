@@ -24,14 +24,17 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.config.gRPCConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.*;
 
 /**
- * Read collector pod info from api-server of kubernetes, then using all containerIp list to
- * construct the list of {@link RemoteInstance}.
+ * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
+ * {@link RemoteInstance}.
  *
  * @author gaohongtao
  */
@@ -39,24 +42,28 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
 
     private static final Logger logger = LoggerFactory.getLogger(KubernetesCoordinator.class);
 
+    private final ModuleManager manager;
+
     private final String uid;
 
     private final Map<String, RemoteInstance> cache = new ConcurrentHashMap<>();
 
     private final ReusableWatch<Event> watch;
 
-    private int port;
+    private volatile int port = -1;
 
-    KubernetesCoordinator(final ReusableWatch<Event> watch, final Supplier<String> uidSupplier) {
+    KubernetesCoordinator(ModuleManager manager,
+        final ReusableWatch<Event> watch, final Supplier<String> uidSupplier) {
+        this.manager = manager;
         this.watch = watch;
         this.uid = uidSupplier.get();
         TelemetryRelatedContext.INSTANCE.setId(uid);
+        submitTask(MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+            .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build())));
     }
 
     @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         this.port = remoteInstance.getAddress().getPort();
-        submitTask(MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-            .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build())));
     }
 
     private void submitTask(final ListeningExecutorService service) {
@@ -102,6 +109,13 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     }
 
     @Override public List<RemoteInstance> queryRemoteNodes() {
+        if (port == -1) {
+            logger.debug("Query kubernetes remote, port hasn't init, try to init");
+            gRPCConfigService service = manager.find(CoreModule.NAME).provider().getService(gRPCConfigService.class);
+            port = service.getPort();
+            logger.debug("Query kubernetes remote, port is set at {}", port);
+            cache.values().forEach(instance -> instance.getAddress().setPort(port));
+        }
         logger.debug("Query kubernetes remote nodes: {}", cache);
         return Lists.newArrayList(cache.values());
     }

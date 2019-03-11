@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.core.Const;
 @Getter
 public class Address implements Comparable<Address> {
     private final String host;
-    private final int port;
-    @Setter private boolean isSelf;
+    @Setter private volatile int port;
+    @Setter private volatile boolean isSelf;
 
     public Address(String host, int port, boolean isSelf) {
         this.host = host;
