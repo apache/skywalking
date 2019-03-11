@@ -66,6 +66,8 @@ storage:
 #    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
 #    user: ${SW_STORAGE_H2_USER:sa}
 #  mysql:
+receiver-sharing-server:
+  default:
 receiver-register:
   default:
 receiver-trace:
