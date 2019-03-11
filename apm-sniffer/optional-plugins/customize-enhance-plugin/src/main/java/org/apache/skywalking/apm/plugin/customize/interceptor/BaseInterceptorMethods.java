@@ -57,7 +57,6 @@ class BaseInterceptorMethods {
                         operationNameSuffix.append(Constants.OPERATION_NAME_SEPARATOR);
                         operationNameSuffix.append(CustomizeExpression.parseExpression(expression, context));
                     }
-                    operationNameSuffix.deleteCharAt(operationNameSuffix.length() - 1);
                 }
                 if (tags != null && !tags.isEmpty()) {
                     for (String key : tags.keySet()) {
