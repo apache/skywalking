@@ -31,7 +31,7 @@ The core features are following.
 - Alarm
 
 
-<img src="http://skywalking.apache.org/assets/frame.jpeg"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg?u=20190311"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
