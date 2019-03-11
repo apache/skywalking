@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.config.gRPCConfigService;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
@@ -130,8 +130,8 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
             portSetLock.lock();
             try {
                 logger.debug("Query kubernetes remote, port hasn't init, try to init");
-                gRPCConfigService service = manager.find(CoreModule.NAME).provider().getService(gRPCConfigService.class);
-                port = service.getPort();
+                ConfigService service = manager.find(CoreModule.NAME).provider().getService(ConfigService.class);
+                port = service.getGRPCPort();
                 logger.debug("Query kubernetes remote, port is set at {}", port);
                 cache.values().forEach(instance -> instance.getAddress().setPort(port));
             } finally {

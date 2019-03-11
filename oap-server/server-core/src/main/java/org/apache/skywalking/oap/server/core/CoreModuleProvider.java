@@ -106,7 +106,7 @@ public class CoreModuleProvider extends ModuleProvider {
         jettyServer = new JettyServer(moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath(), moduleConfig.getJettySelectors());
         jettyServer.initialize();
 
-        this.registerServiceImplementation(gRPCConfigService.class, new gRPCConfigService(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort()));
+        this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(DownsamplingConfigService.class, new DownsamplingConfigService(moduleConfig.getDownsampling()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));

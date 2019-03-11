@@ -19,18 +19,19 @@
 package org.apache.skywalking.oap.server.core.config;
 
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author wusheng
  */
 @Getter
-public class gRPCConfigService implements Service {
-    private String host;
-    private int port;
+public class ConfigService implements Service {
+    private String gRPCHost;
+    private int gRPCPort;
 
-    public gRPCConfigService(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public ConfigService(CoreModuleConfig moduleConfig) {
+        this.gRPCHost = moduleConfig.getGRPCHost();
+        this.gRPCPort = moduleConfig.getGRPCPort();
     }
 }
