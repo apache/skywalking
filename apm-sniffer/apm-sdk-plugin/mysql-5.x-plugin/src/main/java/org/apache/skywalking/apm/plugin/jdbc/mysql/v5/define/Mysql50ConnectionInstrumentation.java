@@ -29,7 +29,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *
  * @author zhangxin
  */
-public class Mysql50ConnectionInstrumentation extends ConnectionInstrumentation {
+public class Mysql50ConnectionInstrumentation extends AbstractConnectionInstrumentation {
     @Override
     protected ClassMatch enhanceClass() {
         return byName("com.mysql.jdbc.Connection");

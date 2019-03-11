@@ -22,7 +22,6 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -31,7 +30,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 /**
  * @author: dingshaocheng
  */
-public class CacheIpsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String ENHANCE_CLASS_NON_REG_REP = "com.mysql.jdbc.NonRegisteringReplicationDriver";
     private static final String ENHANCE_CLASS = "com.mysql.jdbc.Driver";
@@ -69,10 +68,5 @@ public class CacheIpsInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     @Override
     protected ClassMatch enhanceClass() {
         return byMultiClassMatch(ENHANCE_CLASS,ENHANCE_CLASS_NON_REG,ENHANCE_CLASS_NON_REG_REP);
-    }
-
-    @Override
-    protected String[] witnessClasses() {
-        return new String[]{Constants.WITNESS_MYSQL_5X_CLASS};
     }
 }

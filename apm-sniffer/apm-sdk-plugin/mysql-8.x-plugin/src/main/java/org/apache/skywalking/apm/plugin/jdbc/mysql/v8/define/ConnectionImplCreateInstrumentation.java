@@ -23,7 +23,6 @@ import com.mysql.cj.conf.HostInfo;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import java.util.Properties;
@@ -36,7 +35,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * instead of {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
  * @author: dingshaocheng
  */
-public class ConnectionImplCreateInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
+public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String JDBC_ENHANCE_CLASS = "com.mysql.cj.jdbc.ConnectionImpl";
 
@@ -63,11 +62,6 @@ public class ConnectionImplCreateInstrumentation extends ClassStaticMethodsEnhan
                 }
             }
         };
-    }
-
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_8X_CLASS};
     }
 
     @Override

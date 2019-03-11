@@ -20,13 +20,12 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class FailoverConnectionProxyInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
+public class FailoverConnectionProxyInstrumentation extends AbstractMysqlInstrumentation {
 
     public static final String METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.v6.CreateJdbcConnectionProxyInstanceInterceptor";
     public static final String INTERCEPT_CLASS = "com.mysql.cj.jdbc.ha.FailoverConnectionProxy";

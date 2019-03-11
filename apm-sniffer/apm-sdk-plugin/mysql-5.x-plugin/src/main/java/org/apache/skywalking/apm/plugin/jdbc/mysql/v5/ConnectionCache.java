@@ -21,15 +21,15 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v5;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author: dingshaocheng
  */
 public class ConnectionCache {
-    private static Map<String, ConnectionInfo> CONNECTIONS_MAP = new ConcurrentHashMap<String, ConnectionInfo>();
+    private static ConcurrentHashMap<String, ConnectionInfo> CONNECTIONS_MAP = new ConcurrentHashMap<String, ConnectionInfo>();
+
+    private static String CONNECTION_SPLIT_STR = ",";
 
     public static ConnectionInfo get(String host, String port) {
         final String connStr = String.format("%s:%s", host, port);
@@ -37,9 +37,10 @@ public class ConnectionCache {
     }
 
     public static void save(ConnectionInfo connectionInfo) {
-        Arrays.stream(connectionInfo.getDatabasePeer()
-                .split(","))
-                .filter(c -> !StringUtil.isEmpty(c))
-                .forEach(c -> CONNECTIONS_MAP.putIfAbsent(c, connectionInfo));
+        for (String conn : connectionInfo.getDatabasePeer().split(CONNECTION_SPLIT_STR)) {
+            if (!StringUtil.isEmpty(conn)) {
+                CONNECTIONS_MAP.putIfAbsent(conn, connectionInfo);
+            }
+        }
     }
 }

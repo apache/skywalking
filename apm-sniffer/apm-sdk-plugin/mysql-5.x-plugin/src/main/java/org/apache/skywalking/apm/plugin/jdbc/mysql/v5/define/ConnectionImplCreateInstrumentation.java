@@ -22,13 +22,12 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassStaticMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class ConnectionImplCreateInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
+public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String JDBC_ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
 
@@ -60,8 +59,4 @@ public class ConnectionImplCreateInstrumentation extends ClassStaticMethodsEnhan
         return byName(JDBC_ENHANCE_CLASS);
     }
 
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_5X_CLASS};
-    }
 }

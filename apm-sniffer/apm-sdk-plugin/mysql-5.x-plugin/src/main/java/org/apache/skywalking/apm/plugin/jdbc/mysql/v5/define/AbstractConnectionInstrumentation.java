@@ -17,20 +17,30 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-
-public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
+/**
+ * {@link AbstractConnectionInstrumentation} intercepts the following methods that the class which extend
+ * com.mysql.jdbc.ConnectionImpl. 
+ *
+ * 1. Enhance <code>prepareStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareStatementInterceptor</code>
+ * 2. Enhance <code>prepareCall</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCPrepareCallInterceptor</code>
+ * 3. Enhance <code>createStatement</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.JDBCStatementInterceptor</code>
+ * 4. Enhance <code>commit, rollback, close, releaseSavepoint</code> by <code>org.apache.skywalking.apm.plugin.jdbc.define.ConnectionServiceMethodInterceptor</code>
+ *
+ * @author zhangxin
+ */
+public abstract class AbstractConnectionInstrumentation extends AbstractMysqlInstrumentation {
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -40,7 +50,7 @@ public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_STATEMENT_METHOD_NAME);
+                    return named(Constants.PREPARE_STATEMENT_METHOD_NAME);
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -53,7 +63,7 @@ public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
             },
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.PREPARE_CALL_METHOD_NAME);
+                    return named(Constants.PREPARE_CALL_METHOD_NAME);
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -66,7 +76,7 @@ public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
             },
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.CREATE_STATEMENT_METHOD_NAME).and(takesArguments(2));
+                    return named(Constants.CREATE_STATEMENT_METHOD_NAME).and(takesArguments(2));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -79,11 +89,11 @@ public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
             },
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.COMMIT_METHOD_NAME).or(named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.ROLLBACK_METHOD_NAME)).or(named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.CLOSE_METHOD_NAME)).or(named(org.apache.skywalking.apm.plugin.jdbc.define.Constants.RELEASE_SAVE_POINT_METHOD_NAME));
+                    return named(Constants.COMMIT_METHOD_NAME).or(named(Constants.ROLLBACK_METHOD_NAME)).or(named(Constants.CLOSE_METHOD_NAME)).or(named(Constants.RELEASE_SAVE_POINT_METHOD_NAME));
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return org.apache.skywalking.apm.plugin.jdbc.define.Constants.SERVICE_METHOD_INTERCEPT_CLASS;
+                    return Constants.SERVICE_METHOD_INTERCEPT_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -107,9 +117,5 @@ public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
 
     }
 
-
-    @Override protected ClassMatch enhanceClass() {
-        return byName("com.mysql.cj.jdbc.ConnectionImpl");
-    }
-
+    @Override protected abstract ClassMatch enhanceClass();
 }
