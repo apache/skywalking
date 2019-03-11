@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
  */
 @Getter
 public class CoreModuleConfig extends ModuleConfig {
+    @Setter private String role;
     @Setter private String nameSpace;
     @Setter private String restHost;
     @Setter private int restPort;
@@ -55,5 +56,9 @@ public class CoreModuleConfig extends ModuleConfig {
         dataTTL.setDayMetricsDataTTL(dayMetricsDataTTL);
         dataTTL.setMonthMetricsDataTTL(monthMetricsDataTTL);
         return dataTTL;
+    }
+
+    public enum Role {
+        Mixed, Receiver, Aggregator
     }
 }
