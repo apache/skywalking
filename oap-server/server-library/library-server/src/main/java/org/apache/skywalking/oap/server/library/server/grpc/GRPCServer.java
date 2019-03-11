@@ -112,10 +112,12 @@ public class GRPCServer implements Server {
     }
 
     public void addHandler(BindableService handler) {
+        logger.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(handler);
     }
 
     public void addHandler(ServerServiceDefinition definition) {
+        logger.info("Bind handler {} into gRPC server {}:{}", definition.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(definition);
     }
 
