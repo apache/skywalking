@@ -16,22 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.share.server;
+package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 
 /**
  * @author peng-yongsheng
  */
-@Getter
-@Setter
-public class ShareServerConfig extends ModuleConfig {
-    private String restHost;
-    private int restPort;
-    private String restContextPath;
-    private String gRPCHost;
-    private int gRPCPort;
-    private int maxConcurrentCallsPerConnection;
-    private int maxMessageSize;
+public class ReceiverJettyHandlerRegister implements JettyHandlerRegister {
+
+    @Setter private JettyHandlerRegister jettyHandlerRegister;
+
+    @Override public void addHandler(JettyHandler serverHandler) {
+        jettyHandlerRegister.addHandler(serverHandler);
+    }
 }

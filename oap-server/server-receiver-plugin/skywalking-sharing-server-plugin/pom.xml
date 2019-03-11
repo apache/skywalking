@@ -27,6 +27,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>skywalking-receiver-share-server-plugin</artifactId>
+    <artifactId>skywalking-sharing-server-plugin</artifactId>
     <packaging>jar</packaging>
 </project>

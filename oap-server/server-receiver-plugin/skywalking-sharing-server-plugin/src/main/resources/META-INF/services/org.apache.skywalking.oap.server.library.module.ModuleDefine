@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.server.receiver.share.server.ShareServerModuleProvider
+org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule

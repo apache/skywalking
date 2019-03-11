@@ -16,24 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.share.server;
+package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import io.grpc.*;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import lombok.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author peng-yongsheng
  */
-public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
-
-    @Setter private GRPCHandlerRegister grpcHandlerRegister;
-
-    @Override public void addHandler(BindableService handler) {
-        grpcHandlerRegister.addHandler(handler);
-    }
-
-    @Override public void addHandler(ServerServiceDefinition definition) {
-        grpcHandlerRegister.addHandler(definition);
-    }
+@Getter
+@Setter
+public class SharingServerConfig extends ModuleConfig {
+    private String restHost;
+    private int restPort;
+    private String restContextPath;
+    private String gRPCHost;
+    private int gRPCPort;
+    private int maxConcurrentCallsPerConnection;
+    private int maxMessageSize;
 }

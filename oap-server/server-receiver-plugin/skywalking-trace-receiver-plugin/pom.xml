@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-receiver-share-server-plugin</artifactId>
+            <artifactId>skywalking-sharing-server-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

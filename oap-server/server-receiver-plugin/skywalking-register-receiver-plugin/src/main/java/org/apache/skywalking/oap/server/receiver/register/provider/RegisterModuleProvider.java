@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.*;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.*;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.*;
-import org.apache.skywalking.oap.server.receiver.share.server.ShareServerModule;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 /**
  * @author peng-yongsheng
@@ -48,7 +48,7 @@ public class RegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(ShareServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new ApplicationRegisterHandler(getManager()));
         grpcHandlerRegister.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
@@ -58,7 +58,7 @@ public class RegisterModuleProvider extends ModuleProvider {
         grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
 
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(ShareServerModule.NAME).provider().getService(JettyHandlerRegister.class);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(JettyHandlerRegister.class);
         jettyHandlerRegister.addHandler(new ApplicationRegisterServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceDiscoveryServletHandler(getManager()));
         jettyHandlerRegister.addHandler(new InstanceHeartBeatServletHandler(getManager()));
@@ -71,6 +71,6 @@ public class RegisterModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME, ShareServerModule.NAME};
+        return new String[] {CoreModule.NAME, SharingServerModule.NAME};
     }
 }

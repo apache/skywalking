@@ -16,20 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.share.server;
+package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
-import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
+import org.apache.skywalking.oap.server.core.server.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
  */
-public class ReceiverJettyHandlerRegister implements JettyHandlerRegister {
+public class SharingServerModule extends ModuleDefine {
 
-    @Setter private JettyHandlerRegister jettyHandlerRegister;
+    public static final String NAME = "receiver-sharing-server";
 
-    @Override public void addHandler(JettyHandler serverHandler) {
-        jettyHandlerRegister.addHandler(serverHandler);
+    public SharingServerModule() {
+        super(NAME);
+    }
+
+    @Override public Class[] services() {
+        return new Class[] {GRPCHandlerRegister.class, JettyHandlerRegister.class};
     }
 }

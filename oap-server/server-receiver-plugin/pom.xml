@@ -35,7 +35,7 @@
         <module>skywalking-register-receiver-plugin</module>
         <module>skywalking-jvm-receiver-plugin</module>
         <module>envoy-metrics-receiver-plugin</module>
-        <module>skywalking-receiver-share-server-plugin</module>
+        <module>skywalking-sharing-server-plugin</module>
     </modules>
 
     <dependencies>

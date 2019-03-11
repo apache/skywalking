@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.share.server;
+package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
@@ -31,17 +31,17 @@ import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 /**
  * @author peng-yongsheng
  */
-public class ShareServerModuleProvider extends ModuleProvider {
+public class SharingServerModuleProvider extends ModuleProvider {
 
-    private final ShareServerConfig config;
+    private final SharingServerConfig config;
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
     private ReceiverGRPCHandlerRegister receiverGRPCHandlerRegister;
     private ReceiverJettyHandlerRegister receiverJettyHandlerRegister;
 
-    public ShareServerModuleProvider() {
+    public SharingServerModuleProvider() {
         super();
-        this.config = new ShareServerConfig();
+        this.config = new SharingServerConfig();
     }
 
     @Override public String name() {
@@ -49,7 +49,7 @@ public class ShareServerModuleProvider extends ModuleProvider {
     }
 
     @Override public Class<? extends ModuleDefine> module() {
-        return ShareServerModule.class;
+        return SharingServerModule.class;
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
