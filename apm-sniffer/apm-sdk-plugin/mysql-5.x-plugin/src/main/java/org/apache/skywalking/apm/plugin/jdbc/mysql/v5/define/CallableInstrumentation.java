@@ -69,8 +69,4 @@ public class CallableInstrumentation extends AbstractMysqlInstrumentation {
         return byName(ENHANCE_CLASS);
     }
 
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_5X_CLASS};
-    }
 }

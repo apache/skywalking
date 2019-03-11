@@ -64,9 +64,4 @@ public class StatementInstrumentation extends AbstractMysqlInstrumentation {
     @Override protected ClassMatch enhanceClass() {
         return byName(MYSQL8_STATEMENT_CLASS_NAME);
     }
-
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_8X_CLASS};
-    }
 }

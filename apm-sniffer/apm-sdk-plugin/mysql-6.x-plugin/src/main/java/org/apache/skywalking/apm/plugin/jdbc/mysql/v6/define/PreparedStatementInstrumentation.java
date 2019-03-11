@@ -74,8 +74,4 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
         return byName(MYSQL6_PREPARED_STATEMENT_CLASS_NAME);
     }
 
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
-    }
 }

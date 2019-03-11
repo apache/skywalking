@@ -35,8 +35,5 @@ public class Mysql5xConnectionInstrumentation extends AbstractConnectionInstrume
     @Override protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
-    @Override
-    protected String[] witnessClasses() {
-        return new String[]{Constants.WITNESS_MYSQL_5X_CLASS};
-    }
+
 }

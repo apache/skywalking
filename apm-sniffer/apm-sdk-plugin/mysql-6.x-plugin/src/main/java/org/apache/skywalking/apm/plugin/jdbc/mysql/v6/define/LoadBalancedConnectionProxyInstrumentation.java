@@ -52,8 +52,4 @@ public class LoadBalancedConnectionProxyInstrumentation extends AbstractMysqlIns
         return byName(INTERCEPT_CLASS);
     }
 
-    @Override
-    protected String[] witnessClasses() {
-        return new String[] {Constants.WITNESS_MYSQL_6X_CLASS};
-    }
 }
