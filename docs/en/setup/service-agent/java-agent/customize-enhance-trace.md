@@ -45,7 +45,7 @@ Implementing enhancements to custom classes requires two steps.
             <log key="log_1_1">arg[1]</log>
         </method>
         <method method="method([Ljava.lang.Object;)" operation_name="/method_4" static="false">
-            <tag key="tag_4_1">arg[0].[0]</tag>CustomizeController
+            <tag key="tag_4_1">arg[0].[0]</tag>
         </method>
         <method method="method(java.util.List,int.class)" operation_name="/method_5" static="false">
             <tag key="tag_5_1">arg[0].[0]</tag>
