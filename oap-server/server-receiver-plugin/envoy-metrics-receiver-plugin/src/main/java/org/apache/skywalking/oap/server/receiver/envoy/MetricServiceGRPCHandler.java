@@ -113,6 +113,20 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                         timestamp = metric.getTimestampMs();
                                         value = metric.getGauge().getValue();
 
+                                        if (timestamp > 1000000000000000000L) {
+                                            /**
+                                             * Several versions of envoy in istio.deps send timestamp in nanoseconds,
+                                             * instead of milliseconds(protocol says).
+                                             *
+                                             * Sadly, but have to fix it forcedly.
+                                             *
+                                             * An example of timestamp is '1552303033488741055', clearly it is not in milliseconds.
+                                             *
+                                             * This should be removed in the future.
+                                             */
+                                            timestamp /= 1_000_000;
+                                        }
+
                                         EnvoyInstanceMetric metricSource = new EnvoyInstanceMetric();
                                         metricSource.setServiceId(serviceId);
                                         metricSource.setServiceName(serviceName);
