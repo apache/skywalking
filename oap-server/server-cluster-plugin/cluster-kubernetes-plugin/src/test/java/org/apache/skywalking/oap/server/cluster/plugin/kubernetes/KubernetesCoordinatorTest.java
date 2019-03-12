@@ -19,12 +19,18 @@
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.fixture.PlainWatch;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.testing.module.*;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 public class KubernetesCoordinatorTest {
 
@@ -33,7 +39,8 @@ public class KubernetesCoordinatorTest {
     @Test
     public void assertAdded() throws InterruptedException {
         PlainWatch watch = PlainWatch.create(2, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(watch, () -> "1");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
@@ -43,7 +50,8 @@ public class KubernetesCoordinatorTest {
     @Test
     public void assertModified() throws InterruptedException {
         PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "MODIFIED", "1", "10.0.0.3");
-        coordinator = new KubernetesCoordinator(watch, () -> "1");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
@@ -53,7 +61,8 @@ public class KubernetesCoordinatorTest {
     @Test
     public void assertDeleted() throws InterruptedException {
         PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "DELETED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(watch, () -> "1");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(1));
@@ -63,10 +72,52 @@ public class KubernetesCoordinatorTest {
     @Test
     public void assertError() throws InterruptedException {
         PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ERROR", "X", "10.0.0.2", "ADDED", "2", "10.0.0.2");
-        coordinator = new KubernetesCoordinator(watch, () -> "1");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
         assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+    }
+
+    @Test
+    public void assertModifiedInReceiverRole() throws InterruptedException {
+        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "MODIFIED", "1", "10.0.0.3");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
+        watch.await();
+        assertThat(coordinator.queryRemoteNodes().size(), is(2));
+        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.3"));
+    }
+
+    @Test
+    public void assertDeletedInReceiverRole() throws InterruptedException {
+        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ADDED", "2", "10.0.0.2", "DELETED", "2", "10.0.0.2");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
+        watch.await();
+        assertThat(coordinator.queryRemoteNodes().size(), is(1));
+        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+    }
+
+    @Test
+    public void assertErrorInReceiverRole() throws InterruptedException {
+        PlainWatch watch = PlainWatch.create(3, "ADDED", "1", "10.0.0.1", "ERROR", "X", "10.0.0.2", "ADDED", "2", "10.0.0.2");
+        coordinator = new KubernetesCoordinator(getManager(), watch, () -> "1");
+        coordinator.start();
+        watch.await();
+        assertThat(coordinator.queryRemoteNodes().size(), is(2));
+        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+    }
+
+    public ModuleDefineHolder getManager() {
+        ModuleManagerTesting moduleManagerTesting = new ModuleManagerTesting();
+        ModuleDefineTesting coreModuleDefine = new ModuleDefineTesting();
+        moduleManagerTesting.put(CoreModule.NAME, coreModuleDefine);
+        CoreModuleConfig config = Mockito.mock(CoreModuleConfig.class);
+        when(config.getGRPCHost()).thenReturn("127.0.0.1");
+        when(config.getGRPCPort()).thenReturn(8454);
+        coreModuleDefine.provider().registerServiceImplementation(ConfigService.class, new ConfigService(config));
+        return moduleManagerTesting;
     }
 }
