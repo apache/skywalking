@@ -114,6 +114,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
 
+    public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -123,7 +125,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[59];
+        components = new String[60];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -167,6 +169,7 @@ public class ComponentsDefine {
         addComponent(REDISSON);
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
+        addComponent(VERTX);
     }
 
     private void addComponent(OfficialComponent component) {

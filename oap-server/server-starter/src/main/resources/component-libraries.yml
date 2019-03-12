@@ -204,7 +204,9 @@ Lettuce:
 Zookeeper:
   id: 58
   languages: Java
-
+Vertx:
+  id: 59
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
