@@ -24,15 +24,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-mysql-5.x-plugin</artifactId>
+    <artifactId>apm-mysql-commons</artifactId>
     <packaging>jar</packaging>
 
-    <name>mysql-5.x-plugin</name>
+    <name>apm-mysql-commons</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mysql-connector-java.version>5.1.44</mysql-connector-java.version>
+        <mysql-connector-java.version>8.0.13</mysql-connector-java.version>
     </properties>
 
     <dependencies>
@@ -43,20 +43,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql-connector-java.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-jdbc-commons</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-mysql-commons</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
