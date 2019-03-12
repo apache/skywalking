@@ -64,6 +64,7 @@
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
         <module>canal-1.x-plugin</module>
+        <module>vertx-3.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
