@@ -408,9 +408,14 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <excludes>**/*Test</excludes>
-                    <excludes>**/Test*</excludes>
-                    <excludes>**/generated/**</excludes>
+                    <includes>
+                        <include>org/apache/skywalking/**</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/*Test</exclude>
+                        <exclude>**/Test*</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
