@@ -10,7 +10,7 @@ This plugin is not designed for replacement but for user convenience. The behavi
 Implementing enhancements to custom classes requires two steps.
 
 1. Active the plugin, move the `optional-plugins/apm-customize-enhance-plugin.jar` to `plugin/apm-customize-enhance-plugin.jar`.
-2. Set `customize.enhance_file` in agent.config, which targets to rule file, such as `/absolute/path/to/ustomize_enhance.xml`.
+2. Set `plugin.customize.enhance_file` in agent.config, which targets to rule file, such as `/absolute/path/to/customize_enhance.xml`.
 3. Set enhancement rules in `customize_enhance.xml`.
 	```xml
 	<?xml version="1.0" encoding="UTF-8"?>

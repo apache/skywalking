@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.plugin.customize.constants.Constants;
 import org.apache.skywalking.apm.plugin.customize.util.CustomizeUtil;
-import org.apache.skywalking.apm.util.MethodUtil;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -81,7 +81,7 @@ public enum CustomizeConfiguration {
      */
     private List<Map<String, Object>> resolver() throws ParserConfigurationException, IOException, SAXException {
         List<Map<String, Object>> customizeMethods = new ArrayList<Map<String, Object>>();
-        File file = new File(Config.Customize.ENHANCE_FILE);
+        File file = new File(Config.Plugin.Customize.ENHANCE_FILE);
         if (file.exists() && file.isFile()) {
             NodeList classNodeList = resolverFileClassDesc(file);
             resolverClassNodeList(classNodeList, customizeMethods);
@@ -233,8 +233,8 @@ public enum CustomizeConfiguration {
      * In order to avoid the judgment of the useless null pointer exception.
      */
     private void init() {
-        Config.Customize.CONTEXT.put(Constants.CONTEXT_METHOD_CONFIGURATIONS, new HashMap<String, Map<String, Object>>());
-        Config.Customize.CONTEXT.put(Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<String, ElementMatcher>());
+        Config.Plugin.Customize.CONTEXT.put(Constants.CONTEXT_METHOD_CONFIGURATIONS, new HashMap<String, Map<String, Object>>());
+        Config.Plugin.Customize.CONTEXT.put(Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<String, ElementMatcher>());
     }
 
     /**
@@ -254,7 +254,7 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, Object>> getMethodConfigurations() {
-        return (Map<String, Map<String, Object>>) Config.Customize.CONTEXT.get(Constants.CONTEXT_METHOD_CONFIGURATIONS);
+        return (Map<String, Map<String, Object>>) Config.Plugin.Customize.CONTEXT.get(Constants.CONTEXT_METHOD_CONFIGURATIONS);
     }
 
     /**
@@ -320,7 +320,7 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private HashMap<String, ElementMatcher> getEnhanceClasses() {
-        return (HashMap<String, ElementMatcher>) Config.Customize.CONTEXT.get(Constants.CONTEXT_ENHANCE_CLASSES);
+        return (HashMap<String, ElementMatcher>) Config.Plugin.Customize.CONTEXT.get(Constants.CONTEXT_ENHANCE_CLASSES);
     }
 
     public Map<String, Object> getConfiguration(Method method) {

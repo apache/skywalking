@@ -16,19 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.plugin.loader;
+package org.apache.skywalking.apm.agent.core.util;
 
-import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.List;
+import java.lang.reflect.Method;
 
 /**
- * the spi of the InstrumentationServiceLoader.
- *
- * @author : zhaoyuguang
+ * @author zhaoyuguang
  */
 
-public interface InstrumentationServiceLoader {
+public class MethodUtilTest {
 
-    List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader);
+    @Test
+    public void testClassForName() throws NoSuchMethodException {
+        Assert.assertTrue(MethodUtil.generateOperationName(MethodUtil.class.getMethod("generateOperationName", Method.class))
+                .equals("org.apache.skywalking.apm.agent.core.util.MethodUtil.generateOperationName(java.lang.reflect.Method)"));
+    }
 }

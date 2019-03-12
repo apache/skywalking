@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
-import org.apache.skywalking.apm.agent.core.plugin.loader.InstrumentationServiceLoader;
+import org.apache.skywalking.apm.agent.core.plugin.loader.InstrumentationLoader;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 import org.apache.skywalking.apm.plugin.customize.define.CustomizeInstanceInstrumentation;
 import org.apache.skywalking.apm.plugin.customize.define.CustomizeStaticInstrumentation;
@@ -34,12 +34,12 @@ import java.util.Set;
 
 /**
  * The customize instrumentation plugin loader,
- * so implements {@link InstrumentationServiceLoader}
+ * so implements {@link InstrumentationLoader}
  *
  * @author zhaoyuguang
  */
 
-public class CustomizeInstrumentationLoader implements InstrumentationServiceLoader {
+public class CustomizeInstrumentationLoader implements InstrumentationLoader {
 
     private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
 
@@ -57,7 +57,7 @@ public class CustomizeInstrumentationLoader implements InstrumentationServiceLoa
                 instrumentations.add(plugin);
             }
         } catch (Exception e) {
-            logger.error(e, "InstrumentationServiceLoader loader is error, spi loader is {}", CustomizeInstrumentationLoader.class.getName());
+            logger.error(e, "InstrumentationLoader loader is error, spi loader is {}", CustomizeInstrumentationLoader.class.getName());
         }
         return instrumentations;
     }

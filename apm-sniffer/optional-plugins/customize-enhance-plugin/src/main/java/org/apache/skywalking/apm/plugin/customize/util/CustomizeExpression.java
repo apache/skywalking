@@ -52,7 +52,7 @@ public class CustomizeExpression {
             Object o = context.get(es[0]);
             return o == null ? "null" : String.valueOf(parse(es, o, 0));
         } catch (Exception e) {
-            logger.error(e, "parse expression error, expression is {}", expression);
+            logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
         }
         return "null";
 
@@ -87,12 +87,13 @@ public class CustomizeExpression {
 
     private static Object matcherList(String expression, Object o) {
         int index = Integer.valueOf(expression.replace("[", "").replace("]", ""));
-        return ((List) o).get(index);
+        List l = (List) o;
+        return l != null && l.size() > index ? l.get(index) : null;
     }
 
     private static Object matcherArray(String expression, Object o) {
         int index = Integer.valueOf(expression.replace("[", "").replace("]", ""));
-        return Array.get(o, index);
+        return o != null && Array.getLength(o) > index ? Array.get(o, index) : null;
     }
 
     private static Object matcherDefault(String expression, Object o) {
@@ -106,7 +107,7 @@ public class CustomizeExpression {
                 return f.get(o);
             }
         } catch (Exception e) {
-            logger.error(e, "matcher default error, expression is {}, Object is {}", expression, o);
+            logger.debug("matcher default error, expression is {}, object is {}, expression is {}", expression, o, e.getMessage());
         }
         return null;
     }

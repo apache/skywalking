@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
-import org.apache.skywalking.apm.agent.core.plugin.loader.InstrumentationServiceLoader;
+import org.apache.skywalking.apm.agent.core.plugin.loader.InstrumentationLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +31,14 @@ import java.util.ServiceLoader;
  * @author zhaoyuguang
  */
 
-public enum PluginSpiFactory {
+public enum DynamicPluginLoader {
 
     INSTANCE;
 
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
         List<AbstractClassEnhancePluginDefine> all = new ArrayList<AbstractClassEnhancePluginDefine>();
-        for (InstrumentationServiceLoader instrumentationServiceLoader : ServiceLoader.load(InstrumentationServiceLoader.class, classLoader)) {
-            List<AbstractClassEnhancePluginDefine> plugins = instrumentationServiceLoader.load(classLoader);
+        for (InstrumentationLoader instrumentationLoader : ServiceLoader.load(InstrumentationLoader.class, classLoader)) {
+            List<AbstractClassEnhancePluginDefine> plugins = instrumentationLoader.load(classLoader);
             if (plugins != null && !plugins.isEmpty()) {
                 all.addAll(plugins);
             }

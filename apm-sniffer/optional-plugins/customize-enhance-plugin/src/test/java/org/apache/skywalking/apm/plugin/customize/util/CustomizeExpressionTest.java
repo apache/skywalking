@@ -40,6 +40,7 @@ public class CustomizeExpressionTest {
         Assert.assertTrue("1024".equals(CustomizeExpression.parseExpression("arg[1]", context)));
         Assert.assertTrue("v2_1".equals(CustomizeExpression.parseExpression("arg[2].['k2_1']", context)));
         Assert.assertTrue("test1".equals(CustomizeExpression.parseExpression("arg[3].[1]", context)));
+        Assert.assertTrue("null".equals(CustomizeExpression.parseExpression("arg[3].[100]", context)));
         Assert.assertTrue("100".equals(CustomizeExpression.parseExpression("arg[4].id", context)));
         Assert.assertTrue("sw".equals(CustomizeExpression.parseExpression("arg[4].getName()", context)));
         Assert.assertTrue("ext_v_1".equals(CustomizeExpression.parseExpression("arg[4].ext.['ext_k_1']", context)));

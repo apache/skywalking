@@ -77,7 +77,7 @@ public class PluginBootstrap {
             }
         }
 
-        plugins.addAll(PluginSpiFactory.INSTANCE.load(AgentClassLoader.getDefault()));
+        plugins.addAll(DynamicPluginLoader.INSTANCE.load(AgentClassLoader.getDefault()));
 
         return plugins;
 

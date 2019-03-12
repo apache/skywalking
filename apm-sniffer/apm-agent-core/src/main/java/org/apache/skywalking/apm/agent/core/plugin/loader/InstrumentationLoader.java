@@ -16,30 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+package org.apache.skywalking.apm.agent.core.plugin.loader;
 
-import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+
+import java.util.List;
 
 /**
- * According to the input parameter,
- * return the OperationName for the span record,
- * It can determine the unique method
+ * the spi of the InstrumentationLoader.
  *
- * @author zhaoyuguang
+ * @author : zhaoyuguang
  */
 
-public class MethodUtil {
+public interface InstrumentationLoader {
 
-    public static String generateOperationName(Method method) {
-        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(parameterTypes[i].getName());
-            if (i < (parameterTypes.length - 1)) {
-                operationName.append(",");
-            }
-        }
-        operationName.append(")");
-        return operationName.toString();
-    }
+    List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader);
 }
