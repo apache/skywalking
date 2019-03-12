@@ -2,19 +2,16 @@
 Here is an optional plugin `apm-customize-enhance-plugin`
 
 ## Introduce
-- The purpose of this plugin is to achieve Class enhancements to some extent through non-intrusive forms.
-- The core idea is that there is no intrusion, so that no code related to this project appears in the project code.
-- Implemented a custom enhancement of the custom languages, it looks more like [@Trace](Application-toolkit-trace.md) non-intrusive implementation,
-internal tag records need to be used, ActiveSpan.tag to achieve, of course, it is to support static methods, 
-you can use the custom languages to extend the operationName suffix, already log, and tag extension.                                                                                                      
+SkyWalking has provided [Java agent plugin development guide](https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/Java-Plugin-Development-Guide.md) to help developers to build new plugin. 
+
+This plugin is not designed for replacement but for user convenience. The behaviour is very similar with [@Trace toolkit](Application-toolkit-trace.md), but without code change requirement, and more powerful, such as provide tag and log.                                                                                                      
 
 ## How to configure
 Implementing enhancements to custom classes requires two steps.
 
- * Set through the system environment variable, you need to add `skywalking.customize.enhance_file`.
- 
- * Configure your configuration file according to the [Demo](https://github.com/SkyAPMTest/agent-auto-integration-testcases/tree/master/customize-scenario) below.
-
+1. Active the plugin, move the `optional-plugins/customize-enhance-plugin.jar` to `plugin`.
+2. Set `customize.enhance_file` in agent.config, which targets to rule file, such as `/absolute/path/to/ustomize_enhance.xml`.
+3. Set enhancement rules in `customize_enhance.xml`.
 	```xml
 	<?xml version="1.0" encoding="UTF-8"?>
 	<enhanced>
@@ -58,8 +55,8 @@ Implementing enhancements to custom classes requires two steps.
 	</enhanced>
 	```
 
- *  Explanation of the configuration in the file
- 
+- Explanation of the configuration in the file
+
 	| configuration  | explanation |
 	|:----------------- |:---------------|
 	| class_name | The enhanced class |
