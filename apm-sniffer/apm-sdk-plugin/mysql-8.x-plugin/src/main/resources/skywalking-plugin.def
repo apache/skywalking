@@ -14,10 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql5xConnectionInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql50ConnectionInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CallableInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.StatementInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CacheIpsInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.ConnectionImplCreateInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.ConnectionImplCreateInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.ConnectionInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.CallableInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.StatementInstrumentation
