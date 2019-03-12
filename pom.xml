@@ -407,6 +407,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>**/*Test</excludes>
+                    <excludes>**/Test*</excludes>
+                    <excludes>**/generated/**</excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
