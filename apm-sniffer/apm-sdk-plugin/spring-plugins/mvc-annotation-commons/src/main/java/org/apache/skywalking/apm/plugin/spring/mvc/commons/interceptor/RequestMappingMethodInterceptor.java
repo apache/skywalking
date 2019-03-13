@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,20 +24,30 @@ import java.lang.reflect.Method;
 
 /**
  * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value.
- * it will inteceptor with <code>@RequestMapping</code>
+ * it will interceptor with <code>@RequestMapping</code>
  *
  * @author clevertension
  */
 public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
-        String requestURL = "";
+        StringBuilder requestURL = new StringBuilder();
         RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
-        if (methodRequestMapping.value().length > 0) {
-            requestURL = methodRequestMapping.value()[0];
-        } else if (methodRequestMapping.path().length > 0) {
-            requestURL = methodRequestMapping.path()[0];
+        if (methodRequestMapping.method().length > 0) {
+            requestURL.append("{");
+            for (int i = 0; i < methodRequestMapping.method().length; i++) {
+                requestURL.append(methodRequestMapping.method()[i].toString());
+                if (methodRequestMapping.method().length > (i + 1)) {
+                    requestURL.append(",");
+                }
+            }
+            requestURL = new StringBuilder("}");
         }
-        return requestURL;
+        if (methodRequestMapping.value().length > 0) {
+            requestURL.append(methodRequestMapping.value()[0]);
+        } else if (methodRequestMapping.path().length > 0) {
+            requestURL.append(methodRequestMapping.path()[0]);
+        }
+        return requestURL.toString();
     }
 }

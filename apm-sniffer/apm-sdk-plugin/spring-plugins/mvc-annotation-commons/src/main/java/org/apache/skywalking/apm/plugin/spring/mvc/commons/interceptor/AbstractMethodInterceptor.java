@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -56,12 +57,18 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             return;
         }
 
-        EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
-        String requestURL = pathMappingCache.findPathMapping(method);
-        if (requestURL == null) {
-            requestURL = getRequestURL(method);
-            pathMappingCache.addPathMapping(method, requestURL);
-            requestURL = pathMappingCache.findPathMapping(method);
+        String operationName;
+        if (Config.Plugin.SpringMVC.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
+            operationName = getFullyQualifiedMethodName(method);
+        } else {
+            EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
+            String requestURL = pathMappingCache.findPathMapping(method);
+            if (requestURL == null) {
+                requestURL = getRequestURL(method);
+                pathMappingCache.addPathMapping(method, requestURL);
+                requestURL = pathMappingCache.findPathMapping(method);
+            }
+            operationName = requestURL;
         }
 
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
@@ -73,7 +80,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 next.setHeadValue(request.getHeader(next.getHeadKey()));
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
+            AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
             Tags.URL.set(span, request.getRequestURL().toString());
             Tags.HTTP.METHOD.set(span, request.getMethod());
             span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
@@ -115,5 +122,18 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    public static String getFullyQualifiedMethodName(Method method) {
+        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            operationName.append(parameterTypes[i].getName());
+            if (i < (parameterTypes.length - 1)) {
+                operationName.append(",");
+            }
+        }
+        operationName.append(")");
+        return operationName.toString();
     }
 }

@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -39,7 +40,7 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         MethodInterceptResult result) throws Throwable {
         Trace trace = method.getAnnotation(Trace.class);
         String operationName = trace.operationName();
-        if (operationName.length() == 0) {
+        if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
             operationName = generateOperationName(method);
         }
 
