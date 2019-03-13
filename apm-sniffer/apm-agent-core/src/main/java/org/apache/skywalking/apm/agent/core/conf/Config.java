@@ -189,9 +189,9 @@ public class Config {
 
         public static class Toolkit {
             /**
-             * If true, the fully qualified method name will be used as the endpoint name instead of the operation name, default is false.
+             * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
              */
-            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
     }
 }

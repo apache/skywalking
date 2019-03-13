@@ -41,7 +41,7 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         MethodInterceptResult result) throws Throwable {
         Trace trace = method.getAnnotation(Trace.class);
         String operationName = trace.operationName();
-        if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
+        if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
             operationName = MethodUtil.generateOperationName(method);
         }
 
