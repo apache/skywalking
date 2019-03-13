@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.net.URL;
@@ -77,6 +76,8 @@ public class PluginBootstrap {
                 logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
             }
         }
+
+        plugins.addAll(DynamicPluginLoader.INSTANCE.load(AgentClassLoader.getDefault()));
 
         return plugins;
 

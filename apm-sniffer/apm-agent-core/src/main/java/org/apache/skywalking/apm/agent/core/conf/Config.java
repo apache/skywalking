@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This is the core config in sniffer agent.
  *
@@ -164,6 +167,19 @@ public class Config {
             public static boolean TRACE_DSL = false;
         }
 
+        public static class Customize {
+            /**
+             * Custom enhancement class configuration file path, recommended to use an absolute path.
+             */
+            public static String ENHANCE_FILE = "";
+
+            /**
+             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+             * And using Map CONTEXT for avoiding classloader isolation issue.
+             */
+            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+        }
+
         public static class SpringMVC {
             /**
              * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
@@ -177,5 +193,4 @@ public class Config {
              */
             public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
         }
-    }
 }

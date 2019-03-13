@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 
 /**
  * {@link TraceAnnotationMethodInterceptor} create a local span and set the operation name which fetch from
@@ -41,23 +42,10 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         Trace trace = method.getAnnotation(Trace.class);
         String operationName = trace.operationName();
         if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
-            operationName = generateOperationName(method);
+            operationName = MethodUtil.generateOperationName(method);
         }
 
         ContextManager.createLocalSpan(operationName);
-    }
-
-    private String generateOperationName(Method method) {
-        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(parameterTypes[i].getName());
-            if (i < (parameterTypes.length - 1)) {
-                operationName.append(",");
-            }
-        }
-        operationName.append(")");
-        return operationName.toString();
     }
 
     @Override
