@@ -14,12 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.DriverInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.Mysql5xConnectionInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.Mysql50ConnectionInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.CallableInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.PreparedStatementInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.StatementInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.FailoverConnectionProxyInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.LoadBalancedConnectionProxyInstrumentation
-mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.define.ReplicationConnectionProxyInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql5xConnectionInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.Mysql50ConnectionInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CallableInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.StatementInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CacheIpsInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.ConnectionImplCreateInstrumentation
