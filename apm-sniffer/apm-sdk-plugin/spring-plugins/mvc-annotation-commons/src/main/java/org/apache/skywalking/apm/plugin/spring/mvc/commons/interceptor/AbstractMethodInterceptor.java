@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
@@ -59,7 +60,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
         String operationName;
         if (Config.Plugin.SpringMVC.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
-            operationName = getFullyQualifiedMethodName(method);
+            operationName = MethodUtil.generateOperationName(method);
         } else {
             EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
             String requestURL = pathMappingCache.findPathMapping(method);
@@ -122,18 +123,5 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
-    }
-
-    public static String getFullyQualifiedMethodName(Method method) {
-        StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            operationName.append(parameterTypes[i].getName());
-            if (i < (parameterTypes.length - 1)) {
-                operationName.append(",");
-            }
-        }
-        operationName.append(")");
-        return operationName.toString();
     }
 }
