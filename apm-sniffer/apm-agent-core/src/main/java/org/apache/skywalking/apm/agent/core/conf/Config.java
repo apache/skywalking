@@ -193,4 +193,5 @@ public class Config {
              */
             public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
         }
+    }
 }
