@@ -163,5 +163,19 @@ public class Config {
              */
             public static boolean TRACE_DSL = false;
         }
+
+        public static class SpringMVC {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+        }
+
+        public static class Toolkit {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the operation name, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+        }
     }
 }
