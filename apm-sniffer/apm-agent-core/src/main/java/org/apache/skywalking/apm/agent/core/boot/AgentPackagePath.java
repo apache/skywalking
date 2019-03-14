@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
+import java.net.URISyntaxException;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
@@ -61,8 +62,10 @@ public class AgentPackagePath {
                 urlString = urlString.substring(urlString.indexOf("file:"), insidePathIndex);
                 File agentJarFile = null;
                 try {
-                    agentJarFile = new File(new URL(urlString).getFile());
+                    agentJarFile = new File(new URL(urlString).toURI());
                 } catch (MalformedURLException e) {
+                    logger.error(e, "Can not locate agent jar file by url:" + urlString);
+                } catch (URISyntaxException e) {
                     logger.error(e, "Can not locate agent jar file by url:" + urlString);
                 }
                 if (agentJarFile.exists()) {
