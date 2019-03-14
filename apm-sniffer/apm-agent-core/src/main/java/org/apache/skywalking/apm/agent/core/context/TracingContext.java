@@ -391,7 +391,7 @@ public class TracingContext implements AbstractTracerContext {
      * @param span to finish
      */
     @Override
-    public void stopSpan(AbstractSpan span) {
+    public boolean stopSpan(AbstractSpan span) {
         AbstractSpan lastSpan = peek();
         if (lastSpan == span) {
             if (lastSpan instanceof AbstractTracingSpan) {
@@ -409,6 +409,8 @@ public class TracingContext implements AbstractTracerContext {
         if (checkFinishConditions()) {
             finish();
         }
+
+        return activeSpanStack.isEmpty();
     }
 
     @Override public AbstractTracerContext awaitFinishAsync() {

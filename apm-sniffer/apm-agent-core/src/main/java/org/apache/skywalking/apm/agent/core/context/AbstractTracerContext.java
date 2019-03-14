@@ -98,8 +98,9 @@ public interface AbstractTracerContext {
      * Finish the given span, and the given span should be the active span of current tracing context(stack)
      *
      * @param span to finish
+     * @return true when context should be clear.
      */
-    void stopSpan(AbstractSpan span);
+    boolean stopSpan(AbstractSpan span);
 
     /**
      * Notify this context, current span is going to be finished async in another thread.
