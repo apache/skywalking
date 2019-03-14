@@ -32,7 +32,8 @@ public interface AsyncSpan {
      * The span finish at current tracing context, but the current span is still alive, until {@link #asyncFinish}
      * called.
      *
-     * This method must be called<br/>
+     * This method must be called
+     * 
      * 1. In original thread(tracing context).
      * 2. Current span is active span.
      *

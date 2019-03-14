@@ -103,6 +103,8 @@ public interface AbstractTracerContext {
 
     /**
      * Notify this context, current span is going to be finished async in another thread.
+     *
+     * @return The current context
      */
     AbstractTracerContext awaitFinishAsync();
 
