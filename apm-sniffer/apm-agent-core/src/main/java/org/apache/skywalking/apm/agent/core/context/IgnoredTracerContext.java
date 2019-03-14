@@ -95,6 +95,14 @@ public class IgnoredTracerContext implements AbstractTracerContext {
         }
     }
 
+    @Override public AbstractTracerContext awaitFinishAsync() {
+        return this;
+    }
+
+    @Override public void asyncStop(AsyncSpan span) {
+
+    }
+
     public static class ListenerManager {
         private static List<IgnoreTracerContextListener> LISTENERS = new LinkedList<IgnoreTracerContextListener>();
 

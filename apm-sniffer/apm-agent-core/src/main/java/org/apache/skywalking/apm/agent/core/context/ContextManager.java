@@ -18,14 +18,11 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.*;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -59,7 +56,7 @@ public class ContextManager implements TracingContextListener, BootService, Igno
             } else {
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
                     && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
-                    ) {
+                ) {
                     context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
                 } else {
                     /**
@@ -150,6 +147,14 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         if (snapshot.isValid() && !snapshot.isFromCurrent()) {
             get().continued(snapshot);
         }
+    }
+
+    public static AbstractTracerContext awaitFinishAsync(AbstractSpan span) {
+        AbstractSpan activeSpan = activeSpan();
+        if (span != activeSpan) {
+            throw new RuntimeException("Span is not the active in current context.");
+        }
+        return get().awaitFinishAsync();
     }
 
     public static AbstractSpan activeSpan() {

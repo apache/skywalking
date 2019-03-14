@@ -18,25 +18,14 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
-import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.LocalSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.NoopExitSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.context.trace.WithPeerInfo;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.context.trace.*;
+import org.apache.skywalking.apm.agent.core.dictionary.*;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -81,6 +70,13 @@ public class TracingContext implements AbstractTracerContext {
     private int spanIdGenerator;
 
     /**
+     * The counter indicates
+     */
+    private AtomicInteger asyncSpanCounter;
+    private volatile boolean isRunningInAsyncMode;
+    private ReentrantLock asyncFinishLock;
+
+    /**
      * Initialize all fields with default value.
      */
     TracingContext() {
@@ -89,6 +85,9 @@ public class TracingContext implements AbstractTracerContext {
         if (samplingService == null) {
             samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         }
+        asyncSpanCounter = new AtomicInteger(0);
+        isRunningInAsyncMode = false;
+        asyncFinishLock = new ReentrantLock();
     }
 
     /**
@@ -407,9 +406,39 @@ public class TracingContext implements AbstractTracerContext {
             throw new IllegalStateException("Stopping the unexpected span = " + span);
         }
 
-        if (activeSpanStack.isEmpty()) {
-            this.finish();
+        if (checkFinishConditions()) {
+            finish();
         }
+    }
+
+    @Override public AbstractTracerContext awaitFinishAsync() {
+        isRunningInAsyncMode = true;
+        asyncSpanCounter.addAndGet(1);
+        return this;
+    }
+
+    @Override public void asyncStop(AsyncSpan span) {
+        asyncSpanCounter.addAndGet(-1);
+
+        if (checkFinishConditions()) {
+            finish();
+        }
+    }
+
+    private boolean checkFinishConditions() {
+        if (isRunningInAsyncMode) {
+            asyncFinishLock.lock();
+        }
+        try {
+            if (activeSpanStack.isEmpty() && asyncSpanCounter.get() == 0) {
+                return true;
+            }
+        } finally {
+            if (isRunningInAsyncMode) {
+                asyncFinishLock.unlock();
+            }
+        }
+        return false;
     }
 
     /**
