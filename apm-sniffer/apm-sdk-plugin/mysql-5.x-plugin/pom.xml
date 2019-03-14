@@ -32,7 +32,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mysql-connector-java.version>5.1.36</mysql-connector-java.version>
+        <mysql-connector-java.version>5.1.44</mysql-connector-java.version>
     </properties>
 
     <dependencies>
@@ -45,12 +45,18 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>[5.1.22,6.0.6]</version>
+            <version>${mysql-connector-java.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-jdbc-commons</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-mysql-commons</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
