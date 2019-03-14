@@ -33,7 +33,7 @@ public interface AsyncSpan {
      * called.
      *
      * This method must be called
-     * 
+     *
      * 1. In original thread(tracing context).
      * 2. Current span is active span.
      *

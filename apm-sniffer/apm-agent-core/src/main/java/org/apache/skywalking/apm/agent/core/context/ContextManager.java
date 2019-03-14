@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  *
  * @author wusheng
  */
-public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
+public class ContextManager implements BootService {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
     private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
@@ -166,7 +166,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     public static void stopSpan(AbstractSpan span) {
-        get().stopSpan(span);
+        if (get().stopSpan(span)) {
+            CONTEXT.remove();
+        }
     }
 
     @Override
@@ -176,8 +178,6 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     @Override
     public void boot() {
-        ContextManagerExtendService service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
-        service.registerListeners(this);
     }
 
     @Override
@@ -187,16 +187,6 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     @Override public void shutdown() throws Throwable {
 
-    }
-
-    @Override
-    public void afterFinished(TraceSegment traceSegment) {
-        CONTEXT.remove();
-    }
-
-    @Override
-    public void afterFinished(IgnoredTracerContext traceSegment) {
-        CONTEXT.remove();
     }
 
     public static boolean isActive() {

@@ -16,17 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
+import java.util.*;
+import org.apache.skywalking.apm.agent.core.context.trace.*;
 
 /**
- * The <code>IgnoredTracerContext</code> represent a context should be ignored.
- * So it just maintains the stack with an integer depth field.
+ * The <code>IgnoredTracerContext</code> represent a context should be ignored. So it just maintains the stack with an
+ * integer depth field.
  *
  * All operations through this will be ignored, and keep the memory and gc cost as low as possible.
  *
@@ -88,11 +85,12 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public void stopSpan(AbstractSpan span) {
+    public boolean stopSpan(AbstractSpan span) {
         stackDepth--;
         if (stackDepth == 0) {
             ListenerManager.notifyFinish(this);
         }
+        return stackDepth == 0;
     }
 
     @Override public AbstractTracerContext awaitFinishAsync() {
