@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
 import java.util.Map;
+
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
@@ -52,6 +54,10 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO<IndexRequest> {
             }
         }
         builder.endObject();
-        return getClient().prepareInsert(modelName, record.id(), builder);
+        ElasticSearchClient client = getClient();
+        if (client.getCreateByDayIndexes().contains(modelName)) {
+            modelName = modelName + Const.ID_SPLIT + (record.getTimeBucket() + "").substring(0, 8);
+        }
+        return client.prepareInsert(modelName, record.id(), builder);
     }
 }

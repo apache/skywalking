@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchUtil;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -188,6 +189,8 @@ public class CoreModuleProvider extends ModuleProvider {
         DataTTLKeeperTimer.INSTANCE.start(getManager());
 
         CacheUpdateTimer.INSTANCE.start(getManager());
+
+        ElasticSearchUtil.INSTANCE.setRecordDataTTL(moduleConfig.getRecordDataTTL());
     }
 
     @Override

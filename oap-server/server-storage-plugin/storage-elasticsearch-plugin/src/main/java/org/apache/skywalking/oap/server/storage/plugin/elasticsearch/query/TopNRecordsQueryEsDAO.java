@@ -49,7 +49,9 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(topN).sort(TopN.LATENCY, order.equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
+        ElasticSearchClient client = getClient();
+        String[] indexes = client.getIndexNameByDate(metricName, startSecondTB, endSecondTB);
+        SearchResponse response = client.search(sourceBuilder, indexes);
 
         List<TopNRecord> results = new ArrayList<>();
 
