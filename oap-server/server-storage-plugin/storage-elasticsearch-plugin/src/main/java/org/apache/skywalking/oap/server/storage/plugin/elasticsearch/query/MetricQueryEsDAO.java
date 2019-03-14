@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.*;
+
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
@@ -56,7 +57,9 @@ public class MetricQueryEsDAO extends EsDAO implements IMetricQueryDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        ElasticSearchClient client = getClient();
+        String[] indexes = client.getIndexNameByDate(indexName, startTB, endTB);
+        SearchResponse response = client.search(sourceBuilder, indexes);
 
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
