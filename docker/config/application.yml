@@ -35,6 +35,10 @@ cluster:
 #    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
 core:
   default:
+    # Mixed: Receive agent data, Level 1 aggregate, Level 2 aggregate
+    # Receiver: Receive agent data, Level 1 aggregate
+    # Aggregator: Level 2 aggregate
+    role: ${SW_CORE_ROLE:Mixed} # Mixed/Receiver/Aggregator
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
@@ -66,6 +70,8 @@ storage:
 #    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
 #    user: ${SW_STORAGE_H2_USER:sa}
 #  mysql:
+receiver-sharing-server:
+  default:
 receiver-register:
   default:
 receiver-trace:
@@ -85,6 +91,8 @@ service-mesh:
     bufferDataMaxFileSize: ${SW_SERVICE_MESH_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
     bufferFileCleanWhenRestart: ${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 istio-telemetry:
+  default:
+envoy-metric:
   default:
 # receiver_zipkin:
 #   default:

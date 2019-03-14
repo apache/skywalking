@@ -52,8 +52,8 @@ scopes:
       columnName: entity_id
       typeName: java.lang.String
       ID: true
-    - fieldName: serviceInstanceId
-      columnName: service_instance_id
+    - fieldName: serviceId
+      columnName: service_id
       typeName: int
       ID: false
   - name: ServiceInstanceJVMMemory
@@ -62,8 +62,8 @@ scopes:
       columnName: entity_id
       typeName: java.lang.String
       ID: true
-    - fieldName: serviceInstanceId
-      columnName: service_instance_id
+    - fieldName: serviceId
+      columnName: service_id
       typeName: int
       ID: false
   - name: ServiceInstanceJVMMemoryPool
@@ -72,8 +72,8 @@ scopes:
       columnName: entity_id
       typeName: java.lang.String
       ID: true
-    - fieldName: serviceInstanceId
-      columnName: service_instance_id
+    - fieldName: serviceId
+      columnName: service_id
       typeName: int
       ID: false
   - name: ServiceInstanceJVMGC
@@ -82,8 +82,8 @@ scopes:
       columnName: entity_id
       typeName: java.lang.String
       ID: true
-    - fieldName: serviceInstanceId
-      columnName: service_instance_id
+    - fieldName: serviceId
+      columnName: service_id
       typeName: int
       ID: false
   - name: ServiceRelation
@@ -134,3 +134,43 @@ scopes:
       columnName: entity_id
       typeName: java.lang.String
       ID: true
+  - name: ServiceInstanceCLRCPU
+    columns:
+      - fieldName: entityId
+        columnName: entity_id
+        typeName: java.lang.String
+        ID: true
+      - fieldName: serviceId
+        columnName: service_id
+        typeName: int
+        ID: false
+  - name: ServiceInstanceCLRGC
+    columns:
+      - fieldName: entityId
+        columnName: entity_id
+        typeName: java.lang.String
+        ID: true
+      - fieldName: serviceId
+        columnName: service_id
+        typeName: int
+        ID: false
+  - name: ServiceInstanceCLRThread
+    columns:
+      - fieldName: entityId
+        columnName: entity_id
+        typeName: java.lang.String
+        ID: true
+      - fieldName: serviceId
+        columnName: service_id
+        typeName: int
+        ID: false
+  - name: EnvoyInstanceMetric
+    columns:
+    - fieldName: entityId
+      columnName: entity_id
+      typeName: java.lang.String
+      ID: true
+    - fieldName: serviceId
+      columnName: service_id
+      typeName: int
+      ID: false

@@ -34,6 +34,8 @@
         <module>skywalking-istio-telemetry-receiver-plugin</module>
         <module>skywalking-register-receiver-plugin</module>
         <module>skywalking-jvm-receiver-plugin</module>
+        <module>envoy-metrics-receiver-plugin</module>
+        <module>skywalking-sharing-server-plugin</module>
     </modules>
 
     <dependencies>

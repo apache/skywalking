@@ -24,6 +24,11 @@ The agent release dist is included in Apache [official release](http://skywalkin
 
 - Start your application.
 
+## Supported middlewares, frameworks and libraries
+SkyWalking agent has supported various middlewares, framdworks and libraries.
+Read [supported list](Supported-list.md) to get them and supported version.
+If the plugin is in **Optional²** catalog, go to [optional plugins](#optional-plugins) section to learn how to active it.
+
 ## Advanced features
 - All plugins are in `/plugins` folder. The plugin jar is active when it is in there. Remove the plugin jar, it disabled.
 - The default logging output folder is `/logs`.
@@ -59,6 +64,7 @@ property key | Description | Default |
 `agent.ignore_suffix`|If the operation name of the first span is included in this set, this segment should be ignored.|Not set|
 `agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder.Skywalking team may ask for these files in order to resolve compatible problem.|Not set|
 `agent.active_v2_header`|Active V2 header in default.|`true`|
+`agent.instance_uuid` |Instance uuid is the identity of an instance, skywalking treat same instance uuid as one instance.if empty, skywalking agent will generate an 32-bit uuid.   |`""`|
 `agent.active_v1_header `|Deactive V1 header in default.|`false`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
@@ -74,21 +80,19 @@ property key | Description | Default |
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
- 
-## Supported middlewares, frameworks and libraries
-See [supported list](Supported-list.md).
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositores.
 For using these plugins, you need to put the target plugin jar file into `/plugins`.
 
 Now, we have the following known optional plugins.
-* [Trace Spring beans](agent-optional-plugins/Spring-bean-plugins.md)
+* [Trace Spring annotation beans](agent-optional-plugins/Spring-annotation-plugin.md)
 * [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
 * Gson serialization lib in optional plugin folder
 * Lettuce 5.x(JRE1.8+) in optional plugin folder 
 * Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
+* [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).

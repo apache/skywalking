@@ -80,3 +80,19 @@ database_access_p95 = from(DatabaseAccess.latency).p95(10);
 database_access_p90 = from(DatabaseAccess.latency).p90(10);
 database_access_p75 = from(DatabaseAccess.latency).p75(10);
 database_access_p50 = from(DatabaseAccess.latency).p50(10);
+
+// CLR instance metric
+instance_clr_cpu = from(ServiceInstanceCLRCPU.usePercent).doubleAvg();
+instance_clr_gen0_collect_count = from(ServiceInstanceCLRGC.gen0CollectCount).sum();
+instance_clr_gen1_collect_count = from(ServiceInstanceCLRGC.gen1CollectCount).sum();
+instance_clr_gen2_collect_count = from(ServiceInstanceCLRGC.gen2CollectCount).sum();
+instance_clr_heap_memory = from(ServiceInstanceCLRGC.heapMemory).longAvg();
+instance_clr_available_completion_port_threads = from(ServiceInstanceCLRThread.availableCompletionPortThreads).max();
+instance_clr_available_worker_threads = from(ServiceInstanceCLRThread.availableWorkerThreads).max();
+instance_clr_max_completion_port_threads = from(ServiceInstanceCLRThread.maxCompletionPortThreads).max();
+instance_clr_max_worker_threads = from(ServiceInstanceCLRThread.maxWorkerThreads).max();
+
+// Envoy instance metric
+envoy_heap_memory_max_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.memory_heap_size").maxDouble();
+envoy_total_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.total_connections").maxDouble();
+envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.parent_connections").maxDouble();
