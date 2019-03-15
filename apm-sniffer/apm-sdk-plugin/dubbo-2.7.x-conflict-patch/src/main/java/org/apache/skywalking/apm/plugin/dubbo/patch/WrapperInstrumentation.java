@@ -33,8 +33,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *
  * The plugin excludes {@link org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance}
  * methods to ensure the correct compilation of the code.
- *
- * @author Zhang Xin
  */
 public class WrapperInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
     @Override protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
@@ -56,6 +54,6 @@ public class WrapperInstrumentation extends ClassStaticMethodsEnhancePluginDefin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byName("com.alibaba.dubbo.common.bytecode.Wrapper");
+        return byName("org.apache.dubbo.common.bytecode.Wrapper");
     }
 }

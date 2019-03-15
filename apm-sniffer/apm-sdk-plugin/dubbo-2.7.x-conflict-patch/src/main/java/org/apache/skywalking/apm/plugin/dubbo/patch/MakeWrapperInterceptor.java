@@ -37,9 +37,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
-/**
- * @author Zhang Xin
- */
 public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
 
     private static final AtomicLong WRAPPER_CLASS_COUNTER = new AtomicLong(0);
