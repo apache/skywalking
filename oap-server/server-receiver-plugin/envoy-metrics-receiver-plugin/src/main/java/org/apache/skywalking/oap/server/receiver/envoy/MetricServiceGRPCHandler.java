@@ -66,10 +66,13 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
             private int serviceInstanceId = Const.NONE;
 
             @Override public void onNext(StreamMetricsMessage message) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Received msg {}", message);
+                }
+
                 if (isFirst) {
                     isFirst = false;
                     StreamMetricsMessage.Identifier identifier = message.getIdentifier();
-                    logger.debug("Received identifier msg {}", identifier);
                     Node node = identifier.getNode();
                     if (node != null) {
                         String nodeId = node.getId();
@@ -109,6 +112,20 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                     for (Metrics.Metric metric : metricFamily.getMetricList()) {
                                         timestamp = metric.getTimestampMs();
                                         value = metric.getGauge().getValue();
+
+                                        if (timestamp > 1000000000000000000L) {
+                                            /**
+                                             * Several versions of envoy in istio.deps send timestamp in nanoseconds,
+                                             * instead of milliseconds(protocol says).
+                                             *
+                                             * Sadly, but have to fix it forcedly.
+                                             *
+                                             * An example of timestamp is '1552303033488741055', clearly it is not in milliseconds.
+                                             *
+                                             * This should be removed in the future.
+                                             */
+                                            timestamp /= 1_000_000;
+                                        }
 
                                         EnvoyInstanceMetric metricSource = new EnvoyInstanceMetric();
                                         metricSource.setServiceId(serviceId);
