@@ -16,13 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 /**
- * Alarm supported interface implementor could return the {@link AlarmMeta}
+ * Alarm supported interface implementor could return the {@link IndicatorMetaInfo}
  *
  * @author wusheng
  */
-public interface AlarmSupported {
-    AlarmMeta getAlarmMeta();
+public interface WithMetadata {
+    IndicatorMetaInfo getMeta();
 }

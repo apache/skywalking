@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -50,33 +50,33 @@ public class AlarmEntrance {
 
         init();
 
-        AlarmMeta alarmMeta = ((AlarmSupported)indicator).getAlarmMeta();
+        IndicatorMetaInfo indicatorMetaInfo = ((WithMetadata)indicator).getMeta();
 
         MetaInAlarm metaInAlarm;
-        switch (alarmMeta.getScope()) {
+        switch (indicatorMetaInfo.getScope()) {
             case SERVICE:
-                int serviceId = Integer.parseInt(alarmMeta.getId());
+                int serviceId = Integer.parseInt(indicatorMetaInfo.getId());
                 ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
                 ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
-                serviceMetaInAlarm.setIndicatorName(alarmMeta.getIndicatorName());
+                serviceMetaInAlarm.setIndicatorName(indicatorMetaInfo.getIndicatorName());
                 serviceMetaInAlarm.setId(serviceId);
                 serviceMetaInAlarm.setName(serviceInventory.getName());
                 metaInAlarm = serviceMetaInAlarm;
                 break;
             case SERVICE_INSTANCE:
-                int serviceInstanceId = Integer.parseInt(alarmMeta.getId());
+                int serviceInstanceId = Integer.parseInt(indicatorMetaInfo.getId());
                 ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
                 ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
-                instanceMetaInAlarm.setIndicatorName(alarmMeta.getIndicatorName());
+                instanceMetaInAlarm.setIndicatorName(indicatorMetaInfo.getIndicatorName());
                 instanceMetaInAlarm.setId(serviceInstanceId);
                 instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
                 metaInAlarm = instanceMetaInAlarm;
                 break;
             case ENDPOINT:
-                int endpointId = Integer.parseInt(alarmMeta.getId());
+                int endpointId = Integer.parseInt(indicatorMetaInfo.getId());
                 EndpointInventory endpointInventory = endpointInventoryCache.get(endpointId);
                 EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
-                endpointMetaInAlarm.setIndicatorName(alarmMeta.getIndicatorName());
+                endpointMetaInAlarm.setIndicatorName(indicatorMetaInfo.getIndicatorName());
                 endpointMetaInAlarm.setId(endpointId);
 
                 serviceId = endpointInventory.getServiceId();

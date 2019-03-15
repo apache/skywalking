@@ -74,8 +74,11 @@ public enum IndicatorProcess {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
         WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
 
+        ExportWorker exportWorker = new ExportWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
+        WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
+
         IndicatorPersistentWorker minutePersistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, alarmNotifyWorker);
+            1000, moduleManager, indicatorDAO, alarmNotifyWorker, exportWorker);
         WorkerInstances.INSTANCES.put(minutePersistentWorker.getWorkerId(), minutePersistentWorker);
         persistentWorkers.add(minutePersistentWorker);
 
@@ -85,7 +88,7 @@ public enum IndicatorProcess {
     private IndicatorPersistentWorker worker(ModuleManager moduleManager,
         IIndicatorDAO indicatorDAO, String modelName) {
         IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, null);
+            1000, moduleManager, indicatorDAO, null, null);
         WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
         persistentWorkers.add(persistentWorker);
 

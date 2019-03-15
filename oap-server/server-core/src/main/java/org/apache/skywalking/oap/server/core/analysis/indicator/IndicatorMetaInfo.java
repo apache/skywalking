@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
@@ -24,18 +24,18 @@ import org.apache.skywalking.oap.server.core.Const;
 /**
  * @author wusheng
  */
-public class AlarmMeta {
+public class IndicatorMetaInfo {
     @Setter @Getter private String indicatorName;
     @Setter @Getter private int scope;
     @Setter @Getter private String id;
 
-    public AlarmMeta(String indicatorName, int scope) {
+    public IndicatorMetaInfo(String indicatorName, int scope) {
         this.indicatorName = indicatorName;
         this.scope = scope;
         this.id = Const.EMPTY_STRING;
     }
 
-    public AlarmMeta(String indicatorName, int scope, String id) {
+    public IndicatorMetaInfo(String indicatorName, int scope, String id) {
         this.indicatorName = indicatorName;
         this.scope = scope;
         this.id = id;
