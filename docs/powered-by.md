@@ -68,6 +68,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
+1. Osacart in WeChat app 广州美克曼尼电子商务有限公司
 
 # User Cases
 ## Alibaba Cloud
@@ -92,3 +93,5 @@ Provide a customized version SkyWalking agent. It could provide distributed trac
 ## Primeton
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
 
+## Oscart
+Use SkyWalking , [SkyAPM nodejs agent](https://github.com/SkyAPM/SkyAPM-nodejs) mixed java agent in main project.
