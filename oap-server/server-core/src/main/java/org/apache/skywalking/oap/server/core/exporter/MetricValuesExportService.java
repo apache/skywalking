@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.exporter;
 
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -25,5 +26,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
  *
  * @author wusheng
  */
-public class MetricValuesExportService implements Service {
+public interface MetricValuesExportService extends Service {
+    void export(IndicatorMetaInfo meta, Indicator indicator);
 }

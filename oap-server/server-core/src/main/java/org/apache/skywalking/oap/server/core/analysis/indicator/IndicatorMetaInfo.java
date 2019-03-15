@@ -48,4 +48,12 @@ public class IndicatorMetaInfo {
     public void setId(String id) {
         this.id = id;
     }
+
+    @Override public String toString() {
+        return "IndicatorMetaInfo{" +
+            "indicatorName='" + indicatorName + '\'' +
+            ", scope=" + scope +
+            ", id='" + id + '\'' +
+            '}';
+    }
 }

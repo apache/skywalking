@@ -75,7 +75,7 @@ public enum IndicatorProcess {
         WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
 
         ExportWorker exportWorker = new ExportWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
-        WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
+        WorkerInstances.INSTANCES.put(exportWorker.getWorkerId(), exportWorker);
 
         IndicatorPersistentWorker minutePersistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
             1000, moduleManager, indicatorDAO, alarmNotifyWorker, exportWorker);

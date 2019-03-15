@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.exporter.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -27,6 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  */
 public class ExportWorker extends AbstractWorker<Indicator> {
     private ModuleManager moduleManager;
+    private MetricValuesExportService exportService;
 
     public ExportWorker(int workerId, ModuleManager moduleManager) {
         super(workerId);
@@ -34,6 +36,13 @@ public class ExportWorker extends AbstractWorker<Indicator> {
     }
 
     @Override public void in(Indicator indicator) {
-
+        if (exportService != null || moduleManager.has(ExporterModule.NAME)) {
+            if (indicator instanceof WithMetadata) {
+                if (exportService == null) {
+                    exportService = moduleManager.find(ExporterModule.NAME).provider().getService(MetricValuesExportService.class);
+                }
+                exportService.export(((WithMetadata)indicator).getMeta(), indicator);
+            }
+        }
     }
 }
