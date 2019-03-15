@@ -47,7 +47,7 @@ e.g. accessing DB by JDBC, reading Redis/Memcached are cataloged an ExitSpan.
 
 3. Span parent info called Reference, which is included in span. Reference carries more fields besides 
 trace id, parent segment id, span id. Others are **entry service instance id**, **parent service instance id**,
-**entry endpoint**, **parent endpoint** and **network address**. Follow [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md),
+**entry endpoint**, **parent endpoint** and **network address**. Follow [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md),
 you will know how to get all these fields.
 
 ### Step 3. Keep alive.
