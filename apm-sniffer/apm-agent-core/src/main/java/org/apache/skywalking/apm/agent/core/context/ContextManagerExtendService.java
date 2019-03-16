@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 
@@ -43,11 +41,6 @@ public class ContextManagerExtendService implements BootService {
 
     @Override public void shutdown() {
 
-    }
-
-    public void registerListeners(ContextManager manager) {
-        TracingContext.ListenerManager.add(manager);
-        IgnoredTracerContext.ListenerManager.add(manager);
     }
 
     public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {

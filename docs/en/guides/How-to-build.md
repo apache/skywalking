@@ -30,6 +30,7 @@ For each official Apache release, there is a complete and independent source cod
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/envoy-metrics-receiver-plugin/target/generated-sources/protobuf**
     * `antlr4` folder in **oap-server/generate-tool-grammar/target/generated-sources**
     * `oal` folder in **oap-server/generated-analysis/target/generated-sources**
     
