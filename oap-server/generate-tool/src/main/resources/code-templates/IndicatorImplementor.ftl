@@ -28,8 +28,6 @@ import org.apache.skywalking.oap.server.core.Const;
         <#break>
     </#if>
 </#list>
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
@@ -45,7 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 @IndicatorType
 @StreamData
 @StorageEntity(name = "${tableName}", builder = ${metricName}Indicator.Builder.class, sourceScopeId = ${sourceScopeId})
-public class ${metricName}Indicator extends ${indicatorClassName} implements AlarmSupported {
+public class ${metricName}Indicator extends ${indicatorClassName} implements WithMetadata {
 
 <#list fieldsFromSource as sourceField>
     @Setter @Getter @Column(columnName = "${sourceField.columnName}") <#if sourceField.isID()>@IDColumn</#if> private ${sourceField.typeName} ${sourceField.fieldName};
@@ -170,8 +168,8 @@ public class ${metricName}Indicator extends ${indicatorClassName} implements Ala
 
     }
 
-    @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("${varName}", ${sourceScopeId}<#if (fieldsFromSource?size>0) ><#list fieldsFromSource as field><#if field.isID()>, ${field.fieldName}</#if></#list></#if>);
+    @Override public IndicatorMetaInfo getMeta() {
+        return new IndicatorMetaInfo("${varName}", ${sourceScopeId}<#if (fieldsFromSource?size>0) ><#list fieldsFromSource as field><#if field.isID()>, ${field.fieldName}</#if></#list></#if>);
     }
 
     @Override
