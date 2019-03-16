@@ -16,13 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.exporter;
+
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * Alarm supported interface implementor could return the {@link AlarmMeta}
- *
  * @author wusheng
  */
-public interface AlarmSupported {
-    AlarmMeta getAlarmMeta();
+public class ExporterModule extends ModuleDefine {
+    public static final String NAME = "exporter";
+
+    public ExporterModule() {
+        super(NAME);
+    }
+
+    @Override public Class[] services() {
+        return new Class[] {MetricValuesExportService.class};
+    }
 }

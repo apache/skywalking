@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.server.core.analysis.generated.service.service
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMeta;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
@@ -38,7 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 @IndicatorType
 @StreamData
 @StorageEntity(name = "service_avg", builder = ServiceAvgIndicator.Builder.class, sourceScopeId = 1)
-public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSupported {
+public class ServiceAvgIndicator extends LongAvgIndicator implements WithMetadata {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
 
@@ -108,8 +106,8 @@ public class ServiceAvgIndicator extends LongAvgIndicator implements AlarmSuppor
 
     }
 
-    @Override public AlarmMeta getAlarmMeta() {
-        return new AlarmMeta("generate_indicator", 1, entityId);
+    @Override public IndicatorMetaInfo getMeta() {
+        return new IndicatorMetaInfo("generate_indicator", 1, entityId);
     }
 
     @Override
