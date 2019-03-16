@@ -94,4 +94,4 @@ Provide a customized version SkyWalking agent. It could provide distributed trac
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
 
 ## Oscart
-Use SkyWalking , [SkyAPM nodejs agent](https://github.com/SkyAPM/SkyAPM-nodejs) mixed java agent in main project.
+Run SkyWalking in multiple languages, including SkyWalking Javaagent and [SkyAPM nodejs agent](https://github.com/SkyAPM/SkyAPM-nodejs). SkyWalking OAP platform acts as backend and visualization.
