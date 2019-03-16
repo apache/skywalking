@@ -15,10 +15,3 @@
 # limitations under the License.
 #
 #
-
-org.apache.skywalking.oap.server.core.storage.StorageModule
-org.apache.skywalking.oap.server.core.cluster.ClusterModule
-org.apache.skywalking.oap.server.core.CoreModule
-org.apache.skywalking.oap.server.core.query.QueryModule
-org.apache.skywalking.oap.server.core.alarm.AlarmModule
-org.apache.skywalking.oap.server.core.exporter.ExporterModule
