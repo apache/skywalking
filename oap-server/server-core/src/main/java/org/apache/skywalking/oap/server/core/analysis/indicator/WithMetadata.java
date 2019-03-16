@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.indicator;
 
 /**
- * Alarm supported interface implementor could return the {@link IndicatorMetaInfo}
+ * Indicator, which implement this interface, could provide {@link IndicatorMetaInfo}.
  *
  * @author wusheng
  */
