@@ -24,18 +24,18 @@ package org.apache.skywalking.oap.server.core.analysis.indicator.expression;
 public class LessMatch {
 
     public boolean match(Integer left, Integer right) {
-        return left <= right;
+        return left < right;
     }
 
     public boolean match(Long left, Long right) {
-        return left <= right;
+        return left < right;
     }
 
     public boolean match(Float left, Float right) {
-        return left <= right;
+        return left < right;
     }
 
     public boolean match(Double left, Double right) {
-        return left <= right;
+        return left < right;
     }
 }
