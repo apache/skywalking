@@ -39,7 +39,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
                     requestURL.append(",");
                 }
             }
-            requestURL = new StringBuilder("}");
+            requestURL.append("}");
         }
         if (methodRequestMapping.value().length > 0) {
             requestURL.append(methodRequestMapping.value()[0]);
