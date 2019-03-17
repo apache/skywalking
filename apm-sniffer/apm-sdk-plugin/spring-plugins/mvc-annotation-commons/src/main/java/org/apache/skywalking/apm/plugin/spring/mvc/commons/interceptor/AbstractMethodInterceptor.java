@@ -40,7 +40,7 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQU
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
 /**
- * the abstract method inteceptor
+ * the abstract method interceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
