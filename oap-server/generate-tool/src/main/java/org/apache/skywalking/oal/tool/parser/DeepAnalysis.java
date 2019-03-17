@@ -51,6 +51,26 @@ public class DeepAnalysis {
                     filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
                     filterExpression.setRight(expression.getValue());
                     result.addFilterExpressions(filterExpression);
+                } else if ("greaterMatch".equals(expression.getExpressionType())) {
+                    filterExpression.setExpressionObject("GreaterMatch");
+                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                    filterExpression.setRight(expression.getValue());
+                    result.addFilterExpressions(filterExpression);
+                } else if ("lessMatch".equals(expression.getExpressionType())) {
+                    filterExpression.setExpressionObject("LessMatch");
+                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                    filterExpression.setRight(expression.getValue());
+                    result.addFilterExpressions(filterExpression);
+                } else if ("greaterEqualMatch".equals(expression.getExpressionType())) {
+                    filterExpression.setExpressionObject("GreaterEqualMatch");
+                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                    filterExpression.setRight(expression.getValue());
+                    result.addFilterExpressions(filterExpression);
+                } else if ("lessEqualMatch".equals(expression.getExpressionType())) {
+                    filterExpression.setExpressionObject("LessEqualMatch");
+                    filterExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                    filterExpression.setRight(expression.getValue());
+                    result.addFilterExpressions(filterExpression);
                 } else {
                     throw new IllegalArgumentException("filter expression [" + expression.getExpressionType() + "] not found");
                 }

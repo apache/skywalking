@@ -49,7 +49,7 @@ BOOL_LITERAL:       'true'
             |       'false'
             ;
 
-INT_LITERAL :   Digits+;
+NUMBER_LITERAL :   Digits+;
 
 CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
@@ -112,3 +112,7 @@ SEMI:                                ';';
 EQUAL:                               '=';
 DUALEQUALS:                          '==';
 ALL:                                 '*';
+GREATER:                             '>';
+LESS:                                '<';
+GREATER_EQUAL:                       '>=';
+LESS_EQUAL:                          '<=';
