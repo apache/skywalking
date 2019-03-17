@@ -18,30 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.WithMetadata;
+import org.apache.skywalking.oap.server.core.exporter.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * Alarm notify worker, do a simple route to alarm core after the aggregation persistence.
- *
  * @author wusheng
  */
-public class AlarmNotifyWorker extends AbstractWorker<Indicator> {
+public class ExportWorker extends AbstractWorker<Indicator> {
     private ModuleManager moduleManager;
-    private AlarmEntrance entrance;
+    private MetricValuesExportService exportService;
 
-    public AlarmNotifyWorker(int workerId, ModuleManager moduleManager) {
+    public ExportWorker(int workerId, ModuleManager moduleManager) {
         super(workerId);
         this.moduleManager = moduleManager;
-        this.entrance = new AlarmEntrance(moduleManager);
     }
 
     @Override public void in(Indicator indicator) {
-        if (indicator instanceof WithMetadata) {
-            entrance.forward(indicator);
+        if (exportService != null || moduleManager.has(ExporterModule.NAME)) {
+            if (indicator instanceof WithMetadata) {
+                if (exportService == null) {
+                    exportService = moduleManager.find(ExporterModule.NAME).provider().getService(MetricValuesExportService.class);
+                }
+                exportService.export(((WithMetadata)indicator).getMeta(), indicator);
+            }
         }
     }
 }
