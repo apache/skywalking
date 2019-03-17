@@ -112,4 +112,59 @@ public class ScriptParserTest {
         Assert.assertEquals("\"/product/abc\"", stringMatchExp.getValue());
         Assert.assertEquals("stringMatch", stringMatchExp.getExpressionType());
     }
+
+    @Test
+    public void testParse4() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_response_s1_summary = from(Service.latency).filter(latency > 1000).sum();" + "\n" +
+                "service_response_s2_summary = from(Service.latency).filter(latency < 2000).sum();" + "\n" +
+                "service_response_s3_summary = from(Service.latency).filter(latency >= 3000).sum();" + "\n" +
+                "service_response_s4_summary = from(Service.latency).filter(latency <= 4000).sum();"
+        );
+        List<AnalysisResult> results = parser.parse();
+
+        AnalysisResult responseSummary = results.get(0);
+        Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricName());
+        Assert.assertEquals("Service", responseSummary.getSourceName());
+        Assert.assertEquals("latency", responseSummary.getSourceAttribute());
+        Assert.assertEquals("sum", responseSummary.getAggregationFunctionName());
+        List<ConditionExpression> expressions = responseSummary.getFilterExpressionsParserResult();
+
+        Assert.assertEquals(1, expressions.size());
+
+        ConditionExpression booleanMatchExp = expressions.get(0);
+        Assert.assertEquals("latency", booleanMatchExp.getAttribute());
+        Assert.assertEquals("1000", booleanMatchExp.getValue());
+        Assert.assertEquals("greaterMatch", booleanMatchExp.getExpressionType());
+
+        responseSummary = results.get(1);
+        expressions = responseSummary.getFilterExpressionsParserResult();
+
+        Assert.assertEquals(1, expressions.size());
+
+        booleanMatchExp = expressions.get(0);
+        Assert.assertEquals("latency", booleanMatchExp.getAttribute());
+        Assert.assertEquals("2000", booleanMatchExp.getValue());
+        Assert.assertEquals("lessMatch", booleanMatchExp.getExpressionType());
+
+        responseSummary = results.get(2);
+        expressions = responseSummary.getFilterExpressionsParserResult();
+
+        Assert.assertEquals(1, expressions.size());
+
+        booleanMatchExp = expressions.get(0);
+        Assert.assertEquals("latency", booleanMatchExp.getAttribute());
+        Assert.assertEquals("3000", booleanMatchExp.getValue());
+        Assert.assertEquals("greaterEqualMatch", booleanMatchExp.getExpressionType());
+
+        responseSummary = results.get(3);
+        expressions = responseSummary.getFilterExpressionsParserResult();
+
+        Assert.assertEquals(1, expressions.size());
+
+        booleanMatchExp = expressions.get(0);
+        Assert.assertEquals("latency", booleanMatchExp.getAttribute());
+        Assert.assertEquals("4000", booleanMatchExp.getValue());
+        Assert.assertEquals("lessEqualMatch", booleanMatchExp.getExpressionType());
+    }
 }

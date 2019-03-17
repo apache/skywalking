@@ -40,6 +40,9 @@ public class ServiceDispatcher implements SourceDispatcher<Service> {
         if (!new EqualMatch().setLeft(source.getName()).setRight("/service/prod/save").match()) {
             return;
         }
+        if (!new GreaterMatch().match(source.getLatency(), 1000)) {
+            return;
+        }
 
         indicator.setTimeBucket(source.getTimeBucket());
         indicator.setEntityId(source.getEntityId());
