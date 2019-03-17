@@ -46,11 +46,17 @@ public class FileGeneratorTest {
         result.setAggregationFunctionName("avg");
         result.setIndicatorClassName("LongAvgIndicator");
 
-        FilterExpression expression = new FilterExpression();
-        expression.setExpressionObject("EqualMatch");
-        expression.setLeft("source.getName()");
-        expression.setRight("\"/service/prod/save\"");
-        result.addFilterExpressions(expression);
+        FilterExpression equalExpression = new FilterExpression();
+        equalExpression.setExpressionObject("EqualMatch");
+        equalExpression.setLeft("source.getName()");
+        equalExpression.setRight("\"/service/prod/save\"");
+        result.addFilterExpressions(equalExpression);
+
+        FilterExpression greaterExpression = new FilterExpression();
+        greaterExpression.setExpressionObject("GreaterMatch");
+        greaterExpression.setLeft("source.getLatency()");
+        greaterExpression.setRight("1000");
+        result.addFilterExpressions(greaterExpression);
 
         EntryMethod method = new EntryMethod();
         method.setMethodName("combine");
@@ -96,7 +102,7 @@ public class FileGeneratorTest {
         fileGenerator.generateDispatcher(result, writer);
         Assert.assertEquals(readExpectedFile("ServiceDispatcherExpected.java"), writer.toString());
 
-        //fileGenerator.generateServiceDispatcher(new OutputStreamWriter(System.out));
+//        fileGenerator.generateDispatcher(result, new OutputStreamWriter(System.out));
     }
 
     private String readExpectedFile(String filename) throws IOException {
