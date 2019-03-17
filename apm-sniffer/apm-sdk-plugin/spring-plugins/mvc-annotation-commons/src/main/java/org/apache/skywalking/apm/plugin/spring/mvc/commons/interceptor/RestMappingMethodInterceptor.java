@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,7 @@ import java.lang.reflect.Method;
 
 /**
  * The <code>RestMappingMethodInterceptor</code> only use the first mapping value.
- * it will inteceptor with
+ * it will interceptor with
  * <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>
  * <code>@DeleteMapping</code>, <code>@PatchMapping</code>
  *
