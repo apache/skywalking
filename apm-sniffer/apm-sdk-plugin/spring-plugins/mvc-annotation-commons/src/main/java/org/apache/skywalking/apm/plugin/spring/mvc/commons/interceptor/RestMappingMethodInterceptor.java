@@ -73,4 +73,9 @@ public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
         }
         return requestURL;
     }
+
+    @Override
+    public String getAcceptedMethodTypes(Method method) {
+        return "";
+    }
 }

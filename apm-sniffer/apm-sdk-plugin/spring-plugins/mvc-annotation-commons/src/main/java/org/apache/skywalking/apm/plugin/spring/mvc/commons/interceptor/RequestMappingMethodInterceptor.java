@@ -31,23 +31,30 @@ import java.lang.reflect.Method;
 public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
-        StringBuilder requestURL = new StringBuilder();
+        String requestURL = "";
         RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+        if (methodRequestMapping.value().length > 0) {
+            requestURL = methodRequestMapping.value()[0];
+        } else if (methodRequestMapping.path().length > 0) {
+            requestURL = methodRequestMapping.path()[0];
+        }
+        return requestURL;
+    }
+
+    @Override
+    public String getAcceptedMethodTypes(Method method) {
+        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+        StringBuilder methodTypes = new StringBuilder();
         if (methodRequestMapping.method().length > 0) {
-            requestURL.append("{");
+            methodTypes.append("{");
             for (int i = 0; i < methodRequestMapping.method().length; i++) {
-                requestURL.append(methodRequestMapping.method()[i].toString());
+                methodTypes.append(methodRequestMapping.method()[i].toString());
                 if (methodRequestMapping.method().length > (i + 1)) {
-                    requestURL.append(",");
+                    methodTypes.append(",");
                 }
             }
-            requestURL.append("}");
+            methodTypes.append("}");
         }
-        if (methodRequestMapping.value().length > 0) {
-            requestURL.append(methodRequestMapping.value()[0]);
-        } else if (methodRequestMapping.path().length > 0) {
-            requestURL.append(methodRequestMapping.path()[0]);
-        }
-        return requestURL.toString();
+        return methodTypes.toString();
     }
 }
