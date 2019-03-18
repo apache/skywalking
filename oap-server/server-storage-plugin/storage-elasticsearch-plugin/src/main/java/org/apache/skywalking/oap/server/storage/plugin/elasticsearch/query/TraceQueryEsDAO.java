@@ -100,9 +100,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        ElasticSearchClient client = getClient();
-        String[] indexes = client.getIndexNameByDate(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
-        SearchResponse response = getClient().search(sourceBuilder, indexes);
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, startSecondTB, endSecondTB);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int)response.getHits().totalHits);
@@ -127,9 +125,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(20);
 
-        ElasticSearchClient client = getClient();
-        String[] indexes = client.getIndexNameByDate(SegmentRecord.INDEX_NAME, 0, 0);
-        SearchResponse response = getClient().search(sourceBuilder, indexes);
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {

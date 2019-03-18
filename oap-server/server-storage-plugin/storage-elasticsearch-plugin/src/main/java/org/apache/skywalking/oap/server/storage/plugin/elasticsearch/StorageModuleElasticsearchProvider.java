@@ -19,17 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
-import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -65,6 +64,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -140,6 +140,27 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
+        IModelGetter modelGetter = getManager().find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        DownsamplingConfigService downsamplingConfigService = getManager().find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
+        List<Model> models = modelGetter.getModels();
+        List<String> indexNames = new ArrayList<>();
+        models.forEach(model -> {
+            if (!model.isDeleteHistory()) {
+                indexNames.add(model.getName());
+            }
+            if (model.isIndicator()) {
+                if (downsamplingConfigService.shouldToHour()) {
+                    indexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName());
+                }
+                if (downsamplingConfigService.shouldToDay()) {
+                    indexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName());
+                }
+                if (downsamplingConfigService.shouldToMonth()) {
+                    indexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName());
+                }
+            }
+        });
+        elasticSearchClient.getCreateByDayIndexes().removeAll(indexNames);
     }
 
     @Override
