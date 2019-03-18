@@ -186,7 +186,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         DataTTLKeeperTimer.INSTANCE.setDataTTL(moduleConfig.getDataTTL());
         DataTTLKeeperTimer.INSTANCE.start(getManager());
-
+        
         CacheUpdateTimer.INSTANCE.start(getManager());
     }
 
