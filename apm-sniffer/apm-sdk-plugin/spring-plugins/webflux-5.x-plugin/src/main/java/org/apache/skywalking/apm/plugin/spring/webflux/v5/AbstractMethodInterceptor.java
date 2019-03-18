@@ -35,10 +35,11 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORW
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
 
 /**
- * the abstract method inteceptor
+ * the abstract method interceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
+    public abstract String getAcceptedMethodTypes(Method method);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -58,7 +59,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         if (requestURL == null) {
             requestURL = getRequestURL(method);
             pathMappingCache.addPathMapping(method, requestURL);
-            requestURL = pathMappingCache.findPathMapping(method);
+            requestURL = getAcceptedMethodTypes(method) + pathMappingCache.findPathMapping(method);
         }
 
         HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
@@ -71,7 +72,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             }
 
             AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
-            Tags.URL.set(span, request.uri().toString());
+            Tags.URL.set(span, request.uri());
             Tags.HTTP.METHOD.set(span, request.method().name());
             span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             SpanLayer.asHttp(span);
