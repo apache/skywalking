@@ -41,6 +41,7 @@
         <module>generate-tool</module>
         <module>server-telemetry</module>
         <module>generate-tool-grammar</module>
+        <module>exporter</module>
     </modules>
 
     <properties>
