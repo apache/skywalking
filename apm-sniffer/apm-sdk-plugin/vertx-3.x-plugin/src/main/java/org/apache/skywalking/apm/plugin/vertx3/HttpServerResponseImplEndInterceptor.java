@@ -20,12 +20,9 @@ package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.buffer.impl.BufferImpl;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
@@ -36,19 +33,14 @@ public class HttpServerResponseImplEndInterceptor implements InstanceMethodsArou
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         if (allArguments[0] instanceof BufferImpl) {
-            ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
-            AbstractSpan span = ContextManager.createLocalSpan("HttpServerResponseImplEndInterceptor-" + contextSnapshot.getParentOperationName());
-            span.setComponent(ComponentsDefine.VERTX);
-            ContextManager.continued(contextSnapshot);
+            VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+            context.getSpan().asyncFinish();
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (allArguments[0] instanceof BufferImpl) {
-            ContextManager.stopSpan();
-        }
         return ret;
     }
 

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.eventbus.Message;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -31,26 +31,33 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class HttpServerRequestImplDoEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class EventBusImplInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        HttpServerRequest request = (HttpServerRequest) objInst;
-        ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(request.headers().get(next.getHeadKey()));
-            request.headers().remove(next.getHeadKey());
-        }
+        Message message = (Message) allArguments[0];
+        if (message.address().startsWith("__vertx.reply")) {
+            VertxContext context = VertxContext.popContext(message.address());
+            context.getSpan().asyncFinish();
+        } else {
+            ContextCarrier contextCarrier = new ContextCarrier();
+            AbstractSpan span = ContextManager.createExitSpan(message.address(), contextCarrier, message.address());
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asRPCFramework(span);
 
-        AbstractSpan span = ContextManager.createEntrySpan(request.path(), contextCarrier);
-        span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asHttp(span);
-        ((EnhancedInstance) request.response()).setSkyWalkingDynamicField(new VertxContext(
-                ContextManager.capture(), span.prepareForAsync()));
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                message.headers().add(next.getHeadKey(), next.getHeadValue());
+            }
+
+            if (message.replyAddress() != null) {
+                VertxContext.pushContext(message.replyAddress(),
+                        new VertxContext(ContextManager.capture(), span.prepareForAsync()));
+            }
+        }
     }
 
     @Override
@@ -60,8 +67,9 @@ public class HttpServerRequestImplDoEndInterceptor implements InstanceMethodsAro
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                                Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

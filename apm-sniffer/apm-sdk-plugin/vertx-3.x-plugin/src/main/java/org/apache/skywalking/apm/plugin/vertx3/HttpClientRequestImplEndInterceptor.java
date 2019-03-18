@@ -41,14 +41,14 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(request.path(), contextCarrier, request.path());
         span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asRPCFramework(span);
+        SpanLayer.asHttp(span);
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
             request.headers().add(next.getHeadKey(), next.getHeadValue());
         }
-        objInst.setSkyWalkingDynamicField(ContextManager.capture());
+        objInst.setSkyWalkingDynamicField(new VertxContext(ContextManager.capture(), span.prepareForAsync()));
     }
 
     @Override

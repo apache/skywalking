@@ -19,10 +19,11 @@
 package org.apache.skywalking.apm.plugin.vertx3;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
@@ -32,9 +33,12 @@ public class HttpClientRequestImplDoHandleResponseInterceptor implements Instanc
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
-        ContextManager.createLocalSpan("HttpClientRequestImplDoHandleResponseInterceptor-" + contextSnapshot.getParentOperationName());
-        ContextManager.continued((ContextSnapshot) objInst.getSkyWalkingDynamicField());
+        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+        context.getSpan().asyncFinish();
+
+        AbstractSpan span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
+        span.setComponent(ComponentsDefine.VERTX);
+        ContextManager.continued(context.getContextSnapshot());
     }
 
     @Override
