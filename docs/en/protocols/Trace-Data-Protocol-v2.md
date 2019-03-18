@@ -2,13 +2,13 @@
 Trace Data Protocol describes the data format between SkyWalking agent/sniffer and backend. 
 
 ## Overview
-Trace data protocol is defined and provided in [gRPC format](../../../apm-protocol/apm-network/src/main/proto).
+Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/incubator-skywalking-data-collect-protocol).
 
 For each agent/SDK, it needs to register service id and service instance id before reporting any kind of trace 
 or metric data.
 
 ### Step 1. Do register
-[Register service](../../../apm-protocol/apm-network/src/main/proto/register/Register.proto) takes charge of 
+[Register service](https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/master/register/Register.proto) takes charge of 
 all register methods. At step 1, we need `doServiceRegister`, then `doServiceInstanceRegister`.
 
 1. First of all, do `doServiceRegister`, input is **serviceName**, which could be declared by any UTF-8 String. The return 
@@ -49,6 +49,8 @@ e.g. accessing DB by JDBC, reading Redis/Memcached are cataloged an ExitSpan.
 trace id, parent segment id, span id. Others are **entry service instance id**, **parent service instance id**,
 **entry endpoint**, **parent endpoint** and **network address**. Follow [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md),
 you will know how to get all these fields.
+
+4. `segment` in Upstream is the byte array of TraceSegmentObject.
 
 ### Step 3. Keep alive.
 `ServiceInstancePing#doPing` should be called per several seconds. Make the backend know this instance is still
