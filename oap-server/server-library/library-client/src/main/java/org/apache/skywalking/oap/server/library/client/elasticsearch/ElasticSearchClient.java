@@ -181,22 +181,17 @@ public class ElasticSearchClient implements Client {
         String[] indexes;
         if (this.createByDayIndexes.contains(indexName)) {
             DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd");
-            try {
-                DateTime starts = DateTime.parse(startSecondTB.toString().substring(0, 8), format);
-                DateTime ends = DateTime.parse(endSecondTB.toString().substring(0, 8), format);
-                int length = Days.daysBetween(starts, ends).getDays();
-                if (length < 1) {
-                    length = 0;
-                }
-                String[] rs = new String[length + 1];
-                for (int j = 0; j < rs.length; j++) {
-                    rs[j] = formatIndexName(indexName) + "_" + starts.plusDays(j).toString("yyyyMMdd");
-                }
-                return rs;
-            } catch (Exception e) {
-                logger.error("get indexes by date range error, error message: {}", e.getMessage());
+            DateTime starts = DateTime.parse(startSecondTB.toString().substring(0, 8), format);
+            DateTime ends = DateTime.parse(endSecondTB.toString().substring(0, 8), format);
+            int length = Days.daysBetween(starts, ends).getDays();
+            if (length < 1) {
+                length = 0;
             }
-            return null;
+            String[] rs = new String[length + 1];
+            for (int j = 0; j < rs.length; j++) {
+                rs[j] = formatIndexName(indexName) + "_" + starts.plusDays(j).toString("yyyyMMdd");
+            }
+            return rs;
         } else {
             indexes = new String[]{formatIndexName(indexName)};
         }
@@ -274,9 +269,17 @@ public class ElasticSearchClient implements Client {
         return new IndexRequest(indexName, TYPE, id).source(source);
     }
 
+    public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source, Long timeBucket) {
+        return new IndexRequest(getIndexNameByDate(indexName, timeBucket, timeBucket)[0], TYPE, id).source(source);
+    }
+
     public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
         return new UpdateRequest(indexName, TYPE, id).doc(source);
+    }
+
+    public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source, Long timeBucket) {
+        return new UpdateRequest(getIndexNameByDate(indexName, timeBucket, timeBucket)[0], TYPE, id).doc(source);
     }
 
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
