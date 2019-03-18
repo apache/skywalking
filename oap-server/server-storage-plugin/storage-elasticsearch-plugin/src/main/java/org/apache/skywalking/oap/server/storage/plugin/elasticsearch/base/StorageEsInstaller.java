@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -80,9 +79,6 @@ public class StorageEsInstaller extends ModelInstaller {
 
     @Override protected void createTable(Client client, Model tableDefine) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
-        if ((!tableDefine.isDeleteHistory() || tableDefine.getName().endsWith(Downsampling.Month.getName()) || tableDefine.getName().endsWith(Downsampling.Day.getName())) && esClient.getCreateByDayIndexes().contains(tableDefine.getName())) {
-            esClient.getCreateByDayIndexes().remove(tableDefine.getName());
-        }
 
         // mapping
         XContentBuilder mappingBuilder = null;

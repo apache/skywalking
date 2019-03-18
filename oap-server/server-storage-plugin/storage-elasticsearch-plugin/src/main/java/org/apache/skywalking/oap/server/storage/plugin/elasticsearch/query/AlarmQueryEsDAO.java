@@ -61,9 +61,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        ElasticSearchClient client = getClient();
-        String[] indexes = client.getIndexNameByDate(AlarmRecord.INDEX_NAME, startTB, endTB);
-        SearchResponse response = client.search(sourceBuilder, indexes);
+        SearchResponse response = getClient().search(AlarmRecord.INDEX_NAME, sourceBuilder, startTB, endTB);
 
         Alarms alarms = new Alarms();
         alarms.setTotal((int)response.getHits().totalHits);
