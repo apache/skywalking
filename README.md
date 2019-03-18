@@ -55,7 +55,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-- Host in Beijing. [goto](http://106.75.237.45:8080/)
+- Host in Beijing. Go to [demo](http://106.75.237.45:8080/).
   - Username: admin
   - Password: admin
 
