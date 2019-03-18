@@ -142,9 +142,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         DetectPoint detectPoint, long startTB, long endTB) throws IOException {
         sourceBuilder.aggregation(AggregationBuilders.terms(Indicator.ENTITY_ID).field(Indicator.ENTITY_ID).size(1000));
 
-        ElasticSearchClient client = getClient();
-        String[] indexes = client.getIndexNameByDate(indexName, startTB, endTB);
-        SearchResponse response = getClient().search(sourceBuilder, indexes);
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTB, endTB);
 
         List<Call> calls = new ArrayList<>();
         Terms entityTerms = response.getAggregations().get(Indicator.ENTITY_ID);

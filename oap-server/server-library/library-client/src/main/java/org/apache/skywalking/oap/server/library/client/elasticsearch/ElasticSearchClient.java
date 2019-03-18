@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -54,14 +57,14 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author peng-yongsheng
@@ -155,11 +158,18 @@ public class ElasticSearchClient implements Client {
     }
 
     public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        return this.search(searchSourceBuilder, new String[]{indexName});
+        return this.search(searchSourceBuilder, this.getAllIndexName(indexName));
     }
 
-    public SearchResponse search(SearchSourceBuilder searchSourceBuilder, String[] indexName) throws IOException {
-        indexName = formatIndexName(indexName);
+    public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder, long startSecondTB, long endSecondTB) throws IOException {
+        if (startSecondTB > 0 && endSecondTB > 0) {
+            return this.search(searchSourceBuilder, this.getIndexNameByDate(indexName, startSecondTB, endSecondTB));
+        } else {
+            return this.search(searchSourceBuilder, this.getAllIndexName(indexName));
+        }
+    }
+
+    private SearchResponse search(SearchSourceBuilder searchSourceBuilder, String[] indexName) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
         searchRequest.types(TYPE);
@@ -167,14 +177,64 @@ public class ElasticSearchClient implements Client {
         return client.search(searchRequest);
     }
 
-    public String[] getIndexNameByDate(String indexName, long startSecondTB, long endSecondTB) {
+    private String[] getIndexNameByDate(String indexName, Long startSecondTB, Long endSecondTB) {
         String[] indexes;
         if (this.createByDayIndexes.contains(indexName)) {
-            indexes = ElasticSearchUtil.INSTANCE.getEsIndexByDate(indexName, startSecondTB, endSecondTB);
+            DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd");
+            try {
+                DateTime starts = DateTime.parse(startSecondTB.toString().substring(0, 8), format);
+                DateTime ends = DateTime.parse(endSecondTB.toString().substring(0, 8), format);
+                int length = Days.daysBetween(starts, ends).getDays();
+                if (length < 1) {
+                    length = 0;
+                }
+                String[] rs = new String[length + 1];
+                for (int j = 0; j < rs.length; j++) {
+                    rs[j] = formatIndexName(indexName) + "_" + starts.plusDays(j).toString("yyyyMMdd");
+                }
+                return rs;
+            } catch (Exception e) {
+                logger.error("get indexes by date range error, error message: {}", e.getMessage());
+            }
+            return null;
         } else {
-            indexes = new String[]{indexName};
+            indexes = new String[]{formatIndexName(indexName)};
         }
         return indexes;
+    }
+
+    private String[] getAllIndexName(final String indexName) {
+        String[] indexes;
+        if (this.createByDayIndexes.contains(indexName)) {
+            List<String> in = new ArrayList<>();
+            final String formatIndexName = formatIndexName(indexName);
+            try {
+                Response response = client.getLowLevelClient().performRequest("GET","/" + formatIndexName + "_*");
+                HttpEntity entity = response.getEntity();
+                JsonObject content = (JsonObject) new JsonParser().parse(EntityUtils.toString(entity));
+                content.entrySet().forEach(entry -> {
+                    String date = StringUtils.substringAfter(entry.getKey(), formatIndexName + "_");
+                    try {
+                        if (Long.parseLong(date) < 29999931 && 20000000 < Long.parseLong(date)) {
+                            in.add(entry.getKey());
+                        }
+                    } catch (Exception e) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("{} is not {} format index name", entry.getKey(), indexName);
+                        }
+                    }
+                });
+
+                indexes = new String[in.size()];
+                indexes = in.toArray(indexes);
+                return indexes;
+            } catch (Exception e) {
+                logger.error("get all index error:{}", e);
+            }
+        } else {
+            return new String[]{formatIndexName(indexName)};
+        }
+        return null;
     }
 
     public GetResponse get(String indexName, String id) throws IOException {
@@ -242,18 +302,6 @@ public class ElasticSearchClient implements Client {
             return namespace + "_" + indexName;
         }
         return indexName;
-    }
-
-    private String[] formatIndexName(String[] indexName) {
-        String[] formatIndex = new String[indexName.length];
-        for (int i = 0; i < indexName.length; i++) {
-            if (StringUtils.isNotEmpty(namespace)) {
-                formatIndex[i] = namespace + "_" + indexName[i];
-            } else {
-                formatIndex[i] = indexName[i];
-            }
-        }
-        return formatIndex;
     }
 
     public BulkProcessor createBulkProcessor(int bulkActions, int bulkSize, int flushInterval,
