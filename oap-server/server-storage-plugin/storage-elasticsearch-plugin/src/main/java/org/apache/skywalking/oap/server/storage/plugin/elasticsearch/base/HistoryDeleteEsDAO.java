@@ -55,7 +55,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
     @Override
     public void deleteHistory(String modelName, String timeBucketColumnName, Long timeBucketBefore) throws IOException {
         ElasticSearchClient client = getClient();
-        if (client.getCreateByDayIndexes().contains(modelName)) {
+        if (client.isDailyIndex(modelName)) {
 
             Model currModel = null;
 

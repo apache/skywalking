@@ -115,7 +115,7 @@ public class ElasticSearchClient implements Client {
 
     public boolean createIndex(String indexName, Settings settings,
         XContentBuilder mappingBuilder) throws IOException {
-        if (!this.createByDayIndexes.contains(indexName)) {
+        if (!this.isDailyIndex(indexName)) {
             return createIndexSingle(indexName, settings, mappingBuilder);
         } else {
             DateTime currentTime = new DateTime();
@@ -169,6 +169,10 @@ public class ElasticSearchClient implements Client {
         }
     }
 
+    public boolean isDailyIndex(String indexName) {
+        return this.createByDayIndexes.contains(indexName);
+    }
+
     private SearchResponse search(SearchSourceBuilder searchSourceBuilder, String[] indexName) throws IOException {
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.indicesOptions(IndicesOptions.fromOptions(true, true, true, false));
@@ -179,7 +183,7 @@ public class ElasticSearchClient implements Client {
 
     private String[] getIndexNameByDate(String indexName, Long startSecondTB, Long endSecondTB) {
         String[] indexes;
-        if (this.createByDayIndexes.contains(indexName)) {
+        if (this.isDailyIndex(indexName)) {
             DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd");
             DateTime starts = DateTime.parse(startSecondTB.toString().substring(0, 8), format);
             DateTime ends = DateTime.parse(endSecondTB.toString().substring(0, 8), format);
@@ -200,7 +204,7 @@ public class ElasticSearchClient implements Client {
 
     private String[] getAllIndexName(final String indexName) {
         String[] indexes;
-        if (this.createByDayIndexes.contains(indexName)) {
+        if (this.isDailyIndex(indexName)) {
             List<String> in = new ArrayList<>();
             final String formatIndexName = formatIndexName(indexName);
             try {
