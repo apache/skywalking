@@ -25,31 +25,39 @@ import org.apache.skywalking.apm.network.common.*;
  */
 public class MetaDataResetCommand extends BaseCommand implements Serializable {
 
-    private KeyStringValuePair.Builder arguments = KeyStringValuePair.newBuilder();
+    private KeyStringValuePair.Builder waitArguments = KeyStringValuePair.newBuilder();
+    private KeyStringValuePair.Builder specifiedArguments = KeyStringValuePair.newBuilder();
 
     public MetaDataResetCommand() {
         super("MetaDataReset");
+        waitArguments.setKey("Wait_Seconds");
+        waitArguments.setValue(String.valueOf(0));
     }
 
     @Override public Command.Builder serialize() {
         Command.Builder command = Command.newBuilder();
+        command.addArgs(specifiedArguments);
+        command.addArgs(waitArguments);
         command.setCommand(getCommand());
-        command.addArgs(arguments);
         return command;
     }
 
+    public void waitSeconds(int seconds) {
+        waitArguments.setValue(String.valueOf(seconds));
+    }
+
     public void specifiedService(int serviceId) {
-        arguments.setKey("Specified_Service");
-        arguments.setValue(String.valueOf(serviceId));
+        specifiedArguments.setKey("Specified_Service");
+        specifiedArguments.setValue(String.valueOf(serviceId));
     }
 
     public void specifiedInstance(String instanceUUID) {
-        arguments.setKey("Specified_Instance");
-        arguments.setValue(instanceUUID);
+        specifiedArguments.setKey("Specified_Instance");
+        specifiedArguments.setValue(instanceUUID);
     }
 
     public void unconditional() {
-        arguments.setKey("Unconditional");
-        arguments.setValue("");
+        specifiedArguments.setKey("Unconditional");
+        specifiedArguments.setValue("");
     }
 }
