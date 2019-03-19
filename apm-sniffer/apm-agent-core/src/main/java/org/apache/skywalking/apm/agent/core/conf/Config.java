@@ -166,6 +166,7 @@ public class Config {
              */
             public static boolean TRACE_DSL = false;
         }
+
         public static class Customize {
             /**
              * Custom enhancement class configuration file path, recommended to use an absolute path.
@@ -177,6 +178,20 @@ public class Config {
              * And using Map CONTEXT for avoiding classloader isolation issue.
              */
             public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+        }
+
+        public static class SpringMVC {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+        }
+
+        public static class Toolkit {
+            /**
+             * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
     }
 }

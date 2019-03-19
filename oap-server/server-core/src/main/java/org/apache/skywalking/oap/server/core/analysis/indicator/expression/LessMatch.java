@@ -16,13 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.oap.server.core.analysis.indicator.expression;
 
 /**
- * Alarm supported interface implementor could return the {@link AlarmMeta}
- *
- * @author wusheng
+ * @author peng-yongsheng
  */
-public interface AlarmSupported {
-    AlarmMeta getAlarmMeta();
+public class LessMatch {
+
+    public boolean match(Integer left, Integer right) {
+        return left < right;
+    }
+
+    public boolean match(Long left, Long right) {
+        return left < right;
+    }
+
+    public boolean match(Float left, Float right) {
+        return left < right;
+    }
+
+    public boolean match(Double left, Double right) {
+        return left < right;
+    }
 }

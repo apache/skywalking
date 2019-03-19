@@ -18,21 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
-import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
+import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.IIndicatorDAO;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 import static java.util.Objects.nonNull;
 
@@ -46,16 +41,19 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
     private final String modelName;
     private final MergeDataCache<Indicator> mergeDataCache;
     private final IIndicatorDAO indicatorDAO;
-    private final AbstractWorker<Indicator> nextWorker;
+    private final AbstractWorker<Indicator> nextAlarmWorker;
+    private final AbstractWorker<Indicator> nextExportWorker;
     private final DataCarrier<Indicator> dataCarrier;
 
     IndicatorPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
-        IIndicatorDAO indicatorDAO, AbstractWorker<Indicator> nextWorker) {
+        IIndicatorDAO indicatorDAO, AbstractWorker<Indicator> nextAlarmWorker,
+        AbstractWorker<Indicator> nextExportWorker) {
         super(moduleManager, workerId, batchSize);
         this.modelName = modelName;
         this.mergeDataCache = new MergeDataCache<>();
         this.indicatorDAO = indicatorDAO;
-        this.nextWorker = nextWorker;
+        this.nextAlarmWorker = nextAlarmWorker;
+        this.nextExportWorker = nextExportWorker;
 
         String name = "INDICATOR_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -117,8 +115,11 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
                     batchCollection.add(indicatorDAO.prepareBatchInsert(modelName, data));
                 }
 
-                if (Objects.nonNull(nextWorker)) {
-                    nextWorker.in(data);
+                if (Objects.nonNull(nextAlarmWorker)) {
+                    nextAlarmWorker.in(data);
+                }
+                if (Objects.nonNull(nextExportWorker)) {
+                    nextExportWorker.in(data);
                 }
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
