@@ -232,9 +232,8 @@ public class ElasticSearchClient implements Client {
         return null;
     }
 
-    public GetResponse get(String indexName, String id) throws IOException {
-        indexName = formatIndexName(indexName);
-        GetRequest request = new GetRequest(indexName, TYPE, id);
+    public GetResponse get(String indexName, String id, Long timeBucket) throws IOException {
+        GetRequest request = new GetRequest(getIndexNameByDate(indexName, timeBucket, timeBucket)[0], TYPE, id);
         return client.get(request);
     }
 

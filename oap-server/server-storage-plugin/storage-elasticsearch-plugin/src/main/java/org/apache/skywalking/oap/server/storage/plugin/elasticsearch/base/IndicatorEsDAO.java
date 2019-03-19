@@ -45,7 +45,7 @@ public class IndicatorEsDAO extends EsDAO implements IIndicatorDAO<IndexRequest,
     }
 
     @Override public Indicator get(String modelName, Indicator indicator) throws IOException {
-        GetResponse response = getClient().get(modelName, indicator.id());
+        GetResponse response = getClient().get(modelName, indicator.id(), indicator.getTimeBucket());
         if (response.isExists()) {
             return storageBuilder.map2Data(response.getSource());
         } else {
