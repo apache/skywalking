@@ -31,6 +31,9 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author brandon.fergerson
+ */
 public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

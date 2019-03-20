@@ -26,6 +26,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
+/**
+ * @author brandon.fergerson
+ */
 public class HttpServerResponseImplEndInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

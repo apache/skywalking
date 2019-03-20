@@ -7,7 +7,10 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class VertxContext {
+/**
+ * @author brandon.fergerson
+ */
+class VertxContext {
 
     private static final Map<String, Stack<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<String, Stack<VertxContext>>();
 
