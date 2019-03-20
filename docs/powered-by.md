@@ -48,7 +48,8 @@ or providing commercial products including Apache SkyWalking.
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
-1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com . 
+1. Osacart in WeChat app 广州美克曼尼电子商务有限公司
+1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com 
 1. qiniu.com 七牛云 http://qiniu.com 
 1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
 1. Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
@@ -92,3 +93,5 @@ Provide a customized version SkyWalking agent. It could provide distributed trac
 ## Primeton
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
 
+## Oscart
+Use multiple language agents from SkyWalking and its ecosystem, including SkyWalking Javaagent and [SkyAPM nodejs agent](https://github.com/SkyAPM/SkyAPM-nodejs). SkyWalking OAP platform acts as backend and visualization.

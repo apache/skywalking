@@ -74,11 +74,11 @@ funcParamExpression
     ;
 
 literalExpression
-    : BOOL_LITERAL | INT_LITERAL
+    : BOOL_LITERAL | NUMBER_LITERAL
     ;
 
 expression
-    : booleanMatch | stringMatch
+    : booleanMatch | stringMatch | greaterMatch | lessMatch | greaterEqualMatch | lessEqualMatch
     ;
 
 booleanMatch
@@ -87,6 +87,22 @@ booleanMatch
 
 stringMatch
     :  conditionAttribute DUALEQUALS (stringConditionValue | enumConditionValue)
+    ;
+
+greaterMatch
+    :  conditionAttribute GREATER numberConditionValue
+    ;
+
+lessMatch
+    :  conditionAttribute LESS numberConditionValue
+    ;
+
+greaterEqualMatch
+    :  conditionAttribute GREATER_EQUAL numberConditionValue
+    ;
+
+lessEqualMatch
+    :  conditionAttribute LESS_EQUAL numberConditionValue
     ;
 
 conditionAttribute
@@ -103,4 +119,8 @@ stringConditionValue
 
 enumConditionValue
     : IDENTIFIER DOT IDENTIFIER
+    ;
+
+numberConditionValue
+    : NUMBER_LITERAL
     ;

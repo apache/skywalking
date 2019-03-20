@@ -323,6 +323,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     @Override public AbstractSpan prepareForAsync() {
         context = ContextManager.awaitFinishAsync(this);
+        isInAsyncMode = true;
         return this;
     }
 
