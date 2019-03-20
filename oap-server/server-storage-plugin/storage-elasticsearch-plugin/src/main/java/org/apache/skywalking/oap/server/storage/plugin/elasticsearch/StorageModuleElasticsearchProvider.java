@@ -143,24 +143,24 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         IModelGetter modelGetter = getManager().find(CoreModule.NAME).provider().getService(IModelGetter.class);
         DownsamplingConfigService downsamplingConfigService = getManager().find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
         List<Model> models = modelGetter.getModels();
-        List<String> indexNames = new ArrayList<>();
+        List<String> notAllowDailyIndexNames = new ArrayList<>();
         models.forEach(model -> {
             if (!model.isDeleteHistory()) {
-                indexNames.add(model.getName());
+                notAllowDailyIndexNames.add(model.getName());
             }
             if (model.isIndicator()) {
                 if (downsamplingConfigService.shouldToHour()) {
-                    indexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName());
+                    notAllowDailyIndexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName());
                 }
                 if (downsamplingConfigService.shouldToDay()) {
-                    indexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName());
+                    notAllowDailyIndexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Day.getName());
                 }
                 if (downsamplingConfigService.shouldToMonth()) {
-                    indexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName());
+                    notAllowDailyIndexNames.add(model.getName() + Const.ID_SPLIT + Downsampling.Month.getName());
                 }
             }
         });
-        elasticSearchClient.getCreateByDayIndexes().removeAll(indexNames);
+        elasticSearchClient.getCreateByDayIndexes().removeAll(notAllowDailyIndexNames);
     }
 
     @Override

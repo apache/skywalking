@@ -211,10 +211,11 @@ public class ElasticSearchClient implements Client {
                 Response response = client.getLowLevelClient().performRequest("GET","/" + formatIndexName + "_*");
                 HttpEntity entity = response.getEntity();
                 JsonObject content = (JsonObject) new JsonParser().parse(EntityUtils.toString(entity));
+                DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd");
                 content.entrySet().forEach(entry -> {
                     String date = StringUtils.substringAfter(entry.getKey(), formatIndexName + "_");
                     try {
-                        if (Long.parseLong(date) < 29999931 && 20000000 < Long.parseLong(date)) {
+                        if (DateTime.parse(date, format).toString("yyyyMMdd").equals(date)) {
                             in.add(entry.getKey());
                         }
                     } catch (Exception e) {
