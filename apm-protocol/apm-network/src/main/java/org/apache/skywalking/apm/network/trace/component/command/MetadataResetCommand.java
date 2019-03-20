@@ -23,14 +23,14 @@ import org.apache.skywalking.apm.network.common.*;
 /**
  * @author peng-yongsheng
  */
-public class MetaDataResetCommand extends BaseCommand implements Serializable {
+public class MetadataResetCommand extends BaseCommand implements Serializable {
 
     private KeyStringValuePair.Builder waitArguments = KeyStringValuePair.newBuilder();
     private KeyStringValuePair.Builder specifiedArguments = KeyStringValuePair.newBuilder();
 
-    public MetaDataResetCommand() {
-        super("MetaDataReset");
-        waitArguments.setKey("Wait_Seconds");
+    public MetadataResetCommand() {
+        super("MetadataReset");
+        waitArguments.setKey("WaitSeconds");
         waitArguments.setValue(String.valueOf(0));
     }
 
@@ -47,12 +47,12 @@ public class MetaDataResetCommand extends BaseCommand implements Serializable {
     }
 
     public void specifiedService(int serviceId) {
-        specifiedArguments.setKey("Specified_Service");
+        specifiedArguments.setKey("SpecifiedService");
         specifiedArguments.setValue(String.valueOf(serviceId));
     }
 
     public void specifiedInstance(String instanceUUID) {
-        specifiedArguments.setKey("Specified_Instance");
+        specifiedArguments.setKey("SpecifiedInstance");
         specifiedArguments.setValue(instanceUUID);
     }
 

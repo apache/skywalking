@@ -41,7 +41,7 @@ public class TraceIgnoreCommand extends BaseCommand implements Serializable {
     }
 
     public void specifiedService(int serviceId) {
-        serviceArguments.setKey("Specified_Service");
+        serviceArguments.setKey("SpecifiedService");
         serviceArguments.setValue(String.valueOf(serviceId));
     }
 
