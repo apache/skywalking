@@ -49,9 +49,15 @@ public class ${source}Dispatcher implements SourceDispatcher<${source}> {
 
     <#if indicator.filterExpressions??>
         <#list indicator.filterExpressions as filterExpression>
+            <#if filterExpression.expressionObject == "GreaterMatch" || filterExpression.expressionObject == "LessMatch" || filterExpression.expressionObject == "GreaterEqualMatch" || filterExpression.expressionObject == "LessEqualMatch">
+        if (!new ${filterExpression.expressionObject}().match(${filterExpression.left}, ${filterExpression.right})) {
+            return;
+        }
+            <#else>
         if (!new ${filterExpression.expressionObject}().setLeft(${filterExpression.left}).setRight(${filterExpression.right}).match()) {
             return;
         }
+            </#if>
         </#list>
     </#if>
 
