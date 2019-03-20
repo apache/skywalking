@@ -50,7 +50,7 @@ public enum TopNProcess {
         try {
             recordDAO = storageDAO.newRecordDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " top n record DAO failure.", e);
         }
 
         TopNWorker persistentWorker = new TopNWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, moduleManager,
