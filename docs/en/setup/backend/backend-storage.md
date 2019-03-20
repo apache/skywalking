@@ -37,6 +37,8 @@ Setting fragment example
 storage:
   elasticsearch:
     # nameSpace: ${SW_NAMESPACE:""}
+    # user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
+    # password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
@@ -46,9 +48,13 @@ storage:
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
+
 ### About Namespace
 When namespace is set, names of all indexes in ElasticSearch will use it as prefix.
 
+### About Http Basic
+For scenarios that require an external network to access Elasticsearch, we will set up Http Basic authentication for Elasticsearch for security reasons. How to enable Http Basic authentication support can be found at: https://brudtkuhl.com/blog/securing-elasticsearch/
+When Elasticsearch is set up to require Http Basic authentication, you need to set the user and password.
 ## MySQL
 Active MySQL as storage, set storage provider to **mysql**. 
 
