@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class HttpClientRequestImplDoHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestBaseDoHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")

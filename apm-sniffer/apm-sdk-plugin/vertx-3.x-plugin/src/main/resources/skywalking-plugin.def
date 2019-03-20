@@ -16,7 +16,9 @@
 
 vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.EventBusImplInstrumentation
 vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HandlerRegistrationInstrumentation
-vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestImplDoHandleResponseInstrumentation
+vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseDoHandleResponseInstrumentation
+vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseHandleExceptionInstrumentation
 vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestImplEndInstrumentation
 vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerRequestImplDoEndInstrumentation
 vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerResponseImplEndInstrumentation
+vertx-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerResponseImplHandleExceptionInstrumentation
