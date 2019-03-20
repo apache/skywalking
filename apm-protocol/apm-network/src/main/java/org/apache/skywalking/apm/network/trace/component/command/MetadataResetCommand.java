@@ -28,17 +28,16 @@ public class MetadataResetCommand extends BaseCommand implements Serializable {
     private KeyStringValuePair.Builder waitArguments = KeyStringValuePair.newBuilder();
     private KeyStringValuePair.Builder specifiedArguments = KeyStringValuePair.newBuilder();
 
-    public MetadataResetCommand() {
-        super("MetadataReset");
+    public MetadataResetCommand(String serialNumber) {
+        super("MetadataReset", serialNumber);
         waitArguments.setKey("WaitSeconds");
         waitArguments.setValue(String.valueOf(0));
     }
 
     @Override public Command.Builder serialize() {
-        Command.Builder command = Command.newBuilder();
+        Command.Builder command = newCommandBuilder();
         command.addArgs(specifiedArguments);
         command.addArgs(waitArguments);
-        command.setCommand(getCommand());
         return command;
     }
 

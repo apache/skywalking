@@ -28,13 +28,12 @@ public class TraceIgnoreCommand extends BaseCommand implements Serializable {
     private KeyStringValuePair.Builder serviceArguments = KeyStringValuePair.newBuilder();
     private KeyStringValuePair.Builder optionArguments = KeyStringValuePair.newBuilder();
 
-    public TraceIgnoreCommand() {
-        super("TraceIgnore");
+    public TraceIgnoreCommand(String serialNumber) {
+        super("TraceIgnore", serialNumber);
     }
 
     @Override public Command.Builder serialize() {
-        Command.Builder command = Command.newBuilder();
-        command.setCommand(getCommand());
+        Command.Builder command = newCommandBuilder();
         command.addArgs(serviceArguments);
         command.addArgs(optionArguments);
         return command;

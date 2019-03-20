@@ -18,18 +18,37 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
+import org.apache.skywalking.apm.network.common.*;
+
 /**
  * @author peng-yongsheng
  */
 public abstract class BaseCommand {
 
     private final String command;
+    private final String serialNumber;
 
-    public BaseCommand(String command) {
+    BaseCommand(String command, String serialNumber) {
         this.command = command;
+        this.serialNumber = serialNumber;
+    }
+
+    Command.Builder newCommandBuilder() {
+        Command.Builder commandBuilder = Command.newBuilder();
+        commandBuilder.setCommand(command);
+
+        KeyStringValuePair.Builder arguments = KeyStringValuePair.newBuilder();
+        arguments.setKey("SerialNumber");
+        arguments.setValue(serialNumber);
+
+        return commandBuilder;
     }
 
     public String getCommand() {
         return command;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
     }
 }
