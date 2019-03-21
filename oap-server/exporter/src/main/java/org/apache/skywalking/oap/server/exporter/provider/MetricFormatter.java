@@ -40,6 +40,8 @@ public class MetricFormatter {
             return serviceInstanceInventoryCache.get(scope).getName();
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
             return endpointInventoryCache.get(scope).getName();
+        } else if (scope == DefaultScopeDefine.ALL) {
+            return "";
         } else {
             return null;
         }
