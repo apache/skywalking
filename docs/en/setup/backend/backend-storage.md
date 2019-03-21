@@ -52,9 +52,11 @@ storage:
 ### About Namespace
 When namespace is set, names of all indexes in ElasticSearch will use it as prefix.
 
-### About Http Basic
-For scenarios that require an external network to access Elasticsearch, we will set up Http Basic authentication for Elasticsearch for security reasons. How to enable Http Basic authentication support can be found at: https://brudtkuhl.com/blog/securing-elasticsearch/
-When Elasticsearch is set up to require Http Basic authentication, you need to set the user and password.
+### About Authentication
+We only support [basic authentication](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.6/_basic_authentication.html). If you need that, you could set `user` and `password`.
+For how to enable http basic authentication, you could read this https://brudtkuhl.com/blog/securing-elasticsearch/
+
+
 ## MySQL
 Active MySQL as storage, set storage provider to **mysql**. 
 
