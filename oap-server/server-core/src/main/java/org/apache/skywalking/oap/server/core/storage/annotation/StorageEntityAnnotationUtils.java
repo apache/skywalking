@@ -31,7 +31,7 @@ public class StorageEntityAnnotationUtils {
             StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
             return annotation.name();
         } else {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Fail to get model name from class " + aClass.getSimpleName());
         }
     }
 
@@ -40,7 +40,7 @@ public class StorageEntityAnnotationUtils {
             StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
             return annotation.deleteHistory();
         } else {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Fail to get delete history tag from class " + aClass.getSimpleName());
         }
     }
 
@@ -49,7 +49,7 @@ public class StorageEntityAnnotationUtils {
             StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
             return annotation.builder();
         } else {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Fail to get entity builder from class " + aClass.getSimpleName());
         }
     }
 
@@ -58,7 +58,7 @@ public class StorageEntityAnnotationUtils {
             StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
             return annotation.sourceScopeId();
         } else {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Fail to get source scope from class " + aClass.getSimpleName());
         }
     }
 }

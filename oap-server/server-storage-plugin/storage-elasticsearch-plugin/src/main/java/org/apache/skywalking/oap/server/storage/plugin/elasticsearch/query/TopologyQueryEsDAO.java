@@ -55,7 +55,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     public List<Call> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
-            throw new UnexpectedException("Service id is null");
+            throw new UnexpectedException("Service id is empty");
         }
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -70,7 +70,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     public List<Call> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
-            throw new UnexpectedException("Service id is null");
+            throw new UnexpectedException("Service id is empty");
         }
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();

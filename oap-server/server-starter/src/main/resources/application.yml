@@ -85,6 +85,8 @@ receiver-trace:
     slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 receiver-jvm:
   default:
+receiver-clr:
+  default:
 service-mesh:
   default:
     bufferPath: ${SW_SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
