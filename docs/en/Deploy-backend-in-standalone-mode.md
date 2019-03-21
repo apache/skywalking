@@ -22,7 +22,7 @@ You can simply tar/unzip and startup if ports 8080, 10800, 11800, 12800 are free
 
 You should keep the `config/application.yml` as default.
 
-- NOTICE: **In 5.0.0, startup.sh will start two processes, collector and UI, and UI uses 127.0.0.1:10800 as default.**
+- NOTICE: **In 5.0.0, startup.sh will start two processes, collector and UI, and UI uses 127.0.0.1:8080 as default.**
 
 ## Use Elastic Search instead of H2 as storage layer implementation
 Even in standalone mode, collector can run with Elastic Search as storage. If so, uncomment the `storage` section in `application.yml`, set the config right. The default configs fit for collector and Elasticsearch both running in same machine, and not cluster.
