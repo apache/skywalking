@@ -39,7 +39,6 @@ public class ExporterMockReceiver {
         @Override public StreamObserver<ExportMetricValue> export(StreamObserver<ExportResponse> responseObserver) {
             return new StreamObserver<ExportMetricValue>() {
                 @Override public void onNext(ExportMetricValue value) {
-                    //System.out.println(value);
                 }
 
                 @Override public void onError(Throwable throwable) {
