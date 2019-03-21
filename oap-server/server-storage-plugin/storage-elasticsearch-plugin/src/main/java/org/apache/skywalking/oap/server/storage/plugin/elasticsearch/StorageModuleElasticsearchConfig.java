@@ -40,6 +40,24 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int bulkSize = 20;
     private int flushInterval = 10;
     private int concurrentRequests = 2;
+    private String user;
+    private String password;
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     int getIndexShardsNumber() {
         return indexShardsNumber;

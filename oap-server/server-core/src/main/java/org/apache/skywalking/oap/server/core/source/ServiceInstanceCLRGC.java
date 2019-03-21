@@ -21,12 +21,13 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CLR_GC;
 
 /**
  * @author liuhaoyang
  **/
-@ScopeDeclaration(id = SERVICE_INSTANCE_CLR_GC, name = "ServiceInstanceCLRGC")
+@ScopeDeclaration(id = SERVICE_INSTANCE_CLR_GC, name = "ServiceInstanceCLRGC", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 public class ServiceInstanceCLRGC extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE_CLR_GC;
