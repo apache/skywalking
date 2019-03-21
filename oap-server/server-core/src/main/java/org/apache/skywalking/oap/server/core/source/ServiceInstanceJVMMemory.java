@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY;
 
 /**
  * @author peng-yongsheng
  */
-@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory")
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 public class ServiceInstanceJVMMemory extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY;
