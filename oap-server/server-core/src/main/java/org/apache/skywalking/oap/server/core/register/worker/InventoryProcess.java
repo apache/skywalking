@@ -49,7 +49,7 @@ public enum InventoryProcess {
         try {
             registerDAO = storageDAO.newRegisterDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " register DAO failure.", e);
         }
 
         RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, moduleManager, registerDAO, scopeId);
