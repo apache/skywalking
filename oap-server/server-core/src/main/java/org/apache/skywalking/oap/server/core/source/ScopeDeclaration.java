@@ -30,4 +30,5 @@ import java.lang.annotation.*;
 public @interface ScopeDeclaration {
     int id();
     String name();
+    String catalog() default "";
 }

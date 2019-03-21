@@ -18,29 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
 /**
  * @author wusheng
  */
 public class AlarmEntrance {
     private ModuleManager moduleManager;
-    private ServiceInventoryCache serviceInventoryCache;
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
     private IndicatorNotify indicatorNotify;
-    private ReentrantLock initLock;
 
     public AlarmEntrance(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        this.initLock = new ReentrantLock();
     }
 
     public void forward(Indicator indicator) {
@@ -50,63 +39,12 @@ public class AlarmEntrance {
 
         init();
 
-        IndicatorMetaInfo indicatorMetaInfo = ((WithMetadata)indicator).getMeta();
-
-        MetaInAlarm metaInAlarm;
-        switch (indicatorMetaInfo.getScope()) {
-            case SERVICE:
-                int serviceId = Integer.parseInt(indicatorMetaInfo.getId());
-                ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
-                ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
-                serviceMetaInAlarm.setIndicatorName(indicatorMetaInfo.getIndicatorName());
-                serviceMetaInAlarm.setId(serviceId);
-                serviceMetaInAlarm.setName(serviceInventory.getName());
-                metaInAlarm = serviceMetaInAlarm;
-                break;
-            case SERVICE_INSTANCE:
-                int serviceInstanceId = Integer.parseInt(indicatorMetaInfo.getId());
-                ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
-                ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
-                instanceMetaInAlarm.setIndicatorName(indicatorMetaInfo.getIndicatorName());
-                instanceMetaInAlarm.setId(serviceInstanceId);
-                instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
-                metaInAlarm = instanceMetaInAlarm;
-                break;
-            case ENDPOINT:
-                int endpointId = Integer.parseInt(indicatorMetaInfo.getId());
-                EndpointInventory endpointInventory = endpointInventoryCache.get(endpointId);
-                EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
-                endpointMetaInAlarm.setIndicatorName(indicatorMetaInfo.getIndicatorName());
-                endpointMetaInAlarm.setId(endpointId);
-
-                serviceId = endpointInventory.getServiceId();
-                serviceInventory = serviceInventoryCache.get(serviceId);
-
-                String textName = endpointInventory.getName() + " in " + serviceInventory.getName();
-
-                endpointMetaInAlarm.setName(textName);
-                metaInAlarm = endpointMetaInAlarm;
-                break;
-            default:
-                return;
-        }
-
-        indicatorNotify.notify(metaInAlarm, indicator);
+        indicatorNotify.notify(indicator);
     }
 
     private void init() {
-        if (serviceInventoryCache == null) {
-            initLock.lock();
-            try {
-                if (serviceInventoryCache == null) {
-                    serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-                    serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-                    endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
-                    indicatorNotify = moduleManager.find(AlarmModule.NAME).provider().getService(IndicatorNotify.class);
-                }
-            } finally {
-                initLock.unlock();
-            }
+        if (indicatorNotify == null) {
+            indicatorNotify = moduleManager.find(AlarmModule.NAME).provider().getService(IndicatorNotify.class);
         }
     }
 }
