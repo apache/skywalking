@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -30,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
@@ -38,10 +40,11 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQU
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
 /**
- * the abstract method inteceptor
+ * the abstract method interceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
+    public abstract String getAcceptedMethodTypes(Method method);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -56,12 +59,18 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             return;
         }
 
-        EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
-        String requestURL = pathMappingCache.findPathMapping(method);
-        if (requestURL == null) {
-            requestURL = getRequestURL(method);
-            pathMappingCache.addPathMapping(method, requestURL);
-            requestURL = pathMappingCache.findPathMapping(method);
+        String operationName;
+        if (Config.Plugin.SpringMVC.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
+            operationName = MethodUtil.generateOperationName(method);
+        } else {
+            EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache)objInst.getSkyWalkingDynamicField();
+            String requestURL = pathMappingCache.findPathMapping(method);
+            if (requestURL == null) {
+                requestURL = getRequestURL(method);
+                pathMappingCache.addPathMapping(method, requestURL);
+                requestURL = getAcceptedMethodTypes(method) + pathMappingCache.findPathMapping(method);
+            }
+            operationName = requestURL;
         }
 
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
@@ -73,7 +82,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 next.setHeadValue(request.getHeader(next.getHeadKey()));
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
+            AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
             Tags.URL.set(span, request.getRequestURL().toString());
             Tags.HTTP.METHOD.set(span, request.getMethod());
             span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);

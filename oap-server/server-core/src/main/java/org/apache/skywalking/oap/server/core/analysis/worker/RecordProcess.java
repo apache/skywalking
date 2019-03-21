@@ -50,7 +50,8 @@ public enum RecordProcess {
         try {
             recordDAO = storageDAO.newRecordDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " record DAO failure.", e);
+
         }
 
         RecordPersistentWorker persistentWorker = new RecordPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,

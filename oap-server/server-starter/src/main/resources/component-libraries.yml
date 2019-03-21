@@ -205,7 +205,6 @@ Zookeeper:
   id: 58
   languages: Java
 
-
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
 AspNetCore:
@@ -252,6 +251,9 @@ InMemoryDatabase:
   languages: C#
 AspNet:
   id: 3015
+  languages: C#
+SmartSql:
+  id: 3016
   languages: C#
 
 # NoeJS components

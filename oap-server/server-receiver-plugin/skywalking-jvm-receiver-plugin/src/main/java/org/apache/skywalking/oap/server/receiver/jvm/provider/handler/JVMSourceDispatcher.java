@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
 import java.util.List;
+import org.apache.skywalking.apm.network.common.CPU;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
