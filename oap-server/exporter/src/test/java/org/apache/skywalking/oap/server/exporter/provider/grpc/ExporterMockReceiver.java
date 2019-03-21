@@ -30,7 +30,7 @@ public class ExporterMockReceiver {
         server.addHandler(new MockHandler());
         server.start();
 
-        while (true){
+        while (true) {
             Thread.sleep(20000L);
         }
     }
@@ -39,7 +39,7 @@ public class ExporterMockReceiver {
         @Override public StreamObserver<ExportMetricValue> export(StreamObserver<ExportResponse> responseObserver) {
             return new StreamObserver<ExportMetricValue>() {
                 @Override public void onNext(ExportMetricValue value) {
-                    System.out.println(value);
+                    //System.out.println(value);
                 }
 
                 @Override public void onError(Throwable throwable) {
