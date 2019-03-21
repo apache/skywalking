@@ -61,6 +61,8 @@ storage:
     user: ${SW_STORAGE_H2_USER:sa}
 #  elasticsearch:
 #    # nameSpace: ${SW_NAMESPACE:""}
+#    # user: ${SW_ES_USER:""}
+#    # password: ${SW_ES_PASSWORD:""}
 #    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
 #    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
 #    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
