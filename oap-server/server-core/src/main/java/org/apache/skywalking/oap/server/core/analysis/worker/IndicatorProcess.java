@@ -49,7 +49,7 @@ public enum IndicatorProcess {
         try {
             indicatorDAO = storageDAO.newIndicatorDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " indicator DAO failure.", e);
         }
 
         IndicatorPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleManager, indicatorDAO, modelName);
