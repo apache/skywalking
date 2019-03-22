@@ -21,36 +21,24 @@ package org.apache.skywalking.apm.network.trace.component.command;
 import org.apache.skywalking.apm.network.common.*;
 
 /**
+ * Trace ignore sync, each configuration downstream is the full amount of data related to the received agent.
+ *
  * @author peng-yongsheng
  */
 public class TraceIgnoreCommand extends BaseCommand implements Serializable {
 
-    private KeyStringValuePair.Builder serviceArguments = KeyStringValuePair.newBuilder();
-    private KeyStringValuePair.Builder optionArguments = KeyStringValuePair.newBuilder();
-
     public TraceIgnoreCommand(String serialNumber) {
-        super("TraceIgnore", serialNumber);
+        super("TraceIgnoreSync", serialNumber);
     }
 
     @Override public Command.Builder serialize() {
-        Command.Builder command = newCommandBuilder();
-        command.addArgs(serviceArguments);
-        command.addArgs(optionArguments);
-        return command;
-    }
-
-    public void specifiedService(int serviceId) {
-        serviceArguments.setKey("SpecifiedService");
-        serviceArguments.setValue(String.valueOf(serviceId));
+        return commandBuilder();
     }
 
     public void addRule(String path) {
-        optionArguments.setKey("Add");
-        optionArguments.setValue(path);
-    }
-
-    public void deleteRule(String path) {
-        optionArguments.setKey("Delete");
-        optionArguments.setValue(path);
+        KeyStringValuePair.Builder arguments = KeyStringValuePair.newBuilder();
+        arguments.setKey("Path");
+        arguments.setValue(path);
+        commandBuilder().addArgs(arguments);
     }
 }

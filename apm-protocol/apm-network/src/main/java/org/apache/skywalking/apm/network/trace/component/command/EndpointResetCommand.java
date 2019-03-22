@@ -21,36 +21,25 @@ package org.apache.skywalking.apm.network.trace.component.command;
 import org.apache.skywalking.apm.network.common.*;
 
 /**
+ * Remove the specified endpoint names from endpoint metadata cache, and re-register it.
+ * If not specified, clear whole endpoint metadata cache.
+ *
  * @author peng-yongsheng
  */
-public abstract class BaseCommand {
+public class EndpointResetCommand extends BaseCommand implements Serializable {
 
-    private final String command;
-    private final String serialNumber;
-    private final Command.Builder commandBuilder;
+    public EndpointResetCommand(String serialNumber) {
+        super("EndpointMetadataReset", serialNumber);
+    }
 
-    BaseCommand(String command, String serialNumber) {
-        this.command = command;
-        this.serialNumber = serialNumber;
-        this.commandBuilder = Command.newBuilder();
+    @Override public Command.Builder serialize() {
+        return commandBuilder();
+    }
 
+    public void addSpecifiedEndpointName(String endpointName) {
         KeyStringValuePair.Builder arguments = KeyStringValuePair.newBuilder();
-        arguments.setKey("SerialNumber");
-        arguments.setValue(serialNumber);
-
-        this.commandBuilder.setCommand(command);
-        this.commandBuilder.addArgs(arguments);
-    }
-
-    Command.Builder commandBuilder() {
-        return commandBuilder;
-    }
-
-    public String getCommand() {
-        return command;
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
+        arguments.setKey("EndpointName");
+        arguments.setValue(endpointName);
+        commandBuilder().addArgs(arguments);
     }
 }

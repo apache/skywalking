@@ -18,39 +18,20 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.*;
+import org.apache.skywalking.apm.network.common.Command;
 
 /**
+ * Clear the service metadata cache and other metadata caches belong to it, and re-register them.
+ *
  * @author peng-yongsheng
  */
-public abstract class BaseCommand {
+public class ServiceResetCommand extends BaseCommand implements Serializable {
 
-    private final String command;
-    private final String serialNumber;
-    private final Command.Builder commandBuilder;
-
-    BaseCommand(String command, String serialNumber) {
-        this.command = command;
-        this.serialNumber = serialNumber;
-        this.commandBuilder = Command.newBuilder();
-
-        KeyStringValuePair.Builder arguments = KeyStringValuePair.newBuilder();
-        arguments.setKey("SerialNumber");
-        arguments.setValue(serialNumber);
-
-        this.commandBuilder.setCommand(command);
-        this.commandBuilder.addArgs(arguments);
+    public ServiceResetCommand(String serialNumber) {
+        super("ServiceMetadataReset", serialNumber);
     }
 
-    Command.Builder commandBuilder() {
-        return commandBuilder;
-    }
-
-    public String getCommand() {
-        return command;
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
+    @Override public Command.Builder serialize() {
+        return commandBuilder();
     }
 }
