@@ -60,6 +60,17 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_CLR_THREAD = 21;
     public static final int ENVOY_INSTANCE_METRIC = 22;
 
+    /**
+     * Catalog of scope, the indicator processor could use this to group all generated indicators by oal tool.
+     */
+    public static final String SERVICE_CATALOG_NAME = "SERVICE";
+    public static final String SERVICE_INSTANCE_CATALOG_NAME = "SERVICE_INSTANCE";
+    public static final String ENDPOINT_CATALOG_NAME = "ENDPOINT";
+
+    private static final Map<Integer, Boolean> SERVICE_CATALOG = new HashMap<>();
+    private static final Map<Integer, Boolean> SERVICE_INSTANCE_CATALOG = new HashMap<>();
+    private static final Map<Integer, Boolean> ENDPOINT_CATALOG = new HashMap<>();
+
     public static class Listener implements AnnotationListener {
         @Override public Class<? extends Annotation> annotation() {
             return ScopeDeclaration.class;
@@ -84,6 +95,19 @@ public class DefaultScopeDefine {
         }
         ID_2_NAME.put(id, name);
         NAME_2_ID.put(name, id);
+
+        String catalogName = declaration.catalog();
+        switch (catalogName) {
+            case SERVICE_CATALOG_NAME:
+                SERVICE_CATALOG.put(id, Boolean.TRUE);
+                break;
+            case SERVICE_INSTANCE_CATALOG_NAME:
+                SERVICE_INSTANCE_CATALOG.put(id, Boolean.TRUE);
+                break;
+            case ENDPOINT_CATALOG_NAME:
+                ENDPOINT_CATALOG.put(id, Boolean.TRUE);
+                break;
+        }
     }
 
     public static String nameOf(int id) {
@@ -105,5 +129,17 @@ public class DefaultScopeDefine {
     public static void reset() {
         NAME_2_ID.clear();
         ID_2_NAME.clear();
+    }
+
+    public static boolean inServiceCatalog(int scopeId) {
+        return SERVICE_CATALOG.containsKey(scopeId);
+    }
+
+    public static boolean inServiceInstanceCatalog(int scopeId) {
+        return SERVICE_INSTANCE_CATALOG.containsKey(scopeId);
+    }
+
+    public static boolean inEndpointCatalog(int scopeId) {
+        return ENDPOINT_CATALOG.containsKey(scopeId);
     }
 }
