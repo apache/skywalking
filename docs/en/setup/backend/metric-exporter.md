@@ -14,6 +14,9 @@ gRPC exporter uses SkyWalking native exporter service definition. Here is proto 
 service MetricExportService {
     rpc export (stream ExportMetricValue) returns (ExportResponse) {
     }
+
+    rpc subscription (SubscriptionReq) returns (SubscriptionsResp) {
+    }
 }
 
 message ExportMetricValue {
@@ -26,9 +29,17 @@ message ExportMetricValue {
     double doubleValue = 7;
 }
 
+message SubscriptionsResp {
+    repeated string metricNames = 1;
+}
+
 enum ValueType {
     LONG = 0;
     DOUBLE = 1;
+}
+
+message SubscriptionReq {
+
 }
 
 message ExportResponse {
@@ -43,4 +54,14 @@ exporter:
     targetPort: 9870
 ```
 
-`targetHost`:`targetPort` is the expected target service address. You could set any gRPC server to receive the data.
+- `targetHost`:`targetPort` is the expected target service address. You could set any gRPC server to receive the data.
+- Target gRPC service needs to be standby, otherwise, the OAP starts up failure.
+
+## For target exporter service 
+### subscription implementation
+Return the expected metric name list, all the names must match the OAL script definition. Return empty list, if you want
+to export all metrics.
+
+### export implementation
+Stream service, all subscribed metrics will be sent to here, based on OAP core schedule. Also, if the OAP deployed as cluster, 
+then this method will be called concurrently. For metric value, you need follow `#type` to choose `#longValue` or `#doubleValue`.
