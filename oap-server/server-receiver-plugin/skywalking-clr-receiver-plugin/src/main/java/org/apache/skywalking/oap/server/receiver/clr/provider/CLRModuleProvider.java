@@ -16,51 +16,50 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.receiver.clr.provider;
 
-import java.io.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.receiver.clr.module.CLRModule;
+import org.apache.skywalking.oap.server.receiver.clr.provider.handler.CLRMetricReportServiceHandler;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
-public class AlarmModuleProvider extends ModuleProvider {
-    private NotifyHandler notifyHandler;
+/**
+ *  @author liuhaoyang
+ **/
+public class CLRModuleProvider extends ModuleProvider {
 
     @Override public String name() {
         return "default";
     }
 
     @Override public Class<? extends ModuleDefine> module() {
-        return AlarmModule.class;
+        return CLRModule.class;
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return new AlarmSettings();
+        return null;
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        Reader applicationReader;
-        try {
-            applicationReader = ResourceUtils.read("alarm-settings.yml");
-        } catch (FileNotFoundException e) {
-            throw new ModuleStartException("can't load alarm-settings.yml", e);
-        }
-        RulesReader reader = new RulesReader(applicationReader);
-        Rules rules = reader.readRules();
-        notifyHandler = new NotifyHandler(rules);
-        notifyHandler.init(new AlarmStandardPersistence());
-        this.registerServiceImplementation(IndicatorNotify.class, notifyHandler);
+
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        grpcHandlerRegister.addHandler(new CLRMetricReportServiceHandler(getManager()));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        notifyHandler.initCache(getManager());
+
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {CoreModule.NAME, SharingServerModule.NAME};
     }
 }

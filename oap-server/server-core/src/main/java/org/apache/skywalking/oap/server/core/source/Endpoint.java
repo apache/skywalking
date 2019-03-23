@@ -21,11 +21,12 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.*;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
 
 /**
  * @author peng-yongsheng
  */
-@ScopeDeclaration(id = ENDPOINT, name = "Endpoint")
+@ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 public class Endpoint extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.ENDPOINT;

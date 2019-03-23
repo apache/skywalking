@@ -18,16 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
-import org.apache.skywalking.oap.server.core.alarm.IndicatorNotify;
-import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class NotifyHandler implements IndicatorNotify {
+    private ServiceInventoryCache serviceInventoryCache;
+    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
+    private EndpointInventoryCache endpointInventoryCache;
+
     private final AlarmCore core;
     private final Rules rules;
 
@@ -36,23 +40,58 @@ public class NotifyHandler implements IndicatorNotify {
         core = new AlarmCore(rules);
     }
 
-    @Override public void notify(MetaInAlarm meta, Indicator indicator) {
-        switch (meta.getScopeId()) {
-            case SERVICE:
-                break;
-            case SERVICE_INSTANCE:
-                break;
-            case ENDPOINT:
-                break;
-            default:
-                return;
+    @Override public void notify(Indicator indicator) {
+        WithMetadata withMetadata = (WithMetadata)indicator;
+        IndicatorMetaInfo meta = withMetadata.getMeta();
+        int scope = meta.getScope();
+
+        if (!DefaultScopeDefine.inServiceCatalog(scope)
+            && !DefaultScopeDefine.inServiceInstanceCatalog(scope)
+            && !DefaultScopeDefine.inEndpointCatalog(scope)) {
+            return;
         }
+
+        MetaInAlarm metaInAlarm;
+        if (DefaultScopeDefine.inServiceCatalog(scope)) {
+            int serviceId = Integer.parseInt(meta.getId());
+            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
+            ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
+            serviceMetaInAlarm.setIndicatorName(meta.getIndicatorName());
+            serviceMetaInAlarm.setId(serviceId);
+            serviceMetaInAlarm.setName(serviceInventory.getName());
+            metaInAlarm = serviceMetaInAlarm;
+        } else if (DefaultScopeDefine.inServiceInstanceCatalog(scope)) {
+            int serviceInstanceId = Integer.parseInt(meta.getId());
+            ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
+            ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
+            instanceMetaInAlarm.setIndicatorName(meta.getIndicatorName());
+            instanceMetaInAlarm.setId(serviceInstanceId);
+            instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
+            metaInAlarm = instanceMetaInAlarm;
+        } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
+            int endpointId = Integer.parseInt(meta.getId());
+            EndpointInventory endpointInventory = endpointInventoryCache.get(endpointId);
+            EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
+            endpointMetaInAlarm.setIndicatorName(meta.getIndicatorName());
+            endpointMetaInAlarm.setId(endpointId);
+
+            int serviceId = endpointInventory.getServiceId();
+            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
+
+            String textName = endpointInventory.getName() + " in " + serviceInventory.getName();
+
+            endpointMetaInAlarm.setName(textName);
+            metaInAlarm = endpointMetaInAlarm;
+        } else {
+            return;
+        }
+
         List<RunningRule> runningRules = core.findRunningRule(meta.getIndicatorName());
         if (runningRules == null) {
             return;
         }
 
-        runningRules.forEach(rule -> rule.in(meta, indicator));
+        runningRules.forEach(rule -> rule.in(metaInAlarm, indicator));
     }
 
     public void init(AlarmCallback... callbacks) {
@@ -64,4 +103,9 @@ public class NotifyHandler implements IndicatorNotify {
         core.start(allCallbacks);
     }
 
+    public void initCache(ModuleManager moduleManager) {
+        serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+    }
 }

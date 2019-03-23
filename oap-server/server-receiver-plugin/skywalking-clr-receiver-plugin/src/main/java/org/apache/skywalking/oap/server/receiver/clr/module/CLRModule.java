@@ -16,19 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.receiver.clr.module;
 
-import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * DefaultScopeDefine id declaration.
- *
- * @author wusheng
- */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ScopeDeclaration {
-    int id();
-    String name();
-    String catalog() default "";
+ *  @author liuhaoyang
+ **/
+public class CLRModule extends ModuleDefine {
+
+    public CLRModule() {
+        super("receiver-clr");
+    }
+
+    @Override public Class[] services() {
+        return new Class[0];
+    }
 }
