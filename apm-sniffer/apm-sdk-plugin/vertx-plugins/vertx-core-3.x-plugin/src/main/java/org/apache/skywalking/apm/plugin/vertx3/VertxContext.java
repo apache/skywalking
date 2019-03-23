@@ -53,7 +53,7 @@ class VertxContext {
     }
 
     static boolean hasContext(String identifier) {
-        return CONTEXT_MAP.containsKey(identifier);
+        return identifier != null && CONTEXT_MAP.containsKey(identifier);
     }
 
     private final ContextSnapshot contextSnapshot;

@@ -60,8 +60,8 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
 
                 span = ContextManager.createEntrySpan(message.address(), contextCarrier);
             } else {
-                if (VertxContext.hasContext(message.address())) {
-                    VertxContext context = VertxContext.peekContext(message.address());
+                if (VertxContext.hasContext(message.replyAddress())) {
+                    VertxContext context = VertxContext.peekContext(message.replyAddress());
                     span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
                     ContextManager.continued(context.getContextSnapshot());
                 } else {
