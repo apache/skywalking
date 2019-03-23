@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.network.common.*;
 public class TraceIgnoreCommand extends BaseCommand implements Serializable {
 
     public TraceIgnoreCommand(String serialNumber) {
-        super("TraceIgnoreSync", serialNumber);
+        super("TraceIgnore", serialNumber);
     }
 
     @Override public Command.Builder serialize() {
