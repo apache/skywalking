@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.EventBusImplInstrumentation
-vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HandlerRegistrationInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.ClusteredEventBusSendReplyInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.EventBusImplDeliverToHandlerInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HandlerRegistrationDeliverInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseDoHandleResponseInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseHandleExceptionInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestImplEndInstrumentation

@@ -29,17 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HandlerRegistrationInstrumentation} enhance the <code>deliver</code> method
- * in <code>io.vertx.core.eventbus.impl.HandlerRegistration</code> class by
- * <code>HandlerRegistrationInterceptor</code> class
+ * {@link EventBusImplDeliverToHandlerInstrumentation} enhance the <code>deliverToHandler</code> method
+ * in <code>io.vertx.core.eventbus.impl.EventBusImpl</code> class by
+ * <code>EventBusImplDeliverToHandlerInterceptor</code> class
  *
  * @author brandon.fergerson
  */
-public class HandlerRegistrationInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class EventBusImplDeliverToHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.eventbus.impl.HandlerRegistration";
-    private static final String ENHANCE_METHOD = "deliver";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HandlerRegistrationInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.core.eventbus.impl.EventBusImpl";
+    private static final String ENHANCE_METHOD = "deliverToHandler";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.EventBusImplDeliverToHandlerInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

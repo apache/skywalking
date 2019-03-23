@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -34,14 +35,15 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInterceptor {
+public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         Message message = (Message) allArguments[1];
-        if (message.address().startsWith("__vertx.reply")) {
+        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
+        if (!isFromWire && message.address().startsWith("__vertx.reply")) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
         } else {
