@@ -78,7 +78,7 @@ public class ServiceMeshMetricDataDecorator {
             destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
                 .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin.getDestServiceInstance(),
                     origin.getEndTime(),
-                    getOSInfoForMesh(origin.getSourceServiceInstance()));
+                    getOSInfoForMesh(origin.getDestServiceInstance()));
             if (destServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceInstanceId(destServiceInstanceId);
             } else {
