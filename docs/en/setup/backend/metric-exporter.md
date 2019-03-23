@@ -20,10 +20,10 @@ message ExportMetricValue {
     string metricName = 1;
     string entityName = 2;
     string entityId = 3;
-    ValueType type = 5;
-    int64 timeBucket = 6;
-    int64 longValue = 7;
-    double doubleValue = 8;
+    ValueType type = 4;
+    int64 timeBucket = 5;
+    int64 longValue = 6;
+    double doubleValue = 7;
 }
 
 enum ValueType {
