@@ -69,7 +69,11 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        Message message = (Message) allArguments[1];
+        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
+        if (isFromWire || !message.address().startsWith("__vertx.reply")) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 

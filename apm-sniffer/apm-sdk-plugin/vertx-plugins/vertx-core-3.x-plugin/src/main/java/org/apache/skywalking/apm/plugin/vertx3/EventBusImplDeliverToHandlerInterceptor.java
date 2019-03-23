@@ -68,7 +68,11 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        Message message = (Message) allArguments[0];
+        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
+        if (!isFromWire) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
