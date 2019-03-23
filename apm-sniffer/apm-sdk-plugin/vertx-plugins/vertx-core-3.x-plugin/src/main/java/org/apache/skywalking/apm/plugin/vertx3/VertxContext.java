@@ -40,7 +40,20 @@ class VertxContext {
     }
 
     static VertxContext popContext(String identifier) {
-        return CONTEXT_MAP.get(identifier).pop();
+        final Stack<VertxContext> stack = CONTEXT_MAP.get(identifier);
+        final VertxContext context = stack.pop();
+        if (stack.isEmpty()) {
+            CONTEXT_MAP.remove(identifier);
+        }
+        return context;
+    }
+
+    static VertxContext peekContext(String identifier) {
+        return CONTEXT_MAP.get(identifier).peek();
+    }
+
+    static boolean hasContext(String identifier) {
+        return CONTEXT_MAP.containsKey(identifier);
     }
 
     private final ContextSnapshot contextSnapshot;

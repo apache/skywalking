@@ -46,16 +46,28 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
         if (!isFromWire && message.address().startsWith("__vertx.reply")) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
+            ContextManager.createLocalSpan(message.address());
         } else {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(message.headers().get(next.getHeadKey()));
-                message.headers().remove(next.getHeadKey());
-            }
+            AbstractSpan span;
+            if (isFromWire) {
+                ContextCarrier contextCarrier = new ContextCarrier();
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    next.setHeadValue(message.headers().get(next.getHeadKey()));
+                    message.headers().remove(next.getHeadKey());
+                }
 
-            AbstractSpan span = ContextManager.createEntrySpan(message.address(), contextCarrier);
+                span = ContextManager.createEntrySpan(message.address(), contextCarrier);
+            } else {
+                if (VertxContext.hasContext(message.address())) {
+                    VertxContext context = VertxContext.peekContext(message.address());
+                    span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
+                    ContextManager.continued(context.getContextSnapshot());
+                } else {
+                    span = ContextManager.createLocalSpan(message.address());
+                }
+            }
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asRPCFramework(span);
 
@@ -69,11 +81,7 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Message message = (Message) allArguments[1];
-        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-        if (isFromWire || !message.address().startsWith("__vertx.reply")) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
