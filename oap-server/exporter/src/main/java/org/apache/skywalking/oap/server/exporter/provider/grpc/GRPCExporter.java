@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -39,8 +39,10 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     private static final Logger logger = LoggerFactory.getLogger(GRPCExporter.class);
 
     private GRPCExporterSetting setting;
-    private MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
+    private final MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
+    private final MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
     private final DataCarrier exportBuffer;
+    private final Set<String> subscriptionSet;
 
     public GRPCExporter(GRPCExporterSetting setting) {
         this.setting = setting;
@@ -48,12 +50,22 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         client.connect();
         ManagedChannel channel = client.getChannel();
         exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel);
+        blockingStub = MetricExportServiceGrpc.newBlockingStub(channel);
         exportBuffer = new DataCarrier<ExportData>(setting.getBufferChannelNum(), setting.getBufferChannelSize());
         exportBuffer.consume(this, 1, 200);
+        subscriptionSet = new HashSet<>();
     }
 
     @Override public void export(IndicatorMetaInfo meta, Indicator indicator) {
-        exportBuffer.produce(new ExportData(meta, indicator));
+        if (subscriptionSet.size() == 0 || subscriptionSet.contains(meta.getIndicatorName())) {
+            exportBuffer.produce(new ExportData(meta, indicator));
+        }
+    }
+
+    public void initSubscriptionList() {
+        SubscriptionsResp subscription = blockingStub.subscription(SubscriptionReq.newBuilder().build());
+        subscription.getMetricNamesList().forEach(subscriptionSet::add);
+        logger.debug("Get exporter subscription list, {}", subscriptionSet);
     }
 
     @Override public void init() {

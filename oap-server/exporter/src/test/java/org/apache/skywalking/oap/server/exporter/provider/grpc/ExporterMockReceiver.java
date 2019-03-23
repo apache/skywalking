@@ -50,5 +50,12 @@ public class ExporterMockReceiver {
                 }
             };
         }
+
+        @Override
+        public void subscription(SubscriptionReq request, StreamObserver<SubscriptionsResp> responseObserver) {
+            responseObserver.onNext(SubscriptionsResp.newBuilder()
+                .addMetricNames("all_p99").addMetricNames("service_cpm").addMetricNames("endpoint_sla").build());
+            responseObserver.onCompleted();
+        }
     }
 }

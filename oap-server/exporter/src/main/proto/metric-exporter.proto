@@ -25,6 +25,9 @@ option java_package = "org.apache.skywalking.oap.server.exporter.grpc";
 service MetricExportService {
     rpc export (stream ExportMetricValue) returns (ExportResponse) {
     }
+
+    rpc subscription (SubscriptionReq) returns (SubscriptionsResp) {
+    }
 }
 
 message ExportMetricValue {
@@ -37,9 +40,17 @@ message ExportMetricValue {
     double doubleValue = 7;
 }
 
+message SubscriptionsResp {
+    repeated string metricNames = 1;
+}
+
 enum ValueType {
     LONG = 0;
     DOUBLE = 1;
+}
+
+message SubscriptionReq {
+
 }
 
 message ExportResponse {

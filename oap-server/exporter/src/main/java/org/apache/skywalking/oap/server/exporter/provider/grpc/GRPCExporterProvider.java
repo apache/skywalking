@@ -56,6 +56,8 @@ public class GRPCExporterProvider extends ModuleProvider {
         exporter.setServiceInventoryCache(getManager().find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class));
         exporter.setServiceInstanceInventoryCache(getManager().find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class));
         exporter.setEndpointInventoryCache(getManager().find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class));
+
+        exporter.initSubscriptionList();
     }
 
     @Override public String[] requiredModules() {
