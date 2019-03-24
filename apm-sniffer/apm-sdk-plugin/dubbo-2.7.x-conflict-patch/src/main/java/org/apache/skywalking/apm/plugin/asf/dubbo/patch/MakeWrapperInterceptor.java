@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.dubbo27.patch;
+package org.apache.skywalking.apm.plugin.asf.dubbo.patch;
 
 import org.apache.dubbo.common.bytecode.ClassGenerator;
 import org.apache.dubbo.common.bytecode.NoSuchPropertyException;
