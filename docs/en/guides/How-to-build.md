@@ -23,6 +23,18 @@ For each official Apache release, there is a complete and independent source cod
 1. Run `./mvnw clean package -DskipTests`
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 
+### Advanced compile
+SkyWalking is a complex maven project, including many modules, which could cause long compiling time. 
+If you just want to recompile part of the project, you have following options
+- Compile agent and package
+>  ./mvnw package -Pagent,dist
+- Compile backend and package
+>  ./mvnw package -Pbackend,dist
+- Compile UI and package
+>  ./mvnw package -Pui,dist
+
+
+
 ## Setup your IntelliJ IDEA
 1. Import the project as a maven project
 1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.

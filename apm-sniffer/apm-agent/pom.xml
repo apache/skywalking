@@ -98,13 +98,25 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>clean</id>
+                        <phase>clean</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <tasks>
                                 <delete dir="${project.basedir}/../../skywalking-agent" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
                                 <mkdir dir="${project.basedir}/../../skywalking-agent" />
                                 <copy file="${project.build.directory}/skywalking-agent.jar" tofile="${project.basedir}/../../skywalking-agent/skywalking-agent.jar" overwrite="true" />
                                 <mkdir dir="${project.basedir}/../../skywalking-agent/config" />
