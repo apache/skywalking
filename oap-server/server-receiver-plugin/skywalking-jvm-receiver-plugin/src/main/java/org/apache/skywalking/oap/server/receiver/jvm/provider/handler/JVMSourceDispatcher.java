@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.network.common.CPU;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.*;
@@ -45,7 +45,7 @@ public class JVMSourceDispatcher {
     void sendMetric(int serviceInstanceId, long minuteTimeBucket, JVMMetric metric) {
         ServiceInstanceInventory serviceInstanceInventory = instanceInventoryCache.get(serviceInstanceId);
         int serviceId;
-        if (serviceInstanceInventory == null) {
+        if (Objects.nonNull(serviceInstanceInventory)) {
             serviceId = serviceInstanceInventory.getServiceId();
         } else {
             logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
@@ -93,7 +93,8 @@ public class JVMSourceDispatcher {
         });
     }
 
-    private void sendToMemoryMetricProcess(int serviceId, int serviceInstanceId, long timeBucket, List<Memory> memories) {
+    private void sendToMemoryMetricProcess(int serviceId, int serviceInstanceId, long timeBucket,
+        List<Memory> memories) {
         memories.forEach(memory -> {
             ServiceInstanceJVMMemory serviceInstanceJVMMemory = new ServiceInstanceJVMMemory();
             serviceInstanceJVMMemory.setId(serviceInstanceId);
