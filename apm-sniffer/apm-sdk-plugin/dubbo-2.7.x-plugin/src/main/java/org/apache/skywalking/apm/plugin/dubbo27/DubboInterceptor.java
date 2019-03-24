@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.dubbo;
+package org.apache.skywalking.apm.plugin.dubbo27;
 
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.Invocation;

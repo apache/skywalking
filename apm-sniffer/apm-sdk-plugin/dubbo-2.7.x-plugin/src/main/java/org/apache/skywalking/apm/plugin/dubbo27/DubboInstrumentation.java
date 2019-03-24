@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.dubbo;
+package org.apache.skywalking.apm.plugin.dubbo27;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
