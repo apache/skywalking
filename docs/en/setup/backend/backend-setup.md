@@ -77,6 +77,8 @@ which helps you to understand which metric data are in process, also could be us
 rules targeting the analysis oal metric objects.
 1. [Advanced deployment options](advanced-deployment.md). If you want to deploy backend in very large
 scale and support high payload, you may need this. 
+1. [Metric exporter](metric-exporter.md). Use metric data exporter to forward metric data to 3rd party
+system.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
