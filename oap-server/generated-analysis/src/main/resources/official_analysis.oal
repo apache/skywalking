@@ -96,3 +96,8 @@ instance_clr_max_worker_threads = from(ServiceInstanceCLRThread.maxWorkerThreads
 envoy_heap_memory_max_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.memory_heap_size").maxDouble();
 envoy_total_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.total_connections").maxDouble();
 envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.parent_connections").maxDouble();
+
+// Disable unnecessary hard core sources
+disable(segment);
+disable(endpoint_relation_server_side);
+disable(top_n_database_statement);

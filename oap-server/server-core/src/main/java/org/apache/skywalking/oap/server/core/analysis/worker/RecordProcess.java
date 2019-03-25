@@ -36,7 +36,10 @@ public enum RecordProcess {
     private Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
 
     public void in(Record record) {
-        workers.get(record.getClass()).in(record);
+        RecordPersistentWorker worker = workers.get(record.getClass());
+        if (worker != null) {
+            worker.in(record);
+        }
     }
 
     @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();

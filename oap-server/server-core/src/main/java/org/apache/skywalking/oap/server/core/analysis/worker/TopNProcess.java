@@ -30,8 +30,8 @@ import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * TopN is a special process, which hold a certain size of windows,
- * and cache all top N records, save to the persistence in low frequence.
+ * TopN is a special process, which hold a certain size of windows, and cache all top N records, save to the persistence
+ * in low frequence.
  *
  * @author wusheng
  */
@@ -61,6 +61,9 @@ public enum TopNProcess {
     }
 
     public void in(TopNDatabaseStatement statement) {
-        workers.get(statement.getClass()).in(statement);
+        TopNWorker worker = workers.get(statement.getClass());
+        if (worker != null) {
+            worker.in(statement);
+        }
     }
 }

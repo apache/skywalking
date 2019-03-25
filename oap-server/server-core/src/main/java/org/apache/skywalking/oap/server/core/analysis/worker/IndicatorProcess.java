@@ -37,7 +37,10 @@ public enum IndicatorProcess {
     @Getter private List<IndicatorPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void in(Indicator indicator) {
-        entryWorkers.get(indicator.getClass()).in(indicator);
+        IndicatorAggregateWorker worker = entryWorkers.get(indicator.getClass());
+        if (worker != null) {
+            worker.in(indicator);
+        }
     }
 
     public void create(ModuleManager moduleManager, Class<? extends Indicator> indicatorClass) {

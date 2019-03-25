@@ -50,7 +50,7 @@ public class ScriptParserTest {
             "Endpoint_avg = from(Endpoint.latency).longAvg(); //comment test" + "\n" +
                 "Service_avg = from(Service.latency).longAvg()"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
 
         Assert.assertEquals(2, results.size());
 
@@ -72,7 +72,7 @@ public class ScriptParserTest {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "Endpoint_percent = from(Endpoint.*).percent(status == true);"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
 
         AnalysisResult endpointPercent = results.get(0);
         Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
@@ -91,7 +91,7 @@ public class ScriptParserTest {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "Endpoint_percent = from(Endpoint.*).filter(status == true).filter(name == \"/product/abc\").longAvg();"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
 
         AnalysisResult endpointPercent = results.get(0);
         Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
@@ -121,7 +121,7 @@ public class ScriptParserTest {
                 "service_response_s3_summary = from(Service.latency).filter(latency >= 3000).sum();" + "\n" +
                 "service_response_s4_summary = from(Service.latency).filter(latency <= 4000).sum();"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
 
         AnalysisResult responseSummary = results.get(0);
         Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricName());
@@ -166,5 +166,15 @@ public class ScriptParserTest {
         Assert.assertEquals("latency", booleanMatchExp.getAttribute());
         Assert.assertEquals("4000", booleanMatchExp.getValue());
         Assert.assertEquals("lessEqualMatch", booleanMatchExp.getExpressionType());
+    }
+
+    @Test
+    public void testDisable() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "disable(segment);");
+        DisableCollection collection = parser.parse().getDisableCollection();
+        List<String> sources = collection.getAllDisableSources();
+        Assert.assertEquals(1, sources.size());
+        Assert.assertEquals("segment", sources.get(0));
     }
 }
