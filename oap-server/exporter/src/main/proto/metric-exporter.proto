@@ -1,0 +1,57 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.exporter.grpc";
+
+
+service MetricExportService {
+    rpc export (stream ExportMetricValue) returns (ExportResponse) {
+    }
+
+    rpc subscription (SubscriptionReq) returns (SubscriptionsResp) {
+    }
+}
+
+message ExportMetricValue {
+    string metricName = 1;
+    string entityName = 2;
+    string entityId = 3;
+    ValueType type = 4;
+    int64 timeBucket = 5;
+    int64 longValue = 6;
+    double doubleValue = 7;
+}
+
+message SubscriptionsResp {
+    repeated string metricNames = 1;
+}
+
+enum ValueType {
+    LONG = 0;
+    DOUBLE = 1;
+}
+
+message SubscriptionReq {
+
+}
+
+message ExportResponse {
+}

@@ -108,6 +108,11 @@
             <artifactId>zipkin-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-clr-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- storage module -->
@@ -142,6 +147,13 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>telemetry-prometheus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

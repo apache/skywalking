@@ -110,3 +110,7 @@ alarm:
   default:
 telemetry:
   prometheus:
+#exporter:
+#  grpc:
+#    targetHost: 127.0.0.1
+#    targetPort: 9870
