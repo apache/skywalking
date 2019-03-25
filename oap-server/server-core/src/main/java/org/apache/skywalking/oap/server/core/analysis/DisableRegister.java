@@ -19,15 +19,17 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.Annotation;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
 /**
- * Find disable definition.
+ * Disable definition scanner and register.
  *
  * @author wusheng
  */
 public class DisableRegister implements AnnotationListener {
     public static DisableRegister INSTANCE = new DisableRegister();
+    private Set<String> disableEntitySet = new HashSet<>();
 
     private DisableRegister() {
     }
@@ -37,6 +39,16 @@ public class DisableRegister implements AnnotationListener {
     }
 
     @Override public void notify(Class aClass) {
+        MultipleDisable annotation = (MultipleDisable)aClass.getAnnotation(MultipleDisable.class);
+        Disable[] valueList = annotation.value();
+        if (valueList != null) {
+            for (Disable disable : valueList) {
+                disableEntitySet.add(disable.value());
+            }
+        }
+    }
 
+    public boolean include(String name) {
+        return disableEntitySet.contains(name);
     }
 }

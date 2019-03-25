@@ -89,6 +89,7 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.registerListener(DisableRegister.INSTANCE);
         try {
             scopeScan.scan(null);
         } catch (IOException e) {
@@ -149,7 +150,6 @@ public class CoreModuleProvider extends ModuleProvider {
         annotationScan.registerListener(new InventoryTypeListener(getManager()));
         annotationScan.registerListener(new RecordTypeListener(getManager()));
         annotationScan.registerListener(new TopNTypeListener(getManager()));
-        annotationScan.registerListener(DisableRegister.INSTANCE);
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);

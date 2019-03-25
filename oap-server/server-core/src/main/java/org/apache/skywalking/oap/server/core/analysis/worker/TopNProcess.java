@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.manual.database.TopNDatabaseStatement;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -43,6 +44,11 @@ public enum TopNProcess {
 
     public void create(ModuleManager moduleManager, Class<? extends TopN> topNClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(topNClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(topNClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);

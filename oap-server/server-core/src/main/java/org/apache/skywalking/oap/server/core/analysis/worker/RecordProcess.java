@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -46,6 +47,11 @@ public enum RecordProcess {
 
     public void create(ModuleManager moduleManager, Class<? extends Record> recordClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(recordClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
