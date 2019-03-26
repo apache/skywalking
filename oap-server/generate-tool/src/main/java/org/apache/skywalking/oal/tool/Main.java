@@ -20,7 +20,6 @@ package org.apache.skywalking.oal.tool;
 
 import freemarker.template.TemplateException;
 import java.io.*;
-import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.output.FileGenerator;
@@ -59,9 +58,9 @@ public class Main {
         SourceColumnsFactory.setSettings(metaSettings);
 
         ScriptParser scriptParser = ScriptParser.createFromFile(scriptFilePath);
-        List<AnalysisResult> analysisResults = scriptParser.parse();
+        OALScripts oalScripts = scriptParser.parse();
 
-        FileGenerator generator = new FileGenerator(analysisResults, outputPath);
+        FileGenerator generator = new FileGenerator(oalScripts, outputPath);
         generator.generate();
     }
 }

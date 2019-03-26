@@ -26,11 +26,13 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 public class OALListener extends OALParserBaseListener {
     private List<AnalysisResult> results;
     private AnalysisResult current;
+    private DisableCollection collection;
 
     private ConditionExpression conditionExpression;
 
-    public OALListener(List<AnalysisResult> results) {
-        this.results = results;
+    public OALListener(OALScripts scripts) {
+        this.results = scripts.getIndicatorStmts();
+        this.collection = scripts.getDisableCollection();
     }
 
     @Override
@@ -148,6 +150,15 @@ public class OALListener extends OALParserBaseListener {
             source = source.substring(0, idx) + firstLetterUpper(source.substring(idx + 1));
         }
         return source;
+    }
+
+    /**
+     * Disable source
+     *
+     * @param ctx
+     */
+    @Override public void enterDisableSource(OALParser.DisableSourceContext ctx) {
+        collection.add(ctx.getText());
     }
 
     private String firstLetterUpper(String source) {
