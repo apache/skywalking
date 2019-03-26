@@ -43,8 +43,9 @@ public class ScriptParser {
         return parser;
     }
 
-    public List<AnalysisResult> parse() throws IOException {
-        List<AnalysisResult> results = new LinkedList<>();
+    public OALScripts parse() throws IOException {
+        OALScripts scripts = new OALScripts();
+
         CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         OALParser parser = new OALParser(tokens);
@@ -52,9 +53,9 @@ public class ScriptParser {
         ParseTree tree = parser.root();
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        walker.walk(new OALListener(results), tree);
+        walker.walk(new OALListener(scripts), tree);
 
-        return results;
+        return scripts;
     }
 
     public void close() {
