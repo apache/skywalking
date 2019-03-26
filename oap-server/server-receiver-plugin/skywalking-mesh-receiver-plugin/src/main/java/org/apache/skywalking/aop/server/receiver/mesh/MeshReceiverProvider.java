@@ -58,6 +58,8 @@ public class MeshReceiverProvider extends ModuleProvider {
         CoreRegisterLinker.setModuleManager(getManager());
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
         service.addHandler(new MeshGRPCHandler(getManager()));
+
+        EndpointNameFormater.init();
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {

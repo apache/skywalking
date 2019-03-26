@@ -60,6 +60,11 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
+        String format = EndpointNameFormater.format(data.getEndpoint());
+        if (!format.equals(data.getEndpoint())) {
+            data = data.toBuilder().setEndpoint(format).build();
+        }
+
         ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);
         if (decorator.tryMetaDataRegister()) {
             TelemetryDataDispatcher.doDispatch(decorator);
