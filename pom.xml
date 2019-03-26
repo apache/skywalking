@@ -29,6 +29,7 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>21</version>
+        <relativePath/>
     </parent>
 
     <modules>
@@ -217,6 +218,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>git submodule update</id>
@@ -243,11 +245,6 @@
                     <groupId>io.takari</groupId>
                     <artifactId>maven</artifactId>
                     <version>${takari-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-antrun-plugin</artifactId>
