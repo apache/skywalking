@@ -43,6 +43,7 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.asf.dubbo.DubboInterceptor;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
