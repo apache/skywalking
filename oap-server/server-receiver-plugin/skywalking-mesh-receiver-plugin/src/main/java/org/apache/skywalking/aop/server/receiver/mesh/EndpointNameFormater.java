@@ -51,15 +51,15 @@ public class EndpointNameFormater {
                 properties.load(stream);
                 properties.forEach((key, value) -> {
                     endpointRule.addRule((String)key, (String)value);
-                    logger.debug("endpoint rule of service {} found, name[{}] and rule[{}]", service, key, value);
+                    logger.debug("endpoint naming rule of service {} found, name[{}] and rule[{}]", service, key, value);
                 });
             }
         } catch (IOException e) {
-            logger.info("{}_endpoint_rules.properties not found. No endpoint name setup.", service);
+            logger.info("{}_endpoint_rules.properties not found. No endpoint naming setup.", service);
         }
 
         ALL_RULES.put(service, endpointRule);
-        logger.debug("endpoint rules of service {} added. {}", service, endpointRule);
+        logger.debug("endpoint naming rules of service {} added. {}", service, endpointRule);
 
     }
 
