@@ -32,13 +32,8 @@
     </parent>
 
     <modules>
-        <module>oap-server</module>
         <module>apm-commons</module>
-        <module>apm-sniffer</module>
-        <module>apm-application-toolkit</module>
         <module>apm-protocol</module>
-        <module>apm-webapp</module>
-        <module>apm-dist</module>
         <module>apm-checkstyle</module>
     </modules>
     <packaging>pom</packaging>
@@ -79,6 +74,46 @@
             <unsubscribe>commits-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
         </mailingList>
     </mailingLists>
+
+    <profiles>
+        <profile>
+            <id>agent</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-sniffer</module>
+                <module>apm-application-toolkit</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>backend</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>oap-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ui</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-webapp</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>dist</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-dist</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
