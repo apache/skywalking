@@ -63,6 +63,12 @@ public class StringFormatGroup {
         return new FormatResult(false, string);
     }
 
+    @Override public String toString() {
+        return "StringFormatGroup{" +
+            "rules=" + rules +
+            '}';
+    }
+
     public class FormatResult {
         private boolean match;
         private String name;
@@ -96,6 +102,13 @@ public class StringFormatGroup {
 
         public Pattern getPattern() {
             return pattern;
+        }
+
+        @Override public String toString() {
+            return "PatternRule{" +
+                "name='" + name + '\'' +
+                ", pattern=" + pattern +
+                '}';
         }
     }
 }

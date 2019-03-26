@@ -46,18 +46,21 @@ public class EndpointNameFormater {
             }
 
             if (stream == null) {
-                logger.info("endpoint_naming_rules.properties not found. No endpoint name setup.");
+                logger.info("endpoint_naming_rules.properties not found. No endpoint naming setup.");
             } else {
                 properties.load(stream);
                 properties.forEach((key, value) -> {
                     endpointRule.addRule((String)key, (String)value);
+                    logger.debug("endpoint naming rule of service {} found, name[{}] and rule[{}]", service, key, value);
                 });
             }
         } catch (IOException e) {
-            logger.info("{}_endpoint_rules.properties not found. No endpoint name setup.", service);
+            logger.info("{}_endpoint_rules.properties not found. No endpoint naming setup.", service);
         }
 
         ALL_RULES.put(service, endpointRule);
+        logger.debug("endpoint naming rules of service {} added. {}", service, endpointRule);
+
     }
 
     public static StringFormatGroup.FormatResult format(String service, String endpointName) {
