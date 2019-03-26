@@ -51,6 +51,7 @@ public class EndpointNameFormater {
                 properties.load(stream);
                 properties.forEach((key, value) -> {
                     endpointRule.addRule((String)key, (String)value);
+                    logger.debug("endpoint rule of service {} found, name[{}] and rule[{}]", service, key, value);
                 });
             }
         } catch (IOException e) {
@@ -58,6 +59,8 @@ public class EndpointNameFormater {
         }
 
         ALL_RULES.put(service, endpointRule);
+        logger.debug("endpoint rules of service {} added. {}", service, endpointRule);
+
     }
 
     public static StringFormatGroup.FormatResult format(String service, String endpointName) {
