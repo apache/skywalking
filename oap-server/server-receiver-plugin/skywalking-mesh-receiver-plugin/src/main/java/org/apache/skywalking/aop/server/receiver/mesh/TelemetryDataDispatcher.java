@@ -21,6 +21,7 @@ package org.apache.skywalking.aop.server.receiver.mesh;
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.apm.util.StringFormatGroup;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -60,9 +61,9 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
-        String format = EndpointNameFormater.format(data.getEndpoint());
-        if (!format.equals(data.getEndpoint())) {
-            data = data.toBuilder().setEndpoint(format).build();
+        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(data.getEndpoint());
+        if (formatResult.isMatch()) {
+            data = data.toBuilder().setEndpoint(formatResult.getName()).build();
         }
 
         ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);

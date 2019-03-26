@@ -54,13 +54,31 @@ public class StringFormatGroup {
      * @param string to be formatted
      * @return matched rule name, or original string.
      */
-    public String format(String string) {
+    public FormatResult format(String string) {
         for (PatternRule rule : rules) {
             if (rule.getPattern().matcher(string).matches()) {
-                return rule.getName();
+                return new FormatResult(true, rule.getName());
             }
         }
-        return string;
+        return new FormatResult(false, string);
+    }
+
+    public class FormatResult {
+        private boolean match;
+        private String name;
+
+        public FormatResult(boolean match, String name) {
+            this.match = match;
+            this.name = name;
+        }
+
+        public boolean isMatch() {
+            return match;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
     private class PatternRule {

@@ -30,11 +30,11 @@ public class StringFormatGroupTest {
     public void testMatch() {
         StringFormatGroup group = new StringFormatGroup();
         group.addRule("/name/*/add", "/name/.+/add");
-        Assert.assertEquals("/name/*/add", group.format("/name/test/add"));
+        Assert.assertEquals("/name/*/add", group.format("/name/test/add").getName());
 
         group = new StringFormatGroup();
         group.addRule("/name/*/add/{orderId}", "/name/.+/add/.*");
-        Assert.assertEquals("/name/*/add/{orderId}", group.format("/name/test/add/12323"));
+        Assert.assertEquals("/name/*/add/{orderId}", group.format("/name/test/add/12323").getName());
     }
 
     @Benchmark
@@ -45,7 +45,7 @@ public class StringFormatGroupTest {
         for (int i = 0; i < 100; i++) {
             group.addRule("/name/*/add/{orderId}" + "/" + 1, "/name/.+/add/.*" + "/abc");
         }
-        Assert.assertEquals("/name/*/add/{orderId}", group.format("/name/test/add/12323"));
+        Assert.assertEquals("/name/*/add/{orderId}", group.format("/name/test/add/12323").getName());
     }
 
     /**

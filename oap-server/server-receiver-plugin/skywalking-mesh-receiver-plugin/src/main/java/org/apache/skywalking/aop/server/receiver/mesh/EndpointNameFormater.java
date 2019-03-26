@@ -50,7 +50,7 @@ public class EndpointNameFormater {
         });
     }
 
-    public static String format(String endpointName) {
+    public static StringFormatGroup.FormatResult format(String endpointName) {
         return ENDPOINT_FORMAT_RULE.format(endpointName);
     }
 }
