@@ -22,7 +22,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.servicemesh.*;
 import org.apache.skywalking.apm.util.StringFormatGroup;
-import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.*;
@@ -61,7 +61,9 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
-        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(data.getEndpoint());
+        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() :
+            SERVICE_CACHE.get(data.getDestServiceId()).getName();
+        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, data.getEndpoint());
         if (formatResult.isMatch()) {
             data = data.toBuilder().setEndpoint(formatResult.getName()).build();
         }

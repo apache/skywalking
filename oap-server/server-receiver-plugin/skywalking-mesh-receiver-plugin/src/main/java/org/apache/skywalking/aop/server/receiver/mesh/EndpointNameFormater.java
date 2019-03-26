@@ -19,7 +19,8 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import java.io.*;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.util.StringFormatGroup;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.*;
@@ -29,28 +30,38 @@ import org.slf4j.*;
  */
 public class EndpointNameFormater {
     private static final Logger logger = LoggerFactory.getLogger(EndpointNameFormater.class);
-    private static StringFormatGroup ENDPOINT_FORMAT_RULE;
+    private static Map<String, StringFormatGroup> ALL_RULES = new ConcurrentHashMap<>();
 
-    public static void init() {
-        ENDPOINT_FORMAT_RULE = new StringFormatGroup();
+    private static void init(String service) {
+        if (ALL_RULES.containsKey(service)) {
+            return;
+        }
+        StringFormatGroup endpointRule = new StringFormatGroup();
         Properties properties = new Properties();
         try {
-            InputStream stream = ResourceUtils.class.getClassLoader().getResourceAsStream("endpoint_rules.properties");
+            InputStream stream = ResourceUtils.class.getClassLoader().getResourceAsStream(service + "_endpoint_naming_rules.properties");
             if (stream == null) {
-                logger.info("endpoint_rules.properties not found. No endpoint name setup.");
-                return;
+                logger.info("{}_endpoint_naming_rules.properties not found. Try to find global endpoint rule file.", service);
+                stream = ResourceUtils.class.getClassLoader().getResourceAsStream("endpoint_naming_rules.properties");
             }
-            properties.load(stream);
+
+            if (stream == null) {
+                logger.info("endpoint_naming_rules.properties not found. No endpoint name setup.");
+            } else {
+                properties.load(stream);
+                properties.forEach((key, value) -> {
+                    endpointRule.addRule((String)key, (String)value);
+                });
+            }
         } catch (IOException e) {
-            logger.info("endpoint_rules.properties not found. No endpoint name setup.");
+            logger.info("{}_endpoint_rules.properties not found. No endpoint name setup.", service);
         }
 
-        properties.forEach((key, value) -> {
-            ENDPOINT_FORMAT_RULE.addRule((String)key, (String)value);
-        });
+        ALL_RULES.put(service, endpointRule);
     }
 
-    public static StringFormatGroup.FormatResult format(String endpointName) {
-        return ENDPOINT_FORMAT_RULE.format(endpointName);
+    public static StringFormatGroup.FormatResult format(String service, String endpointName) {
+        init(service);
+        return ALL_RULES.get(service).format(endpointName);
     }
 }
