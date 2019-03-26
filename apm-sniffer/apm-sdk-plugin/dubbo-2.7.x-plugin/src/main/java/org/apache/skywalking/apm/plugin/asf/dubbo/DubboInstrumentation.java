@@ -32,7 +32,7 @@ public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
     private static final String ENHANCE_CLASS = "org.apache.dubbo.monitor.support.MonitorFilter";
 
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.dubbo.DubboInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.asf.dubbo.DubboInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
