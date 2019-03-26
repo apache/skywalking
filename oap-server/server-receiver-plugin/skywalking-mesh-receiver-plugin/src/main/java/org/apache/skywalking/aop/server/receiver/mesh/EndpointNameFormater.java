@@ -29,10 +29,10 @@ import org.slf4j.*;
  */
 public class EndpointNameFormater {
     private static final Logger logger = LoggerFactory.getLogger(EndpointNameFormater.class);
-    private static StringFormatGroup endpointsRule;
+    private static StringFormatGroup ENDPOINT_FORMAT_RULE;
 
     public static void init() {
-        endpointsRule = new StringFormatGroup();
+        ENDPOINT_FORMAT_RULE = new StringFormatGroup();
         Properties properties = new Properties();
         try {
             InputStream stream = ResourceUtils.class.getClassLoader().getResourceAsStream("endpoint_rules.properties");
@@ -46,11 +46,11 @@ public class EndpointNameFormater {
         }
 
         properties.forEach((key, value) -> {
-            endpointsRule.addRule((String)key, (String)value);
+            ENDPOINT_FORMAT_RULE.addRule((String)key, (String)value);
         });
     }
 
     public static String format(String endpointName) {
-        return endpointsRule.format(endpointName);
+        return ENDPOINT_FORMAT_RULE.format(endpointName);
     }
 }
