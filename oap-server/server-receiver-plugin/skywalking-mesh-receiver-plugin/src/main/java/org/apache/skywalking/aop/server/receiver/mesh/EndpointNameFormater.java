@@ -46,7 +46,7 @@ public class EndpointNameFormater {
             }
 
             if (stream == null) {
-                logger.info("endpoint_naming_rules.properties not found. No endpoint name setup.");
+                logger.info("endpoint_naming_rules.properties not found. No endpoint naming setup.");
             } else {
                 properties.load(stream);
                 properties.forEach((key, value) -> {
