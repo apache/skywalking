@@ -186,6 +186,7 @@
                         <exclude>alarm-settings.yml</exclude>
                         <exclude>component-libraries.yml</exclude>
                         <exclude>datasource-settings.properties</exclude>
+                        <exclude>endpoint_naming_rules.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>
