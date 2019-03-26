@@ -15,3 +15,5 @@
 # limitations under the License.
 #
 #
+
+org.apache.skywalking.oap.server.exporter.provider.grpc.GRPCExporterProvider

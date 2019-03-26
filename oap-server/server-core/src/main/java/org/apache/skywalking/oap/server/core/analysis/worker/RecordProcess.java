@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -36,13 +37,21 @@ public enum RecordProcess {
     private Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
 
     public void in(Record record) {
-        workers.get(record.getClass()).in(record);
+        RecordPersistentWorker worker = workers.get(record.getClass());
+        if (worker != null) {
+            worker.in(record);
+        }
     }
 
     @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void create(ModuleManager moduleManager, Class<? extends Record> recordClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(recordClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);

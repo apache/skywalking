@@ -79,10 +79,10 @@ public class FileGeneratorTest {
     public void testGenerateIndicatorImplementor() throws IOException, TemplateException {
         AnalysisResult result = buildResult();
 
-        List<AnalysisResult> results = new LinkedList<>();
-        results.add(result);
+        OALScripts oalScripts = new OALScripts();
+        oalScripts.getIndicatorStmts().add(result);
 
-        FileGenerator fileGenerator = new FileGenerator(results, ".");
+        FileGenerator fileGenerator = new FileGenerator(oalScripts, ".");
         StringWriter writer = new StringWriter();
         fileGenerator.generateIndicatorImplementor(result, writer);
         Assert.assertEquals(readExpectedFile("IndicatorImplementorExpected.java"), writer.toString());
@@ -94,10 +94,10 @@ public class FileGeneratorTest {
     public void testServiceDispatcher() throws IOException, TemplateException {
         AnalysisResult result = buildResult();
 
-        List<AnalysisResult> results = new LinkedList<>();
-        results.add(result);
+        OALScripts oalScripts = new OALScripts();
+        oalScripts.getIndicatorStmts().add(result);
 
-        FileGenerator fileGenerator = new FileGenerator(results, ".");
+        FileGenerator fileGenerator = new FileGenerator(oalScripts, ".");
         StringWriter writer = new StringWriter();
         fileGenerator.generateDispatcher(result, writer);
         Assert.assertEquals(readExpectedFile("ServiceDispatcherExpected.java"), writer.toString());

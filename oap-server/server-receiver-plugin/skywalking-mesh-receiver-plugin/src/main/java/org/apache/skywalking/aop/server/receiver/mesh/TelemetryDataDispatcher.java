@@ -21,7 +21,8 @@ package org.apache.skywalking.aop.server.receiver.mesh;
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.network.servicemesh.*;
-import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.apm.util.StringFormatGroup;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.*;
@@ -60,6 +61,19 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
+        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() :
+            SERVICE_CACHE.get(data.getDestServiceId()).getName();
+        String endpointName = data.getEndpoint();
+        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
+        if (formatResult.isMatch()) {
+            data = data.toBuilder().setEndpoint(formatResult.getName()).build();
+        }
+        if (logger.isDebugEnabled()) {
+            if (formatResult.isMatch()) {
+                logger.debug("Endpoint {} is renamed to {}", endpointName, data.getEndpoint());
+            }
+        }
+
         ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);
         if (decorator.tryMetaDataRegister()) {
             TelemetryDataDispatcher.doDispatch(decorator);
