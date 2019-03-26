@@ -23,6 +23,18 @@ For each official Apache release, there is a complete and independent source cod
 1. Run `./mvnw clean package -DskipTests`
 1. All packages are in `/dist`.(.tar.gz for Linux and .zip for Windows).
 
+### Advanced compile
+SkyWalking is a complex maven project, including many modules, which could cause long compiling time. 
+If you just want to recompile part of the project, you have following options
+- Compile agent and package
+>  ./mvnw package -Pagent,dist
+- Compile backend and package
+>  ./mvnw package -Pbackend,dist
+- Compile UI and package
+>  ./mvnw package -Pui,dist
+
+
+
 ## Setup your IntelliJ IDEA
 1. Import the project as a maven project
 1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.
@@ -31,6 +43,7 @@ For each official Apache release, there is a complete and independent source cod
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/envoy-metrics-receiver-plugin/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/exporter/target/generated-sources/protobuf**
     * `antlr4` folder in **oap-server/generate-tool-grammar/target/generated-sources**
     * `oal` folder in **oap-server/generated-analysis/target/generated-sources**
     

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordTypeListener;
 import org.apache.skywalking.oap.server.core.analysis.topn.annotation.TopNTypeListener;
@@ -88,6 +89,7 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.registerListener(DisableRegister.INSTANCE);
         try {
             scopeScan.scan(null);
         } catch (IOException e) {
