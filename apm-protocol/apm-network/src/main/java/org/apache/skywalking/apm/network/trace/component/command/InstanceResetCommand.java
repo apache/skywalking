@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.common.Command;
  *
  * @author peng-yongsheng
  */
-public class InstanceResetCommand extends BaseCommand implements Serializable {
+public class InstanceResetCommand extends BaseCommand implements Serializable, Deserializable {
 
     public InstanceResetCommand(String serialNumber) {
         super("InstanceMetadataReset", serialNumber);
@@ -33,5 +33,9 @@ public class InstanceResetCommand extends BaseCommand implements Serializable {
 
     @Override public Command.Builder serialize() {
         return commandBuilder();
+    }
+
+    @Override public InstanceResetCommand deserialize(Command command) {
+        return new InstanceResetCommand(command.getCommand());
     }
 }

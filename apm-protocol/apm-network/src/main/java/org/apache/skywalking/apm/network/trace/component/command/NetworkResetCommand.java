@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.*;
+import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 
 /**
  * Remove the specified network addresses from network address metadata cache, and re-register it.
@@ -26,7 +27,7 @@ import org.apache.skywalking.apm.network.common.*;
  *
  * @author peng-yongsheng
  */
-public class NetworkResetCommand extends BaseCommand implements Serializable {
+public class NetworkResetCommand extends BaseCommand implements Serializable, Deserializable {
 
     public NetworkResetCommand(String serialNumber) {
         super("NetworkAddressMetadataReset", serialNumber);
@@ -41,5 +42,9 @@ public class NetworkResetCommand extends BaseCommand implements Serializable {
         arguments.setKey("NetworkAddress");
         arguments.setValue(networkAddress);
         commandBuilder().addArgs(arguments);
+    }
+
+    @Override public NetworkResetCommand deserialize(Command command) {
+        return new NetworkResetCommand(command.getCommand());
     }
 }

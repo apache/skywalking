@@ -140,6 +140,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                                     int serviceInstanceId = serviceInstance.getValue();
                                     if (serviceInstanceId != DictionaryUtil.nullValue()) {
                                         RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = serviceInstanceId;
+                                        RemoteDownstreamConfig.Agent.INSTANCE_REGISTER_TIME = System.currentTimeMillis();
                                     }
                                 }
                             }

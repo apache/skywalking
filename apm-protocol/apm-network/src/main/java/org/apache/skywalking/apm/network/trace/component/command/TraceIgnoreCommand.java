@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.common.*;
  *
  * @author peng-yongsheng
  */
-public class TraceIgnoreCommand extends BaseCommand implements Serializable {
+public class TraceIgnoreCommand extends BaseCommand implements Serializable, Deserializable {
 
     public TraceIgnoreCommand(String serialNumber) {
         super("TraceIgnore", serialNumber);
@@ -40,5 +40,9 @@ public class TraceIgnoreCommand extends BaseCommand implements Serializable {
         arguments.setKey("Path");
         arguments.setValue(path);
         commandBuilder().addArgs(arguments);
+    }
+
+    @Override public BaseCommand deserialize(Command command) {
+        return new TraceIgnoreCommand(command.getCommand());
     }
 }
