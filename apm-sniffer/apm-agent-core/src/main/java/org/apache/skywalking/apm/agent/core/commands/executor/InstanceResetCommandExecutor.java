@@ -34,6 +34,6 @@ public class InstanceResetCommandExecutor extends AbstractCommandExecutor<Instan
     public void execute() {
         RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
-        RemoteDownstreamConfig.Agent.INSTANCE_REGISTER_TIME = DictionaryUtil.nullValue();
+        RemoteDownstreamConfig.Agent.INSTANCE_REGISTED_TIME = DictionaryUtil.nullValue();
     }
 }

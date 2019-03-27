@@ -462,10 +462,7 @@ public class TracingContext implements AbstractTracerContext {
             }
         }
 
-        /**
-         * Check the segment
-         */
-        if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTER_TIME){
+        if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTED_TIME) {
             finishedSegment.setIgnore(true);
         }
 
