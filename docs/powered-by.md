@@ -69,7 +69,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-
+1. 51mydao.com 买道传感科技（上海）有限公司 https://www.51mydao.com/
 # User Cases
 ## Alibaba Cloud
 Support SkyWalking agents and formats in Tracing Analysis cloud service.
