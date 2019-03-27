@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.vertx3;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -41,6 +42,7 @@ public class HttpClientRequestBaseDoHandleResponseInterceptor implements Instanc
 
         AbstractSpan span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
         span.setComponent(ComponentsDefine.VERTX);
+        SpanLayer.asHttp(span);
         ContextManager.continued(context.getContextSnapshot());
     }
 
