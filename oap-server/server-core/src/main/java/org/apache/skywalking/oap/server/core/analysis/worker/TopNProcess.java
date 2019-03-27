@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.manual.database.TopNDatabaseStatement;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -30,8 +31,8 @@ import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * TopN is a special process, which hold a certain size of windows,
- * and cache all top N records, save to the persistence in low frequence.
+ * TopN is a special process, which hold a certain size of windows, and cache all top N records, save to the persistence
+ * in low frequence.
  *
  * @author wusheng
  */
@@ -43,6 +44,11 @@ public enum TopNProcess {
 
     public void create(ModuleManager moduleManager, Class<? extends TopN> topNClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(topNClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(topNClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
@@ -61,6 +67,9 @@ public enum TopNProcess {
     }
 
     public void in(TopNDatabaseStatement statement) {
-        workers.get(statement.getClass()).in(statement);
+        TopNWorker worker = workers.get(statement.getClass());
+        if (worker != null) {
+            worker.in(statement);
+        }
     }
 }

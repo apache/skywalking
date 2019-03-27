@@ -26,11 +26,15 @@ options { tokenVocab=OALLexer; }
 // Top Level Description
 
 root
-    : (aggregationStatement)*
+    : (aggregationStatement | disableStatement)*
     ;
 
 aggregationStatement
     : variable (SPACE)? EQUAL (SPACE)? metricStatement DelimitedComment? LineComment? (SEMI|EOF)
+    ;
+
+disableStatement
+    : DISABLE LR_BRACKET disableSource RR_BRACKET DelimitedComment? LineComment? (SEMI|EOF)
     ;
 
 metricStatement
@@ -51,6 +55,11 @@ source
       SRC_SERVICE_INSTANCE_JVM_CPU | SRC_SERVICE_INSTANCE_JVM_MEMORY | SRC_SERVICE_INSTANCE_JVM_MEMORY_POOL | SRC_SERVICE_INSTANCE_JVM_GC |// JVM source of service instance
       SRC_SERVICE_INSTANCE_CLR_CPU | SRC_SERVICE_INSTANCE_CLR_GC | SRC_SERVICE_INSTANCE_CLR_THREAD |
       SRC_ENVOY_INSTANCE_METRIC
+    ;
+
+disableSource
+    : SRC_SEGMENT | SRC_TOP_N_DB_STATEMENT | SRC_ENDPOINT_RELATION_SERVER_SIDE | SRC_SERVICE_RELATION_SERVER_SIDE |
+      SRC_SERVICE_RELATION_CLIENT_SIDE | SRC_ALARM_RECORD
     ;
 
 sourceAttribute

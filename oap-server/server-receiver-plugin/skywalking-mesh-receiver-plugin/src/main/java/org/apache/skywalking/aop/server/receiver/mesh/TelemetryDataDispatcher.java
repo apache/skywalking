@@ -63,9 +63,15 @@ public class TelemetryDataDispatcher {
     public static void preProcess(ServiceMeshMetric data) {
         String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() :
             SERVICE_CACHE.get(data.getDestServiceId()).getName();
-        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, data.getEndpoint());
+        String endpointName = data.getEndpoint();
+        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
         if (formatResult.isMatch()) {
             data = data.toBuilder().setEndpoint(formatResult.getName()).build();
+        }
+        if (logger.isDebugEnabled()) {
+            if (formatResult.isMatch()) {
+                logger.debug("Endpoint {} is renamed to {}", endpointName, data.getEndpoint());
+            }
         }
 
         ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);

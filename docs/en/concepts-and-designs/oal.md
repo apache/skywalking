@@ -10,10 +10,13 @@ The OAL scripts will be compiled to normal Java codes in package stage.
 ## Grammar
 Scripts should be named as `*.oal`
 ```
-
+// Declare the metric.
 METRIC_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
 [.filter(FIELD OP [INT | STRING])]
 .FUNCTION([PARAM][, PARAM ...])
+
+// Disable hard code 
+disable(METRIC_NAME);
 ```
 
 ## Scope
@@ -67,6 +70,13 @@ All metric data will be grouped by Scope.ID and min-level TimeBucket.
 
 - In `Endpoint` scope, the Scope.ID = Endpoint id (the unique id based on service and its Endpoint)
 
+## Disable
+`Disable` is an advanced statement in OAL, which is only used in certain case.
+Some of the aggregation and metric are defined through core hard codes,
+this `disable` statement is designed for make them de-active,
+such as `segment`, `top_n_database_statement`.
+In default, no one is being disable.
+
 ## Examples
 ```
 // Caculate p99 of both Endpoint1 and Endpoint2
@@ -93,4 +103,8 @@ Endpoint_500 = from(Endpoint.*).filter(responseCode like "5%").percent()
 
 // Caculate the sum of calls for each service.
 EndpointCalls = from(Endpoint.*).sum()
+
+disable(segment);
+disable(endpoint_relation_server_side);
+disable(top_n_database_statement);
 ```
