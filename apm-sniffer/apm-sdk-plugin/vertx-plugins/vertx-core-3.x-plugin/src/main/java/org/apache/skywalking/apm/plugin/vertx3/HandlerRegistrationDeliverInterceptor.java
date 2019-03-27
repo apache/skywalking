@@ -48,6 +48,7 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
             AbstractSpan span = ContextManager.createLocalSpan(message.address());
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asRPCFramework(span);
+            ContextManager.continued(context.getContextSnapshot());
         } else {
             AbstractSpan span;
             boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();

@@ -47,6 +47,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
             AbstractSpan span = ContextManager.createLocalSpan(message.address());
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asRPCFramework(span);
+            ContextManager.continued(context.getContextSnapshot());
         } else if (!isFromWire) {
             AbstractSpan span;
             if (VertxContext.hasContext(message.replyAddress())) {
