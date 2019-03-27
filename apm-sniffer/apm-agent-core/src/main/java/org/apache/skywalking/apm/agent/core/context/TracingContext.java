@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.trace.*;
 import org.apache.skywalking.apm.agent.core.dictionary.*;
 import org.apache.skywalking.apm.agent.core.logging.api.*;
@@ -460,6 +461,14 @@ public class TracingContext implements AbstractTracerContext {
                 finishedSegment.setIgnore(true);
             }
         }
+
+        /**
+         * Check the segment
+         */
+        if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTER_TIME){
+            finishedSegment.setIgnore(true);
+        }
+
         TracingContext.ListenerManager.notifyFinish(finishedSegment);
     }
 

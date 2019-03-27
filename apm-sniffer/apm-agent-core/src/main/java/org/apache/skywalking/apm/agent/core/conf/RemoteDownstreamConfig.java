@@ -32,5 +32,7 @@ public class RemoteDownstreamConfig {
         public volatile static int SERVICE_ID = DictionaryUtil.nullValue();
 
         public volatile static int SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
+
+        public volatile static long INSTANCE_REGISTER_TIME = DictionaryUtil.nullValue();
     }
 }

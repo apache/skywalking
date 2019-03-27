@@ -22,6 +22,7 @@ import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.boot.*;
+import org.apache.skywalking.apm.agent.core.commands.CommandService;
 import org.apache.skywalking.apm.agent.core.context.*;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.*;
@@ -87,7 +88,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.collect(new StreamObserver<Commands>() {
                 @Override
                 public void onNext(Commands commands) {
-
+                    ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 }
 
                 @Override

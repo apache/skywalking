@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.*;
+import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 
 /**
  * Remove the specified endpoint names from endpoint metadata cache, and re-register it.
@@ -26,7 +27,7 @@ import org.apache.skywalking.apm.network.common.*;
  *
  * @author peng-yongsheng
  */
-public class EndpointResetCommand extends BaseCommand implements Serializable {
+public class EndpointResetCommand extends BaseCommand implements Serializable, Deserializable {
 
     public EndpointResetCommand(String serialNumber) {
         super("EndpointMetadataReset", serialNumber);
@@ -41,5 +42,11 @@ public class EndpointResetCommand extends BaseCommand implements Serializable {
         arguments.setKey("EndpointName");
         arguments.setValue(endpointName);
         commandBuilder().addArgs(arguments);
+    }
+
+    @Override
+    public EndpointResetCommand deserialize(Command command) {
+        EndpointResetCommand endpointResetCommand = new EndpointResetCommand(command.getCommand());
+        return endpointResetCommand;
     }
 }

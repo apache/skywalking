@@ -6,36 +6,21 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
 import org.apache.skywalking.apm.network.common.Command;
 
-/**
- * Clear the service metadata cache and other metadata caches belong to it, and re-register them.
- *
- * @author peng-yongsheng
- */
-public class ServiceResetCommand extends BaseCommand implements Serializable, Deserializable {
+public class UnsupportedCommandException extends RuntimeException {
+    public UnsupportedCommandException(Command command) {
 
-    public ServiceResetCommand(String serialNumber) {
-        super("ServiceMetadataReset", serialNumber);
-    }
-
-    @Override public Command.Builder serialize() {
-        return commandBuilder();
-    }
-
-    @Override public ServiceResetCommand deserialize(Command command) {
-        return new ServiceResetCommand(command.getCommand());
     }
 }
