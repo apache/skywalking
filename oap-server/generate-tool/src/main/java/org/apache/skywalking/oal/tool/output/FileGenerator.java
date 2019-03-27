@@ -21,16 +21,18 @@ package org.apache.skywalking.oal.tool.output;
 import freemarker.template.*;
 import java.io.*;
 import java.util.*;
-import org.apache.skywalking.oal.tool.parser.AnalysisResult;
+import org.apache.skywalking.oal.tool.parser.*;
 
 public class FileGenerator {
     private List<AnalysisResult> results;
+    private DisableCollection collection;
     private String outputPath;
     private Configuration configuration;
     private AllDispatcherContext allDispatcherContext;
 
-    public FileGenerator(List<AnalysisResult> results, String outputPath) {
-        this.results = results;
+    public FileGenerator(OALScripts oalScripts, String outputPath) {
+        this.results = oalScripts.getIndicatorStmts();
+        this.collection = oalScripts.getDisableCollection();
         this.outputPath = outputPath;
         configuration = new Configuration(new Version("2.3.28"));
         configuration.setEncoding(Locale.ENGLISH, "UTF-8");
@@ -48,6 +50,7 @@ public class FileGenerator {
             createFile(file);
             generateDispatcher(result, new FileWriter(file));
         }
+        generateDisable();
     }
 
     private void generate(AnalysisResult result, String fileSuffix,
@@ -102,5 +105,11 @@ public class FileGenerator {
             }
             context.getIndicators().add(result);
         }
+    }
+
+    private void generateDisable() throws IOException, TemplateException {
+        File file = new File(outputPath, "generated/DisableSourceDefinition.java");
+        createFile(file);
+        configuration.getTemplate("DisableSourceDefinition.ftl").process(collection, new FileWriter(file));
     }
 }

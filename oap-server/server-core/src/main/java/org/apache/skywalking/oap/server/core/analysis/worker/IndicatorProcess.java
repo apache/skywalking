@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -37,11 +38,19 @@ public enum IndicatorProcess {
     @Getter private List<IndicatorPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void in(Indicator indicator) {
-        entryWorkers.get(indicator.getClass()).in(indicator);
+        IndicatorAggregateWorker worker = entryWorkers.get(indicator.getClass());
+        if (worker != null) {
+            worker.in(indicator);
+        }
     }
 
     public void create(ModuleManager moduleManager, Class<? extends Indicator> indicatorClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(indicatorClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(indicatorClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
