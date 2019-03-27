@@ -42,13 +42,13 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         Message message = (Message) allArguments[1];
-        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-        if (!isFromWire && message.address().startsWith("__vertx.reply")) {
+        if (message.address().startsWith("__vertx.reply")) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
             ContextManager.createLocalSpan(message.address());
         } else {
             AbstractSpan span;
+            boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
             if (isFromWire) {
                 ContextCarrier contextCarrier = new ContextCarrier();
                 CarrierItem next = contextCarrier.items();

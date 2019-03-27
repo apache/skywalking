@@ -18,28 +18,46 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.eventbus.DeliveryContext;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
+import io.vertx.core.net.impl.ServerID;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class ClusteredEventBusSendReplyInterceptor implements InstanceMethodsAroundInterceptor {
+public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        if (allArguments[0] instanceof DeliveryContext) {
-            Message message = (Message) allArguments[1];
-            boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-            if (isFromWire) {
-                VertxContext context = VertxContext.popContext(message.replyAddress());
-                context.getSpan().asyncFinish();
+        ClusteredMessage message = (ClusteredMessage) allArguments[1];
+        if (message.address().startsWith("__vertx.reply")) {
+            VertxContext context = VertxContext.popContext(message.address());
+            context.getSpan().asyncFinish();
+        } else {
+            ServerID sender = (ServerID) allArguments[0];
+            ContextCarrier contextCarrier = new ContextCarrier();
+            AbstractSpan span = ContextManager.createExitSpan(message.address(), contextCarrier, sender.toString());
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asRPCFramework(span);
+
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                message.headers().add(next.getHeadKey(), next.getHeadValue());
+            }
+
+            if (message.replyAddress() != null) {
+                VertxContext.pushContext(message.replyAddress(),
+                        new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
         }
     }
@@ -47,6 +65,10 @@ public class ClusteredEventBusSendReplyInterceptor implements InstanceMethodsAro
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        ClusteredMessage message = (ClusteredMessage) allArguments[1];
+        if (!message.address().startsWith("__vertx.reply")) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 

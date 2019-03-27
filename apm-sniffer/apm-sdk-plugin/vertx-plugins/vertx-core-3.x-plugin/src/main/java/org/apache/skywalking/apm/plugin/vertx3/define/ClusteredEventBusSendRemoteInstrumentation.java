@@ -29,17 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ClusteredEventBusSendReplyInstrumentation} enhance the <code>sendReply</code> method
+ * {@link ClusteredEventBusSendRemoteInstrumentation} enhance the <code>sendRemote</code> method
  * in <code>io.vertx.core.eventbus.impl.clustered.ClusteredEventBus</code> class by
- * <code>ClusteredEventBusSendReplyInterceptor</code> class
+ * <code>ClusteredEventBusSendRemoteInterceptor</code> class
  *
  * @author brandon.fergerson
  */
-public class ClusteredEventBusSendReplyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ClusteredEventBusSendRemoteInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.eventbus.impl.clustered.ClusteredEventBus";
-    private static final String ENHANCE_METHOD = "sendReply";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.ClusteredEventBusSendReplyInterceptor";
+    private static final String ENHANCE_METHOD = "sendRemote";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.ClusteredEventBusSendRemoteInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

@@ -20,9 +20,6 @@ package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
-import io.vertx.core.net.impl.ServerID;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -31,7 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
@@ -49,30 +45,14 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
             ContextManager.createLocalSpan(message.address());
-        } else {
+        } else if (!isFromWire) {
             AbstractSpan span;
-            if (isFromWire) {
-                ClusteredMessage clusteredMessage = (ClusteredMessage) message;
-                Field field = clusteredMessage.getClass().getDeclaredField("sender");
-                field.setAccessible(true);
-                ServerID sender = (ServerID) field.get(clusteredMessage);
-
-                ContextCarrier contextCarrier = new ContextCarrier();
-                span = ContextManager.createExitSpan(message.address(), contextCarrier, sender.toString());
-
-                CarrierItem next = contextCarrier.items();
-                while (next.hasNext()) {
-                    next = next.next();
-                    message.headers().add(next.getHeadKey(), next.getHeadValue());
-                }
+            if (VertxContext.hasContext(message.replyAddress())) {
+                VertxContext context = VertxContext.peekContext(message.replyAddress());
+                span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
+                ContextManager.continued(context.getContextSnapshot());
             } else {
-                if (VertxContext.hasContext(message.replyAddress())) {
-                    VertxContext context = VertxContext.peekContext(message.replyAddress());
-                    span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
-                    ContextManager.continued(context.getContextSnapshot());
-                } else {
-                    span = ContextManager.createLocalSpan(message.address());
-                }
+                span = ContextManager.createLocalSpan(message.address());
             }
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asRPCFramework(span);
@@ -87,7 +67,11 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        Message message = (Message) allArguments[0];
+        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
+        if (!isFromWire) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
