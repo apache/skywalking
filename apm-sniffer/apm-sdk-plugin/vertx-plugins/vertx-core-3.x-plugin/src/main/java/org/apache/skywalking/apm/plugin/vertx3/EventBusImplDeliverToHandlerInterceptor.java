@@ -44,7 +44,9 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
         if (!isFromWire && message.address().startsWith("__vertx.reply")) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
-            ContextManager.createLocalSpan(message.address());
+            AbstractSpan span = ContextManager.createLocalSpan(message.address());
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asRPCFramework(span);
         } else if (!isFromWire) {
             AbstractSpan span;
             if (VertxContext.hasContext(message.replyAddress())) {

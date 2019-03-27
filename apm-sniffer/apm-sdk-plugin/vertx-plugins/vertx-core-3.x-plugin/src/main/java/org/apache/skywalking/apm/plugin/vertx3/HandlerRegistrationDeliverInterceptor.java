@@ -45,7 +45,9 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
         if (message.address().startsWith("__vertx.reply")) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
-            ContextManager.createLocalSpan(message.address());
+            AbstractSpan span = ContextManager.createLocalSpan(message.address());
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asRPCFramework(span);
         } else {
             AbstractSpan span;
             boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
