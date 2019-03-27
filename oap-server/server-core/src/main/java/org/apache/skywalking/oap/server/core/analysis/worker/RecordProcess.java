@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -60,12 +59,9 @@ public enum RecordProcess {
             recordDAO = storageDAO.newRecordDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new UnexpectedException("Create " + builderClass.getSimpleName() + " record DAO failure.", e);
-
         }
 
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, recordDAO);
-        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleManager, modelName, 1000, recordDAO);
         persistentWorkers.add(persistentWorker);
         workers.put(recordClass, persistentWorker);
     }

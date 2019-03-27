@@ -25,7 +25,8 @@ import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.worker.*;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.apache.skywalking.oap.server.testing.module.*;
@@ -52,8 +53,7 @@ public class GRPCRemoteClientTestCase {
         classGetter = mock(StreamDataClassGetter.class);
         moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, classGetter);
 
-        TestWorker worker = new TestWorker(nextWorkerId);
-        WorkerInstances.INSTANCES.put(nextWorkerId, worker);
+        TestWorker worker = new TestWorker(moduleManager);
     }
 
     @Test
@@ -113,8 +113,8 @@ public class GRPCRemoteClientTestCase {
 
     class TestWorker extends AbstractWorker {
 
-        public TestWorker(int workerId) {
-            super(workerId);
+        public TestWorker(ModuleDefineHolder moduleDefineHolder) {
+            super(moduleDefineHolder);
         }
 
         @Override public void in(Object o) {

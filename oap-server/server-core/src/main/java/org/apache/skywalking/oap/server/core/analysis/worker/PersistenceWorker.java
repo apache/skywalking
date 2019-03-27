@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.data.Window;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -35,10 +35,10 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
     private final int batchSize;
     private final IBatchDAO batchDAO;
 
-    PersistenceWorker(ModuleManager moduleManager, int workerId, int batchSize) {
-        super(workerId);
+    PersistenceWorker(ModuleDefineHolder moduleDefineHolder, int batchSize) {
+        super(moduleDefineHolder);
         this.batchSize = batchSize;
-        this.batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
+        this.batchDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
     }
 
     void onWork(INPUT input) {

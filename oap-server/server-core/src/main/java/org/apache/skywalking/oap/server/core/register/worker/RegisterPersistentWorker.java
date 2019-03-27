@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -44,13 +44,13 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterDAO registerDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
 
-    RegisterPersistentWorker(int workerId, String modelName, ModuleManager moduleManager,
+    RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
         IRegisterDAO registerDAO, int scopeId) {
-        super(workerId);
+        super(moduleDefineHolder);
         this.modelName = modelName;
         this.sources = new HashMap<>();
         this.registerDAO = registerDAO;
-        this.registerLockDAO = moduleManager.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
+        this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scopeId = scopeId;
         this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 1000);
 
