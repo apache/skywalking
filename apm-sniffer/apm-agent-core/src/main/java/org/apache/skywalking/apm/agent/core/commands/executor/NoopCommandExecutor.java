@@ -15,22 +15,21 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.agent.core.commands;
+package org.apache.skywalking.apm.agent.core.commands.executor;
 
-import org.apache.skywalking.apm.agent.core.commands.executor.InstanceResetCommandExecutor;
-import org.apache.skywalking.apm.agent.core.commands.executor.NoopCommandExecutor;
+import org.apache.skywalking.apm.agent.core.commands.CommandExecutor;
+import org.apache.skywalking.apm.agent.core.commands.ExecuteFailedException;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
-import org.apache.skywalking.apm.network.trace.component.command.InstanceResetCommand;
 
-/**
- * @author Zhang Xin
- */
-public class CommandExecutors {
-    public static CommandExecutor newCommandExecutor(BaseCommand command) {
-        if (command instanceof InstanceResetCommand) {
-            return new InstanceResetCommandExecutor((InstanceResetCommand)command);
-        }
+public class NoopCommandExecutor implements CommandExecutor<BaseCommand> {
 
-        return NoopCommandExecutor.INSTANCE;
+    public static final NoopCommandExecutor INSTANCE = new NoopCommandExecutor();
+
+    private NoopCommandExecutor(){
+
+    }
+    @Override
+    public void execute() throws ExecuteFailedException {
+
     }
 }
