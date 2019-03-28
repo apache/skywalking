@@ -27,9 +27,10 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV1JettyHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanV2JettyHandler;
-import org.apache.skywalking.oap.server.receiver.zipkin.transform.Zipkin2SkyWalkingTransfer;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.Zipkin2SkyWalkingTransfer;
 
 /**
  * @author wusheng
@@ -65,12 +66,14 @@ public class ZipkinReceiverProvider extends ModuleProvider {
         jettyServer = new JettyServer(config.getHost(), config.getPort(), config.getContextPath());
         jettyServer.initialize();
 
-        jettyServer.addHandler(new SpanV1JettyHandler(config));
-        jettyServer.addHandler(new SpanV2JettyHandler(config));
+        jettyServer.addHandler(new SpanV1JettyHandler(config, getManager()));
+        jettyServer.addHandler(new SpanV2JettyHandler(config, getManager()));
 
-        ISegmentParserService segmentParseService = getManager().find(TraceModule.NAME).provider().getService(ISegmentParserService.class);
-        Receiver2AnalysisBridge bridge = new Receiver2AnalysisBridge(segmentParseService);
-        Zipkin2SkyWalkingTransfer.INSTANCE.addListener(bridge);
+        if (config.isNeedAnalysis()) {
+            ISegmentParserService segmentParseService = getManager().find(TraceModule.NAME).provider().getService(ISegmentParserService.class);
+            Receiver2AnalysisBridge bridge = new Receiver2AnalysisBridge(segmentParseService);
+            Zipkin2SkyWalkingTransfer.INSTANCE.addListener(bridge);
+        }
     }
 
     @Override public void notifyAfterCompleted() throws ModuleStartException {

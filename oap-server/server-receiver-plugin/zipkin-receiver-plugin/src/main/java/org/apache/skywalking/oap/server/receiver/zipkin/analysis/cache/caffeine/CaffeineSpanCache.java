@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.cache.caffeine;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache.caffeine;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -28,9 +28,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.cache.ISpanCache;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.ZipkinTrace;
-import org.apache.skywalking.oap.server.receiver.zipkin.transform.Zipkin2SkyWalkingTransfer;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache.ISpanCache;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.ZipkinTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.Zipkin2SkyWalkingTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zipkin2.Span;

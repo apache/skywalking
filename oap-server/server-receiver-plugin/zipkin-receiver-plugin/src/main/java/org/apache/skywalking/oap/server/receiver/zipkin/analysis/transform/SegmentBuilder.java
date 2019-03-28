@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.transform;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
 import com.google.common.base.Strings;
 import java.util.*;
@@ -25,8 +25,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.language.agent.v2.*;
-import org.apache.skywalking.oap.server.receiver.zipkin.*;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
 import org.eclipse.jetty.util.StringUtil;
 import zipkin2.*;
 

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.data;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.data;
 
 import java.util.LinkedList;
 import java.util.List;

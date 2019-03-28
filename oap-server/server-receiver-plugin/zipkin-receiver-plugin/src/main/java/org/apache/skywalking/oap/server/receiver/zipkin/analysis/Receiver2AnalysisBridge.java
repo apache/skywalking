@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
 
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
-import org.apache.skywalking.oap.server.receiver.zipkin.transform.SegmentListener;
-import org.apache.skywalking.oap.server.receiver.zipkin.transform.Zipkin2SkyWalkingTransfer;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.SegmentListener;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.Zipkin2SkyWalkingTransfer;
 
 /**
  * Send the segments to Analysis module, like receiving segments from native SkyWalking agents.
