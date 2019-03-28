@@ -98,6 +98,7 @@ public class SpanForward {
             zipkinSpan.setEndTime(timestampAsLong + span.durationAsLong());
             zipkinSpan.setIsError(BooleanUtils.booleanToValue(false));
             zipkinSpan.setEncode(SpanEncode.PROTO3);
+            zipkinSpan.setLatency((int)span.durationAsLong());
             zipkinSpan.setDataBinary(SpanBytesEncoder.PROTO3.encode(span));
 
             receiver.receive(zipkinSpan);
