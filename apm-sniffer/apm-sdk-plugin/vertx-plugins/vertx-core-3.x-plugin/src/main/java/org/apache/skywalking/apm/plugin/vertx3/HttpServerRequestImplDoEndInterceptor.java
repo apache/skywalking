@@ -53,7 +53,7 @@ public class HttpServerRequestImplDoEndInterceptor implements InstanceMethodsAro
         AbstractSpan span = ContextManager.createEntrySpan(request.path(), contextCarrier);
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
-        Tags.HTTP.METHOD.set(span, request.rawMethod());
+        Tags.HTTP.METHOD.set(span, request.method().toString());
         Tags.URL.set(span, request.absoluteURI());
 
         ((EnhancedInstance) request.response()).setSkyWalkingDynamicField(new VertxContext(
