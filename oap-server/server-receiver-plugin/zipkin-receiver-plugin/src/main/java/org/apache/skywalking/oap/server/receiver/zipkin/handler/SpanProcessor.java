@@ -34,13 +34,15 @@ public class SpanProcessor {
     private SourceReceiver receiver;
     private ServiceInventoryCache serviceInventoryCache;
     private EndpointInventoryCache endpointInventoryCache;
+    private int encode;
 
     public SpanProcessor(SourceReceiver receiver,
         ServiceInventoryCache serviceInventoryCache,
-        EndpointInventoryCache endpointInventoryCache) {
+        EndpointInventoryCache endpointInventoryCache, int encode) {
         this.receiver = receiver;
         this.serviceInventoryCache = serviceInventoryCache;
         this.endpointInventoryCache = endpointInventoryCache;
+        this.encode = encode;
     }
 
     void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request) throws IOException {
@@ -59,7 +61,7 @@ public class SpanProcessor {
             ZipkinSkyWalkingTransfer transfer = new ZipkinSkyWalkingTransfer();
             transfer.doTransfer(config, spanList);
         } else {
-            SpanForward forward = new SpanForward(config, receiver, serviceInventoryCache, endpointInventoryCache);
+            SpanForward forward = new SpanForward(config, receiver, serviceInventoryCache, endpointInventoryCache, encode);
             forward.send(spanList);
         }
     }

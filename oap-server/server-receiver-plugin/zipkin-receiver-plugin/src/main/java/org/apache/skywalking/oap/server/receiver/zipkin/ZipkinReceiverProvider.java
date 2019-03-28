@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -85,6 +86,13 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TraceModule.NAME};
+        if (config.isNeedAnalysis()) {
+            return new String[] {TraceModule.NAME};
+        } else {
+            /**
+             * In pure trace status, we don't need the trace receiver.
+             */
+            return new String[] {CoreModule.NAME};
+        }
     }
 }

@@ -57,11 +57,13 @@ public class SpanV1JettyHandler extends JettyHandler {
         try {
             String type = request.getHeader("Content-Type");
 
-            SpanBytesDecoder decoder = type != null && type.contains("/x-thrift")
+            int encode = type != null && type.contains("/x-thrift") ? SpanEncode.THRIFT : SpanEncode.JSON_V1;
+
+            SpanBytesDecoder decoder = SpanEncode.isThrift(encode)
                 ? SpanBytesDecoder.THRIFT
                 : SpanBytesDecoder.JSON_V1;
 
-            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, endpointInventoryCache);
+            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, endpointInventoryCache, encode);
             processor.convert(config, decoder, request);
 
             response.setStatus(202);

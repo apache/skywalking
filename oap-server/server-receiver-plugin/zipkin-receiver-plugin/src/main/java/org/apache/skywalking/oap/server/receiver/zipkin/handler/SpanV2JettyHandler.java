@@ -60,11 +60,13 @@ public class SpanV2JettyHandler extends JettyHandler {
         try {
             String type = request.getHeader("Content-Type");
 
-            SpanBytesDecoder decoder = type != null && type.contains("/x-protobuf")
+            int encode = type != null && type.contains("/x-protobuf") ? SpanEncode.PROTO3 : SpanEncode.JSON_V2;
+
+            SpanBytesDecoder decoder = SpanEncode.isProto3(encode)
                 ? SpanBytesDecoder.PROTO3
                 : SpanBytesDecoder.JSON_V2;
 
-            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, endpointInventoryCache);
+            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, endpointInventoryCache, encode);
             processor.convert(config, decoder, request);
 
             response.setStatus(202);

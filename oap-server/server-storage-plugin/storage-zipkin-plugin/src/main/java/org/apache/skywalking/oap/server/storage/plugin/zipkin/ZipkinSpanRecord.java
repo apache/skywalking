@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 @RecordType
 @StorageEntity(name = ZipkinSpanRecord.INDEX_NAME, builder = ZipkinSpanRecord.Builder.class, sourceScopeId = DefaultScopeDefine.ZIPKIN_SPAN)
 public class ZipkinSpanRecord extends Record {
-    public static final String INDEX_NAME = "segment";
+    public static final String INDEX_NAME = "zipkin_span";
     public static final String TRACE_ID = "trace_id";
     public static final String SPAN_ID = "span_id";
     public static final String SERVICE_ID = "service_id";
@@ -44,7 +44,7 @@ public class ZipkinSpanRecord extends Record {
     public static final String LATENCY = "latency";
     public static final String IS_ERROR = "is_error";
     public static final String DATA_BINARY = "data_binary";
-    public static final String VERSION = "version";
+    public static final String ENCODE = "encode";
 
     @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
     @Setter @Getter @Column(columnName = SPAN_ID) @IDColumn private String spanId;
@@ -57,7 +57,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter @Getter @Column(columnName = LATENCY) @IDColumn private int latency;
     @Setter @Getter @Column(columnName = IS_ERROR) @IDColumn private int isError;
     @Setter @Getter @Column(columnName = DATA_BINARY) @IDColumn private byte[] dataBinary;
-    @Setter @Getter @Column(columnName = VERSION) @IDColumn private int version;
+    @Setter @Getter @Column(columnName = ENCODE) @IDColumn private int encode;
 
     @Override public String id() {
         return traceId + "-" + spanId;
@@ -83,7 +83,7 @@ public class ZipkinSpanRecord extends Record {
             } else {
                 map.put(DATA_BINARY, new String(Base64.getEncoder().encode(storageData.getDataBinary())));
             }
-            map.put(VERSION, storageData.getVersion());
+            map.put(ENCODE, storageData.getEncode());
             return map;
         }
 
@@ -105,7 +105,7 @@ public class ZipkinSpanRecord extends Record {
             } else {
                 record.setDataBinary(Base64.getDecoder().decode((String)dbMap.get(DATA_BINARY)));
             }
-            record.setVersion(((Number)dbMap.get(VERSION)).intValue());
+            record.setEncode(((Number)dbMap.get(ENCODE)).intValue());
             return record;
         }
     }

@@ -30,11 +30,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 public class ZipkinSpan extends Source {
 
     @Override public int scope() {
-        return DefaultScopeDefine.SEGMENT;
+        return DefaultScopeDefine.ZIPKIN_SPAN;
     }
 
     @Override public String getEntityId() {
-        return spanId;
+        return traceId + spanId;
     }
 
     @Setter @Getter private String traceId;
@@ -48,5 +48,5 @@ public class ZipkinSpan extends Source {
     @Setter @Getter private int latency;
     @Setter @Getter private int isError;
     @Setter @Getter private byte[] dataBinary;
-    @Setter @Getter private int version;
+    @Setter @Getter private int encode;
 }

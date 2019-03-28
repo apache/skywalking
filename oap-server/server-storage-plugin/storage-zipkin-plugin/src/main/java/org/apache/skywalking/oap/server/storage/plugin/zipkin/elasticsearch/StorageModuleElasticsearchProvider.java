@@ -49,7 +49,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public String name() {
-        return "elasticsearch";
+        return "zipkin-elasticsearch";
     }
 
     @Override

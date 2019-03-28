@@ -41,7 +41,7 @@ public class ZipkinSpanRecordDispatcher implements SourceDispatcher<ZipkinSpan> 
         segment.setIsError(source.getIsError());
         segment.setDataBinary(source.getDataBinary());
         segment.setTimeBucket(source.getTimeBucket());
-        segment.setVersion(source.getVersion());
+        segment.setEncode(source.getEncode());
 
         RecordProcess.INSTANCE.in(segment);
     }

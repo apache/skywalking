@@ -23,10 +23,12 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.util.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanEncode;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpan;
 import zipkin2.Span;
+import zipkin2.codec.SpanBytesEncoder;
 
 /**
  * @author wusheng
@@ -36,14 +38,16 @@ public class SpanForward {
     private SourceReceiver receiver;
     private ServiceInventoryCache serviceInventoryCache;
     private EndpointInventoryCache endpointInventoryCache;
+    private int encode;
 
     public SpanForward(ZipkinReceiverConfig config, SourceReceiver receiver,
         ServiceInventoryCache serviceInventoryCache,
-        EndpointInventoryCache endpointInventoryCache) {
+        EndpointInventoryCache endpointInventoryCache, int encode) {
         this.config = config;
         this.receiver = receiver;
         this.serviceInventoryCache = serviceInventoryCache;
         this.endpointInventoryCache = endpointInventoryCache;
+        this.encode = encode;
     }
 
     public void send(List<Span> spanList) {
@@ -84,10 +88,17 @@ public class SpanForward {
             if (!StringUtil.isEmpty(spanName)) {
                 zipkinSpan.setEndpointName(spanName);
             }
+            long timestampAsLong = span.timestampAsLong();
+            zipkinSpan.setStartTime(timestampAsLong);
+            if (timestampAsLong != 0) {
+                long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(zipkinSpan.getStartTime());
+                zipkinSpan.setTimeBucket(timeBucket);
+            }
 
-            zipkinSpan.setStartTime(span.timestampAsLong());
-            zipkinSpan.setEndTime(span.timestampAsLong() + span.durationAsLong());
+            zipkinSpan.setEndTime(timestampAsLong + span.durationAsLong());
             zipkinSpan.setIsError(BooleanUtils.booleanToValue(false));
+            zipkinSpan.setEncode(SpanEncode.PROTO3);
+            zipkinSpan.setDataBinary(SpanBytesEncoder.PROTO3.encode(span));
 
             receiver.receive(zipkinSpan);
         });
