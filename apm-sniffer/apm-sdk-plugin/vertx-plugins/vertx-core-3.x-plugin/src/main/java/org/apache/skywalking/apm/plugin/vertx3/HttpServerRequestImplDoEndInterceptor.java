@@ -22,6 +22,7 @@ import io.vertx.core.http.HttpServerRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -52,6 +53,9 @@ public class HttpServerRequestImplDoEndInterceptor implements InstanceMethodsAro
         AbstractSpan span = ContextManager.createEntrySpan(request.path(), contextCarrier);
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
+        Tags.HTTP.METHOD.set(span, request.rawMethod());
+        Tags.URL.set(span, request.absoluteURI());
+
         ((EnhancedInstance) request.response()).setSkyWalkingDynamicField(new VertxContext(
                 ContextManager.capture(), span.prepareForAsync()));
     }

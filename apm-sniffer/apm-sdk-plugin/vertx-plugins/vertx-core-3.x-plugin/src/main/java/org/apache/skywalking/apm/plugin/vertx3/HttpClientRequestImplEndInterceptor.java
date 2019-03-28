@@ -22,6 +22,7 @@ import io.vertx.core.http.HttpClientRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -45,6 +46,8 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         AbstractSpan span = ContextManager.createExitSpan(request.path(), contextCarrier, request.path());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
+        Tags.HTTP.METHOD.set(span, request.getRawMethod());
+        Tags.URL.set(span, request.absoluteURI());
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
