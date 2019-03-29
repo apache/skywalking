@@ -62,13 +62,15 @@ because gRPC/HTTP servers of core are still used for UI and OAP internal communi
 
 ## Zipkin receiver
 Zipkin receiver could work in two different mode.
-1. Tracing mode(default). Tracing mode is that, skywalking OAP acts like zipkin collector, which provide persistence and query,
-but wouldn't analysis metric from them. In most case, I suggest you could use this feature, when metric come from service mesh.
-Also, in this mode, Zipkin receiver requires `zipkin-elasticsearch` storage implementation active. 
+1. Tracing mode(default). Tracing mode is that, skywalking OAP acts like zipkin collector,
+fully supports Zipkin v1/v2 formats through HTTP service,
+also provide persistence and query in skywalking UI.
+But it wouldn't analysis metric from them. In most case, I suggest you could use this feature, when metrics come from service mesh.
+Notice, in this mode, Zipkin receiver requires `zipkin-elasticsearch` storage implementation active. 
 Read [this](backend-storage.md#elasticsearch-6-with-zipkin-trace-extension) to know 
 how to active.
 1. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
-native format, and analysis like skywalking trace. This feature can't work in production env, and
+native format, and analysis like skywalking trace. This feature can't work in production env right now,
 because of Zipkin tag/endpoint value unpredictable, we can't make sure it fits production env requirements.
 
 Active `analysis mode`, you should set `needAnalysis` config.
