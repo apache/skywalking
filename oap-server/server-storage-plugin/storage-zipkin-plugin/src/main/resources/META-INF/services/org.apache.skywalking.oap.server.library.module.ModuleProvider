@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch.StorageModuleElasticsearchProvider
+org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch.ZipkinStorageModuleElasticsearchProvider

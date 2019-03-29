@@ -88,14 +88,14 @@ public class SpanForward {
             if (!StringUtil.isEmpty(spanName)) {
                 zipkinSpan.setEndpointName(spanName);
             }
-            long timestampAsLong = span.timestampAsLong();
-            zipkinSpan.setStartTime(timestampAsLong);
-            if (timestampAsLong != 0) {
+            long startTime = span.timestampAsLong() / 1000;
+            zipkinSpan.setStartTime(startTime);
+            if (startTime != 0) {
                 long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(zipkinSpan.getStartTime());
                 zipkinSpan.setTimeBucket(timeBucket);
             }
 
-            zipkinSpan.setEndTime(timestampAsLong + span.durationAsLong());
+            zipkinSpan.setEndTime(startTime + span.durationAsLong() / 1000);
             zipkinSpan.setIsError(BooleanUtils.booleanToValue(false));
             zipkinSpan.setEncode(SpanEncode.PROTO3);
             zipkinSpan.setLatency((int)span.durationAsLong());
