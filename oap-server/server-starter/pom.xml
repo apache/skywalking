@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-GA</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -100,7 +100,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>envoy-metrics-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>zipkin-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-clr-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->
@@ -139,6 +149,13 @@
             <artifactId>telemetry-prometheus</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>exporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>skywalking-oap</finalName>
@@ -169,6 +186,7 @@
                         <exclude>alarm-settings.yml</exclude>
                         <exclude>component-libraries.yml</exclude>
                         <exclude>datasource-settings.properties</exclude>
+                        <exclude>endpoint_naming_rules.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>

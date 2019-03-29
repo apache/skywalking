@@ -4,6 +4,6 @@ language: java
 
 install:
   - jdk_switcher use oraclejdk8
-  - ./mvnw clean install --quiet jacoco:report coveralls:report
-  - ./mvnw clean javadoc:javadoc -Dmaven.test.skip=true --quiet
-
+  - ./mvnw clean install -Dmaven.test.skip=true --quiet
+  - ./mvnw javadoc:javadoc -Dmaven.test.skip=true --quiet
+  - ./mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report --quiet

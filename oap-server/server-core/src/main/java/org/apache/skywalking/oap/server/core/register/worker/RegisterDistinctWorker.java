@@ -20,7 +20,8 @@ package org.apache.skywalking.oap.server.core.register.worker;
 
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -42,8 +43,19 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
         super(workerId);
         this.nextWorker = nextWorker;
         this.sources = new HashMap<>();
-        this.dataCarrier = new DataCarrier<>(1, 10000);
-        this.dataCarrier.consume(new AggregatorConsumer(this), 1, 200);
+        this.dataCarrier = new DataCarrier<>(1, 1000);
+        String name = "REGISTER_L1";
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
+        if (size == 0) {
+            size = 1;
+        }
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 200);
+        try {
+            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
+        } catch (Exception e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer(this));
     }
 
     @Override public final void in(RegisterSource source) {

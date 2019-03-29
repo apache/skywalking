@@ -34,13 +34,19 @@ public class JettyServer implements Server {
     private final String host;
     private final int port;
     private final String contextPath;
+    private final int selectorNum;
     private org.eclipse.jetty.server.Server server;
     private ServletContextHandler servletContextHandler;
 
     public JettyServer(String host, int port, String contextPath) {
+        this(host, port, contextPath, -1);
+    }
+
+    public JettyServer(String host, int port, String contextPath, int selectorNum) {
         this.host = host;
         this.port = port;
         this.contextPath = contextPath;
+        this.selectorNum = selectorNum;
     }
 
     @Override
@@ -65,6 +71,8 @@ public class JettyServer implements Server {
     }
 
     public void addHandler(JettyHandler handler) {
+        logger.info("Bind handler {} into jetty server {}:{}", handler.getClass().getSimpleName(), host, port);
+
         ServletHolder servletHolder = new ServletHolder();
         servletHolder.setServlet(handler);
         servletContextHandler.addServlet(servletHolder, handler.pathSpec());

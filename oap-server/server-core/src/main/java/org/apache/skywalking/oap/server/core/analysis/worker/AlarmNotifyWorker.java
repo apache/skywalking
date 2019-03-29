@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.alarm.AlarmEntrance;
-import org.apache.skywalking.oap.server.core.alarm.AlarmSupported;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.analysis.indicator.WithMetadata;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -40,7 +40,7 @@ public class AlarmNotifyWorker extends AbstractWorker<Indicator> {
     }
 
     @Override public void in(Indicator indicator) {
-        if (indicator instanceof AlarmSupported) {
+        if (indicator instanceof WithMetadata) {
             entrance.forward(indicator);
         }
     }

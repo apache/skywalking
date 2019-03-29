@@ -32,5 +32,5 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * @author wusheng
  */
 public interface IndicatorNotify extends Service {
-    void notify(MetaInAlarm indicatorName, Indicator indicator);
+    void notify(Indicator indicator);
 }

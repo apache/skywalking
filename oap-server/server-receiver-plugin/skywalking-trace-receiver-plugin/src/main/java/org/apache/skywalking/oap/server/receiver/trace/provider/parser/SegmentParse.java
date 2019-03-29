@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.buffer.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.*;
@@ -43,12 +44,14 @@ public class SegmentParse {
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
+    private final TraceServiceModuleConfig config;
     @Setter private SegmentStandardizationWorker standardizationWorker;
     private volatile static CounterMetric TRACE_BUFFER_FILE_RETRY;
     private volatile static CounterMetric TRACE_BUFFER_FILE_OUT;
     private volatile static CounterMetric TRACE_PARSE_ERROR;
 
-    private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+    private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
+        TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
@@ -56,6 +59,7 @@ public class SegmentParse {
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
         this.segmentCoreInfo.setV2(false);
+        this.config = config;
 
         MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         TRACE_BUFFER_FILE_RETRY = metricCreator.createCounter("v5_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
@@ -239,7 +243,7 @@ public class SegmentParse {
     }
 
     private void createSpanListeners() {
-        listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager)));
+        listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
     }
 
     public enum Source {
@@ -251,20 +255,23 @@ public class SegmentParse {
         @Setter private SegmentStandardizationWorker standardizationWorker;
         private final ModuleManager moduleManager;
         private final SegmentParserListenerManager listenerManager;
+        private final TraceServiceModuleConfig config;
 
-        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
+            TraceServiceModuleConfig config) {
             this.moduleManager = moduleManager;
             this.listenerManager = listenerManager;
+            this.config = config;
         }
 
         public void send(UpstreamSegment segment, Source source) {
-            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
+            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager, config);
             segmentParse.setStandardizationWorker(standardizationWorker);
             segmentParse.parse(new BufferData<>(segment), source);
         }
 
         @Override public boolean call(BufferData<UpstreamSegment> bufferData) {
-            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager);
+            SegmentParse segmentParse = new SegmentParse(moduleManager, listenerManager, config);
             segmentParse.setStandardizationWorker(standardizationWorker);
             boolean parseResult = segmentParse.parse(bufferData, Source.Buffer);
             if (parseResult) {

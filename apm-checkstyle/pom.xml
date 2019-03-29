@@ -22,50 +22,13 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>19</version>
+        <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm-checkstyle</artifactId>
-    <version>6.0.0-GA</version>
+    <version>6.1.0</version>
     <description>Module to hold Checkstyle for SkyWalking.</description>
 
-    <properties>
-        <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
-        <coveralls-maven-plugin.version>4.1.0</coveralls-maven-plugin.version>
-    </properties>
-
-    <build>
-        <plugins>
-            <!-- 覆盖率 -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>${coveralls-maven-plugin.version}</version>
-                <configuration>
-                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                    </sourceDirectories>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-  <scm>
-    <tag>v6.0.0-GA</tag>
-  </scm>
 </project>

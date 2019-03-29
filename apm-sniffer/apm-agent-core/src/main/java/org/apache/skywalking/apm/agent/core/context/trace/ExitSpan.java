@@ -20,8 +20,6 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -38,31 +36,21 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  * @author wusheng
  */
 public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
-    private String peer;
-    private int peerId;
 
     public ExitSpan(int spanId, int parentSpanId, String operationName, String peer) {
-        super(spanId, parentSpanId, operationName);
-        this.peer = peer;
-        this.peerId = DictionaryUtil.nullValue();
+        super(spanId, parentSpanId, operationName, peer);
     }
 
     public ExitSpan(int spanId, int parentSpanId, int operationId, int peerId) {
-        super(spanId, parentSpanId, operationId);
-        this.peer = null;
-        this.peerId = peerId;
+        super(spanId, parentSpanId, operationId, peerId);
     }
 
     public ExitSpan(int spanId, int parentSpanId, int operationId, String peer) {
-        super(spanId, parentSpanId, operationId);
-        this.peer = peer;
-        this.peerId = DictionaryUtil.nullValue();
+        super(spanId, parentSpanId, operationId, peer);
     }
 
     public ExitSpan(int spanId, int parentSpanId, String operationName, int peerId) {
-        super(spanId, parentSpanId, operationName);
-        this.peer = null;
-        this.peerId = peerId;
+        super(spanId, parentSpanId, operationName, peerId);
     }
 
     /**
@@ -124,18 +112,6 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
             super.log(t);
         }
         return this;
-    }
-
-    @Override public SpanObjectV2.Builder transform() {
-        SpanObjectV2.Builder spanBuilder = super.transform();
-        if (peerId != DictionaryUtil.nullValue()) {
-            spanBuilder.setPeerId(peerId);
-        } else {
-            if (peer != null) {
-                spanBuilder.setPeer(peer);
-            }
-        }
-        return spanBuilder;
     }
 
     @Override

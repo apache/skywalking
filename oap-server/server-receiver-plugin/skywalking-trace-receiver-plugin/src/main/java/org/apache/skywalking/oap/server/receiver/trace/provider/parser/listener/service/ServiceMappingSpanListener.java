@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
 import org.slf4j.*;
@@ -81,7 +82,7 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
 
     public static class Factory implements SpanListenerFactory {
 
-        @Override public SpanListener create(ModuleManager moduleManager) {
+        @Override public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             return new ServiceMappingSpanListener(moduleManager);
         }
     }

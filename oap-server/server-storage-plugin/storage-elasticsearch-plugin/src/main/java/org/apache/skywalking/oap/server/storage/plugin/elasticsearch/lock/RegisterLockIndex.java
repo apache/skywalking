@@ -24,7 +24,5 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 public class RegisterLockIndex {
 
     public static final String NAME = "register_lock";
-    public static final String COLUMN_EXPIRE = "expire";
-    public static final String COLUMN_LOCKABLE = "lockable";
     public static final String COLUMN_SEQUENCE = "sequence";
 }

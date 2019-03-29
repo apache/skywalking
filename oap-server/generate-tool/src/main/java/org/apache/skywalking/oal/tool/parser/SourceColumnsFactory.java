@@ -19,79 +19,22 @@
 package org.apache.skywalking.oal.tool.parser;
 
 import java.util.*;
+import org.apache.skywalking.oal.tool.meta.*;
 
+/**
+ * @author wusheng
+ */
 public class SourceColumnsFactory {
-    public static List<SourceColumn> getColumns(String source) {
-        List<SourceColumn> columnList;
-        SourceColumn idColumn;
-        switch (source) {
-            case "All":
-                return new LinkedList<>();
-            case "Service":
-                columnList = new LinkedList<>();
-                // Service id;
-                idColumn = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(idColumn);
-                return columnList;
-            case "ServiceInstance":
-                columnList = new LinkedList<>();
-                // Service instance id;
-                idColumn = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(idColumn);
-                SourceColumn serviceIdColumn = new SourceColumn("serviceId", "service_id", int.class, false);
-                columnList.add(serviceIdColumn);
-                return columnList;
-            case "Endpoint":
-                columnList = new LinkedList<>();
-                // Endpoint id;
-                idColumn = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(idColumn);
-                serviceIdColumn = new SourceColumn("serviceId", "service_id", int.class, false);
-                columnList.add(serviceIdColumn);
-                SourceColumn serviceInstanceIdColumn = new SourceColumn("serviceInstanceId", "service_instance_id", int.class, false);
-                columnList.add(serviceInstanceIdColumn);
-                return columnList;
-            case "ServiceInstanceJVMCPU":
-            case "ServiceInstanceJVMMemory":
-            case "ServiceInstanceJVMMemoryPool":
-            case "ServiceInstanceJVMGC":
-                columnList = new LinkedList<>();
-                // Service instance id;
-                idColumn = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(idColumn);
-                serviceInstanceIdColumn = new SourceColumn("serviceInstanceId", "service_instance_id", int.class, false);
-                columnList.add(serviceInstanceIdColumn);
-                return columnList;
-            case "ServiceRelation":
-                columnList = new LinkedList<>();
-                SourceColumn sourceService = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(sourceService);
-                return columnList;
-            case "ServiceInstanceRelation":
-                columnList = new LinkedList<>();
-                sourceService = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(sourceService);
-                sourceService = new SourceColumn("sourceServiceId", "source_service_id", int.class, false);
-                columnList.add(sourceService);
-                SourceColumn destService = new SourceColumn("destServiceId", "destServiceId", int.class, false);
-                columnList.add(destService);
+    private static Map<String, ScopeMeta> SETTINGS;
 
-                return columnList;
-            case "EndpointRelation":
-                columnList = new LinkedList<>();
-                SourceColumn sourceEndpointColumn = new SourceColumn("entityId", "entity_id", String.class, true);
-                columnList.add(sourceEndpointColumn);
-                sourceService = new SourceColumn("serviceId", "service_id", int.class, false);
-                columnList.add(sourceService);
-                destService = new SourceColumn("childServiceId", "child_service_id", int.class, false);
-                columnList.add(destService);
-                SourceColumn sourceServiceInstance = new SourceColumn("serviceInstanceId", "service_instance_id", int.class, false);
-                columnList.add(sourceServiceInstance);
-                SourceColumn destServiceInstance = new SourceColumn("childServiceInstanceId", "child_service_instance_id", int.class, false);
-                columnList.add(destServiceInstance);
-                return columnList;
-            default:
-                throw new IllegalArgumentException("Illegal source :" + source);
-        }
+    public static void setSettings(MetaSettings settings) {
+        SourceColumnsFactory.SETTINGS = new HashMap<>();
+        settings.getScopes().forEach(scope -> {
+            SourceColumnsFactory.SETTINGS.put(scope.getName(), scope);
+        });
+    }
+
+    public static List<SourceColumn> getColumns(String source) {
+        return SETTINGS.get(source).getColumns();
     }
 }

@@ -67,6 +67,7 @@ public class EasyLogger implements ILog {
     String format(LogLevel level, String message, Throwable t) {
         return StringUtil.join(' ', level.name(),
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()),
+            Thread.currentThread().getName(),
             targetClass.getSimpleName(),
             ": ",
             message,

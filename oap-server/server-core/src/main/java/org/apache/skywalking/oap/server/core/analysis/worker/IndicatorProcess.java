@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
@@ -37,11 +38,19 @@ public enum IndicatorProcess {
     @Getter private List<IndicatorPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void in(Indicator indicator) {
-        entryWorkers.get(indicator.getClass()).in(indicator);
+        IndicatorAggregateWorker worker = entryWorkers.get(indicator.getClass());
+        if (worker != null) {
+            worker.in(indicator);
+        }
     }
 
     public void create(ModuleManager moduleManager, Class<? extends Indicator> indicatorClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(indicatorClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(indicatorClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
@@ -49,7 +58,7 @@ public enum IndicatorProcess {
         try {
             indicatorDAO = storageDAO.newIndicatorDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " indicator DAO failure.", e);
         }
 
         IndicatorPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleManager, indicatorDAO, modelName);
@@ -74,8 +83,11 @@ public enum IndicatorProcess {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
         WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
 
+        ExportWorker exportWorker = new ExportWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
+        WorkerInstances.INSTANCES.put(exportWorker.getWorkerId(), exportWorker);
+
         IndicatorPersistentWorker minutePersistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, alarmNotifyWorker);
+            1000, moduleManager, indicatorDAO, alarmNotifyWorker, exportWorker);
         WorkerInstances.INSTANCES.put(minutePersistentWorker.getWorkerId(), minutePersistentWorker);
         persistentWorkers.add(minutePersistentWorker);
 
@@ -85,7 +97,7 @@ public enum IndicatorProcess {
     private IndicatorPersistentWorker worker(ModuleManager moduleManager,
         IIndicatorDAO indicatorDAO, String modelName) {
         IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, null);
+            1000, moduleManager, indicatorDAO, null, null);
         WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
         persistentWorkers.add(persistentWorker);
 

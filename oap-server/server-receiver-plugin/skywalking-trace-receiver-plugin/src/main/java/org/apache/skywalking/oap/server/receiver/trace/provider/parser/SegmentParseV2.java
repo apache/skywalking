@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.library.buffer.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.*;
@@ -46,12 +47,13 @@ public class SegmentParseV2 {
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
+    private final TraceServiceModuleConfig config;
     @Setter private SegmentStandardizationWorker standardizationWorker;
     private volatile static CounterMetric TRACE_BUFFER_FILE_RETRY;
     private volatile static CounterMetric TRACE_BUFFER_FILE_OUT;
     private volatile static CounterMetric TRACE_PARSE_ERROR;
 
-    private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+    private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
@@ -59,6 +61,7 @@ public class SegmentParseV2 {
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
         this.segmentCoreInfo.setV2(true);
+        this.config = config;
 
         if (TRACE_BUFFER_FILE_RETRY == null) {
             MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
@@ -245,7 +248,7 @@ public class SegmentParseV2 {
     }
 
     private void createSpanListeners() {
-        listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager)));
+        listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
     }
 
     public static class Producer implements DataStreamReader.CallBack<UpstreamSegment> {
@@ -253,20 +256,22 @@ public class SegmentParseV2 {
         @Setter private SegmentStandardizationWorker standardizationWorker;
         private final ModuleManager moduleManager;
         private final SegmentParserListenerManager listenerManager;
+        private final TraceServiceModuleConfig config;
 
-        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager) {
+        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
             this.moduleManager = moduleManager;
             this.listenerManager = listenerManager;
+            this.config = config;
         }
 
         public void send(UpstreamSegment segment, SegmentSource source) {
-            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager);
+            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager, config);
             segmentParse.setStandardizationWorker(standardizationWorker);
             segmentParse.parse(new BufferData<>(segment), source);
         }
 
         @Override public boolean call(BufferData<UpstreamSegment> bufferData) {
-            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager);
+            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager, config);
             segmentParse.setStandardizationWorker(standardizationWorker);
             boolean parseResult = segmentParse.parse(bufferData, SegmentSource.Buffer);
             if (parseResult) {

@@ -37,7 +37,7 @@ services:
       - 11800:11800
       - 12800:12800
     volumes:
-      - ./config:/apache-skywalking-apm-incubating/config:ro
+      - ./config:/skywalking/config:ro
   ui:
     image: skywalking/ui
     container_name: ui

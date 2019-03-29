@@ -21,7 +21,12 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -44,6 +49,7 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
@@ -70,18 +76,35 @@ public class ElasticSearchClient implements Client {
     private static final String TYPE = "type";
     private final String clusterNodes;
     private final String namespace;
+    private final String user;
+    private final String password;
     private RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, String namespace) {
+    public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
         this.namespace = namespace;
+        this.user = user;
+        this.password = password;
     }
 
     @Override public void connect() {
         List<HttpHost> pairsList = parseClusterNodes(clusterNodes);
-
-        client = new RestHighLevelClient(
-            RestClient.builder(pairsList.toArray(new HttpHost[0])));
+        RestClientBuilder builder;
+        if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+            builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
+                    .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                        @Override
+                        public HttpAsyncClientBuilder customizeHttpClient(
+                                HttpAsyncClientBuilder httpClientBuilder) {
+                            return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                        }
+                    });
+        } else {
+            builder = RestClient.builder(pairsList.toArray(new HttpHost[0]));
+        }
+        client = new RestHighLevelClient(builder);
     }
 
     @Override public void shutdown() {

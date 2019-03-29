@@ -20,9 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -37,15 +36,12 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterLockDAOImpl.class);
 
-    private final int timeout;
-
-    public RegisterLockDAOImpl(ElasticSearchClient client, int timeout) {
+    public RegisterLockDAOImpl(ElasticSearchClient client) {
         super(client);
-        this.timeout = timeout;
     }
 
-    @Override public int tryLockAndIncrement(Scope scope) {
-        String id = String.valueOf(scope.ordinal());
+    @Override public int getId(int scopeId, RegisterSource registerSource) {
+        String id = scopeId + "";
 
         int sequence = Const.NONE;
         try {
@@ -53,19 +49,12 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
             if (response.isExists()) {
                 Map<String, Object> source = response.getSource();
 
-                long expire = ((Number)source.get(RegisterLockIndex.COLUMN_EXPIRE)).longValue();
-                boolean lockable = (boolean)source.get(RegisterLockIndex.COLUMN_LOCKABLE);
                 sequence = ((Number)source.get(RegisterLockIndex.COLUMN_SEQUENCE)).intValue();
                 long version = response.getVersion();
 
                 sequence++;
 
-                if (lockable || System.currentTimeMillis() > expire) {
-                    lock(id, sequence, timeout, version);
-                } else {
-                    TimeUnit.SECONDS.sleep(1);
-                    return Const.NONE;
-                }
+                lock(id, sequence, version);
             }
         } catch (Throwable t) {
             logger.warn("Try to lock the row with the id {} failure, error message: {}", id, t.getMessage());
@@ -74,27 +63,13 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         return sequence;
     }
 
-    private void lock(String id, int sequence, int timeout, long version) throws IOException {
+    private void lock(String id, int sequence, long version) throws IOException {
         XContentBuilder source = XContentFactory.jsonBuilder().startObject();
-        source.field(RegisterLockIndex.COLUMN_EXPIRE, System.currentTimeMillis() + timeout);
-        source.field(RegisterLockIndex.COLUMN_LOCKABLE, false);
         source.field(RegisterLockIndex.COLUMN_SEQUENCE, sequence);
         source.endObject();
 
         getClient().forceUpdate(RegisterLockIndex.NAME, id, source, version);
     }
-
-    @Override public void releaseLock(Scope scope) {
-        String id = String.valueOf(scope.ordinal());
-
-        try {
-            XContentBuilder source = XContentFactory.jsonBuilder().startObject();
-            source.field(RegisterLockIndex.COLUMN_LOCKABLE, true);
-            source.endObject();
-
-            getClient().forceUpdate(RegisterLockIndex.NAME, id, source);
-        } catch (Throwable t) {
-            logger.error("{} inventory release lock failure.", scope.name(), t);
-        }
-    }
 }
+
+

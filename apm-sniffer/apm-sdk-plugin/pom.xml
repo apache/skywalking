@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.0.0-GA</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -47,6 +47,9 @@
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
         <module>mysql-5.x-plugin</module>
+        <module>mysql-6.x-plugin</module>
+        <module>mysql-8.x-plugin</module>
+        <module>mysql-common</module>
         <module>h2-1.x-plugin</module>
         <module>postgresql-8.x-plugin</module>
         <module>rocketMQ-3.x-plugin</module>
@@ -64,6 +67,8 @@
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
         <module>canal-1.x-plugin</module>
+        <module>dubbo-2.7.x-plugin</module>
+        <module>dubbo-2.7.x-conflict-patch</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -69,11 +69,11 @@ public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements
     }
 
     @Override public boolean containsKey(STORAGE_DATA key) {
-        throw new UnsupportedOperationException("Close merge data collection not support containsKey operation.");
+        throw new UnsupportedOperationException("Non merge data collection doesn't support containsKey operation.");
     }
 
     @Override public STORAGE_DATA get(STORAGE_DATA key) {
-        throw new UnsupportedOperationException("Close merge data collection not support get operation.");
+        throw new UnsupportedOperationException("Non merge data collection doesn't support get operation.");
     }
 
     @Override public void put(STORAGE_DATA value) {
