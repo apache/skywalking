@@ -11,8 +11,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-jvm**. gRPC services accept JVM metric data.
 1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
 1. **envoy-metric**. Envoy `metrics_service` supported by this receiver. OAL script support all GAUGE type metrics. 
-1. **receiver_zipkin**. HTTP service accepts Span in Zipkin v1 and v2 formats. Notice, this receiver only
-works as expected in backend single node mode. Cluster mode is not supported. Welcome anyone to improve this.
+1. **receiver_zipkin**. See [details](#zipkin-receiver).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -60,3 +59,24 @@ receiver-sharing-server:
 
 Notice, if you add these settings, make sure they are not as same as core module,
 because gRPC/HTTP servers of core are still used for UI and OAP internal communications.
+
+## Zipkin receiver
+Zipkin receiver could work in two different mode.
+1. Tracing mode(default). Tracing mode is that, skywalking OAP acts like zipkin collector, which provide persistence and query,
+but wouldn't analysis metric from them. In most case, I suggest you could use this feature, when metric come from service mesh.
+Also, in this mode, Zipkin receiver requires `zipkin-elasticsearch` storage implementation active. 
+Read [this](backend-storage.md#elasticsearch-6-with-zipkin-trace-extension) to know 
+how to active.
+1. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
+native format, and analysis like skywalking trace. This feature can't work in production env, and
+because of Zipkin tag/endpoint value unpredictable, we can't make sure it fits production env requirements.
+
+Active `analysis mode`, you should set `needAnalysis` config.
+```yaml
+receiver_zipkin:
+  default:
+    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
+    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
+    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+    needAnalysis: true
+```
