@@ -19,14 +19,14 @@
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class CoreRegisterLinker {
     private static volatile ModuleManager MODULE_MANAGER;
     private static volatile IServiceInventoryRegister SERVICE_INVENTORY_REGISTER;
     private static volatile IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
+    private static volatile IEndpointInventoryRegister ENDPOINT_INVENTORY_REGISTER;
 
     public static void setModuleManager(ModuleManager moduleManager) {
         CoreRegisterLinker.MODULE_MANAGER = moduleManager;
@@ -44,5 +44,12 @@ public class CoreRegisterLinker {
             SERVICE_INSTANCE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
         }
         return SERVICE_INSTANCE_INVENTORY_REGISTER;
+    }
+
+    public static IEndpointInventoryRegister getEndpointInventoryRegister() {
+        if (ENDPOINT_INVENTORY_REGISTER == null) {
+            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
+        }
+        return ENDPOINT_INVENTORY_REGISTER;
     }
 }

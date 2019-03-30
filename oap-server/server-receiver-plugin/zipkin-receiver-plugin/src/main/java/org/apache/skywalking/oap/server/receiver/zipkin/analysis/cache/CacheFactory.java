@@ -16,10 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.cache;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache;
 
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.cache.caffeine.CaffeineSpanCache;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache.caffeine.CaffeineSpanCache;
 
 /**
  * @author wusheng

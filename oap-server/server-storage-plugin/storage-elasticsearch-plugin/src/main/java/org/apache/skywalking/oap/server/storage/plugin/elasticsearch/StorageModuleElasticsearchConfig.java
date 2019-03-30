@@ -59,7 +59,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
         this.password = password;
     }
 
-    int getIndexShardsNumber() {
+    public int getIndexShardsNumber() {
         return indexShardsNumber;
     }
 
@@ -67,7 +67,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
         this.indexShardsNumber = indexShardsNumber;
     }
 
-    int getIndexReplicasNumber() {
+    public int getIndexReplicasNumber() {
         return indexReplicasNumber;
     }
 

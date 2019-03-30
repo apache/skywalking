@@ -16,24 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
-
-import lombok.*;
+package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-@Getter
-@Setter
-public class KeyValue {
-    private String key;
-    private String value;
+public class SpanEncode {
+    public static final int PROTO3 = 1;
+    public static final int JSON_V2 = 2;
+    public static final int THRIFT = 3;
+    public static final int JSON_V1 = 4;
 
-    public KeyValue(String key, String value) {
-        this.key = key;
-        this.value = value;
+    public static boolean isProto3(int encode) {
+        return PROTO3 == encode;
     }
 
-    public KeyValue() {
+    public static boolean isJsonV2(int encode) {
+        return JSON_V2 == encode;
+    }
+
+    public static boolean isThrift(int encode) {
+        return THRIFT == encode;
+    }
+
+    public static boolean isJsonV1(int encode) {
+        return JSON_V1 == encode;
     }
 }

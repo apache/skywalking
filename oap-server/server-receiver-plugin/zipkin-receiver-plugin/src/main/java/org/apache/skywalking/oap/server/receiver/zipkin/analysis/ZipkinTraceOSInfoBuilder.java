@@ -16,13 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.cache;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
 
-import zipkin2.Span;
+import com.google.gson.JsonObject;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 
 /**
  * @author wusheng
  */
-public interface ISpanCache {
-    void addSpan(Span span);
+public class ZipkinTraceOSInfoBuilder {
+
+    public static JsonObject getOSInfoForZipkin(String instanceName) {
+        JsonObject properties = new JsonObject();
+        properties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, instanceName);
+        return properties;
+    }
 }
