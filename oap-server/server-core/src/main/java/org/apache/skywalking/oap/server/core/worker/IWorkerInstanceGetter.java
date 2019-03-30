@@ -18,15 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
+import org.apache.skywalking.oap.server.library.module.Service;
+
 /**
  * @author peng-yongsheng
  */
-public enum WorkerIdGenerator {
-    INSTANCES;
+public interface IWorkerInstanceGetter extends Service {
 
-    private int workerId = 0;
-
-    public synchronized int generate() {
-        return workerId++;
-    }
+    AbstractWorker get(int workerId);
 }

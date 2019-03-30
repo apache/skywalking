@@ -18,23 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class AbstractWorker<INPUT> {
+public interface IWorkerInstanceSetter extends Service {
 
-    @Getter private final int workerId;
-    @Getter private final ModuleDefineHolder moduleDefineHolder;
-
-    public AbstractWorker(ModuleDefineHolder moduleDefineHolder) {
-        this.moduleDefineHolder = moduleDefineHolder;
-        IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceSetter.class);
-        this.workerId = workerInstanceSetter.put(this);
-    }
-
-    public abstract void in(INPUT input);
+    int put(AbstractWorker instance);
 }

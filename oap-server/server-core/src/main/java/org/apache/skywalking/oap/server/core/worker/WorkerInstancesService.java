@@ -19,20 +19,27 @@
 package org.apache.skywalking.oap.server.core.worker;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author peng-yongsheng
  */
-public enum WorkerInstances {
-    INSTANCES;
+public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
 
-    private Map<Integer, AbstractWorker> instances = new HashMap<>();
+    private final AtomicInteger generator = new AtomicInteger(1);
+    private final Map<Integer, AbstractWorker> instances;
 
-    public void put(int workerId, AbstractWorker instance) {
-        instances.put(workerId, instance);
+    public WorkerInstancesService() {
+        this.instances = new HashMap<>();
     }
 
-    public AbstractWorker get(int workerId) {
+    @Override public AbstractWorker get(int workerId) {
         return instances.get(workerId);
+    }
+
+    @Override public int put(AbstractWorker instance) {
+        int workerId = generator.getAndIncrement();
+        instances.put(workerId, instance);
+        return workerId;
     }
 }
