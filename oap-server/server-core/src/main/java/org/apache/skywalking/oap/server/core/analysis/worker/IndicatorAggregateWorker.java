@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
@@ -45,9 +45,9 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
     private final long l2AggregationSendCycle;
     private long lastSendTimestamp;
 
-    IndicatorAggregateWorker(ModuleManager moduleManager, int workerId, AbstractWorker<Indicator> nextWorker,
+    IndicatorAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Indicator> nextWorker,
         String modelName) {
-        super(workerId);
+        super(moduleDefineHolder);
         this.modelName = modelName;
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
@@ -62,7 +62,7 @@ public class IndicatorAggregateWorker extends AbstractWorker<Indicator> {
         }
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer(this));
 
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        MetricCreator metricCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         aggregationCounter = metricCreator.createCounter("indicator_aggregation", "The number of rows in aggregation",
             new MetricTag.Keys("metricName", "level", "dimensionality"), new MetricTag.Values(modelName, "1", "min"));
         lastSendTimestamp = System.currentTimeMillis();

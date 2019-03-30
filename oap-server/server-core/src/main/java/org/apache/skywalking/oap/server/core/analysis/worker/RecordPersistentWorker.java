@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.NonMergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -40,9 +40,9 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
     private final IRecordDAO recordDAO;
     private final DataCarrier<Record> dataCarrier;
 
-    RecordPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
+    RecordPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName, int batchSize,
         IRecordDAO recordDAO) {
-        super(moduleManager, workerId, batchSize);
+        super(moduleDefineHolder, batchSize);
         this.modelName = modelName;
         this.nonMergeDataCache = new NonMergeDataCache<>();
         this.recordDAO = recordDAO;
