@@ -70,8 +70,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageModuleElasticsearchProvider.class);
 
-    private final StorageModuleElasticsearchConfig config;
-    private ElasticSearchClient elasticSearchClient;
+    protected final StorageModuleElasticsearchConfig config;
+    protected ElasticSearchClient elasticSearchClient;
 
     public StorageModuleElasticsearchProvider() {
         super();

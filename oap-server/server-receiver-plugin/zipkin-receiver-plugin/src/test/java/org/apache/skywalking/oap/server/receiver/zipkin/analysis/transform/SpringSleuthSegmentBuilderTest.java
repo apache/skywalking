@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.transform;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
 import com.google.gson.JsonObject;
 import java.io.UnsupportedEncodingException;
@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.*;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.*;
 import org.junit.*;
 import org.powermock.reflect.Whitebox;
 import zipkin2.Span;

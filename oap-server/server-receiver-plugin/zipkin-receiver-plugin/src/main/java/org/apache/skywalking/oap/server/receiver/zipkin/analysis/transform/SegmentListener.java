@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.transform;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
-import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
 
 public interface SegmentListener {
     void notify(SkyWalkingTrace trace);

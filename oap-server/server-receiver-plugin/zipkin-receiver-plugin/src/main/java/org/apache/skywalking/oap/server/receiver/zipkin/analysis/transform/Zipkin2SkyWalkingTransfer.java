@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.transform;
+package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.SkyWalkingTrace;
-import org.apache.skywalking.oap.server.receiver.zipkin.data.ZipkinTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.ZipkinTrace;
 import zipkin2.Span;
 
 /**
