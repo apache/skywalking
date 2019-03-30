@@ -166,6 +166,10 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         return segmentRecords;
     }
 
+    @Override public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
+        return Collections.emptyList();
+    }
+
     protected JDBCHikariCPClient getClient() {
         return h2Client;
     }

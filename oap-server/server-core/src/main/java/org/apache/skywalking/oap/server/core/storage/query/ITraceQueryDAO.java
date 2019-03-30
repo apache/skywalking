@@ -34,4 +34,12 @@ public interface ITraceQueryDAO extends Service {
         int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException;
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
+
+    /**
+     * This method gives more flexible for unnative
+     * @param traceId
+     * @return
+     * @throws IOException
+     */
+    List<Span> doFlexibleTraceQuery(String traceId) throws IOException;
 }
