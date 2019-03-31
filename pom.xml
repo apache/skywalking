@@ -362,10 +362,14 @@
                         <exclude>skywalking-ui/package-lock.json</exclude>
 
                         <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
-                        <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
                         <exclude>**/src/main/proto/envoy/**</exclude>
-                        <exclude>**/src/main/proto/google/protobuf/*.proto</exclude>
+                        <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
+                        <exclude>**/src/main/proto/google/**</exclude>
+                        <exclude>**/src/main/proto/istio/**</exclude>
+                        <exclude>**/src/main/proto/jaeger/**</exclude>
+                        <exclude>**/src/main/proto/policy/**</exclude>
                         <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
+                        <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
                         <exclude>**/src/main/proto/validate/validate.proto</exclude>
 
                         <!-- generated file from antlr -->
