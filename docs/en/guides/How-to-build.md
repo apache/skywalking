@@ -41,8 +41,7 @@ If you just want to recompile part of the project, you have following options
 1. Set **Generated Source Codes** folders.
     * `grpc-java` and `java` folders in **apm-protocol/apm-network/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-core/target/generated-sources/protobuf**
-    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/skywalking-istio-telemetry-receiver-plugin/target/generated-sources/protobuf**
-    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/envoy-metrics-receiver-plugin/target/generated-sources/protobuf**
+    * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/receiver-proto/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/exporter/target/generated-sources/protobuf**
     * `antlr4` folder in **oap-server/generate-tool-grammar/target/generated-sources**
     * `oal` folder in **oap-server/generated-analysis/target/generated-sources**
