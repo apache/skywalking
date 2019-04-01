@@ -29,5 +29,16 @@
 
     <artifactId>jaeger-receiver-plugin</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>receiver-proto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-sharing-server-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

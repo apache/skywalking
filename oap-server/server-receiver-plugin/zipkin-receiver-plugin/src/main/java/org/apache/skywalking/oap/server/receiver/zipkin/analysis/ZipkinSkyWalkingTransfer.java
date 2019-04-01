@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
 
 import java.util.List;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.zipkin.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache.CacheFactory;
 import zipkin2.Span;
