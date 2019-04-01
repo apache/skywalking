@@ -21,16 +21,16 @@ package org.apache.skywalking.oap.server.storage.plugin.jaeger;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ZIPKIN_SPAN;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
 /**
  * @author peng-yongsheng
  */
-@ScopeDeclaration(id = ZIPKIN_SPAN, name = "JaegerSpan")
+@ScopeDeclaration(id = JAEGER_SPAN, name = "JaegerSpan")
 public class JaegerSpan extends Source {
 
     @Override public int scope() {
-        return DefaultScopeDefine.ZIPKIN_SPAN;
+        return DefaultScopeDefine.JAEGER_SPAN;
     }
 
     @Override public String getEntityId() {

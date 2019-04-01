@@ -62,7 +62,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
             if (process != null) {
                 serviceName = process.getServiceName();
             }
-            if (!StringUtil.isEmpty(serviceName)) {
+            if (StringUtil.isEmpty(serviceName)) {
                 serviceName = "UNKNOWN";
             }
             serviceId = CoreRegisterLinker.getServiceInventoryCache().getServiceId(serviceName);
