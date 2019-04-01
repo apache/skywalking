@@ -34,6 +34,11 @@
             <artifactId>skywalking-mesh-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>receiver-proto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

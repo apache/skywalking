@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
@@ -43,20 +43,18 @@ public class IndicatorTransWorker extends AbstractWorker<Indicator> {
     private CounterMetric aggregationDayCounter;
     private CounterMetric aggregationMonthCounter;
 
-    public IndicatorTransWorker(ModuleManager moduleManager,
-        String modelName,
-        int workerId,
+    public IndicatorTransWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
         IndicatorPersistentWorker minutePersistenceWorker,
         IndicatorPersistentWorker hourPersistenceWorker,
         IndicatorPersistentWorker dayPersistenceWorker,
         IndicatorPersistentWorker monthPersistenceWorker) {
-        super(workerId);
+        super(moduleDefineHolder);
         this.minutePersistenceWorker = minutePersistenceWorker;
         this.hourPersistenceWorker = hourPersistenceWorker;
         this.dayPersistenceWorker = dayPersistenceWorker;
         this.monthPersistenceWorker = monthPersistenceWorker;
 
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        MetricCreator metricCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
         aggregationMinCounter = metricCreator.createCounter("indicator_aggregation", "The number of rows in aggregation",
             new MetricTag.Keys("metricName", "level", "dimensionality"), new MetricTag.Values(modelName, "2", "min"));
         aggregationHourCounter = metricCreator.createCounter("indicator_aggregation", "The number of rows in aggregation",
@@ -80,7 +78,8 @@ public class IndicatorTransWorker extends AbstractWorker<Indicator> {
             aggregationHourCounter.inc();
             monthPersistenceWorker.in(indicator.toMonth());
         }
-        /**
+
+        /*
          * Minute persistent must be at the end of all time dimensionalities
          * Because #toHour, #toDay, #toMonth include clone inside, which could avoid concurrency situation.
          */

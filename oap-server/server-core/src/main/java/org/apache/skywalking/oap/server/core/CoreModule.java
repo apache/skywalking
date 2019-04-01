@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
@@ -47,6 +48,9 @@ public class CoreModule extends ModuleDefine {
         classes.add(ConfigService.class);
         classes.add(DownsamplingConfigService.class);
         classes.add(IComponentLibraryCatalogService.class);
+
+        classes.add(IWorkerInstanceGetter.class);
+        classes.add(IWorkerInstanceSetter.class);
 
         addServerInterface(classes);
         addReceiverInterface(classes);

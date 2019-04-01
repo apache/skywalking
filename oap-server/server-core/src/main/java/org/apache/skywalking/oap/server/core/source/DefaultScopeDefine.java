@@ -59,6 +59,7 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_CLR_GC = 20;
     public static final int SERVICE_INSTANCE_CLR_THREAD = 21;
     public static final int ENVOY_INSTANCE_METRIC = 22;
+    public static final int ZIPKIN_SPAN = 23;
 
     /**
      * Catalog of scope, the indicator processor could use this to group all generated indicators by oal tool.

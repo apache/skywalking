@@ -30,6 +30,7 @@
     <modules>
         <module>storage-jdbc-hikaricp-plugin</module>
         <module>storage-elasticsearch-plugin</module>
+        <module>storage-zipkin-plugin</module>
     </modules>
 
 </project>
