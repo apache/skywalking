@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.util.*;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.zipkin.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanEncode;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpan;

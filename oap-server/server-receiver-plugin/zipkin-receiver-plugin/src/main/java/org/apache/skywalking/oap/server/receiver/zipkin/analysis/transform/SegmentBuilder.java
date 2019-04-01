@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.language.agent.v2.*;
-import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.*;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
 import org.eclipse.jetty.util.StringUtil;

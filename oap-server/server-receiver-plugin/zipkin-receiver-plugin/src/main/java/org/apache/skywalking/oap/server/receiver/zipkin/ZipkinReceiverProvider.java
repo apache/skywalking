@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.*;
