@@ -20,11 +20,13 @@ package org.apache.skywalking.aop.server.receiver.jaeger;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
-import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+import org.apache.skywalking.oap.server.receiver.sharing.server.*;
 
 /**
  * @author wusheng
@@ -61,11 +63,15 @@ public class JaegerReceiverProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+        CoreRegisterLinker.setModuleManager(getManager());
+
+        SourceReceiver sourceReceiver = getManager().find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+
         if (Objects.nonNull(grpcServer)) {
-            grpcServer.addHandler(new JaegerGRPCHandler(getManager()));
+            grpcServer.addHandler(new JaegerGRPCHandler(sourceReceiver, config));
         } else {
             GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
-            grpcHandlerRegister.addHandler(new JaegerGRPCHandler(getManager()));
+            grpcHandlerRegister.addHandler(new JaegerGRPCHandler(sourceReceiver, config));
         }
 
     }
