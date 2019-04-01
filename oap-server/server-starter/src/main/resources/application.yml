@@ -105,6 +105,8 @@ envoy-metric:
 #    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
 receiver_jaeger:
   default:
+    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
+    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 query:
   graphql:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
