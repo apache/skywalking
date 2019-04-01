@@ -60,6 +60,7 @@ or providing commercial products including Apache SkyWalking.
 1. StartDT 奇点云 https://www.startdt.com/
 1. Successchannel 苏州渠成易销网络科技有限公司. http://www.successchannel.com
 1. Today36524.com Today便利店
+1. Tools information technology co. LTD 杭州图尔兹信息技术有限公司 http://bintools.cn/
 1. Tsfinance.com 重庆宜迅联供应链科技有限公司 https://www.tsfinance.com.cn/
 1. Tuya. 涂鸦智能. https://www.tuya.com
 1. VBill Payment Co., LTD. 随行付. https://www.vbill.cn/
@@ -70,7 +71,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-1. Tools information technology co. LTD 杭州图尔兹信息技术有限公司 http://bintools.cn/
 
 # User Cases
 ## Alibaba Cloud
