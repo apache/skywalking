@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.aop.server.receiver.jaeger;
 
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
@@ -44,7 +45,8 @@ public class JaegerReceiverProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        grpcHandlerRegister.addHandler(new JaegerGRPCHandler(getManager()));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
