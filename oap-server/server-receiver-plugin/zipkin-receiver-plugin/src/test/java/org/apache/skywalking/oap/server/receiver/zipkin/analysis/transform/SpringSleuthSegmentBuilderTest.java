@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.apm.network.language.agent.v2.*;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.service.*;
-import org.apache.skywalking.oap.server.receiver.zipkin.CoreRegisterLinker;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.*;
 import org.junit.*;
 import org.powermock.reflect.Whitebox;

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin;
+package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.register.service.*;

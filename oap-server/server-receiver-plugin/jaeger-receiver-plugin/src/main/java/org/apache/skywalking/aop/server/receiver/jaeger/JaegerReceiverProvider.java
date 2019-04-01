@@ -16,48 +16,35 @@
  *
  */
 
-package org.apache.skywalking.aop.server.receiver.mesh;
+package org.apache.skywalking.aop.server.receiver.jaeger;
 
-import java.io.IOException;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.receiver.sharing.server.*;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
-public class MeshReceiverProvider extends ModuleProvider {
-    private MeshModuleConfig config;
-
-    public MeshReceiverProvider() {
-        config = new MeshModuleConfig();
-    }
+/**
+ * @author wusheng
+ */
+public class JaegerReceiverProvider extends ModuleProvider {
+    public static final String NAME = "default";
 
     @Override public String name() {
-        return "default";
+        return NAME;
     }
 
     @Override public Class<? extends ModuleDefine> module() {
-        return MeshReceiverModule.class;
+        return JaegerReceiverModule.class;
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+        return null;
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        MeshDataBufferFileCache cache = new MeshDataBufferFileCache(config, getManager());
-        try {
-            cache.start();
-            TelemetryDataDispatcher.setCache(cache, getManager());
-        } catch (IOException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
-        CoreRegisterLinker.setModuleManager(getManager());
-        GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        service.addHandler(new MeshGRPCHandler(getManager()));
+
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
@@ -65,6 +52,6 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME};
+        return new String[] {SharingServerModule.NAME};
     }
 }
