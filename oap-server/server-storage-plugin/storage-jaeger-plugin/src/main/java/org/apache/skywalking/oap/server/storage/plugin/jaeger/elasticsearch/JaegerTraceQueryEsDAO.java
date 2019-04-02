@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jaeger.elasticsearch;
 
 import com.google.common.base.Strings;
+import com.google.protobuf.ByteString;
 import io.jaegertracing.api_v2.Model;
 import java.io.IOException;
 import java.time.Instant;
@@ -159,7 +160,6 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         List<Span> spanList = new ArrayList<>();
 
-        boolean isFirst = true;
         for (SearchHit searchHit : response.getHits().getHits()) {
             int serviceId = ((Number)searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
             long startTime = ((Number)searchHit.getSourceAsMap().get(START_TIME)).longValue();
@@ -170,7 +170,7 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
             Span swSpan = new Span();
 
-            swSpan.setTraceId(jaegerSpan.getTraceId().toStringUtf8());
+            swSpan.setTraceId(format(jaegerSpan.getTraceId()));
             swSpan.setEndpointName(jaegerSpan.getOperationName());
             swSpan.setStartTime(startTime);
             swSpan.setEndTime(endTime);
@@ -232,22 +232,21 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
             if (serviceId != Const.NONE) {
                 swSpan.setServiceCode(serviceInventoryCache.get(serviceId).getName());
+            } else {
+                swSpan.setServiceCode("UNKNOWN");
             }
             swSpan.setSpanId(0);
             swSpan.setParentSpanId(-1);
-            String spanId = id(jaegerSpan.getTraceId().toStringUtf8(), jaegerSpan.getSpanId().toStringUtf8());
+            String spanId = id(format(jaegerSpan.getTraceId()), format(jaegerSpan.getSpanId()));
             swSpan.setSegmentSpanId(spanId);
             swSpan.setSegmentId(spanId);
 
-            if (isFirst) {
-                swSpan.setRoot(true);
-                swSpan.setSegmentParentSpanId("");
-                isFirst = false;
-            } else {
-                jaegerSpan.getReferencesList().forEach(jaegerRef -> {
+            List<Model.SpanRef> spanReferencesList = jaegerSpan.getReferencesList();
+            if (spanReferencesList.size() > 0) {
+                spanReferencesList.forEach(jaegerRef -> {
                     Ref ref = new Ref();
-                    ref.setTraceId(jaegerRef.getTraceId().toStringUtf8());
-                    String parentId = id(jaegerRef.getTraceId().toStringUtf8(), jaegerRef.getSpanId().toStringUtf8());
+                    ref.setTraceId(format(jaegerRef.getTraceId()));
+                    String parentId = id(format(jaegerRef.getTraceId()), format(jaegerRef.getSpanId()));
                     ref.setParentSegmentId(parentId);
                     ref.setType(RefType.CROSS_PROCESS);
                     ref.setParentSpanId(0);
@@ -255,6 +254,9 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                     swSpan.getRefs().add(ref);
                     swSpan.setSegmentParentSpanId(parentId);
                 });
+            } else {
+                swSpan.setRoot(true);
+                swSpan.setSegmentParentSpanId("");
             }
             spanList.add(swSpan);
         }
@@ -263,5 +265,10 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
     private String id(String traceId, String spanId) {
         return traceId + "_" + spanId;
+    }
+
+    private String format(ByteString bytes) {
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(bytes.toByteArray());
     }
 }
