@@ -24,5 +24,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 @Getter
 public class JaegerReceiverConfig extends ModuleConfig {
+    private String gRPCHost = null;
+    private int gRPCPort = -1;
+    private int maxConcurrentCallsPerConnection;
+    private int maxMessageSize;
     private boolean registerJaegerEndpoint = true;
 }
