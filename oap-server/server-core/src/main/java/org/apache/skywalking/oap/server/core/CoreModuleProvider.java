@@ -91,6 +91,7 @@ public class CoreModuleProvider extends ModuleProvider {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.registerListener(DisableRegister.INSTANCE);
+        scopeScan.registerListener(new DisableRegister.SingleDisableScanListener());
         try {
             scopeScan.scan(null);
         } catch (IOException e) {

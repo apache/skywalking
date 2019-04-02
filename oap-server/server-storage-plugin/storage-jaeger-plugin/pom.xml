@@ -21,28 +21,23 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>server-receiver-plugin</artifactId>
+        <artifactId>server-storage-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jaeger-receiver-plugin</artifactId>
+    <artifactId>storage-jaeger-plugin</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-elasticsearch-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>receiver-proto</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-sharing-server-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-jaeger-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

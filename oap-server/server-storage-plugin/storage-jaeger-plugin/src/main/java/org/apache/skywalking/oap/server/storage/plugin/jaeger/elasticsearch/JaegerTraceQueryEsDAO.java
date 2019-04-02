@@ -16,13 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch;
+package org.apache.skywalking.oap.server.storage.plugin.jaeger.elasticsearch;
 
 import com.google.common.base.Strings;
+import com.google.protobuf.ByteString;
+import io.jaegertracing.api_v2.Model;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import lombok.Setter;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
@@ -31,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord;
+import org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
@@ -41,16 +43,15 @@ import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import zipkin2.Span;
-import zipkin2.codec.SpanBytesDecoder;
 
-import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.*;
+import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.*;
 
-public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
+public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Setter
     private ServiceInventoryCache serviceInventoryCache;
 
-    public ZipkinTraceQueryEsDAO(
+    public JaegerTraceQueryEsDAO(
         ElasticSearchClient client) {
         super(client);
     }
@@ -121,7 +122,7 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         sourceBuilder.aggregation(builder);
 
-        SearchResponse response = getClient().search(ZipkinSpanRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(JaegerSpanRecord.INDEX_NAME, sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();
 
@@ -148,74 +149,126 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         return Collections.emptyList();
     }
 
-    @Override public List<org.apache.skywalking.oap.server.core.query.entity.Span> doFlexibleTraceQuery(
+    @Override public List<Span> doFlexibleTraceQuery(
         String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(TRACE_ID, traceId));
         sourceBuilder.sort(START_TIME, SortOrder.ASC);
         sourceBuilder.size(1000);
 
-        SearchResponse response = getClient().search(ZipkinSpanRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(JaegerSpanRecord.INDEX_NAME, sourceBuilder);
 
-        List<org.apache.skywalking.oap.server.core.query.entity.Span> spanList = new ArrayList<>();
+        List<Span> spanList = new ArrayList<>();
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             int serviceId = ((Number)searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
+            long startTime = ((Number)searchHit.getSourceAsMap().get(START_TIME)).longValue();
+            long endTime = ((Number)searchHit.getSourceAsMap().get(END_TIME)).longValue();
             String dataBinaryBase64 = (String)searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
-            Span span = SpanBytesDecoder.PROTO3.decodeOne(Base64.getDecoder().decode(dataBinaryBase64));
 
-            org.apache.skywalking.oap.server.core.query.entity.Span swSpan = new org.apache.skywalking.oap.server.core.query.entity.Span();
+            Model.Span jaegerSpan = Model.Span.newBuilder().mergeFrom(Base64.getDecoder().decode(dataBinaryBase64)).build();
 
-            swSpan.setTraceId(span.traceId());
-            swSpan.setEndpointName(span.name());
-            swSpan.setStartTime(span.timestamp() / 1000);
-            swSpan.setEndTime(swSpan.getStartTime() + span.durationAsLong() / 1000);
-            span.tags().forEach((key, value) -> {
-                swSpan.getTags().add(new KeyValue(key, value));
+            Span swSpan = new Span();
+
+            swSpan.setTraceId(format(jaegerSpan.getTraceId()));
+            swSpan.setEndpointName(jaegerSpan.getOperationName());
+            swSpan.setStartTime(startTime);
+            swSpan.setEndTime(endTime);
+            jaegerSpan.getTagsList().forEach(keyValue -> {
+                String key = keyValue.getKey();
+                Model.ValueType valueVType = keyValue.getVType();
+                switch (valueVType) {
+                    case STRING:
+                        swSpan.getTags().add(new KeyValue(key, keyValue.getVStr()));
+                        break;
+                    case INT64:
+                        swSpan.getTags().add(new KeyValue(key, keyValue.getVInt64() + ""));
+                        break;
+                    case BOOL:
+                        swSpan.getTags().add(new KeyValue(key, keyValue.getVBool() + ""));
+                        break;
+                    case FLOAT64:
+                        swSpan.getTags().add(new KeyValue(key, keyValue.getVFloat64() + ""));
+                        break;
+                }
+                swSpan.setType("Local");
+                if ("span.kind".equals(key)) {
+                    String kind = keyValue.getVStr();
+                    if ("server".equals(kind) || "consumer".equals(kind)) {
+                        swSpan.setType("Entry");
+                    } else if ("client".equals(kind) || "producer".equals(kind)) {
+                        swSpan.setType("Exit");
+                    }
+                }
             });
-            span.annotations().forEach(annotation -> {
+            jaegerSpan.getLogsList().forEach(log -> {
                 LogEntity entity = new LogEntity();
-                entity.setTime(annotation.timestamp() / 1000);
-                entity.getData().add(new KeyValue("annotation", annotation.value()));
+                boolean hasTimestamp = log.hasTimestamp();
+                if (hasTimestamp) {
+                    long time = Instant.ofEpochSecond(log.getTimestamp().getSeconds(), log.getTimestamp().getNanos()).toEpochMilli();
+                    entity.setTime(time);
+                }
+                log.getFieldsList().forEach(field -> {
+                    String key = field.getKey();
+                    Model.ValueType valueVType = field.getVType();
+                    switch (valueVType) {
+                        case STRING:
+                            entity.getData().add(new KeyValue(key, field.getVStr()));
+                            break;
+                        case INT64:
+                            entity.getData().add(new KeyValue(key, field.getVInt64() + ""));
+                            break;
+                        case BOOL:
+                            entity.getData().add(new KeyValue(key, field.getVBool() + ""));
+                            break;
+                        case FLOAT64:
+                            entity.getData().add(new KeyValue(key, field.getVFloat64() + ""));
+                            break;
+                    }
+                });
+
                 swSpan.getLogs().add(entity);
             });
+
             if (serviceId != Const.NONE) {
                 swSpan.setServiceCode(serviceInventoryCache.get(serviceId).getName());
+            } else {
+                swSpan.setServiceCode("UNKNOWN");
             }
             swSpan.setSpanId(0);
             swSpan.setParentSpanId(-1);
-            swSpan.setSegmentSpanId(span.id());
-            swSpan.setSegmentId(span.id());
-            Span.Kind kind = span.kind();
-            switch (kind) {
-                case CLIENT:
-                case PRODUCER:
-                    swSpan.setType("Entry");
-                    break;
-                case SERVER:
-                case CONSUMER:
-                    swSpan.setType("Exit");
-                    break;
-                default:
-                    swSpan.setType("Local");
+            String spanId = id(format(jaegerSpan.getTraceId()), format(jaegerSpan.getSpanId()));
+            swSpan.setSegmentSpanId(spanId);
+            swSpan.setSegmentId(spanId);
 
-            }
+            List<Model.SpanRef> spanReferencesList = jaegerSpan.getReferencesList();
+            if (spanReferencesList.size() > 0) {
+                spanReferencesList.forEach(jaegerRef -> {
+                    Ref ref = new Ref();
+                    ref.setTraceId(format(jaegerRef.getTraceId()));
+                    String parentId = id(format(jaegerRef.getTraceId()), format(jaegerRef.getSpanId()));
+                    ref.setParentSegmentId(parentId);
+                    ref.setType(RefType.CROSS_PROCESS);
+                    ref.setParentSpanId(0);
 
-            if (StringUtil.isEmpty(span.parentId())) {
+                    swSpan.getRefs().add(ref);
+                    swSpan.setSegmentParentSpanId(parentId);
+                });
+            } else {
                 swSpan.setRoot(true);
                 swSpan.setSegmentParentSpanId("");
-            } else {
-                Ref ref = new Ref();
-                ref.setTraceId(span.traceId());
-                ref.setParentSegmentId(span.parentId());
-                ref.setType(RefType.CROSS_PROCESS);
-                ref.setParentSpanId(0);
-
-                swSpan.getRefs().add(ref);
-                swSpan.setSegmentParentSpanId(span.parentId());
             }
             spanList.add(swSpan);
         }
         return spanList;
+    }
+
+    private String id(String traceId, String spanId) {
+        return traceId + "_" + spanId;
+    }
+
+    private String format(ByteString bytes) {
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(bytes.toByteArray());
     }
 }
