@@ -102,5 +102,5 @@ envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricNam
 // disable(segment);
 // disable(endpoint_relation_server_side);
 // disable(top_n_database_statement);
-disable(zipkin_span);
+// disable(zipkin_span);
 // disable(jaeger_span);

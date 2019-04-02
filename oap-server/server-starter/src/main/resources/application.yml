@@ -55,24 +55,7 @@ core:
     dayMetricsDataTTL: ${SW_CORE_DAY_METRIC_DATA_TTL:45} # Unit is day
     monthMetricsDataTTL: ${SW_CORE_MONTH_METRIC_DATA_TTL:18} # Unit is month
 storage:
-#  elasticsearch:
-#    nameSpace: ${SW_NAMESPACE:""}
-#    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-#    user: ${SW_ES_USER:""}
-#    password: ${SW_ES_PASSWORD:""}
-#    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
-#    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
-#    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
-#    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
-#    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
-#    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
-#    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-#  h2:
-#    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-#    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
-#    user: ${SW_STORAGE_H2_USER:sa}
-#  mysql:
-  jaeger-elasticsearch:
+  elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     user: ${SW_ES_USER:""}
@@ -84,6 +67,11 @@ storage:
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+#  h2:
+#    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
+#    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+#    user: ${SW_STORAGE_H2_USER:sa}
+#  mysql:
 receiver-sharing-server:
   default:
 receiver-register:
@@ -115,10 +103,10 @@ envoy-metric:
 #    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
 #    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
 #    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-receiver_jaeger:
-  default:
-    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
-    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
+#receiver_jaeger:
+#  default:
+#    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
+#    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 query:
   graphql:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}

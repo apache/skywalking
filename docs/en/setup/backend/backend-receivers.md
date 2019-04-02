@@ -12,6 +12,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
 1. **envoy-metric**. Envoy `metrics_service` supported by this receiver. OAL script support all GAUGE type metrics. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
+1. **receiver_jaeger**. See [details]
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -69,7 +70,17 @@ But it wouldn't analysis metric from them. In most case, I suggest you could use
 Notice, in this mode, Zipkin receiver requires `zipkin-elasticsearch` storage implementation active. 
 Read [this](backend-storage.md#elasticsearch-6-with-zipkin-trace-extension) to know 
 how to active.
-1. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
+
+Use following config to active.
+```yaml
+receiver_zipkin:
+  default:
+    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
+    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
+    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+```
+
+2. Analysis mode(Not production ready), receive Zipkin v1/v2 formats through HTTP service. Transform the trace to skywalking
 native format, and analysis like skywalking trace. This feature can't work in production env right now,
 because of Zipkin tag/endpoint value unpredictable, we can't make sure it fits production env requirements.
 
@@ -82,3 +93,17 @@ receiver_zipkin:
     contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
     needAnalysis: true
 ```
+
+## Jaeger receiver
+Jaeger receiver right now only works in `Tracing Mode`, and no analysis.
+Jaeger receiver provides extra gRPC host/port, if absent, sharing-server host/port will be used, then core gRPC host/port.
+Receiver requires `jaeger-elasticsearch` storage implementation active. 
+Read [this](backend-storage.md#elasticsearch-6-with-jaeger-trace-extension) to know 
+
+Active the receiver.
+```yaml
+receiver_jaeger:
+  default:
+    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
+    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
+``` 
