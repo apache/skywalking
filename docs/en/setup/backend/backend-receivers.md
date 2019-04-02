@@ -12,7 +12,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
 1. **envoy-metric**. Envoy `metrics_service` supported by this receiver. OAL script support all GAUGE type metrics. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
-1. **receiver_jaeger**. See [details]
+1. **receiver_jaeger**. See [details](#jaeger-receiver).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
