@@ -98,7 +98,11 @@ receiver_zipkin:
 Jaeger receiver right now only works in `Tracing Mode`, and no analysis.
 Jaeger receiver provides extra gRPC host/port, if absent, sharing-server host/port will be used, then core gRPC host/port.
 Receiver requires `jaeger-elasticsearch` storage implementation active. 
-Read [this](backend-storage.md#elasticsearch-6-with-jaeger-trace-extension) to know 
+Read [this](backend-storage.md#elasticsearch-6-with-jaeger-trace-extension) to know how to active.
+
+Right now, you need [jaeger agent](https://www.jaegertracing.io/docs/1.11/architecture/#agent) to batch
+send spans to SkyWalking oap server. Read [Jaeger Architecture](https://www.jaegertracing.io/docs/1.11/architecture/)
+to get more details.
 
 Active the receiver.
 ```yaml
