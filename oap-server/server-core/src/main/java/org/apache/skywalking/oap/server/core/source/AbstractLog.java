@@ -16,36 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.oap.server.core.source;
 
+import lombok.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.query.entity.ContentType;
 
-/**
- * @author wusheng
- */
-public enum ContentType {
-    TEXT(1), JSON(2), NONE(0);
+@Setter
+@Getter
+public abstract class AbstractLog extends Source {
 
-    private int value;
+    private int serviceId;
+    private int serviceInstanceId;
+    private int endpointId;
+    private int isError;
+    private String statusCode;
+    private ContentType contentType = ContentType.NONE;
+    private String content;
 
-    ContentType(int value) {
-        this.value = value;
-    }
-
-    public int value() {
-        return value;
-    }
-
-    public static ContentType instanceOf(int value) {
-        switch (value) {
-            case 1:
-                return TEXT;
-            case 2:
-                return JSON;
-            case 0:
-                return NONE;
-            default:
-                throw new UnexpectedException("unexpected value=" + value);
-        }
+    @Override public String getEntityId() {
+        throw new UnexpectedException("getEntityId is not supported in AbstractLog source");
     }
 }

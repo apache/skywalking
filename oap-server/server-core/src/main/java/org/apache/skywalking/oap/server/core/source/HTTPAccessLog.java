@@ -16,36 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
 
 /**
  * @author wusheng
  */
-public enum ContentType {
-    TEXT(1), JSON(2), NONE(0);
-
-    private int value;
-
-    ContentType(int value) {
-        this.value = value;
-    }
-
-    public int value() {
-        return value;
-    }
-
-    public static ContentType instanceOf(int value) {
-        switch (value) {
-            case 1:
-                return TEXT;
-            case 2:
-                return JSON;
-            case 0:
-                return NONE;
-            default:
-                throw new UnexpectedException("unexpected value=" + value);
-        }
+@ScopeDeclaration(id = HTTP_ACCESS_LOG, name = "HTTPAccessLog")
+public class HTTPAccessLog extends AbstractLog {
+    @Override public int scope() {
+        return HTTP_ACCESS_LOG;
     }
 }

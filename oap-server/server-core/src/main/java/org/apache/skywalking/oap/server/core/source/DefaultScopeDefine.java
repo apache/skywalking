@@ -61,6 +61,7 @@ public class DefaultScopeDefine {
     public static final int ENVOY_INSTANCE_METRIC = 22;
     public static final int ZIPKIN_SPAN = 23;
     public static final int JAEGER_SPAN = 24;
+    public static final int HTTP_ACCESS_LOG = 25;
 
     /**
      * Catalog of scope, the indicator processor could use this to group all generated indicators by oal tool.
