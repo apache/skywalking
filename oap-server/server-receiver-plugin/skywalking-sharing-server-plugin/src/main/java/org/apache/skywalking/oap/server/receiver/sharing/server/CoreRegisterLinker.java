@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -27,6 +28,8 @@ public class CoreRegisterLinker {
     private static volatile IServiceInventoryRegister SERVICE_INVENTORY_REGISTER;
     private static volatile IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
     private static volatile IEndpointInventoryRegister ENDPOINT_INVENTORY_REGISTER;
+    private static volatile ServiceInventoryCache SERVICE_INVENTORY_CACHE;
+    private static volatile EndpointInventoryCache ENDPOINT_INVENTORY_CACHE;
 
     public static void setModuleManager(ModuleManager moduleManager) {
         CoreRegisterLinker.MODULE_MANAGER = moduleManager;
@@ -51,5 +54,19 @@ public class CoreRegisterLinker {
             ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
         }
         return ENDPOINT_INVENTORY_REGISTER;
+    }
+
+    public static ServiceInventoryCache getServiceInventoryCache() {
+        if (SERVICE_INVENTORY_CACHE == null) {
+            SERVICE_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        }
+        return SERVICE_INVENTORY_CACHE;
+    }
+
+    public static EndpointInventoryCache getEndpointInventoryCache() {
+        if (ENDPOINT_INVENTORY_CACHE == null) {
+            ENDPOINT_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+        }
+        return ENDPOINT_INVENTORY_CACHE;
     }
 }
