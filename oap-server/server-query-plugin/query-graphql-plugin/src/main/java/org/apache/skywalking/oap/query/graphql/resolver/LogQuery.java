@@ -21,20 +21,40 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import org.apache.skywalking.oap.query.graphql.type.LogQueryCondition;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author wusheng
  */
 public class LogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
+    private LogQueryService logQueryService;
 
     public LogQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
+    private LogQueryService getQueryService() {
+        if (logQueryService == null) {
+            this.logQueryService = moduleManager.find(CoreModule.NAME).provider().getService(LogQueryService.class);
+        }
+        return logQueryService;
+    }
+
     public Logs queryLogs(LogQueryCondition condition) throws IOException {
-        return null;
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(condition.getQueryDuration())) {
+            startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
+            endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
+        }
+
+        return getQueryService().queryLogs(condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition.getEndpointId(),
+            condition.getState(), condition.getStateCode(), condition.getPaging(), startSecondTB, endSecondTB);
     }
 }

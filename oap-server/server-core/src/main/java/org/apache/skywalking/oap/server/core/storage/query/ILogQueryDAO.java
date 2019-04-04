@@ -16,23 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import lombok.*;
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author wusheng
  */
-@Getter
-@Setter
-public class LogQueryCondition {
-    private String metricName;
-    private int serviceId;
-    private int serviceInstanceId;
-    private int endpointId;
-    private LogState state;
-    private String stateCode;
-    private Duration queryDuration;
-    private Pagination paging;
+public interface ILogQueryDAO extends Service {
+    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
+        LogState state, String stateCode, Pagination paging, int from, int limit, final long startTB, final long endTB) throws IOException;
 }

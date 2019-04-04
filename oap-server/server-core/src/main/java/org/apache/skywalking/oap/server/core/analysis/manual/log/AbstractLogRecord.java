@@ -39,6 +39,7 @@ public abstract class AbstractLogRecord extends Record {
     public static final String STATUS_CODE = "status_code";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
+    public static final String TIMESTAMP = "timestamp";
 
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) private int serviceInstanceId;
@@ -47,6 +48,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter @Getter @Column(columnName = STATUS_CODE) private String statusCode;
     @Setter @Getter @Column(columnName = CONTENT_TYPE) private int contentType = ContentType.NONE.value();
     @Setter @Getter @Column(columnName = CONTENT) private String content;
+    @Setter @Getter @Column(columnName = TIMESTAMP) private long timestamp;
 
     @Override public String id() {
         throw new UnexpectedException("AbstractLogRecord doesn't provide id()");
@@ -59,8 +61,10 @@ public abstract class AbstractLogRecord extends Record {
             record.setEndpointId(((Number)dbMap.get(ENDPOINT_ID)).intValue());
             record.setIsError(((Number)dbMap.get(IS_ERROR)).intValue());
             record.setStatusCode((String)dbMap.get(STATUS_CODE));
-            record.setIsError(((Number)dbMap.get(CONTENT_TYPE)).intValue());
-            record.setStatusCode((String)dbMap.get(CONTENT));
+            record.setContentType(((Number)dbMap.get(CONTENT_TYPE)).intValue());
+            record.setContent((String)dbMap.get(CONTENT));
+            record.setTimestamp(((Number)dbMap.get(TIMESTAMP)).longValue());
+            record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
         }
 
         @Override public Map<String, Object> data2Map(AbstractLogRecord record) {
@@ -73,6 +77,7 @@ public abstract class AbstractLogRecord extends Record {
             map.put(TIME_BUCKET, record.getTimeBucket());
             map.put(CONTENT_TYPE, record.getContentType());
             map.put(CONTENT, record.getContent());
+            map.put(TIMESTAMP, record.getTimestamp());
             return map;
         }
     }

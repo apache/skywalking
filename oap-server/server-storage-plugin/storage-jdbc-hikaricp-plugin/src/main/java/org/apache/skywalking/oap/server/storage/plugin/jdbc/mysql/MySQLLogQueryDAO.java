@@ -16,23 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO;
 
 /**
  * @author wusheng
  */
-@Getter
-@Setter
-public class LogQueryCondition {
-    private String metricName;
-    private int serviceId;
-    private int serviceInstanceId;
-    private int endpointId;
-    private LogState state;
-    private String stateCode;
-    private Duration queryDuration;
-    private Pagination paging;
+public class MySQLLogQueryDAO extends H2LogQueryDAO {
+    public MySQLLogQueryDAO(JDBCHikariCPClient h2Client) {
+        super(h2Client);
+    }
+
+    protected String buildCountStatement(String sql) {
+        return "select count(1) total from (select 1 " + sql + " )";
+    }
+
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
+        sql.append(" LIMIT ").append(limit);
+        sql.append(" OFFSET ").append(from);
+    }
 }

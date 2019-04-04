@@ -19,14 +19,16 @@
 package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.*;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * @author wusheng
  */
+@Setter
+@Getter
 public class Logs {
     private final List<Log> logs;
-    @Setter private int total;
+    private int total;
 
     public Logs() {
         this.logs = new ArrayList<>();

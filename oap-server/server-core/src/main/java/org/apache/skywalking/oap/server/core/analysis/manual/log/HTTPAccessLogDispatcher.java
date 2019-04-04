@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.source.HTTPAccessLog;
 public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> {
     @Override public void dispatch(HTTPAccessLog source) {
         HTTPAccessLogRecord record = new HTTPAccessLogRecord();
+        record.setTimestamp(source.getTimestamp());
+        record.setTimeBucket(source.getTimeBucket());
         record.setServiceId(source.getServiceId());
         record.setServiceInstanceId(source.getServiceInstanceId());
         record.setEndpointId(source.getEndpointId());
