@@ -83,7 +83,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 # Contact Us
 * Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
-* [Slack](https://skywalking.slack.com)
+* Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNDQ3OTEwNzE1MDg5LWY2NjkwMTEzMGI2ZTI1NzUzMDk0MzJmMWM1NWVmODg0MzBjNjAxYzUwMjIwNDI3MjlhZWRjNmNhOTM5NmIxNDk)
 * QQ Group: 392443393
 
 # Who Uses SkyWalking?
