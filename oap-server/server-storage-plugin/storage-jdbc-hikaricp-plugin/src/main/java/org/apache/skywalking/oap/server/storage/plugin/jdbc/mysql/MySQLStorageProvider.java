@@ -93,7 +93,7 @@ public class MySQLStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient));
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(mysqlClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(mysqlClient));
-        this.registerServiceImplementation(ILogQueryDAO.class, new MySQLTraceQueryDAO(mysqlClient));
+        this.registerServiceImplementation(ILogQueryDAO.class, new MySQLLogQueryDAO(mysqlClient));
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
