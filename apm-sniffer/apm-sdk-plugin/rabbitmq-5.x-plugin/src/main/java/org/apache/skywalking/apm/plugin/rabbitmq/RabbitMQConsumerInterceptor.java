@@ -53,8 +53,6 @@ public class RabbitMQConsumerInterceptor implements InstanceMethodsAroundInterce
             next = next.next();
             if (properties.getHeaders() != null && properties.getHeaders().get(next.getHeadKey()) != null) {
                 next.setHeadValue(properties.getHeaders().get(next.getHeadKey()).toString());
-            } else {
-                next.setHeadValue("");
             }
         }
         ContextManager.extract(contextCarrier);
