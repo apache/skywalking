@@ -51,7 +51,11 @@ public class RabbitMQConsumerInterceptor implements InstanceMethodsAroundInterce
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            next.setHeadValue(properties.getHeaders().get(next.getHeadKey()).toString());
+            if (properties != null) {
+                next.setHeadValue(properties.getHeaders().get(next.getHeadKey()).toString());
+            } else {
+                next.setHeadValue("");
+            }
         }
         ContextManager.extract(contextCarrier);
 
