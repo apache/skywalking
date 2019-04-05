@@ -31,6 +31,7 @@ public class LogQueryCondition {
     private int serviceId;
     private int serviceInstanceId;
     private int endpointId;
+    private String traceId;
     private LogState state;
     private String stateCode;
     private Duration queryDuration;

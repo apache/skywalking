@@ -30,6 +30,7 @@ public abstract class AbstractLog extends Source {
     private int serviceId;
     private int serviceInstanceId;
     private int endpointId;
+    private String traceId;
     private int isError;
     private String statusCode;
     private ContentType contentType = ContentType.NONE;

@@ -32,6 +32,7 @@ public class Log {
     private int serviceInstanceId;
     private String endpointName;
     private int endpointId;
+    private String traceId;
     private String timestamp;
     private boolean isError;
     private String statusCode;

@@ -23,9 +23,9 @@ import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author wusheng
@@ -70,11 +70,12 @@ public class LogQueryService implements Service {
     }
 
     public Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        LogState state, String stateCode, Pagination paging, final long startTB, final long endTB) throws IOException {
+        String traceId, LogState state, String stateCode, Pagination paging, final long startTB,
+        final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         Logs logs = getLogQueryDAO().queryLogs(metricName, serviceId, serviceInstanceId, endpointId,
-            state, stateCode, paging, page.getFrom(), page.getLimit(), startTB, endTB);
+            traceId, state, stateCode, paging, page.getFrom(), page.getLimit(), startTB, endTB);
         logs.getLogs().forEach(log -> {
             if (log.getServiceId() != Const.NONE) {
                 log.setServiceName(getServiceInventoryCache().get(log.getServiceId()).getName());

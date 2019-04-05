@@ -33,6 +33,7 @@ public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> 
         record.setServiceId(source.getServiceId());
         record.setServiceInstanceId(source.getServiceInstanceId());
         record.setEndpointId(source.getEndpointId());
+        record.setTraceId(source.getTraceId());
         record.setIsError(source.getIsError());
         record.setStatusCode(source.getStatusCode());
         record.setContentType(source.getContentType().value());

@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -33,6 +34,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 
 /**
  * @author wusheng
@@ -44,7 +47,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
 
     @Override
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
+        String traceId, LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
         long endSecondTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -53,7 +56,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         if (startSecondTB != 0 && endSecondTB != 0) {
-            mustQueryList.add(QueryBuilders.rangeQuery(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
+            mustQueryList.add(QueryBuilders.rangeQuery(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
 
         if (serviceId != Const.NONE) {
@@ -67,6 +70,9 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         }
         if (!Strings.isNullOrEmpty(stateCode)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.STATUS_CODE, stateCode));
+        }
+        if (!Strings.isNullOrEmpty(traceId)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(TRACE_ID, traceId));
         }
         if (LogState.ERROR.equals(state)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));

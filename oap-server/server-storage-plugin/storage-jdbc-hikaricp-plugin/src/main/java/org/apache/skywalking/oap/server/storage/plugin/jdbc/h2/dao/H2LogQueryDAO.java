@@ -42,7 +42,8 @@ public class H2LogQueryDAO implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, LogState state,
+    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId,
+        String traceId, LogState state,
         String stateCode, Pagination paging, int from, int limit, long startSecondTB,
         long endSecondTB) throws IOException {
         StringBuilder sql = new StringBuilder();
@@ -73,6 +74,10 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             sql.append(" and ").append(AbstractLogRecord.STATUS_CODE).append(" = ?");
             parameters.add(stateCode);
         }
+        if (!Strings.isNullOrEmpty(traceId)) {
+            sql.append(" and ").append(TRACE_ID).append(" = ?");
+            parameters.add(traceId);
+        }
         if (LogState.ERROR.equals(state)) {
             sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
             parameters.add(BooleanUtils.booleanToValue(true));
@@ -98,6 +103,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     log.setServiceId(resultSet.getInt(SERVICE_ID));
                     log.setServiceInstanceId(resultSet.getInt(SERVICE_INSTANCE_ID));
                     log.setEndpointId(resultSet.getInt(ENDPOINT_ID));
+                    log.setTraceId(resultSet.getString(TRACE_ID));
                     log.setTimestamp(resultSet.getString(TIMESTAMP));
                     log.setStatusCode(resultSet.getString(STATUS_CODE));
                     log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));

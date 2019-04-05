@@ -55,6 +55,6 @@ public class LogQuery implements GraphQLQueryResolver {
         }
 
         return getQueryService().queryLogs(condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition.getEndpointId(),
-            condition.getState(), condition.getStateCode(), condition.getPaging(), startSecondTB, endSecondTB);
+            condition.getTraceId(), condition.getState(), condition.getStateCode(), condition.getPaging(), startSecondTB, endSecondTB);
     }
 }
