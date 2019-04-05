@@ -40,4 +40,4 @@ _This value can use exchange/compress collector service to get the id(integer) t
 
 ## Sample values
 1. Short version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT`
-1. Complete version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT-PARENTURI-ENTRYURI`
+1. Complete version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT-ENTRYURI-PARENTURI`
