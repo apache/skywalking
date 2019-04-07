@@ -103,14 +103,18 @@ public class TraceQueryService implements Service {
         Trace trace = new Trace();
 
         List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(traceId);
-        for (SegmentRecord segment : segmentRecords) {
-            if (nonNull(segment)) {
-                if (segment.getVersion() == 2) {
-                    SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
-                    trace.getSpans().addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
-                } else {
-                    TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
-                    trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+        if (segmentRecords.isEmpty()) {
+            trace.getSpans().addAll(getTraceQueryDAO().doFlexibleTraceQuery(traceId));
+        } else {
+            for (SegmentRecord segment : segmentRecords) {
+                if (nonNull(segment)) {
+                    if (segment.getVersion() == 2) {
+                        SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
+                        trace.getSpans().addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                    } else {
+                        TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
+                        trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                    }
                 }
             }
         }

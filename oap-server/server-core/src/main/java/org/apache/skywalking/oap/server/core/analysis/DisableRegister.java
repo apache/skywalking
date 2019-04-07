@@ -51,4 +51,15 @@ public class DisableRegister implements AnnotationListener {
     public boolean include(String name) {
         return disableEntitySet.contains(name);
     }
+
+    public static class SingleDisableScanListener implements AnnotationListener {
+        @Override public Class<? extends Annotation> annotation() {
+            return Disable.class;
+        }
+
+        @Override public void notify(Class aClass) {
+            String name = ((Disable)aClass.getAnnotation(Disable.class)).value();
+            DisableRegister.INSTANCE.disableEntitySet.add(name);
+        }
+    }
 }

@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
-import org.apache.skywalking.oap.server.core.worker.*;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
@@ -57,8 +57,6 @@ public class RemoteServiceHandlerTestCase {
         when(classGetter.findClassById(streamDataClassId)).thenReturn((Class<StreamData>)dataClass);
 
         moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, classGetter);
-
-        WorkerInstances.INSTANCES.put(testWorkerId, new TestWorker());
 
         String serverName = InProcessServerBuilder.generateName();
         MetricCreator metricCreator = mock(MetricCreator.class);
@@ -148,8 +146,8 @@ public class RemoteServiceHandlerTestCase {
 
     static class TestWorker extends AbstractWorker {
 
-        public TestWorker() {
-            super(1);
+        public TestWorker(ModuleDefineHolder moduleDefineHolder) {
+            super(moduleDefineHolder);
         }
 
         @Override public void in(Object o) {

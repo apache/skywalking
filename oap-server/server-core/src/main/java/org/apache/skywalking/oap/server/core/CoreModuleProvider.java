@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
+import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -90,6 +91,7 @@ public class CoreModuleProvider extends ModuleProvider {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.registerListener(DisableRegister.INSTANCE);
+        scopeScan.registerListener(new DisableRegister.SingleDisableScanListener());
         try {
             scopeScan.scan(null);
         } catch (IOException e) {
@@ -119,6 +121,10 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(SourceReceiver.class, receiver);
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
+
+        WorkerInstancesService instancesService = new WorkerInstancesService();
+        this.registerServiceImplementation(IWorkerInstanceGetter.class, instancesService);
+        this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
         this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
