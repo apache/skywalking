@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.clr.provider.handler;
 
+import java.util.Objects;
 import org.apache.skywalking.apm.network.common.CPU;
 import org.apache.skywalking.apm.network.language.agent.CLRMetric;
 import org.apache.skywalking.apm.network.language.agent.ClrGC;
@@ -51,7 +52,7 @@ public class CLRSourceDispatcher {
     void sendMetric(int serviceInstanceId, long minuteTimeBucket, CLRMetric metric) {
         ServiceInstanceInventory serviceInstanceInventory = instanceInventoryCache.get(serviceInstanceId);
         int serviceId;
-        if (serviceInstanceInventory == null) {
+        if (Objects.nonNull(serviceInstanceInventory)) {
             serviceId = serviceInstanceInventory.getServiceId();
         } else {
             logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
