@@ -16,24 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
 
 /**
  * @author wusheng
  */
-public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
-    public MySQLTraceQueryDAO(JDBCHikariCPClient mysqlClient) {
-        super(mysqlClient);
-    }
-
-    @Override protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " ) AS TRACE";
-    }
-
-    @Override protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" LIMIT ").append(from).append(", ").append(limit);
+@ScopeDeclaration(id = HTTP_ACCESS_LOG, name = "HTTPAccessLog")
+public class HTTPAccessLog extends AbstractLog {
+    @Override public int scope() {
+        return HTTP_ACCESS_LOG;
     }
 }
