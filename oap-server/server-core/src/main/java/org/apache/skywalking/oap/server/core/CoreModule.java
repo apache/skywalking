@@ -66,6 +66,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(TopologyQueryService.class);
         classes.add(MetricQueryService.class);
         classes.add(TraceQueryService.class);
+        classes.add(LogQueryService.class);
         classes.add(MetadataQueryService.class);
         classes.add(AggregationQueryService.class);
         classes.add(AlarmQueryService.class);
