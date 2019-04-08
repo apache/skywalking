@@ -57,7 +57,7 @@ the following key info:
 3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats, which SkyWalking is compatible and
 could receive from their existed libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
 
-Backend is based on modulization principle, so very easy to extend a new receiver to support new protocol/format.
+Backend is based on modularization principle, so very easy to extend a new receiver to support new protocol/format.
 
 ## Query Protocol
 Query protocol follows GraphQL grammar, provides data query capabilities, which depends on your analysis metrics.
@@ -126,12 +126,12 @@ Here is the list of all existing metric names, based on [official_analysis.oal](
 **Service relation metric**, represents the metric of calls between service. 
 The metric ID could be
 got in topology query only.
-- service_relation_client_cpm, calls per minut detected at client side
-- service_relation_server_cpm, calls per minut detected at server side
+- service_relation_client_cpm, calls per minute detected at client side
+- service_relation_server_cpm, calls per minute detected at server side
 - service_relation_client_call_sla, successful rate detected at client side
 - service_relation_server_call_sla, successful rate detected at server side
 - service_relation_client_resp_time, avg response time detected at client side
-- service_relation_server_resp_time, avg response time detected at client side
+- service_relation_server_resp_time, avg response time detected at server side
 
 **Endpoint relation metric**, represents the metric between dependency endpoints. Only work when tracing agent.
 The metric ID could be got in topology query only.
