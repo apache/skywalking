@@ -33,6 +33,7 @@ public class URLParser {
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle";
     private static final String H2_JDBC_URL_PREFIX = "jdbc:h2";
     private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql";
+    private static final String CLICKHOUSE_JDBC_URL_PREFIX = "jdbc:clickhouse";
 
     public static ConnectionInfo parser(String url) {
         ConnectionURLParser parser = null;
@@ -45,6 +46,8 @@ public class URLParser {
             parser = new H2URLParser(url);
         } else if (lowerCaseUrl.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
             parser = new PostgreSQLURLParser(url);
+        } else if (lowerCaseUrl.startsWith(CLICKHOUSE_JDBC_URL_PREFIX)) {
+            parser = new ClickHouseURLParser(url);
         }
         return parser.parse();
     }
