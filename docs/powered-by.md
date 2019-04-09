@@ -15,6 +15,7 @@ or providing commercial products including Apache SkyWalking.
 1. hellobanma 斑马网络 https://www.hellobanma.com/
 1. bestsign. 上上签. https://www.bestsign.cn/page/
 1. Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
+1. Cdlhyj.com 六合远教（成都）科技有限公司 http://www.cdlhyj.com
 1. China Eastern Airlines 中国东方航空. http://www.ceair.com/
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
@@ -73,7 +74,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-1. Cdlhyj.com 六合远教（成都）科技有限公司 http://www.cdlhyj.com
 
 # User Cases
 ## Alibaba Cloud
