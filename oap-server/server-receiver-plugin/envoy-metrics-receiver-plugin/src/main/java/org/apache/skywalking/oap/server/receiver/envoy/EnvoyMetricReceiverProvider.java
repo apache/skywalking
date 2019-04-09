@@ -46,6 +46,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
         service.addHandler(new MetricServiceGRPCHandler(getManager()));
+        service.addHandler(new AccessLogServiceGRPCHandler(getManager()));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
