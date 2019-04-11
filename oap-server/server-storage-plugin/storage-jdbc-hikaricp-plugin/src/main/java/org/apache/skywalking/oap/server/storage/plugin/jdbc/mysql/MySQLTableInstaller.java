@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -35,6 +35,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
@@ -77,7 +79,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            if (Scope.Segment.equals(model.getSource())) {
+            if (DefaultScopeDefine.SEGMENT == model.getSourceScopeId()) {
                 if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID))
                     return "VARCHAR(300)";
             }
@@ -92,17 +94,17 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     protected void createIndexes(JDBCHikariCPClient client, Model model) throws StorageException {
-        switch (model.getSource()) {
-            case ServiceInventory:
-            case ServiceInstanceInventory:
-            case NetworkAddress:
-            case EndpointInventory:
+        switch (model.getSourceScopeId()) {
+            case SERVICE_INVENTORY:
+            case SERVICE_INSTANCE_INVENTORY:
+            case NETWORK_ADDRESS:
+            case ENDPOINT_INVENTORY:
                 createInventoryIndexes(client, model);
                 return;
-            case Segment:
+            case SEGMENT:
                 createSegmentIndexes(client, model);
                 return;
-            case Alarm:
+            case ALARM:
                 createAlarmIndexes(client, model);
                 return;
             default:

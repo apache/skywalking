@@ -37,7 +37,10 @@ public class BufferStreamTestCase {
         builder.dataFileMaxSize(50);
         builder.offsetFileMaxSize(10);
         builder.parser(TraceSegmentObject.parser());
-        builder.callBack(new SegmentParse());
+        builder.callBack(bufferData -> {
+            logger.info("segment parse: {}", bufferData.getMessageType().getSpans(0).getSpanId());
+            return false;
+        });
 
         BufferStream<TraceSegmentObject> stream = builder.build();
         stream.initialize();
@@ -61,15 +64,6 @@ public class BufferStreamTestCase {
             if (i % 1000 == 0) {
                 TimeUnit.MILLISECONDS.sleep(50);
             }
-        }
-
-    }
-
-    private static class SegmentParse implements DataStreamReader.CallBack<TraceSegmentObject> {
-
-        @Override public boolean call(TraceSegmentObject message) {
-            logger.info("segment parse: {}", message.getSpans(0).getSpanId());
-            return true;
         }
     }
 }

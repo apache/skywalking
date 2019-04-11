@@ -19,15 +19,17 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 public class Endpoint extends Source {
-    @Override public Scope scope() {
-        return Scope.Endpoint;
+    @Override public int scope() {
+        return DefaultScopeDefine.ENDPOINT;
     }
 
     @Override public String getEntityId() {

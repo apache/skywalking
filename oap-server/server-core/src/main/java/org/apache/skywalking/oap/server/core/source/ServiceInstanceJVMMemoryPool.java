@@ -20,12 +20,16 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY_POOL;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY_POOL, name = "ServiceInstanceJVMMemoryPool", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 public class ServiceInstanceJVMMemoryPool extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMMemoryPool;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY_POOL;
     }
 
     @Override public String getEntityId() {
@@ -35,7 +39,7 @@ public class ServiceInstanceJVMMemoryPool extends Source {
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter private int serviceId;
     @Getter @Setter private MemoryPoolType poolType;
     @Getter @Setter private long init;
     @Getter @Setter private long max;

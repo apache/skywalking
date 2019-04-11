@@ -63,6 +63,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
     }
 
     @Override public boolean exchange(SpanDecorator standardBuilder, int serviceId) {
+        boolean exchanged = true;
+
         if (standardBuilder.getComponentId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getComponent())) {
             int componentId = componentLibraryCatalogService.getComponentId(standardBuilder.getComponent());
 
@@ -70,7 +72,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("component: {} in service: {} exchange failed", standardBuilder.getComponent(), serviceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setComponentId(componentId);
@@ -86,7 +89,8 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("peer: {} in service: {} exchange failed", standardBuilder.getPeer(), serviceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setPeerId(peerId);
@@ -123,14 +127,15 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("endpoint name: {} from service id: {} exchange failed", endpointName, serviceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setOperationNameId(endpointId);
                 standardBuilder.setOperationName(Const.EMPTY_STRING);
             }
         }
-        return true;
+        return exchanged;
     }
 
     private JsonObject buildServiceProperties(SpanDecorator standardBuilder) {

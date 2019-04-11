@@ -25,18 +25,21 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.elasticsearch.common.Strings;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
 
 /**
  * @author peng-yongsheng
  */
 @InventoryType
 @StreamData
-@StorageEntity(name = ServiceInventory.MODEL_NAME, builder = ServiceInventory.Builder.class, deleteHistory = false, source = Scope.ServiceInventory)
+@ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
+@StorageEntity(name = ServiceInventory.MODEL_NAME, builder = ServiceInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.SERVICE_INVENTORY)
 public class ServiceInventory extends RegisterSource {
 
     public static final String MODEL_NAME = "service_inventory";
@@ -181,15 +184,23 @@ public class ServiceInventory extends RegisterSource {
         return 0;
     }
 
-    @Override public void combine(RegisterSource registerSource) {
+    @Override public boolean combine(RegisterSource registerSource) {
         super.combine(registerSource);
         ServiceInventory serviceInventory = (ServiceInventory)registerSource;
+
         nodeType = serviceInventory.nodeType;
         setProp(serviceInventory.getProp());
         if (Const.NONE != serviceInventory.getMappingServiceId() && serviceInventory.getMappingLastUpdateTime() >= this.getMappingLastUpdateTime()) {
             this.mappingServiceId = serviceInventory.getMappingServiceId();
             this.mappingLastUpdateTime = serviceInventory.getMappingLastUpdateTime();
         }
+
+        return true;
+    }
+
+    public static class PropertyUtil {
+
+        public static final String DATABASE = "database";
     }
 
     public static class Builder implements StorageBuilder<ServiceInventory> {

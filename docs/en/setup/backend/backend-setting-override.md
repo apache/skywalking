@@ -12,11 +12,11 @@ You could override the settings in `application.yml`
 ```yaml
 core:
   default:
-    restHost: 0.0.0.0
-    restPort: 12800
-    restContextPath: /
-    gRPCHost: 0.0.0.
-    gRPCPort: 11800
+    restHost: ${SW_CORE_REST_HOST:0.0.0.0}
+    restPort: ${SW_CORE_REST_PORT:12800}
+    restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
+    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_CORE_GRPC_PORT:11800}
 ```
 
 Use command arg
@@ -33,10 +33,10 @@ Use command arg
 core:
   default:
     restHost: ${REST_HOST:0.0.0.0}
-    restPort: 12800
-    restContextPath: /
-    gRPCHost: 0.0.0.
-    gRPCPort: 11800
+    restPort: ${SW_CORE_REST_PORT:12800}
+    restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
+    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_CORE_GRPC_PORT:11800}
 ```
 
 If the `REST_HOST ` environment variable exists in your operating system and its value is `172.0.4.12`, 

@@ -20,20 +20,13 @@ package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorAnnotationUtils;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
-import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -57,12 +50,14 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
 
         String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
         boolean deleteHistory = StorageEntityAnnotationUtils.getDeleteHistory(aClass);
-        Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(aClass);
+        int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(aClass);
+        // Check this scope id is valid.
+        DefaultScopeDefine.nameOf(sourceScopeId);
         List<ModelColumn> modelColumns = new LinkedList<>();
         boolean isIndicator = IndicatorAnnotationUtils.isIndicator(aClass);
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, isIndicator, deleteHistory, sourceScope));
+        models.add(new Model(modelName, modelColumns, isIndicator, deleteHistory, sourceScopeId));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

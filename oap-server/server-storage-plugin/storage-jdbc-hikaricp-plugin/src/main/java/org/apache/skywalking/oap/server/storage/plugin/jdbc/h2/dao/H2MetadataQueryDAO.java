@@ -20,9 +20,11 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import com.google.common.base.Strings;
 import com.google.gson.*;
+
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -44,7 +46,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public int numOfService(long startTimestamp, long endTimestamp) throws IOException {
+    @Override
+    public int numOfService(long startTimestamp, long endTimestamp) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(ServiceInventory.MODEL_NAME).append(" where ");
@@ -63,7 +66,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         return 0;
     }
 
-    @Override public int numOfEndpoint(long startTimestamp, long endTimestamp) throws IOException {
+    @Override
+    public int numOfEndpoint(long startTimestamp, long endTimestamp) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(EndpointInventory.MODEL_NAME).append(" where ");
@@ -82,8 +86,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         return 0;
     }
 
-    @Override public int numOfConjectural(long startTimestamp, long endTimestamp,
-        int nodeTypeValue) throws IOException {
+    @Override
+    public int numOfConjectural(long startTimestamp, long endTimestamp,
+                                int nodeTypeValue) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(ServiceInventory.MODEL_NAME).append(" where ");
@@ -120,8 +125,42 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
     }
 
-    @Override public List<Service> searchServices(long startTimestamp, long endTimestamp,
-        String keyword) throws IOException {
+    @Override
+    public List<Database> getAllDatabases() throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(1);
+        sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
+        sql.append(ServiceInventory.NODE_TYPE).append("=? limit 100");
+        condition.add(NodeType.Database.value());
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+                List<Database> databases = new ArrayList<>();
+                while (resultSet.next()) {
+                    Database database = new Database();
+                    database.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
+                    database.setName(resultSet.getString(ServiceInventory.NAME));
+                    String propertiesString = resultSet.getString(ServiceInstanceInventory.PROPERTIES);
+                    if (!Strings.isNullOrEmpty(propertiesString)) {
+                        JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+                        if (properties.has(ServiceInventory.PropertyUtil.DATABASE)) {
+                            database.setType(properties.get(ServiceInventory.PropertyUtil.DATABASE).getAsString());
+                        } else {
+                            database.setType("UNKNOWN");
+                        }
+                    }
+                    databases.add(database);
+                }
+                return databases;
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public List<Service> searchServices(long startTimestamp, long endTimestamp,
+                                        String keyword) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
@@ -142,7 +181,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
     }
 
-    @Override public Service searchService(String serviceCode) throws IOException {
+    @Override
+    public Service searchService(String serviceCode) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInventory.MODEL_NAME).append(" where ");
@@ -168,15 +208,16 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         return null;
     }
 
-    @Override public List<Endpoint> searchEndpoint(String keyword, String serviceId,
-        int limit) throws IOException {
+    @Override
+    public List<Endpoint> searchEndpoint(String keyword, String serviceId,
+                                         int limit) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(EndpointInventory.MODEL_NAME).append(" where ");
         sql.append(EndpointInventory.SERVICE_ID).append("=?");
         condition.add(serviceId);
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(EndpointInventory.NAME).append(" like \"%").append(keyword).append("%\" ");
+            sql.append(" and ").append(EndpointInventory.NAME).append(" like '%").append(keyword).append("%' ");
         }
         sql.append(" and ").append(EndpointInventory.DETECT_POINT).append(" = ?");
         condition.add(DetectPoint.SERVER.ordinal());
@@ -199,8 +240,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         return endpoints;
     }
 
-    @Override public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
-        String serviceId) throws IOException {
+    @Override
+    public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
+                                                     String serviceId) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInstanceInventory.MODEL_NAME).append(" where ");
@@ -222,6 +264,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                         JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                         if (properties.has(LANGUAGE)) {
                             serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(properties.get(LANGUAGE).getAsString()));
+                        } else {
+                            serviceInstance.setLanguage(Language.UNKNOWN);
                         }
 
                         if (properties.has(OS_NAME)) {
@@ -239,6 +283,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                                 serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
                             }
                         }
+                    } else {
+                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
 
                     serviceInstances.add(serviceInstance);
@@ -251,13 +297,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     private void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
-        long endTimestamp) {
+                                       long endTimestamp) {
         sql.append(" ( (").append(RegisterSource.HEARTBEAT_TIME).append(" >= ? and ")
-            .append(RegisterSource.REGISTER_TIME).append(" <= ? )");
+                .append(RegisterSource.REGISTER_TIME).append(" <= ? )");
         conditions.add(endTimestamp);
         conditions.add(endTimestamp);
         sql.append(" or (").append(RegisterSource.REGISTER_TIME).append(" <= ? and ")
-            .append(RegisterSource.HEARTBEAT_TIME).append(" >= ? ) ) ");
+                .append(RegisterSource.HEARTBEAT_TIME).append(" >= ? ) ) ");
         conditions.add(endTimestamp);
         conditions.add(startTimestamp);
     }

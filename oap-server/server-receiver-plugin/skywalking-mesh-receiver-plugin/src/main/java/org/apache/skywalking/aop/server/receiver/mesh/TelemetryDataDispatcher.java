@@ -20,27 +20,16 @@ package org.apache.skywalking.aop.server.receiver.mesh;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.skywalking.apm.network.servicemesh.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.apm.util.StringFormatGroup;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
-import org.apache.skywalking.oap.server.core.source.All;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.source.Endpoint;
-import org.apache.skywalking.oap.server.core.source.RequestType;
-import org.apache.skywalking.oap.server.core.source.Service;
-import org.apache.skywalking.oap.server.core.source.ServiceInstance;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
-import org.apache.skywalking.oap.server.core.source.ServiceRelation;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -72,6 +61,19 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
+        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() :
+            SERVICE_CACHE.get(data.getDestServiceId()).getName();
+        String endpointName = data.getEndpoint();
+        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
+        if (formatResult.isMatch()) {
+            data = data.toBuilder().setEndpoint(formatResult.getName()).build();
+        }
+        if (logger.isDebugEnabled()) {
+            if (formatResult.isMatch()) {
+                logger.debug("Endpoint {} is renamed to {}", endpointName, data.getEndpoint());
+            }
+        }
+
         ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(data);
         if (decorator.tryMetaDataRegister()) {
             TelemetryDataDispatcher.doDispatch(decorator);
@@ -103,22 +105,29 @@ public class TelemetryDataDispatcher {
     private static void heartbeat(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
         ServiceMeshMetric metric = decorator.getMetric();
 
+        int heartbeatCycle = 10000;
         // source
-        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getSourceServiceInstanceId(), metric.getEndTime());
         int instanceId = metric.getSourceServiceInstanceId();
         ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
-            SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
+            if (metric.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
+                // trigger heartbeat every 10s.
+                SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getSourceServiceInstanceId(), metric.getEndTime());
+                SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
+            }
         } else {
             logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
         }
 
         // dest
-        SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getDestServiceInstanceId(), metric.getEndTime());
         instanceId = metric.getDestServiceInstanceId();
         serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
-            SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
+            if (metric.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
+                // trigger heartbeat every 10s.
+                SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metric.getDestServiceInstanceId(), metric.getEndTime());
+                SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metric.getEndTime());
+            }
         } else {
             logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
         }

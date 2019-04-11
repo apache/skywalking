@@ -450,7 +450,7 @@
       "links": [],
       "targets": [
         {
-          "expr": "rate(trace_grpc_v6_in_latency_bucket[10m])",
+          "expr": "sum(rate(trace_grpc_v6_in_latency_bucket[10m])) by (le)",
           "format": "heatmap",
           "hide": false,
           "instant": false,
@@ -948,7 +948,7 @@
       "links": [],
       "targets": [
         {
-          "expr": "rate(persistence_timer_bulk_execute_latency_bucket[10m])",
+          "expr": "sum(rate(persistence_timer_bulk_execute_latency_bucket[10m])) by (le)",
           "format": "heatmap",
           "hide": false,
           "instant": false,

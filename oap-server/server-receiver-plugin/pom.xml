@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-GA-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,6 +34,11 @@
         <module>skywalking-istio-telemetry-receiver-plugin</module>
         <module>skywalking-register-receiver-plugin</module>
         <module>skywalking-jvm-receiver-plugin</module>
+        <module>envoy-metrics-receiver-plugin</module>
+        <module>skywalking-sharing-server-plugin</module>
+        <module>skywalking-clr-receiver-plugin</module>
+        <module>jaeger-receiver-plugin</module>
+        <module>receiver-proto</module>
     </modules>
 
     <dependencies>

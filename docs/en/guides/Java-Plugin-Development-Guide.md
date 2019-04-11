@@ -14,10 +14,10 @@ There are three types of Span
 
 1.1 EntrySpan
 EntrySpan represents a service provider, also the endpoint of server side. As an APM system, we are targeting the 
-application servers. So almost all the services and MQ-comsumer are EntrySpan(s).
+application servers. So almost all the services and MQ-consumer are EntrySpan(s).
 
 1.2 LocalSpan
-LocalSpan represents a normal Java method, which don't relate with remote service, neither a MQ producer/comsumer
+LocalSpan represents a normal Java method, which does not relate to remote service, neither a MQ producer/consumer
 nor a service(e.g. HTTP service) provider/consumer.
 
 1.3 ExitSpan
@@ -158,7 +158,43 @@ SpanLayer is the catalog of span. Here are 5 values:
 1. MQ
 
 Component IDs are defined and reserved by SkyWalking project.
-For component name/ID extension, please follow [cComponent library definition and extension](Component-library-settings.md) document.
+For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
+
+### Advanced APIs
+#### Async Span APIs
+There is a set of advanced APIs in Span, which work specific for async scenario. When tags, logs, attributes(including end time) of the span
+needs to set in another thread, you should use these APIs.
+
+```java
+    /**
+     * The span finish at current tracing context, but the current span is still alive, until {@link #asyncFinish}
+     * called.
+     *
+     * This method must be called<br/>
+     * 1. In original thread(tracing context).
+     * 2. Current span is active span.
+     *
+     * During alive, tags, logs and attributes of the span could be changed, in any thread.
+     *
+     * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
+     *
+     * @return the current span
+     */
+    AbstractSpan prepareForAsync();
+
+    /**
+     * Notify the span, it could be finished.
+     *
+     * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
+     *
+     * @return the current span
+     */
+    AbstractSpan asyncFinish();
+```
+1. Call `#prepareForAsync` in original context.
+1. Propagate the span to any other thread.
+1. After all set, call `#asyncFinish` in any thread.
+1. Tracing context will be finished and report to backend when all spans's `#prepareForAsync` finished(Judged by count of API execution).
 
 ## Develop a plugin
 ### Abstract
@@ -286,7 +322,5 @@ Please follow there steps:
 1. Develop and test.
 1. Send the pull request and ask for review. 
 1. Provide the automatic test cases. 
-All test cases are hosted in [SkywalkingTest/skywalking-agent-testcases repository](https://github.com/SkywalkingTest/skywalking-agent-testcases).
-About how to write a test case, follow the [How to write](https://github.com/SkywalkingTest/skywalking-agent-testcases/blob/master/docs/how-to-write-a-plugin-testcase.md) document.
 1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 

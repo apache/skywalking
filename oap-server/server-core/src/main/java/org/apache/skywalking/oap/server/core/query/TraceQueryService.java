@@ -89,28 +89,32 @@ public class TraceQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    public TraceBrief queryBasicTraces(final int serviceId, final int endpointId, final String traceId,
-        final String endpointName,
-        final int minTraceDuration, int maxTraceDuration, final TraceState traceState, final QueryOrder queryOrder,
+    public TraceBrief queryBasicTraces(final int serviceId, final int serviceInstanceId, final int endpointId,
+        final String traceId, final String endpointName, final int minTraceDuration, int maxTraceDuration,
+        final TraceState traceState, final QueryOrder queryOrder,
         final Pagination paging, final long startTB, final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getTraceQueryDAO().queryBasicTraces(startTB, endTB, minTraceDuration, maxTraceDuration, endpointName,
-            serviceId, endpointId, traceId, page.getLimit(), page.getFrom(), traceState, queryOrder);
+            serviceId, serviceInstanceId, endpointId, traceId, page.getLimit(), page.getFrom(), traceState, queryOrder);
     }
 
     public Trace queryTrace(final String traceId) throws IOException {
         Trace trace = new Trace();
 
         List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(traceId);
-        for (SegmentRecord segment : segmentRecords) {
-            if (nonNull(segment)) {
-                if (segment.getVersion() == 2) {
-                    SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
-                    trace.getSpans().addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
-                } else {
-                    TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
-                    trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+        if (segmentRecords.isEmpty()) {
+            trace.getSpans().addAll(getTraceQueryDAO().doFlexibleTraceQuery(traceId));
+        } else {
+            for (SegmentRecord segment : segmentRecords) {
+                if (nonNull(segment)) {
+                    if (segment.getVersion() == 2) {
+                        SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
+                        trace.getSpans().addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                    } else {
+                        TraceSegmentObject segmentObject = TraceSegmentObject.parseFrom(segment.getDataBinary());
+                        trace.getSpans().addAll(buildSpanList(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                    }
                 }
             }
         }

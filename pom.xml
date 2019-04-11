@@ -17,54 +17,24 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>6.0.0-GA-SNAPSHOT</version>
+    <version>6.1.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>21</version>
+        <relativePath/>
     </parent>
 
-    <developers>
-        <developer>
-            <name>Wu Sheng</name>
-            <email>wu.sheng@foxmail.com</email>
-            <url>https://github.com/wu-sheng</url>
-            <roles>
-                <role>Founder</role>
-                <role>PMC member</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>Peng Yongsheng</name>
-            <email>8082209@qq.com</email>
-            <url>https://github.com/peng-yongsheng</url>
-            <roles>
-                <role>PMC member</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>Zhang Xin</name>
-            <url>https://github.com/ascrutae</url>
-            <roles>
-                <role>PMC member</role>
-            </roles>
-        </developer>
-    </developers>
-
     <modules>
-        <module>oap-server</module>
         <module>apm-commons</module>
-        <module>apm-sniffer</module>
-        <module>apm-application-toolkit</module>
         <module>apm-protocol</module>
-        <module>apm-webapp</module>
-        <module>apm-dist</module>
         <module>apm-checkstyle</module>
     </modules>
     <packaging>pom</packaging>
@@ -106,10 +76,49 @@
         </mailingList>
     </mailingLists>
 
+    <profiles>
+        <profile>
+            <id>agent</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-sniffer</module>
+                <module>apm-application-toolkit</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>backend</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>oap-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ui</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-webapp</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>dist</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-dist</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <scala.compiler.version>2.11.7</scala.compiler.version>
         <powermock.version>1.6.4</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
@@ -133,21 +142,20 @@
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+        <jmh.version>1.21</jmh.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>${mockito-all.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -160,6 +168,19 @@
             <artifactId>powermock-api-mockito</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -167,13 +188,13 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
-                <version>1.10.19</version>
+                <version>${mockito-all.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -194,16 +215,36 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>git submodule update</id>
+                            <phase>initialize</phase>
+                            <inherited>false</inherited>
+                            <configuration>
+                                <executable>git</executable>
+                                <arguments>
+                                    <argument>submodule</argument>
+                                    <argument>update</argument>
+                                    <argument>--init</argument>
+                                    <argument>--recursive</argument>
+                                </arguments>
+                            </configuration>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
                 <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
                 <plugin>
                     <groupId>io.takari</groupId>
                     <artifactId>maven</artifactId>
                     <version>${takari-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-antrun-plugin</artifactId>
@@ -320,8 +361,20 @@
                         <exclude>skywalking-ui/package.json</exclude>
                         <exclude>skywalking-ui/package-lock.json</exclude>
 
-                        <!-- Proto files of Istio and gogoproto projects -->
+                        <!-- Proto files of Istio, envoy, prometheus and gogoproto projects -->
+                        <exclude>**/src/main/proto/envoy/**</exclude>
                         <exclude>**/src/main/proto/gogoproto/gogo.proto</exclude>
+                        <exclude>**/src/main/proto/google/**</exclude>
+                        <exclude>**/src/main/proto/istio/**</exclude>
+                        <exclude>**/src/main/proto/jaeger/**</exclude>
+                        <exclude>**/src/main/proto/policy/**</exclude>
+                        <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
+                        <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
+                        <exclude>**/src/main/proto/validate/validate.proto</exclude>
+
+                        <!-- generated file from antlr -->
+                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/tool/grammar/OALLexer.tokens</exclude>
+
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                     </excludes>
@@ -384,21 +437,16 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>${coveralls-maven-plugin.version}</version>
                 <configuration>
+                    <repoToken>xFwR2GqmxcMxV7tGEpW2NfwIrbCD4cQCS</repoToken>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                     </sourceDirectories>
                 </configuration>
             </plugin>
-            <!-- 覆盖率 -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco-maven-plugin.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>*MethodAccess</exclude>
-                    </excludes>
-                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -447,41 +495,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>auto-submodule</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>git submodule update</id>
-                                <phase>initialize</phase>
-                                <inherited>false</inherited>
-                                <configuration>
-                                    <executable>git</executable>
-                                    <arguments>
-                                        <argument>submodule</argument>
-                                        <argument>update</argument>
-                                        <argument>--init</argument>
-                                        <argument>--recursive</argument>
-                                    </arguments>
-                                </configuration>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 </project>

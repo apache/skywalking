@@ -68,11 +68,17 @@ Choose the one you like, we are also welcome anyone to contribute new storage im
 are harmless, at least our default receivers are. You would set and active all receivers provided.
 1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metric accurate, only don't save some of traces
 in storage based on rate.
+1. Follow [slow DB statement threshold](slow-db-statement.md) config document to understand that, 
+how to detect the Slow database statements(including SQL statements) in your system.
 1. Official [OAL scripts](../../guides/backend-oal-scripts.md). As you known from our [OAL introduction](../../concepts-and-designs/oal.md),
 most of backend analysis capabilities based on the scripts. Here is the description of official scripts,
 which helps you to understand which metric data are in process, also could be used in alarm.
 1. [Alarm](backend-alarm.md). Alarm provides a time-series based check mechanism. You could set alarm 
 rules targeting the analysis oal metric objects.
+1. [Advanced deployment options](advanced-deployment.md). If you want to deploy backend in very large
+scale and support high payload, you may need this. 
+1. [Metric exporter](metric-exporter.md). Use metric data exporter to forward metric data to 3rd party
+system.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,

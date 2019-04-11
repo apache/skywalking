@@ -23,7 +23,6 @@ import java.sql.*;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.elasticsearch.common.Strings;
@@ -39,13 +38,15 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
     }
 
     @Override
-    public Alarms getAlarm(Scope scope, String keyword, int limit, int from, long startTB,
+    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
         long endTB) throws IOException {
 
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
+        sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
+        parameters.add(scopeId.intValue());
         if (startTB != 0 && endTB != 0) {
             sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
@@ -75,7 +76,8 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
                     message.setId(resultSet.getString(AlarmRecord.ID0));
                     message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
-                    message.setScope(Scope.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
+                    message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
+                    message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
 
                     alarms.getMsgs().add(message);
                 }

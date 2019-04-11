@@ -20,10 +20,11 @@ package org.apache.skywalking.oap.server.core.analysis.indicator.expression;
 
 /**
  *
+ *
  * @author wusheng
  */
 public class EqualMatch extends BinaryMatchExpression {
     @Override public boolean match() {
-        return left == right;
+        return left.equals(right);
     }
 }

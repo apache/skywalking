@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.AsyncSpan;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -28,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  *
  * @author wusheng
  */
-public interface AbstractSpan {
+public interface AbstractSpan extends AsyncSpan {
     /**
      * Set the component id, which defines in {@link ComponentsDefine}
      *
@@ -127,4 +128,6 @@ public interface AbstractSpan {
     void ref(TraceSegmentRef ref);
 
     AbstractSpan start(long starttime);
+
+    AbstractSpan setPeer(String remotePeer);
 }

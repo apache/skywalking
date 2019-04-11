@@ -18,4 +18,4 @@
 
 set -ex
 
-exec java -jar webapp/skywalking-webapp.jar --logging.config=webapp/logback.xml "$@"
+exec java -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar webapp/skywalking-webapp.jar --logging.config=webapp/logback.xml "$@"

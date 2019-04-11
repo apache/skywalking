@@ -20,16 +20,13 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.common.xcontent.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -45,17 +42,29 @@ public class RegisterLockInstaller {
     }
 
     public void install() throws StorageException {
+        boolean debug = System.getProperty("debug") != null;
+
         try {
             if (!client.isExistsIndex(RegisterLockIndex.NAME)) {
+                logger.info("table: {} does not exist", RegisterLockIndex.NAME);
+                createIndex();
+            } else if (debug) {
+                logger.info("table: {} exists", RegisterLockIndex.NAME);
+                deleteIndex();
                 createIndex();
             }
+
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(sourceScope.ordinal());
+                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                putIfAbsent(sourceScopeId);
             }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
+    }
+
+    private void deleteIndex() throws IOException {
+        client.deleteIndex(RegisterLockIndex.NAME);
     }
 
     private void createIndex() throws IOException {
@@ -68,11 +77,8 @@ public class RegisterLockInstaller {
         XContentBuilder source = XContentFactory.jsonBuilder()
             .startObject()
             .startObject("properties")
-            .startObject(RegisterLockIndex.COLUMN_EXPIRE)
-            .field("type", "long")
-            .endObject()
-            .startObject(RegisterLockIndex.COLUMN_LOCKABLE)
-            .field("type", "boolean")
+            .startObject(RegisterLockIndex.COLUMN_SEQUENCE)
+            .field("type", "integer")
             .endObject()
             .endObject()
             .endObject();
@@ -84,8 +90,7 @@ public class RegisterLockInstaller {
         GetResponse response = client.get(RegisterLockIndex.NAME, String.valueOf(scopeId));
         if (!response.isExists()) {
             XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-            builder.field(RegisterLockIndex.COLUMN_EXPIRE, Long.MIN_VALUE);
-            builder.field(RegisterLockIndex.COLUMN_LOCKABLE, true);
+            builder.field(RegisterLockIndex.COLUMN_SEQUENCE, 1);
             builder.endObject();
 
             client.forceInsert(RegisterLockIndex.NAME, String.valueOf(scopeId), builder);

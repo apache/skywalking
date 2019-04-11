@@ -48,6 +48,9 @@ This step is only for test, if your env is set right, don't need to check every 
 ./mvnw release:clean
 ./mvnw release:prepare -DautoVersionSubmodules=true -Pauto-submodule
 ```
+
+- Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
+
 _You could do a GPG sign before doing release, if you need input the password to sign, and the maven don't give the chance,
 but just failure. Run `gpg --sign xxx` to any file could remember the password for enough time to do release._ 
 
@@ -55,8 +58,8 @@ but just failure. Run `gpg --sign xxx` to any file could remember the password f
 ```
 ./mvnw release:perform -DskipTests -Pauto-submodule
 ```
-1. Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
-1. The release will automatically be inserted into a temporary staging repository for you.
+
+- The release will automatically be inserted into a temporary staging repository for you.
 
 ## Build and sign the source code package
 ```shell
@@ -94,7 +97,7 @@ if you haven't done it before.
     * Package name: apache-skywalking-incubating-x.y.z-src.tar.gz
     * See Section "Build and sign the source code package" for more details 
 1. Upload distribution package to the folder with .asc, .sha512
-    * Package name: apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip
+    * Package name: apache-skywalking-incubating-bin-x.y.z.tar.gz, apache-skywalking-incubating-bin-x.y.z.zip
     * See Section "Find and download distribution in Apache Nexus Staging repositories" for more details
     * Create .sha512 package: `shasum -a 512 file > file.sha512`
 
@@ -120,8 +123,8 @@ Release Candidate:
  * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
  * sha512 checksums
    - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x-src.tgz
-   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.tar.gz
-   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.zip
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-bin-x.x.x.tar.gz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-bin-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -174,8 +177,8 @@ Release Candidate:
  * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
  * sha512 checksums
    - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x-src.tgz
-   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.tar.gz
-   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.zip
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-bin-x.x.x.tar.gz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-bin-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -212,11 +215,11 @@ All PPMC members and committers should check these before vote +1.
 
 1. Features test.
 1. All artifacts in staging repository are published with .asc, .md5, *sha1 files
-1. Source code and distribution package (apache-skywalking-incubating-x.y.z-src.tar.gz, apache-skywalking-incubating-x.y.z.tar.gz, apache-skywalking-incubating-x.y.z.zip)
+1. Source code and distribution package (apache-skywalking-incubating-x.y.z-src.tar.gz, apache-skywalking-incubating-bin-x.y.z.tar.gz, apache-skywalking-incubating-bin-x.y.z.zip)
 are in `https://dist.apache.org/repos/dist/dev/incubator/skywalking/x.y.z` with .asc, .sha512
 1. `LICENSE` and `NOTICE` are in Source code and distribution package.
 1. Check `shasum -c apache-skywalking-apm-incubating-x.y.z-src.tgz.sha512`
-1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md#build-from-apache-source-codes).
+1. Build distribution from source code package (apache-skywalking-incubating-x.y.z-src.tar.gz) by following this [doc](https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/How-to-build.md#build-from-apache-source-code-release).
 1. Apache RAT check. Run `./mvnw apache-rat:check`. (No binary in source codes)
 1. DISCLAIMER exists
 
@@ -261,8 +264,8 @@ Release Candidate:
  * https://dist.apache.org/repos/dist/dev/incubator/skywalking/xxxx
  * sha512 checksums
    - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x-src.tgz
-   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.tar.gz
-   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-x.x.x.zip
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-bin-x.x.x.tar.gz
+   - sha512xxxxyyyzzz apache-skywalking-apm-incubating-bin-x.x.x.zip
 
 Maven 2 staging repository:
 
@@ -344,7 +347,6 @@ Apache SkyWalking (incubating) Team is glad to announce the first release of Apa
 
 SkyWalking: APM (application performance monitor) tool for distributed systems, 
 especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
-Underlying technology is a distributed tracing system.
 
 Vote Thread: 
 

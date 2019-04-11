@@ -30,8 +30,16 @@ import org.apache.skywalking.oap.server.library.module.Service;
 public interface ITraceQueryDAO extends Service {
 
     TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration,
-        long maxDuration, String endpointName, int serviceId, int endpointId, String traceId, int limit, int from,
-        TraceState traceState, QueryOrder queryOrder) throws IOException;
+        long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+        int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException;
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
+
+    /**
+     * This method gives more flexible for unnative
+     * @param traceId
+     * @return
+     * @throws IOException
+     */
+    List<Span> doFlexibleTraceQuery(String traceId) throws IOException;
 }

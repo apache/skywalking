@@ -34,6 +34,8 @@ public class AnalysisResult {
 
     private String sourceName;
 
+    private int sourceScopeId;
+
     private String sourceAttribute;
 
     private String aggregationFunctionName;

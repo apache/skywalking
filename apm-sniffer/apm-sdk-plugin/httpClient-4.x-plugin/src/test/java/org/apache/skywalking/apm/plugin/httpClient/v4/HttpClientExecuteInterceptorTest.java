@@ -171,6 +171,35 @@ public class HttpClientExecuteInterceptorTest {
 
     }
 
+    @Test
+    public void testUriNotProtocol() throws Throwable {
+        when(request.getRequestLine()).thenReturn(new RequestLine() {
+            @Override
+            public String getMethod() {
+                return "GET";
+            }
+
+            @Override
+            public ProtocolVersion getProtocolVersion() {
+                return new ProtocolVersion("http", 1, 1);
+            }
+
+            @Override
+            public String getUri() {
+                return "/test-web/test";
+            }
+        });
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, httpResponse);
+
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertHttpSpan(spans.get(0));
+        verify(request, times(1)).setHeader(anyString(), anyString());
+    }
+
     private void assertHttpSpanErrorLog(List<LogDataEntity> logs) {
         assertThat(logs.size(), is(1));
         LogDataEntity logData = logs.get(0);

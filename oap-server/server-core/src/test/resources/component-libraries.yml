@@ -180,6 +180,12 @@ Undertow:
 Redisson:
   id: 56
   languages: Java
+Lettuce:
+  id: 57
+  languages: Java
+Zookeeper:
+  id: 58
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -228,6 +234,9 @@ InMemoryDatabase:
 AspNet:
   id: 3015
   languages: C#
+SmartSql:
+  id: 3016
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
@@ -262,6 +271,8 @@ Component-Server-Mappings:
   mysql-connector-java: Mysql
   Jedis: Redis
   Redisson: Redis
+  Lettuce: Redis
+  Zookeeper: Zookeeper
   StackExchange.Redis: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL

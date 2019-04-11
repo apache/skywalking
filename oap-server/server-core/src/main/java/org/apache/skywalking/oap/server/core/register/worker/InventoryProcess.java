@@ -18,20 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.Scope;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.core.worker.WorkerIdGenerator;
-import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -48,7 +39,7 @@ public enum InventoryProcess {
 
     public void create(ModuleManager moduleManager, Class<? extends RegisterSource> inventoryClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(inventoryClass);
-        Scope scope = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
+        int scopeId = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
 
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(inventoryClass);
 
@@ -57,23 +48,20 @@ public enum InventoryProcess {
         try {
             registerDAO = storageDAO.newRegisterDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " register DAO failure.", e);
         }
 
-        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName, moduleManager, registerDAO, scope);
-        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(moduleManager, modelName, registerDAO, scopeId);
 
-        RegisterRemoteWorker remoteWorker = new RegisterRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, persistentWorker);
-        WorkerInstances.INSTANCES.put(remoteWorker.getWorkerId(), remoteWorker);
+        RegisterRemoteWorker remoteWorker = new RegisterRemoteWorker(moduleManager, persistentWorker);
 
-        RegisterDistinctWorker distinctWorker = new RegisterDistinctWorker(WorkerIdGenerator.INSTANCES.generate(), remoteWorker);
-        WorkerInstances.INSTANCES.put(distinctWorker.getWorkerId(), distinctWorker);
+        RegisterDistinctWorker distinctWorker = new RegisterDistinctWorker(moduleManager, remoteWorker);
 
         entryWorkers.put(inventoryClass, distinctWorker);
     }
 
     /**
-     * @return all register source class types
+     * @return all register sourceScopeId class types
      */
     public List<Class> getAllRegisterSources() {
         List allSources = new ArrayList<>();

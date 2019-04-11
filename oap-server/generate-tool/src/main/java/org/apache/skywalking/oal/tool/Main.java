@@ -20,19 +20,26 @@ package org.apache.skywalking.oal.tool;
 
 import freemarker.template.TemplateException;
 import java.io.*;
-import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.output.FileGenerator;
 import org.apache.skywalking.oal.tool.parser.*;
+import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 public class Main {
 
     public static void main(String[] args) throws IOException, TemplateException {
+        AnnotationScan scopeScan = new AnnotationScan();
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.scan(null);
+
         String modulePath = args[0];
 
         String scriptFilePath = StringUtil.join(File.separatorChar, modulePath, "src", "main", "resources", "official_analysis.oal");
         String outputPath = StringUtil.join(File.separatorChar, modulePath, "..", "generated-analysis", "target", "generated-sources", "oal",
             "org", "apache", "skywalking", "oap", "server", "core", "analysis");
+        String metaFilePath = StringUtil.join(File.separatorChar, modulePath, "src", "main", "resources", "generator-scope-meta.yml");
 
         Indicators.init();
 
@@ -41,10 +48,19 @@ public class Main {
             throw new IllegalArgumentException("OAL script file [" + scriptFilePath + "] doesn't exist");
         }
 
-        ScriptParser scriptParser = ScriptParser.createFromFile(scriptFilePath);
-        List<AnalysisResult> analysisResults = scriptParser.parse();
+        File metaFile = new File(metaFilePath);
+        if (!metaFile.exists()) {
+            throw new IllegalArgumentException("Generator meta file [" + metaFilePath + "] doesn't exist");
+        }
 
-        FileGenerator generator = new FileGenerator(analysisResults, outputPath);
+        MetaReader reader = new MetaReader();
+        MetaSettings metaSettings = reader.read(new FileInputStream(metaFile));
+        SourceColumnsFactory.setSettings(metaSettings);
+
+        ScriptParser scriptParser = ScriptParser.createFromFile(scriptFilePath);
+        OALScripts oalScripts = scriptParser.parse();
+
+        FileGenerator generator = new FileGenerator(oalScripts, outputPath);
         generator.generate();
     }
 }

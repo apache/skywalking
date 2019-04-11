@@ -56,7 +56,9 @@ public class AnnotationScan {
             listener.complete()
         );
 
-        callBack.run();
+        if (callBack != null) {
+            callBack.run();
+        }
     }
 
     public class AnnotationListenerCache {

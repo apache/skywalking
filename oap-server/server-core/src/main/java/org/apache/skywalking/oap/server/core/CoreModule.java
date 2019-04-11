@@ -28,9 +28,9 @@ import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGe
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.worker.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * @author peng-yongsheng
@@ -45,8 +45,12 @@ public class CoreModule extends ModuleDefine {
 
     @Override public Class[] services() {
         List<Class> classes = new ArrayList<>();
+        classes.add(ConfigService.class);
         classes.add(DownsamplingConfigService.class);
         classes.add(IComponentLibraryCatalogService.class);
+
+        classes.add(IWorkerInstanceGetter.class);
+        classes.add(IWorkerInstanceSetter.class);
 
         addServerInterface(classes);
         addReceiverInterface(classes);
@@ -62,9 +66,11 @@ public class CoreModule extends ModuleDefine {
         classes.add(TopologyQueryService.class);
         classes.add(MetricQueryService.class);
         classes.add(TraceQueryService.class);
+        classes.add(LogQueryService.class);
         classes.add(MetadataQueryService.class);
         classes.add(AggregationQueryService.class);
         classes.add(AlarmQueryService.class);
+        classes.add(TopNRecordsQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {
