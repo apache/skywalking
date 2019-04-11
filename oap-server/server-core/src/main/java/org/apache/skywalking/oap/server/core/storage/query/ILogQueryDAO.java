@@ -16,24 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author wusheng
  */
-public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
-    public MySQLTraceQueryDAO(JDBCHikariCPClient mysqlClient) {
-        super(mysqlClient);
-    }
-
-    @Override protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " ) AS TRACE";
-    }
-
-    @Override protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" LIMIT ").append(from).append(", ").append(limit);
-    }
+public interface ILogQueryDAO extends Service {
+    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
+        String traceId, LogState state, String stateCode, Pagination paging, int from, int limit, final long startTB, final long endTB) throws IOException;
 }

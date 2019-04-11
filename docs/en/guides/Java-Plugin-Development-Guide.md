@@ -14,10 +14,10 @@ There are three types of Span
 
 1.1 EntrySpan
 EntrySpan represents a service provider, also the endpoint of server side. As an APM system, we are targeting the 
-application servers. So almost all the services and MQ-comsumer are EntrySpan(s).
+application servers. So almost all the services and MQ-consumer are EntrySpan(s).
 
 1.2 LocalSpan
-LocalSpan represents a normal Java method, which don't relate with remote service, neither a MQ producer/comsumer
+LocalSpan represents a normal Java method, which does not relate to remote service, neither a MQ producer/consumer
 nor a service(e.g. HTTP service) provider/consumer.
 
 1.3 ExitSpan
@@ -158,7 +158,7 @@ SpanLayer is the catalog of span. Here are 5 values:
 1. MQ
 
 Component IDs are defined and reserved by SkyWalking project.
-For component name/ID extension, please follow [cComponent library definition and extension](Component-library-settings.md) document.
+For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
 
 ### Advanced APIs
 #### Async Span APIs
