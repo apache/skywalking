@@ -34,7 +34,9 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
         //Get the SnapshotContext
         ContextSnapshot contextSnapshot = (ContextSnapshot)objInst.getSkyWalkingDynamicField();
-        ContextManager.continued(contextSnapshot);
+        if (null != contextSnapshot) {
+            ContextManager.continued(contextSnapshot);
+        }
     }
 
     @Override
