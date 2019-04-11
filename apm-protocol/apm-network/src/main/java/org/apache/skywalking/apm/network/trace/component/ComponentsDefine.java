@@ -114,7 +114,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
 
-    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(57, "ShardingSphere");
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(59, "ShardingSphere");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
