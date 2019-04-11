@@ -45,8 +45,4 @@ public abstract class CountIndicator extends Indicator implements LongValueHolde
 
     @Override public void calculate() {
     }
-
-    @Override public long getValue() {
-        return value;
-    }
 }
