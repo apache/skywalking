@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
+import java.io.IOException;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.*;
@@ -98,7 +99,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
             RegisterLockInstaller lockInstaller = new RegisterLockInstaller(elasticSearchClient);
             lockInstaller.install();
-        } catch (StorageException e) {
+        } catch (StorageException | IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
