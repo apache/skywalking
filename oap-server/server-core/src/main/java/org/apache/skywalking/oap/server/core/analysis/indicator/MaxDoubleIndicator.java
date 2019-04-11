@@ -46,8 +46,4 @@ public abstract class MaxDoubleIndicator extends Indicator implements DoubleValu
 
     @Override public void calculate() {
     }
-
-    @Override public double getValue() {
-        return value;
-    }
 }

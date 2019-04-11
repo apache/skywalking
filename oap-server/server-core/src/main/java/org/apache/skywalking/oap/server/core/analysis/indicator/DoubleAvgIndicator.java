@@ -51,8 +51,4 @@ public abstract class DoubleAvgIndicator extends Indicator implements DoubleValu
     @Override public final void calculate() {
         this.value = this.summation / this.count;
     }
-
-    @Override public double getValue() {
-        return value;
-    }
 }

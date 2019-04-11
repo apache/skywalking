@@ -100,15 +100,13 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     private JsonObject createMapping(Model tableDefine) {
-        final String docKey = "_doc";
-
         JsonObject mapping = new JsonObject();
-        mapping.add(docKey, new JsonObject());
+        mapping.add(ElasticSearchClient.TYPE, new JsonObject());
 
-        JsonObject doc = mapping.get(docKey).getAsJsonObject();
+        JsonObject type = mapping.get(ElasticSearchClient.TYPE).getAsJsonObject();
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        type.add("properties", properties);
 
         for (ModelColumn columnDefine : tableDefine.getColumns()) {
             if (columnDefine.isMatchQuery()) {
@@ -130,8 +128,8 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        logger.debug("create elasticsearch index: {}", doc.toString());
+        logger.debug("create elasticsearch index: {}", mapping.toString());
 
-        return doc;
+        return mapping;
     }
 }

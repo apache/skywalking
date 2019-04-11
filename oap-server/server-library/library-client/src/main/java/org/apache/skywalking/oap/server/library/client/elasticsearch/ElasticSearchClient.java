@@ -52,7 +52,7 @@ public class ElasticSearchClient implements Client {
 
     private static final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
 
-    private static final String TYPE = "type";
+    public static final String TYPE = "type";
     private final String clusterNodes;
     private final String namespace;
     private final String user;
