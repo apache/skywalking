@@ -51,8 +51,4 @@ public abstract class LongAvgIndicator extends Indicator implements LongValueHol
     @Override public final void calculate() {
         this.value = this.summation / this.count;
     }
-
-    @Override public long getValue() {
-        return value;
-    }
 }
