@@ -45,6 +45,7 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
         if (VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
+            objInst.setSkyWalkingDynamicField(false);
         } else {
             AbstractSpan span;
             boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
@@ -74,14 +75,14 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
                 VertxContext.pushContext(message.replyAddress(),
                         new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
+            objInst.setSkyWalkingDynamicField(true);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Message message = (Message) allArguments[1];
-        if (!VertxContext.hasContext(message.address())) {
+        if ((Boolean) objInst.getSkyWalkingDynamicField()) {
             ContextManager.stopSpan();
         }
         return ret;
