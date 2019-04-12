@@ -44,7 +44,6 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
         if (!isFromWire && VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
-            objInst.setSkyWalkingDynamicField(false);
         } else if (!isFromWire) {
             AbstractSpan span;
             if (VertxContext.hasContext(message.replyAddress())) {
@@ -68,7 +67,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if ((Boolean) objInst.getSkyWalkingDynamicField()) {
+        if (objInst.getSkyWalkingDynamicField() != null) {
             ContextManager.stopSpan();
         }
         return ret;

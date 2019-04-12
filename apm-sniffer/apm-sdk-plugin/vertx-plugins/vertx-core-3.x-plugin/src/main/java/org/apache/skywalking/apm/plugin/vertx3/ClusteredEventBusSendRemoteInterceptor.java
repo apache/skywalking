@@ -42,7 +42,6 @@ public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAr
         if (VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
-            objInst.setSkyWalkingDynamicField(false);
         } else {
             ServerID sender = (ServerID) allArguments[0];
             ContextCarrier contextCarrier = new ContextCarrier();
@@ -67,7 +66,7 @@ public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAr
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if ((Boolean) objInst.getSkyWalkingDynamicField()) {
+        if (objInst.getSkyWalkingDynamicField() != null) {
             ContextManager.stopSpan();
         }
         return ret;
