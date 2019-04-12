@@ -41,7 +41,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
                              MethodInterceptResult result) throws Throwable {
         Message message = (Message) allArguments[0];
         boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-        if (!isFromWire && message.address().startsWith("__vertx.reply")) {
+        if (!isFromWire && VertxContext.hasContext(message.replyAddress())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
         } else if (!isFromWire) {
@@ -68,7 +68,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
                               Object ret) throws Throwable {
         Message message = (Message) allArguments[0];
         boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-        if (!isFromWire && !message.address().startsWith("__vertx.reply")) {
+        if (!isFromWire && !VertxContext.hasContext(message.replyAddress())) {
             ContextManager.stopSpan();
         }
         return ret;
