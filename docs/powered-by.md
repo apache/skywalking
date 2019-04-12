@@ -7,6 +7,7 @@ or providing commercial products including Apache SkyWalking.
 1. 4399.com 四三九九网络股份有限公司. http://www.4399.com/
 1. 51mydao.com 买道传感科技（上海）有限公司 https://www.51mydao.com/
 1. 5i5j. 上海我爱我家房地产经纪有限公司 https://sh.5i5j.com/about/
+1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
 1. Alibaba Cloud, 阿里云, http://aliyun.com 
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
@@ -74,7 +75,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
 
 # User Cases
 ## Alibaba Cloud
