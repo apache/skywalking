@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HttpServerRequestImplDoEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpServerRequestImplHandleEndInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")

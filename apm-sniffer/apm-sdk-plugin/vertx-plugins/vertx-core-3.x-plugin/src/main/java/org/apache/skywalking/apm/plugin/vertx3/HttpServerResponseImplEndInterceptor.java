@@ -35,7 +35,7 @@ public class HttpServerResponseImplEndInterceptor implements InstanceMethodsArou
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        if (allArguments[0] instanceof BufferImpl) {
+        if (allArguments.length > 0 && allArguments[0] instanceof BufferImpl) {
             VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
             context.getSpan().asyncFinish();
         }

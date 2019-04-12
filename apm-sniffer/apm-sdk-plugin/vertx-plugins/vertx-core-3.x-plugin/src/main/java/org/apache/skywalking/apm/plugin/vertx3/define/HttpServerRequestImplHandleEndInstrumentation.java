@@ -29,17 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HttpServerRequestImplDoEndInstrumentation} enhance the <code>doEnd</code> method
+ * {@link HttpServerRequestImplHandleEndInstrumentation} enhance the <code>handleEnd</code> method
  * in <code>io.vertx.core.http.impl.HttpServerRequestImpl</code> class by
- * <code>HttpServerRequestImplDoEndInterceptor</code> class
+ * <code>HttpServerRequestImplHandleEndInterceptor</code> class
  *
  * @author brandon.fergerson
  */
-public class HttpServerRequestImplDoEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpServerRequestImplHandleEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerRequestImpl";
-    private static final String ENHANCE_METHOD = "doEnd";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerRequestImplDoEndInterceptor";
+    private static final String ENHANCE_METHOD = "handleEnd";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerRequestImplHandleEndInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
