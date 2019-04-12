@@ -42,7 +42,7 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         Message message = (Message) allArguments[1];
-        if (VertxContext.hasContext(message.replyAddress())) {
+        if (VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
         } else {
@@ -81,7 +81,7 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         Message message = (Message) allArguments[1];
-        if (!VertxContext.hasContext(message.replyAddress())) {
+        if (!VertxContext.hasContext(message.address())) {
             ContextManager.stopSpan();
         }
         return ret;

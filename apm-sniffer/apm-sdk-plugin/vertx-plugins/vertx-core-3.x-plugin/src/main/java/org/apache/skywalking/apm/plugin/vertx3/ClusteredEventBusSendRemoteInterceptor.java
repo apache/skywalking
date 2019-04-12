@@ -39,7 +39,7 @@ public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAr
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ClusteredMessage message = (ClusteredMessage) allArguments[1];
-        if (VertxContext.hasContext(message.replyAddress())) {
+        if (VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
         } else {
@@ -66,7 +66,7 @@ public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAr
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         ClusteredMessage message = (ClusteredMessage) allArguments[1];
-        if (!VertxContext.hasContext(message.replyAddress())) {
+        if (!VertxContext.hasContext(message.address())) {
             ContextManager.stopSpan();
         }
         return ret;
