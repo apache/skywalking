@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.http.HttpServerRequest;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -35,29 +31,19 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HttpServerRequestImplDoEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestBaseHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        HttpServerRequest request = (HttpServerRequest) objInst;
-        ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(request.headers().get(next.getHeadKey()));
-            request.headers().remove(next.getHeadKey());
-        }
+        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+        context.getSpan().asyncFinish();
 
-        AbstractSpan span = ContextManager.createEntrySpan(request.path(), contextCarrier);
+        AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
-        Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.absoluteURI());
-
-        ((EnhancedInstance) request.response()).setSkyWalkingDynamicField(new VertxContext(
-                ContextManager.capture(), span.prepareForAsync()));
+        ContextManager.continued(context.getContextSnapshot());
     }
 
     @Override

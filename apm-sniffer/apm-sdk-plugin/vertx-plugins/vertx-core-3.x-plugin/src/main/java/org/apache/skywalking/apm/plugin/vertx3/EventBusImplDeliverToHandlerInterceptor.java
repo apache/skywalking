@@ -41,7 +41,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
                              MethodInterceptResult result) throws Throwable {
         Message message = (Message) allArguments[0];
         boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-        if (!isFromWire && message.address().startsWith("__vertx.reply")) {
+        if (!isFromWire && VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
         } else if (!isFromWire) {
@@ -60,15 +60,14 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
                 VertxContext.pushContext(message.replyAddress(),
                         new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
+            objInst.setSkyWalkingDynamicField(true);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Message message = (Message) allArguments[0];
-        boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-        if (!isFromWire && !message.address().startsWith("__vertx.reply")) {
+        if (objInst.getSkyWalkingDynamicField() != null) {
             ContextManager.stopSpan();
         }
         return ret;

@@ -29,17 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HttpServerRequestImplDoEndInstrumentation} enhance the <code>doEnd</code> method
+ * {@link RouterImplAcceptInstrumentation} enhance the <code>accept</code> method
  * in <code>io.vertx.core.http.impl.HttpServerRequestImpl</code> class by
- * <code>HttpServerRequestImplDoEndInterceptor</code> class
+ * <code>RouterImplAcceptInterceptor</code> class
  *
  * @author brandon.fergerson
  */
-public class HttpServerRequestImplDoEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouterImplAcceptInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerRequestImpl";
-    private static final String ENHANCE_METHOD = "doEnd";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerRequestImplDoEndInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouterImpl";
+    private static final String ENHANCE_METHOD = "accept";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouterImplAcceptInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
