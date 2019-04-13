@@ -54,7 +54,7 @@ public class RouterImplAcceptInterceptor implements InstanceMethodsAroundInterce
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.absoluteURI());
+        Tags.URL.set(span, request.uri());
 
         ((EnhancedInstance) request.response()).setSkyWalkingDynamicField(new VertxContext(
                 ContextManager.capture(), span.prepareForAsync()));

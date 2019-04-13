@@ -47,7 +47,7 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.absoluteURI());
+        Tags.URL.set(span, request.uri());
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
