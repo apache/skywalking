@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.buffer.impl.BufferImpl;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -35,7 +34,7 @@ public class HttpServerResponseImplEndInterceptor implements InstanceMethodsArou
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        if (allArguments.length > 0 && allArguments[0] instanceof BufferImpl) {
+        if (allArguments.length == 0) {
             VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
             context.getSpan().asyncFinish();
         }

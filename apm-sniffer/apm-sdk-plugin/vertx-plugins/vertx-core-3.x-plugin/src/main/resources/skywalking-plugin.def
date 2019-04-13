@@ -17,9 +17,9 @@
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.ClusteredEventBusSendRemoteInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.EventBusImplDeliverToHandlerInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HandlerRegistrationDeliverInstrumentation
-vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseDoHandleResponseInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseHandleResponseInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestBaseHandleExceptionInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestImplEndInstrumentation
-vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerRequestImplHandleEndInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerResponseImplEndInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerResponseImplHandleExceptionInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouterImplAcceptInstrumentation
