@@ -19,37 +19,28 @@
 package org.apache.skywalking.apm.plugin.vertx3;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
 /**
  * @author brandon.fergerson
  */
-public class HttpClientRequestBaseHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestImplHandleExceptionInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
-        context.getSpan().asyncFinish();
-
-        AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
-        span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asHttp(span);
-        ContextManager.continued(context.getContextSnapshot());
+        context.getSpan().errorOccurred().log((Throwable) allArguments[0]);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
