@@ -35,10 +35,10 @@ For trace format, there are some notices
 
 * EntrySpan
 EntrySpan represents a service provider, also the endpoint of server side. As an APM system, we are targeting the 
-application servers. So almost all the services and MQ-comsumer are EntrySpan(s).
+application servers. So almost all the services and MQ-consumer are EntrySpan(s).
 
 * LocalSpan
-LocalSpan represents a normal Java method, which don't relate with remote service, neither a MQ producer/comsumer
+LocalSpan represents a normal Java method, which don't relate with remote service, neither a MQ producer/consumer
 nor a service(e.g. HTTP service) provider/consumer.
 
 * ExitSpan
