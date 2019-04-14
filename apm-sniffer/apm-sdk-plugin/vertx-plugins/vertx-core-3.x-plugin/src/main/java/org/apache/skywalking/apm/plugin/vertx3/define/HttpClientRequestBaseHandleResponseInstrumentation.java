@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
@@ -38,6 +38,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class HttpClientRequestBaseHandleResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpClientRequestBase";
+    private static final String ENHANCE_CLASS_IMPL = "io.vertx.core.http.impl.HttpClientRequestImpl";
     private static final String ENHANCE_METHOD = "handleResponse";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestBaseHandleResponseInterceptor";
 
@@ -64,6 +65,6 @@ public class HttpClientRequestBaseHandleResponseInstrumentation extends ClassIns
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS, ENHANCE_CLASS_IMPL);
     }
 }
