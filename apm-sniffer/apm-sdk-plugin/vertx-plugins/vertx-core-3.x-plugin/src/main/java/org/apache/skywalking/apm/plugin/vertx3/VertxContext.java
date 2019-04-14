@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class VertxContext {
 
+    public static final String CLOSE_SPAN_NECESSARY = "VERTX_CLOSE_SPAN_NECESSARY";
     private static final Map<String, Stack<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<String, Stack<VertxContext>>();
 
     static void pushContext(String identifier, VertxContext vertxContext) {

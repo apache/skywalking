@@ -39,6 +39,8 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+        ContextManager.getRuntimeContext().remove(VertxContext.CLOSE_SPAN_NECESSARY);
+
         Message message = (Message) allArguments[0];
         boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
         if (!isFromWire && VertxContext.hasContext(message.address())) {
@@ -60,14 +62,15 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
                 VertxContext.pushContext(message.replyAddress(),
                         new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
-            objInst.setSkyWalkingDynamicField(true);
+            ContextManager.getRuntimeContext().put(VertxContext.CLOSE_SPAN_NECESSARY, true);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (objInst.getSkyWalkingDynamicField() != null) {
+        Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext().get(VertxContext.CLOSE_SPAN_NECESSARY);
+        if (Boolean.TRUE.equals(closeSpan)) {
             ContextManager.stopSpan();
         }
         return ret;
