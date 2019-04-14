@@ -221,13 +221,13 @@ ClassMatch represents how to match the target classes, there are 4 ways:
 * byName, through the full class name(package name + `.` + class name)
 * byClassAnnotationMatch, through the class existed certain annotations.
 * byMethodAnnotationMatch, through the class's method existed certain annotations.
-* byHierarchyMatch, throught the class's parent classes or interfaces
+* byHierarchyMatch, through the class's parent classes or interfaces
 
 **Attentions**:
 * Forbid to use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
 avoiding ClassLoader issues.
 * `by*AnnotationMatch` doesn't support the inherited annotations.
-* Don't recommend use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
+* Don't recommend to use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
 many unexcepted methods, which causes performance issues and concerns.
 
 Example：
@@ -322,5 +322,5 @@ Please follow there steps:
 1. Develop and test.
 1. Send the pull request and ask for review. 
 1. Provide the automatic test cases. 
-1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
+1. The plugin committers approve your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 
