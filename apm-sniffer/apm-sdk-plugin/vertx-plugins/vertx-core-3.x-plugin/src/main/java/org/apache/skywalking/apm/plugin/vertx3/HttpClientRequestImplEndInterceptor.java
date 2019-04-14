@@ -43,7 +43,7 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
                              MethodInterceptResult result) throws Throwable {
         HttpClientRequest request = (HttpClientRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(request.path(), contextCarrier, request.path());
+        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier, request.path());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -67,5 +67,13 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                                 Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private static String toPath(String uri) {
+        if (uri.contains("?")) {
+            return uri.substring(0, uri.indexOf("?"));
+        } else {
+            return uri;
+        }
     }
 }
