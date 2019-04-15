@@ -144,7 +144,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                         .setEndpoint(endpoint).setLatency((int)duration)
                         .setResponseCode(Math.toIntExact(responseCode))
                         .setStatus(status).setProtocol(protocol)
-                        .setDetectPoint(DetectPoint.server)
+                        .setDetectPoint(DetectPoint.client)
                         .build();
 
                     logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);

@@ -22,6 +22,7 @@ import com.google.protobuf.util.JsonFormat;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import java.io.*;
 import java.util.*;
+import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
 import org.junit.*;
@@ -65,10 +66,66 @@ public class K8sHTTPAnalysisTest {
             ServiceMeshMetric incoming = analysis.metrics.get(0);
             Assert.assertEquals("UNKNOWN", incoming.getSourceServiceName());
             Assert.assertEquals("ingress", incoming.getDestServiceName());
+            Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
 
             ServiceMeshMetric outgoing = analysis.metrics.get(1);
             Assert.assertEquals("ingress", outgoing.getSourceServiceName());
             Assert.assertEquals("productpage", outgoing.getDestServiceName());
+            Assert.assertEquals(DetectPoint.client, outgoing.getDetectPoint());
+        }
+    }
+
+    @Test
+    public void testIngress2SidecarMetric() throws IOException {
+        MockK8sAnalysis analysis = new MockK8sAnalysis();
+        try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-ingress2sidecar.msg"))) {
+            StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
+            JsonFormat.parser().merge(isr, requestBuilder);
+
+            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+
+            Assert.assertEquals(1, analysis.metrics.size());
+
+            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            Assert.assertEquals("", incoming.getSourceServiceName());
+            Assert.assertEquals("productpage", incoming.getDestServiceName());
+            Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
+        }
+    }
+
+    @Test
+    public void testSidecar2SidecarServerMetric() throws IOException {
+        MockK8sAnalysis analysis = new MockK8sAnalysis();
+        try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-mesh-server-sidecar.msg"))) {
+            StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
+            JsonFormat.parser().merge(isr, requestBuilder);
+
+            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+
+            Assert.assertEquals(1, analysis.metrics.size());
+
+            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            Assert.assertEquals("productpage", incoming.getSourceServiceName());
+            Assert.assertEquals("review", incoming.getDestServiceName());
+            Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
+        }
+    }
+
+    @Test
+    public void testSidecar2SidecarClientMetric() throws IOException {
+        MockK8sAnalysis analysis = new MockK8sAnalysis();
+        try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-mesh-client-sidecar.msg"))) {
+            StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
+            JsonFormat.parser().merge(isr, requestBuilder);
+
+            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+
+            Assert.assertEquals(1, analysis.metrics.size());
+
+            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            Assert.assertEquals("productpage", incoming.getSourceServiceName());
+            Assert.assertEquals("detail", incoming.getDestServiceName());
+            Assert.assertEquals(DetectPoint.client, incoming.getDetectPoint());
         }
     }
 
@@ -89,6 +146,8 @@ public class K8sHTTPAnalysisTest {
                     return new ServiceMetaInfo("productpage", "productpage-Inst");
                 case "10.44.6.66":
                     return new ServiceMetaInfo("detail", "detail-Inst");
+                case "10.44.2.55":
+                    return new ServiceMetaInfo("review", "detail-Inst");
             }
             return ServiceMetaInfo.UNKNOWN;
         }
