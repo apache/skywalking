@@ -45,8 +45,4 @@ public abstract class SumIndicator extends Indicator implements LongValueHolder 
 
     @Override public void calculate() {
     }
-
-    @Override public long getValue() {
-        return value;
-    }
 }
