@@ -64,7 +64,8 @@
 * JSON
   * [GSON](https://github.com/google/gson) 2.8.x (Optional²)
 * Vert.x Ecosystem
-  * Vert.x Core 3.x (Event bus, HTTP client/server)
+  * Vert.x Eventbus 3.2+
+  * Vert.x Web 3.x
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
