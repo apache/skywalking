@@ -70,6 +70,7 @@ or providing commercial products including Apache SkyWalking.
 1. tuhu.cn 途虎养车 https://www.tuhu.cn
 1. Tuya. 涂鸦智能. https://www.tuya.com
 1. VBill Payment Co., LTD. 随行付. https://www.vbill.cn/
+1. WeBank. 微众银行 http://www.webank.com
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 1. Wochu. 我厨买菜. https://www.wochu.cn
 1. Xiaomi. 小米. https://www.mi.com/en/
@@ -101,12 +102,12 @@ Use multiple language agents from SkyWalking and its ecosystem, including SkyWal
 ## Primeton
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
 
-## Tetrate
-Tetrate provides enterprise level service mesh. SkyWalking acts as the core observability platform for hybrid
-enterprise service mesh environment.
-
 ## Qiniu Cloud
 Provide a customized version SkyWalking agent. It could provide distributed tracing and integrated in its intelligence log management platform.
 
 ## Source++
 An open-source observant programming assistant which aims to bridge APM tools with the developer's IDE to enable tighter feedback loops. Source++ uses SkyWalking as the defacto APM for JVM-based applications.
+
+## Tetrate
+Tetrate provides enterprise level service mesh. SkyWalking acts as the core observability platform for hybrid
+enterprise service mesh environment.
