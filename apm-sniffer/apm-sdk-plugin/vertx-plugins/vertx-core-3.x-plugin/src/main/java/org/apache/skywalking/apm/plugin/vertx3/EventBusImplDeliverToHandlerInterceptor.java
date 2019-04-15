@@ -69,7 +69,8 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext().get(VertxContext.CLOSE_SPAN_NECESSARY);
+        Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext().get(
+                VertxContext.CLOSE_SPAN_NECESSARY + "." + getClass().getName());
         if (Boolean.TRUE.equals(closeSpan)) {
             ContextManager.stopSpan();
         }
