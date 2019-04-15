@@ -41,7 +41,7 @@ public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAro
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ContextManager.getRuntimeContext().remove(VertxContext.CLOSE_SPAN_NECESSARY);
+        ContextManager.getRuntimeContext().remove(VertxContext.CLOSE_SPAN_NECESSARY + "." + getClass().getName());
 
         Message message = (Message) allArguments[1];
         if (VertxContext.hasContext(message.address())) {
