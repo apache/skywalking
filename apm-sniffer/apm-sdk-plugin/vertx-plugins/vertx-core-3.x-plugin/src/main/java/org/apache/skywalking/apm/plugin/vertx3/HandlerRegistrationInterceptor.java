@@ -41,7 +41,7 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ContextManager.getRuntimeContext().remove(VertxContext.CLOSE_SPAN_NECESSARY + "." + getClass().getName());
+        ContextManager.getRuntimeContext().remove(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
 
         Message message = (Message) allArguments[1];
         if (VertxContext.hasContext(message.address())) {
@@ -76,7 +76,7 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
                 VertxContext.pushContext(message.replyAddress(),
                         new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
-            ContextManager.getRuntimeContext().put(VertxContext.CLOSE_SPAN_NECESSARY + "." + getClass().getName(), true);
+            ContextManager.getRuntimeContext().put(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName(), true);
         }
     }
 
@@ -84,7 +84,7 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext().get(
-                VertxContext.CLOSE_SPAN_NECESSARY + "." + getClass().getName());
+                VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
         if (Boolean.TRUE.equals(closeSpan)) {
             ContextManager.stopSpan();
         }
