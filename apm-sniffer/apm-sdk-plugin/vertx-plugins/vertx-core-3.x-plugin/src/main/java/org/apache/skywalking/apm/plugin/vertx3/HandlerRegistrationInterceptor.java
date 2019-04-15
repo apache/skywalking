@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAroundInterceptor {
+public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")

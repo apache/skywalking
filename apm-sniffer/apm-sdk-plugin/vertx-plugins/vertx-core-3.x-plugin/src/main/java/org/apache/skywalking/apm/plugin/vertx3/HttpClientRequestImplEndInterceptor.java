@@ -40,8 +40,15 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String host = (String) allArguments[2];
-        int port = (Integer) allArguments[3];
+        String host;
+        int port;
+        if (allArguments[3] instanceof Integer) {
+            host = (String) allArguments[2];
+            port = (Integer) allArguments[3];
+        } else {
+            host = (String) allArguments[3];
+            port = (Integer) allArguments[4];
+        }
         objInst.setSkyWalkingDynamicField(host + ":" + port);
     }
 
