@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HandlerRegistrationInstrumentation} enhance the <code>deliver</code> & <code>handleMessage</code> methods
+ * {@link HandlerRegistrationInstrumentation} enhance the <code>deliver</code> and <code>handleMessage</code> methods
  * in <code>io.vertx.core.eventbus.impl.HandlerRegistration</code> class by
  * <code>HandlerRegistrationInterceptor</code> class
  *
