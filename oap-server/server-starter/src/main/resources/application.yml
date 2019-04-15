@@ -98,6 +98,8 @@ istio-telemetry:
   default:
 envoy-metric:
   default:
+    alsHTTPAnalysis:
+      - k8s-mesh
 #receiver_zipkin:
 #  default:
 #    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
