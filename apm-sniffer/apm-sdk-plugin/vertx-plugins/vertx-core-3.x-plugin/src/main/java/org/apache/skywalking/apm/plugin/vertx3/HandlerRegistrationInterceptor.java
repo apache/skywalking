@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
-import io.vertx.core.net.impl.ServerID;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -32,7 +32,10 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAroundInterceptor {
+/**
+ * @author brandon.fergerson
+ */
+public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -40,22 +43,34 @@ public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAr
                              MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext().remove(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
 
-        ClusteredMessage message = (ClusteredMessage) allArguments[1];
+        Message message = (Message) allArguments[1];
         if (VertxContext.hasContext(message.address())) {
             VertxContext context = VertxContext.popContext(message.address());
             context.getSpan().asyncFinish();
         } else {
-            ServerID sender = (ServerID) allArguments[0];
-            ContextCarrier contextCarrier = new ContextCarrier();
-            AbstractSpan span = ContextManager.createExitSpan(message.address(), contextCarrier, sender.toString());
+            AbstractSpan span;
+            boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
+            if (isFromWire) {
+                ContextCarrier contextCarrier = new ContextCarrier();
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    next.setHeadValue(message.headers().get(next.getHeadKey()));
+                    message.headers().remove(next.getHeadKey());
+                }
+
+                span = ContextManager.createEntrySpan(message.address(), contextCarrier);
+            } else {
+                if (VertxContext.hasContext(message.replyAddress())) {
+                    VertxContext context = VertxContext.peekContext(message.replyAddress());
+                    span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
+                    ContextManager.continued(context.getContextSnapshot());
+                } else {
+                    span = ContextManager.createLocalSpan(message.address());
+                }
+            }
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asRPCFramework(span);
-
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                message.headers().add(next.getHeadKey(), next.getHeadValue());
-            }
 
             if (message.replyAddress() != null) {
                 VertxContext.pushContext(message.replyAddress(),
@@ -76,9 +91,8 @@ public class ClusteredEventBusSendRemoteInterceptor implements InstanceMethodsAr
         return ret;
     }
 
-    @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                                Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

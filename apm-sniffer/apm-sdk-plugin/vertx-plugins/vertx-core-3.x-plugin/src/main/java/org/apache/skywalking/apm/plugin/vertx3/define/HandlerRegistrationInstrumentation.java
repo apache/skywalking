@@ -29,17 +29,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HandlerRegistrationDeliverInstrumentation} enhance the <code>deliver</code> method
+ * {@link HandlerRegistrationInstrumentation} enhance the <code>deliver</code> & <code>handleMessage</code> methods
  * in <code>io.vertx.core.eventbus.impl.HandlerRegistration</code> class by
- * <code>HandlerRegistrationDeliverInterceptor</code> class
+ * <code>HandlerRegistrationInterceptor</code> class
  *
  * @author brandon.fergerson
  */
-public class HandlerRegistrationDeliverInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HandlerRegistrationInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.eventbus.impl.HandlerRegistration";
-    private static final String ENHANCE_METHOD = "deliver";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HandlerRegistrationDeliverInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HandlerRegistrationInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -49,7 +48,7 @@ public class HandlerRegistrationDeliverInstrumentation extends ClassInstanceMeth
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("deliver").or(named("handleMessage"));
                 }
 
                 @Override public String getMethodsInterceptor() {
@@ -65,5 +64,10 @@ public class HandlerRegistrationDeliverInstrumentation extends ClassInstanceMeth
 
     @Override protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
+    }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{"io.vertx.core.eventbus.impl.clustered.ClusteredMessage"};
     }
 }

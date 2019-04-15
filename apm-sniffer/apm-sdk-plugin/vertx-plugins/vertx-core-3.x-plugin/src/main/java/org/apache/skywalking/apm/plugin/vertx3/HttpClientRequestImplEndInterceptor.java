@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -35,7 +36,21 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        String host;
+        int port;
+        if (allArguments[3] instanceof Integer) {
+            host = (String) allArguments[2];
+            port = (Integer) allArguments[3];
+        } else {
+            host = (String) allArguments[3];
+            port = (Integer) allArguments[4];
+        }
+        objInst.setSkyWalkingDynamicField(host + ":" + port);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -43,7 +58,8 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
                              MethodInterceptResult result) throws Throwable {
         HttpClientRequest request = (HttpClientRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(request.path(), contextCarrier, request.path());
+        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
+                (String) objInst.getSkyWalkingDynamicField());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -67,5 +83,13 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                                 Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private static String toPath(String uri) {
+        if (uri.contains("?")) {
+            return uri.substring(0, uri.indexOf("?"));
+        } else {
+            return uri;
+        }
     }
 }

@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HttpClientRequestBaseHandleExceptionInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestImplHandleExceptionInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")

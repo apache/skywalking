@@ -29,17 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HttpClientRequestBaseHandleResponseInstrumentation} enhance the <code>handleResponse</code> method
+ * {@link HttpClientRequestImplHandleExceptionInstrumentation} enhance the <code>handleException</code> method
  * in <code>io.vertx.core.http.impl.HttpClientRequestBase</code> class by
- * <code>HttpClientRequestBaseHandleResponseInterceptor</code> class
+ * <code>HttpClientRequestImplHandleExceptionInterceptor</code> class
  *
  * @author brandon.fergerson
  */
-public class HttpClientRequestBaseHandleResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpClientRequestImplHandleExceptionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpClientRequestBase";
-    private static final String ENHANCE_METHOD = "handleResponse";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestBaseHandleResponseInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpClientRequestImpl";
+    private static final String ENHANCE_METHOD = "handleException";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplHandleExceptionInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

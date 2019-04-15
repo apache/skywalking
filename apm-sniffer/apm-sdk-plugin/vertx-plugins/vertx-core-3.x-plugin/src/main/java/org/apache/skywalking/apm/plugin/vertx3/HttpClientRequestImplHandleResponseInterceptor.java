@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -35,55 +31,25 @@ import java.lang.reflect.Method;
 /**
  * @author brandon.fergerson
  */
-public class HandlerRegistrationDeliverInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestImplHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        Message message = (Message) allArguments[1];
-        if (VertxContext.hasContext(message.address())) {
-            VertxContext context = VertxContext.popContext(message.address());
-            context.getSpan().asyncFinish();
-        } else {
-            AbstractSpan span;
-            boolean isFromWire = message instanceof ClusteredMessage && ((ClusteredMessage) message).isFromWire();
-            if (isFromWire) {
-                ContextCarrier contextCarrier = new ContextCarrier();
-                CarrierItem next = contextCarrier.items();
-                while (next.hasNext()) {
-                    next = next.next();
-                    next.setHeadValue(message.headers().get(next.getHeadKey()));
-                    message.headers().remove(next.getHeadKey());
-                }
+        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+        context.getSpan().asyncFinish();
 
-                span = ContextManager.createEntrySpan(message.address(), contextCarrier);
-            } else {
-                if (VertxContext.hasContext(message.replyAddress())) {
-                    VertxContext context = VertxContext.peekContext(message.replyAddress());
-                    span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
-                    ContextManager.continued(context.getContextSnapshot());
-                } else {
-                    span = ContextManager.createLocalSpan(message.address());
-                }
-            }
-            span.setComponent(ComponentsDefine.VERTX);
-            SpanLayer.asRPCFramework(span);
-
-            if (message.replyAddress() != null) {
-                VertxContext.pushContext(message.replyAddress(),
-                        new VertxContext(ContextManager.capture(), span.prepareForAsync()));
-            }
-            objInst.setSkyWalkingDynamicField(true);
-        }
+        AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
+        span.setComponent(ComponentsDefine.VERTX);
+        SpanLayer.asHttp(span);
+        ContextManager.continued(context.getContextSnapshot());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (objInst.getSkyWalkingDynamicField() != null) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
         return ret;
     }
 
