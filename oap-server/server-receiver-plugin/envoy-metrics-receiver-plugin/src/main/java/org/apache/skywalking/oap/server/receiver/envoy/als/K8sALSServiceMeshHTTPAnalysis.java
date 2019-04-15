@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.slf4j.*;
 
 /**
- * Analysis log based on
+ * Analysis log based on ingress and mesh scenarios.
  *
  * @author wusheng
  */
@@ -52,14 +52,109 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
         switch (role) {
             case PROXY:
                 analysisProxy(identifier, entry);
+                break;
             case SIDECAR:
-
+                return analysisSideCar(identifier, entry);
         }
 
         return Collections.emptyList();
     }
 
-    
+    protected List<Source> analysisSideCar(StreamAccessLogsMessage.Identifier identifier,
+        HTTPAccessLogEntry entry) {
+        List<Source> sources = new ArrayList<>();
+        AccessLogCommon properties = entry.getCommonProperties();
+        if (properties != null) {
+            String cluster = properties.getUpstreamCluster();
+            if (cluster != null) {
+                long startTime = formatAsLong(properties.getStartTime());
+                long duration = formatAsLong(properties.getTimeToLastDownstreamTxByte());
+
+                HTTPRequestProperties request = entry.getRequest();
+                String endpoint = "/";
+                Protocol protocol = Protocol.HTTP;
+                if (request != null) {
+                    endpoint = request.getPath();
+                    String schema = request.getScheme();
+                    if (schema.equals("http") || schema.equals("https")) {
+                        protocol = Protocol.HTTP;
+                    } else {
+                        protocol = Protocol.gRPC;
+                    }
+                }
+                HTTPResponseProperties response = entry.getResponse();
+                int responseCode = 200;
+                if (response != null) {
+                    responseCode = response.getResponseCode().getValue();
+                }
+                boolean status = responseCode >= 200 && responseCode < 400;
+
+                Address downstreamRemoteAddress = properties.getDownstreamRemoteAddress();
+                ServiceMetaInfo downstreamService = find(downstreamRemoteAddress.getSocketAddress().getAddress(),
+                    downstreamRemoteAddress.getSocketAddress().getPortValue());
+                Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
+                ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress(),
+                    downstreamLocalAddress.getSocketAddress().getPortValue());
+                if (cluster.startsWith("inbound|")) {
+                    // Server side
+                    if (downstreamService.equals(ServiceMetaInfo.UNKNOWN)) {
+                        // Ingress -> sidecar(server side)
+                        // Mesh telemetry without source, the relation would be generated.
+                        ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(startTime)
+                            .setEndTime(startTime + duration)
+                            .setDestServiceName(localService.getServiceName())
+                            .setDestServiceInstance(localService.getServiceInstanceName())
+                            .setEndpoint(endpoint).setLatency((int)duration)
+                            .setResponseCode(Math.toIntExact(responseCode))
+                            .setStatus(status).setProtocol(protocol)
+                            .setDetectPoint(DetectPoint.server)
+                            .build();
+
+                        logger.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
+                        forward(metric);
+                    } else {
+                        // sidecar -> sidecar(server side)
+                        ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(startTime)
+                            .setEndTime(startTime + duration)
+                            .setSourceServiceName(downstreamService.getServiceName())
+                            .setSourceServiceInstance(downstreamService.getServiceInstanceName())
+                            .setDestServiceName(localService.getServiceName())
+                            .setDestServiceInstance(localService.getServiceInstanceName())
+                            .setEndpoint(endpoint).setLatency((int)duration)
+                            .setResponseCode(Math.toIntExact(responseCode))
+                            .setStatus(status).setProtocol(protocol)
+                            .setDetectPoint(DetectPoint.server)
+                            .build();
+
+                        logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
+                        forward(metric);
+                    }
+                } else if (cluster.startsWith("outbound|")) {
+                    // sidecar(client side) -> sidecar
+                    Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
+                    ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress(),
+                        upstreamRemoteAddress.getSocketAddress().getPortValue());
+
+                    ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(startTime)
+                        .setEndTime(startTime + duration)
+                        .setSourceServiceName(downstreamService.getServiceName())
+                        .setSourceServiceInstance(downstreamService.getServiceInstanceName())
+                        .setDestServiceName(destService.getServiceName())
+                        .setDestServiceInstance(destService.getServiceInstanceName())
+                        .setEndpoint(endpoint).setLatency((int)duration)
+                        .setResponseCode(Math.toIntExact(responseCode))
+                        .setStatus(status).setProtocol(protocol)
+                        .setDetectPoint(DetectPoint.server)
+                        .build();
+
+                    logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
+                    forward(metric);
+
+                }
+            }
+        }
+        return sources;
+    }
 
     protected void analysisProxy(StreamAccessLogsMessage.Identifier identifier,
         HTTPAccessLogEntry entry) {
@@ -153,6 +248,11 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
         return prev;
     }
 
+    /**
+     * @param ip
+     * @param port
+     * @return found service info, or {@link ServiceMetaInfo#UNKNOWN} to represent not found.
+     */
     protected ServiceMetaInfo find(String ip, int port) {
         //TODO: go through API server to get target service info
         // If can't get service or service instance name, set `UNKNOWN` string.
