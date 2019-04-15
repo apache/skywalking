@@ -62,7 +62,7 @@ public class EventBusImplDeliverToHandlerInterceptor implements InstanceMethodsA
                 VertxContext.pushContext(message.replyAddress(),
                         new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
-            ContextManager.getRuntimeContext().put(VertxContext.CLOSE_SPAN_NECESSARY, true);
+            ContextManager.getRuntimeContext().put(VertxContext.CLOSE_SPAN_NECESSARY + "." + getClass().getName(), true);
         }
     }
 
