@@ -40,7 +40,7 @@ public class Config {
         public static String NAMESPACE = "";
 
         /**
-         * Application code is showed in skywalking-ui. Suggestion: set a unique name for each service,
+         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
          * service instance nodes share the same code
          */
         public static String SERVICE_NAME = "";
