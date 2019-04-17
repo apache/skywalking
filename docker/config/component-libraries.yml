@@ -204,8 +204,11 @@ Lettuce:
 Zookeeper:
   id: 58
   languages: Java
-ShardingSphere:
+Vertx:
   id: 59
+  languages: Java
+ShardingSphere:
+  id: 60
   languages: Java
 
 # .NET/.NET Core components
@@ -258,7 +261,7 @@ AspNet:
 SmartSql:
   id: 3016
   languages: C#
-
+  
 # NoeJS components
 # [4000, 5000) for Node.js agent
 HttpServer:

@@ -40,7 +40,7 @@ import java.util.List;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
- * The main entrance of sky-waking agent, based on javaagent mechanism.
+ * The main entrance of sky-walking agent, based on javaagent mechanism.
  *
  * @author wusheng
  */

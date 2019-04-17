@@ -204,6 +204,9 @@ Lettuce:
 Zookeeper:
   id: 58
   languages: Java
+Vertx:
+  id: 59
+  languages: Java
 
 ShardingSphere:
   id: 59
