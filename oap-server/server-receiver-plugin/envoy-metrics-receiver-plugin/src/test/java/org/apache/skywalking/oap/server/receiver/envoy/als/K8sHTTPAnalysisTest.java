@@ -18,19 +18,29 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.util.JsonFormat;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import java.io.*;
 import java.util.*;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
 import org.junit.*;
 
 public class K8sHTTPAnalysisTest {
+
+    private MockK8sAnalysis analysis;
+
+    @Before
+    public void setUp() {
+        analysis = new MockK8sAnalysis();
+        analysis.init(null);
+    }
+
     @Test
     public void testIngressRoleIdentify() throws IOException {
-        MockK8sAnalysis analysis = new MockK8sAnalysis();
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-ingress.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
@@ -42,7 +52,6 @@ public class K8sHTTPAnalysisTest {
 
     @Test
     public void testSidecarRoleIdentify() throws IOException {
-        MockK8sAnalysis analysis = new MockK8sAnalysis();
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-mesh-server-sidecar.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
@@ -54,7 +63,6 @@ public class K8sHTTPAnalysisTest {
 
     @Test
     public void testIngressMetric() throws IOException {
-        MockK8sAnalysis analysis = new MockK8sAnalysis();
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-ingress.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
@@ -77,7 +85,6 @@ public class K8sHTTPAnalysisTest {
 
     @Test
     public void testIngress2SidecarMetric() throws IOException {
-        MockK8sAnalysis analysis = new MockK8sAnalysis();
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-ingress2sidecar.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
@@ -95,7 +102,6 @@ public class K8sHTTPAnalysisTest {
 
     @Test
     public void testSidecar2SidecarServerMetric() throws IOException {
-        MockK8sAnalysis analysis = new MockK8sAnalysis();
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-mesh-server-sidecar.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
@@ -113,7 +119,6 @@ public class K8sHTTPAnalysisTest {
 
     @Test
     public void testSidecar2SidecarClientMetric() throws IOException {
-        MockK8sAnalysis analysis = new MockK8sAnalysis();
         try (InputStreamReader isr = new InputStreamReader(getResourceAsStream("envoy-mesh-client-sidecar.msg"))) {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
@@ -133,23 +138,18 @@ public class K8sHTTPAnalysisTest {
         private List<ServiceMeshMetric> metrics = new ArrayList<>();
 
         @Override
-        protected void forward(ServiceMeshMetric metric) {
-            metrics.add(metric);
+        public void init(EnvoyMetricReceiverConfig config) {
+            getIpServiceMap().set(ImmutableMap.of(
+                    "10.44.2.56", new ServiceMetaInfo("ingress", "ingress-Inst"),
+                    "10.44.2.54", new ServiceMetaInfo("productpage", "productpage-Inst"),
+                    "10.44.6.66", new ServiceMetaInfo("detail", "detail-Inst"),
+                    "10.44.2.55", new ServiceMetaInfo("review", "detail-Inst")
+            ));
         }
 
         @Override
-        protected ServiceMetaInfo find(String ip, int port) {
-            switch (ip) {
-                case "10.44.2.56":
-                    return new ServiceMetaInfo("ingress", "ingress-Inst");
-                case "10.44.2.54":
-                    return new ServiceMetaInfo("productpage", "productpage-Inst");
-                case "10.44.6.66":
-                    return new ServiceMetaInfo("detail", "detail-Inst");
-                case "10.44.2.55":
-                    return new ServiceMetaInfo("review", "detail-Inst");
-            }
-            return ServiceMetaInfo.UNKNOWN;
+        protected void forward(ServiceMeshMetric metric) {
+            metrics.add(metric);
         }
     }
 

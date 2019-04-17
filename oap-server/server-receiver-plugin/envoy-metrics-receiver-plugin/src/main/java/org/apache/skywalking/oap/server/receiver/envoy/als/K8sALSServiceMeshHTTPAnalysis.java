@@ -30,7 +30,6 @@ import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
 import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
 import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.apis.ExtensionsV1beta1Api;
@@ -38,6 +37,8 @@ import io.kubernetes.client.models.V1ObjectMeta;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1PodList;
 import io.kubernetes.client.util.Config;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.Protocol;
@@ -47,7 +48,6 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -63,6 +63,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     private static final Logger logger = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
 
+    @Getter(AccessLevel.PROTECTED)
     private final AtomicReference<Map<String, ServiceMetaInfo>> ipServiceMap = new AtomicReference<>();
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
@@ -73,38 +74,32 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     }
 
     @Override public void init(EnvoyMetricReceiverConfig config) {
-        executorService.scheduleAtFixedRate(() -> {
-            try {
-                loadPodInfo();
-            } catch (Throwable th) {
-                logger.error("run load pod error", th);
-            }
-        }, 0,15, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(this::loadPodInfo, 0,15, TimeUnit.SECONDS);
+    }
+
+    private boolean invalidPodList() {
+        Map<String, ServiceMetaInfo> map = ipServiceMap.get();
+        return map == null || map.isEmpty();
     }
 
     private void loadPodInfo() {
-        ApiClient client;
         try {
-            client = Config.defaultClient();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            ApiClient client = Config.defaultClient();
+            client.getHttpClient().setReadTimeout(20, TimeUnit.SECONDS);
+            Configuration.setDefaultApiClient(client);
+            CoreV1Api api = new CoreV1Api();
+            V1PodList list = api.listPodForAllNamespaces(null, null, null,
+                    null, null, null, null, null, null);
+            Map<String, ServiceMetaInfo> ipMap = new HashMap<>(list.getItems().size());
+            long startTime = System.nanoTime();
+            for (V1Pod item : list.getItems()) {
+                ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
+            }
+            logger.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
+            ipServiceMap.set(ipMap);
+        } catch (Throwable th) {
+            logger.error("run load pod error", th);
         }
-        client.getHttpClient().setReadTimeout(20, TimeUnit.SECONDS);
-        Configuration.setDefaultApiClient(client);
-        CoreV1Api api = new CoreV1Api();
-        V1PodList list;
-        try {
-            list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-        } catch (ApiException e) {
-            throw new RuntimeException(e);
-        }
-        Map<String, ServiceMetaInfo> ipMap = new HashMap<>(list.getItems().size());
-        long startTime = System.nanoTime();
-        for (V1Pod item : list.getItems()) {
-            ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
-        }
-        logger.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
-        ipServiceMap.set(ipMap);
     }
 
     private ServiceMetaInfo createServiceMetaInfo(final V1ObjectMeta podMeta) {
@@ -137,6 +132,9 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
 
     @Override public List<Source> analysis(StreamAccessLogsMessage.Identifier identifier,
         HTTPAccessLogEntry entry, Role role) {
+        if (invalidPodList()) {
+            return Collections.emptyList();
+        }
         switch (role) {
             case PROXY:
                 analysisProxy(identifier, entry);
@@ -342,17 +340,16 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
      * @return found service info, or {@link ServiceMetaInfo#UNKNOWN} to represent not found.
      */
     protected ServiceMetaInfo find(String ip, int port) {
-        ServiceMetaInfo result = new ServiceMetaInfo();
-        result.setServiceName("UNKNOWN");
-        result.setServiceInstanceName("UNKNOWN");
         Map<String, ServiceMetaInfo> map = ipServiceMap.get();
         if (map == null) {
-            return result;
+            logger.debug("Unknown ip {}, ip -> service is null", ip);
+            return ServiceMetaInfo.UNKNOWN;
         }
         if (map.containsKey(ip)) {
             return map.get(ip);
         }
-        return result;
+        logger.debug("Unknown ip {}, ip -> service is {}", map);
+        return ServiceMetaInfo.UNKNOWN;
     }
 
     protected void forward(ServiceMeshMetric metric) {

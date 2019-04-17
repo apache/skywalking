@@ -26,6 +26,7 @@ import lombok.*;
  */
 @Getter
 @Setter
+@ToString
 public class ServiceMetaInfo {
     private String serviceName;
     private String serviceInstanceName;
@@ -42,6 +43,7 @@ public class ServiceMetaInfo {
     @Setter
     @Getter
     @RequiredArgsConstructor
+    @ToString
     public static class KeyValue {
         private final String key;
         private final String value;
