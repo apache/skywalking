@@ -42,6 +42,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int concurrentRequests = 2;
     private String user;
     private String password;
+    private int metadataQueryMaxSize = 5000;
 
     public String getUser() {
         return user;
@@ -153,5 +154,13 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
 
     public void setConcurrentRequests(int concurrentRequests) {
         this.concurrentRequests = concurrentRequests == 0 ? 2 : concurrentRequests;
+    }
+
+    public int getMetadataQueryMaxSize() {
+        return metadataQueryMaxSize;
+    }
+
+    public void setMetadataQueryMaxSize(int metadataQueryMaxSize) {
+        this.metadataQueryMaxSize = metadataQueryMaxSize;
     }
 }
