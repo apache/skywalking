@@ -41,9 +41,10 @@ public class ServiceMetaInfo {
 
     @Setter
     @Getter
+    @RequiredArgsConstructor
     public static class KeyValue {
-        private String key;
-        private String value;
+        private final String key;
+        private final String value;
     }
 
     @Override public boolean equals(Object o) {

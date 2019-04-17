@@ -18,18 +18,42 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import com.google.protobuf.*;
-import io.envoyproxy.envoy.api.v2.core.*;
-import io.envoyproxy.envoy.data.accesslog.v2.*;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.protobuf.Duration;
+import com.google.protobuf.Timestamp;
+import io.envoyproxy.envoy.api.v2.core.Address;
+import io.envoyproxy.envoy.api.v2.core.Node;
+import io.envoyproxy.envoy.api.v2.core.SocketAddress;
+import io.envoyproxy.envoy.data.accesslog.v2.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v2.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v2.HTTPRequestProperties;
+import io.envoyproxy.envoy.data.accesslog.v2.HTTPResponseProperties;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
-import java.time.Instant;
-import java.util.*;
+import io.kubernetes.client.ApiClient;
+import io.kubernetes.client.ApiException;
+import io.kubernetes.client.Configuration;
+import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.apis.ExtensionsV1beta1Api;
+import io.kubernetes.client.models.V1ObjectMeta;
+import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.models.V1PodList;
+import io.kubernetes.client.util.Config;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.apm.network.servicemesh.Protocol;
+import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Analysis log based on ingress and mesh scenarios.
@@ -39,12 +63,76 @@ import org.slf4j.*;
 public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     private static final Logger logger = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
 
+    private final AtomicReference<Map<String, ServiceMetaInfo>> ipServiceMap = new AtomicReference<>();
+
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
+            .setNameFormat("load-pod-%d").setDaemon(true).build());
+
     @Override public String name() {
         return "k8s-mesh";
     }
 
     @Override public void init(EnvoyMetricReceiverConfig config) {
-        //TODO: Start k8s metadata query timer.
+        executorService.scheduleAtFixedRate(() -> {
+            try {
+                loadPodInfo();
+            } catch (Throwable th) {
+                logger.error("run load pod error", th);
+            }
+        }, 0,15, TimeUnit.SECONDS);
+    }
+
+    private void loadPodInfo() {
+        ApiClient client;
+        try {
+            client = Config.defaultClient();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        client.getHttpClient().setReadTimeout(20, TimeUnit.SECONDS);
+        Configuration.setDefaultApiClient(client);
+        CoreV1Api api = new CoreV1Api();
+        V1PodList list;
+        try {
+            list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        Map<String, ServiceMetaInfo> ipMap = new HashMap<>(list.getItems().size());
+        long startTime = System.nanoTime();
+        for (V1Pod item : list.getItems()) {
+            ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
+        }
+        logger.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
+        ipServiceMap.set(ipMap);
+    }
+
+    private ServiceMetaInfo createServiceMetaInfo(final V1ObjectMeta podMeta) {
+        ExtensionsV1beta1Api extensionsApi = new ExtensionsV1beta1Api();
+        DependencyResource dr = new DependencyResource(podMeta);
+        DependencyResource meta = dr
+                .getOwnerResource("ReplicaSet", ownerReference ->
+                        extensionsApi.readNamespacedReplicaSet(ownerReference.getName(), podMeta.getNamespace(),
+                "", true, true).getMetadata())
+                .getOwnerResource("Deployment", ownerReference ->
+                        extensionsApi.readNamespacedDeployment(ownerReference.getName(), podMeta.getNamespace(),
+                        "", true, true).getMetadata());
+        ServiceMetaInfo result = new ServiceMetaInfo();
+        result.setServiceName(String.format("%s.%s", meta.getMetadata().getName(), meta.getMetadata().getNamespace()));
+        result.setServiceInstanceName(String.format("%s.%s", podMeta.getName(), podMeta.getNamespace()));
+        result.setTags(transformLabelsToTags(meta.getMetadata().getLabels()));
+        return result;
+    }
+
+    private List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final Map<String, String> labels) {
+        if (labels == null || labels.size() < 1) {
+            return Collections.emptyList();
+        }
+        List<ServiceMetaInfo.KeyValue> result = new ArrayList<>(labels.size());
+        for (Map.Entry<String, String> each : labels.entrySet()) {
+            result.add(new ServiceMetaInfo.KeyValue(each.getKey(), each.getValue()));
+        }
+        return result;
     }
 
     @Override public List<Source> analysis(StreamAccessLogsMessage.Identifier identifier,
@@ -254,11 +342,17 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
      * @return found service info, or {@link ServiceMetaInfo#UNKNOWN} to represent not found.
      */
     protected ServiceMetaInfo find(String ip, int port) {
-        //TODO: go through API server to get target service info
-        // If can't get service or service instance name, set `UNKNOWN` string.
-        // Service instance name is pod name
-        // Service name should be deployment name
-        throw new UnsupportedOperationException("TODO");
+        ServiceMetaInfo result = new ServiceMetaInfo();
+        result.setServiceName("UNKNOWN");
+        result.setServiceInstanceName("UNKNOWN");
+        Map<String, ServiceMetaInfo> map = ipServiceMap.get();
+        if (map == null) {
+            return result;
+        }
+        if (map.containsKey(ip)) {
+            return map.get(ip);
+        }
+        return result;
     }
 
     protected void forward(ServiceMeshMetric metric) {
