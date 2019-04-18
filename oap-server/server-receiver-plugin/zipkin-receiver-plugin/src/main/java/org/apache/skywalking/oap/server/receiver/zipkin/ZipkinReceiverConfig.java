@@ -18,57 +18,20 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author wusheng
  */
+@Setter
+@Getter
 public class ZipkinReceiverConfig extends ModuleConfig {
     private String host;
     private int port;
     private String contextPath;
-
     private int expireTime = 20;
-
     private int maxCacheSize = 1_000_000;
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
-
-    public int getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(int expireTime) {
-        this.expireTime = expireTime;
-    }
-
-    public int getMaxCacheSize() {
-        return maxCacheSize;
-    }
-
-    public void setMaxCacheSize(int maxCacheSize) {
-        this.maxCacheSize = maxCacheSize;
-    }
+    private boolean needAnalysis = false;
+    private boolean registerZipkinEndpoint = true;
 }

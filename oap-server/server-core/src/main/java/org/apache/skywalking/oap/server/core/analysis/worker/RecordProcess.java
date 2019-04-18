@@ -21,10 +21,10 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -36,13 +36,21 @@ public enum RecordProcess {
     private Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
 
     public void in(Record record) {
-        workers.get(record.getClass()).in(record);
+        RecordPersistentWorker worker = workers.get(record.getClass());
+        if (worker != null) {
+            worker.in(record);
+        }
     }
 
     @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void create(ModuleManager moduleManager, Class<? extends Record> recordClass) {
         String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
+
+        if (DisableRegister.INSTANCE.include(modelName)) {
+            return;
+        }
+
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(recordClass);
 
         StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
@@ -50,12 +58,10 @@ public enum RecordProcess {
         try {
             recordDAO = storageDAO.newRecordDao(builderClass.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("");
+            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " record DAO failure.", e);
         }
 
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, recordDAO);
-        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleManager, modelName, 1000, recordDAO);
         persistentWorkers.add(persistentWorker);
         workers.put(recordClass, persistentWorker);
     }

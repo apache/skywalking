@@ -57,6 +57,7 @@ Component-Server-Mappings:
   StackExchange.Redis: Redis
   Redisson: Redis
   Lettuce: Redis
+  Zookeeper: Zookeeper
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql

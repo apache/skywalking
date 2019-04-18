@@ -84,29 +84,8 @@ public class TopologyQueryService implements Service {
         List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(step, startTB, endTB);
         List<Call> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(step, startTB, endTB);
 
-        List<org.apache.skywalking.oap.server.core.query.entity.Service> serviceList = getMetadataQueryDAO().searchServices(startTimestamp, endTimestamp, Const.EMPTY_STRING);
-
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
         Topology topology = builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
-
-        serviceList.forEach(service -> {
-            boolean contains = false;
-            for (Node node : topology.getNodes()) {
-                if (service.getId() == node.getId()) {
-                    contains = true;
-                    break;
-                }
-            }
-
-            if (!contains) {
-                Node newNode = new Node();
-                newNode.setId(service.getId());
-                newNode.setName(service.getName());
-                newNode.setReal(true);
-                newNode.setType(Const.UNKNOWN);
-                topology.getNodes().add(newNode);
-            }
-        });
 
         return topology;
     }

@@ -27,4 +27,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 class ClusterModuleConsulConfig extends ModuleConfig {
     @Setter @Getter private String serviceName;
     @Setter @Getter private String hostPort;
+    @Setter @Getter private String internalComHost;
+    @Setter @Getter private int internalComPort = -1;
 }

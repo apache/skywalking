@@ -28,6 +28,7 @@
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
+  * [Apache Dubbo](https://github.com/apache/incubator-dubbo) 2.7.0
   * [Motan](https://github.com/weibocom/motan) 0.2.x -> 1.1.0
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
   * [Apache ServiceComb Java Chassis](https://github.com/apache/incubator-servicecomb-java-chassis) 0.1 -> 0.5,1.0.x
@@ -50,6 +51,8 @@
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
+* Distributed Coordination
+  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.x (Optional² & Except 3.4.4)
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x
@@ -60,8 +63,11 @@
 * [Canal: Alibaba mysql database binlog incremental subscription & consumer components](https://github.com/alibaba/canal) 1.0.25 -> 1.1.2
 * JSON
   * [GSON](https://github.com/google/gson) 2.8.x (Optional²)
+* Vert.x Ecosystem
+  * Vert.x Eventbus 3.2+
+  * Vert.x Web 3.x
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
- go to [OpenSkywalking java plugin extension repository](https://github.com/OpenSkywalking/java-plugin-extensions) to get these.
+ go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
 
 ²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.

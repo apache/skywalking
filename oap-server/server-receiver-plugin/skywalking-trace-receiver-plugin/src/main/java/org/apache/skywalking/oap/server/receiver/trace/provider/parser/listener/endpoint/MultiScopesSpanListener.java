@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 
 import java.util.*;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
@@ -43,7 +43,7 @@ import static java.util.Objects.nonNull;
  *
  * @author peng-yongsheng, wusheng
  */
-public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener {
+public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiScopesSpanListener.class);
 
@@ -58,6 +58,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
     private final TraceServiceModuleConfig config;
     private SpanDecorator entrySpanDecorator;
     private long minuteTimeBucket;
+    private String traceId;
 
     private MultiScopesSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -68,10 +69,11 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         this.config = config;
+        this.traceId = null;
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.TraceIds.equals(point);
     }
 
     @Override
@@ -156,7 +158,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             statement.setDatabaseServiceId(sourceBuilder.getDestServiceId());
             statement.setLatency(sourceBuilder.getLatency());
             statement.setTimeBucket(TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime()));
-            statement.setTraceId(segmentCoreInfo.getSegmentId());
+            statement.setTraceId(traceId);
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     statement.setStatement(tag.getValue());
@@ -240,6 +242,20 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         });
 
         slowDatabaseAccesses.forEach(sourceReceiver::receive);
+    }
+
+    @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+        if (traceId == null) {
+            StringBuilder traceIdBuilder = new StringBuilder();
+            for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                if (i == 0) {
+                    traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
+                } else {
+                    traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
+                }
+            }
+            traceId = traceIdBuilder.toString();
+        }
     }
 
     public static class Factory implements SpanListenerFactory {

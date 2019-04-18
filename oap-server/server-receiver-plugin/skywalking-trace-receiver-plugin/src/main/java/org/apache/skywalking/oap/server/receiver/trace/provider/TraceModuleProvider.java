@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.TraceSegmentServletHandler;
@@ -62,15 +63,19 @@ public class TraceModuleProvider extends ModuleProvider {
         moduleConfig.setDbLatencyThresholds(new DBLatencyThresholds(moduleConfig.getSlowDBAccessThreshold()));
 
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
-        listenerManager.add(new MultiScopesSpanListener.Factory());
-        listenerManager.add(new ServiceMappingSpanListener.Factory());
+        if (moduleConfig.isTraceAnalysis()) {
+            listenerManager.add(new MultiScopesSpanListener.Factory());
+            listenerManager.add(new ServiceMappingSpanListener.Factory());
+        }
         listenerManager.add(new SegmentSpanListener.Factory(moduleConfig.getSampleRate()));
 
         segmentProducer = new SegmentParse.Producer(getManager(), listenerManager, moduleConfig);
 
         listenerManager = new SegmentParserListenerManager();
-        listenerManager.add(new MultiScopesSpanListener.Factory());
-        listenerManager.add(new ServiceMappingSpanListener.Factory());
+        if (moduleConfig.isTraceAnalysis()) {
+            listenerManager.add(new MultiScopesSpanListener.Factory());
+            listenerManager.add(new ServiceMappingSpanListener.Factory());
+        }
         listenerManager.add(new SegmentSpanListener.Factory(moduleConfig.getSampleRate()));
 
         segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager, moduleConfig);
@@ -79,8 +84,8 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ModuleStartException {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(JettyHandlerRegister.class);
         try {
 
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
@@ -106,6 +111,6 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME};
     }
 }

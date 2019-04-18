@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordTypeListener;
 import org.apache.skywalking.oap.server.core.analysis.topn.annotation.TopNTypeListener;
@@ -39,6 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
+import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -85,7 +87,17 @@ public class CoreModuleProvider extends ModuleProvider {
         return moduleConfig;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException {
+    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        AnnotationScan scopeScan = new AnnotationScan();
+        scopeScan.registerListener(new DefaultScopeDefine.Listener());
+        scopeScan.registerListener(DisableRegister.INSTANCE);
+        scopeScan.registerListener(new DisableRegister.SingleDisableScanListener());
+        try {
+            scopeScan.scan(null);
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+
         grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
         if (moduleConfig.getMaxConcurrentCallsPerConnection() > 0) {
             grpcServer.setMaxConcurrentCallsPerConnection(moduleConfig.getMaxConcurrentCallsPerConnection());
@@ -95,9 +107,10 @@ public class CoreModuleProvider extends ModuleProvider {
         }
         grpcServer.initialize();
 
-        jettyServer = new JettyServer(moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath());
+        jettyServer = new JettyServer(moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath(), moduleConfig.getJettySelectors());
         jettyServer.initialize();
 
+        this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(DownsamplingConfigService.class, new DownsamplingConfigService(moduleConfig.getDownsampling()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
@@ -108,6 +121,10 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(SourceReceiver.class, receiver);
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
+
+        WorkerInstancesService instancesService = new WorkerInstancesService();
+        this.registerServiceImplementation(IWorkerInstanceGetter.class, instancesService);
+        this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
         this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
@@ -128,6 +145,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
         this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
+        this.registerServiceImplementation(LogQueryService.class, new LogQueryService(getManager()));
         this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
@@ -168,8 +186,10 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
-        this.getManager().find(ClusterModule.NAME).provider().getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
+        if (CoreModuleConfig.Role.Mixed.name().equalsIgnoreCase(moduleConfig.getRole()) || CoreModuleConfig.Role.Aggregator.name().equalsIgnoreCase(moduleConfig.getRole())) {
+            RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
+            this.getManager().find(ClusterModule.NAME).provider().getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
+        }
 
         PersistenceTimer.INSTANCE.start(getManager());
 

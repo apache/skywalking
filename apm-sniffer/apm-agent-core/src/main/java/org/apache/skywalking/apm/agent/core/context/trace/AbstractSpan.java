@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.AsyncSpan;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -28,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  *
  * @author wusheng
  */
-public interface AbstractSpan {
+public interface AbstractSpan extends AsyncSpan {
     /**
      * Set the component id, which defines in {@link ComponentsDefine}
      *
@@ -38,8 +39,8 @@ public interface AbstractSpan {
     AbstractSpan setComponent(Component component);
 
     /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It it higher recommend
-     * don't use this for performance consideration.
+     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It is highly recommended
+     * not to use this method for performance reasons.
      *
      * @param componentName
      * @return the span for chaining.
@@ -126,5 +127,7 @@ public interface AbstractSpan {
      */
     void ref(TraceSegmentRef ref);
 
-    AbstractSpan start(long starttime);
+    AbstractSpan start(long startTime);
+
+    AbstractSpan setPeer(String remotePeer);
 }

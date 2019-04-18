@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This is the core config in sniffer agent.
  *
@@ -37,7 +40,7 @@ public class Config {
         public static String NAMESPACE = "";
 
         /**
-         * Application code is showed in skywalking-ui. Suggestion: set a unique name for each service,
+         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
          * service instance nodes share the same code
          */
         public static String SERVICE_NAME = "";
@@ -80,6 +83,11 @@ public class Config {
          * Deactive V1 header in default
          */
         public static boolean ACTIVE_V1_HEADER = false;
+
+        /**
+         * The identify of the instance
+         */
+        public static String INSTANCE_UUID = "";
     }
 
     public static class Collector {
@@ -157,6 +165,33 @@ public class Config {
              * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
              */
             public static boolean TRACE_DSL = false;
+        }
+
+        public static class Customize {
+            /**
+             * Custom enhancement class configuration file path, recommended to use an absolute path.
+             */
+            public static String ENHANCE_FILE = "";
+
+            /**
+             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+             * And using Map CONTEXT for avoiding classloader isolation issue.
+             */
+            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+        }
+
+        public static class SpringMVC {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+        }
+
+        public static class Toolkit {
+            /**
+             * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
     }
 }

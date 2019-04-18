@@ -8,7 +8,7 @@ Setup based on which kind of probes are you going to use. If you don't understan
 ## Download official releases
 - Backend, UI and Java agent are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
 
-## Language agents in Service 
+## Language agents in Service
 
 - [Java agent](service-agent/java-agent/README.md). Introduce how to install java agent to your service, without change any codes.
 
@@ -18,10 +18,13 @@ You could go to their project repositories to find out the releases and how to u
 - [SkyAPM Node.js agent](https://github.com/SkyAPM/SkyAPM-nodejs). See Node.js server side agent project document for more details.
 - [SkyAPM PHP SDK](https://github.com/SkyAPM/SkyAPM-php-sdk). See PHP agent project document for more details.
 
-## On Service Mesh
+## Service Mesh
   - Istio
     - [SkyWalking on Istio](istio/README.md). Introduce how to use Istio Mixer bypass Adapter to work with SkyWalking.
-    
+
+## Proxy
+  - [Envoy Proxy](https://www.envoyproxy.io/)
+    - [Sending metrics to Skywalking from Envoy](envoy/README.md). How to send metrics from Envoy to SkyWalking using [Metrics service](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/metrics/v2/metrics_service.proto.html).
 
 ## Setup backend
 Follow [backend and UI setup document](backend/backend-ui-setup.md) to understand and config the backend for different

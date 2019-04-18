@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.*;
 import org.slf4j.*;
 
@@ -56,8 +55,8 @@ public class RegisterLockInstaller {
             }
 
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                Scope sourceScope = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(sourceScope.ordinal());
+                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                putIfAbsent(sourceScopeId);
             }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
@@ -69,22 +68,24 @@ public class RegisterLockInstaller {
     }
 
     private void createIndex() throws IOException {
-        Settings settings = Settings.builder()
-            .put("index.number_of_shards", 1)
-            .put("index.number_of_replicas", 0)
-            .put("index.refresh_interval", "1s")
-            .build();
+        JsonObject settings = new JsonObject();
+        settings.addProperty("index.number_of_shards", 1);
+        settings.addProperty("index.number_of_replicas", 0);
+        settings.addProperty("index.refresh_interval", "1s");
 
-        XContentBuilder source = XContentFactory.jsonBuilder()
-            .startObject()
-            .startObject("properties")
-            .startObject(RegisterLockIndex.COLUMN_SEQUENCE)
-            .field("type", "integer")
-            .endObject()
-            .endObject()
-            .endObject();
+        JsonObject mapping = new JsonObject();
+        mapping.add(ElasticSearchClient.TYPE, new JsonObject());
 
-        client.createIndex(RegisterLockIndex.NAME, settings, source);
+        JsonObject type = mapping.get(ElasticSearchClient.TYPE).getAsJsonObject();
+
+        JsonObject properties = new JsonObject();
+        type.add("properties", properties);
+
+        JsonObject column = new JsonObject();
+        column.addProperty("type", "integer");
+        properties.add(RegisterLockIndex.COLUMN_SEQUENCE, column);
+
+        client.createIndex(RegisterLockIndex.NAME, settings, mapping);
     }
 
     private void putIfAbsent(int scopeId) throws IOException {

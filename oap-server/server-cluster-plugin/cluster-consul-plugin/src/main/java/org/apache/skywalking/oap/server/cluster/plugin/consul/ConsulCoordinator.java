@@ -35,11 +35,13 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final Consul client;
     private final String serviceName;
+    private final ClusterModuleConsulConfig config;
     private volatile Address selfAddress;
 
-    public ConsulCoordinator(Consul client, String serviceName) {
+    public ConsulCoordinator(ClusterModuleConsulConfig config, Consul client) {
+        this.config = config;
         this.client = client;
-        this.serviceName = serviceName;
+        this.serviceName = config.getServiceName();
     }
 
     @Override public List<RemoteInstance> queryRemoteNodes() {
@@ -66,6 +68,10 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
     }
 
     @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
+        if (needUsingInternalAddr()) {
+            remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
+        }
+
         AgentClient agentClient = client.agentClient();
 
         this.selfAddress = remoteInstance.getAddress();
@@ -80,5 +86,9 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
             .build();
 
         agentClient.register(registration);
+    }
+
+    private boolean needUsingInternalAddr() {
+        return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
     }
 }

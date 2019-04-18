@@ -19,16 +19,17 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = SEGMENT, name = "Segment")
 public class Segment extends Source {
 
-    @Override public Scope scope() {
-        return Scope.Segment;
+    @Override public int scope() {
+        return DefaultScopeDefine.SEGMENT;
     }
 
     @Override public String getEntityId() {
@@ -38,6 +39,7 @@ public class Segment extends Source {
     @Setter @Getter private String segmentId;
     @Setter @Getter private String traceId;
     @Setter @Getter private int serviceId;
+    @Setter @Getter private int serviceInstanceId;
     @Setter @Getter private String endpointName;
     @Setter @Getter private int endpointId;
     @Setter @Getter private long startTime;

@@ -41,8 +41,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int endpointId, String traceId, int limit, int from, TraceState traceState,
-        QueryOrder queryOrder) throws IOException {
+        String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
+        TraceState traceState, QueryOrder queryOrder) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 
@@ -70,6 +70,10 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         if (serviceId != 0) {
             sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
+        }
+        if (serviceInstanceId != 0) {
+            sql.append(" and ").append(SegmentRecord.SERVICE_INSTANCE_ID).append(" = ?");
+            parameters.add(serviceInstanceId);
         }
         if (endpointId != 0) {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_ID).append(" = ?");
@@ -99,7 +103,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         TraceBrief traceBrief = new TraceBrief();
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, buildCountStatement(sql.toString()), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
@@ -126,6 +130,10 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         }
 
         return traceBrief;
+    }
+
+    protected String buildCountStatement(String sql) {
+        return "select count(1) total from (select 1 " + sql + " )";
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
@@ -160,6 +168,10 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             throw new IOException(e);
         }
         return segmentRecords;
+    }
+
+    @Override public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
+        return Collections.emptyList();
     }
 
     protected JDBCHikariCPClient getClient() {

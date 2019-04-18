@@ -100,7 +100,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>envoy-metrics-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>zipkin-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-clr-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->
@@ -114,6 +124,16 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-elasticsearch-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-zipkin-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>jaeger-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->
@@ -137,6 +157,13 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>telemetry-prometheus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -169,6 +196,7 @@
                         <exclude>alarm-settings.yml</exclude>
                         <exclude>component-libraries.yml</exclude>
                         <exclude>datasource-settings.properties</exclude>
+                        <exclude>endpoint_naming_rules.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>

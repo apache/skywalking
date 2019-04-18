@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -33,7 +33,9 @@ import org.slf4j.*;
  * @author wusheng
  */
 public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<TopN>> {
+
     private static final Logger logger = LoggerFactory.getLogger(TopNWorker.class);
+
     private final LimitedSizeDataCache<TopN> limitedSizeDataCache;
     private final IRecordDAO recordDAO;
     private final String modelName;
@@ -41,14 +43,13 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     private long reportCycle;
     private volatile long lastReportTimestamp;
 
-    public TopNWorker(int workerId, String modelName, ModuleManager moduleManager,
-        int topNSize,
-        IRecordDAO recordDAO) {
-        super(moduleManager, workerId, -1);
+    public TopNWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
+        int topNSize, IRecordDAO recordDAO) {
+        super(moduleDefineHolder, -1);
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
         this.modelName = modelName;
-        this.dataCarrier = new DataCarrier<>(1, 10000);
+        this.dataCarrier = new DataCarrier<>("TopNWorker", 1, 1000);
         this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
         this.lastReportTimestamp = System.currentTimeMillis();
         // Top N persistent only works per 10 minutes.

@@ -14,23 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8-jre-alpine
+FROM openjdk:8u181-jdk-stretch
 
 ENV DIST_NAME=apache-skywalking-apm-incubating-bin \
-    JAVA_OPTS=" -Xms256M -Xmx512M"
-
-# Install required packages
-RUN apk add --no-cache \
-    bash
+    JAVA_OPTS=" -Xms256M "
 
 COPY "$DIST_NAME.tar.gz" /
 
 RUN set -ex; \
     tar -xzf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME.tar.gz"; rm -rf "$DIST_NAME/config/log4j2.xml"; \
-    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent";
+    rm -rf "$DIST_NAME.tar.gz"; \
+    rm -rf "$DIST_NAME/config/log4j2.xml"; \
+    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent"; \
+    mv "$DIST_NAME" skywalking;
 
-WORKDIR $DIST_NAME
+WORKDIR skywalking
 
 COPY log4j2.xml config/
 COPY docker-entrypoint.sh .

@@ -5,7 +5,7 @@ ways to do so. But ultimately they are same, just collect and reformat data, the
 
 In high level, there are three typical groups in all SkyWalking probes.
 - **Language based native agent**. This kind of agents runs in target service user space, like a part of user codes. Such as
-SkyWalking Java agent, use `-javaagent` commend line argument to manipulate codes in runtime, `manipulate` means change and inject
+SkyWalking Java agent, use `-javaagent` command line argument to manipulate codes in runtime, `manipulate` means change and inject
 user's codes. Another kind of agents is using some hook or intercept mechanism provided by target libraries. So you can see, these kinds
 of agents based on languages and libraries.
  
@@ -14,7 +14,7 @@ is only used as ingress of the whole cluster, but with the Service Mesh and side
  
 - **3rd-party instrument library**. SkyWalking accepts other popular used instrument libraries data format. It analysis the
 data, transfer it to SkyWalking formats of trace, metric or both. This feature starts with accepting Zipkin span data. See
-[Receiver for other tracers](trace-receiver.md) to know more. 
+[Receiver for other tracers](../setup/backend/backend-receivers.md) to know more. 
 
 You don't need to use **Language based native agent** and **Service Mesh probe** at the same time, because they both collect
 metric data. As a result of that, your system suffers twice payloads, and the analytic numbers are doubled.

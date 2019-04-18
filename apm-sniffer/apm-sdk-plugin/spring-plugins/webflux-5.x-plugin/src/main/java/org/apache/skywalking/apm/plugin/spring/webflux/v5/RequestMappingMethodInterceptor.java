@@ -15,14 +15,13 @@
  *  limitations under the License.
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
 import java.lang.reflect.Method;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value. it will inteceptor with
+ * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value. it will interceptor with
  * <code>@RequestMapping</code>
  *
  * @author clevertension
@@ -38,5 +37,22 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
             requestURL = methodRequestMapping.path()[0];
         }
         return requestURL;
+    }
+
+    @Override
+    public String getAcceptedMethodTypes(Method method) {
+        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+        StringBuilder methodTypes = new StringBuilder();
+        if (methodRequestMapping.method().length > 0) {
+            methodTypes.append("{");
+            for (int i = 0; i < methodRequestMapping.method().length; i++) {
+                methodTypes.append(methodRequestMapping.method()[i].toString());
+                if (methodRequestMapping.method().length > (i + 1)) {
+                    methodTypes.append(",");
+                }
+            }
+            methodTypes.append("}");
+        }
+        return methodTypes.toString();
     }
 }

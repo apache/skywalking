@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 
 /**
  * @author wusheng
@@ -78,7 +79,7 @@ public class ServiceMeshMetricDataDecorator {
             destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
                 .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin.getDestServiceInstance(),
                     origin.getEndTime(),
-                    getOSInfoForMesh(origin.getSourceServiceInstance()));
+                    getOSInfoForMesh(origin.getDestServiceInstance()));
             if (destServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceInstanceId(destServiceInstanceId);
             } else {
