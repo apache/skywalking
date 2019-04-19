@@ -48,9 +48,5 @@ public abstract class CPMIndicator extends Indicator implements LongValueHolder 
     @Override public void calculate() {
         this.value = total / getDurationInMinute();
     }
-
-    @Override public long getValue() {
-        return value;
-    }
 }
 

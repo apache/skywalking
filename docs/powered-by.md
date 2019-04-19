@@ -7,6 +7,7 @@ or providing commercial products including Apache SkyWalking.
 1. 4399.com 四三九九网络股份有限公司. http://www.4399.com/
 1. 51mydao.com 买道传感科技（上海）有限公司 https://www.51mydao.com/
 1. 5i5j. 上海我爱我家房地产经纪有限公司 https://sh.5i5j.com/about/
+1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
 1. Alibaba Cloud, 阿里云, http://aliyun.com 
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
@@ -15,6 +16,7 @@ or providing commercial products including Apache SkyWalking.
 1. hellobanma 斑马网络 https://www.hellobanma.com/
 1. bestsign. 上上签. https://www.bestsign.cn/page/
 1. Bizsaas.cn 北京商云科技发展有限公司. http://www.bizsaas.cn/
+1. Cdlhyj.com 六合远教（成都）科技有限公司 http://www.cdlhyj.com
 1. China Eastern Airlines 中国东方航空. http://www.ceair.com/
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
@@ -33,8 +35,9 @@ or providing commercial products including Apache SkyWalking.
 1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
 1. Haier. 海尔消费金融 https://www.haiercash.com/
 1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
-1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
+1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
+1. hunliji.com 婚礼纪 https://www.hunliji.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
 1. Ke.com. 贝壳找房. https://www.ke.com
 1. Keking.cn 凯京集团. http://www.keking.cn
@@ -57,6 +60,7 @@ or providing commercial products including Apache SkyWalking.
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
+1. Sinolink Securities Co.,Ltd. 国金证券佣金宝 http://www.yongjinbao.com.cn/
 1. Source++ https://sourceplusplus.com
 1. StartDT 奇点云 https://www.startdt.com/
 1. Successchannel 苏州渠成易销网络科技有限公司. http://www.successchannel.com
@@ -64,8 +68,10 @@ or providing commercial products including Apache SkyWalking.
 1. Today36524.com Today便利店
 1. Tools information technology co. LTD 杭州图尔兹信息技术有限公司 http://bintools.cn/
 1. Tsfinance.com 重庆宜迅联供应链科技有限公司 https://www.tsfinance.com.cn/
+1. tuhu.cn 途虎养车 https://www.tuhu.cn
 1. Tuya. 涂鸦智能. https://www.tuya.com
 1. VBill Payment Co., LTD. 随行付. https://www.vbill.cn/
+1. WeBank. 微众银行 http://www.webank.com
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 1. Wochu. 我厨买菜. https://www.wochu.cn
 1. Xiaomi. 小米. https://www.mi.com/en/
@@ -73,6 +79,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
+
 
 # User Cases
 ## Alibaba Cloud
@@ -97,12 +104,12 @@ Use multiple language agents from SkyWalking and its ecosystem, including SkyWal
 ## Primeton
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
 
-## Tetrate
-Tetrate provides enterprise level service mesh. SkyWalking acts as the core observability platform for hybrid
-enterprise service mesh environment.
-
 ## Qiniu Cloud
 Provide a customized version SkyWalking agent. It could provide distributed tracing and integrated in its intelligence log management platform.
 
 ## Source++
 An open-source observant programming assistant which aims to bridge APM tools with the developer's IDE to enable tighter feedback loops. Source++ uses SkyWalking as the defacto APM for JVM-based applications.
+
+## Tetrate
+Tetrate provides enterprise level service mesh. SkyWalking acts as the core observability platform for hybrid
+enterprise service mesh environment.
