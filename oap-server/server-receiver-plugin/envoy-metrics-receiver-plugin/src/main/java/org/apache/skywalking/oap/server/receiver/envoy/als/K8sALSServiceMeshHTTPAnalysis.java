@@ -34,6 +34,7 @@ import io.kubernetes.client.Configuration;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.models.V1ObjectMeta;
+import io.kubernetes.client.models.V1OwnerReference;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1PodList;
 import io.kubernetes.client.util.Config;
@@ -108,14 +109,16 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
         DependencyResource meta = dr
                 .getOwnerResource("ReplicaSet", ownerReference ->
                         extensionsApi.readNamespacedReplicaSet(ownerReference.getName(), podMeta.getNamespace(),
-                "", true, true).getMetadata())
-                .getOwnerResource("Deployment", ownerReference ->
-                        extensionsApi.readNamespacedDeployment(ownerReference.getName(), podMeta.getNamespace(),
-                        "", true, true).getMetadata());
+                "", true, true).getMetadata());
         ServiceMetaInfo result = new ServiceMetaInfo();
-        result.setServiceName(String.format("%s.%s", meta.getMetadata().getName(), meta.getMetadata().getNamespace()));
+        if (meta.getMetadata().getOwnerReferences() != null && meta.getMetadata().getOwnerReferences().size() > 0) {
+            V1OwnerReference owner = meta.getMetadata().getOwnerReferences().get(0);
+            result.setServiceName(String.format("%s.%s", owner.getName(), meta.getMetadata().getNamespace()));
+        } else {
+            result.setServiceName(String.format("%s.%s", meta.getMetadata().getName(), meta.getMetadata().getNamespace()));
+        }
         result.setServiceInstanceName(String.format("%s.%s", podMeta.getName(), podMeta.getNamespace()));
-        result.setTags(transformLabelsToTags(meta.getMetadata().getLabels()));
+        result.setTags(transformLabelsToTags(podMeta.getLabels()));
         return result;
     }
 
