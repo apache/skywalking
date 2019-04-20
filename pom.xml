@@ -40,18 +40,18 @@
     <packaging>pom</packaging>
 
     <name>apm</name>
-    <url>https://github.com/apache/incubator-skywalking</url>
+    <url>https://github.com/apache/skywalking</url>
 
     <scm>
-        <url>https://github.com/apache/incubator-skywalking</url>
-        <connection>scm:git:https://github.com/apache/incubator-skywalking.git</connection>
-        <developerConnection>scm:git:https://github.com/apache/incubator-skywalking.git</developerConnection>
+        <url>https://github.com/apache/skywalking</url>
+        <connection>scm:git:https://github.com/apache/skywalking.git</connection>
+        <developerConnection>scm:git:https://github.com/apache/skywalking.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/apache/incubator-skywalking/issues</url>
+        <url>https://github.com/apache/skywalking/issues</url>
     </issueManagement>
 
     <licenses>
@@ -64,15 +64,15 @@
     <mailingLists>
         <mailingList>
             <name>SkyWalking Developer List</name>
-            <post>dev@skywalking.incubator.apache.org</post>
-            <subscribe>dev-subscribe@skywalking.incubator.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
+            <post>dev@skywalking.apache.org</post>
+            <subscribe>dev-subscribe@skywalking.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@skywalking.apache.org</unsubscribe>
         </mailingList>
         <mailingList>
             <name>SkyWalking Commits</name>
-            <post>commits@skywalking.incubator.apache.org</post>
-            <subscribe>commits-subscribe@skywalking.incubator.apache.org</subscribe>
-            <unsubscribe>commits-unsubscribe@skywalking.incubator.apache.org</unsubscribe>
+            <post>commits@skywalking.apache.org</post>
+            <subscribe>commits-subscribe@skywalking.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@skywalking.apache.org</unsubscribe>
         </mailingList>
     </mailingLists>
 
@@ -304,7 +304,6 @@
                 <configuration>
                     <excludes>
                         <exclude>**/target/**</exclude>
-                        <exclude>**/DISCLAIMER</exclude>
                         <exclude>**/licenses/**</exclude>
                         <exclude>**/ui-licenses/**</exclude>
                         <exclude>**/codeStyle.xml</exclude>
@@ -463,7 +462,7 @@
                     <dependency>
                         <groupId>org.apache.skywalking</groupId>
                         <artifactId>apm-checkstyle</artifactId>
-                        <version>5.0.0-beta</version>
+                        <version>6.0.0-GA</version>
                     </dependency>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>

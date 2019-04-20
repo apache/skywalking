@@ -16,7 +16,7 @@
 
 FROM openjdk:8u181-jdk-stretch
 
-ENV DIST_NAME=apache-skywalking-apm-incubating-bin \
+ENV DIST_NAME=apache-skywalking-apm-bin \
     JAVA_OPTS=" -Xms256M "
 
 COPY "$DIST_NAME.tar.gz" /
