@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  *
- * {@link ExecutorBizInstrumentation} presents that skywalking intercepts {@link com.xxl.job.core.biz.impl.ExecutorBizImpl}.
+ * {@link ExecutorBizInstrumentation} presents that skywalking intercepts {@link com.xxl.job.core.biz.ExecutorBiz}.
  *
  * @author tianjunwei
  * 2019/4/21 10:57
