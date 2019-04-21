@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 
 /**
  * Created by dengming, 2019.04.20
