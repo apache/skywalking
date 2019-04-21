@@ -18,12 +18,12 @@ export DOCKER_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 oap: 
 	cd $(DOCKER_ROOT)/oap; \
-	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./ ; \
+	cp ../../dist/apache-skywalking-apm-bin.tar.gz ./ ; \
 	docker build -t skywalking/oap:latest .
 
 ui:
 	cd $(DOCKER_ROOT)/ui; \
-	cp ../../dist/apache-skywalking-apm-incubating-bin.tar.gz ./ ; \
+	cp ../../dist/apache-skywalking-apm-bin.tar.gz ./ ; \
 	docker build -t skywalking/ui:latest .
 
 build: oap ui
