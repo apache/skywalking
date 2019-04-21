@@ -116,6 +116,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
+    public static final OfficialComponent XXL_JOB =  new OfficialComponent(60, "XXLJOB");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
