@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
+import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
 
 /**
  * Created by dengming, 2019.04.20
  */
-public class MockIntValueIndicatior extends MockIndicator implements LongValueHolder {
+public class MockIntValueIndicatior extends MockIndicator implements IntValueHolder {
     @Override
-    public long getValue() {
-        return 1234567891234563312L;
+    public int getValue() {
+        return 12;
     }
 }
