@@ -22,14 +22,14 @@ for us to fix.
 
 ## How to report a bug?
 
-* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/apache/incubator-skywalking/issues).
+* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/apache/skywalking/issues).
 
-* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/apache/incubator-skywalking/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
+* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/apache/skywalking/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
 
 
 ## How to add a new feature or change an existing one
 
-_Before making any significant changes, please [open an issue](https://github.com/apache/incubator-skywalking/issues)._ Discussing your proposed changes ahead of time will make the contribution process smooth for everyone.
+_Before making any significant changes, please [open an issue](https://github.com/apache/skywalking/issues)._ Discussing your proposed changes ahead of time will make the contribution process smooth for everyone.
 
 Once we've discussed your changes and you've got your code ready, make sure that tests are passing and open your pull request. Your PR is most likely to be accepted if it:
 
@@ -40,4 +40,4 @@ Once we've discussed your changes and you've got your code ready, make sure that
 
 ## Do you have questions about the source code?
 
-Ask any question about how to use SkyWalking in the [Gitter](https://gitter.im/OpenSkywalking/Lobby).
+* Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNDQ3OTEwNzE1MDg5LWY2NjkwMTEzMGI2ZTI1NzUzMDk0MzJmMWM1NWVmODg0MzBjNjAxYzUwMjIwNDI3MjlhZWRjNmNhOTM5NmIxNDk)

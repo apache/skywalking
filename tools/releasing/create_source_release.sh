@@ -25,7 +25,7 @@
 
 RELEASE_VERSION=${RELEASE_VERSION}
 TAG_NAME=v${RELEASE_VERSION}
-PRODUCT_NAME="apache-skywalking-apm-incubating"
+PRODUCT_NAME="apache-skywalking-apm"
 
 echo "Release version "${RELEASE_VERSION}
 echo "Source tag "${TAG_NAME}
