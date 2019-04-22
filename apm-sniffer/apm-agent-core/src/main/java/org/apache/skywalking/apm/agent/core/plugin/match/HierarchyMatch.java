@@ -19,17 +19,15 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.description.type.TypeList;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.hasSuperType;
-import static net.bytebuddy.matcher.ElementMatchers.isInterface;
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.not;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
  * Match the class by the given super class or interfaces.
@@ -38,12 +36,14 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  */
 public class HierarchyMatch implements IndirectMatch {
     private String[] parentTypes;
+    private String[] skipTypes;
 
-    private HierarchyMatch(String[] parentTypes) {
+    private HierarchyMatch(String[] parentTypes, String[] skipTypes) {
         if (parentTypes == null || parentTypes.length == 0) {
             throw new IllegalArgumentException("parentTypes is null");
         }
         this.parentTypes = parentTypes;
+        this.skipTypes = skipTypes;
     }
 
     @Override
@@ -66,6 +66,15 @@ public class HierarchyMatch implements IndirectMatch {
 
     @Override
     public boolean isMatch(TypeDescription typeDescription) {
+        if (skipTypes != null) {
+            List<String> skipTypes = new ArrayList<String>(Arrays.asList(this.skipTypes));
+            for (String skipType : skipTypes) {
+                if (skipType.equals(typeDescription.getName())) {
+                    return false;
+                }
+            }
+        }
+
         List<String> parentTypes = new ArrayList<String>(Arrays.asList(this.parentTypes));
 
         TypeList.Generic implInterfaces = typeDescription.getInterfaces();
@@ -102,6 +111,10 @@ public class HierarchyMatch implements IndirectMatch {
     }
 
     public static ClassMatch byHierarchyMatch(String[] parentTypes) {
-        return new HierarchyMatch(parentTypes);
+        return byHierarchyMatch(parentTypes, null);
+    }
+
+    public static ClassMatch byHierarchyMatch(String[] parentTypes, String[] skipTypes) {
+        return new HierarchyMatch(parentTypes, skipTypes);
     }
 }

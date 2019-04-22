@@ -55,7 +55,9 @@ public class CallbackInstrumentation extends AbstractKafkaInstrumentation {
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(new String[] {ENHANCE_CLASS});
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byHierarchyMatch(new String[]{ENHANCE_CLASS},
+                new String[]{"org.apache.kafka.clients.producer.KafkaProducer$InterceptorCallback", "org.apache.kafka.clients.producer.internals.ErrorLoggingCallback"});
     }
 }
