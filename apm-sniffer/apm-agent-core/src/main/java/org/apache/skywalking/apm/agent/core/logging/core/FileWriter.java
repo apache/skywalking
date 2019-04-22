@@ -40,7 +40,7 @@ import org.apache.skywalking.apm.agent.core.conf.Constants;
  * @author wusheng
  */
 public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
-    private static FileWriter INSTANCE;
+    private static volatile FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
     private Disruptor<LogMessageHolder> disruptor;
     private RingBuffer<LogMessageHolder> buffer;
