@@ -3,6 +3,8 @@ sudo: required
 language: java
 
 install:
+install:
   - jdk_switcher use oraclejdk8
-  - ./mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report --quiet
+  - ./mvnw clean install -Dmaven.test.skip=true --quiet
   - ./mvnw javadoc:javadoc -Dmaven.test.skip=true --quiet
+  - ./mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report --quiet
