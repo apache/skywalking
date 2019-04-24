@@ -1,6 +1,3 @@
-[submodule "skywalking-ui"]
-	path = skywalking-ui
-	url = https://github.com/apache/incubator-skywalking-ui
 [submodule "apm-protocol/apm-network/src/main/proto"]
 	path = apm-protocol/apm-network/src/main/proto
 	url = https://github.com/apache/incubator-skywalking-data-collect-protocol.git
