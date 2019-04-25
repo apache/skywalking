@@ -25,9 +25,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  *
@@ -39,7 +39,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class ExecutorBizInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
 
-    private static final String ENHANCE_CLASS = "com.xxl.job.core.biz.impl.ExecutorBizImpl";
+    private static final String ENHANCE_CLASS = "com.xxl.job.core.handler.IJobHandler";
 
     private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.xxljob.ExecutorBizInterceptor";
 
@@ -54,7 +54,7 @@ public class ExecutorBizInstrumentation extends ClassInstanceMethodsEnhancePlugi
             new InstanceMethodsInterceptPoint() {
 
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return takesArgumentWithType(0, "com.xxl.job.core.biz.model.TriggerParam");
+                    return takesArgumentWithType(0, "java.lang.String");
                 }
 
                 @Override public String getMethodsInterceptor() { return JOB_EXECUTOR_INTERCEPTOR_CLASS; }
@@ -66,6 +66,6 @@ public class ExecutorBizInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return HierarchyMatch.byHierarchyMatch(new String[]{ENHANCE_CLASS});
     }
 }

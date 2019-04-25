@@ -43,7 +43,7 @@ public class Config {
          * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
          * service instance nodes share the same code
          */
-        public static String SERVICE_NAME = "";
+        public static String SERVICE_NAME = "xxljob";
 
         /**
          * Authentication active is based on backend setting, see application.yml for more details.
@@ -102,7 +102,7 @@ public class Config {
         /**
          * Collector skywalking trace receiver service addresses.
          */
-        public static String BACKEND_SERVICE = "";
+        public static String BACKEND_SERVICE = "test";
     }
 
     public static class Jvm {

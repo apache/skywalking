@@ -16,7 +16,6 @@ package org.apache.skywalking.apm.plugin.xxljob;/*
  *
  */
 
-import com.xxl.job.core.biz.model.TriggerParam;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -36,15 +35,12 @@ public class ExecutorBizInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        TriggerParam triggerParam = (TriggerParam)allArguments[0];
-        String operateName = triggerParam.getExecutorHandler();
-        if (triggerParam.getBroadcastTotal() != 0) {
-            operateName += "-" + triggerParam.getBroadcastIndex();
-        }
-        AbstractSpan span = ContextManager.createEntrySpan(operateName,null);
+        String triggerParam = (String) allArguments[0];
+        String operateName = "xxl-job";
+        AbstractSpan span;
+        span = ContextManager.createEntrySpan(operateName, null);
         span.setComponent(ComponentsDefine.XXL_JOB);
         span.tag(new StringTag("triggerParam"), triggerParam.toString());
-        span.setPeer("xxl-job-admin");
 
     }
 

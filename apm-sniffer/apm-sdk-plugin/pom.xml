@@ -70,7 +70,7 @@
         <module>dubbo-2.7.x-plugin</module>
         <module>dubbo-2.7.x-conflict-patch</module>
         <module>vertx-plugins</module>
-        <module>apm-xxl-job-plugin</module>
+        <module>xxl-job-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
