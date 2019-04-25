@@ -116,6 +116,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
+    public static final OfficialComponent SPRING_CLOUD_GATEWAYS =  new OfficialComponent(60, "spring-cloud-gateways");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -125,7 +127,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[60];
+        components = new String[61];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -170,6 +172,7 @@ public class ComponentsDefine {
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
+        addComponent(SPRING_CLOUD_GATEWAYS);
     }
 
     private void addComponent(OfficialComponent component) {
