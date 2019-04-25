@@ -318,18 +318,8 @@
 
                         <!-- UI IDE configs -->
                         <exclude>**/skywalking-ui/.editorconfig</exclude>
-                        <!-- UI Compiler configs -->
-                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
-                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
-                        <!-- UI Test configs -->
-                        <exclude>**/skywalking-ui/jest.config.js</exclude>
-                        <!-- UI style check files -->
-                        <exclude>**/skywalking-ui/.eslintrc.js</exclude>
-                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
-                        <exclude>**/skywalking-ui/.prettierignore</exclude>
-                        <exclude>**/skywalking-ui/.prettierrc</exclude>
-                        <!-- UI icon files -->
-                        <exclude>**/skywalking-ui/public/font/iconfont/**</exclude>
+                        <!-- UI ignore -->
+                        <exclude>**/skywalking-ui/.browserslistrc</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
