@@ -16,6 +16,8 @@ package org.apache.skywalking.apm.plugin.xxljob;/*
  *
  */
 
+import com.google.common.base.Strings;
+import com.xxl.job.core.util.ShardingUtil;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -36,7 +38,12 @@ public class ExecutorBizInterceptor implements InstanceMethodsAroundInterceptor 
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String triggerParam = (String) allArguments[0];
+
         String operateName = "xxl-job";
+        ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
+        if(shardingVO != null){
+            operateName = operateName + "_" + shardingVO.getIndex();
+        }
         AbstractSpan span;
         span = ContextManager.createEntrySpan(operateName, null);
         span.setComponent(ComponentsDefine.XXL_JOB);
