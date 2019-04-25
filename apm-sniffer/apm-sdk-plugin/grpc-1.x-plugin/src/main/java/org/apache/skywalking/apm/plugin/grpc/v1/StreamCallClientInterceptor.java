@@ -34,8 +34,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_NEXT_OPERATION_NAME;
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_READY_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.CLIENT;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME;
 import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
 /**
@@ -45,11 +47,13 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
 
     private final String serviceName;
     private final String remotePeer;
+    private final String operationPrefix;
 
     protected StreamCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
         super(delegate);
         this.serviceName = formatOperationName(method);
         this.remotePeer = channel.authority();
+        this.operationPrefix = OperationNameFormatUtil.formatOperationName(method) + CLIENT;
     }
 
     @Override
@@ -78,10 +82,6 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
         }
 
         @Override public void onReady() {
-            final AbstractSpan span = ContextManager.createLocalSpan(STREAM_ON_READY_OPERATION_NAME);
-            span.setComponent(ComponentsDefine.GRPC);
-            SpanLayer.asRPCFramework(span);
-            ContextManager.continued(contextSnapshot);
             delegate().onReady();
         }
 
@@ -91,7 +91,8 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
 
         @Override public void onMessage(Object message) {
             try {
-                ContextManager.createLocalSpan(STREAM_ON_NEXT_OPERATION_NAME);
+                ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME);
+                ContextManager.continued(contextSnapshot);
                 delegate().onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
@@ -101,14 +102,21 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
         }
 
         @Override public void onClose(Status status, Metadata trailers) {
-            delegate().onClose(status, trailers);
-            if (!status.isOk()) {
-                AbstractSpan activeSpan = ContextManager.activeSpan();
-                activeSpan.errorOccurred().log(status.getCause());
-                Tags.STATUS_CODE.set(activeSpan, status.getCode().name());
+            try {
+                if (!status.isOk()) {
+                    AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME);
+                    abstractSpan.errorOccurred().log(status.getCause());
+                    Tags.STATUS_CODE.set(abstractSpan, status.getCode().name());
+                } else {
+                    AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME);
+                }
+                delegate().onClose(status, trailers);
+                ContextManager.continued(contextSnapshot);
+            } catch (Throwable t) {
+                ContextManager.activeSpan().errorOccurred().log(t);
+            } finally {
+                ContextManager.stopSpan();
             }
-
-            ContextManager.stopSpan();
         }
     }
 

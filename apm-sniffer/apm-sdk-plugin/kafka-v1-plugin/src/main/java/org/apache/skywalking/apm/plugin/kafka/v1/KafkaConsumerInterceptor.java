@@ -62,7 +62,7 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();
             AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + requiredInfo.getTopics() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(requiredInfo.getStartTime());
 
-            activeSpan.setComponent(ComponentsDefine.KAFKA);
+            activeSpan.setComponent(ComponentsDefine.KAFKA_CONSUMER);
             SpanLayer.asMQ(activeSpan);
             Tags.MQ_BROKER.set(activeSpan, requiredInfo.getBrokerServers());
             Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopics());

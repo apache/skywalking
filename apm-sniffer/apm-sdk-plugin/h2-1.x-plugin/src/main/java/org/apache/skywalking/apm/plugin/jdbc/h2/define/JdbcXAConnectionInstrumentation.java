@@ -35,7 +35,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class JdbcXAConnectionInstrumentation extends AbstractConnectionInstrumentation {
 
     public static final String ENHANCE_CLASS = "org.h2.jdbcx.JdbcXAConnection";
-    public static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.h2.JdbcXAConnectionConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.jdbc.JdbcXAConnectionConstructorInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {

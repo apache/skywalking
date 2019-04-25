@@ -24,7 +24,20 @@ package org.apache.skywalking.apm.plugin.grpc.v1;
  * @author zhang xin
  */
 public class Constants {
-    public static final String STREAM_ON_READY_OPERATION_NAME = "RequestStreamObserver/onReady";
+    public static final String CLIENT = "/client";
 
-    public static final String STREAM_ON_NEXT_OPERATION_NAME = "ResponseStreamObserver/OnNext";
+    public static final String SERVER = "/server";
+
+    public static final String STREAM_REQUEST_OBSERVER_ON_NEXT_OPERATION_NAME = "/RequestObserver/onNext";
+
+    public static final String STREAM_REQUEST_OBSERVER_ON_ERROR_OPERATION_NAME = "/RequestObserver/onError";
+
+    public static final String STREAM_REQUEST_OBSERVER_ON_COMPLETE_OPERATION_NAME = "/RequestObserver/onComplete";
+
+    public static final String STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME = "/ResponseObserver/onNext";
+
+    public static final String STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME = "/ResponseObserver/onError";
+
+    public static final String STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME = "/ResponseObserver/onComplete";
+
 }

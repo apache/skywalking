@@ -36,16 +36,17 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../apm-collector/apm-collector-boot/target/skywalking-collector-assembly/skywalking-collector/config</directory>
+            <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/config</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>*.yml</include>
                 <include>*.xml</include>
+                <include>*.properties</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../apm-collector/apm-collector-boot/target/skywalking-collector-assembly/skywalking-collector/libs</directory>
-            <outputDirectory>/collector-libs</outputDirectory>
+            <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
+            <outputDirectory>/oap-libs</outputDirectory>
         </fileSet>
 
         <!-- Agent repackage into the dist -->
@@ -72,6 +73,11 @@
     <files>
         <file>
             <source>${project.basedir}/../apm-webapp/target/skywalking-webapp.jar</source>
+            <outputDirectory>/webapp</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
             <outputDirectory>/webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

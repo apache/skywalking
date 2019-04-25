@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.agent.core.jvm;
 
-import io.grpc.ManagedChannel;
+import io.grpc.Channel;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -39,18 +40,18 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
-import org.apache.skywalking.apm.network.proto.JVMMetric;
-import org.apache.skywalking.apm.network.proto.JVMMetrics;
-import org.apache.skywalking.apm.network.proto.JVMMetricsServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.JVMMetric;
+import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricCollection;
+import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricReportServiceGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
- * The <code>JVMService</code> represents a timer,
- * which collectors JVM cpu, memory, memorypool and gc info,
- * and send the collected info to Collector through the channel provided by {@link GRPCChannelManager}
+ * The <code>JVMService</code> represents a timer, which collectors JVM cpu, memory, memorypool and gc info, and send
+ * the collected info to Collector through the channel provided by {@link GRPCChannelManager}
  *
  * @author wusheng
  */
+@DefaultImplementor
 public class JVMService implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(JVMService.class);
     private LinkedBlockingQueue<JVMMetric> queue;
@@ -59,7 +60,7 @@ public class JVMService implements BootService, Runnable {
     private Sender sender;
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
         queue = new LinkedBlockingQueue(Config.Jvm.BUFFER_SIZE);
         sender = new Sender();
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(sender);
@@ -85,7 +86,7 @@ public class JVMService implements BootService, Runnable {
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 
@@ -97,9 +98,9 @@ public class JVMService implements BootService, Runnable {
 
     @Override
     public void run() {
-        if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
-            && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
-            ) {
+        if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
+            && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
+        ) {
             long currentTimeMillis = System.currentTimeMillis();
             try {
                 JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
@@ -122,21 +123,21 @@ public class JVMService implements BootService, Runnable {
 
     private class Sender implements Runnable, GRPCChannelListener {
         private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
-        private volatile JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub = null;
+        private volatile JVMMetricReportServiceGrpc.JVMMetricReportServiceBlockingStub stub = null;
 
         @Override
         public void run() {
-            if (RemoteDownstreamConfig.Agent.APPLICATION_ID != DictionaryUtil.nullValue()
-                && RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID != DictionaryUtil.nullValue()
-                ) {
+            if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
+                && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
+            ) {
                 if (status == GRPCChannelStatus.CONNECTED) {
                     try {
-                        JVMMetrics.Builder builder = JVMMetrics.newBuilder();
+                        JVMMetricCollection.Builder builder = JVMMetricCollection.newBuilder();
                         LinkedList<JVMMetric> buffer = new LinkedList<JVMMetric>();
                         queue.drainTo(buffer);
                         if (buffer.size() > 0) {
                             builder.addAllMetrics(buffer);
-                            builder.setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID);
+                            builder.setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
                             stub.collect(builder.build());
                         }
                     } catch (Throwable t) {
@@ -149,8 +150,8 @@ public class JVMService implements BootService, Runnable {
         @Override
         public void statusChanged(GRPCChannelStatus status) {
             if (GRPCChannelStatus.CONNECTED.equals(status)) {
-                ManagedChannel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getManagedChannel();
-                stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
+                Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
+                stub = JVMMetricReportServiceGrpc.newBlockingStub(channel);
             }
             this.status = status;
         }

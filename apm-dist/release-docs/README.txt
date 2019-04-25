@@ -20,20 +20,16 @@ Getting Started
 To help you get started, try the following links:
 
 Getting Started
-    https://github.com/apache/incubator-skywalking/blob/master/docs/en/Quick-start.md
+    https://github.com/apache/incubator-skywalking/blob/master/docs/en/setup/README.md
 
 Building
-    https://github.com/apache/incubator-skywalking/blob/master/docs/en/How-to-build.md
+    https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/How-to-build.md
 
 We welcome contributions of all kinds, for details of how you can help
     https://github.com/apache/incubator-skywalking/blob/master/CONTRIBUTING.md
 
 Find the issue tracker from here
     https://github.com/apache/incubator-skywalking/issues
-
-Find our roadmap
-    https://github.com/apache/incubator-skywalking/blob/master/docs/ROADMAP.md
-
 
 Please help us make Apache SkyWalking better - we appreciate any feedback
 you may have.

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -40,7 +39,30 @@ public class MysqlURLParser extends AbstractURLParser {
     protected URLLocation fetchDatabaseHostsIndexRange() {
         int hostLabelStartIndex = url.indexOf("//");
         int hostLabelEndIndex = url.indexOf("/", hostLabelStartIndex + 2);
+        if (hostLabelEndIndex == -1) {
+            hostLabelEndIndex = url.indexOf("?", hostLabelStartIndex + 2);
+        }
         return new URLLocation(hostLabelStartIndex + 2, hostLabelEndIndex);
+    }
+
+    protected String fetchDatabaseNameFromURL(int startSize) {
+        URLLocation hostsLocation = fetchDatabaseNameIndexRange(startSize);
+        if (hostsLocation == null) {
+            return "";
+        }
+        return url.substring(hostsLocation.startIndex(), hostsLocation.endIndex());
+    }
+
+    protected URLLocation fetchDatabaseNameIndexRange(int startSize) {
+        int databaseStartTag = url.indexOf("/", startSize);
+        if (databaseStartTag == -1) {
+            return null;
+        }
+        int databaseEndTag = url.indexOf("?", databaseStartTag);
+        if (databaseEndTag == -1) {
+            databaseEndTag = url.length();
+        }
+        return new URLLocation(databaseStartTag + 1, databaseEndTag);
     }
 
     @Override
@@ -67,13 +89,13 @@ public class MysqlURLParser extends AbstractURLParser {
                     sb.append(host + ",");
                 }
             }
-            return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
+            return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
         } else {
             String[] hostAndPort = hostSegment[0].split(":");
             if (hostAndPort.length != 1) {
-                return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL());
+                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL(location.endIndex()));
             } else {
-                return new ConnectionInfo(ComponentsDefine.MYSQL, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL());
+                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL(location.endIndex()));
             }
         }
     }

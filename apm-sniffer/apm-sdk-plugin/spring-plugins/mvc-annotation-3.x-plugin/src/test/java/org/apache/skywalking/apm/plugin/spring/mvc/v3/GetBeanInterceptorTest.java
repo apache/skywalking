@@ -16,18 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.GetBeanInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.GetBeanInterceptor;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.mockito.Mockito.times;
@@ -62,12 +61,4 @@ public class GetBeanInterceptorTest {
 
         verify(enhanceRet, times(0)).setSkyWalkingDynamicField(Matchers.any());
     }
-
-    @Test
-    public void testResultIsEnhanceInstance() throws Throwable {
-        interceptor.afterMethod(enhancedInstance, null, null, null, enhanceRet);
-
-        verify(enhanceRet, times(0)).setSkyWalkingDynamicField(Matchers.any());
-    }
-
 }

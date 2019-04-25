@@ -53,7 +53,7 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
         Tags.MQ_BROKER.set(activeSpan, (String)objInst.getSkyWalkingDynamicField());
         Tags.MQ_TOPIC.set(activeSpan, topicName);
         SpanLayer.asMQ(activeSpan);
-        activeSpan.setComponent(ComponentsDefine.KAFKA);
+        activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {

@@ -18,12 +18,9 @@
 
 package org.apache.skywalking.apm.commons.datacarrier;
 
-import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPool;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
-import org.apache.skywalking.apm.commons.datacarrier.partition.SimpleRollingPartitioner;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.apm.commons.datacarrier.partition.*;
 
 /**
  * DataCarrier main class. use this instance to set Producer/Consumer Model.
@@ -32,16 +29,27 @@ public class DataCarrier<T> {
     private final int bufferSize;
     private final int channelSize;
     private Channels<T> channels;
-    private ConsumerPool<T> consumerPool;
+    private IDriver driver;
+    private String name;
 
     public DataCarrier(int channelSize, int bufferSize) {
-        this.bufferSize = bufferSize;
-        this.channelSize = channelSize;
+        this("DEFAULT", channelSize, bufferSize);
+    }
+
+    public DataCarrier(String name, int channelSize, int bufferSize) {
+        this(name, name, channelSize, bufferSize);
+    }
+
+    public DataCarrier(String name, String envPrefix, int channelSize, int bufferSize) {
+        this.name = name;
+        this.bufferSize = EnvUtil.getInt(envPrefix + "_BUFFER_SIZE", bufferSize);
+        this.channelSize = EnvUtil.getInt(envPrefix + "_CHANNEL_SIZE", channelSize);
         channels = new Channels<T>(channelSize, bufferSize, new SimpleRollingPartitioner<T>(), BufferStrategy.BLOCKING);
     }
 
     /**
-     * set a new IDataPartitioner. It will cover the current one or default one.(Default is {@link SimpleRollingPartitioner}
+     * set a new IDataPartitioner. It will cover the current one or default one.(Default is {@link
+     * SimpleRollingPartitioner}
      *
      * @param dataPartitioner to partition data into different channel by some rules.
      * @return DataCarrier instance for chain
@@ -73,8 +81,8 @@ public class DataCarrier<T> {
      * @return false means produce data failure. The data will not be consumed.
      */
     public boolean produce(T data) {
-        if (consumerPool != null) {
-            if (!consumerPool.isRunning()) {
+        if (driver != null) {
+            if (!driver.isRunning(channels)) {
                 return false;
             }
         }
@@ -83,22 +91,22 @@ public class DataCarrier<T> {
     }
 
     /**
-     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work.
+     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work.
      *
      * @param consumerClass class of consumer
      * @param num number of consumer threads
      */
     public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num, long consumeCycle) {
-        if (consumerPool != null) {
-            consumerPool.close();
+        if (driver != null) {
+            driver.close(channels);
         }
-        consumerPool = new ConsumerPool<T>(this.channels, consumerClass, num, consumeCycle);
-        consumerPool.begin();
+        driver = new ConsumeDriver<T>(this.name, this.channels, consumerClass, num, consumeCycle);
+        driver.begin(channels);
         return this;
     }
 
     /**
-     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
+     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
      * millis consume cycle.
      *
      * @param consumerClass class of consumer
@@ -109,23 +117,23 @@ public class DataCarrier<T> {
     }
 
     /**
-     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work.
+     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work.
      *
      * @param consumer single instance of consumer, all consumer threads will all use this instance.
      * @param num number of consumer threads
      * @return
      */
     public DataCarrier consume(IConsumer<T> consumer, int num, long consumeCycle) {
-        if (consumerPool != null) {
-            consumerPool.close();
+        if (driver != null) {
+            driver.close(channels);
         }
-        consumerPool = new ConsumerPool<T>(this.channels, consumer, num, consumeCycle);
-        consumerPool.begin();
+        driver = new ConsumeDriver<T>(this.name, this.channels, consumer, num, consumeCycle);
+        driver.begin(channels);
         return this;
     }
 
     /**
-     * set consumers to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
+     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
      * millis consume cycle.
      *
      * @param consumer single instance of consumer, all consumer threads will all use this instance.
@@ -137,13 +145,27 @@ public class DataCarrier<T> {
     }
 
     /**
+     * Set a consumer pool to manage the channels of this DataCarrier. Then consumerPool could use its own consuming
+     * model to adjust the consumer thread and throughput.
+     *
+     * @param consumerPool
+     * @return
+     */
+    public DataCarrier consume(ConsumerPool consumerPool, IConsumer<T> consumer) {
+        driver = consumerPool;
+        consumerPool.add(this.name, channels, consumer);
+        driver.begin(channels);
+        return this;
+    }
+
+    /**
      * shutdown all consumer threads, if consumer threads are running. Notice {@link BufferStrategy}: if {@link
-     * BufferStrategy} == {@link BufferStrategy#BLOCKING}, shutdown consumers maybe cause blocking when producing.
-     * Better way to change consumers are use {@link DataCarrier#consume}
+     * BufferStrategy} == {@link BufferStrategy#BLOCKING}, shutdown consumeDriver maybe cause blocking when producing.
+     * Better way to change consumeDriver are use {@link DataCarrier#consume}
      */
     public void shutdownConsumers() {
-        if (consumerPool != null) {
-            consumerPool.close();
+        if (driver != null) {
+            driver.close(channels);
         }
     }
 }

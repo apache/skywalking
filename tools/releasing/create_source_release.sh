@@ -17,14 +17,22 @@
 # limitations under the License.
 #
 
-##
-## Variables with defaults (if not overwritten by environment)
-##
+# This script relies on few environment variables to determine source code package
+# behavior, those variables are:
+#   RELEASE_VERSION -- The version of this source package.
+# For example: RELEASE_VERSION=5.0.0-alpha
+
+
 RELEASE_VERSION=${RELEASE_VERSION}
-PRODUCT_NAME="apache-skywalking-apm-incubating"
+TAG_NAME=v${RELEASE_VERSION}
+PRODUCT_NAME="apache-skywalking-apm"
+
+echo "Release version "${RELEASE_VERSION}
+echo "Source tag "${TAG_NAME}
 
 if [ "$RELEASE_VERSION" == "" ]; then
-  echo "RELEASE_VERSION variable is null"
+  echo "RELEASE_VERSION environment variable not found, Please setting the RELEASE_VERSION."
+  echo "For example: export RELEASE_VERSION=5.0.0-alpha"
   exit 1
 fi
 
@@ -35,17 +43,33 @@ PRODUCT_NAME=${PRODUCT_NAME}-${RELEASE_VERSION}
 rm -rf ${PRODUCT_NAME}
 mkdir ${PRODUCT_NAME}
 
-rsync -a ../../ \
-  --exclude ".git" --exclude ".gitignore" --exclude ".gitattributes" --exclude ".travis.yml" \
-  --exclude "deploysettings.xml" --exclude "CHANGELOG" --exclude ".github" --exclude "target" \
-  --exclude ".idea" --exclude "*.iml" --exclude ".DS_Store" --exclude "build-target" \
-  --exclude "/docs/" --exclude "/dist/" --exclude "/tools/" --exclude "/skywalking-agent/" \
-  --exclude "/skywalking-ui/dist/" --exclude "/skywalking-ui/node/" --exclude "/skywalking-ui/node_modules/" \
-  ${PRODUCT_NAME}
+git clone https://github.com/apache/incubator-skywalking.git ./${PRODUCT_NAME}
+cd ${PRODUCT_NAME}
 
-tar czf ${PRODUCT_NAME}-src.tgz ${PRODUCT_NAME}
+TAG_EXIST=`git tag -l ${TAG_NAME} | wc -l`
 
-gpg --armor --detach-sig $PRODUCT_NAME-src.tgz
+if [ ${TAG_EXIST} -ne 1 ]; then
+    echo "Could not find the tag named" ${TAG_NAME}
+    exit 1
+fi
 
-md5 -r $PRODUCT_NAME-src.tgz > $PRODUCT_NAME-src.tgz.md5
-shasum -a 512 $PRODUCT_NAME-src.tgz > $PRODUCT_NAME-src.tgz.sha512
+git checkout ${TAG_NAME}
+
+git submodule init
+git submodule update
+
+cd ..
+
+tar czf ${PRODUCT_NAME}-src.tgz \
+    --exclude ${PRODUCT_NAME}/.git/ --exclude ${PRODUCT_NAME}/.DS_Store/ \
+    --exclude ${PRODUCT_NAME}/.github/ --exclude ${PRODUCT_NAME}/.gitignore/ \
+    --exclude ${PRODUCT_NAME}/.gitmodules/ --exclude ${PRODUCT_NAME}/.travis.yml \
+    --exclude ${PRODUCT_NAME}/skywalking-ui/.git/ --exclude ${PRODUCT_NAME}/skywalking-ui/.DS_Store/ \
+    --exclude ${PRODUCT_NAME}/skywalking-ui/.github/ --exclude ${PRODUCT_NAME}/skywalking-ui/.gitignore/ \
+    --exclude ${PRODUCT_NAME}/skywalking-ui/.travis.yml/ \
+    --exclude ${PRODUCT_NAME}/apm-protocol/apm-network/src/main/proto/.git/ \
+    ${PRODUCT_NAME}
+
+gpg --armor --detach-sig ${PRODUCT_NAME}-src.tgz
+
+shasum -a 512 ${PRODUCT_NAME}-src.tgz > ${PRODUCT_NAME}-src.tgz.sha512

@@ -30,11 +30,15 @@ import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_ON_NEXT_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.SERVER;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_REQUEST_OBSERVER_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_REQUEST_OBSERVER_ON_ERROR_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_REQUEST_OBSERVER_ON_NEXT_OPERATION_NAME;
 
 /**
  * @author zhang xin
@@ -62,19 +66,30 @@ public class CallServerInterceptor implements ServerInterceptor {
 
         final AbstractSpan span = ContextManager.createEntrySpan(OperationNameFormatUtil.formatOperationName(call.getMethodDescriptor()), contextCarrier);
         span.setComponent(ComponentsDefine.GRPC);
-
-        return new ServerCallListener(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall(call) {
-            @Override
-            public void sendHeaders(Metadata responseHeaders) {
-                delegate().sendHeaders(responseHeaders);
-            }
-        }, headers), call.getMethodDescriptor());
+        try {
+            return new ServerCallListener(handler.startCall(new ForwardingServerCall.SimpleForwardingServerCall(call) {
+                @Override
+                public void sendHeaders(Metadata responseHeaders) {
+                    delegate().sendHeaders(responseHeaders);
+                }
+            }, headers), call.getMethodDescriptor(), ContextManager.capture());
+        } finally {
+            ContextManager.stopSpan();
+        }
     }
 
     public class ServerCallListener extends ForwardingServerCallListener.SimpleForwardingServerCallListener {
 
-        protected ServerCallListener(ServerCall.Listener delegate, MethodDescriptor descriptor) {
+        private final ContextSnapshot contextSnapshot;
+        private final MethodDescriptor.MethodType methodType;
+        private final String operationPrefix;
+
+        protected ServerCallListener(ServerCall.Listener delegate, MethodDescriptor descriptor,
+            ContextSnapshot contextSnapshot) {
             super(delegate);
+            this.contextSnapshot = contextSnapshot;
+            this.methodType = descriptor.getType();
+            this.operationPrefix = OperationNameFormatUtil.formatOperationName(descriptor) + SERVER;
         }
 
         @Override public void onReady() {
@@ -83,7 +98,8 @@ public class CallServerInterceptor implements ServerInterceptor {
 
         @Override public void onMessage(Object message) {
             try {
-                ContextManager.createLocalSpan(STREAM_ON_NEXT_OPERATION_NAME);
+                ContextManager.createLocalSpan(operationPrefix + STREAM_REQUEST_OBSERVER_ON_NEXT_OPERATION_NAME);
+                ContextManager.continued(contextSnapshot);
                 delegate().onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
@@ -93,13 +109,35 @@ public class CallServerInterceptor implements ServerInterceptor {
         }
 
         @Override public void onComplete() {
-            delegate().onComplete();
-            ContextManager.stopSpan();
+            if (methodType != MethodDescriptor.MethodType.UNARY) {
+                try {
+                    ContextManager.createLocalSpan(operationPrefix + STREAM_REQUEST_OBSERVER_ON_COMPLETE_OPERATION_NAME);
+                    ContextManager.continued(contextSnapshot);
+                    delegate().onComplete();
+                } catch (Throwable t) {
+                    ContextManager.activeSpan().errorOccurred().log(t);
+                } finally {
+                    ContextManager.stopSpan();
+                }
+            } else {
+                delegate().onComplete();
+            }
         }
 
         @Override public void onCancel() {
-            delegate().onCancel();
-            ContextManager.stopSpan();
+            if (methodType != MethodDescriptor.MethodType.UNARY) {
+                try {
+                    ContextManager.createLocalSpan(operationPrefix + STREAM_REQUEST_OBSERVER_ON_ERROR_OPERATION_NAME);
+                    ContextManager.continued(contextSnapshot);
+                    delegate().onCancel();
+                } catch (Throwable t) {
+                    ContextManager.activeSpan().errorOccurred().log(t);
+                } finally {
+                    ContextManager.stopSpan();
+                }
+            } else {
+                delegate().onCancel();
+            }
         }
 
         @Override public void onHalfClose() {

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-sniffer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,12 +30,23 @@
     <properties>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <plugin.dest.dir>${project.build.directory}/../../../../skywalking-agent/optional-plugins</plugin.dest.dir>
+        <sdk.plugin.related.dir />
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
+        <optional.plugin.dest.dir>${agent.package.dest.dir}/optional-plugins</optional.plugin.dest.dir>
+
+        <ant-contrib.version>1.0b3</ant-contrib.version>
+        <ant-nodeps.version>1.8.1</ant-nodeps.version>
     </properties>
 
     <modules>
         <module>optional-spring-plugins</module>
+        <module>trace-ignore-plugin</module>
+        <module>gson-2.8.x-plugin</module>
+        <module>lettuce-5.x-plugin</module>
+        <module>zookeeper-3.4.x-plugin</module>
+        <module>customize-enhance-plugin</module>
     </modules>
 
     <dependencies>
@@ -62,9 +73,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -87,7 +96,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -101,11 +109,10 @@
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
                                     <then>
-                                        <mkdir dir="${plugin.dest.dir}" />
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
+                                        <mkdir dir="${optional.plugin.dest.dir}" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${optional.plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
-
                             </tasks>
                         </configuration>
                     </execution>
@@ -114,7 +121,7 @@
                     <dependency>
                         <groupId>ant-contrib</groupId>
                         <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
+                        <version>${ant-contrib.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>ant</groupId>
@@ -125,7 +132,7 @@
                     <dependency>
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant-nodeps</artifactId>
-                        <version>1.8.1</version>
+                        <version>${ant-nodeps.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

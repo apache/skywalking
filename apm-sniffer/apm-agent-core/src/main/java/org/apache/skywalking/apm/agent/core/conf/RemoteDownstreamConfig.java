@@ -19,8 +19,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 
 /**
@@ -31,15 +29,8 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
  */
 public class RemoteDownstreamConfig {
     public static class Agent {
-        public volatile static int APPLICATION_ID = DictionaryUtil.nullValue();
+        public volatile static int SERVICE_ID = DictionaryUtil.nullValue();
 
-        public volatile static int APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
-    }
-
-    public static class Collector {
-        /**
-         * Collector GRPC-Service address.
-         */
-        public volatile static List<String> GRPC_SERVERS = new LinkedList<String>();
+        public volatile static int SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
     }
 }

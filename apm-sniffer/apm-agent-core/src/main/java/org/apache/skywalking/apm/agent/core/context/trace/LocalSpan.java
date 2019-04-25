@@ -53,4 +53,8 @@ public class LocalSpan extends AbstractTracingSpan {
     @Override public boolean isExit() {
         return false;
     }
+
+    @Override public AbstractSpan setPeer(String remotePeer) {
+        return this;
+    }
 }

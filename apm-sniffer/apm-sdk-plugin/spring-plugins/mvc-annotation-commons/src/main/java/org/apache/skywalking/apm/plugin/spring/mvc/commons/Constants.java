@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 /**
@@ -32,4 +31,12 @@ public class Constants {
     public static final String REQUEST_MAPPING_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor";
 
     public static final String REST_MAPPING_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RestMappingMethodInterceptor";
+
+    public static final String REQUEST_KEY_IN_RUNTIME_CONTEXT = "SW_REQUEST";
+
+    public static final String RESPONSE_KEY_IN_RUNTIME_CONTEXT = "SW_RESPONSE";
+
+    public static final String FORWARD_REQUEST_FLAG = "SW_FORWARD_REQUEST_FLAG";
+
+    public static final String WEBFLUX_REQUEST_KEY = "SW_WEBFLUX_REQUEST_KEY";
 }

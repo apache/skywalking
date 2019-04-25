@@ -16,19 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v9.server.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
  * {@link JettyInstrumentation} enhance the <code>handle</code> method in <code>org.eclipse.jetty.server.handler.HandlerList</code>
@@ -38,7 +36,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  */
 public class JettyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.eclipse.jetty.server.Server";
+    private static final String ENHANCE_CLASS = "org.eclipse.jetty.server.HttpChannel";
     private static final String ENHANCE_METHOD = "handle";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jetty.v9.server.HandleInterceptor";
 
@@ -50,7 +48,7 @@ public class JettyInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "org.eclipse.jetty.server.HttpChannel"));
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override public String getMethodsInterceptor() {

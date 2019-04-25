@@ -22,10 +22,10 @@ package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 public abstract class AbstractSpring4Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    public static final String WITHNESS_CLASSES = "org.springframework.web.servlet.tags.ArgumentTag";
+    public static final String WITHNESS_CLASSES = "org.springframework.cache.interceptor.SimpleKey";
 
     @Override
     protected final String[] witnessClasses() {
-        return new String[] {WITHNESS_CLASSES};
+        return new String[] {WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator"};
     }
 }

@@ -24,6 +24,7 @@ import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -37,6 +38,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.hamcrest.MatcherAssert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -81,6 +83,7 @@ public class MotanProviderInterceptorTest {
 
     @Before
     public void setUp() {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         invokeInterceptor = new MotanProviderInterceptor();
         url = URL.valueOf("motan://127.0.0.1:34000/org.apache.skywalking.apm.test.TestService");
 
@@ -90,6 +93,12 @@ public class MotanProviderInterceptorTest {
         when(request.getMethodName()).thenReturn("test");
         when(request.getInterfaceName()).thenReturn("org.apache.skywalking.apm.test.TestService");
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");
+    }
+
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
@@ -154,7 +163,7 @@ public class MotanProviderInterceptorTest {
     private void assertRefSegment(TraceSegmentRef primaryRef) {
         assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.123.456"));
         assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(primaryRef), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(primaryRef), is(1));
         assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
     }
 

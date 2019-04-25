@@ -16,22 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jetty.v9.server;
 
 import java.util.List;
-import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
-import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -44,14 +32,32 @@ import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.eclipse.jetty.io.EndPoint;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpInput;
+import org.eclipse.jetty.server.HttpTransport;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
+import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -73,31 +79,34 @@ public class HandleInterceptorTest {
     private MethodInterceptResult methodInterceptResult;
 
     @Mock
-    private EnhancedInstance enhancedInstance;
-
-    @Mock
-    private HttpChannel httpChannel;
+    private MockService service;
 
     private Object[] arguments;
     private Class[] argumentType;
 
     @Before
     public void setUp() throws Exception {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         jettyInvokeInterceptor = new HandleInterceptor();
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
-        when(httpChannel.getResponse()).thenReturn(response);
-        when(httpChannel.getRequest()).thenReturn(request);
-        arguments = new Object[] {httpChannel};
-        argumentType = new Class[] {httpChannel.getClass()};
+        when(service.getResponse()).thenReturn(response);
+        when(service.getRequest()).thenReturn(request);
+        arguments = new Object[] {service};
+        argumentType = new Class[] {service.getClass()};
 
+    }
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        jettyInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        jettyInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        jettyInvokeInterceptor.beforeMethod(service, null, arguments, argumentType, methodInterceptResult);
+        jettyInvokeInterceptor.afterMethod(service, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -109,8 +118,8 @@ public class HandleInterceptorTest {
     public void testWithSerializedContextData() throws Throwable {
         when(request.getHeader(SW3CarrierItem.HEADER_NAME)).thenReturn("1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
-        jettyInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        jettyInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        jettyInvokeInterceptor.beforeMethod(service, null, arguments, argumentType, methodInterceptResult);
+        jettyInvokeInterceptor.afterMethod(service, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -122,9 +131,9 @@ public class HandleInterceptorTest {
 
     @Test
     public void testWithOccurException() throws Throwable {
-        jettyInvokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        jettyInvokeInterceptor.handleMethodException(enhancedInstance, null, arguments, argumentType, new RuntimeException());
-        jettyInvokeInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
+        jettyInvokeInterceptor.beforeMethod(service, null, arguments, argumentType, methodInterceptResult);
+        jettyInvokeInterceptor.handleMethodException(service, null, arguments, argumentType, new RuntimeException());
+        jettyInvokeInterceptor.afterMethod(service, null, arguments, argumentType, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -137,7 +146,7 @@ public class HandleInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
     }
@@ -148,5 +157,22 @@ public class HandleInterceptorTest {
         SpanAssert.assertTag(span, 0, "http://localhost:8080/test/testRequestURL");
         assertThat(span.isEntry(), is(true));
         SpanAssert.assertLayer(span, SpanLayer.HTTP);
+    }
+
+    public static class MockService extends HttpChannel implements EnhancedInstance {
+
+        public MockService(Connector connector,
+            HttpConfiguration configuration, EndPoint endPoint,
+            HttpTransport transport, HttpInput input) {
+            super(connector, configuration, endPoint, transport, input);
+        }
+
+        @Override public Object getSkyWalkingDynamicField() {
+            return null;
+        }
+
+        @Override public void setSkyWalkingDynamicField(Object value) {
+
+        }
     }
 }

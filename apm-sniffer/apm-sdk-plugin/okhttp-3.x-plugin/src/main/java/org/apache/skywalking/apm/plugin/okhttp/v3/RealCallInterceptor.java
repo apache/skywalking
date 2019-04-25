@@ -100,12 +100,13 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Response response = (Response)ret;
-        int statusCode = response.code();
-
-        AbstractSpan span = ContextManager.activeSpan();
-        if (statusCode >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+        if (response != null) {
+            int statusCode = response.code();
+            AbstractSpan span = ContextManager.activeSpan();
+            if (statusCode >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(statusCode));
+            }
         }
 
         ContextManager.stopSpan();

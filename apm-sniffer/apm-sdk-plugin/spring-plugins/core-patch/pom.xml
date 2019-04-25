@@ -21,18 +21,22 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-spring-core-patch</artifactId>
     <name>core-patch</name>
 
+    <properties>
+        <spring-aop.version>3.2.9.RELEASE</spring-aop.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
-            <version>3.2.9.RELEASE</version>
+            <version>${spring-aop.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

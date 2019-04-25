@@ -19,8 +19,13 @@
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
 import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
+import com.netflix.hystrix.strategy.eventnotifier.HystrixEventNotifier;
 import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
 import java.lang.reflect.Method;
+
+import com.netflix.hystrix.strategy.metrics.HystrixMetricsPublisher;
+import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -32,6 +37,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
  * @author zhang xin
  */
 public class HystrixPluginsInterceptor implements InstanceMethodsAroundInterceptor {
+
+
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -40,7 +48,40 @@ public class HystrixPluginsInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        return new SWExecutionHookWrapper((HystrixCommandExecutionHook)ret);
+        SWHystrixPluginsWrapperCache wrapperCache = (SWHystrixPluginsWrapperCache) objInst.getSkyWalkingDynamicField();
+        if (wrapperCache == null || wrapperCache.getSwExecutionHookWrapper() == null) {
+            synchronized (objInst) {
+                if (wrapperCache == null) {
+                    wrapperCache = new SWHystrixPluginsWrapperCache();
+                    objInst.setSkyWalkingDynamicField(wrapperCache);
+                }
+                if (wrapperCache.getSwExecutionHookWrapper() == null) {
+                    // Return and register wrapper only for the first time
+                    // Try to believe that all other hooks will use the their delegates
+                    SWExecutionHookWrapper wrapper = new SWExecutionHookWrapper((HystrixCommandExecutionHook) ret);
+                    wrapperCache.setSwExecutionHookWrapper(wrapper);
+
+                    registerSWExecutionHookWrapper(wrapper);
+
+                    return wrapper;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    private static void registerSWExecutionHookWrapper(SWExecutionHookWrapper wrapper) {
+        HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance().getConcurrencyStrategy();
+        HystrixEventNotifier eventNotifier = HystrixPlugins.getInstance().getEventNotifier();
+        HystrixMetricsPublisher metricsPublisher = HystrixPlugins.getInstance().getMetricsPublisher();
+        HystrixPropertiesStrategy propertiesStrategy = HystrixPlugins.getInstance().getPropertiesStrategy();
+        HystrixPlugins.reset();
+        HystrixPlugins.getInstance().registerConcurrencyStrategy(concurrencyStrategy);
+        HystrixPlugins.getInstance().registerCommandExecutionHook(wrapper);
+        HystrixPlugins.getInstance().registerEventNotifier(eventNotifier);
+        HystrixPlugins.getInstance().registerMetricsPublisher(metricsPublisher);
+        HystrixPlugins.getInstance().registerPropertiesStrategy(propertiesStrategy);
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,

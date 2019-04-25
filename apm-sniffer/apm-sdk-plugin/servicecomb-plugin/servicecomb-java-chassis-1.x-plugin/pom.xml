@@ -17,13 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>servicecomb-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-alpha-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,45 +31,16 @@
     <name>servicecomb-java-chassis-1.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <java-chassis-core.version>1.0.0-m1</java-chassis-core.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.servicecomb</groupId>
             <artifactId>java-chassis-core</artifactId>
-            <version>1.0.0-m1-SNAPSHOT</version>
+            <version>${java-chassis-core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <!-- TODO: need to delete -->
-    <repositories>
-        <repository>
-            <id>apache-servicecomb</id>
-            <url>
-                https://repository.apache.org/content/repositories/snapshots
-            </url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-    <build>
-        <plugins>
-            <plugin>
-                <!-- 源码插件 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <!-- 发布时自动将源码同时发布的配置 -->
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

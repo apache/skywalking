@@ -22,7 +22,7 @@ package org.apache.skywalking.apm.agent.core.jvm.memorypool;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.MemoryPool;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng

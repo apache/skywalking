@@ -16,14 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>ContextSnapshot</code> is a snapshot for current context. The snapshot carries the info for building
@@ -98,9 +96,7 @@ public class ContextSnapshot {
         return traceSegmentId != null
             && spanId > -1
             && entryApplicationInstanceId != DictionaryUtil.nullValue()
-            && primaryDistributedTraceId != null
-            && !StringUtil.isEmpty(entryOperationName)
-            && !StringUtil.isEmpty(parentOperationName);
+            && primaryDistributedTraceId != null;
     }
 
     public String getEntryOperationName() {
@@ -114,7 +110,7 @@ public class ContextSnapshot {
     public int getEntryApplicationInstanceId() {
         return entryApplicationInstanceId;
     }
-    
+
     public boolean isFromCurrent() {
         return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
     }

@@ -26,7 +26,18 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,17 +49,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
-import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -143,7 +143,7 @@ public class HttpClientExecuteInterceptorTest {
 
         assertThat(spans.size(), is(1));
 
-        List<KeyValuePair> tags = SpanHelper.getTags(spans.get(0));
+        List<TagValuePair> tags = SpanHelper.getTags(spans.get(0));
         assertThat(tags.size(), is(3));
         assertThat(tags.get(2).getValue(), is("500"));
 
@@ -171,6 +171,35 @@ public class HttpClientExecuteInterceptorTest {
 
     }
 
+    @Test
+    public void testUriNotProtocol() throws Throwable {
+        when(request.getRequestLine()).thenReturn(new RequestLine() {
+            @Override
+            public String getMethod() {
+                return "GET";
+            }
+
+            @Override
+            public ProtocolVersion getProtocolVersion() {
+                return new ProtocolVersion("http", 1, 1);
+            }
+
+            @Override
+            public String getUri() {
+                return "/test-web/test";
+            }
+        });
+        httpClientExecuteInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentsType, null);
+        httpClientExecuteInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentsType, httpResponse);
+
+        Assert.assertThat(segmentStorage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
+
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertHttpSpan(spans.get(0));
+        verify(request, times(1)).setHeader(anyString(), anyString());
+    }
+
     private void assertHttpSpanErrorLog(List<LogDataEntity> logs) {
         assertThat(logs.size(), is(1));
         LogDataEntity logData = logs.get(0);
@@ -184,7 +213,7 @@ public class HttpClientExecuteInterceptorTest {
     private void assertHttpSpan(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("/test-web/test"));
         assertThat(SpanHelper.getComponentId(span), is(2));
-        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("http://127.0.0.1:8080/test-web/test"));
         assertThat(tags.get(1).getValue(), is("GET"));
         assertThat(span.isExit(), is(true));

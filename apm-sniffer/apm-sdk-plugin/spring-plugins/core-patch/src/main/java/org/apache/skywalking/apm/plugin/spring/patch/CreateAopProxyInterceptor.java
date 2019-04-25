@@ -44,7 +44,8 @@ public class CreateAopProxyInterceptor implements InstanceMethodsAroundIntercept
         Object ret) throws Throwable {
         AdvisedSupport advisedSupport = (AdvisedSupport)allArguments[0];
 
-        if (EnhancedInstance.class.isAssignableFrom(advisedSupport.getTargetClass())) {
+        Class targetClass = advisedSupport.getTargetClass();
+        if (targetClass != null && EnhancedInstance.class.isAssignableFrom(targetClass)) {
             return true;
         }
         return ret;

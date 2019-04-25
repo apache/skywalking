@@ -41,7 +41,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public abstract class AbstractMessageConsumeInterceptor implements InstanceMethodsAroundInterceptor {
 
-    public static final String COMSUMER_OPERATION_NAME_PREFIX = "RocketMQ/";
+    public static final String CONSUMER_OPERATION_NAME_PREFIX = "RocketMQ/";
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -50,9 +50,9 @@ public abstract class AbstractMessageConsumeInterceptor implements InstanceMetho
         List<MessageExt> msgs = (List<MessageExt>)allArguments[0];
 
         ContextCarrier contextCarrier = getContextCarrierFromMessage(msgs.get(0));
-        AbstractSpan span = ContextManager.createEntrySpan(COMSUMER_OPERATION_NAME_PREFIX + msgs.get(0).getTopic() + "/Consumer", contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(CONSUMER_OPERATION_NAME_PREFIX + msgs.get(0).getTopic() + "/Consumer", contextCarrier);
 
-        span.setComponent(ComponentsDefine.ROCKET_MQ);
+        span.setComponent(ComponentsDefine.ROCKET_MQ_CONSUMER);
         SpanLayer.asMQ(span);
         for (int i = 1; i < msgs.size(); i++) {
             ContextManager.extract(getContextCarrierFromMessage(msgs.get(i)));

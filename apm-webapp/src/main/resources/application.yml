@@ -16,6 +16,7 @@
 
 server:
   port: 8080
+
 zuul:
   ignoredServices: '*'
   routes:
@@ -26,5 +27,11 @@ zuul:
 collector:
   path: /graphql
   ribbon:
-    listOfServers: 127.0.0.1:10800
-    NIWSServerListClassName: org.apache.skywalking.apm.webapp.tools.CollectorServerList
+    # Point to all backend's restHost:restPort, split by ,
+    listOfServers: 127.0.0.1:12800
+
+security:
+  user:
+    admin:
+      password: admin
+      

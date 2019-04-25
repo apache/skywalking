@@ -39,9 +39,16 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
 
     @Override
     public <T> void onStart(HystrixInvokable<T> commandInstance) {
+        if (!(commandInstance instanceof EnhancedInstance)) {
+            actual.onStart(commandInstance);
+            return;
+        }
+
         EnhancedInstance enhancedInstance = (EnhancedInstance)commandInstance;
         EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache)enhancedInstance.getSkyWalkingDynamicField();
-        enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        if (ContextManager.isActive()) {
+            enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        }
         actual.onStart(commandInstance);
     }
 
@@ -164,9 +171,16 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
     }
 
     @Override public <T> void onStart(HystrixCommand<T> commandInstance) {
+        if (!(commandInstance instanceof EnhancedInstance)) {
+            actual.onStart(commandInstance);
+            return;
+        }
+
         EnhancedInstance enhancedInstance = (EnhancedInstance)commandInstance;
         EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache)enhancedInstance.getSkyWalkingDynamicField();
-        enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        if (ContextManager.isActive()) {
+            enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        }
         actual.onStart(commandInstance);
     }
 

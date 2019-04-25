@@ -32,17 +32,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent DUBBO = new OfficialComponent(3, "Dubbo");
 
-    public static final OfficialComponent H2 = new OfficialComponent(4, "H2");
-
-    public static final OfficialComponent MYSQL = new OfficialComponent(5, "Mysql");
-
-    public static final OfficialComponent ORACLE = new OfficialComponent(6, "ORACLE");
-
-    public static final OfficialComponent REDIS = new OfficialComponent(7, "Redis");
-
     public static final OfficialComponent MOTAN = new OfficialComponent(8, "Motan");
-
-    public static final OfficialComponent MONGODB = new OfficialComponent(9, "MongoDB");
 
     public static final OfficialComponent RESIN = new OfficialComponent(10, "Resin");
 
@@ -64,25 +54,67 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JETTY_SERVER = new OfficialComponent(19, "JettyServer");
 
-    public static final OfficialComponent MEMCACHED = new OfficialComponent(20, "Memcached");
-
     public static final OfficialComponent SHARDING_JDBC = new OfficialComponent(21, "ShardingJDBC");
-
-    public static final OfficialComponent POSTGRESQL = new OfficialComponent(22, "PostgreSQL");
 
     public static final OfficialComponent GRPC = new OfficialComponent(23, "GRPC");
 
     public static final OfficialComponent ELASTIC_JOB = new OfficialComponent(24, "ElasticJob");
-  
-    public static final OfficialComponent ROCKET_MQ = new OfficialComponent(25, "RocketMQ");
 
     public static final OfficialComponent HTTP_ASYNC_CLIENT = new OfficialComponent(26, "httpasyncclient");
 
-    public static final OfficialComponent KAFKA = new OfficialComponent(27, "Kafka");
-  
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
     public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
+
+    public static final OfficialComponent JEDIS =  new OfficialComponent(30, "Jedis");
+
+    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "jdbc-jdbc-driver");
+
+    public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
+
+    public static final OfficialComponent OJDBC = new OfficialComponent(34, "ojdbc");
+
+    public static final OfficialComponent SPYMEMCACHED = new OfficialComponent(35, "Spymemcached");
+
+    public static final OfficialComponent XMEMCACHED = new OfficialComponent(36, "Xmemcached");
+
+    public static final OfficialComponent POSTGRESQL_DRIVER = new OfficialComponent(37, "postgresql-jdbc-driver");
+
+    public static final OfficialComponent ROCKET_MQ_PRODUCER = new OfficialComponent(38, "rocketMQ-producer");
+
+    public static final OfficialComponent ROCKET_MQ_CONSUMER = new OfficialComponent(39, "rocketMQ-consumer");
+
+    public static final OfficialComponent KAFKA_PRODUCER = new OfficialComponent(40, "kafka-producer");
+
+    public static final OfficialComponent KAFKA_CONSUMER = new OfficialComponent(41, "kafka-consumer");
+
+    public static final OfficialComponent MONGO_DRIVER = new OfficialComponent(42, "mongodb-driver");
+
+    public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
+
+    public static final  OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45,"activemq-producer");
+
+    public static final  OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46,"activemq-consumer");
+
+    public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
+
+    public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
+
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52,"rabbitmq-producer");
+
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
+
+    public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
+  
+    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
+  
+    public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
+
+    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
+
+    public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
+
+    public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -93,16 +125,11 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[30];
+        components = new String[60];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
-        addComponent(H2);
-        addComponent(MYSQL);
-        addComponent(ORACLE);
-        addComponent(REDIS);
         addComponent(MOTAN);
-        addComponent(MONGODB);
         addComponent(RESIN);
         addComponent(FEIGN);
         addComponent(OKHTTP);
@@ -113,27 +140,39 @@ public class ComponentsDefine {
         addComponent(NUTZ_HTTP);
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
-        addComponent(MEMCACHED);
         addComponent(SHARDING_JDBC);
-        addComponent(POSTGRESQL);
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
-        addComponent(ROCKET_MQ);
         addComponent(HTTP_ASYNC_CLIENT);
-        addComponent(KAFKA);
         addComponent(SERVICECOMB);
         addComponent(HYSTRIX);
+        addComponent(H2_JDBC_DRIVER);
+        addComponent(MYSQL_JDBC_DRIVER);
+        addComponent(OJDBC);
+        addComponent(JEDIS);
+        addComponent(SPYMEMCACHED);
+        addComponent(XMEMCACHED);
+        addComponent(POSTGRESQL_DRIVER);
+        addComponent(ROCKET_MQ_PRODUCER);
+        addComponent(ROCKET_MQ_CONSUMER);
+        addComponent(KAFKA_PRODUCER);
+        addComponent(KAFKA_CONSUMER);
+        addComponent(MONGO_DRIVER);
+        addComponent(SOFARPC);
+        addComponent(ACTIVEMQ_PRODUCER);
+        addComponent(ACTIVEMQ_CONSUMER);
+        addComponent(UNDERTOW);
+        addComponent(RABBITMQ_PRODUCER);
+        addComponent(RABBITMQ_CONSUMER);
+        addComponent(CANAL);
+        addComponent(GSON);
+        addComponent(REDISSON);
+        addComponent(LETTUCE);
+        addComponent(ZOOKEEPER);
+        addComponent(VERTX);
     }
 
     private void addComponent(OfficialComponent component) {
         components[component.getId()] = component.getName();
-    }
-
-    public String getComponentName(int componentId) {
-        if (componentId > components.length - 1 || componentId == 0) {
-            return null;
-        } else {
-            return components[componentId];
-        }
     }
 }

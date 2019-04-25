@@ -23,12 +23,13 @@ import io.netty.util.internal.ConcurrentSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.apm.network.proto.KeyWithIntegerValue;
-import org.apache.skywalking.apm.network.proto.NetworkAddressMappings;
-import org.apache.skywalking.apm.network.proto.NetworkAddressRegisterServiceGrpc;
-import org.apache.skywalking.apm.network.proto.NetworkAddresses;
+import org.apache.skywalking.apm.network.common.KeyIntValuePair;
+import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.register.v2.NetAddressMapping;
+import org.apache.skywalking.apm.network.register.v2.NetAddresses;
+import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.APPLICATION_CODE_BUFFER_SIZE;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.SERVICE_CODE_BUFFER_SIZE;
 
 /**
  * Map of network address id to network literal address, which is from the collector side.
@@ -38,28 +39,28 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.APPLIC
 public enum NetworkAddressDictionary {
     INSTANCE;
     private Map<String, Integer> applicationDictionary = new ConcurrentHashMap<String, Integer>();
-    private Set<String> unRegisterApplications = new ConcurrentSet<String>();
+    private Set<String> unRegisterServices = new ConcurrentSet<String>();
 
     public PossibleFound find(String networkAddress) {
         Integer applicationId = applicationDictionary.get(networkAddress);
         if (applicationId != null) {
             return new Found(applicationId);
         } else {
-            if (applicationDictionary.size() + unRegisterApplications.size() < APPLICATION_CODE_BUFFER_SIZE) {
-                unRegisterApplications.add(networkAddress);
+            if (applicationDictionary.size() + unRegisterServices.size() < SERVICE_CODE_BUFFER_SIZE) {
+                unRegisterServices.add(networkAddress);
             }
             return new NotFound();
         }
     }
 
     public void syncRemoteDictionary(
-        NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub networkAddressRegisterServiceBlockingStub) {
-        if (unRegisterApplications.size() > 0) {
-            NetworkAddressMappings networkAddressMappings = networkAddressRegisterServiceBlockingStub.batchRegister(
-                NetworkAddresses.newBuilder().addAllAddresses(unRegisterApplications).build());
+        RegisterGrpc.RegisterBlockingStub networkAddressRegisterServiceBlockingStub) {
+        if (unRegisterServices.size() > 0) {
+            NetAddressMapping networkAddressMappings = networkAddressRegisterServiceBlockingStub.doNetworkAddressRegister(
+                NetAddresses.newBuilder().addAllAddresses(unRegisterServices).build());
             if (networkAddressMappings.getAddressIdsCount() > 0) {
-                for (KeyWithIntegerValue keyWithIntegerValue : networkAddressMappings.getAddressIdsList()) {
-                    unRegisterApplications.remove(keyWithIntegerValue.getKey());
+                for (KeyIntValuePair keyWithIntegerValue : networkAddressMappings.getAddressIdsList()) {
+                    unRegisterServices.remove(keyWithIntegerValue.getKey());
                     applicationDictionary.put(keyWithIntegerValue.getKey(), keyWithIntegerValue.getValue());
                 }
             }

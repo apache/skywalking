@@ -36,13 +36,14 @@ public class URLParser {
 
     public static ConnectionInfo parser(String url) {
         ConnectionURLParser parser = null;
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
+        String lowerCaseUrl = url.toLowerCase();
+        if (lowerCaseUrl.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             parser = new MysqlURLParser(url);
-        } else if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
+        } else if (lowerCaseUrl.startsWith(ORACLE_JDBC_URL_PREFIX)) {
             parser = new OracleURLParser(url);
-        } else if (url.startsWith(H2_JDBC_URL_PREFIX)) {
+        } else if (lowerCaseUrl.startsWith(H2_JDBC_URL_PREFIX)) {
             parser = new H2URLParser(url);
-        } else if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
+        } else if (lowerCaseUrl.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
             parser = new PostgreSQLURLParser(url);
         }
         return parser.parse();

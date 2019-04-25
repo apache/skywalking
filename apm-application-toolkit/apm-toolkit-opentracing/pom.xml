@@ -21,22 +21,26 @@
     <parent>
         <artifactId>apm-application-toolkit</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-toolkit-opentracing</artifactId>
 
+    <properties>
+        <opentracing.version>0.30.0</opentracing.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-api</artifactId>
-            <version>0.30.0</version>
+            <version>${opentracing.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-noop</artifactId>
-            <version>0.30.0</version>
+            <version>${opentracing.version}</version>
         </dependency>
     </dependencies>
 

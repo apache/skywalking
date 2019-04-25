@@ -16,36 +16,37 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.remote;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.powermock.reflect.Whitebox;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.network.proto.Downstream;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentServiceGrpc;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.network.common.Commands;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
+import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.reflect.Whitebox;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -66,9 +67,9 @@ public class TraceSegmentServiceClientTest {
     private TraceSegmentServiceClient serviceClient = new TraceSegmentServiceClient();
     private List<UpstreamSegment> upstreamSegments;
 
-    private TraceSegmentServiceGrpc.TraceSegmentServiceImplBase serviceImplBase = new TraceSegmentServiceGrpc.TraceSegmentServiceImplBase() {
+    private TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase serviceImplBase = new TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase() {
         @Override
-        public StreamObserver<UpstreamSegment> collect(final StreamObserver<Downstream> responseObserver) {
+        public StreamObserver<UpstreamSegment> collect(final StreamObserver<Commands> responseObserver) {
             return new StreamObserver<UpstreamSegment>() {
                 @Override
                 public void onNext(UpstreamSegment value) {
@@ -81,7 +82,7 @@ public class TraceSegmentServiceClientTest {
 
                 @Override
                 public void onCompleted() {
-                    responseObserver.onNext(Downstream.getDefaultInstance());
+                    responseObserver.onNext(Commands.getDefaultInstance());
                     responseObserver.onCompleted();
                 }
             };
@@ -90,8 +91,8 @@ public class TraceSegmentServiceClientTest {
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = 1;
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
     }
 
     @AfterClass
@@ -105,7 +106,7 @@ public class TraceSegmentServiceClientTest {
         spy(serviceClient);
 
         Whitebox.setInternalState(serviceClient, "serviceStub",
-                TraceSegmentServiceGrpc.newStub(grpcServerRule.getChannel()));
+            TraceSegmentReportServiceGrpc.newStub(grpcServerRule.getChannel()));
         Whitebox.setInternalState(serviceClient, "status", GRPCChannelStatus.CONNECTED);
 
         upstreamSegments = new ArrayList<UpstreamSegment>();
@@ -127,11 +128,11 @@ public class TraceSegmentServiceClientTest {
         assertThat(upstreamSegments.size(), is(1));
         UpstreamSegment upstreamSegment = upstreamSegments.get(0);
         assertThat(upstreamSegment.getGlobalTraceIdsCount(), is(1));
-        TraceSegmentObject traceSegmentObject = TraceSegmentObject.parseFrom(upstreamSegment.getSegment());
+        SegmentObject traceSegmentObject = SegmentObject.parseFrom(upstreamSegment.getSegment());
         assertThat(traceSegmentObject.getSpans(0).getRefsCount(), is(0));
         assertThat(traceSegmentObject.getSpansCount(), is(1));
 
-        SpanObject spanObject = traceSegmentObject.getSpans(0);
+        SpanObjectV2 spanObject = traceSegmentObject.getSpans(0);
         assertThat(spanObject.getSpanType(), is(SpanType.Entry));
         assertThat(spanObject.getSpanId(), is(0));
         assertThat(spanObject.getParentSpanId(), is(-1));

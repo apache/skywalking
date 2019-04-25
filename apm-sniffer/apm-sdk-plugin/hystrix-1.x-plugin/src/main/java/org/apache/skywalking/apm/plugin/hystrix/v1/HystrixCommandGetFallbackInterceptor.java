@@ -36,7 +36,9 @@ public class HystrixCommandGetFallbackInterceptor implements InstanceMethodsArou
 
         AbstractSpan activeSpan = ContextManager.createLocalSpan(enhanceRequireObjectCache.getOperationNamePrefix() + "/Fallback");
         activeSpan.setComponent(ComponentsDefine.HYSTRIX);
-        ContextManager.continued(snapshot);
+        if (snapshot != null) {
+            ContextManager.continued(snapshot);
+        }
     }
 
     @Override

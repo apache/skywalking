@@ -27,12 +27,12 @@ public class SW3CarrierItem extends CarrierItem {
     private ContextCarrier carrier;
 
     public SW3CarrierItem(ContextCarrier carrier, CarrierItem next) {
-        super(HEADER_NAME, carrier.serialize(), next);
+        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v1), next);
         this.carrier = carrier;
     }
 
     @Override
     public void setHeadValue(String headValue) {
-        carrier.deserialize(headValue);
+        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v1);
     }
 }

@@ -24,7 +24,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.Memory;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng

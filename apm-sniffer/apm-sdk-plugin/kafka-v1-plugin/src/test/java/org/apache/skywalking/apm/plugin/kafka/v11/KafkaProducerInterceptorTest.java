@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA;
+import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA_PRODUCER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -109,7 +109,7 @@ public class KafkaProducerInterceptorTest {
     private void assertMessageSpan(AbstractTracingSpan span) {
         SpanAssert.assertTag(span, 0, "localhost:9092");
         SpanAssert.assertTag(span, 1, "test");
-        SpanAssert.assertComponent(span, KAFKA);
+        SpanAssert.assertComponent(span, KAFKA_PRODUCER);
         SpanAssert.assertLayer(span, SpanLayer.MQ);
         assertThat(span.getOperationName(), is("Kafka/test/Producer"));
     }

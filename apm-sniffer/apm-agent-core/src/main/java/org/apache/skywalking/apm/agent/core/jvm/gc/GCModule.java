@@ -16,20 +16,23 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm.gc;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.GC;
-import org.apache.skywalking.apm.network.proto.GCPhrase;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng
  */
 public abstract class GCModule implements GCMetricAccessor {
     private List<GarbageCollectorMXBean> beans;
+
+    private long lastOGCCount = 0;
+    private long lastYGCCount = 0;
+    private long lastOGCCollectionTime = 0;
+    private long lastYGCCollectionTime = 0;
 
     public GCModule(List<GarbageCollectorMXBean> beans) {
         this.beans = beans;
@@ -41,18 +44,34 @@ public abstract class GCModule implements GCMetricAccessor {
         for (GarbageCollectorMXBean bean : beans) {
             String name = bean.getName();
             GCPhrase phrase;
+            long gcCount = 0;
+            long gcTime = 0;
             if (name.equals(getNewGCName())) {
                 phrase = GCPhrase.NEW;
+                long collectionCount = bean.getCollectionCount();
+                gcCount = collectionCount - lastYGCCount;
+                lastYGCCount = collectionCount;
+
+                long time = bean.getCollectionTime();
+                gcTime = time - lastYGCCollectionTime;
+                lastYGCCollectionTime = time;
             } else if (name.equals(getOldGCName())) {
                 phrase = GCPhrase.OLD;
+                long collectionCount = bean.getCollectionCount();
+                gcCount = collectionCount - lastOGCCount;
+                lastOGCCount = collectionCount;
+
+                long time = bean.getCollectionTime();
+                gcTime = time - lastOGCCollectionTime;
+                lastOGCCollectionTime = time;
             } else {
                 continue;
             }
 
             gcList.add(
                 GC.newBuilder().setPhrase(phrase)
-                    .setCount(bean.getCollectionCount())
-                    .setTime(bean.getCollectionTime())
+                    .setCount(gcCount)
+                    .setTime(gcTime)
                     .build()
             );
         }

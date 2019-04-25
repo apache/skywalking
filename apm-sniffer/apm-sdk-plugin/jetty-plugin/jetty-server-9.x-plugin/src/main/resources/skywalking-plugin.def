@@ -15,3 +15,4 @@
 # limitations under the License.
 
 jetty-server-9.x=org.apache.skywalking.apm.plugin.jetty.v9.server.define.JettyInstrumentation
+jetty-server-9.x=org.apache.skywalking.apm.plugin.jetty.v9.server.define.DispatcherInstrumentation

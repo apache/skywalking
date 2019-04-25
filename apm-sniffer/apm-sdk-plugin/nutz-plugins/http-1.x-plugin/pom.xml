@@ -20,7 +20,7 @@
     <parent>
         <artifactId>nutz-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-beta-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,11 +30,15 @@
     <name>http-1.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <nutz.version>1.r.62</nutz.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.nutz</groupId>
             <artifactId>nutz</artifactId>
-            <version>1.r.62</version>
+            <version>${nutz.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

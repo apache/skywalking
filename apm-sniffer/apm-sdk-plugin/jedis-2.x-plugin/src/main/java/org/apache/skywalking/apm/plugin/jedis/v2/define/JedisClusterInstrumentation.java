@@ -35,7 +35,7 @@ public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     private static final String ARGUMENT_TYPE_NAME = "redis.clients.jedis.HostAndPort";
     private static final String ENHANCE_CLASS = "redis.clients.jedis.JedisCluster";
-    private static final String CONSTRUCTOR_WITH_LIST_HOSTANDPORT_ARG_INTERCEPT_CLASS = "Jorg.apache.skywalking.apm.plugin.jedis.v2.edisClusterConstructorWithListHostAndPortArgInterceptor";
+    private static final String CONSTRUCTOR_WITH_LIST_HOSTANDPORT_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithListHostAndPortArgInterceptor";
     private static final String METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisMethodInterceptor";
     private static final String CONSTRUCTOR_WITH_HOSTANDPORT_ARG_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jedis.v2.JedisClusterConstructorWithHostAndPortArgInterceptor";
 

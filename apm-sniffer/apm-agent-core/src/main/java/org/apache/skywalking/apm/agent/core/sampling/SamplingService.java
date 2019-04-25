@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -41,6 +42,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  *
  * @author wusheng
  */
+@DefaultImplementor
 public class SamplingService implements BootService {
     private static final ILog logger = LogManager.getLogger(SamplingService.class);
 
@@ -49,7 +51,7 @@ public class SamplingService implements BootService {
     private volatile ScheduledFuture<?> scheduledFuture;
 
     @Override
-    public void beforeBoot() throws Throwable {
+    public void prepare() throws Throwable {
 
     }
 
@@ -77,12 +79,12 @@ public class SamplingService implements BootService {
                     logger.error("unexpected exception.", t);
                 }
             }), 0, 3, TimeUnit.SECONDS);
-            logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
+            logger.debug("Agent sampling mechanism started. Sample {} traces in 3 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
         }
     }
 
     @Override
-    public void afterBoot() throws Throwable {
+    public void onComplete() throws Throwable {
 
     }
 

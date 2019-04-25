@@ -39,7 +39,7 @@ public class CarrierItem implements Iterator<CarrierItem> {
         if (StringUtil.isEmpty(NAMESPACE)) {
             this.headKey = headKey;
         } else {
-            this.headKey = NAMESPACE + ":" + headValue;
+            this.headKey = NAMESPACE + "-" + headKey;
         }
         this.headValue = headValue;
         this.next = next;

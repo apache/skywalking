@@ -16,22 +16,31 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,25 +48,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
-import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor.RequestMappingMethodInterceptor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -103,7 +102,6 @@ public class RequestMappingMethodInterceptorTest {
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
-        when(nativeWebRequest.getNativeResponse()).thenReturn(response);
 
         arguments = new Object[] {request, response};
         argumentType = new Class[] {request.getClass(), response.getClass()};
@@ -112,31 +110,39 @@ public class RequestMappingMethodInterceptorTest {
 
     @Test
     public void testWithoutSerializedContextData() throws Throwable {
-        controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
-        RequestMappingClass1 mappingClass1 = new RequestMappingClass1();
-        Method m = mappingClass1.getClass().getMethod("testRequestURL");
-        RequestContextHolder.setRequestAttributes(servletRequestAttributes);
+        SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
+            @Override
+            public void handleCase() throws Throwable {
+                controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
+                RequestMappingClass1 mappingClass1 = new RequestMappingClass1();
+                Method m = mappingClass1.getClass().getMethod("testRequestURL");
+                RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
-        interceptor.beforeMethod(enhancedInstance, m, arguments, argumentType, methodInterceptResult);
-        interceptor.afterMethod(enhancedInstance, m, arguments, argumentType, null);
+                interceptor.beforeMethod(enhancedInstance, m, arguments, argumentType, methodInterceptResult);
+                interceptor.afterMethod(enhancedInstance, m, arguments, argumentType, null);
+            }
+        });
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-
         assertHttpSpan(spans.get(0));
     }
 
     @Test
     public void testWithOccurException() throws Throwable {
-        controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
-        RequestMappingClass1 mappingClass1 = new RequestMappingClass1();
-        Method m = mappingClass1.getClass().getMethod("testRequestURL");
-        RequestContextHolder.setRequestAttributes(servletRequestAttributes);
+        SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
+            @Override public void handleCase() throws Throwable {
+                controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
+                RequestMappingClass1 mappingClass1 = new RequestMappingClass1();
+                Method m = mappingClass1.getClass().getMethod("testRequestURL");
+                RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
-        interceptor.beforeMethod(enhancedInstance, m, arguments, argumentType, methodInterceptResult);
-        interceptor.handleMethodException(enhancedInstance, m, arguments, argumentType, new RuntimeException());
-        interceptor.afterMethod(enhancedInstance, m, arguments, argumentType, null);
+                interceptor.beforeMethod(enhancedInstance, m, arguments, argumentType, methodInterceptResult);
+                interceptor.handleMethodException(enhancedInstance, m, arguments, argumentType, new RuntimeException());
+                interceptor.afterMethod(enhancedInstance, m, arguments, argumentType, null);
+            }
+        });
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -149,7 +155,7 @@ public class RequestMappingMethodInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.444.555"));
     }
@@ -169,7 +175,6 @@ public class RequestMappingMethodInterceptorTest {
         @Override
         public Object getSkyWalkingDynamicField() {
             value.setPathMappingCache(new PathMappingCache("/test"));
-            value.setNativeWebRequest(nativeWebRequest);
             return value;
         }
 
