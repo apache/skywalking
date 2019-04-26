@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
@@ -43,6 +44,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String user;
     private String password;
     private int metadataQueryMaxSize = 5000;
+    private int spanQueryMaxSize = 200;
 
     public String getUser() {
         return user;
@@ -162,5 +164,13 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
 
     public void setMetadataQueryMaxSize(int metadataQueryMaxSize) {
         this.metadataQueryMaxSize = metadataQueryMaxSize;
+    }
+
+    public int getSpanQueryMaxSize() {
+        return spanQueryMaxSize;
+    }
+
+    public void setSpanQueryMaxSize(int spanQueryMaxSize) {
+        this.spanQueryMaxSize = spanQueryMaxSize;
     }
 }

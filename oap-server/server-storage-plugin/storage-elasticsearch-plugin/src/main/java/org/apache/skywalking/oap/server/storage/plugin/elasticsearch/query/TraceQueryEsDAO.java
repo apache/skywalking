@@ -20,15 +20,25 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.entity.Span;
+import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -38,8 +48,11 @@ import org.elasticsearch.search.sort.SortOrder;
  */
 public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
-    public TraceQueryEsDAO(ElasticSearchClient client) {
+    private int maxQuerySpanSize;
+
+    public TraceQueryEsDAO(ElasticSearchClient client, int maxQuerySpanSize) {
         super(client);
+        this.maxQuerySpanSize = maxQuerySpanSize;
     }
 
     @Override
@@ -123,7 +136,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
-        sourceBuilder.size(20);
+        sourceBuilder.size(maxQuerySpanSize);
 
         SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
 
