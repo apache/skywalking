@@ -116,7 +116,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
-    public static final OfficialComponent HBASE =  new OfficialComponent(59, "HBase");
+    public static final OfficialComponent HBASE =  new OfficialComponent(60, "HBase");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 

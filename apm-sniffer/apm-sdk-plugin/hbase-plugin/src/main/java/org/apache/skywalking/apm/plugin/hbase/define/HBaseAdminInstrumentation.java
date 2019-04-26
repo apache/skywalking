@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.apm.plugin.hbase.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -12,8 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * @author zhangbin
- * @email 675953827@qq.com
- * @date 2019/4/26 22:14
  */
 public class HBaseAdminInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -28,29 +44,30 @@ public class HBaseAdminInstrumentation extends ClassInstanceMethodsEnhancePlugin
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named("tableExists").or(named("listTables")).or(named("listTableNames")).or(named("getTableDescriptor"))
-                                .or(named("createTable")).or(named("deleteTable")).or(named("modifyTable")).or(named("truncateTable"))
-                                .or(named("enableTable")).or(named("enableTableAsync")).or(named("enableTables")).or(named("disableTableAsync"))
-                                .or(named("disableTable")).or(named("disableTables")).or(named("getAlterStatus")).or(named("addColumn"))
-                                .or(named("deleteColumn")).or(named("modifyColumn")).or(named("compact")).or(named("majorCompact"))
-                                .or(named("split")).or(named("getTableRegions")).or(named("snapshot")).or(named("restoreSnapshot"))
-                                .or(named("cloneSnapshot")).or(named("listSnapshots")).or(named("deleteSnapshot"));
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("tableExists").or(named("listTables"))
+                        .or(named("listTableNames")).or(named("getTableDescriptor")).or(named("createTable")).or(named("deleteTable"))
+                        .or(named("modifyTable")).or(named("truncateTable")).or(named("enableTable")).or(named("enableTableAsync"))
+                        .or(named("enableTables")).or(named("disableTableAsync")).or(named("disableTable")).or(named("disableTables"))
+                        .or(named("getAlterStatus")).or(named("addColumn")).or(named("deleteColumn")).or(named("modifyColumn"))
+                        .or(named("compact")).or(named("majorCompact")).or(named("split")).or(named("getTableRegions"))
+                        .or(named("snapshot")).or(named("restoreSnapshot")).or(named("cloneSnapshot")).or(named("listSnapshots"))
+                        .or(named("deleteSnapshot"));
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 

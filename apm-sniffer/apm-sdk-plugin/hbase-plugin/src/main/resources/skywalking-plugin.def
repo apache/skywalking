@@ -18,5 +18,5 @@ hbase=org.apache.skywalking.apm.plugin.hbase.define.HBaseAdminInstrumentation
 hbase=org.apache.skywalking.apm.plugin.hbase.define.HTableInstrumentation
 hbase=org.apache.skywalking.apm.plugin.hbase.define.AsyncProcessInstrumentation
 hbase=org.apache.skywalking.apm.plugin.hbase.define.AsyncRpcClientInstrumentation
-hbase=org.apache.skywalking.apm.plugin.hbase.define.HbaseClientInstrumentation
+hbase=org.apache.skywalking.apm.plugin.hbase.define.HBaseClientInstrumentation
 hbase=org.apache.skywalking.apm.plugin.hbase.define.RpcClientImplInstrumentation
