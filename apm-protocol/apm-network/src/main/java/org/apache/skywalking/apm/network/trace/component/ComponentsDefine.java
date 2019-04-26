@@ -116,6 +116,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
+    public static final OfficialComponent HBASE =  new OfficialComponent(59, "HBase");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -170,6 +172,7 @@ public class ComponentsDefine {
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
+        addComponent(HBASE);
     }
 
     private void addComponent(OfficialComponent component) {

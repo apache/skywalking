@@ -2,6 +2,7 @@ package org.apache.skywalking.apm.plugin.hbase;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -13,13 +14,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * @author zhangbin
+ * @email 675953827@qq.com
+ * @date 2019/4/26 22:14
+ */
 public class HBaseAdminInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final ILog LOGGER = LogManager.getLogger(HBaseAdminInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         LOGGER.info("method is {} ", method.getName());
         AbstractSpan span = ContextManager.createExitSpan(HBasePluginConstants.HBASE_CLIENT_ADMIN + "/" + method.getName(), "");
         span.setComponent(ComponentsDefine.HBASE);
@@ -30,13 +36,14 @@ public class HBaseAdminInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
