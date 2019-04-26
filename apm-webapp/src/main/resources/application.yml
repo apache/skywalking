@@ -21,7 +21,10 @@ zuul:
   ignoredServices: '*'
   routes:
     api:
-      path: /api/**
+      path: /graphql
+      serviceId: collector
+    login:
+      path: /login/account
       serviceId: collector
 
 collector:

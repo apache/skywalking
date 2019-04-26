@@ -11,9 +11,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm-incubating.svg)](http://skywalking.apache.org/downloads/)
-[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
-[![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
-[![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
+[![Build Status](https://travis-ci.org/apache/skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
 
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
@@ -90,7 +88,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
 Here is the **User Wall** of SkyWalking.
 
-<img src="http://skywalking.apache.org/assets/users-20190402.png"/>
+<img src="http://skywalking.apache.org/assets/users-20190422.png"/>
 
 Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
 
@@ -108,9 +106,6 @@ SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observabili
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a>
   <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
-
-# Stargazers over time
-[![Stargazers over time](https://starcharts.herokuapp.com/apache/incubator-skywalking.svg)](https://starcharts.herokuapp.com/apache/incubator-skywalking)
 
 # License
 [Apache 2.0 License.](/LICENSE)
