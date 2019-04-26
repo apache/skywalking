@@ -31,17 +31,17 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 
 /**
  *
- * {@link ExecutorBizInstrumentation} presents that skywalking intercepts {@link com.xxl.job.core.biz.ExecutorBiz}.
+ * {@link JobHandlerInstrumentation} presents that skywalking intercepts {@link com.xxl.job.core.biz.ExecutorBiz}.
  *
  * @author tianjunwei
  * 2019/4/21 10:57
  */
-public class ExecutorBizInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class JobHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
 
     private static final String ENHANCE_CLASS = "com.xxl.job.core.handler.IJobHandler";
 
-    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.xxljob.ExecutorBizInterceptor";
+    private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.xxljob.JobHandlerInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

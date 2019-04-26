@@ -1,4 +1,4 @@
-package org.apache.skywalking.apm.plugin.xxljob;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,7 +16,8 @@ package org.apache.skywalking.apm.plugin.xxljob;/*
  *
  */
 
-import com.google.common.base.Strings;
+package org.apache.skywalking.apm.plugin.xxljob;
+
 import com.xxl.job.core.util.ShardingUtil;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
@@ -32,15 +33,21 @@ import java.lang.reflect.Method;
  * @author tianjunwei
  * 2019/4/21 10:55
  */
-public class ExecutorBizInterceptor implements InstanceMethodsAroundInterceptor {
+public class JobHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String triggerParam = (String) allArguments[0];
-        String operateName = method.getDeclaringClass().getName();
+        String operateName = null;
+        if(method != null) {
+          operateName =  method.getDeclaringClass().getName();
+        }else {
+            operateName = ComponentsDefine.XXL_JOB.getName();
+        }
         ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
-        if(shardingVO != null){
+        if (shardingVO != null) {
+
             operateName = operateName + "_" + shardingVO.getIndex();
         }
         AbstractSpan span;

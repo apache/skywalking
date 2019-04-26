@@ -127,7 +127,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[60];
+        components = new String[61];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -172,6 +172,7 @@ public class ComponentsDefine {
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
+        addComponent(XXL_JOB);
     }
 
     private void addComponent(OfficialComponent component) {
