@@ -64,7 +64,7 @@ public class JobHandlerInterceptorTest {
 
     @Test
     public void assertSuccess() throws Throwable {
-        jobHandlerInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("fooJob"), 1}, null, null);
+        jobHandlerInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("xxljob"), 1}, null, null);
         jobHandlerInterceptor.afterMethod(null, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
@@ -73,24 +73,24 @@ public class JobHandlerInterceptorTest {
         assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
         assertThat(spans.get(0).transform().getComponentId(), is(60));
         assertThat(spans.get(0).transform().getTags(0).getKey(), is("triggerParam"));
-        assertThat(spans.get(0).transform().getTags(0).getValue(), is("fooJob"));
+        assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
     }
 
     @Test
     public void assertSuccessWithoutSharding() throws Throwable {
-        jobHandlerInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("fooJob"), 0}, null, null);
+        jobHandlerInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("xxljob"), 0}, null, null);
         jobHandlerInterceptor.afterMethod(null, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
-        assertThat(spans.get(0).transform().getTags(0).getValue(), is("fooJob"));
+        assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
     }
 
     @Test
     public void assertError() throws Throwable {
-        jobHandlerInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("fooJob"), 0}, null, null);
+        jobHandlerInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("xxljob"), 0}, null, null);
         jobHandlerInterceptor.handleMethodException(null, null, null, null, new Exception("fooError"));
         jobHandlerInterceptor.afterMethod(null, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
