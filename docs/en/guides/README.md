@@ -48,10 +48,12 @@ want to push upstream back to our Apache OSS repo, please read these principles.
 ### UI developer
 Our UI is constituted by static pages and web container.
 
-- **Static pages** is built based on [Ant Design Pro](https://pro.ant.design/), which source codes are 
-hosted in our [UI repository](https://github.com/apache/incubator-skywalking-ui).
+- [RocketBot UI](https://github.com/apache/skywalking-rocketbot-ui) is SkyWalking primary UI since 6.1 release.
+It is built with vue + typescript. You could know more at the rocketbot repository.
 - **Web container** source codes are in `apm-webapp` module. This is a just an easy zuul proxy to host
 static resources and send GraphQL query requests to backend.
+- [Legacy UI repository](https://github.com/apache/incubator-skywalking-ui) is still there, but not included
+in SkyWalking release, after 6.0.0-GA.
 
 ## For release
 [Apache Release Guide](How-to-release.md) introduces to the committer team about doing official Apache version release, to avoid 
