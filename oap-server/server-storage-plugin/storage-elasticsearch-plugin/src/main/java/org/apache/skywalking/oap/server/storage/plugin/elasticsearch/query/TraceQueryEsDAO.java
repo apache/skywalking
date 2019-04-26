@@ -48,11 +48,11 @@ import org.elasticsearch.search.sort.SortOrder;
  */
 public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
-    private int maxQuerySpanSize;
+    private int maxQuerySegmentSize;
 
-    public TraceQueryEsDAO(ElasticSearchClient client, int maxQuerySpanSize) {
+    public TraceQueryEsDAO(ElasticSearchClient client, int maxQuerySegmentSize) {
         super(client);
-        this.maxQuerySpanSize = maxQuerySpanSize;
+        this.maxQuerySegmentSize = maxQuerySegmentSize;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
-        sourceBuilder.size(maxQuerySpanSize);
+        sourceBuilder.size(maxQuerySegmentSize);
 
         SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
 

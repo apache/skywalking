@@ -44,7 +44,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String user;
     private String password;
     private int metadataQueryMaxSize = 5000;
-    private int spanQueryMaxSize = 200;
+    private int maxQuerySegmentSize = 200;
 
     public String getUser() {
         return user;
@@ -166,11 +166,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
         this.metadataQueryMaxSize = metadataQueryMaxSize;
     }
 
-    public int getSpanQueryMaxSize() {
-        return spanQueryMaxSize;
+    public int getMaxQuerySegmentSize() {
+        return maxQuerySegmentSize;
     }
 
-    public void setSpanQueryMaxSize(int spanQueryMaxSize) {
-        this.spanQueryMaxSize = spanQueryMaxSize;
+    public void setMaxQuerySegmentSize(int maxQuerySegmentSize) {
+        this.maxQuerySegmentSize = maxQuerySegmentSize;
     }
 }
