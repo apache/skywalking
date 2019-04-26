@@ -40,9 +40,9 @@ public class JobHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
         String triggerParam = (String) allArguments[0];
         String operateName = null;
-        if(method != null) {
-          operateName =  method.getDeclaringClass().getName();
-        }else {
+        if (method != null) {
+            operateName = method.getDeclaringClass().getName();
+        } else {
             operateName = ComponentsDefine.XXL_JOB.getName();
         }
         ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
