@@ -38,8 +38,7 @@ public class ExecutorBizInterceptor implements InstanceMethodsAroundInterceptor 
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
         String triggerParam = (String) allArguments[0];
-
-        String operateName = "xxl-job";
+        String operateName = method.getDeclaringClass().getName();
         ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
         if(shardingVO != null){
             operateName = operateName + "_" + shardingVO.getIndex();
