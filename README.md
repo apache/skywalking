@@ -61,17 +61,19 @@ Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines
 # Screenshot
 <table>
   <tr>
-    <td width="50%" align="center"><b>Under javaagent observing</b></td>
-    <td width="50%" align="center"><b>Observe on Istio</b></td>
+    <td width="100%" align="center" colspan="2"><b>Dashboard</b></td>
   </tr>
   <tr>
-    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Topology.png"/>
-</td>
-    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Istio/Topology.png"/>
-</td>
-   <tr>
-     <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
-     <td align="center"><a href="docs/Screenshots.md#istio">More screenshots</a></td>
+    <td><img src="http://skywalking.apache.org/screenshots/6.1.0/dashboard-1.png"/></td>
+    <td><img src="http://skywalking.apache.org/screenshots/6.1.0/dashboard-2.png"/></td>
+  </tr>
+  <tr>
+      <td width="50%" align="center"><b>Topology Map</b></td>
+      <td width="50%" align="center"><b>Trace</b></td>
+  </tr>
+  <tr>
+     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/topology.png"/></td>
+     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/trace.png"/></td>
   </tr>
 </table>
 
