@@ -41,7 +41,7 @@ public class RpcClientImplInterceptor implements InstanceMethodsAroundIntercepto
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         LOGGER.info("method is {} ", method.getName());
-        AbstractSpan span = ContextManager.createExitSpan(method.getName(), "");
+        AbstractSpan span = ContextManager.createExitSpan(method.getName(), ConnectionInfo.REMOTE_PEER);
         span.setComponent(ComponentsDefine.HBASE);
         SpanLayer.asDB(span);
 

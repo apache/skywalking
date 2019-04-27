@@ -47,7 +47,7 @@ public class HTableInterceptor implements InstanceMethodsAroundInterceptor {
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         LOGGER.info("method is {} ", method.getName());
-        AbstractSpan span = ContextManager.createExitSpan(HBasePluginConstants.HBASE_CLIENT_TABLE + "/" + method.getName(), "");
+        AbstractSpan span = ContextManager.createExitSpan(HBasePluginConstants.HBASE_CLIENT_TABLE + "/" + method.getName(), ConnectionInfo.REMOTE_PEER);
         span.setComponent(ComponentsDefine.HBASE);
         span.tag(new StringTag("args"), parseAttributes(allArguments));
         SpanLayer.asDB(span);
