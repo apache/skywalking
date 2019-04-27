@@ -33,7 +33,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class AsyncProcessInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.HBaseAdmin";
+    private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.AsyncProcess";
 
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.AsyncProcessInterceptor";
 
