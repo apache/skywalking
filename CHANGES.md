@@ -52,6 +52,7 @@ Significantly cost less CPU in low payload.**
 - Support set separated gRPC/Jetty ip:port for receiver, default still use core settings.
 - Fix JVM receiver bug.
 - Fix wrong dest service in mesh analysis.
+- Fix search doesn't work as expected.
 - Refactor `ScopeDeclaration` annotation.
 - Refactor register lock mechanism.
 - Add SmartSql component for .NET
