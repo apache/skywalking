@@ -70,7 +70,7 @@ Significantly cost less CPU in low payload.**
 - CN documents removed, only consider to provide by volunteer out of Apache.
 
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/32?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/32?closed=1)
 
 
 6.0.0-GA
@@ -111,7 +111,7 @@ All issues and pull requests are [here](https://github.com/apache/incubator-skyw
 - User wall updated.
 - Fix a wrong description in `how-to-build` doc.
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/30?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/30?closed=1)
 
 6.0.0-beta
 ------------------
@@ -170,7 +170,7 @@ All issues and pull requests are [here](https://github.com/apache/incubator-skyw
 - Update user wall and powered-by page.
 - Add RocketBot UI project link in document.
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/31?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/31?closed=1)
 
 6.0.0-alpha
 ------------------
@@ -187,8 +187,8 @@ provided in this release.
 1. UI topology is better now.
 1. New alarm core provided. In alpha, only on service related metric.
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/29?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/29?closed=1)
 
 5.x releases
 ------------------
-You could find all CHANGES of 5.x at [here](https://github.com/apache/incubator-skywalking/blob/5.x/CHANGES.md)
+You could find all CHANGES of 5.x at [here](https://github.com/apache/skywalking/blob/5.x/CHANGES.md)
