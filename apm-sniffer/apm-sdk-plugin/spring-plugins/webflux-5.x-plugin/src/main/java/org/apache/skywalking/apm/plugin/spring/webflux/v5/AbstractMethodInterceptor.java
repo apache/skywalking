@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBFLUX_REQUEST_KEY;
 
@@ -39,6 +40,7 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.WEBF
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
+
     public abstract String getAcceptedMethodTypes(Method method);
 
     @Override
@@ -64,18 +66,28 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
         HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
         if (request != null) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(request.headers().get(next.getHeadKey()));
+
+            Object stackDepth = ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+            Integer depth = stackDepth == null ? 0 : Integer.parseInt(stackDepth.toString());
+            if (depth == 0) {
+                ContextCarrier contextCarrier = new ContextCarrier();
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    next.setHeadValue(request.headers().get(next.getHeadKey()));
+                }
+
+                AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
+                Tags.URL.set(span, request.uri());
+                Tags.HTTP.METHOD.set(span, request.method().name());
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
+                SpanLayer.asHttp(span);
+            } else {
+                AbstractSpan span = ContextManager.createLocalSpan(objInst.getClass().getName() + "/" + method.getName());
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
-            Tags.URL.set(span, request.uri());
-            Tags.HTTP.METHOD.set(span, request.method().name());
-            span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
-            SpanLayer.asHttp(span);
+            ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, depth++);
         }
     }
 
@@ -91,7 +103,10 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             return ret;
         }
 
-        ContextManager.stopSpan();
+        HttpRequest request = (HttpRequest)ContextManager.getRuntimeContext().get(WEBFLUX_REQUEST_KEY);
+        if (request != null) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 

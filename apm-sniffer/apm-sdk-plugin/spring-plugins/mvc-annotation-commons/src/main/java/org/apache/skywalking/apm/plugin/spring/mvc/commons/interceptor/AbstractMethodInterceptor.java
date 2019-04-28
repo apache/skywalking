@@ -34,7 +34,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
 
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
@@ -44,6 +47,7 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
     public abstract String getRequestURL(Method method);
+
     public abstract String getAcceptedMethodTypes(Method method);
 
     @Override
@@ -75,19 +79,44 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
         if (request != null) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(request.getHeader(next.getHeadKey()));
+            Object stackDepth = ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+            Integer depth = stackDepth == null ? 0 : Integer.parseInt(stackDepth.toString());
+
+            if (depth == 0) {
+                ContextCarrier contextCarrier = new ContextCarrier();
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    next.setHeadValue(request.getHeader(next.getHeadKey()));
+                }
+
+                AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
+                Tags.URL.set(span, request.getRequestURL().toString());
+                Tags.HTTP.METHOD.set(span, request.getMethod());
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
+                SpanLayer.asHttp(span);
+            } else {
+                AbstractSpan span =
+                    ContextManager.createLocalSpan(buildOperationName(objInst, method));
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
-            Tags.URL.set(span, request.getRequestURL().toString());
-            Tags.HTTP.METHOD.set(span, request.getMethod());
-            span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
-            SpanLayer.asHttp(span);
+            ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, depth++);
         }
+    }
+
+    private String buildOperationName(Object invoker, Method method){
+        StringBuilder operationName = new StringBuilder(invoker.getClass().getName())
+            .append(".").append(method.getName()).append("(");
+        for (Class<?> type : method.getParameterTypes()) {
+            operationName.append(type.getName()).append(",");
+        }
+
+        if (method.getParameterTypes().length > 0){
+            operationName = operationName.deleteCharAt(operationName.length() - 1);
+        }
+
+        return operationName.append(")").toString();
     }
 
     @Override
@@ -102,19 +131,34 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             return ret;
         }
 
-        HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
-        try {
-            if (response != null) {
-                AbstractSpan span = ContextManager.activeSpan();
+        HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+
+        if (request != null) {
+            Object stackDepth = ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+            if (stackDepth == null) {
+                throw new IllegalMethodStackDepthException(stackDepth);
+            }
+
+            Integer depth = Integer.parseInt(String.valueOf(stackDepth));
+            AbstractSpan span = ContextManager.activeSpan();
+
+            if (depth == 0) {
+                HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                if (response == null) {
+                    throw new ServletResponseNotFoundException();
+                }
+
                 if (response.getStatus() >= 400) {
                     span.errorOccurred();
                     Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+
+                    ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+                    ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 }
-                ContextManager.stopSpan();
             }
-        } finally {
-            ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
-            ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+
+            ContextManager.stopSpan();
+            ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, depth--);
         }
 
         return ret;
