@@ -55,7 +55,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
         long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
         Integer scopeId = null;
-        if(scope == null){
+        if (scope == null) {
             scopeId = scope.getScopeId();
         }
 
