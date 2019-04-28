@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-hbase-plugin</artifactId>
+    <artifactId>hbase-client-2.x-plugin</artifactId>
 
-    <name>apm-hbase-plugin</name>
+    <name>hbase-client-2.x-plugin</name>
     <build>
         <plugins>
             <plugin>

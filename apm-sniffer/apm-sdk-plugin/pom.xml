@@ -70,7 +70,8 @@
         <module>dubbo-2.7.x-plugin</module>
         <module>dubbo-2.7.x-conflict-patch</module>
         <module>vertx-plugins</module>
-        <module>hbase-plugin</module>
+        <module>hbase-client-1.x-plugin</module>
+        <module>hbase-client-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
