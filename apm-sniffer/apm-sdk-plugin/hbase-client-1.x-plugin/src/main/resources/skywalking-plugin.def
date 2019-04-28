@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.ConnectionFactoryInstrumentation
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.HBaseAdminInstrumentation
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.HTableInstrumentation
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.AsyncProcessInstrumentation
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.AbstractRpcClientInstrumentation
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.HBaseClientInstrumentation
-hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.define.RpcClientImplInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.ConnectionFactoryInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.HBaseAdminInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.HTableInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.AsyncProcessInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.AbstractRpcClientInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.HBaseClientInstrumentation
+hBase-client-1.x=org.apache.skywalking.apm.plugin.hbase.v1.define.RpcClientImplInstrumentation
