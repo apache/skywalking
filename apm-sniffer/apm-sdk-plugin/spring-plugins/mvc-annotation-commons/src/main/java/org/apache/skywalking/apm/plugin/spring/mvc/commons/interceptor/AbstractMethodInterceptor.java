@@ -79,10 +79,9 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
         if (request != null) {
-            Object stackDepth = ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
-            Integer depth = stackDepth == null ? 0 : Integer.parseInt(stackDepth.toString());
+            StackDepth stackDepth = (StackDepth)ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
 
-            if (depth == 0) {
+            if (stackDepth == null) {
                 ContextCarrier contextCarrier = new ContextCarrier();
                 CarrierItem next = contextCarrier.items();
                 while (next.hasNext()) {
@@ -95,24 +94,27 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 Tags.HTTP.METHOD.set(span, request.getMethod());
                 span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
                 SpanLayer.asHttp(span);
+
+                stackDepth = new StackDepth();
+                ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, stackDepth);
             } else {
                 AbstractSpan span =
                     ContextManager.createLocalSpan(buildOperationName(objInst, method));
                 span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             }
 
-            ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, depth++);
+            stackDepth.increment();
         }
     }
 
-    private String buildOperationName(Object invoker, Method method){
+    private String buildOperationName(Object invoker, Method method) {
         StringBuilder operationName = new StringBuilder(invoker.getClass().getName())
             .append(".").append(method.getName()).append("(");
         for (Class<?> type : method.getParameterTypes()) {
             operationName.append(type.getName()).append(",");
         }
 
-        if (method.getParameterTypes().length > 0){
+        if (method.getParameterTypes().length > 0) {
             operationName = operationName.deleteCharAt(operationName.length() - 1);
         }
 
@@ -134,15 +136,14 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
 
         if (request != null) {
-            Object stackDepth = ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+            StackDepth stackDepth = (StackDepth)ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
             if (stackDepth == null) {
-                throw new IllegalMethodStackDepthException(stackDepth);
+                throw new IllegalMethodStackDepthException();
             }
 
-            Integer depth = Integer.parseInt(String.valueOf(stackDepth));
             AbstractSpan span = ContextManager.activeSpan();
 
-            if (depth == 0) {
+            if (stackDepth.depth() == 0) {
                 HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
                 if (response == null) {
                     throw new ServletResponseNotFoundException();
@@ -158,7 +159,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             }
 
             ContextManager.stopSpan();
-            ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, depth--);
+            stackDepth.decrement();
         }
 
         return ret;

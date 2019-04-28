@@ -18,7 +18,7 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.exception;
 
 public class IllegalMethodStackDepthException extends RuntimeException {
-    public IllegalMethodStackDepthException(Object depth) {
-
+    public IllegalMethodStackDepthException() {
+        super("Please submit an new issue to Apache Skywalking if this Exception was happened.");
     }
 }

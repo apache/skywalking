@@ -15,10 +15,27 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.mvc.commons.exception;
+package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-public class ServletResponseNotFoundException extends RuntimeException {
-    public ServletResponseNotFoundException() {
-        super("Please submit an new issue to Apache Skywalking if this Exception was happened.");
+public class StackDepth {
+
+    private int stackDepth;
+
+    public StackDepth() {
+        this.stackDepth = 0;
+    }
+
+    public int depth() {
+        return this.stackDepth;
+    }
+
+    public StackDepth increment() {
+        this.stackDepth++;
+        return this;
+    }
+
+    public StackDepth decrement() {
+        this.stackDepth--;
+        return this;
     }
 }
