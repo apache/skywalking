@@ -43,7 +43,7 @@ PRODUCT_NAME=${PRODUCT_NAME}-${RELEASE_VERSION}
 rm -rf ${PRODUCT_NAME}
 mkdir ${PRODUCT_NAME}
 
-git clone https://github.com/apache/incubator-skywalking.git ./${PRODUCT_NAME}
+git clone https://github.com/apache/skywalking.git ./${PRODUCT_NAME}
 cd ${PRODUCT_NAME}
 
 TAG_EXIST=`git tag -l ${TAG_NAME} | wc -l`

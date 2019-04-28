@@ -6,12 +6,12 @@ Apache SkyWalking
 **SkyWalking**: an APM(application performance monitor) system, especially designed for
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
-[![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
+[![GitHub stars](https://img.shields.io/github/stars/apache/skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/skywalking)
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
 
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm-incubating.svg)](http://skywalking.apache.org/downloads/)
-[![Build Status](https://travis-ci.org/apache/skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
+[![Build Status](https://travis-ci.org/apache/skywalking.svg?branch=master)](https://travis-ci.org/apache/skywalking)
 
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
@@ -81,7 +81,7 @@ Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
-* Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
+* Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNDQ3OTEwNzE1MDg5LWY2NjkwMTEzMGI2ZTI1NzUzMDk0MzJmMWM1NWVmODg0MzBjNjAxYzUwMjIwNDI3MjlhZWRjNmNhOTM5NmIxNDk)
 * QQ Group: 392443393
