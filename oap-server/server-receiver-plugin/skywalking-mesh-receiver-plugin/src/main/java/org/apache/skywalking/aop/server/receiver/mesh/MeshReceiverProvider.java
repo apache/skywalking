@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+import org.apache.skywalking.oap.server.receiver.sharing.server.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class MeshReceiverProvider extends ModuleProvider {

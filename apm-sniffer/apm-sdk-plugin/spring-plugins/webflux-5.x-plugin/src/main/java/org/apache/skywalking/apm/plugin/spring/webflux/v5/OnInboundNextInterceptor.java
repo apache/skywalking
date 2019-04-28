@@ -45,11 +45,13 @@ public class OnInboundNextInterceptor implements InstanceMethodsAroundIntercepto
                 next.setHeadValue(request.headers().get(next.getHeadKey()));
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(request.uri(), contextCarrier);
-            Tags.URL.set(span, request.uri());
-            Tags.HTTP.METHOD.set(span, request.method().name());
-            span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
-            SpanLayer.asHttp(span);
+            if (allArguments[1] instanceof HttpRequest) {
+                AbstractSpan span = ContextManager.createEntrySpan(request.uri(), contextCarrier);
+                Tags.URL.set(span, request.uri());
+                Tags.HTTP.METHOD.set(span, request.method().name());
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
+                SpanLayer.asHttp(span);
+            }
         }
     }
 

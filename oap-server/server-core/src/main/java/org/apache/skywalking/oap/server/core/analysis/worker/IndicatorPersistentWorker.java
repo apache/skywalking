@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.IIndicatorDAO;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 import static java.util.Objects.nonNull;
@@ -45,10 +45,10 @@ public class IndicatorPersistentWorker extends PersistenceWorker<Indicator, Merg
     private final AbstractWorker<Indicator> nextExportWorker;
     private final DataCarrier<Indicator> dataCarrier;
 
-    IndicatorPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
+    IndicatorPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName, int batchSize,
         IIndicatorDAO indicatorDAO, AbstractWorker<Indicator> nextAlarmWorker,
         AbstractWorker<Indicator> nextExportWorker) {
-        super(moduleManager, workerId, batchSize);
+        super(moduleDefineHolder, batchSize);
         this.modelName = modelName;
         this.mergeDataCache = new MergeDataCache<>();
         this.indicatorDAO = indicatorDAO;

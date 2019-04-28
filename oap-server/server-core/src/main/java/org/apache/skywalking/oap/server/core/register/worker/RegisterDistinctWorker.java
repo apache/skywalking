@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -39,8 +40,8 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
     private final Map<RegisterSource, RegisterSource> sources;
     private int messageNum;
 
-    RegisterDistinctWorker(int workerId, AbstractWorker<RegisterSource> nextWorker) {
-        super(workerId);
+    RegisterDistinctWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<RegisterSource> nextWorker) {
+        super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.sources = new HashMap<>();
         this.dataCarrier = new DataCarrier<>(1, 1000);

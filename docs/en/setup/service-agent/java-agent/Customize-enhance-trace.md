@@ -2,7 +2,7 @@
 Here is an optional plugin `apm-customize-enhance-plugin`
 
 ## Introduce
-SkyWalking has provided [Java agent plugin development guide](https://github.com/apache/incubator-skywalking/blob/master/docs/en/guides/Java-Plugin-Development-Guide.md) to help developers to build new plugin. 
+SkyWalking has provided [Java agent plugin development guide](https://github.com/apache/skywalking/blob/master/docs/en/guides/Java-Plugin-Development-Guide.md) to help developers to build new plugin. 
 
 This plugin is not designed for replacement but for user convenience. The behaviour is very similar with [@Trace toolkit](Application-toolkit-trace.md), but without code change requirement, and more powerful, such as provide tag and log.                                                                                                      
 

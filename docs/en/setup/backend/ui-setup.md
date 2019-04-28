@@ -31,8 +31,3 @@ security:
 
 ```
 
-## Another Open Source UI RocketBot
-
-A modern and awesome UI for Apache SkyWalking. 
-
-Github: [https://github.com/TinyAllen/rocketbot](https://github.com/TinyAllen/rocketbot)

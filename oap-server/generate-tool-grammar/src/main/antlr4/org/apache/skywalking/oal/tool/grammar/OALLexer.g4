@@ -51,6 +51,10 @@ SRC_ENDPOINT_RELATION_SERVER_SIDE: 'endpoint_relation_server_side';
 SRC_SERVICE_RELATION_SERVER_SIDE: 'service_relation_server_side';
 SRC_SERVICE_RELATION_CLIENT_SIDE: 'service_relation_client_side';
 SRC_ALARM_RECORD: 'alarm_record';
+SRC_HTTP_ACCESS_LOG: 'http_access_log';
+
+SRC_ZIPKIN_SPAN: 'zipkin_span';
+SRC_JAEGER_SPAN: 'jaeger_span';
 
 // Literals
 

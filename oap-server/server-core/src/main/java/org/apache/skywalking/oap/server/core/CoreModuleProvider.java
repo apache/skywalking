@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
+import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -90,6 +91,7 @@ public class CoreModuleProvider extends ModuleProvider {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.registerListener(DisableRegister.INSTANCE);
+        scopeScan.registerListener(new DisableRegister.SingleDisableScanListener());
         try {
             scopeScan.scan(null);
         } catch (IOException e) {
@@ -120,6 +122,10 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
 
+        WorkerInstancesService instancesService = new WorkerInstancesService();
+        this.registerServiceImplementation(IWorkerInstanceGetter.class, instancesService);
+        this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
+
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
         this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
         this.registerServiceImplementation(IModelOverride.class, storageAnnotationListener);
@@ -139,6 +145,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
         this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
+        this.registerServiceImplementation(LogQueryService.class, new LogQueryService(getManager()));
         this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));

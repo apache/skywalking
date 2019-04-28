@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -66,29 +65,20 @@ public enum IndicatorProcess {
         IndicatorPersistentWorker dayPersistentWorker = worker(moduleManager, indicatorDAO, modelName + Const.ID_SPLIT + Downsampling.Day.getName());
         IndicatorPersistentWorker monthPersistentWorker = worker(moduleManager, indicatorDAO, modelName + Const.ID_SPLIT + Downsampling.Month.getName());
 
-        IndicatorTransWorker transWorker = new IndicatorTransWorker(moduleManager, modelName, WorkerIdGenerator.INSTANCES.generate(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
-        WorkerInstances.INSTANCES.put(transWorker.getWorkerId(), transWorker);
-
-        IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager, transWorker, modelName);
-        WorkerInstances.INSTANCES.put(remoteWorker.getWorkerId(), remoteWorker);
-
-        IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(moduleManager, WorkerIdGenerator.INSTANCES.generate(), remoteWorker, modelName);
-        WorkerInstances.INSTANCES.put(aggregateWorker.getWorkerId(), aggregateWorker);
+        IndicatorTransWorker transWorker = new IndicatorTransWorker(moduleManager, modelName, minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
+        IndicatorRemoteWorker remoteWorker = new IndicatorRemoteWorker(moduleManager, transWorker, modelName);
+        IndicatorAggregateWorker aggregateWorker = new IndicatorAggregateWorker(moduleManager, remoteWorker, modelName);
 
         entryWorkers.put(indicatorClass, aggregateWorker);
     }
 
     private IndicatorPersistentWorker minutePersistentWorker(ModuleManager moduleManager,
         IIndicatorDAO indicatorDAO, String modelName) {
-        AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
-        WorkerInstances.INSTANCES.put(alarmNotifyWorker.getWorkerId(), alarmNotifyWorker);
+        AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleManager);
+        ExportWorker exportWorker = new ExportWorker(moduleManager);
 
-        ExportWorker exportWorker = new ExportWorker(WorkerIdGenerator.INSTANCES.generate(), moduleManager);
-        WorkerInstances.INSTANCES.put(exportWorker.getWorkerId(), exportWorker);
-
-        IndicatorPersistentWorker minutePersistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, alarmNotifyWorker, exportWorker);
-        WorkerInstances.INSTANCES.put(minutePersistentWorker.getWorkerId(), minutePersistentWorker);
+        IndicatorPersistentWorker minutePersistentWorker = new IndicatorPersistentWorker(moduleManager, modelName,
+            1000, indicatorDAO, alarmNotifyWorker, exportWorker);
         persistentWorkers.add(minutePersistentWorker);
 
         return minutePersistentWorker;
@@ -96,9 +86,8 @@ public enum IndicatorProcess {
 
     private IndicatorPersistentWorker worker(ModuleManager moduleManager,
         IIndicatorDAO indicatorDAO, String modelName) {
-        IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(WorkerIdGenerator.INSTANCES.generate(), modelName,
-            1000, moduleManager, indicatorDAO, null, null);
-        WorkerInstances.INSTANCES.put(persistentWorker.getWorkerId(), persistentWorker);
+        IndicatorPersistentWorker persistentWorker = new IndicatorPersistentWorker(moduleManager, modelName,
+            1000, indicatorDAO, null, null);
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;

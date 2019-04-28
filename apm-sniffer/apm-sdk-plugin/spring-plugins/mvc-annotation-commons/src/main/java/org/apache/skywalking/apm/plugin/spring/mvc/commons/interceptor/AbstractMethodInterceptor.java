@@ -57,7 +57,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
         /**
          * Spring MVC plugin do nothing if current request is forward request.
-         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         * Ref: https://github.com/apache/skywalking/pull/1325
          */
         if (forwardRequestFlag != null && forwardRequestFlag) {
             return;
@@ -125,7 +125,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
         /**
          * Spring MVC plugin do nothing if current request is forward request.
-         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         * Ref: https://github.com/apache/skywalking/pull/1325
          */
         if (forwardRequestFlag != null && forwardRequestFlag) {
             return ret;

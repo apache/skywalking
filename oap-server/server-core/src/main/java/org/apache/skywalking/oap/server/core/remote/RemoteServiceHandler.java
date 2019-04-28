@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
-import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -44,6 +44,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
     private final ModuleDefineHolder moduleDefineHolder;
     private StreamDataClassGetter streamDataClassGetter;
+    private IWorkerInstanceGetter workerInstanceGetter;
     private CounterMetric remoteInCounter;
     private CounterMetric remoteInErrorCounter;
     private HistogramMetric remoteInHistogram;
@@ -71,6 +72,14 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
             }
         }
 
+        if (Objects.isNull(workerInstanceGetter)) {
+            synchronized (RemoteServiceHandler.class) {
+                if (Objects.isNull(workerInstanceGetter)) {
+                    workerInstanceGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceGetter.class);
+                }
+            }
+        }
+
         return new StreamObserver<RemoteMessage>() {
             @Override public void onNext(RemoteMessage message) {
                 remoteInCounter.inc();
@@ -84,7 +93,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                     try {
                         StreamData streamData = streamDataClass.newInstance();
                         streamData.deserialize(remoteData);
-                        WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
+                        workerInstanceGetter.get(nextWorkerId).in(streamData);
                     } catch (Throwable t) {
                         remoteInErrorCounter.inc();
                         logger.error(t.getMessage(), t);

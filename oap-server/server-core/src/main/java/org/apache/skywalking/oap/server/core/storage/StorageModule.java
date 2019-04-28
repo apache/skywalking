@@ -40,6 +40,6 @@ public class StorageModule extends ModuleDefine {
             IServiceInventoryCacheDAO.class, IServiceInstanceInventoryCacheDAO.class,
             IEndpointInventoryCacheDAO.class, INetworkAddressInventoryCacheDAO.class,
             ITopologyQueryDAO.class, IMetricQueryDAO.class, ITraceQueryDAO.class, IMetadataQueryDAO.class, IAggregationQueryDAO.class, IAlarmQueryDAO.class,
-            ITopNRecordsQueryDAO.class};
+            ITopNRecordsQueryDAO.class, ILogQueryDAO.class};
     }
 }

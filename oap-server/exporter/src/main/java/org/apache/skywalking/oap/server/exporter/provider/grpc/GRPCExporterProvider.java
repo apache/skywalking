@@ -53,9 +53,10 @@ public class GRPCExporterProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        exporter.setServiceInventoryCache(getManager().find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class));
-        exporter.setServiceInstanceInventoryCache(getManager().find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class));
-        exporter.setEndpointInventoryCache(getManager().find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class));
+        ModuleServiceHolder serviceHolder = getManager().find(CoreModule.NAME).provider();
+        exporter.setServiceInventoryCache(serviceHolder.getService(ServiceInventoryCache.class));
+        exporter.setServiceInstanceInventoryCache(serviceHolder.getService(ServiceInstanceInventoryCache.class));
+        exporter.setEndpointInventoryCache(serviceHolder.getService(EndpointInventoryCache.class));
 
         exporter.initSubscriptionList();
     }
