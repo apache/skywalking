@@ -20,3 +20,5 @@ hBase-client-2.x=org.apache.skywalking.apm.plugin.hbase.v2.define.HTableInstrume
 hBase-client-2.x=org.apache.skywalking.apm.plugin.hbase.v2.define.AsyncProcessInstrumentation
 hBase-client-2.x=org.apache.skywalking.apm.plugin.hbase.v2.define.AbstractRpcClientInstrumentation
 hBase-client-2.x=org.apache.skywalking.apm.plugin.hbase.v2.define.HBaseClientInstrumentation
+hBase-client-2.x=org.apache.skywalking.apm.plugin.hbase.v2.define.AsyncAdminInstrumentation
+hBase-client-2.x=org.apache.skywalking.apm.plugin.hbase.v2.define.AsyncTableInstrumentation

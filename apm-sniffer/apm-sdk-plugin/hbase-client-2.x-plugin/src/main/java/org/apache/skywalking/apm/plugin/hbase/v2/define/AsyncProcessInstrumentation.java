@@ -35,7 +35,7 @@ public class AsyncProcessInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.AsyncProcess";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.AsyncProcessInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.AsyncProcessInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

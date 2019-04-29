@@ -21,7 +21,7 @@ public class ConnectionFactoryInstrumentation extends ClassStaticMethodsEnhanceP
 
     private static final String ENHANCE_METHOD = "createConnection";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.ConnectionFactoryInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v1.ConnectionFactoryInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

@@ -35,7 +35,7 @@ public class HBaseAdminInstrumentation extends ClassInstanceMethodsEnhancePlugin
 
     private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.HBaseAdmin";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.HBaseAdminInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.HBaseAdminInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

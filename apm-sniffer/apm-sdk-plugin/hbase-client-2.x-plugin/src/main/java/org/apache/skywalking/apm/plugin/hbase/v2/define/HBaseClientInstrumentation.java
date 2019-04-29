@@ -19,7 +19,7 @@ public class HBaseClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     private static final String ENHANCE_METHOD = "run";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.HBaseClientMethodInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.HBaseClientMethodInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

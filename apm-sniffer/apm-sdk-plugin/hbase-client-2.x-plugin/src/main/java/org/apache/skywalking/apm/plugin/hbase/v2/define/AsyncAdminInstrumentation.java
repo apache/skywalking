@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.hbase.v1.define;
+package org.apache.skywalking.apm.plugin.hbase.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -31,13 +31,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * @author zhangbin
  */
-public class RpcClientImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class AsyncAdminInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.ipc.RpcClientImpl";
+    private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.AsyncAdmin";
 
-    private static final String ENHANCE_METHOD = "call";
-
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v1.RpcClientImplInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.AsyncAdminInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -50,7 +48,15 @@ public class RpcClientImplInstrumentation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("tableExists").or(named("disableTable")).or(named("deleteTable"))
+                        .or(named("createTable")).or(named("listTableNames")).or(named("modifyTable"))
+                        .or(named("truncateTable")).or(named("enableTable")).or(named("listTables"))
+                        .or(named("createNamespace")).or(named("modifyNamespace")).or(named("deleteNamespace"))
+                        .or(named("addColumnFamily")).or(named("createColumnFamily")).or(named("modifyColumnFamily"))
+                        .or(named("deleteColumnFamily")).or(named("compact")).or(named("majorCompact"))
+                        .or(named("split")).or(named("getRegions")).or(named("snapshot"))
+                        .or(named("restoreSnapshot")).or(named("cloneSnapshot")).or(named("listSnapshots"))
+                        .or(named("deleteSnapshot"));
                 }
 
                 @Override

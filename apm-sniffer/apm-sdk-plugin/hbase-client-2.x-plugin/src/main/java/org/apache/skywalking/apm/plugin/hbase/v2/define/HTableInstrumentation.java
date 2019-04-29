@@ -35,10 +35,7 @@ public class HTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.client.HTable";
 
-    private static final ElementMatcher.Junction[] JUNCTIONS = new ElementMatcher.Junction[] {
-    };
-
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.HTableInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.HTableInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];

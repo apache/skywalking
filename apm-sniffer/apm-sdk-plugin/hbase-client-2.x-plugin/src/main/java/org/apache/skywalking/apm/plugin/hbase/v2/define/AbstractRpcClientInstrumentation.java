@@ -37,7 +37,7 @@ public class AbstractRpcClientInstrumentation extends ClassInstanceMethodsEnhanc
 
     private static final String ENHANCE_METHOD = "callMethod";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.AbstractRpcClientInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.AbstractRpcClientInterceptor";
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

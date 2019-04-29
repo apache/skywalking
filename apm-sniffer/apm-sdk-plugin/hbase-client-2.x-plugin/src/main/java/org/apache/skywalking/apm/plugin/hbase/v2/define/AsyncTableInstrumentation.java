@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.hbase.v1.define;
+package org.apache.skywalking.apm.plugin.hbase.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -31,43 +32,41 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * @author zhangbin
  */
-public class RpcClientImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class AsyncTableInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.hadoop.hbase.ipc.RpcClientImpl";
+    private static final String[] ENHANCE_CLASS = new String[] {"org.apache.hadoop.hbase.client.AsyncTable"};
 
-    private static final String ENHANCE_METHOD = "call";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v2.AsyncTableInterceptor";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hbase.v1.RpcClientImplInterceptor";
-
-    @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("append").or(named("increment")).or(named("exists"))
+                        .or(named("existsAll")).or(named("get"))
+                        .or(named("getAll")).or(named("scan")).or(named("scanAll"))
+                        .or(named("batch")).or(named("batchAll")).or(named("put"))
+                        .or(named("putAll")).or(named("delete")).or(named("deleteAll"))
+                        .or(named("incrementColumnValue")).or(named("getScanner")).or(named("checkAndMutate"))
+                        .or(named("mutateRow"));
                 }
 
-                @Override
-                public String getMethodsInterceptor() {
+                @Override public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override
-                public boolean isOverrideArgs() {
+                @Override public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+    @Override protected ClassMatch enhanceClass() {
+        return HierarchyMatch.byHierarchyMatch(ENHANCE_CLASS);
     }
 }
