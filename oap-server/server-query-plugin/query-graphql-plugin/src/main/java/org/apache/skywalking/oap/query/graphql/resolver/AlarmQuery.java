@@ -54,6 +54,11 @@ public class AlarmQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getQueryService().getAlarm(scope.getScopeId(), keyword, paging, startTimeBucket, endTimeBucket);
+        Integer scopeId = null;
+        if (scope != null) {
+            scopeId = scope.getScopeId();
+        }
+
+        return getQueryService().getAlarm(scopeId, keyword, paging, startTimeBucket, endTimeBucket);
     }
 }
