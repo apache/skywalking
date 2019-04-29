@@ -139,7 +139,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             StackDepth stackDepth = (StackDepth)ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
             if (stackDepth == null) {
                 throw new IllegalMethodStackDepthException();
-            } else{
+            } else {
                 stackDepth.decrement();
             }
 
