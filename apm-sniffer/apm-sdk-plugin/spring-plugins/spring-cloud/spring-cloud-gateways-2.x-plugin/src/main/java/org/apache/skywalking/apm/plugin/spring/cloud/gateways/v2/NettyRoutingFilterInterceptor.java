@@ -30,52 +30,73 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpHeaders;
-import org.springframework.util.CollectionUtils;
+import org.springframework.http.server.reactive.AbstractServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * @author zhaoyuguang
  */
-public class RoutePredicateHandlerMappingInterceptor implements InstanceMethodsAroundInterceptor {
+public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private Logger logger = LoggerFactory.getLogger(RoutePredicateHandlerMappingInterceptor.class);
+    private Logger logger = LoggerFactory.getLogger(NettyRoutingFilterInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        logger.info("RoutePredicateHandlerMappingInterceptor::getHandlerInternal" + Thread.currentThread().getId());
+        logger.info("NettyRoutingFilterInterceptor::filter" + Thread.currentThread().getId());
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        HttpHeaders headers = exchange.getRequest().getHeaders();
-        ContextCarrier contextCarrier = new ContextCarrier();
-
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            if (!CollectionUtils.isEmpty(headers.get(next.getHeadKey()))) {
-                next.setHeadValue(headers.get(next.getHeadKey()).get(0));
+        URI requestUrl = exchange.getRequiredAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
+        String scheme = requestUrl.getScheme();
+        if (!ServerWebExchangeUtils.isAlreadyRouted(exchange) && ("http".equals(scheme) || "https".equals(scheme))) {
+            AbstractServerHttpRequest request = (AbstractServerHttpRequest) exchange.getRequest();
+            HttpHeaders before = request.getHeaders();
+            Map<String, List<String>> after = new HashMap<String, List<String>>();
+            for (String k : before.keySet()) {
+                after.put(k, before.get(k));
             }
-        }
 
-        AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getPath().value(), contextCarrier);
-        exchange.getRequest();
-        Tags.URL.set(span, exchange.getRequest().getURI().toString());
-        Tags.HTTP.METHOD.set(span, exchange.getRequest().getPath().value());
-        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAYS);
-        SpanLayer.asHttp(span);
+            ContextCarrier contextCarrier = new ContextCarrier();
+            AbstractSpan span = ContextManager.createExitSpan("send", contextCarrier, requestUrl.getAuthority());
+
+            span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAYS);
+            Tags.URL.set(span, requestUrl.toString());
+            Tags.HTTP.METHOD.set(span, requestUrl.getPath());
+            SpanLayer.asHttp(span);
+
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                List<String> v = new ArrayList<String>();
+                v.add(next.getHeadValue());
+                after.put(next.getHeadKey(), v);
+//                try {
+//                    before.put("c", v);
+//                } catch (Exception e) {
+//                    logger.error("e", e);
+//                }
+            }
+            Field field = AbstractServerHttpRequest.class.getDeclaredField("headers");
+            field.setAccessible(true);
+            HttpHeaders headers = new HttpHeaders();
+            headers.putAll(after);
+            field.set(request, headers);
+        }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-//        AbstractSpan span = ContextManager.activeSpan();
-//        if (response.getStatus() >= 400) {
-//            span.errorOccurred();
-//            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
-//        }
-        ContextManager.stopSpan();
         return ret;
     }
 
@@ -83,8 +104,5 @@ public class RoutePredicateHandlerMappingInterceptor implements InstanceMethodsA
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(t);
     }
 }
