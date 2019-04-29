@@ -110,7 +110,7 @@ Mail title: [ANNOUNCE] SkyWalking x.y.z test build available
 Mail content:
 The test build of x.y.z is available.
 
-This is our Apache Incubator release.
+This is our Apache release.
 We welcome any comments you may have, and will take all feedback into
 account if a quality vote is called for this build.
 
@@ -138,7 +138,7 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/(Git Commit ID)
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-ui/tree/(Git Commit ID)
+   * skywalking-ui: https://github.com/apache/skywalking-rocketbot-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
 
@@ -192,7 +192,7 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/(Git Commit ID)
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-ui/tree/(Git Commit ID)
+   * skywalking-ui: https://github.com/apache/skywalking-rocketbot-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
 
@@ -250,7 +250,7 @@ Mail title: [ANNOUNCE] Release Apache SkyWalking version x.y.z
 Mail content:
 Hi all,
 
-Apache SkyWalking  Team is glad to announce the first release of Apache SkyWalking Incubating x.y.z.
+Apache SkyWalking  Team is glad to announce the first release of Apache SkyWalking x.y.z.
 
 SkyWalking: APM (application performance monitor) tool for distributed systems, 
 especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
