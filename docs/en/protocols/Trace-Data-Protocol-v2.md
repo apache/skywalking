@@ -2,13 +2,13 @@
 Trace Data Protocol describes the data format between SkyWalking agent/sniffer and backend. 
 
 ## Overview
-Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/incubator-skywalking-data-collect-protocol).
+Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol).
 
 For each agent/SDK, it needs to register service id and service instance id before reporting any kind of trace 
 or metric data.
 
 ### Step 1. Do register
-[Register service](https://github.com/apache/incubator-skywalking-data-collect-protocol/tree/master/register/Register.proto) takes charge of 
+[Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto) takes charge of 
 all register methods. At step 1, we need `doServiceRegister`, then `doServiceInstanceRegister`.
 
 1. First of all, do `doServiceRegister`, input is **serviceName**, which could be declared by any UTF-8 String. The return 
