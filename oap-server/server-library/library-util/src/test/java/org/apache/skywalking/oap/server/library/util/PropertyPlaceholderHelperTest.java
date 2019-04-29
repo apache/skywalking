@@ -68,7 +68,7 @@ public class PropertyPlaceholderHelperTest {
     @Test
     public void testDataType() {
         //tests that do not use ${name} to set config.
-        Assert.assertEquals("grpc.skywalking.incubator.apache.org",
+        Assert.assertEquals("grpc.skywalking.apache.org",
             yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("gRPCHost"), properties)));
 
         //tests that use ${REST_HOST:0.0.0.0} but not set REST_HOST in environmentVariables.
