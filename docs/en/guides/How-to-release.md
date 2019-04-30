@@ -40,13 +40,13 @@ Apache maven staging repository check list.
 ## Test your settings
 This step is only for test, if your env is set right, don't need to check every time.
 ```
-./mvnw clean install -Papache-release (this will build artifacts, sources and sign)
+./mvnw clean install -Pall (this will build artifacts, sources and sign)
 ```
 
 ## Prepare the release
 ```
 ./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true -Pauto-submodule
+./mvnw release:prepare -DautoVersionSubmodules=true -Pall
 ```
 
 - Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
@@ -56,7 +56,7 @@ but just failure. Run `gpg --sign xxx` to any file could remember the password f
 
 ## Stage the release 
 ```
-./mvnw release:perform -DskipTests -Pauto-submodule
+./mvnw release:perform -DskipTests -Pall
 ```
 
 - The release will automatically be inserted into a temporary staging repository for you.
@@ -110,7 +110,7 @@ Mail title: [ANNOUNCE] SkyWalking x.y.z test build available
 Mail content:
 The test build of x.y.z is available.
 
-This is our Apache Incubator release.
+This is our Apache release.
 We welcome any comments you may have, and will take all feedback into
 account if a quality vote is called for this build.
 
@@ -138,7 +138,7 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/(Git Commit ID)
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-ui/tree/(Git Commit ID)
+   * skywalking-ui: https://github.com/apache/skywalking-rocketbot-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
 
@@ -192,13 +192,13 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/(Git Commit ID)
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-ui/tree/(Git Commit ID)
+   * skywalking-ui: https://github.com/apache/skywalking-rocketbot-ui/tree/(Git Commit ID)
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
 
 Keys to verify the Release Candidate :
 
- * http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x2EF5026E70A55777 corresponding to pengys@apache.org
+ * https://dist.apache.org/repos/dist/release/skywalking/KEYS
 
 Guide to build the release from source :
 
@@ -250,7 +250,7 @@ Mail title: [ANNOUNCE] Release Apache SkyWalking version x.y.z
 Mail content:
 Hi all,
 
-Apache SkyWalking  Team is glad to announce the first release of Apache SkyWalking Incubating x.y.z.
+Apache SkyWalking  Team is glad to announce the first release of Apache SkyWalking x.y.z.
 
 SkyWalking: APM (application performance monitor) tool for distributed systems, 
 especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 

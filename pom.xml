@@ -17,19 +17,18 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>6.1.0-SNAPSHOT</version>
+    <version>6.2.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>21</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <modules>
@@ -113,6 +112,47 @@
             <modules>
                 <module>apm-dist</module>
             </modules>
+        </profile>
+        <profile>
+            <id>all</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-sniffer</module>
+                <module>apm-application-toolkit</module>
+                <module>oap-server</module>
+                <module>apm-webapp</module>
+                <module>apm-dist</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>git submodule update</id>
+                                <phase>initialize</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <executable>git</executable>
+                                    <arguments>
+                                        <argument>submodule</argument>
+                                        <argument>update</argument>
+                                        <argument>--init</argument>
+                                        <argument>--recursive</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -215,31 +255,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>git submodule update</id>
-                            <phase>initialize</phase>
-                            <inherited>false</inherited>
-                            <configuration>
-                                <executable>git</executable>
-                                <arguments>
-                                    <argument>submodule</argument>
-                                    <argument>update</argument>
-                                    <argument>--init</argument>
-                                    <argument>--recursive</argument>
-                                </arguments>
-                            </configuration>
-                            <goals>
-                                <goal>exec</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
                 <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
                 <plugin>
                     <groupId>io.takari</groupId>
@@ -318,18 +333,8 @@
 
                         <!-- UI IDE configs -->
                         <exclude>**/skywalking-ui/.editorconfig</exclude>
-                        <!-- UI Compiler configs -->
-                        <exclude>**/skywalking-ui/.webpackrc.js</exclude>
-                        <exclude>**/skywalking-ui/.roadhogrc.mock.js</exclude>
-                        <!-- UI Test configs -->
-                        <exclude>**/skywalking-ui/jest.config.js</exclude>
-                        <!-- UI style check files -->
-                        <exclude>**/skywalking-ui/.eslintrc.js</exclude>
-                        <exclude>**/skywalking-ui/.stylelintrc</exclude>
-                        <exclude>**/skywalking-ui/.prettierignore</exclude>
-                        <exclude>**/skywalking-ui/.prettierrc</exclude>
-                        <!-- UI icon files -->
-                        <exclude>**/skywalking-ui/public/font/iconfont/**</exclude>
+                        <!-- UI ignore -->
+                        <exclude>**/skywalking-ui/.browserslistrc</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
@@ -425,11 +430,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>${versions-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
