@@ -30,8 +30,4 @@
     <artifactId>apm-checkstyle</artifactId>
     <version>6.1.0</version>
     <description>Module to hold Checkstyle for SkyWalking.</description>
-
-  <scm>
-    <tag>v6.1.0</tag>
-  </scm>
 </project>
