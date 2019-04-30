@@ -21,7 +21,10 @@ zuul:
   ignoredServices: '*'
   routes:
     api:
-      path: /api/**
+      path: /graphql
+      serviceId: collector
+    login:
+      path: /login/account
       serviceId: collector
 
 collector:
@@ -34,4 +37,10 @@ security:
   user:
     admin:
       password: admin
+
+spring:
+  resources:
+    add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
       

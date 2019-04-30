@@ -19,25 +19,42 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
-import com.google.gson.*;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.util.*;
-
-import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.query.entity.Attribute;
+import org.apache.skywalking.oap.server.core.query.entity.Database;
+import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
+import org.apache.skywalking.oap.server.core.query.entity.Language;
+import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
+import org.apache.skywalking.oap.server.core.query.entity.Service;
+import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.NodeType;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.HOST_NAME;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.IPV4S;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.LANGUAGE;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
 /**
  * @author peng-yongsheng
@@ -45,8 +62,11 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
 
-    public MetadataQueryEsDAO(ElasticSearchClient client) {
+    private final int queryMaxSize;
+
+    public MetadataQueryEsDAO(ElasticSearchClient client, int queryMaxSize) {
         super(client);
+        this.queryMaxSize = queryMaxSize;
     }
 
     @Override public int numOfService(long startTimestamp, long endTimestamp) throws IOException {
@@ -100,7 +120,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
 
         sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(100);
+        sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
 
@@ -115,7 +135,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Database.value()));
 
         sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(100);
+        sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
 
@@ -123,9 +143,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
             Database database = new Database();
-            database.setId(((Number) sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
-            database.setName((String) sourceAsMap.get(ServiceInventory.NAME));
-            String propertiesString = (String) sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
+            database.setId(((Number)sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
+            database.setName((String)sourceAsMap.get(ServiceInventory.NAME));
+            String propertiesString = (String)sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                 if (properties.has(ServiceInventory.PropertyUtil.DATABASE)) {
@@ -153,7 +173,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         }
 
         sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(100);
+        sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
         return buildServices(response);
@@ -214,7 +234,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
 
         sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(100);
+        sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, sourceBuilder);
 
