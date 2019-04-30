@@ -48,7 +48,7 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
         URI uri = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
 
         AbstractSpan span = ContextManager.createLocalSpan("Gateway/filter");
-        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAYS);
+        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
         span.tag("route", route.getId());
         Tags.URL.set(span, uri.toString());
     }

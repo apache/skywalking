@@ -14,6 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-cloud-gateways-2.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define.DefaultHttpHeadersInstrumentation
-spring-cloud-gateways-2.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define.HttpClientOperationsInstrumentation
-spring-cloud-gateways-2.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define.NettyRoutingFilterInstrumentation
+spring-cloud-gateway-2.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define.DefaultHttpHeadersInstrumentation
+spring-cloud-gateway-2.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define.HttpClientOperationsInstrumentation
+spring-cloud-gateway-2.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define.NettyRoutingFilterInstrumentation

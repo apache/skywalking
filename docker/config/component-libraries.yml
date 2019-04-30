@@ -207,7 +207,7 @@ Zookeeper:
 Vertx:
   id: 59
   languages: Java
-spring-cloud-gateways:
+spring-cloud-gateway:
   id: 60
   languages: Java
 

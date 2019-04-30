@@ -59,7 +59,7 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
 
         ContextManager.inject(contextCarrier);
 
-        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAYS);
+        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
         Tags.URL.set(span, peer + request.uri());
         Tags.HTTP.METHOD.set(span, request.method().name());
         SpanLayer.asHttp(span);
