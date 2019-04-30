@@ -54,7 +54,7 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
         String peer = remote.getHostName() + ":" + remote.getPort();
 
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan("send", contextCarrier, peer);
+        AbstractSpan span = ContextManager.createExitSpan("Gateway/send", contextCarrier, peer);
         ContextManager.continued((ContextSnapshot) instance.getSkyWalkingDynamicField());
 
         ContextManager.inject(contextCarrier);
