@@ -95,7 +95,7 @@ public class GRPCExporterTest {
     private List<GRPCExporter.ExportData> dataList() {
         List<GRPCExporter.ExportData> dataList = new LinkedList<>();
         dataList.add(exporter.new ExportData(metaInfo, new MockIndicator()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockIntValueIndicatior()));
+        dataList.add(exporter.new ExportData(metaInfo, new MockIntValueIndicator()));
         dataList.add(exporter.new ExportData(metaInfo, new MockLongValueIndicator()));
         dataList.add(exporter.new ExportData(metaInfo, new MockDoubleValueIndicator()));
         return dataList;
