@@ -40,7 +40,7 @@ Apache maven staging repository check list.
 ## Test your settings
 This step is only for test, if your env is set right, don't need to check every time.
 ```
-./mvnw clean install -Papache-release (this will build artifacts, sources and sign)
+./mvnw clean install -Pauto (this will build artifacts, sources and sign)
 ```
 
 ## Prepare the release
