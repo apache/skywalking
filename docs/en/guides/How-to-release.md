@@ -198,7 +198,7 @@ Release CommitID :
 
 Keys to verify the Release Candidate :
 
- * http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x2EF5026E70A55777 corresponding to pengys@apache.org
+ * https://dist.apache.org/repos/dist/release/skywalking/KEYS
 
 Guide to build the release from source :
 
