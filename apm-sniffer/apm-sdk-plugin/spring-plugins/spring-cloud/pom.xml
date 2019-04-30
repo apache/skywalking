@@ -29,7 +29,7 @@
     <artifactId>spring-cloud</artifactId>
     <modules>
         <module>netflix-plugins</module>
-        <module>spring-cloud-gateways-2.x-plugin</module>
+        <module>gateway-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

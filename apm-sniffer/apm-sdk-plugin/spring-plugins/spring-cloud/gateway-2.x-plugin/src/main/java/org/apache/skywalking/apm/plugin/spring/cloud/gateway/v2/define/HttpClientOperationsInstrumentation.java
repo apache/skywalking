@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateways.v2.define;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -26,19 +26,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * @author zhaoyuguang
  */
 
-public class DefaultGatewayFilterChainInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "org.springframework.cloud.gateway.handler.FilteringWebHandler$DefaultGatewayFilterChain";
+public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String CONNECTION_MANAGER_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.cloud.gateways.v2.DefaultGatewayFilterChainInterceptor";
-
-    @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
@@ -48,24 +45,55 @@ public class DefaultGatewayFilterChainInstrumentation extends ClassInstanceMetho
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("filter");
+                    return named("headers").and(takesArgumentWithType(0, "io.netty.handler.codec.http.HttpHeaders"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return CONNECTION_MANAGER_INTERCEPTOR;
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.HttpClientOperationsHeadersInterceptor";
                 }
 
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
                 }
-            }
+            },new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("send").and(takesArgumentWithType(0, "org.reactivestreams.Publisher"));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.HttpClientOperationsSendInterceptor";
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("status");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.HttpClientOperationsStatusInterceptor";
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
         };
     }
 
     @Override
     public ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byName("reactor.netty.http.client.HttpClientOperations");
     }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateways.v2.define;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -26,16 +26,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * @author zhaoyuguang
  */
 
-public class RoutePredicateHandlerMappingInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String ENHANCE_CLASS = "org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping";
-
-    private static final String CONNECTION_MANAGER_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.cloud.gateways.v2.RoutePredicateHandlerMappingInterceptor";
+public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -48,14 +46,12 @@ public class RoutePredicateHandlerMappingInstrumentation extends ClassInstanceMe
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("getHandlerInternal");
+                    return named("filter").and(takesArgumentWithType(0, "org.springframework.web.server.ServerWebExchange"));
                 }
-
                 @Override
                 public String getMethodsInterceptor() {
-                    return CONNECTION_MANAGER_INTERCEPTOR;
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.NettyRoutingFilterInterceptor";
                 }
-
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -66,6 +62,6 @@ public class RoutePredicateHandlerMappingInstrumentation extends ClassInstanceMe
 
     @Override
     public ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byName("org.springframework.cloud.gateway.filter.NettyRoutingFilter");
     }
 }

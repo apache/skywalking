@@ -16,11 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateways.v2;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -28,54 +30,50 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.server.ServerWebExchange;
+import reactor.netty.channel.ChannelOperations;
+import reactor.netty.http.client.HttpClientRequest;
 
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
 
 /**
  * @author zhaoyuguang
  */
-public class RoutePredicateHandlerMappingInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private Logger logger = LoggerFactory.getLogger(RoutePredicateHandlerMappingInterceptor.class);
+public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        logger.info("RoutePredicateHandlerMappingInterceptor::getHandlerInternal" + Thread.currentThread().getId());
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        HttpHeaders headers = exchange.getRequest().getHeaders();
+        HttpClientRequest request = (HttpClientRequest) objInst;
+        EnhancedInstance instance = (EnhancedInstance) request;
+
+        HttpHeaders header = request.requestHeaders();
+        ChannelOperations channelOpt = (ChannelOperations) objInst;
+        InetSocketAddress remote = (InetSocketAddress) (channelOpt.channel().remoteAddress());
+        String peer = remote.getHostName() + ":" + remote.getPort();
+
         ContextCarrier contextCarrier = new ContextCarrier();
+        AbstractSpan span = ContextManager.createExitSpan("send", contextCarrier, peer);
+        ContextManager.continued((ContextSnapshot) instance.getSkyWalkingDynamicField());
+
+        ContextManager.inject(contextCarrier);
+
+        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAYS);
+        Tags.URL.set(span, peer + request.uri());
+        Tags.HTTP.METHOD.set(span, request.method().name());
+        SpanLayer.asHttp(span);
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            if (!CollectionUtils.isEmpty(headers.get(next.getHeadKey()))) {
-                next.setHeadValue(headers.get(next.getHeadKey()).get(0));
-            }
+            header.set(next.getHeadKey(), next.getHeadValue());
         }
-
-        AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getPath().value(), contextCarrier);
-        exchange.getRequest();
-        Tags.URL.set(span, exchange.getRequest().getURI().toString());
-        Tags.HTTP.METHOD.set(span, exchange.getRequest().getPath().value());
-        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAYS);
-        SpanLayer.asHttp(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-//        AbstractSpan span = ContextManager.activeSpan();
-//        if (response.getStatus() >= 400) {
-//            span.errorOccurred();
-//            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
-//        }
-        ContextManager.stopSpan();
         return ret;
     }
 
@@ -83,8 +81,6 @@ public class RoutePredicateHandlerMappingInterceptor implements InstanceMethodsA
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(t);
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }
