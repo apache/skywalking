@@ -25,10 +25,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -118,47 +115,17 @@ public class EnvUtilTest {
                 cienv.put(key, value);
             }
             theCaseInsensitiveEnvironmentField.setAccessible(insensitiveAccessibility);
-        } catch (final ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
+        } catch (final NoSuchMethodException e) {
+            throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
+        } catch (final IllegalAccessException e) {
+            throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
+        } catch (final InvocationTargetException e) {
             throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
         } catch (final NoSuchFieldException e) {
             // we could not find theEnvironment
-            final Map<String, String> env = System.getenv();
-            Stream.of(Collections.class.getDeclaredClasses())
-                    // obtain the declared classes of type $UnmodifiableMap
-                    .filter(c1 -> "java.util.Collections$UnmodifiableMap".equals(c1.getName()))
-                    .map(c1 -> {
-                        try {
-                            return c1.getDeclaredField("m");
-                        } catch (final NoSuchFieldException e1) {
-                            throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value +
-                                    "> when locating in-class memory map of environment", e1);
-                        }
-                    })
-                    .forEach(field -> {
-                        try {
-                            final boolean fieldAccessibility = field.isAccessible();
-                            field.setAccessible(true);
-                            // we obtain the environment
-                            final Map<String, String> map = (Map<String, String>) field.get(env);
-                            if (value == null) {
-                                // remove if null
-                                map.remove(key);
-                            } else {
-                                map.put(key, value);
-                            }
-                            // reset accessibility
-                            field.setAccessible(fieldAccessibility);
-                        } catch (final ConcurrentModificationException e1) {
-                            // This may happen if we keep backups of the environment before calling this method
-                            // as the map that we kept as a backup may be picked up inside this block.
-                            // So we simply skip this attempt and continue adjusting the other maps
-                            // To avoid this one should always keep individual keys/value backups not the entire map
-
-                        } catch (final IllegalAccessException e1) {
-                            throw new IllegalStateException("Failed setting environment variable <" + key +
-                                    "> to <" + value + ">. Unable to access field!", e1);
-                        }
-                    });
+            throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
         }
 
     }
