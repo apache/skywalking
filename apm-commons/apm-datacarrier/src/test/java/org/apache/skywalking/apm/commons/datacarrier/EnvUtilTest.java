@@ -25,6 +25,8 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import java.util.ConcurrentModificationException;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -125,7 +127,38 @@ public class EnvUtilTest {
             throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
         } catch (final NoSuchFieldException e) {
             // we could not find theEnvironment
-            throw new IllegalStateException("Failed setting environment variable <" + key + "> to <" + value + ">", e);
+            final Map<String, String> env = System.getenv();
+            try {
+                Class<?> cl = env.getClass();
+                Field field = cl.getDeclaredField("m");
+                final boolean fieldAccessibility = field.isAccessible();
+                field.setAccessible(true);
+                // we obtain the environment
+                final Map<String, String> map = (Map<String, String>) field.get(env);
+                if (value == null) {
+                    // remove if null
+                    map.remove(key);
+                } else {
+                    map.put(key, value);
+                }
+                // reset accessibility
+                field.setAccessible(fieldAccessibility);
+            } catch (final ConcurrentModificationException e1) {
+                // This may happen if we keep backups of the environment before calling this method
+                // as the map that we kept as a backup may be picked up inside this block.
+                // So we simply skip this attempt and continue adjusting the other maps
+                // To avoid this one should always keep individual keys/value backups not the entire map
+                throw new IllegalStateException("Failed setting environment variable <" + key +
+                        "> to <" + value + ">. Unable to access field!", e1);
+
+            } catch (final IllegalAccessException e1) {
+                throw new IllegalStateException("Failed setting environment variable <" + key +
+                        "> to <" + value + ">. Unable to access field!", e1);
+            } catch (NoSuchFieldException ex) {
+                throw new IllegalStateException("Failed setting environment variable <" + key +
+                        "> to <" + value + ">. Unable to access field!", ex);
+            }
+
         }
 
     }
