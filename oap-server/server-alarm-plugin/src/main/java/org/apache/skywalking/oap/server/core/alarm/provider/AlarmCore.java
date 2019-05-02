@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Alarm core includes metric values in certain time windows based on alarm settings. By using its internal timer
@@ -50,11 +51,8 @@ public class AlarmCore {
 
             String indicatorName = rule.getIndicatorName();
 
-            List<RunningRule> runningRules = runningContext.get(indicatorName);
-            if (runningRules == null) {
-                runningRules = new ArrayList<>();
-                runningContext.put(indicatorName, runningRules);
-            }
+            List<RunningRule> runningRules = runningContext.computeIfAbsent(indicatorName, key -> new ArrayList<>());
+
             runningRules.add(runningRule);
         });
     }
@@ -71,7 +69,7 @@ public class AlarmCore {
                 List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
                 LocalDateTime checkTime = LocalDateTime.now();
                 int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
-                boolean[] hasExecute = new boolean[] {false};
+                boolean[] hasExecute = new boolean[]{false};
                 runningContext.values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                     if (minutes > 0) {
                         runningRule.moveTo(checkTime);
