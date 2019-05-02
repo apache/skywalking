@@ -39,5 +39,18 @@ public class StringUtilTest {
         Assert.assertNull(StringUtil.join('.'));
         Assert.assertEquals("Single part.", StringUtil.join('.', "Single part."));
         Assert.assertEquals("part1.part2.p3", StringUtil.join('.', "part1", "part2", "p3"));
+        Assert.assertEquals("E", StringUtil.join('E', new String[2]));
     }
+
+    @Test
+    public void testSubstringMatchReturningTrue() {
+        StringBuffer stringBuffer = new StringBuffer("ZP~>xz1;");
+        Assert.assertTrue(StringUtil.substringMatch(stringBuffer, 0, stringBuffer));
+    }
+
+    @Test
+    public void testSubstringMatchWithPositive() {
+        Assert.assertFalse(StringUtil.substringMatch("", 4770, ""));
+    }
+
 }
