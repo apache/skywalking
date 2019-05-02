@@ -33,7 +33,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * @author zhaoyuguang
  */
 
-public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class FilteringWebHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -50,7 +50,7 @@ public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhan
                 }
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.NettyRoutingFilterInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.FilteringWebHandlerInterceptor";
                 }
                 @Override
                 public boolean isOverrideArgs() {
@@ -62,6 +62,6 @@ public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhan
 
     @Override
     public ClassMatch enhanceClass() {
-        return byName("org.springframework.cloud.gateway.filter.NettyRoutingFilter");
+        return byName("org.springframework.cloud.gateway.handler.FilteringWebHandler");
     }
 }

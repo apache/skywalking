@@ -29,28 +29,25 @@ import org.springframework.cloud.gateway.route.Route;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.lang.reflect.Method;
-import java.net.URI;
 
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
 
 /**
  * @author zhaoyuguang
  */
-public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
+public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
-        URI uri = exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);
 
         AbstractSpan span = ContextManager.createLocalSpan("Gateway/filter");
         span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
         span.tag("route", route.getId());
-        Tags.URL.set(span, uri.toString());
+        Tags.URL.set(span, route.getUri().toString());
     }
 
     @Override
