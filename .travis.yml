@@ -2,12 +2,9 @@ sudo: required
 
 os:
   - linux
-  - osx
-  - windows
 
 jdk:
   - oraclejdk8
-  - oraclejdk9
   - openjdk8
 
 language: java
