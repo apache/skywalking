@@ -80,6 +80,19 @@ public class PropertyPlaceholderHelperTest {
             yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
     }
 
+    @Test
+    public void testReplacePlaceholders() {
+        PropertyPlaceholderHelper propertyPlaceholderHelper = PropertyPlaceholderHelper.INSTANCE;
+        Properties properties = new Properties();
+        String resultString = propertyPlaceholderHelper.replacePlaceholders("&${[}7", properties);
+
+        Assert.assertEquals(0, properties.size());
+        Assert.assertTrue(properties.isEmpty());
+
+        Assert.assertNotNull(resultString);
+        Assert.assertEquals("&${[}7", resultString);
+    }
+
     @After
     public void afterTest() {
         //revert environment variables changes after the test for safe.
