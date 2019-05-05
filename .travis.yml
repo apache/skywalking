@@ -3,9 +3,9 @@ sudo: required
 os:
   - linux
   - osx
+  - windows
 
 jdk:
-  - windows
   - oraclejdk8
   - oraclejdk9
   - openjdk8
