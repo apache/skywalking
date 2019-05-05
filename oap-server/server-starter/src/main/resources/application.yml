@@ -118,7 +118,9 @@ alarm:
   default:
 telemetry:
   prometheus:
+    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 #exporter:
 #  grpc:
-#    targetHost: 127.0.0.1
-#    targetPort: 9870
+#    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+#    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
