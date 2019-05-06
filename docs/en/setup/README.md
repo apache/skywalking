@@ -2,7 +2,7 @@
 Setup based on which kind of probes are you going to use. If you don't understand, please read [Concepts and Designs](../concepts-and-designs/README.md) first.
 
 
-**Important: Please comfirm the system time on the monitored servers are same as the time on the OAP servers.**
+**Important: Please choose the timezone on UI, make it matches the timezone of your OAP backend servers.**
 
 
 ## Download official releases
