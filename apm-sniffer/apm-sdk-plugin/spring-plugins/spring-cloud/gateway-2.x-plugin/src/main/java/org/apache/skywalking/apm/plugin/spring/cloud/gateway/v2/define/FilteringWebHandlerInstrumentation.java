@@ -46,7 +46,7 @@ public class FilteringWebHandlerInstrumentation extends ClassInstanceMethodsEnha
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("filter").and(takesArgumentWithType(0, "org.springframework.web.server.ServerWebExchange"));
+                    return named("handle").and(takesArgumentWithType(0, "org.springframework.web.server.ServerWebExchange"));
                 }
                 @Override
                 public String getMethodsInterceptor() {

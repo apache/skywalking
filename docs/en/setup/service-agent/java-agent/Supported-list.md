@@ -10,6 +10,7 @@
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
   * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.1.1.RELEASE
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
