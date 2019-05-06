@@ -29,10 +29,16 @@ public class StatusInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HttpResponseStatus status = (HttpResponseStatus)allArguments[0];
-        if (status.code() > 400) {
+        int code;
+        if (allArguments[0] instanceof Integer) {
+            code = (Integer)allArguments[0];
+        } else {
+            HttpResponseStatus status = (HttpResponseStatus)allArguments[0];
+            code = status.code();
+        }
+        if (code > 400) {
             ContextManager.activeSpan().errorOccurred();
-            Tags.STATUS_CODE.set(ContextManager.activeSpan(), String.valueOf(status.code()));
+            Tags.STATUS_CODE.set(ContextManager.activeSpan(), String.valueOf(code));
         }
     }
 
