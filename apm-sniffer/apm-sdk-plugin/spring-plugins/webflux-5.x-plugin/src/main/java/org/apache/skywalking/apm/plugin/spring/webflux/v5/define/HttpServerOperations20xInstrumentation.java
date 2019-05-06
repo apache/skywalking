@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -48,7 +47,7 @@ public class HttpServerOperations20xInstrumentation extends ClassInstanceMethods
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("status").and(takesArguments(1));
+                    return named("status").and(takesArgumentWithType(0, "io.netty.handler.codec.http.HttpResponseStatus"));
                 }
 
                 @Override public String getMethodsInterceptor() {
