@@ -67,7 +67,7 @@ public class SkyWalkingAgent {
             logger.error(ce, "Skywalking agent could not find config. Shutting down.");
             return;
         } catch (AgentPackageNotFoundException ape) {
-            logger.error(ape, "Locate agent.jar failure.Shutting down.");
+            logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
             logger.error(e, "Skywalking agent initialized failure. Shutting down.");
