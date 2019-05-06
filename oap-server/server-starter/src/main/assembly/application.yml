@@ -114,3 +114,7 @@ alarm:
   default:
 telemetry:
   none:
+#exporter:
+#  grpc:
+#    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+#    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
