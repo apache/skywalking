@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import java.lang.reflect.Method;
+
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -31,7 +32,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
         AbstractSpan span = ContextManager.createExitSpan("Jedis/" + method.getName(), peer);
@@ -41,16 +43,20 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
 
         if (allArguments.length > 0 && allArguments[0] instanceof String) {
             Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
+        } else if (allArguments.length > 0 && allArguments[0] instanceof byte[]) {
+            Tags.DB_STATEMENT.set(span, method.getName());
         }
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
