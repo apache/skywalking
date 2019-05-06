@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author caoyixiong
@@ -36,6 +38,22 @@ public class ActiveSpanErrorInterceptor implements StaticMethodsAroundIntercepto
         try {
             activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
+            if (allArguments != null) {
+                if (allArguments.length == 1) {
+                    if (allArguments[0] != null && allArguments[0] instanceof Throwable) {
+                        activeSpan.log((Throwable) allArguments[0]);
+                    }
+                } else if (allArguments.length == 2) {
+                    if (allArguments[0] != null
+                            && allArguments[0] instanceof String
+                            && allArguments[1] != null
+                            && allArguments[1] instanceof String) {
+                        Map<String, String> event = new HashMap<String, String>();
+                        event.put((String) allArguments[0], (String) allArguments[1]);
+                        activeSpan.log(System.currentTimeMillis(), event);
+                    }
+                }
+            }
         } catch (NullPointerException e) {
         }
     }

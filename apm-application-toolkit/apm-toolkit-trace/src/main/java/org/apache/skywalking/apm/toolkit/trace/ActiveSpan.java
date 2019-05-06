@@ -36,4 +36,11 @@ public class ActiveSpan {
     public static void error() {
 
     }
+
+    public static void error(String key, String errorMsg) {
+
+    }
+
+    public static void error(Throwable throwable) {
+    }
 }
