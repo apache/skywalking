@@ -40,7 +40,7 @@ Significantly cost less CPU in low payload.**
 - Support .NET clr receiver.
 - Support Jaeger trace format, no analysis.
 - Support group endpoint name by regax rules in mesh receiver.
-- Support `diable` statement in OAL.
+- Support `disable` statement in OAL.
 - Support basic auth in ElasticSearch connection.
 - Support metric exporter module and gRPC implementor.
 - Support `>, <, >=, <=` in OAL.
