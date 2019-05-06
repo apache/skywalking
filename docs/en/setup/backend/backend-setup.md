@@ -79,7 +79,22 @@ rules targeting the analysis oal metric objects.
 scale and support high payload, you may need this. 
 1. [Metric exporter](metric-exporter.md). Use metric data exporter to forward metric data to 3rd party
 system.
+1. [Time To Live (TTL)](ttl.md). Metric and trace are time series data, they would be saved forever, you could 
+set the expired time for each dimension.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
 we provide the telemetry for OAP backend itself. Follow [document](backend-telemetry.md) to use it.
+
+
+## FAQs
+#### When and why do we need to set Timezone?
+SkyWalking provides downsampling time series metric features. 
+Query and storage at each time dimension(minute, hour, day, month metric indexes)
+related to timezone when doing time format. 
+
+For example, metric time will be formatted like YYYYMMDDHHmm in minute dimension metric,
+which format process is timezone related.
+  
+In default, SkyWalking OAP backend choose the OS default timezone.
+If you want to override it, please follow Java and OS documents to do so.
