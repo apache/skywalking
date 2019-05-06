@@ -44,3 +44,6 @@ spring:
   mvc:
     throw-exception-if-no-handler-found: true
       
+management:
+  # Customizing the management endpoint paths
+  context-path: /manage
