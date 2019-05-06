@@ -62,22 +62,19 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
                     return false;
                 }
             },
-                new StaticMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ERROR_INTERCEPTOR_METHOD_NAME);
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return ERROR_INTERCEPTOR_CLASS;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
+            new StaticMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ERROR_INTERCEPTOR_METHOD_NAME);
                 }
+
+                @Override public String getMethodsInterceptor() {
+                    return ERROR_INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 
