@@ -35,11 +35,13 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  *
  * @author zhangxin
  */
-public class ActiveSpanTagActivation extends ClassStaticMethodsEnhancePluginDefine {
+public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.ActiveSpan";
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanTagInterceptor";
-    public static final String INTERCEPTOR_METHOD_NAME = "tag";
+    public static final String TAG_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanTagInterceptor";
+    public static final String TAG_INTERCEPTOR_METHOD_NAME = "tag";
+    public static final String ERROR_INTERCEPTOR_METHOD_NAME = "error";
+    public static final String ERROR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanErrorInterceptor";
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -49,17 +51,33 @@ public class ActiveSpanTagActivation extends ClassStaticMethodsEnhancePluginDefi
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(INTERCEPTOR_METHOD_NAME);
+                    return named(TAG_INTERCEPTOR_METHOD_NAME);
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return TAG_INTERCEPTOR_CLASS;
                 }
 
                 @Override public boolean isOverrideArgs() {
                     return false;
                 }
-            }
+            },
+                new StaticMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(ERROR_INTERCEPTOR_METHOD_NAME);
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return ERROR_INTERCEPTOR_CLASS;
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+                }
         };
     }
 

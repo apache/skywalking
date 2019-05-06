@@ -26,10 +26,14 @@ package org.apache.skywalking.apm.toolkit.trace;
  */
 public class ActiveSpan {
     /**
-     * @param key tag key
+     * @param key   tag key
      * @param value tag value
      */
     public static void tag(String key, String value) {
+
+    }
+
+    public static void error() {
 
     }
 }
