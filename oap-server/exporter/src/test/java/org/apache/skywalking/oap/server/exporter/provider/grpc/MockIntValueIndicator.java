@@ -23,7 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
 /**
  * Created by dengming, 2019.04.20
  */
-public class MockIntValueIndicatior extends MockIndicator implements IntValueHolder {
+public class MockIntValueIndicator extends MockIndicator implements IntValueHolder {
     @Override
     public int getValue() {
         return 12;

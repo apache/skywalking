@@ -10,7 +10,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
 
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm-incubating.svg)](http://skywalking.apache.org/downloads/)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm.svg)](http://skywalking.apache.org/downloads/)
 [![Build Status](https://travis-ci.org/apache/skywalking.svg?branch=master)](https://travis-ci.org/apache/skywalking)
 
 # Abstract
