@@ -11,7 +11,8 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm.svg)](http://skywalking.apache.org/downloads/)
-[![Build Status](https://travis-ci.org/apache/skywalking.svg?branch=master)](https://travis-ci.org/apache/skywalking)
+[![Travis Build Status](https://travis-ci.org/apache/skywalking.svg?branch=master)](https://travis-ci.org/apache/skywalking)
+[![Appveyor Build Status](https://img.shields.io/appveyor/ci/ApacheSoftwareFoundation/skywalking/master.svg?label=appveyor&style=flat)](https://ci.appveyor.com/project/ApacheSoftwareFoundation/skywalking)
 
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
