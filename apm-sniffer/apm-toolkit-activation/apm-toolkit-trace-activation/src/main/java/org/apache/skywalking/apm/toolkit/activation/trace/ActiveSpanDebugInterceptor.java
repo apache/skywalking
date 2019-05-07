@@ -36,12 +36,11 @@ public class ActiveSpanDebugInterceptor implements StaticMethodsAroundIntercepto
         AbstractSpan activeSpan = null;
         try {
             activeSpan = ContextManager.activeSpan();
-            if (allArguments != null && allArguments.length == 1) {
-                Map<String, String> event = new HashMap<String, String>();
-                event.put("event", "debug");
-                event.put("message", String.valueOf(allArguments[0]));
-                activeSpan.log(System.currentTimeMillis(), event);
-            }
+            Map<String, String> event = new HashMap<String, String>();
+            event.put("event", "debug");
+            event.put("message", String.valueOf(allArguments[0]));
+            activeSpan.log(System.currentTimeMillis(), event);
+
         } catch (NullPointerException e) {
         }
     }

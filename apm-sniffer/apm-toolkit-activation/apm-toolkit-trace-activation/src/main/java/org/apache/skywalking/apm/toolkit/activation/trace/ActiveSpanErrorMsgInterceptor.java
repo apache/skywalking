@@ -37,12 +37,11 @@ public class ActiveSpanErrorMsgInterceptor implements StaticMethodsAroundInterce
         try {
             activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
-            if (allArguments != null && allArguments.length == 1) {
-                Map<String, String> event = new HashMap<String, String>();
-                event.put("event", "error");
-                event.put("message", String.valueOf(allArguments[0]));
-                activeSpan.log(System.currentTimeMillis(), event);
-            }
+            Map<String, String> event = new HashMap<String, String>();
+            event.put("event", "error");
+            event.put("message", String.valueOf(allArguments[0]));
+            activeSpan.log(System.currentTimeMillis(), event);
+
         } catch (NullPointerException e) {
         }
     }
