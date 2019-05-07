@@ -27,8 +27,10 @@ import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -61,6 +63,12 @@ public class SkyWalkingAgent {
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
+        } catch (ConfigNotFoundException ce) {
+            logger.error(ce, "Skywalking agent could not find config. Shutting down.");
+            return;
+        } catch (AgentPackageNotFoundException ape) {
+            logger.error(ape, "Locate agent.jar failure. Shutting down.");
+            return;
         } catch (Exception e) {
             logger.error(e, "Skywalking agent initialized failure. Shutting down.");
             return;
