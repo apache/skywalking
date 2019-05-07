@@ -49,4 +49,4 @@ services:
     ports:
       - 8080:8080
     environment:
-      collector.ribbon.listOfServers: oap:12800
+      collectorListOfServers: oap:12800
