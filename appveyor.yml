@@ -53,8 +53,8 @@ build_script:
 # after_build:
 # - mvnw.cmd javadoc:javadoc -Dmaven.test.skip=true
 
-# test_script:
-# - mvnw.cmd test
+test_script:
+- mvnw.cmd test
 
 cache:
   - C:\Users\appveyor\.m2
