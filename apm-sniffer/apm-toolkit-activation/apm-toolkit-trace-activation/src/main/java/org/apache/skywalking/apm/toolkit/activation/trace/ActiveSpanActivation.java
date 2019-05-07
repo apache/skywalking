@@ -28,6 +28,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInte
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
  * {@link TraceAnnotationActivation} enhance the <code>tag</code> method of <code>ActiveSpan</code>
@@ -37,11 +39,22 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine {
 
-    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.ActiveSpan";
-    public static final String TAG_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanTagInterceptor";
-    public static final String TAG_INTERCEPTOR_METHOD_NAME = "tag";
-    public static final String ERROR_INTERCEPTOR_METHOD_NAME = "error";
-    public static final String ERROR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanErrorInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.ActiveSpan";
+
+    private static final String TAG_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanTagInterceptor";
+    private static final String TAG_INTERCEPTOR_METHOD_NAME = "tag";
+
+    private static final String ERROR_INTERCEPTOR_METHOD_NAME = "error";
+    private static final String ERROR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanErrorInterceptor";
+    private static final String ERROR_MSG_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanErrorMsgInterceptor";
+    private static final String ERROR_THROWABLE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanErrorThrowableInteceptor";
+
+    private static final String DEBUG_INTERCEPTOR_METHOD_NAME = "debug";
+    private static final String DEBUG_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanDebugInterceptor";
+
+    private static final String INFO_INTERCEPTOR_METHOD_NAME = "info";
+    private static final String INFO_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanInfoInterceptor";
+
 
     @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -64,7 +77,64 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             },
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ERROR_INTERCEPTOR_METHOD_NAME);
+                    return named(DEBUG_INTERCEPTOR_METHOD_NAME)
+                            .and(takesArgumentWithType(0, "java.lang.String"));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return DEBUG_INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(INFO_INTERCEPTOR_METHOD_NAME)
+                            .and(takesArgumentWithType(0, "java.lang.String"));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return INFO_INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ERROR_INTERCEPTOR_METHOD_NAME)
+                            .and(takesArgumentWithType(0, "java.lang.Throwable"));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return ERROR_THROWABLE_INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ERROR_INTERCEPTOR_METHOD_NAME)
+                            .and(takesArgumentWithType(0, "java.lang.String"));
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return ERROR_MSG_INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ERROR_INTERCEPTOR_METHOD_NAME)
+                            .and(takesArguments(0));
                 }
 
                 @Override public String getMethodsInterceptor() {

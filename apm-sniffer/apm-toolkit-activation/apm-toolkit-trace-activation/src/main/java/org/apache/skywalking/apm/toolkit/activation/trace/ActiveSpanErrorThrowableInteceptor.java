@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -29,13 +28,16 @@ import java.lang.reflect.Method;
 /**
  * @author caoyixiong
  */
-public class ActiveSpanErrorInterceptor implements StaticMethodsAroundInterceptor {
+public class ActiveSpanErrorThrowableInteceptor implements StaticMethodsAroundInterceptor {
     @Override public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
                                        MethodInterceptResult result) {
         AbstractSpan activeSpan = null;
         try {
             activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();
+            if (allArguments != null && allArguments.length == 1 && allArguments[0] instanceof Throwable) {
+                activeSpan.log((Throwable) allArguments[0]);
+            }
         } catch (NullPointerException e) {
         }
     }

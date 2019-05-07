@@ -50,13 +50,15 @@ public class ActiveSpanTest {
 
     private TraceAnnotationMethodInterceptor methodInterceptor;
     private ActiveSpanErrorInterceptor activeSpanErrorInterceptor;
+    private ActiveSpanErrorMsgInterceptor activeSpanErrorMsgInterceptor;
+    private ActiveSpanErrorThrowableInteceptor activeSpanErrorThrowableInteceptor;
+    private ActiveSpanInfoInterceptor activeSpanInfoInterceptor;
+
 
     @Mock
     private EnhancedInstance enhancedInstance;
-
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
-
     @SegmentStoragePoint
     private SegmentStorage storage;
 
@@ -70,9 +72,12 @@ public class ActiveSpanTest {
     public void setUp() throws Exception {
         methodInterceptor = new TraceAnnotationMethodInterceptor();
         activeSpanErrorInterceptor = new ActiveSpanErrorInterceptor();
+        activeSpanErrorMsgInterceptor = new ActiveSpanErrorMsgInterceptor();
+        activeSpanErrorThrowableInteceptor = new ActiveSpanErrorThrowableInteceptor();
+        activeSpanInfoInterceptor = new ActiveSpanInfoInterceptor();
 
-        tagParametersMsg = new Object[]{"testkey", "testMsgValue"};
-        tagParameterTypesMsg = new Class[]{String.class, String.class};
+        tagParametersMsg = new Object[]{"testMsgValue"};
+        tagParameterTypesMsg = new Class[]{String.class};
 
         tagParametersThrowable = new Object[]{new RuntimeException("test-Throwable")};
         tagParameterTypesThrowable = new Class[]{Throwable.class};
@@ -82,8 +87,8 @@ public class ActiveSpanTest {
     public void testActiveSpanError() throws Throwable {
         Method withOperationNameMethod = MockActiveSpan.class.getDeclaredMethod("testErrorMethod");
         methodInterceptor.beforeMethod(enhancedInstance, withOperationNameMethod, null, null, null);
-        activeSpanErrorInterceptor.beforeMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersMsg, tagParameterTypesMsg, null);
-        activeSpanErrorInterceptor.afterMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersMsg, tagParameterTypesMsg, null);
+        activeSpanErrorMsgInterceptor.beforeMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersMsg, tagParameterTypesMsg, null);
+        activeSpanErrorMsgInterceptor.afterMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersMsg, tagParameterTypesMsg, null);
         methodInterceptor.afterMethod(enhancedInstance, withOperationNameMethod, null, null, null);
 
         assertThat(storage.getTraceSegments().size(), is(1));
@@ -124,15 +129,14 @@ public class ActiveSpanTest {
     public void testActiveSpanErrorThrowable() throws Throwable {
         Method withOperationNameMethod = MockActiveSpan.class.getDeclaredMethod("testErrorThrowableMethod");
         methodInterceptor.beforeMethod(enhancedInstance, withOperationNameMethod, null, null, null);
-        activeSpanErrorInterceptor.beforeMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersThrowable, tagParameterTypesThrowable, null);
-        activeSpanErrorInterceptor.afterMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersThrowable, tagParameterTypesThrowable, null);
+        activeSpanErrorThrowableInteceptor.beforeMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersThrowable, tagParameterTypesThrowable, null);
+        activeSpanErrorThrowableInteceptor.afterMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersThrowable, tagParameterTypesThrowable, null);
         methodInterceptor.afterMethod(enhancedInstance, withOperationNameMethod, null, null, null);
 
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
-
         AbstractTracingSpan tracingSpan = spans.get(0);
         Field field = AbstractTracingSpan.class.getDeclaredField("errorOccurred");
         field.setAccessible(true);
@@ -141,10 +145,33 @@ public class ActiveSpanTest {
         SpanAssert.assertTagSize(tracingSpan, 0);
     }
 
+    @Test
+    public void testActiveSpanInfo() throws Throwable {
+        Method withOperationNameMethod = MockActiveSpan.class.getDeclaredMethod("testInfoMethod");
+        methodInterceptor.beforeMethod(enhancedInstance, withOperationNameMethod, null, null, null);
+        activeSpanInfoInterceptor.beforeMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersThrowable, tagParameterTypesThrowable, null);
+        activeSpanInfoInterceptor.afterMethod(MockActiveSpan.class, withOperationNameMethod, tagParametersThrowable, tagParameterTypesThrowable, null);
+        methodInterceptor.afterMethod(enhancedInstance, withOperationNameMethod, null, null, null);
+
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        SpanAssert.assertLogSize(tracingSpan, 1);
+        SpanAssert.assertTagSize(tracingSpan, 0);
+    }
+
     private class MockActiveSpan {
         @Trace
         public void testErrorMethod() {
-            ActiveSpan.error("", "testValue");
+            ActiveSpan.error("testValue");
+        }
+
+        @Trace
+        public void testInfoMethod() {
+            ActiveSpan.info("testValue");
         }
 
         @Trace
