@@ -67,8 +67,7 @@ public class PluginFinder {
         }
     }
 
-    public List<AbstractClassEnhancePluginDefine> find(TypeDescription typeDescription,
-        ClassLoader classLoader) {
+    public List<AbstractClassEnhancePluginDefine> find(TypeDescription typeDescription) {
         List<AbstractClassEnhancePluginDefine> matchedPlugins = new LinkedList<AbstractClassEnhancePluginDefine>();
         String typeName = typeDescription.getTypeName();
         if (nameMatchDefine.containsKey(typeName)) {
