@@ -28,7 +28,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import redis.clients.jedis.HostAndPort;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,7 +51,7 @@ public class JedisClusterConstructorWithHostAndPortArgInterceptorTest {
     @Test
     public void onConstruct() throws Exception {
         interceptor.onConstruct(enhancedInstance, new Object[] {new HostAndPort("127.0.0.1", 6379)});
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:6379");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:6379");
     }
 
 }
