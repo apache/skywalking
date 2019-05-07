@@ -35,20 +35,21 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionImplCreateInterceptorTest {
-    private ConnectionCreate5xInterceptor interceptor;
+	private ConnectionCreate5xInterceptor interceptor;
 
-    @Mock
-    private EnhancedInstance objectInstance;
+	@Mock
+	private EnhancedInstance objectInstance;
 
+	@Before
+	public void setUp() {
+		interceptor = new ConnectionCreate5xInterceptor();
+	}
 
-    @Before
-    public void setUp() {
-        interceptor = new ConnectionCreate5xInterceptor();
-    }
-
-    @Test
-    public void testResultIsEnhanceInstance() throws Throwable {
-        interceptor.afterMethod(null,null,new Object[]{"localhost",3360,null,"test","jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true"},null,objectInstance);
-        verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
-    }
+	@Test
+	public void testResultIsEnhanceInstance() throws Throwable {
+		interceptor.afterMethod(null, null, new Object[] { "localhost", 3360, null, "test",
+				"jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true" },
+				null, objectInstance);
+		verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
+	}
 }
