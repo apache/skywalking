@@ -94,7 +94,7 @@ Integrated in the microservices architecture support platform.
 Use SkyWalking and [SkyAPM .net agent](https://github.com/SkyAPM/SkyAPM-dotnet) in the CMBChina Mall project.
 
 ## ke.com
-Deploy SkyWalking in production enviroments. 
+Deploy SkyWalking in production environments.
 - Three CentOs Machines(32 CPUs, 64G RAM, 1.3T Disk) for Collector Server
 - Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
 
