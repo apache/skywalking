@@ -37,9 +37,9 @@ skip_commits:
     - Jenkinsfile
     # - appveyor.yml
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
 
 install:
 - ps: $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -53,8 +53,8 @@ build_script:
 # after_build:
 # - mvnw.cmd javadoc:javadoc -Dmaven.test.skip=true
 
-# test_script:
-# - mvnw.cmd test
+test_script:
+- mvnw.cmd test
 
 cache:
   - C:\Users\appveyor\.m2
