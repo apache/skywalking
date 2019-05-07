@@ -27,7 +27,6 @@ import org.mockito.Mockito;
 import java.io.PrintStream;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
 
 /**
  * Created by wusheng on 2017/2/28.
@@ -47,7 +46,7 @@ public class SystemOutWriterTest {
 
         SystemOutWriter.INSTANCE.write("hello");
 
-        Mockito.verify(mockStream, times(1)).println(anyString());
+        Mockito.verify(mockStream).println(anyString());
     }
 
     @AfterClass
