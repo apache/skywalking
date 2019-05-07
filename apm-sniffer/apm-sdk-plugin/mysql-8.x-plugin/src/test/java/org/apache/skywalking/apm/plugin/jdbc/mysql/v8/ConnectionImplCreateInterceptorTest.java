@@ -52,6 +52,6 @@ public class ConnectionImplCreateInterceptorTest {
         final ConnectionUrlParser connectionUrlParser = ConnectionUrlParser.parseConnectionString("jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true");
 
         interceptor.afterMethod(null,null,connectionUrlParser.getHosts().toArray(),null,objectInstance);
-        verify(objectInstance,times(1)).setSkyWalkingDynamicField(Matchers.any());
+        verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
     }
 }

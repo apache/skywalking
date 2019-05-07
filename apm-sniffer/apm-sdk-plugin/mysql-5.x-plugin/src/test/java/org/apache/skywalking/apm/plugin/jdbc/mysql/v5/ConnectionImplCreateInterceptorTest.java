@@ -49,6 +49,6 @@ public class ConnectionImplCreateInterceptorTest {
     @Test
     public void testResultIsEnhanceInstance() throws Throwable {
         interceptor.afterMethod(null,null,new Object[]{"localhost",3360,null,"test","jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true"},null,objectInstance);
-        verify(objectInstance,times(1)).setSkyWalkingDynamicField(Matchers.any());
+        verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
     }
 }

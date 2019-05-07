@@ -51,7 +51,7 @@ public class JedisConstructorWithShardInfoArgInterceptorTest {
     public void onConstruct() throws Exception {
 
         interceptor.onConstruct(enhancedInstance, new Object[] {new JedisShardInfo("127.0.0.1", 6379)});
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:6379");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:6379");
     }
 
 }

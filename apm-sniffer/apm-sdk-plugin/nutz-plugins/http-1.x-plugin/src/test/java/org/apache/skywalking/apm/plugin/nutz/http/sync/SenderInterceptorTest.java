@@ -91,7 +91,7 @@ public class SenderInterceptorTest {
     public void test_constructor() {
         Request request = Request.create("https://nutz.cn/yvr/list", METHOD.GET);
         constructorInterceptPoint.onConstruct(enhancedInstance, new Object[] {request});
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField(request);
+        verify(enhancedInstance).setSkyWalkingDynamicField(request);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class SenderInterceptorTest {
     protected void _sender_sender_test() throws Throwable {
         Request request = Request.create("https://nutz.cn/yvr/list", METHOD.GET);
         constructorInterceptPoint.onConstruct(enhancedInstance, new Object[] {request});
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField(request);
+        verify(enhancedInstance).setSkyWalkingDynamicField(request);
 
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(request);
         when(resp.getStatus()).thenReturn(200);

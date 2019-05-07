@@ -114,7 +114,7 @@ public class TransportClientHandlerInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertCombSpan(spans.get(0));
-        verify(invocation, times(1)).getContext();
+        verify(invocation).getContext();
     }
 
     private void assertCombSpan(AbstractTracingSpan span) {

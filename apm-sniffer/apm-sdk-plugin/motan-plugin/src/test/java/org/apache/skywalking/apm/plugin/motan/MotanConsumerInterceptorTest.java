@@ -94,7 +94,7 @@ public class MotanConsumerInterceptorTest {
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertMotanConsumerSpan(spans.get(0));
-        verify(request, times(1)).setAttachment(anyString(), anyString());
+        verify(request).setAttachment(anyString(), anyString());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class MotanConsumerInterceptorTest {
 
     private void assertTraceSegmentWhenOccurException(AbstractTracingSpan tracingSpan) {
         assertMotanConsumerSpan(tracingSpan);
-        verify(request, times(1)).setAttachment(anyString(), anyString());
+        verify(request).setAttachment(anyString(), anyString());
         List<LogDataEntity> logDataEntities = SpanHelper.getLogs(tracingSpan);
         assertThat(logDataEntities.size(), is(1));
         SpanAssert.assertException(logDataEntities.get(0), RuntimeException.class);

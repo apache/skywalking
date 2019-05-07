@@ -47,7 +47,7 @@ public class SystemOutWriterTest {
 
         SystemOutWriter.INSTANCE.write("hello");
 
-        Mockito.verify(mockStream, times(1)).println(anyString());
+        Mockito.verify(mockStream).println(anyString());
     }
 
     @AfterClass

@@ -46,6 +46,6 @@ public class XMemcachedConstructorWithHostPortArgInterceptorTest {
     public void onConstructWithHostPort() {
         interceptor.onConstruct(enhancedInstance, new Object[]{"127.0.0.1", 11211});
 
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:11211");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:11211");
     }
 }

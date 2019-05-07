@@ -52,6 +52,6 @@ public class XMemcachedConstructorWithComplexArgInterceptorTest {
         inetSocketAddressMap.put(new InetSocketAddress("127.0.0.1", 11211), new InetSocketAddress("127.0.0.2", 11211));
         interceptor.onConstruct(enhancedInstance, new Object[]{null, null, null, null, null, null, inetSocketAddressMap});
 
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:11211;127.0.0.2:11211");
     }
 }

@@ -113,30 +113,30 @@ public class SWStatementTest extends AbstractStatementTest {
         statement.getResultSet();
 
         statement.close();
-        verify(mysqlStatement, times(1)).getUpdateCount();
-        verify(mysqlStatement, times(1)).getMoreResults();
-        verify(mysqlStatement, times(1)).setFetchDirection(anyInt());
-        verify(mysqlStatement, times(1)).getFetchDirection();
-        verify(mysqlStatement, times(1)).getResultSetType();
-        verify(mysqlStatement, times(1)).isClosed();
-        verify(mysqlStatement, times(1)).setPoolable(anyBoolean());
-        verify(mysqlStatement, times(1)).getWarnings();
-        verify(mysqlStatement, times(1)).clearWarnings();
-        verify(mysqlStatement, times(1)).setCursorName(anyString());
-        verify(mysqlStatement, times(1)).setMaxFieldSize(anyInt());
-        verify(mysqlStatement, times(1)).getMaxFieldSize();
-        verify(mysqlStatement, times(1)).setMaxRows(anyInt());
-        verify(mysqlStatement, times(1)).getMaxRows();
-        verify(mysqlStatement, times(1)).setEscapeProcessing(anyBoolean());
-        verify(mysqlStatement, times(1)).getResultSetConcurrency();
-        verify(mysqlStatement, times(1)).getResultSetConcurrency();
-        verify(mysqlStatement, times(1)).getResultSetType();
-        verify(mysqlStatement, times(1)).getMoreResults(anyInt());
-        verify(mysqlStatement, times(1)).setFetchSize(anyInt());
-        verify(mysqlStatement, times(1)).getFetchSize();
-        verify(mysqlStatement, times(1)).getQueryTimeout();
-        verify(mysqlStatement, times(1)).setQueryTimeout(anyInt());
-        verify(mysqlStatement, times(1)).getResultSet();
+        verify(mysqlStatement).getUpdateCount();
+        verify(mysqlStatement).getMoreResults();
+        verify(mysqlStatement).setFetchDirection(anyInt());
+        verify(mysqlStatement).getFetchDirection();
+        verify(mysqlStatement).getResultSetType();
+        verify(mysqlStatement).isClosed();
+        verify(mysqlStatement).setPoolable(anyBoolean());
+        verify(mysqlStatement).getWarnings();
+        verify(mysqlStatement).clearWarnings();
+        verify(mysqlStatement).setCursorName(anyString());
+        verify(mysqlStatement).setMaxFieldSize(anyInt());
+        verify(mysqlStatement).getMaxFieldSize();
+        verify(mysqlStatement).setMaxRows(anyInt());
+        verify(mysqlStatement).getMaxRows();
+        verify(mysqlStatement).setEscapeProcessing(anyBoolean());
+        verify(mysqlStatement).getResultSetConcurrency();
+        verify(mysqlStatement).getResultSetConcurrency();
+        verify(mysqlStatement).getResultSetType();
+        verify(mysqlStatement).getMoreResults(anyInt());
+        verify(mysqlStatement).setFetchSize(anyInt());
+        verify(mysqlStatement).getFetchSize();
+        verify(mysqlStatement).getQueryTimeout();
+        verify(mysqlStatement).setQueryTimeout(anyInt());
+        verify(mysqlStatement).getResultSet();
         assertThat(connection, CoreMatchers.<Connection>is(swConnection));
 
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -187,7 +187,7 @@ public class SWStatementTest extends AbstractStatementTest {
         int executeSuccess = statement.executeUpdate("UPDATE test SET a = 1", 1);
         statement.getGeneratedKeys();
 
-        verify(mysqlStatement, times(1)).getGeneratedKeys();
+        verify(mysqlStatement).getGeneratedKeys();
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
@@ -249,9 +249,9 @@ public class SWStatementTest extends AbstractStatementTest {
         int[] resultSet = statement.executeBatch();
         statement.clearBatch();
 
-        verify(mysqlStatement, times(1)).executeBatch();
-        verify(mysqlStatement, times(1)).addBatch(anyString());
-        verify(mysqlStatement, times(1)).clearBatch();
+        verify(mysqlStatement).executeBatch();
+        verify(mysqlStatement).addBatch(anyString());
+        verify(mysqlStatement).clearBatch();
 
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -267,7 +267,7 @@ public class SWStatementTest extends AbstractStatementTest {
             Statement statement = multiHostConnection.createStatement();
             statement.execute("UPDATE test SET a = 1 WHERE b = 2");
         } finally {
-            verify(mysqlStatement, times(1)).execute(anyString());
+            verify(mysqlStatement).execute(anyString());
             TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
             List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
             assertThat(spans.size(), is(1));
