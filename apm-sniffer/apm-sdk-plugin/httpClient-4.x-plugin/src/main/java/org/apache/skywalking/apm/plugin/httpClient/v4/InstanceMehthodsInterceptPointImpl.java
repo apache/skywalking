@@ -16,33 +16,32 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.httpClient.v4.define;
+package org.apache.skywalking.apm.plugin.httpClient.v4;
 
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.httpClient.v4.InstanceMehthodsInterceptPointImpl;
 
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.plugin.httpClient.v4.Constants.INTERCEPT_CLASS;
 
-public class DefaultRequestDirectorInstrumentation extends HttpClientInstrumentation {
+/**
+ * @author Alan Lau
+ */
+public class InstanceMehthodsInterceptPointImpl implements InstanceMethodsInterceptPoint {
 
-    /**
-     * Enhance class.
-     */
-    private static final String ENHANCE_CLASS = "org.apache.http.impl.client.DefaultRequestDirector";
-
-    /**
-     * DefaultRequestDirector is default implement. usually use in version 4.0-4.2 since 4.3, this class is Deprecated.
-     */
     @Override
-    public ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+        return named("doExecute");
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-                new InstanceMehthodsInterceptPointImpl()
-        };
+    public String getMethodsInterceptor() {
+        return INTERCEPT_CLASS;
+    }
+
+    @Override
+    public boolean isOverrideArgs() {
+        return false;
     }
 }

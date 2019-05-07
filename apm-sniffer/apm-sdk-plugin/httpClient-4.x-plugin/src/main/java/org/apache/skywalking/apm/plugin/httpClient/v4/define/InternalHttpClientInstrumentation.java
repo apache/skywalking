@@ -24,13 +24,13 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.httpClient.v4.InstanceMehthodsInterceptPointImpl;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts
- * InternalHttpClient#doExecute
- * by using {@link HttpClientInstrumentation#INTERCEPT_CLASS}.
+ * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts InternalHttpClient#doExecute by using
+ * {@link org.apache.skywalking.apm.plugin.httpClient.v4.Constants#INTERCEPT_CLASS}.
  *
  * @author zhangxin
  */
@@ -46,22 +46,7 @@ public class InternalHttpClientInstrumentation extends HttpClientInstrumentation
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("doExecute");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return getInstanceMethodsInterceptor();
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
+            new InstanceMehthodsInterceptPointImpl()
         };
     }
 }
