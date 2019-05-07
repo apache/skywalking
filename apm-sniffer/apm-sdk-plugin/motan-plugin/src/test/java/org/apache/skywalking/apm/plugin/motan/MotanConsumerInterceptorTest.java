@@ -48,7 +48,6 @@ import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;

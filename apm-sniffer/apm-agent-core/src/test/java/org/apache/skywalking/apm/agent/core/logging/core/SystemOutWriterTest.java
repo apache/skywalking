@@ -27,7 +27,6 @@ import org.mockito.Mockito;
 import java.io.PrintStream;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
 
 /**
  * Created by wusheng on 2017/2/28.

@@ -28,7 +28,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import redis.clients.jedis.HostAndPort;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)

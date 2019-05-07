@@ -19,7 +19,6 @@
 
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.net.InetSocketAddress;

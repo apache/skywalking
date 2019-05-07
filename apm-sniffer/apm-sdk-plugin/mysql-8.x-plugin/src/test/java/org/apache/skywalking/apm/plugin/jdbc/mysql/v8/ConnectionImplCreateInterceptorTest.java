@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  *
@@ -36,22 +35,22 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionImplCreateInterceptorTest {
-	private ConnectionCreateInterceptor interceptor;
+    private ConnectionCreateInterceptor interceptor;
 
-	@Mock
-	private EnhancedInstance objectInstance;
+    @Mock
+    private EnhancedInstance objectInstance;
 
-	@Before
-	public void setUp() {
-		interceptor = new ConnectionCreateInterceptor();
-	}
 
-	@Test
-	public void testResultIsEnhanceInstance() throws Throwable {
-		final ConnectionUrlParser connectionUrlParser = ConnectionUrlParser.parseConnectionString(
-				"jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true");
+    @Before
+    public void setUp() {
+        interceptor = new ConnectionCreateInterceptor();
+    }
 
-		interceptor.afterMethod(null, null, connectionUrlParser.getHosts().toArray(), null, objectInstance);
-		verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
-	}
+    @Test
+    public void testResultIsEnhanceInstance() throws Throwable {
+        final ConnectionUrlParser connectionUrlParser = ConnectionUrlParser.parseConnectionString("jdbc:mysql:replication://localhost:3360,localhost:3360,localhost:3360/test?useUnicode=true&characterEncoding=utf8&useSSL=false&roundRobinLoadBalance=true");
+
+        interceptor.afterMethod(null,null,connectionUrlParser.getHosts().toArray(),null,objectInstance);
+        verify(objectInstance).setSkyWalkingDynamicField(Matchers.any());
+    }
 }
