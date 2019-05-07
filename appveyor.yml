@@ -37,9 +37,9 @@ skip_commits:
     - Jenkinsfile
     # - appveyor.yml
 
-# branches:
-#   only:
-#     - master
+branches:
+  only:
+    - master
 
 install:
 - ps: $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
