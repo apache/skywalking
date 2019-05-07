@@ -39,7 +39,9 @@ import org.apache.skywalking.apm.agent.core.plugin.*;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
+import static net.bytebuddy.matcher.ElementMatchers.nameContains;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * The main entrance of sky-walking agent, based on javaagent mechanism.
