@@ -24,7 +24,7 @@ Because batch is supported, even for most language agent/SDK, no scenario to do 
 and `UUID` in response, and match with your expected value.
 
 ### Step 2. Send trace and metric
-After you have trace id and trace instance id, you could send traces and metric. Now we
+After you have service id and service instance id, you could send traces and metric. Now we
 have 
 1. `TraceSegmentReportService#collect` for skywalking native trace format
 1. `JVMMetricReportService#collect` for skywalking native jvm format

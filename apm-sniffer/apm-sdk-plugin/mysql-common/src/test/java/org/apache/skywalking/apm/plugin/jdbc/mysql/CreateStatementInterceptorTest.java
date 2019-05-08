@@ -56,7 +56,7 @@ public class CreateStatementInterceptorTest {
     @Test
     public void testResultIsEnhanceInstance() throws Throwable {
         interceptor.afterMethod(objectInstance, null, new Object[] {"SELECT * FROM test"}, null, ret);
-        verify(ret, times(1)).setSkyWalkingDynamicField(Matchers.any());
+        verify(ret).setSkyWalkingDynamicField(Matchers.any());
     }
 
     @Test
