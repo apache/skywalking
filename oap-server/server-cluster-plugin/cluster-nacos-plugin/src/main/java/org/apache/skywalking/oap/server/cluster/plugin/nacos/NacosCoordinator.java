@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author caoyixiong
@@ -49,10 +50,12 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
             List<Instance> instances = namingService.selectInstances(config.getServiceName(), true);
             if (CollectionUtils.isNotEmpty(instances)) {
                 instances.forEach(instance -> {
-                    if (selfAddress.getHost().equals(instance.getIp()) && selfAddress.getPort() == instance.getPort()) {
-                        result.add(new RemoteInstance(new Address(instance.getIp(), instance.getPort(), true)));
-                    } else {
-                        result.add(new RemoteInstance(new Address(instance.getIp(), instance.getPort(), false)));
+                    if (Objects.nonNull(selfAddress)) {
+                        if (selfAddress.getHost().equals(instance.getIp()) && selfAddress.getPort() == instance.getPort()) {
+                            result.add(new RemoteInstance(new Address(instance.getIp(), instance.getPort(), true)));
+                        } else {
+                            result.add(new RemoteInstance(new Address(instance.getIp(), instance.getPort(), false)));
+                        }
                     }
                 });
             }

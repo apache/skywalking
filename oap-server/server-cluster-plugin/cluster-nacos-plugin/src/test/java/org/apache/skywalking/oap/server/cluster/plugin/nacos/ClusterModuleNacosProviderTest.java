@@ -2,6 +2,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.client.naming.NacosNamingService;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -28,11 +29,13 @@ import static org.mockito.Mockito.verify;
  * @author caoyixiong
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(NamingService.class)
+@PrepareForTest(NamingFactory.class)
 @PowerMockIgnore("javax.management.*")
 public class ClusterModuleNacosProviderTest {
-    private ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
+    private static final String SERVICE_NAME = "test-service_name";
+
+    private ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
     @Test
     public void name() {
@@ -58,19 +61,17 @@ public class ClusterModuleNacosProviderTest {
 
     @Test
     public void prepare() throws Exception {
+        PowerMockito.mockStatic(NamingFactory.class);
         ClusterModuleNacosConfig nacosConfig = new ClusterModuleNacosConfig();
         nacosConfig.setHostPort("10.0.0.1:1000,10.0.0.2:1001");
+        nacosConfig.setServiceName(SERVICE_NAME);
         Whitebox.setInternalState(provider, "config", nacosConfig);
-
         NamingService namingService = mock(NamingService.class);
-        PowerMockito.mockStatic(NamingFactory.class);
-        PowerMockito.when(NamingFactory.createNamingService(anyString())).thenReturn(namingService);
-
+        PowerMockito.when(NamingFactory.createNamingService("10.0.0.1:1000,10.0.0.2:1001")).thenReturn(namingService);
         provider.prepare();
-
         ArgumentCaptor<String> addressCaptor = ArgumentCaptor.forClass(String.class);
-        verify(NamingFactory.createNamingService(addressCaptor.capture()));
-
+        PowerMockito.verifyStatic();
+        NamingFactory.createNamingService(addressCaptor.capture());
         String data = addressCaptor.getValue();
         assertEquals("10.0.0.1:1000,10.0.0.2:1001", data);
     }
