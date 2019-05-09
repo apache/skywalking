@@ -44,7 +44,7 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
 
-        AbstractSpan span = ContextManager.createLocalSpan("Gateway/filter");
+        AbstractSpan span = ContextManager.createLocalSpan("Gateway/handle");
         span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
         span.tag("route", route.getId());
         Tags.URL.set(span, route.getUri().toString());

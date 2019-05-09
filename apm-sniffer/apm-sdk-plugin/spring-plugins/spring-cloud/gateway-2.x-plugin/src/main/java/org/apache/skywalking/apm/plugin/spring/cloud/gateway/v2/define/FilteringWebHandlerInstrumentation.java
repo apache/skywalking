@@ -64,4 +64,9 @@ public class FilteringWebHandlerInstrumentation extends ClassInstanceMethodsEnha
     public ClassMatch enhanceClass() {
         return byName("org.springframework.cloud.gateway.handler.FilteringWebHandler");
     }
+
+    @Override
+    protected final String[] witnessClasses() {
+        return new String[]{"org.springframework.cloud.gateway.handler.FilteringWebHandler"};
+    }
 }
