@@ -25,8 +25,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -86,6 +86,7 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
         remoteBuilder.addDataLongs(getValue());
         remoteBuilder.addDataLongs(getTimeBucket());
 
+
         remoteBuilder.addDataIntegers(getCount());
 
         return remoteBuilder;
@@ -99,7 +100,9 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
         setValue(remoteData.getDataLongs(1));
         setTimeBucket(remoteData.getDataLongs(2));
 
+
         setCount(remoteData.getDataIntegers(0));
+
 
     }
 

@@ -30,7 +30,7 @@ public class DeepAnalysisTest {
         InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
         MetaSettings metaSettings = reader.read(stream);
         SourceColumnsFactory.setSettings(metaSettings);
-        Metrics.init();
+        MetricsHolder.init();
     }
 
     @Test
@@ -39,7 +39,7 @@ public class DeepAnalysisTest {
         result.setSourceName("Service");
         result.setPackageName("service.serviceavg");
         result.setSourceAttribute("latency");
-        result.setMetricName("ServiceAvg");
+        result.setMetricsName("ServiceAvg");
         result.setAggregationFunctionName("longAvg");
 
         DeepAnalysis analysis = new DeepAnalysis();
@@ -63,7 +63,7 @@ public class DeepAnalysisTest {
         result.setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
         result.setSourceAttribute("latency");
-        result.setMetricName("EndpointAvg");
+        result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
 
         DeepAnalysis analysis = new DeepAnalysis();
@@ -87,7 +87,7 @@ public class DeepAnalysisTest {
         result.setSourceName("Endpoint");
         result.setPackageName("endpoint.endpointavg");
         result.setSourceAttribute("latency");
-        result.setMetricName("EndpointAvg");
+        result.setMetricsName("EndpointAvg");
         result.setAggregationFunctionName("longAvg");
         ConditionExpression expression = new ConditionExpression();
         expression.setExpressionType("stringMatch");

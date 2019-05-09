@@ -30,7 +30,7 @@ public class DeepAnalysis {
         // 1. Set sub package name by source.metrics
         result.setPackageName(result.getSourceName().toLowerCase());
 
-        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = Metrics.find(result.getAggregationFunctionName());
+        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = MetricsHolder.find(result.getAggregationFunctionName());
         String metricsClassSimpleName = metricsClass.getSimpleName();
 
         result.setMetricsClassName(metricsClassSimpleName);
@@ -137,7 +137,7 @@ public class DeepAnalysis {
             }
         }
 
-        // 5. Get all column declared in Metrics class.
+        // 5. Get all column declared in MetricsHolder class.
         c = metricsClass;
         while (!c.equals(Object.class)) {
             for (Field field : c.getDeclaredFields()) {

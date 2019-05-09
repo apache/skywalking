@@ -20,7 +20,7 @@ package org.apache.skywalking.oal.tool.output;
 
 import freemarker.template.TemplateException;
 import java.io.*;
-import java.util.*;
+import java.util.LinkedList;
 import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.parser.*;
 import org.junit.*;
@@ -42,7 +42,7 @@ public class FileGeneratorTest {
         result.setPackageName("service.serviceavg");
         result.setTableName("service_avg");
         result.setSourceAttribute("latency");
-        result.setMetricName("ServiceAvg");
+        result.setMetricsName("ServiceAvg");
         result.setAggregationFunctionName("avg");
         result.setMetricsClassName("LongAvgMetrics");
 
@@ -87,7 +87,7 @@ public class FileGeneratorTest {
         fileGenerator.generateMetricsImplementor(result, writer);
         Assert.assertEquals(readExpectedFile("MetricsImplementorExpected.java"), writer.toString());
 
-        // fileGenerator.generateMetricsImplementor(result, new OutputStreamWriter(System.out));
+//        fileGenerator.generateMetricsImplementor(result, new OutputStreamWriter(System.out));
     }
 
     @Test

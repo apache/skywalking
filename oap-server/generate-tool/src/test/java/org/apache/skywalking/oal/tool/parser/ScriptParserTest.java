@@ -32,7 +32,7 @@ public class ScriptParserTest {
         InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
         MetaSettings metaSettings = reader.read(stream);
         SourceColumnsFactory.setSettings(metaSettings);
-        Metrics.init();
+        MetricsHolder.init();
 
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
@@ -55,13 +55,13 @@ public class ScriptParserTest {
         Assert.assertEquals(2, results.size());
 
         AnalysisResult endpointAvg = results.get(0);
-        Assert.assertEquals("EndpointAvg", endpointAvg.getMetricName());
+        Assert.assertEquals("EndpointAvg", endpointAvg.getMetricsName());
         Assert.assertEquals("Endpoint", endpointAvg.getSourceName());
         Assert.assertEquals("latency", endpointAvg.getSourceAttribute());
         Assert.assertEquals("longAvg", endpointAvg.getAggregationFunctionName());
 
         AnalysisResult serviceAvg = results.get(1);
-        Assert.assertEquals("ServiceAvg", serviceAvg.getMetricName());
+        Assert.assertEquals("ServiceAvg", serviceAvg.getMetricsName());
         Assert.assertEquals("Service", serviceAvg.getSourceName());
         Assert.assertEquals("latency", serviceAvg.getSourceAttribute());
         Assert.assertEquals("longAvg", serviceAvg.getAggregationFunctionName());
@@ -75,7 +75,7 @@ public class ScriptParserTest {
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
-        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
+        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricsName());
         Assert.assertEquals("Endpoint", endpointPercent.getSourceName());
         Assert.assertEquals("*", endpointPercent.getSourceAttribute());
         Assert.assertEquals("percent", endpointPercent.getAggregationFunctionName());
@@ -94,7 +94,7 @@ public class ScriptParserTest {
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
-        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
+        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricsName());
         Assert.assertEquals("Endpoint", endpointPercent.getSourceName());
         Assert.assertEquals("*", endpointPercent.getSourceAttribute());
         Assert.assertEquals("longAvg", endpointPercent.getAggregationFunctionName());
@@ -124,7 +124,7 @@ public class ScriptParserTest {
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult responseSummary = results.get(0);
-        Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricName());
+        Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricsName());
         Assert.assertEquals("Service", responseSummary.getSourceName());
         Assert.assertEquals("latency", responseSummary.getSourceAttribute());
         Assert.assertEquals("sum", responseSummary.getAggregationFunctionName());

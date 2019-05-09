@@ -24,11 +24,11 @@ import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 
-public class Metrics {
+public class MetricsHolder {
     private static Map<String, Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics>> REGISTER = new HashMap<>();
 
     public static void init() throws IOException {
-        ClassPath classpath = ClassPath.from(Metrics.class.getClassLoader());
+        ClassPath classpath = ClassPath.from(MetricsHolder.class.getClassLoader());
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {
             Class<?> aClass = classInfo.load();
