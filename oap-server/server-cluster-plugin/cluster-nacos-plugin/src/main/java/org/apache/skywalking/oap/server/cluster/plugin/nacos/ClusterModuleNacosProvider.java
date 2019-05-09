@@ -58,7 +58,7 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            namingService = NamingFactory.createNamingService(config.getHostPort());
+            namingService = NamingFactory.createNamingService(config.getServerList());
         } catch (NacosException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -79,6 +79,6 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[]{CoreModule.NAME};
     }
 }
