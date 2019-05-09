@@ -16,41 +16,24 @@
  *
  */
 
+package org.apache.skywalking.apm.agent.core.base64;
 
-package org.apache.skywalking.apm.agent.core.logging.core;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.io.PrintStream;
-
-import static org.mockito.Matchers.anyString;
 
 /**
- * Created by wusheng on 2017/2/28.
+ * Created by SataQiu on 2019/5/8.
  */
-public class SystemOutWriterTest {
-    private static PrintStream OUT_REF;
+public class Base64Test {
 
-    @BeforeClass
-    public static void initAndHoldOut() {
-        OUT_REF = System.out;
+    @Test
+    public void testDecode2UTFString() {
+        assertEquals(Base64.decode2UTFString("U2t5V2Fsa2luZw=="), "SkyWalking");
     }
 
     @Test
-    public void testWrite() {
-        PrintStream mockStream = Mockito.mock(PrintStream.class);
-        System.setOut(mockStream);
-
-        SystemOutWriter.INSTANCE.write("hello");
-
-        Mockito.verify(mockStream).println(anyString());
-    }
-
-    @AfterClass
-    public static void reset() {
-        System.setOut(OUT_REF);
+    public void testEncode() {
+        assertEquals(Base64.encode("SkyWalking"), "U2t5V2Fsa2luZw==");
     }
 }
