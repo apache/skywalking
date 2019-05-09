@@ -58,7 +58,7 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
 
         ContextSnapshot snapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
         if (snapshot != null) {
-            ContextManager.continued((ContextSnapshot) instance.getSkyWalkingDynamicField());
+            ContextManager.continued(snapshot);
             ContextManager.inject(contextCarrier);
         }
 
