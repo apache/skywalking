@@ -11,11 +11,9 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -102,7 +100,7 @@ public class NacosCoordinatorTest {
     }
 
     private List<Instance> mockInstance() {
-        Instance remoteInstance= new Instance();
+        Instance remoteInstance = new Instance();
         Instance selfInstance = new Instance();
         selfInstance.setIp(selfRemoteAddress.getHost());
         selfInstance.setPort(selfRemoteAddress.getPort());
