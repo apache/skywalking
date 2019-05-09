@@ -7,7 +7,7 @@ telemetry:
 
 ## Prometheus
 Prometheus is supported as telemetry implementor. 
-By using this, prometheus collects metric from skywalking backend.
+By using this, prometheus collects metrics from skywalking backend.
 
 Set `prometheus` to provider. The endpoint open at `http://0.0.0.0:1234/` and `http://0.0.0.0:1234/metrics`.
 ```yaml

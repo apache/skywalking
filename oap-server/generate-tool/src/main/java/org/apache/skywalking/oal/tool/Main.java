@@ -41,7 +41,7 @@ public class Main {
             "org", "apache", "skywalking", "oap", "server", "core", "analysis");
         String metaFilePath = StringUtil.join(File.separatorChar, modulePath, "src", "main", "resources", "generator-scope-meta.yml");
 
-        Indicators.init();
+        Metrics.init();
 
         File scriptFile = new File(scriptFilePath);
         if (!scriptFile.exists()) {

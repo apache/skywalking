@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-public class NotifyHandler implements IndicatorNotify {
+public class NotifyHandler implements MetricsNotify {
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private EndpointInventoryCache endpointInventoryCache;
@@ -40,9 +40,9 @@ public class NotifyHandler implements IndicatorNotify {
         core = new AlarmCore(rules);
     }
 
-    @Override public void notify(Indicator indicator) {
-        WithMetadata withMetadata = (WithMetadata)indicator;
-        IndicatorMetaInfo meta = withMetadata.getMeta();
+    @Override public void notify(Metrics metrics) {
+        WithMetadata withMetadata = (WithMetadata)metrics;
+        MetricsMetaInfo meta = withMetadata.getMeta();
         int scope = meta.getScope();
 
         if (!DefaultScopeDefine.inServiceCatalog(scope)
@@ -56,7 +56,7 @@ public class NotifyHandler implements IndicatorNotify {
             int serviceId = Integer.parseInt(meta.getId());
             ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
             ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
-            serviceMetaInAlarm.setIndicatorName(meta.getIndicatorName());
+            serviceMetaInAlarm.setMetricsName(meta.getMetricsName());
             serviceMetaInAlarm.setId(serviceId);
             serviceMetaInAlarm.setName(serviceInventory.getName());
             metaInAlarm = serviceMetaInAlarm;
@@ -64,7 +64,7 @@ public class NotifyHandler implements IndicatorNotify {
             int serviceInstanceId = Integer.parseInt(meta.getId());
             ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
             ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
-            instanceMetaInAlarm.setIndicatorName(meta.getIndicatorName());
+            instanceMetaInAlarm.setMetricsName(meta.getMetricsName());
             instanceMetaInAlarm.setId(serviceInstanceId);
             instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
             metaInAlarm = instanceMetaInAlarm;
@@ -72,7 +72,7 @@ public class NotifyHandler implements IndicatorNotify {
             int endpointId = Integer.parseInt(meta.getId());
             EndpointInventory endpointInventory = endpointInventoryCache.get(endpointId);
             EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
-            endpointMetaInAlarm.setIndicatorName(meta.getIndicatorName());
+            endpointMetaInAlarm.setMetricsName(meta.getMetricsName());
             endpointMetaInAlarm.setId(endpointId);
 
             int serviceId = endpointInventory.getServiceId();
@@ -86,12 +86,12 @@ public class NotifyHandler implements IndicatorNotify {
             return;
         }
 
-        List<RunningRule> runningRules = core.findRunningRule(meta.getIndicatorName());
+        List<RunningRule> runningRules = core.findRunningRule(meta.getMetricsName());
         if (runningRules == null) {
             return;
         }
 
-        runningRules.forEach(rule -> rule.in(metaInAlarm, indicator));
+        runningRules.forEach(rule -> rule.in(metaInAlarm, metrics));
     }
 
     public void init(AlarmCallback... callbacks) {

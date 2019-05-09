@@ -22,19 +22,18 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.List;
 import org.apache.skywalking.oal.tool.util.ClassMethodUtil;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 public class DeepAnalysis {
     public AnalysisResult analysis(AnalysisResult result) {
-        // 1. Set sub package name by source.metric
+        // 1. Set sub package name by source.metrics
         result.setPackageName(result.getSourceName().toLowerCase());
 
-        Class<? extends Indicator> indicatorClass = Indicators.find(result.getAggregationFunctionName());
-        String indicatorClassSimpleName = indicatorClass.getSimpleName();
+        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = Metrics.find(result.getAggregationFunctionName());
+        String metricsClassSimpleName = metricsClass.getSimpleName();
 
-        result.setIndicatorClassName(indicatorClassSimpleName);
+        result.setMetricsClassName(metricsClassSimpleName);
 
         // Optional for filter
         List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
@@ -77,8 +76,8 @@ public class DeepAnalysis {
             }
         }
 
-        // 3. Find Entrance method of this indicator
-        Class c = indicatorClass;
+        // 3. Find Entrance method of this metrics
+        Class c = metricsClass;
         Method entranceMethod = null;
         SearchEntrance:
         while (!c.equals(Object.class)) {
@@ -92,7 +91,7 @@ public class DeepAnalysis {
             c = c.getSuperclass();
         }
         if (entranceMethod == null) {
-            throw new IllegalArgumentException("Can't find Entrance method in class: " + indicatorClass.getName());
+            throw new IllegalArgumentException("Can't find Entrance method in class: " + metricsClass.getName());
         }
         EntryMethod entryMethod = new EntryMethod();
         result.setEntryMethod(entryMethod);
@@ -138,8 +137,8 @@ public class DeepAnalysis {
             }
         }
 
-        // 5. Get all column declared in Indicator class.
-        c = indicatorClass;
+        // 5. Get all column declared in Metrics class.
+        c = metricsClass;
         while (!c.equals(Object.class)) {
             for (Field field : c.getDeclaredFields()) {
                 Column column = field.getAnnotation(Column.class);

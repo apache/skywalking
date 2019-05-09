@@ -6,7 +6,7 @@ Metric is separated in minute/hour/day/month dimensions in storage, different in
 
 You have following settings for different types.
 ```yaml
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
@@ -16,4 +16,4 @@ You have following settings for different types.
 
 - `recordDataTTL` affects **Record** data.
 - `minuteMetricsDataTTL`, `hourMetricsDataTTL`, `dayMetricsDataTTL` and `monthMetricsDataTTL` affects
-metric data in minute/hour/day/month dimensions.
+metrics data in minute/hour/day/month dimensions.

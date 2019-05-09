@@ -49,8 +49,8 @@ public class RemoteClientManagerTestCase {
         StreamDataClassGetter streamDataClassGetter = mock(StreamDataClassGetter.class);
         coreModuleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, streamDataClassGetter);
 
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetrics() {
             @Override public void inc() {
 
             }
@@ -73,7 +73,7 @@ public class RemoteClientManagerTestCase {
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
 

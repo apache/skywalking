@@ -32,7 +32,7 @@ public class ScriptParserTest {
         InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
         MetaSettings metaSettings = reader.read(stream);
         SourceColumnsFactory.setSettings(metaSettings);
-        Indicators.init();
+        Metrics.init();
 
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
@@ -50,7 +50,7 @@ public class ScriptParserTest {
             "Endpoint_avg = from(Endpoint.latency).longAvg(); //comment test" + "\n" +
                 "Service_avg = from(Service.latency).longAvg()"
         );
-        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         Assert.assertEquals(2, results.size());
 
@@ -72,7 +72,7 @@ public class ScriptParserTest {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "Endpoint_percent = from(Endpoint.*).percent(status == true);"
         );
-        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
         Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
@@ -91,7 +91,7 @@ public class ScriptParserTest {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "Endpoint_percent = from(Endpoint.*).filter(status == true).filter(name == \"/product/abc\").longAvg();"
         );
-        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
         Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
@@ -121,7 +121,7 @@ public class ScriptParserTest {
                 "service_response_s3_summary = from(Service.latency).filter(latency >= 3000).sum();" + "\n" +
                 "service_response_s4_summary = from(Service.latency).filter(latency <= 4000).sum();"
         );
-        List<AnalysisResult> results = parser.parse().getIndicatorStmts();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult responseSummary = results.get(0);
         Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricName());

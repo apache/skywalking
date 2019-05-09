@@ -30,7 +30,7 @@ public class DeepAnalysisTest {
         InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
         MetaSettings metaSettings = reader.read(stream);
         SourceColumnsFactory.setSettings(metaSettings);
-        Indicators.init();
+        Metrics.init();
     }
 
     @Test
