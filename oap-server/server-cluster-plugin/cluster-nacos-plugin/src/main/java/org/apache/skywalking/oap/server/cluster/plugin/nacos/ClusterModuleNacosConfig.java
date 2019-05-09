@@ -27,5 +27,5 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
  */
 public class ClusterModuleNacosConfig extends ModuleConfig {
     @Setter @Getter private String serviceName;
-    @Setter @Getter private String serverList;
+    @Setter @Getter private String hostPort;
 }
