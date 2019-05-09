@@ -73,6 +73,18 @@ cluster:
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
 ```
 
+## Nacos
+Set the **cluster** module's implementor to **nacos** in 
+the yml to active. 
+
+```yaml
+cluster:
+  nacos:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    # Nacos cluster nodes, example: 10.0.0.1:8848,10.0.0.2:8848,10.0.0.3:8848
+    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8848}
+```
+
 Same as Zookeeper coordinator,
 in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
 The following setting are provided to set the hot and port manually, based on your own LAN env.
