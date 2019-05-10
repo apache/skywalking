@@ -21,12 +21,12 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * Envoy metric receiver module
+ * Envoy metrics receiver module
  *
  * @author wusheng
  */
 public class EnvoyMetricReceiverModule extends ModuleDefine {
-    public static final String NAME = "envoy-metric";
+    public static final String NAME = "envoy-metrics";
 
     public EnvoyMetricReceiverModule() {
         super(NAME);

@@ -46,7 +46,7 @@ public abstract class ModelInstaller {
         List<Model> models = modelGetter.getModels();
         List<Model> allModels = new ArrayList<>();
         models.forEach(model -> {
-            if (model.isIndicator()) {
+            if (model.isMetrics()) {
                 if (downsamplingConfigService.shouldToHour()) {
                     allModels.add(model.copy(model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName()));
                 }

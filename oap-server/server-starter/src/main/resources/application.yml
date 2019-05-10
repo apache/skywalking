@@ -48,7 +48,7 @@ core:
       - Hour
       - Day
       - Month
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
@@ -100,7 +100,7 @@ service-mesh:
     bufferFileCleanWhenRestart: ${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 istio-telemetry:
   default:
-envoy-metric:
+envoy-metrics:
   default:
 #receiver_zipkin:
 #  default:

@@ -50,7 +50,7 @@ public class AlarmModuleProvider extends ModuleProvider {
         Rules rules = reader.readRules();
         notifyHandler = new NotifyHandler(rules);
         notifyHandler.init(new AlarmStandardPersistence());
-        this.registerServiceImplementation(IndicatorNotify.class, notifyHandler);
+        this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {

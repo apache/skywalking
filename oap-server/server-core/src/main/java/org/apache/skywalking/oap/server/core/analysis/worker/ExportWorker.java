@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.exporter.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -26,20 +26,20 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 /**
  * @author wusheng
  */
-public class ExportWorker extends AbstractWorker<Indicator> {
+public class ExportWorker extends AbstractWorker<Metrics> {
     private MetricValuesExportService exportService;
 
     public ExportWorker(ModuleDefineHolder moduleDefineHolder) {
         super(moduleDefineHolder);
     }
 
-    @Override public void in(Indicator indicator) {
+    @Override public void in(Metrics metrics) {
         if (exportService != null || getModuleDefineHolder().has(ExporterModule.NAME)) {
-            if (indicator instanceof WithMetadata) {
+            if (metrics instanceof WithMetadata) {
                 if (exportService == null) {
                     exportService = getModuleDefineHolder().find(ExporterModule.NAME).provider().getService(MetricValuesExportService.class);
                 }
-                exportService.export(((WithMetadata)indicator).getMeta(), indicator);
+                exportService.export(((WithMetadata)metrics).getMeta(), metrics);
             }
         }
     }

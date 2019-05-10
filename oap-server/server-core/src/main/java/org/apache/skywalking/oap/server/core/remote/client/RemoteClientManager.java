@@ -44,7 +44,7 @@ public class RemoteClientManager implements Service {
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
     private volatile List<RemoteClient> usingClients;
-    private GaugeMetric gauge;
+    private GaugeMetrics gauge;
 
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
@@ -63,9 +63,9 @@ public class RemoteClientManager implements Service {
      */
     void refresh() {
         if (gauge == null) {
-            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
                 .createGauge("cluster_size", "Cluster size of current oap node",
-                    MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+                    MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
         try {
             if (Objects.isNull(clusterNodesQuery)) {

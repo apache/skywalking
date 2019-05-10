@@ -19,11 +19,11 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.${packageName};
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-<#if (indicators?size>0)>
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-    <#list indicators as indicator>
-        <#if indicator.filterExpressions??>
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
+<#if (metrics?size>0)>
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsProcess;
+    <#list metrics as metrics>
+        <#if metrics.filterExpressions??>
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.*;
             <#break>
         </#if>
     </#list>
@@ -38,17 +38,17 @@ import org.apache.skywalking.oap.server.core.source.*;
 public class ${source}Dispatcher implements SourceDispatcher<${source}> {
 
     @Override public void dispatch(${source} source) {
-<#list indicators as indicator>
-        do${indicator.metricName}(source);
+<#list metrics as metrics>
+        do${metrics.metricsName}(source);
 </#list>
     }
 
-<#list indicators as indicator>
-    private void do${indicator.metricName}(${source} source) {
-        ${indicator.metricName}Indicator indicator = new ${indicator.metricName}Indicator();
+<#list metrics as metrics>
+    private void do${metrics.metricsName}(${source} source) {
+        ${metrics.metricsName}Metrics metrics = new ${metrics.metricsName}Metrics();
 
-    <#if indicator.filterExpressions??>
-        <#list indicator.filterExpressions as filterExpression>
+    <#if metrics.filterExpressions??>
+        <#list metrics.filterExpressions as filterExpression>
             <#if filterExpression.expressionObject == "GreaterMatch" || filterExpression.expressionObject == "LessMatch" || filterExpression.expressionObject == "GreaterEqualMatch" || filterExpression.expressionObject == "LessEqualMatch">
         if (!new ${filterExpression.expressionObject}().match(${filterExpression.left}, ${filterExpression.right})) {
             return;
@@ -61,12 +61,12 @@ public class ${source}Dispatcher implements SourceDispatcher<${source}> {
         </#list>
     </#if>
 
-        indicator.setTimeBucket(source.getTimeBucket());
-    <#list indicator.fieldsFromSource as field>
-        indicator.${field.fieldSetter}(source.${field.fieldGetter}());
+        metrics.setTimeBucket(source.getTimeBucket());
+    <#list metrics.fieldsFromSource as field>
+        metrics.${field.fieldSetter}(source.${field.fieldGetter}());
     </#list>
-        indicator.${indicator.entryMethod.methodName}(<#list indicator.entryMethod.argsExpressions as arg>${arg}<#if arg_has_next>, </#if></#list>);
-        IndicatorProcess.INSTANCE.in(indicator);
+        metrics.${metrics.entryMethod.methodName}(<#list metrics.entryMethod.argsExpressions as arg>${arg}<#if arg_has_next>, </#if></#list>);
+        MetricsProcess.INSTANCE.in(metrics);
     }
 </#list>
 }

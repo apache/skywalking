@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
@@ -83,13 +83,13 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         String tableName = DownSamplingModelNameBuilder.build(step, indName);
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
-        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Indicator.ENTITY_ID).append(" from ")
+        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Metrics.ENTITY_ID).append(" from ")
             .append(tableName).append(" where ");
         this.setTimeRangeCondition(sql, conditions, startTB, endTB);
         if (appender != null) {
             appender.append(sql, conditions);
         }
-        sql.append(" group by ").append(Indicator.ENTITY_ID);
+        sql.append(" group by ").append(Metrics.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
@@ -99,7 +99,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
                 try {
                     while (resultSet.next()) {
                         TopNEntity topNEntity = new TopNEntity();
-                        topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
+                        topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
                         topNEntity.setValue(resultSet.getLong("value"));
                         topNEntities.add(topNEntity);
                     }
@@ -119,7 +119,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     protected void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
         long endTimestamp) {
-        sql.append(Indicator.TIME_BUCKET).append(" >= ? and ").append(Indicator.TIME_BUCKET).append(" <= ?");
+        sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
         conditions.add(startTimestamp);
         conditions.add(endTimestamp);
     }

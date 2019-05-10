@@ -25,7 +25,7 @@ The core features are following.
 - Slow services and endpoints detected
 - Performance optimization
 - Distributed tracing and context propagation
-- Database access metric. Detect slow database access statements(including SQL statements).
+- Database access metrics. Detect slow database access statements(including SQL statements).
 - Alarm
 
 
@@ -38,7 +38,7 @@ including
 1. Istio telemetry format
 1. Zipkin v1/v2 format
 1. Jaeger gRPC format.
-1. Envoy metrics format (the metric entries itself is prometheus client [metric family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
+1. Envoy metrics format (the metrics entries itself is prometheus client [metrics family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
 
 
 # Document

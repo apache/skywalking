@@ -32,7 +32,7 @@ public class DefaultScopeDefine {
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
 
     /**
-     * All metric IDs in [0, 10,000) are reserved in Apache SkyWalking.
+     * All metrics IDs in [0, 10,000) are reserved in Apache SkyWalking.
      *
      * If you want to extend the scope, recommend to start with 10,000.
      */
@@ -64,7 +64,7 @@ public class DefaultScopeDefine {
     public static final int HTTP_ACCESS_LOG = 25;
 
     /**
-     * Catalog of scope, the indicator processor could use this to group all generated indicators by oal tool.
+     * Catalog of scope, the metrics processor could use this to group all generated metrics by oal tool.
      */
     public static final String SERVICE_CATALOG_NAME = "SERVICE";
     public static final String SERVICE_INSTANCE_CATALOG_NAME = "SERVICE_INSTANCE";
