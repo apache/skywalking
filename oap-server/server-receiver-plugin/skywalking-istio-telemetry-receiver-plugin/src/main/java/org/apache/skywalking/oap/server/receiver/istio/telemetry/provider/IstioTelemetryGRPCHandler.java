@@ -45,15 +45,15 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
 
     private static final Joiner JOINER = Joiner.on(".");
 
-    private CounterMetric counter;
-    private HistogramMetric histogram;
+    private CounterMetrics counter;
+    private HistogramMetrics histogram;
 
     public IstioTelemetryGRPCHandler(ModuleManager moduleManager) {
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        counter = metricCreator.createCounter("istio_mesh_grpc_in_count", "The count of istio service mesh telemetry",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        histogram = metricCreator.createHistogramMetric("istio_mesh_grpc_in_latency", "The process latency of istio service mesh telemetry",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        counter = metricsCreator.createCounter("istio_mesh_grpc_in_count", "The count of istio service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        histogram = metricsCreator.createHistogramMetric("istio_mesh_grpc_in_latency", "The process latency of istio service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     @Override public void handleMetric(IstioMetricProto.HandleMetricRequest request,
@@ -63,7 +63,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
         }
         for (IstioMetricProto.InstanceMsg i : request.getInstancesList()) {
             counter.inc();
-            HistogramMetric.Timer timer = histogram.createTimer();
+            HistogramMetrics.Timer timer = histogram.createTimer();
 
             try {
                 String requestMethod = string(i, "requestMethod");
@@ -110,14 +110,14 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                     destServiceName = string(i, "destinationService");
                 }
 
-                ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(requestTime.toEpochMilli())
+                ServiceMeshMetric metrics = ServiceMeshMetric.newBuilder().setStartTime(requestTime.toEpochMilli())
                     .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(sourceServiceName)
                     .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(destServiceName)
                     .setDestServiceInstance(string(i, "destinationUID")).setEndpoint(endpoint).setLatency(latency)
                     .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
-                logger.debug("Transformed metric {}", metric);
+                logger.debug("Transformed metrics {}", metrics);
 
-                TelemetryDataDispatcher.preProcess(metric);
+                TelemetryDataDispatcher.preProcess(metrics);
             } finally {
                 timer.finish();
             }

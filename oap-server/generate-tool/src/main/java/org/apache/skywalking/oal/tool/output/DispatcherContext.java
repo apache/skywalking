@@ -27,5 +27,5 @@ import org.apache.skywalking.oal.tool.parser.AnalysisResult;
 public class DispatcherContext {
     private String source;
     private String packageName;
-    private List<AnalysisResult> indicators = new ArrayList<>();
+    private List<AnalysisResult> metrics = new ArrayList<>();
 }

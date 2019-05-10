@@ -62,8 +62,8 @@ public class GRPCRemoteClientTestCase {
 
     @Test
     public void testPush() throws InterruptedException {
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
             @Override public void inc() {
 
             }
@@ -74,7 +74,7 @@ public class GRPCRemoteClientTestCase {
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         grpcServerRule.getServiceRegistry().addService(new RemoteServiceHandler(moduleManager));
 

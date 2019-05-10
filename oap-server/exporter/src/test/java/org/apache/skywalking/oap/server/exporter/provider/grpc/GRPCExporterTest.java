@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.testing.GrpcServerRule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IndicatorMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class GRPCExporterTest {
     public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
     private MetricExportServiceGrpc.MetricExportServiceImplBase server = new MockMetricExportServiceImpl();
-    private IndicatorMetaInfo metaInfo = new IndicatorMetaInfo("mock-indicator", DefaultScopeDefine.ALL);
+    private MetricsMetaInfo metaInfo = new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
 
     private MetricExportServiceGrpc.MetricExportServiceBlockingStub stub;
 
@@ -58,7 +58,7 @@ public class GRPCExporterTest {
 
     @Test
     public void export() {
-        exporter.export(metaInfo, new MockIndicator());
+        exporter.export(metaInfo, new MockMetrics());
     }
 
     @Test
@@ -94,10 +94,10 @@ public class GRPCExporterTest {
 
     private List<GRPCExporter.ExportData> dataList() {
         List<GRPCExporter.ExportData> dataList = new LinkedList<>();
-        dataList.add(exporter.new ExportData(metaInfo, new MockIndicator()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockIntValueIndicator()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockLongValueIndicator()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockDoubleValueIndicator()));
+        dataList.add(exporter.new ExportData(metaInfo, new MockMetrics()));
+        dataList.add(exporter.new ExportData(metaInfo, new MockIntValueMetrics()));
+        dataList.add(exporter.new ExportData(metaInfo, new MockLongValueMetrics()));
+        dataList.add(exporter.new ExportData(metaInfo, new MockDoubleValueMetrics()));
         return dataList;
     }
 }

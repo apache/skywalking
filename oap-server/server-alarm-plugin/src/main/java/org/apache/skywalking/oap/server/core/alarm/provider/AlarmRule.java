@@ -31,7 +31,7 @@ import lombok.Setter;
 public class AlarmRule {
     private String alarmRuleName;
 
-    private String indicatorName;
+    private String metricsName;
     private ArrayList includeNames;
     private String threshold;
     private String op;

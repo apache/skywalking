@@ -52,8 +52,8 @@ public class GRPCRemoteClient implements RemoteClient {
     private GRPCClient client;
     private DataCarrier<RemoteMessage> carrier;
     private boolean isConnect;
-    private CounterMetric remoteOutCounter;
-    private CounterMetric remoteOutErrorCounter;
+    private CounterMetrics remoteOutCounter;
+    private CounterMetrics remoteOutErrorCounter;
 
 
     public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
@@ -63,12 +63,12 @@ public class GRPCRemoteClient implements RemoteClient {
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
 
-        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "N"));
-        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+                new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address.toString(), "N"));
+        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_error_count", "The error number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "N"));
+                new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address.toString(), "N"));
     }
 
     @Override public void connect() {
