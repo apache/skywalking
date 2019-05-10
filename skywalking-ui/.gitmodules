@@ -1,0 +1,3 @@
+[submodule "query-protocol"]
+	path = query-protocol
+	url = https://github.com/apache/incubator-skywalking-query-protocol

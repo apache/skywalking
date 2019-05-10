@@ -1,0 +1,93 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "~antd/lib/style/themes/default.less";
+
+.descriptionList {
+  // offset the padding-bottom of last row
+  :global {
+    .ant-row {
+      margin-bottom: -16px;
+      overflow: hidden;
+    }
+  }
+
+  .title {
+    font-size: 14px;
+    color: @heading-color;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .term {
+    line-height: 22px;
+    padding-bottom: 16px;
+    margin-right: 8px;
+    color: @heading-color;
+    white-space: nowrap;
+    display: table-cell;
+
+    &:after {
+      content: ":";
+      margin: 0 8px 0 2px;
+      position: relative;
+      top: -.5px;
+    }
+  }
+
+  .detail {
+    word-break: break-all;
+    line-height: 22px;
+    width: 100%;
+    padding-bottom: 16px;
+    color: @text-color;
+    display: table-cell;
+  }
+
+  &.small {
+    // offset the padding-bottom of last row
+    :global {
+      .ant-row {
+        margin-bottom: -8px;
+      }
+    }
+    .title {
+      margin-bottom: 12px;
+      color: @text-color;
+    }
+    .term, .detail {
+      padding-bottom: 8px;
+    }
+  }
+
+  &.large {
+    .title {
+      font-size: 16px;
+    }
+  }
+
+  &.vertical {
+    .term {
+      padding-bottom: 8px;
+      display: block;
+    }
+
+    .detail {
+      display: block;
+    }
+  }
+}
