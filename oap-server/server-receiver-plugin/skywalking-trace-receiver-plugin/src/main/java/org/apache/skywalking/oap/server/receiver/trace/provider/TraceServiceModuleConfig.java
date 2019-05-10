@@ -42,7 +42,7 @@ public class TraceServiceModuleConfig extends ModuleConfig {
     /**
      * Analysis trace status.
      *
-     * 1. Default(YES) means analysis all metric from trace.
+     * 1. Default(YES) means analysis all metrics from trace.
      *
      * 2. NO means, only save trace, but metrics come other places, such as service mesh.
      */

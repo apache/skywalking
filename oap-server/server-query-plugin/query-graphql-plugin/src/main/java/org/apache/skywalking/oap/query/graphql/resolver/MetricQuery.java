@@ -46,26 +46,24 @@ public class MetricQuery implements GraphQLQueryResolver {
         return metricQueryService;
     }
 
-    public IntValues getValues(final BatchMetricConditions metric, final Duration duration) throws IOException {
+    public IntValues getValues(final BatchMetricConditions metrics, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getValues(metric.getName(), metric.getIds(), duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
-    public IntValues getLinearIntValues(final MetricCondition metric,
-        final Duration duration) throws IOException, ParseException {
+    public IntValues getLinearIntValues(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getLinearIntValues(metric.getName(), metric.getId(), duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), duration.getStep(), startTimeBucket, endTimeBucket);
     }
 
-    public Thermodynamic getThermodynamic(final MetricCondition metric,
-        final Duration duration) throws IOException, ParseException {
+    public Thermodynamic getThermodynamic(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getThermodynamic(metric.getName(), metric.getId(), duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), duration.getStep(), startTimeBucket, endTimeBucket);
     }
 }

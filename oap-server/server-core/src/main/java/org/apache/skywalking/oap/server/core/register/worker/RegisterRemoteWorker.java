@@ -42,9 +42,9 @@ public class RegisterRemoteWorker extends AbstractWorker<RegisterSource> {
         this.nextWorker = nextWorker;
     }
 
-    @Override public final void in(RegisterSource indicator) {
+    @Override public final void in(RegisterSource registerSource) {
         try {
-            remoteSender.send(nextWorker.getWorkerId(), indicator, Selector.ForeverFirst);
+            remoteSender.send(nextWorker.getWorkerId(), registerSource, Selector.ForeverFirst);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

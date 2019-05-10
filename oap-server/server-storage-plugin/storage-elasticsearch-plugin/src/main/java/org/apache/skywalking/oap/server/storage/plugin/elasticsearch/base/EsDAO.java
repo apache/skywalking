@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -35,7 +35,7 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
     }
 
     public final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).gte(startTB).lte(endTB);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).gte(startTB).lte(endTB);
         if (where.getKeyValues().isEmpty()) {
             sourceBuilder.query(rangeQueryBuilder);
         } else {

@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Export the metric value from indicators through this service, if provider exists.
+ * Export the metrics value from metrics through this service, if provider exists.
  *
  * @author wusheng
  */
 public interface MetricValuesExportService extends Service {
-    void export(IndicatorMetaInfo meta, Indicator indicator);
+    void export(MetricsMetaInfo meta, Metrics metrics);
 }

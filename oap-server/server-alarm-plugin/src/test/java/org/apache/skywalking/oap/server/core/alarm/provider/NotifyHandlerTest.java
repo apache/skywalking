@@ -21,26 +21,16 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IndicatorMetaInfo;
-import org.apache.skywalking.oap.server.core.analysis.indicator.WithMetadata;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
-import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.library.module.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.*;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
@@ -69,21 +59,20 @@ public class NotifyHandlerTest {
 
     private EndpointInventoryCache endpointInventoryCache;
 
-    private MockIndicator indicator;
+    private MockMetrics metrics;
 
-    private IndicatorMetaInfo metadata;
+    private MetricsMetaInfo metadata;
 
     private int mockId = 1;
 
     private RunningRule rule;
 
-
     @Test
     public void testNotifyWithEndpointCatalog() {
         prepareNotify();
 
-        String indicatorName = "endpoint-indicator";
-        when(metadata.getIndicatorName()).thenReturn(indicatorName);
+        String metricsName = "endpoint-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
 
         when(DefaultScopeDefine.inEndpointCatalog(0)).thenReturn(true);
 
@@ -101,14 +90,14 @@ public class NotifyHandlerTest {
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
-        notifyHandler.notify(indicator);
+        notifyHandler.notify(metrics);
         verify(rule).in(metaCaptor.capture(), any());
 
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof EndpointMetaInAlarm);
         assertEquals(mockId, metaInAlarm.getId0());
-        assertEquals(indicatorName, metaInAlarm.getIndicatorName());
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(endpointInventoryName + " in " + serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.ENDPOINT, metaInAlarm.getScopeId());
 
@@ -119,8 +108,8 @@ public class NotifyHandlerTest {
 
         prepareNotify();
 
-        String indicatorName = "service-instance-indicator";
-        when(metadata.getIndicatorName()).thenReturn(indicatorName);
+        String metricsName = "service-instance-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
 
         when(DefaultScopeDefine.inServiceInstanceCatalog(0)).thenReturn(true);
 
@@ -132,13 +121,13 @@ public class NotifyHandlerTest {
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
-        notifyHandler.notify(indicator);
+        notifyHandler.notify(metrics);
         verify(rule).in(metaCaptor.capture(), any());
 
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof ServiceInstanceMetaInAlarm);
-        assertEquals(indicatorName, metaInAlarm.getIndicatorName());
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(mockId, metaInAlarm.getId0());
         assertEquals(instanceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE, metaInAlarm.getScopeId());
@@ -148,8 +137,8 @@ public class NotifyHandlerTest {
     public void testNotifyWithServiceCatalog() {
         prepareNotify();
 
-        String indicatorName = "service-indicator";
-        when(metadata.getIndicatorName()).thenReturn(indicatorName);
+        String metricsName = "service-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
         when(DefaultScopeDefine.inServiceCatalog(0)).thenReturn(true);
 
         ServiceInventory serviceInventory = mock(ServiceInventory.class);
@@ -160,13 +149,13 @@ public class NotifyHandlerTest {
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
-        notifyHandler.notify(indicator);
+        notifyHandler.notify(metrics);
         verify(rule).in(metaCaptor.capture(), any());
 
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof ServiceMetaInAlarm);
-        assertEquals(indicatorName, metaInAlarm.getIndicatorName());
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(mockId, metaInAlarm.getId0());
         assertEquals(serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE, metaInAlarm.getScopeId());
@@ -175,12 +164,12 @@ public class NotifyHandlerTest {
     private void prepareNotify() {
         notifyHandler.initCache(moduleManager);
 
-        metadata = mock(IndicatorMetaInfo.class);
+        metadata = mock(MetricsMetaInfo.class);
         when(metadata.getScope()).thenReturn(DefaultScopeDefine.ALL);
         when(metadata.getId()).thenReturn(String.valueOf(mockId));
 
-        indicator = mock(MockIndicator.class);
-        when(indicator.getMeta()).thenReturn(metadata);
+        metrics = mock(MockMetrics.class);
+        when(metrics.getMeta()).thenReturn(metadata);
 
         PowerMockito.mockStatic(DefaultScopeDefine.class);
     }
@@ -188,13 +177,13 @@ public class NotifyHandlerTest {
     @Test
     public void dontNotify() {
 
-        IndicatorMetaInfo metadata = mock(IndicatorMetaInfo.class);
+        MetricsMetaInfo metadata = mock(MetricsMetaInfo.class);
         when(metadata.getScope()).thenReturn(DefaultScopeDefine.ALL);
 
-        MockIndicator indicator = mock(MockIndicator.class);
-        when(indicator.getMeta()).thenReturn(metadata);
+        MockMetrics mockMetrics = mock(MockMetrics.class);
+        when(mockMetrics.getMeta()).thenReturn(metadata);
 
-        notifyHandler.notify(indicator);
+        notifyHandler.notify(mockMetrics);
     }
 
     @Test
@@ -202,7 +191,6 @@ public class NotifyHandlerTest {
 
         notifyHandler.initCache(moduleManager);
     }
-
 
     @Before
     public void setUp() throws Exception {
@@ -217,11 +205,9 @@ public class NotifyHandlerTest {
             }
         });
 
-
         moduleManager = mock(ModuleManager.class);
 
         moduleProviderHolder = mock(ModuleProviderHolder.class);
-
 
         moduleServiceHolder = mock(ModuleServiceHolder.class);
 
@@ -240,14 +226,14 @@ public class NotifyHandlerTest {
 
         rule = mock(RunningRule.class);
 
-        doNothing().when(rule).in(any(MetaInAlarm.class), any(Indicator.class));
+        doNothing().when(rule).in(any(MetaInAlarm.class), any(Metrics.class));
 
         when(core.findRunningRule(anyString())).thenReturn(Lists.newArrayList(rule));
 
         Whitebox.setInternalState(notifyHandler, "core", core);
     }
 
-    private abstract class MockIndicator extends Indicator implements WithMetadata {
+    private abstract class MockMetrics extends Metrics implements WithMetadata {
 
     }
 }

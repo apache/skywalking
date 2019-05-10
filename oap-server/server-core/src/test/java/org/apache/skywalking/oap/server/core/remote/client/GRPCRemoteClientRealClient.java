@@ -39,8 +39,8 @@ public class GRPCRemoteClientRealClient {
     public static void main(String[] args) throws InterruptedException {
         Address address = new Address("localhost", 10000, false);
         ModuleManagerTesting moduleManager = new ModuleManagerTesting();
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
             @Override public void inc() {
 
             }
@@ -51,7 +51,7 @@ public class GRPCRemoteClientRealClient {
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, new TestClassGetter(), address, 1, 10));
         remoteClient.connect();

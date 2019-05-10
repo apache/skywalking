@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 
 /**

@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;

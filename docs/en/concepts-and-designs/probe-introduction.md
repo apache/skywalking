@@ -1,6 +1,6 @@
 # Probe Introduction
 In SkyWalking, probe means an agent or SDK library integrated into target system, which take charge of 
-collecting telemetry data including tracing and metric. Based on the target system tech stack, probe could use very different
+collecting telemetry data including tracing and metrics. Based on the target system tech stack, probe could use very different
 ways to do so. But ultimately they are same, just collect and reformat data, then send to backend.
 
 In high level, there are three typical groups in all SkyWalking probes.
@@ -13,11 +13,11 @@ of agents based on languages and libraries.
 is only used as ingress of the whole cluster, but with the Service Mesh and sidecar, now we can do observe based on that.
  
 - **3rd-party instrument library**. SkyWalking accepts other popular used instrument libraries data format. It analysis the
-data, transfer it to SkyWalking formats of trace, metric or both. This feature starts with accepting Zipkin span data. See
+data, transfer it to SkyWalking formats of trace, metrics or both. This feature starts with accepting Zipkin span data. See
 [Receiver for other tracers](../setup/backend/backend-receivers.md) to know more. 
 
 You don't need to use **Language based native agent** and **Service Mesh probe** at the same time, because they both collect
-metric data. As a result of that, your system suffers twice payloads, and the analytic numbers are doubled.
+metrics data. As a result of that, your system suffers twice payloads, and the analytic numbers are doubled.
 
 There are several recommend ways in using these probes:
 1. Use **Language based native agent** only.
