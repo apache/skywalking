@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
  * @author wusheng
  */
 public class EnvoyMetricReceiverModule extends ModuleDefine {
-    public static final String NAME = "envoy-metrics";
+    public static final String NAME = "envoy-metric";
 
     public EnvoyMetricReceiverModule() {
         super(NAME);
