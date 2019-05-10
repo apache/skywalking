@@ -16,8 +16,6 @@ We have following receivers, and `default` implementors are provided in our Apac
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
-receiver-sharing-server:
-  default:
 receiver-register:
   default:
 receiver-trace:
