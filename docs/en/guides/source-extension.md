@@ -1,4 +1,4 @@
-# Source and Scope extension for new metric
+# Source and Scope extension for new metrics
 From [OAL scope introduction](../concepts-and-designs/oal.md#scope), you should already have understood what the scope is.
 At here, as you want to do more extension, you need understand deeper, which is the **Source**. 
 
@@ -53,11 +53,11 @@ This value is used in [OAL group mechanism](../concepts-and-designs/oal.md#group
 
 7. Set the default columns for new scope, at `generator-scope-meta.yml` file in `generated-analysis/src/main/resources`.
 If you want to understand why need these columns, you have to understand all existing query(s). But there is an easy way, 
-follow other existing scopes. Such as, if you are adding metric, connection number for service instance, follow existing `ServiceInstance`. 
+follow other existing scopes. Such as, if you are adding metrics, connection number for service instance, follow existing `ServiceInstance`. 
 
 ___
 After you done all of these, you could build a receiver, which do
-1. Get the original data of the metric,
+1. Get the original data of the metrics,
 1. Build the source, send into `SourceReceiver`.
 1. Write your whole OAL scripts.
 1. Repackage the project.
