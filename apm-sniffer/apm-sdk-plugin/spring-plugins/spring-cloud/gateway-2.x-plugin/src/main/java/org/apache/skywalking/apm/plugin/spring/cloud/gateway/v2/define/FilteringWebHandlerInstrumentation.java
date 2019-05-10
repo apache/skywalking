@@ -67,6 +67,6 @@ public class FilteringWebHandlerInstrumentation extends ClassInstanceMethodsEnha
 
     @Override
     protected final String[] witnessClasses() {
-        return new String[]{"org.springframework.cloud.gateway.handler.FilteringWebHandler"};
+        return new String[]{"org.springframework.cloud.gateway.handler.FilteringWebHandler", "reactor.netty.http.client.HttpClientOperations"};
     }
 }
