@@ -37,9 +37,9 @@ public enum PersistenceTimer {
 
     private Boolean isStarted = false;
     private final Boolean debug;
-    private CounterMetric errorCounter;
-    private HistogramMetric prepareLatency;
-    private HistogramMetric executeLatency;
+    private CounterMetrics errorCounter;
+    private HistogramMetrics prepareLatency;
+    private HistogramMetrics executeLatency;
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -52,13 +52,13 @@ public enum PersistenceTimer {
         final long timeInterval = 3;
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
 
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        errorCounter = metricCreator.createCounter("persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        prepareLatency = metricCreator.createHistogramMetric("persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        executeLatency = metricCreator.createHistogramMetric("persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        errorCounter = metricsCreator.createCounter("persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        prepareLatency = metricsCreator.createHistogramMetric("persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        executeLatency = metricsCreator.createHistogramMetric("persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
 
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
@@ -77,12 +77,12 @@ public enum PersistenceTimer {
 
         long startTime = System.currentTimeMillis();
         try {
-            HistogramMetric.Timer timer = prepareLatency.createTimer();
+            HistogramMetrics.Timer timer = prepareLatency.createTimer();
 
             List batchAllCollection = new LinkedList();
             try {
                 List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
-                persistenceWorkers.addAll(IndicatorProcess.INSTANCE.getPersistentWorkers());
+                persistenceWorkers.addAll(MetricsProcess.INSTANCE.getPersistentWorkers());
                 persistenceWorkers.addAll(RecordProcess.INSTANCE.getPersistentWorkers());
                 persistenceWorkers.addAll(TopNProcess.INSTANCE.getPersistentWorkers());
 
@@ -108,7 +108,7 @@ public enum PersistenceTimer {
                 timer.finish();
             }
 
-            HistogramMetric.Timer executeLatencyTimer = executeLatency.createTimer();
+            HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
             try {
                 batchDAO.batchPersistence(batchAllCollection);
             } finally {

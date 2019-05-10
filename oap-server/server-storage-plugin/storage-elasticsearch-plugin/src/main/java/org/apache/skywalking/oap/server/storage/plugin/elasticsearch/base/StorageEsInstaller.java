@@ -120,7 +120,7 @@ public class StorageEsInstaller extends ModelInstaller {
                 JsonObject matchColumn = new JsonObject();
                 matchColumn.addProperty("type", "text");
                 matchColumn.addProperty("analyzer", "oap_analyzer");
-                properties.add(columnDefine.getColumnName().getName(), matchColumn);
+                properties.add(matchCName, matchColumn);
             } else {
                 JsonObject column = new JsonObject();
                 column.addProperty("type", columnTypeEsMapping.transform(columnDefine.getType()));

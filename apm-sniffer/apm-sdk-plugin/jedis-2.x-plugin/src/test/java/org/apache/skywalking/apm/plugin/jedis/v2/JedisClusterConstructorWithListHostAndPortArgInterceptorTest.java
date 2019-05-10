@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import redis.clients.jedis.HostAndPort;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,7 +58,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
     public void onConstruct() throws Exception {
         interceptor.onConstruct(enhancedInstance, new Object[] {hostAndPortSet});
 
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:16379;");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:16379;");
     }
 
 }

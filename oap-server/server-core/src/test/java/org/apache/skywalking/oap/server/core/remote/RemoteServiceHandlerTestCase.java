@@ -59,8 +59,8 @@ public class RemoteServiceHandlerTestCase {
         moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, classGetter);
 
         String serverName = InProcessServerBuilder.generateName();
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
             @Override public void inc() {
 
             }
@@ -69,8 +69,8 @@ public class RemoteServiceHandlerTestCase {
 
             }
         });
-        when(metricCreator.createHistogramMetric(any(), any(), any(), any(), any())).thenReturn(
-            new HistogramMetric() {
+        when(metricsCreator.createHistogramMetric(any(), any(), any(), any(), any())).thenReturn(
+            new HistogramMetrics() {
                 @Override public void observe(double value) {
 
                 }
@@ -78,7 +78,7 @@ public class RemoteServiceHandlerTestCase {
         );
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         gRPCCleanup.register(InProcessServerBuilder
             .forName(serverName).directExecutor().addService(new RemoteServiceHandler(moduleManager)).build().start());

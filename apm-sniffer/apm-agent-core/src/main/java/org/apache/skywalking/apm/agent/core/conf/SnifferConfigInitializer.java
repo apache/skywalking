@@ -58,7 +58,7 @@ public class SnifferConfigInitializer {
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override
      * `agent.service_name` in config file.
      * <p>
-     * At the end, `agent.service_name` and `collector.servers` must be not blank.
+     * At the end, `agent.service_name` and `collector.servers` must not be blank.
      */
     public static void initialize(String agentOptions) throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;

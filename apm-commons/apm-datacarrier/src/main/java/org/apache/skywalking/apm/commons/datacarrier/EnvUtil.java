@@ -42,7 +42,7 @@ public class EnvUtil {
         String envValue = System.getenv(envName);
         if (envValue != null) {
             try {
-                value = Integer.parseInt(envValue);
+                value = Long.parseLong(envValue);
             } catch (NumberFormatException e) {
 
             }

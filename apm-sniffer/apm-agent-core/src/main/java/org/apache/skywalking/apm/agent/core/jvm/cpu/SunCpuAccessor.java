@@ -25,7 +25,7 @@ import java.lang.management.ManagementFactory;
 /**
  * @author wusheng
  */
-public class SunCpuAccessor extends CPUMetricAccessor {
+public class SunCpuAccessor extends CPUMetricsAccessor {
     private final OperatingSystemMXBean osMBean;
 
     public SunCpuAccessor(int cpuCoreNum) {

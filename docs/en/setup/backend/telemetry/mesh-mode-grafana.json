@@ -1026,7 +1026,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(indicator_aggregation {dimensionality=\"min\"} [1m])) by (level)",
+          "expr": "sum(rate(metrics_aggregation {dimensionality=\"min\"} [1m])) by (level)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,

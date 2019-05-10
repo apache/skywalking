@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
-import org.apache.skywalking.oap.server.core.analysis.indicator.expression.*;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsProcess;
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
 /**
@@ -35,7 +35,7 @@ public class ServiceDispatcher implements SourceDispatcher<Service> {
     }
 
     private void doServiceAvg(Service source) {
-        ServiceAvgIndicator indicator = new ServiceAvgIndicator();
+        ServiceAvgMetrics metrics = new ServiceAvgMetrics();
 
         if (!new EqualMatch().setLeft(source.getName()).setRight("/service/prod/save").match()) {
             return;
@@ -44,9 +44,9 @@ public class ServiceDispatcher implements SourceDispatcher<Service> {
             return;
         }
 
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setEntityId(source.getEntityId());
-        indicator.combine(source.getLatency(), 1);
-        IndicatorProcess.INSTANCE.in(indicator);
+        metrics.setTimeBucket(source.getTimeBucket());
+        metrics.setEntityId(source.getEntityId());
+        metrics.combine(source.getLatency(), 1);
+        MetricsProcess.INSTANCE.in(metrics);
     }
 }

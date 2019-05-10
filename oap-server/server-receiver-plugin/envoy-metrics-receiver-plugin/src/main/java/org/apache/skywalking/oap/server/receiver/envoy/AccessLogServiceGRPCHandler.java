@@ -33,9 +33,9 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
     private static final Logger logger = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
     private final List<ALSHTTPAnalysis> envoyHTTPAnalysisList;
     private final SourceReceiver sourceReceiver;
-    private final CounterMetric counter;
-    private final HistogramMetric histogram;
-    private final CounterMetric sourceDispatcherCounter;
+    private final CounterMetrics counter;
+    private final HistogramMetrics histogram;
+    private final CounterMetrics sourceDispatcherCounter;
 
     public AccessLogServiceGRPCHandler(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         ServiceLoader<ALSHTTPAnalysis> alshttpAnalyses = ServiceLoader.load(ALSHTTPAnalysis.class);
@@ -53,13 +53,13 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
 
-        MetricCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
+        MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         counter = metricCreator.createCounter("envoy_als_in_count", "The count of envoy ALS metric received",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         histogram = metricCreator.createHistogramMetric("envoy_als_in_latency", "The process latency of service ALS metric receiver",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         sourceDispatcherCounter = metricCreator.createCounter("envoy_als_source_dispatch_count", "The count of envoy ALS metric received",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(
@@ -72,7 +72,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             @Override public void onNext(StreamAccessLogsMessage message) {
                 counter.inc();
 
-                HistogramMetric.Timer timer = histogram.createTimer();
+                HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
                     if (isFirst) {
                         identifier = message.getIdentifier();

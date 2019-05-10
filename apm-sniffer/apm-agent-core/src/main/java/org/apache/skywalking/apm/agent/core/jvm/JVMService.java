@@ -107,7 +107,7 @@ public class JVMService implements BootService, Runnable {
                 jvmBuilder.setTime(currentTimeMillis);
                 jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
                 jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
-                jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricList());
+                jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList());
                 jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
 
                 JVMMetric jvmMetric = jvmBuilder.build();

@@ -18,21 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Minutes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.concurrent.*;
+import org.apache.skywalking.oap.server.core.alarm.*;
+import org.joda.time.*;
+import org.slf4j.*;
 
 /**
- * Alarm core includes metric values in certain time windows based on alarm settings. By using its internal timer
+ * Alarm core includes metrics values in certain time windows based on alarm settings. By using its internal timer
  * trigger and the alarm rules to decides whether send the alarm to database and webhook(s)
  *
  * @author wusheng
@@ -48,19 +41,16 @@ public class AlarmCore {
         rules.getRules().forEach(rule -> {
             RunningRule runningRule = new RunningRule(rule);
 
-            String indicatorName = rule.getIndicatorName();
+            String metricsName = rule.getMetricsName();
 
-            List<RunningRule> runningRules = runningContext.get(indicatorName);
-            if (runningRules == null) {
-                runningRules = new ArrayList<>();
-                runningContext.put(indicatorName, runningRules);
-            }
+            List<RunningRule> runningRules = runningContext.computeIfAbsent(metricsName, key -> new ArrayList<>());
+
             runningRules.add(runningRule);
         });
     }
 
-    public List<RunningRule> findRunningRule(String indicatorName) {
-        return runningContext.get(indicatorName);
+    public List<RunningRule> findRunningRule(String metricsName) {
+        return runningContext.get(metricsName);
     }
 
     public void start(List<AlarmCallback> allCallbacks) {

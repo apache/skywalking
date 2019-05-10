@@ -25,7 +25,7 @@ public abstract class MetaInAlarm {
 
     public abstract String getName();
 
-    public abstract String getIndicatorName();
+    public abstract String getMetricsName();
 
     /**
      * In most scopes, there is only id0, as primary id. Such as Service, Endpoint. But in relation, the ID includes
