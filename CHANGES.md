@@ -32,7 +32,7 @@ Release Notes.
 **Performance improved, especially in CPU limited environment. 3x improvement in service mesh scenario(no trace) in 8C16G VM. 
 Significantly cost less CPU in low payload.**
 
-- Support database metric and SLOW SQL detection.
+- Support database metrics and SLOW SQL detection.
 - Support to set max size of metadata query. And change default to 5000 from 100.
 - Support ElasticSearch template for new feature in the future.
 - Support shutdown Zipkin trace analysis, because it doesn't fit production environment.
@@ -40,18 +40,19 @@ Significantly cost less CPU in low payload.**
 - Support .NET clr receiver.
 - Support Jaeger trace format, no analysis.
 - Support group endpoint name by regax rules in mesh receiver.
-- Support `diable` statement in OAL.
+- Support `disable` statement in OAL.
 - Support basic auth in ElasticSearch connection.
-- Support metric exporter module and gRPC implementor.
+- Support metrics exporter module and gRPC implementor.
 - Support `>, <, >=, <=` in OAL.
 - Support role mode in backend.
-- Support Envoy metric.
+- Support Envoy metrics.
 - Support query segment by service instance.
 - Support to set host/port manually at cluster coordinator, rather than based on core settings.
 - Make sure OAP shutdown when it faces startup error.
 - Support set separated gRPC/Jetty ip:port for receiver, default still use core settings.
 - Fix JVM receiver bug.
 - Fix wrong dest service in mesh analysis.
+- Fix search doesn't work as expected.
 - Refactor `ScopeDeclaration` annotation.
 - Refactor register lock mechanism.
 - Add SmartSql component for .NET
@@ -61,7 +62,7 @@ Significantly cost less CPU in low payload.**
 
 #### UI
 - RocketBot UI has been accepted and bind in this release.
-- Support CLR metric.
+- Support CLR metrics.
 
 #### Document
 - Documents updated, matching Top Level Project requirement.
@@ -70,7 +71,7 @@ Significantly cost less CPU in low payload.**
 - CN documents removed, only consider to provide by volunteer out of Apache.
 
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/32?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/32?closed=1)
 
 
 6.0.0-GA
@@ -111,7 +112,7 @@ All issues and pull requests are [here](https://github.com/apache/incubator-skyw
 - User wall updated.
 - Fix a wrong description in `how-to-build` doc.
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/30?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/30?closed=1)
 
 6.0.0-beta
 ------------------
@@ -170,7 +171,7 @@ All issues and pull requests are [here](https://github.com/apache/incubator-skyw
 - Update user wall and powered-by page.
 - Add RocketBot UI project link in document.
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/31?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/31?closed=1)
 
 6.0.0-alpha
 ------------------
@@ -182,13 +183,13 @@ The core and most important features in v6 are
 1. Support to collect telemetry data from different sources, such as multiple language agents and service mesh.
 1. Extensible stream analysis core. Make SQL and cache analysis available in core level, although haven't
 provided in this release.
-1. Provide **Observability Analysis Language(OAL)** to make analysis metric customization available.
+1. Provide **Observability Analysis Language(OAL)** to make analysis metrics customization available.
 1. New GraphQL query protocol. Not binding with UI now.
 1. UI topology is better now.
-1. New alarm core provided. In alpha, only on service related metric.
+1. New alarm core provided. In alpha, only on service related metrics.
 
-All issues and pull requests are [here](https://github.com/apache/incubator-skywalking/milestone/29?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/29?closed=1)
 
 5.x releases
 ------------------
-You could find all CHANGES of 5.x at [here](https://github.com/apache/incubator-skywalking/blob/5.x/CHANGES.md)
+You could find all CHANGES of 5.x at [here](https://github.com/apache/skywalking/blob/5.x/CHANGES.md)

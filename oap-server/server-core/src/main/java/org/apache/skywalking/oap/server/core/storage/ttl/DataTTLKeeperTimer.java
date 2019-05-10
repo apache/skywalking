@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.DataTTL;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -83,17 +83,17 @@ public enum DataTTLKeeperTimer {
         DownsamplingConfigService downsamplingConfigService = moduleManager.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
         List<Model> models = modelGetter.getModels();
         models.forEach(model -> {
-            if (model.isIndicator()) {
-                execute(model, model.getName(), timeBuckets.minuteTimeBucketBefore, Indicator.TIME_BUCKET);
+            if (model.isMetrics()) {
+                execute(model, model.getName(), timeBuckets.minuteTimeBucketBefore, Metrics.TIME_BUCKET);
 
                 if (downsamplingConfigService.shouldToHour()) {
-                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName(), timeBuckets.hourTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Hour.getName(), timeBuckets.hourTimeBucketBefore, Metrics.TIME_BUCKET);
                 }
                 if (downsamplingConfigService.shouldToDay()) {
-                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Day.getName(), timeBuckets.dayTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Day.getName(), timeBuckets.dayTimeBucketBefore, Metrics.TIME_BUCKET);
                 }
                 if (downsamplingConfigService.shouldToMonth()) {
-                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Month.getName(), timeBuckets.monthTimeBucketBefore, Indicator.TIME_BUCKET);
+                    execute(model, model.getName() + Const.ID_SPLIT + Downsampling.Month.getName(), timeBuckets.monthTimeBucketBefore, Metrics.TIME_BUCKET);
                 }
             } else {
                 execute(model, model.getName(), timeBuckets.recordDataTTL, Record.TIME_BUCKET);

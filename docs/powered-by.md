@@ -46,6 +46,7 @@ or providing commercial products including Apache SkyWalking.
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
+1. lizhi.fm 荔枝FM https://www.lizhi.fm/
 1. Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
 1. Maodou.com 毛豆新车网. https://www.maodou.com/
 1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
@@ -93,7 +94,7 @@ Integrated in the microservices architecture support platform.
 Use SkyWalking and [SkyAPM .net agent](https://github.com/SkyAPM/SkyAPM-dotnet) in the CMBChina Mall project.
 
 ## ke.com
-Deploy SkyWalking in production enviroments. 
+Deploy SkyWalking in production environments.
 - Three CentOs Machines(32 CPUs, 64G RAM, 1.3T Disk) for Collector Server
 - Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
 

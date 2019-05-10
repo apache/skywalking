@@ -5,10 +5,10 @@ There are many ways that you can help the SkyWalking community.
 - Download our [releases](http://skywalking.apache.org/downloads/), try to monitor your applications, and feedback to us about 
 what you think.
 - Read our source codes, Ask questions for details.
-- Find some bugs, [submit issue](https://github.com/apache/incubator-skywalking/issues), and try to fix it.
-- Find [help wanted issues](https://github.com/apache/incubator-skywalking/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22),
+- Find some bugs, [submit issue](https://github.com/apache/skywalking/issues), and try to fix it.
+- Find [help wanted issues](https://github.com/apache/skywalking/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22),
 which are good for you to start.
-- Submit issue or start discussion through [GitHub issue](https://github.com/apache/incubator-skywalking/issues/new).
+- Submit issue or start discussion through [GitHub issue](https://github.com/apache/skywalking/issues/new).
 - See all mail list discussion through [website list review](https://lists.apache.org/list.html?dev@skywalking.apache.org).
 If you are a SkyWalking committer, could login and use the mail list in browser mode. Otherwise, 
 follow the next step to subscribe. 
@@ -18,7 +18,7 @@ Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the
 
 ## Contact Us
 All the following channels are open to the community, you could choose the way you like.
-* Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
+* Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
@@ -36,8 +36,8 @@ and private plugin developer should read this.
 - If you want to build a new probe or plugin in any language, please read [Component library definition and extension](Component-library-settings.md) document.
 - [Storage extension development guide](storage-extention.md). Help potential contributors to build a new 
 storage implementor besides the official.
-- [Customize analysis by oal script](write-oal.md). Guide you to use oal script to make your own metric available.
-- [Source and scope extension for new metric](source-extension.md). If you want to analysis a new metric, which SkyWalking
+- [Customize analysis by oal script](write-oal.md). Guide you to use oal script to make your own metrics available.
+- [Source and scope extension for new metrics](source-extension.md). If you want to analysis a new metrics, which SkyWalking
 haven't provide. You need to 
 add a new receiver rather than choosing [existed receiver](../setup/backend/backend-receivers.md).
 At that moment, 
@@ -52,7 +52,7 @@ Our UI is constituted by static pages and web container.
 It is built with vue + typescript. You could know more at the rocketbot repository.
 - **Web container** source codes are in `apm-webapp` module. This is a just an easy zuul proxy to host
 static resources and send GraphQL query requests to backend.
-- [Legacy UI repository](https://github.com/apache/incubator-skywalking-ui) is still there, but not included
+- [Legacy UI repository](https://github.com/apache/skywalking-ui) is still there, but not included
 in SkyWalking release, after 6.0.0-GA.
 
 ## For release

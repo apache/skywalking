@@ -54,7 +54,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
 
         if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(AlarmRecord.ALARM_MESSAGE);
-            boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+            boolQueryBuilder.must().add(QueryBuilders.matchPhraseQuery(matchCName, keyword));
         }
 
         sourceBuilder.query(boolQueryBuilder);
