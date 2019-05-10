@@ -26,7 +26,7 @@ import lombok.*;
 public class AnalysisResult {
     private String varName;
 
-    private String metricName;
+    private String metricsName;
 
     private String tableName;
 
@@ -40,7 +40,7 @@ public class AnalysisResult {
 
     private String aggregationFunctionName;
 
-    private String indicatorClassName;
+    private String metricsClassName;
 
     private EntryMethod entryMethod;
 

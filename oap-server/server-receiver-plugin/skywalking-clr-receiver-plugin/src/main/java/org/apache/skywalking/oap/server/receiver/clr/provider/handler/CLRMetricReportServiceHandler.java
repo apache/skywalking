@@ -45,12 +45,12 @@ public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CL
         int serviceInstanceId = request.getServiceInstanceId();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("receive the clr metric from service instance, id: {}", serviceInstanceId);
+            logger.debug("receive the clr metrics from service instance, id: {}", serviceInstanceId);
         }
 
-        request.getMetricsList().forEach(metric -> {
-            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
-            clrSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metric);
+        request.getMetricsList().forEach(metrics -> {
+            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metrics.getTime());
+            clrSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());

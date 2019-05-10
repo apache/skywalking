@@ -4,9 +4,9 @@ The document outlines the core design goals for SkyWalking project.
 - **Keep Observability**. No matter how does the target system deploy, SkyWalking could provide a solution or 
 integration way to keep observability for it. Based on this, SkyWalking provides several runtime forms and probes.
 
-- **Topology, Metric and Trace Together**. The first step to see and understand a distributed system should be 
+- **Topology, Metrics and Trace Together**. The first step to see and understand a distributed system should be 
 from topology map. It visualizes the whole complex system as an easy map. Under that topology, OSS people requires
-more about metric for service, instance, endpoint and calls. Trace exists as detail logs for making sense of those metric.
+more about metrics for service, instance, endpoint and calls. Trace exists as detail logs for making sense of those metrics.
 Such as when endpoint latency becomes long, you want to see the slowest the trace to find out why. So you can see,
 they are from big picture to details, they are all needed. SkyWalking integrates and provides a lot of features to
 make this possible and easy understand.
