@@ -53,14 +53,12 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
         InetSocketAddress remote = (InetSocketAddress) (channelOpt.channel().remoteAddress());
         String peer = remote.getHostName() + ":" + remote.getPort();
 
-        ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(request.uri(), contextCarrier, peer);
-
+        AbstractSpan span = ContextManager.createExitSpan(request.uri(), peer);
         ContextSnapshot snapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
-        if (snapshot != null) {
-            ContextManager.continued(snapshot);
-            ContextManager.inject(contextCarrier);
-        }
+
+        ContextManager.continued(snapshot);
+        ContextCarrier contextCarrier = new ContextCarrier();
+        ContextManager.inject(contextCarrier);
 
         span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
         Tags.URL.set(span, peer + request.uri());
