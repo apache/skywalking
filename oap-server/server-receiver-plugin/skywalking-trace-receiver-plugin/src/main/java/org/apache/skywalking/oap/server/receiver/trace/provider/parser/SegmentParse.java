@@ -46,9 +46,9 @@ public class SegmentParse {
     private final SegmentCoreInfo segmentCoreInfo;
     private final TraceServiceModuleConfig config;
     @Setter private SegmentStandardizationWorker standardizationWorker;
-    private volatile static CounterMetric TRACE_BUFFER_FILE_RETRY;
-    private volatile static CounterMetric TRACE_BUFFER_FILE_OUT;
-    private volatile static CounterMetric TRACE_PARSE_ERROR;
+    private volatile static CounterMetrics TRACE_BUFFER_FILE_RETRY;
+    private volatile static CounterMetrics TRACE_BUFFER_FILE_OUT;
+    private volatile static CounterMetrics TRACE_PARSE_ERROR;
 
     private SegmentParse(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
         TraceServiceModuleConfig config) {
@@ -61,13 +61,13 @@ public class SegmentParse {
         this.segmentCoreInfo.setV2(false);
         this.config = config;
 
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        TRACE_BUFFER_FILE_RETRY = metricCreator.createCounter("v5_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        TRACE_BUFFER_FILE_OUT = metricCreator.createCounter("v5_trace_buffer_file_out", "The number of trace segment out of the buffer file",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        TRACE_PARSE_ERROR = metricCreator.createCounter("v5_trace_parse_error", "The number of trace segment out of the buffer file",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter("v5_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter("v5_trace_buffer_file_out", "The number of trace segment out of the buffer file",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        TRACE_PARSE_ERROR = metricsCreator.createCounter("v5_trace_parse_error", "The number of trace segment out of the buffer file",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     public boolean parse(BufferData<UpstreamSegment> bufferData, Source source) {

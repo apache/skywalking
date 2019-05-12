@@ -22,7 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorAnnotationUtils;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsAnnotationUtils;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.model.*;
@@ -54,10 +54,10 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(sourceScopeId);
         List<ModelColumn> modelColumns = new LinkedList<>();
-        boolean isIndicator = IndicatorAnnotationUtils.isIndicator(aClass);
+        boolean isMetrics = MetricsAnnotationUtils.isMetrics(aClass);
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, isIndicator, deleteHistory, sourceScopeId));
+        models.add(new Model(modelName, modelColumns, isMetrics, deleteHistory, sourceScopeId));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

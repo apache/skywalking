@@ -23,11 +23,11 @@ import lombok.*;
 
 @Getter
 public class OALScripts {
-    private List<AnalysisResult> indicatorStmts;
+    private List<AnalysisResult> metricsStmts;
     private DisableCollection disableCollection;
 
     public OALScripts() {
-        indicatorStmts = new LinkedList<>();
+        metricsStmts = new LinkedList<>();
         disableCollection = new DisableCollection();
     }
 }

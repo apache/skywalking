@@ -5,7 +5,7 @@ Trace Data Protocol describes the data format between SkyWalking agent/sniffer a
 Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol).
 
 For each agent/SDK, it needs to register service id and service instance id before reporting any kind of trace 
-or metric data.
+or metrics data.
 
 ### Step 1. Do register
 [Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto) takes charge of 
@@ -23,8 +23,8 @@ In most cases, you need to set a timer to call these services repeated, until yo
 Because batch is supported, even for most language agent/SDK, no scenario to do batch register. We suggest to check the  `serviceName`
 and `UUID` in response, and match with your expected value.
 
-### Step 2. Send trace and metric
-After you have service id and service instance id, you could send traces and metric. Now we
+### Step 2. Send trace and metrics
+After you have service id and service instance id, you could send traces and metrics. Now we
 have 
 1. `TraceSegmentReportService#collect` for skywalking native trace format
 1. `JVMMetricReportService#collect` for skywalking native jvm format

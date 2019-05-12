@@ -22,7 +22,7 @@ Here is the list of all DAO interfaces in storage
 1. StorageDAO
 1. IRegisterLockDAO
 1. H2TopologyQueryDAO
-1. IMetricQueryDAO
+1. IMetricsQueryDAO
 1. ITraceQueryDAO
 1. IMetadataQueryDAO
 1. IAggregationQueryDAO

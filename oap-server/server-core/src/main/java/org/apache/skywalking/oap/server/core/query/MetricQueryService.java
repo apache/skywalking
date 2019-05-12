@@ -23,12 +23,12 @@ import java.text.ParseException;
 import java.util.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
-import org.apache.skywalking.oap.server.core.storage.query.IMetricQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -42,15 +42,15 @@ public class MetricQueryService implements Service {
     private static final Logger logger = LoggerFactory.getLogger(MetricQueryService.class);
 
     private final ModuleManager moduleManager;
-    private IMetricQueryDAO metricQueryDAO;
+    private IMetricsQueryDAO metricQueryDAO;
 
     public MetricQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private IMetricQueryDAO getMetricQueryDAO() {
+    private IMetricsQueryDAO getMetricQueryDAO() {
         if (metricQueryDAO == null) {
-            metricQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetricQueryDAO.class);
+            metricQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetricsQueryDAO.class);
         }
         return metricQueryDAO;
     }
@@ -63,7 +63,7 @@ public class MetricQueryService implements Service {
 
         Where where = new Where();
         KeyValues intKeyValues = new KeyValues();
-        intKeyValues.setKey(Indicator.ENTITY_ID);
+        intKeyValues.setKey(Metrics.ENTITY_ID);
         where.getKeyValues().add(intKeyValues);
         ids.forEach(intKeyValues.getValues()::add);
 

@@ -42,7 +42,7 @@ public class JVMSourceDispatcher {
         instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
-    void sendMetric(int serviceInstanceId, long minuteTimeBucket, JVMMetric metric) {
+    void sendMetric(int serviceInstanceId, long minuteTimeBucket, JVMMetric metrics) {
         ServiceInstanceInventory serviceInstanceInventory = instanceInventoryCache.get(serviceInstanceId);
         int serviceId;
         if (Objects.nonNull(serviceInstanceInventory)) {
@@ -52,10 +52,10 @@ public class JVMSourceDispatcher {
             return;
         }
 
-        this.sendToCpuMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metric.getCpu());
-        this.sendToMemoryMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metric.getMemoryList());
-        this.sendToMemoryPoolMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metric.getMemoryPoolList());
-        this.sendToGCMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metric.getGcList());
+        this.sendToCpuMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metrics.getCpu());
+        this.sendToMemoryMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metrics.getMemoryList());
+        this.sendToMemoryPoolMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metrics.getMemoryPoolList());
+        this.sendToGCMetricProcess(serviceId, serviceInstanceId, minuteTimeBucket, metrics.getGcList());
     }
 
     private void sendToCpuMetricProcess(int serviceId, int serviceInstanceId, long timeBucket, CPU cpu) {

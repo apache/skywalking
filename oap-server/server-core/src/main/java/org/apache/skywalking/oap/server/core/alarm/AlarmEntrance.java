@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -26,25 +26,25 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
  */
 public class AlarmEntrance {
     private ModuleDefineHolder moduleDefineHolder;
-    private IndicatorNotify indicatorNotify;
+    private MetricsNotify metricsNotify;
 
     public AlarmEntrance(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
     }
 
-    public void forward(Indicator indicator) {
+    public void forward(Metrics metrics) {
         if (!moduleDefineHolder.has(AlarmModule.NAME)) {
             return;
         }
 
         init();
 
-        indicatorNotify.notify(indicator);
+        metricsNotify.notify(metrics);
     }
 
     private void init() {
-        if (indicatorNotify == null) {
-            indicatorNotify = moduleDefineHolder.find(AlarmModule.NAME).provider().getService(IndicatorNotify.class);
+        if (metricsNotify == null) {
+            metricsNotify = moduleDefineHolder.find(AlarmModule.NAME).provider().getService(MetricsNotify.class);
         }
     }
 }

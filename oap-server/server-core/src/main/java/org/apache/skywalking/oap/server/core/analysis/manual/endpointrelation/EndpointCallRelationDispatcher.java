@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsProcess;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 
 /**
@@ -36,12 +36,12 @@ public class EndpointCallRelationDispatcher implements SourceDispatcher<Endpoint
     }
 
     private void serverSide(EndpointRelation source) {
-        EndpointRelationServerSideIndicator indicator = new EndpointRelationServerSideIndicator();
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceEndpointId(source.getEndpointId());
-        indicator.setDestEndpointId(source.getChildEndpointId());
-        indicator.setComponentId(source.getComponentId());
-        indicator.setEntityId(source.getEntityId());
-        IndicatorProcess.INSTANCE.in(indicator);
+        EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
+        metrics.setTimeBucket(source.getTimeBucket());
+        metrics.setSourceEndpointId(source.getEndpointId());
+        metrics.setDestEndpointId(source.getChildEndpointId());
+        metrics.setComponentId(source.getComponentId());
+        metrics.setEntityId(source.getEntityId());
+        MetricsProcess.INSTANCE.in(metrics);
     }
 }

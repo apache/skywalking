@@ -5,7 +5,7 @@ SkyWalking includes four inventory entities.
 - Endpoint Inventory
 - Network Address Inventory
 
-All metric, topology, trace and alarm are related to these entity IDs. 
+All metrics, topology, trace and alarm are related to these entity IDs. 
 
 For understanding the **Service**, **Service Instance** and **Endpoint** concepts,
 please read [Project Overview](../concepts-and-designs/overview.md#why-use-skywalking).
