@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
+package org.apache.skywalking.oap.server.core.analysis.manual;
 
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.Const;
 
-public class ServiceRelationDefineUtil {
+public class RelationDefineUtil {
     public static String buildEntityId(RelationDefine define) {
         return String.valueOf(define.source)
             + Const.ID_SPLIT + String.valueOf(define.dest)
@@ -30,12 +30,12 @@ public class ServiceRelationDefineUtil {
 
     /**
      * @param entityId
-     * @return 1. sourceServiceId 2. destServiceId 3. componentId
+     * @return 1. sourceId 2. destId 3. componentId
      */
     public static RelationDefine splitEntityId(String entityId) {
         String[] parts = entityId.split(Const.ID_SPLIT);
         if (parts.length != 3) {
-            throw new RuntimeException("Illegal ServiceRelation eneity id");
+            throw new RuntimeException("Illegal Service/Endpoint Relation entity id");
         }
         return new RelationDefine(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     }

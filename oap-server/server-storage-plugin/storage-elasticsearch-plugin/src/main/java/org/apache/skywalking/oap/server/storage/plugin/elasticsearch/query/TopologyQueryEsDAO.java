@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -146,7 +147,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
             String entityId = entityBucket.getKeyAsString();
 
-            ServiceRelationDefineUtil.RelationDefine relationDefine = ServiceRelationDefineUtil.splitEntityId(entityId);
+            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
             Call.CallDetail call = new Call.CallDetail();
             call.setSource(relationDefine.getSource());
             call.setTarget(relationDefine.getDest());

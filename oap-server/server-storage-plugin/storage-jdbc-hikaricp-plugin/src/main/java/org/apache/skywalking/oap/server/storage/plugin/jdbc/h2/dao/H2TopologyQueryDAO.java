@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -137,7 +138,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            ServiceRelationDefineUtil.RelationDefine relationDefine = ServiceRelationDefineUtil.splitEntityId(entityId);
+            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
 
             call.setSource(relationDefine.getSource());
             call.setTarget(relationDefine.getDest());

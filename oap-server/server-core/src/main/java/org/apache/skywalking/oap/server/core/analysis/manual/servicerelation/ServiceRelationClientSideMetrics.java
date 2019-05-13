@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
 import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
@@ -46,8 +47,8 @@ public class ServiceRelationClientSideMetrics extends Metrics {
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + ServiceRelationDefineUtil.buildEntityId(
-            new ServiceRelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
+        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
+            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
         return splitJointId;
     }
 
