@@ -84,7 +84,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 * Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNDQ3OTEwNzE1MDg5LWY2NjkwMTEzMGI2ZTI1NzUzMDk0MzJmMWM1NWVmODg0MzBjNjAxYzUwMjIwNDI3MjlhZWRjNmNhOTM5NmIxNDk)
-* QQ Group: 392443393
+* QQ Group: 392443393, 901167865
 
 # Who Uses SkyWalking?
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
