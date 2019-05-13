@@ -42,7 +42,8 @@ public enum TopNProcess {
     private Map<Class<? extends Record>, TopNWorker> workers = new HashMap<>();
 
     public void create(ModuleManager moduleManager, Class<? extends TopN> topNClass) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(topNClass);
+        String modelName = "";
+//        String modelName = StorageEntityAnnotationUtils.getModelName(topNClass);
 
         if (DisableRegister.INSTANCE.include(modelName)) {
             return;

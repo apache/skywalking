@@ -38,8 +38,10 @@ public enum InventoryProcess {
     }
 
     public void create(ModuleManager moduleManager, Class<? extends RegisterSource> inventoryClass) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(inventoryClass);
-        int scopeId = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
+        String modelName = "";
+        int scopeId = 1;
+//        String modelName = StorageEntityAnnotationUtils.getModelName(inventoryClass);
+//        int scopeId = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
 
         Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(inventoryClass);
 

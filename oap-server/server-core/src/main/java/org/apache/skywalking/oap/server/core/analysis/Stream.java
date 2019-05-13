@@ -16,17 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.annotation;
+package org.apache.skywalking.oap.server.core.analysis;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 
 /**
  * @author peng-yongsheng
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface InventoryType {
+public @interface Stream {
+
+    String name();
+
+    int scopeId();
+
+    Storage storage();
+
+    StreamKind kind();
 }

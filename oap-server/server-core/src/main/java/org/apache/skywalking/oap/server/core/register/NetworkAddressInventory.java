@@ -21,8 +21,7 @@ package org.apache.skywalking.oap.server.core.register;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -34,16 +33,14 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
 @ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.NETWORK_ADDRESS)
+@Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, storage = @Storage(builder = NetworkAddressInventory.Builder.class, deleteHistory = false), kind = StreamKind.Inventory)
 public class NetworkAddressInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "network_address_inventory";
+    public static final String INDEX_NAME = "network_address_inventory";
 
     private static final String NAME = "name";
-    public static final String NODE_TYPE = "node_type";
+    private static final String NODE_TYPE = "node_type";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;

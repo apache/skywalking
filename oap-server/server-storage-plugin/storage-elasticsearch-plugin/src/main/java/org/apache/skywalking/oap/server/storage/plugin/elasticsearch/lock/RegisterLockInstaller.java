@@ -55,8 +55,9 @@ public class RegisterLockInstaller {
             }
 
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(sourceScopeId);
+                // TODO  pengys
+//                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                putIfAbsent(11);
             }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());

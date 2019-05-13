@@ -44,7 +44,8 @@ public enum MetricsProcess {
     }
 
     public void create(ModuleManager moduleManager, Class<? extends Metrics> metricsClass) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(metricsClass);
+        String modelName = "";
+//        String modelName = StorageEntityAnnotationUtils.getModelName(metricsClass);
 
         if (DisableRegister.INSTANCE.include(modelName)) {
             return;

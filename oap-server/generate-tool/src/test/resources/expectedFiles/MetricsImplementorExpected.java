@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
  */
 @MetricsType
 @StreamData
-@StorageEntity(name = "service_avg", builder = ServiceAvgMetrics.Builder.class, sourceScopeId = 1)
+@Storage(name = "service_avg", builder = ServiceAvgMetrics.Builder.class, sourceScopeId = 1)
 public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;

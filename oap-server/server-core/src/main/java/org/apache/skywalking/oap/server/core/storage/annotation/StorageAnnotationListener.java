@@ -22,7 +22,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsAnnotationUtils;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.model.*;
@@ -42,22 +41,23 @@ public class StorageAnnotationListener implements AnnotationListener, IModelGett
     }
 
     @Override public Class<? extends Annotation> annotation() {
-        return StorageEntity.class;
+        return Storage.class;
     }
 
     @Override public void notify(Class aClass) {
         logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
 
-        String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
+        String modelName = "";
+        int sourceScopeId = 1;
+//            String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
         boolean deleteHistory = StorageEntityAnnotationUtils.getDeleteHistory(aClass);
-        int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(aClass);
+//        int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(aClass);
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(sourceScopeId);
         List<ModelColumn> modelColumns = new LinkedList<>();
-        boolean isMetrics = MetricsAnnotationUtils.isMetrics(aClass);
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, isMetrics, deleteHistory, sourceScopeId));
+        models.add(new Model(modelName, modelColumns, false, deleteHistory, sourceScopeId));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

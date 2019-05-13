@@ -23,8 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -37,13 +36,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
 @ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY)
+@Stream(name = ServiceInstanceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY, storage = @Storage(builder = ServiceInstanceInventory.Builder.class, deleteHistory = false), kind = StreamKind.Inventory)
 public class ServiceInstanceInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "service_instance_inventory";
+    public static final String INDEX_NAME = "service_instance_inventory";
 
     public static final String NAME = "name";
     public static final String INSTANCE_UUID = "instance_uuid";
@@ -104,7 +101,6 @@ public class ServiceInstanceInventory extends RegisterSource {
     public boolean hasProperties() {
         return prop != null && prop.length() > 0;
     }
-
 
     @Override public boolean equals(Object obj) {
         if (this == obj)

@@ -21,8 +21,7 @@ package org.apache.skywalking.oap.server.core.register;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -34,13 +33,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
 @ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
-@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.ENDPOINT_INVENTORY)
+@Stream(name = EndpointInventory.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_INVENTORY, storage = @Storage(builder = EndpointInventory.Builder.class, deleteHistory = false), kind = StreamKind.Inventory)
 public class EndpointInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "endpoint_inventory";
+    public static final String INDEX_NAME = "endpoint_inventory";
 
     public static final String SERVICE_ID = "service_id";
     public static final String NAME = "name";

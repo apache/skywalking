@@ -16,14 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics.annotation;
+package org.apache.skywalking.oap.server.core.storage.annotation;
+
+import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public class MetricsAnnotationUtils {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Storage {
 
-    public static boolean isMetrics(Class aClass) {
-        return aClass.isAnnotationPresent(MetricsType.class);
-    }
+    Class<? extends StorageBuilder> builder();
+
+    boolean deleteHistory() default true;
 }

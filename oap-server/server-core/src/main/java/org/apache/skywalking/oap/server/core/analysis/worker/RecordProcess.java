@@ -45,7 +45,8 @@ public enum RecordProcess {
     @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();
 
     public void create(ModuleManager moduleManager, Class<? extends Record> recordClass) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
+        String modelName = "";
+//            String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
 
         if (DisableRegister.INSTANCE.include(modelName)) {
             return;

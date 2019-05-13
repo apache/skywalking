@@ -20,15 +20,11 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsTypeListener;
-import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordTypeListener;
-import org.apache.skywalking.oap.server.core.analysis.topn.annotation.TopNTypeListener;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.query.*;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryTypeListener;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.*;
 import org.apache.skywalking.oap.server.core.remote.annotation.*;
@@ -61,7 +57,6 @@ public class CoreModuleProvider extends ModuleProvider {
     private RemoteClientManager remoteClientManager;
     private final AnnotationScan annotationScan;
     private final StorageAnnotationListener storageAnnotationListener;
-    private final StreamAnnotationListener streamAnnotationListener;
     private final StreamDataAnnotationContainer streamDataAnnotationContainer;
     private final SourceReceiverImpl receiver;
 
@@ -70,7 +65,6 @@ public class CoreModuleProvider extends ModuleProvider {
         this.moduleConfig = new CoreModuleConfig();
         this.annotationScan = new AnnotationScan();
         this.storageAnnotationListener = new StorageAnnotationListener();
-        this.streamAnnotationListener = new StreamAnnotationListener();
         this.streamDataAnnotationContainer = new StreamDataAnnotationContainer();
         this.receiver = new SourceReceiverImpl();
     }
@@ -152,11 +146,6 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
 
         annotationScan.registerListener(storageAnnotationListener);
-        annotationScan.registerListener(streamAnnotationListener);
-        annotationScan.registerListener(new MetricsTypeListener(getManager()));
-        annotationScan.registerListener(new InventoryTypeListener(getManager()));
-        annotationScan.registerListener(new RecordTypeListener(getManager()));
-        annotationScan.registerListener(new TopNTypeListener(getManager()));
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
@@ -170,9 +159,9 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             receiver.scan();
 
-            annotationScan.scan(() -> {
-                streamDataAnnotationContainer.generate(streamAnnotationListener.getStreamClasses());
-            });
+//            annotationScan.scan(() -> {
+//                streamDataAnnotationContainer.generate(streamAnnotationListener.getStreamClasses());
+//            });
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

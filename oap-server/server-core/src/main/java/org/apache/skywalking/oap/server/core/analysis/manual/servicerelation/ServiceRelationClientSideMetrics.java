@@ -21,17 +21,14 @@ package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
-@MetricsType
-@StreamData
-@StorageEntity(name = ServiceRelationClientSideMetrics.INDEX_NAME, builder = ServiceRelationClientSideMetrics.Builder.class, sourceScopeId = DefaultScopeDefine.SERVICE_RELATION)
+@Stream(name = ServiceRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION, storage = @Storage(builder = ServiceRelationClientSideMetrics.Builder.class), kind = StreamKind.Metrics)
 public class ServiceRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_relation_client_side";
@@ -46,9 +43,9 @@ public class ServiceRelationClientSideMetrics extends Metrics {
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(sourceServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
+        splitJointId += Const.ID_SPLIT + sourceServiceId;
+        splitJointId += Const.ID_SPLIT + destServiceId;
+        splitJointId += Const.ID_SPLIT + componentId;
         return splitJointId;
     }
 

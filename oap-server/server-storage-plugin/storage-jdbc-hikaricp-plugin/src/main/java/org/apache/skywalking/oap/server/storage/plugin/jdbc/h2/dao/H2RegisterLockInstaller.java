@@ -60,8 +60,9 @@ public class H2RegisterLockInstaller {
             h2Client.execute(connection, tableCreateSQL.toString());
 
             for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                int scopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(h2Client, connection, scopeId, DefaultScopeDefine.nameOf(scopeId));
+                // TODO pengys
+//                int scopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
+                putIfAbsent(h2Client, connection, 1, DefaultScopeDefine.nameOf(1));
             }
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
