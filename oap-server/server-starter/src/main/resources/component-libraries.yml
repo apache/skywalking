@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Define all component libraries' names and IDs, used in monitored application.
-# This is a bothway mapping, agent or SDK could use the value(ID) to represent the component name in uplink data.
+# Define all componentId libraries' names and IDs, used in monitored application.
+# This is a bothway mapping, agent or SDK could use the value(ID) to represent the componentId name in uplink data.
 #
 # ######
 #   id
@@ -28,7 +28,7 @@
 # ######
 # languages
 # ######
-# Languages declare which languages are using this component. Multi languages should be separated by `,`
+# Languages declare which languages are using this componentId. Multi languages should be separated by `,`
 
 Tomcat:
   id: 1

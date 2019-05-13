@@ -81,8 +81,8 @@ public class TopologyQueryService implements Service {
     public Topology getGlobalTopology(final Step step, final long startTB, final long endTB, final long startTimestamp,
         final long endTimestamp) throws IOException {
         logger.debug("step: {}, startTimeBucket: {}, endTimeBucket: {}", step, startTB, endTB);
-        List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(step, startTB, endTB);
-        List<Call> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(step, startTB, endTB);
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(step, startTB, endTB);
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(step, startTB, endTB);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
         Topology topology = builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
@@ -95,8 +95,8 @@ public class TopologyQueryService implements Service {
         List<Integer> serviceIds = new ArrayList<>();
         serviceIds.add(serviceId);
 
-        List<Call> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(step, startTB, endTB, serviceIds);
-        List<Call> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, serviceIds);
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(step, startTB, endTB, serviceIds);
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, serviceIds);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
         Topology topology = builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
@@ -104,10 +104,10 @@ public class TopologyQueryService implements Service {
         List<Integer> sourceServiceIds = new ArrayList<>();
         serviceRelationClientCalls.forEach(call -> sourceServiceIds.add(call.getSource()));
         if (CollectionUtils.isNotEmpty(sourceServiceIds)) {
-            List<Call> sourceCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, sourceServiceIds);
+            List<Call.CallDetail> sourceCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(step, startTB, endTB, sourceServiceIds);
             topology.getNodes().forEach(node -> {
                 if (Strings.isNullOrEmpty(node.getType())) {
-                    for (Call call : sourceCalls) {
+                    for (Call.CallDetail call : sourceCalls) {
                         if (node.getId() == call.getTarget()) {
                             node.setType(getComponentLibraryCatalogService().getComponentName(call.getComponentId()));
                             break;
@@ -122,13 +122,17 @@ public class TopologyQueryService implements Service {
 
     public Topology getEndpointTopology(final Step step, final long startTB, final long endTB,
         final int endpointId) throws IOException {
-        List<Call> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
-        serverSideCalls.forEach(call -> call.setDetectPoint(DetectPoint.SERVER));
-
-        serverSideCalls.forEach(call -> call.setCallType(Const.EMPTY_STRING));
+        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
 
         Topology topology = new Topology();
-        topology.getCalls().addAll(serverSideCalls);
+        serverSideCalls.forEach(callDetail -> {
+            Call call = new Call();
+            call.setId(callDetail.getId());
+            call.setSource(callDetail.getSource());
+            call.setTarget(callDetail.getTarget());
+            call.addDetectPoint(DetectPoint.SERVER);
+
+        });
 
         Set<Integer> nodeIds = new HashSet<>();
         serverSideCalls.forEach(call -> {

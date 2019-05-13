@@ -26,8 +26,8 @@ import org.slf4j.*;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Load settings from component-libraries.yml
- * this file includes all component defines, and the component mappings, which declare the real server type based on client component.
+ * Load settings from componentId-libraries.yml
+ * this file includes all componentId defines, and the componentId mappings, which declare the real server type based on client componentId.
  *
  * @author wusheng
  */
@@ -95,17 +95,17 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
 
             nameMapping.forEach((name, serverName) -> {
                 if (!componentName2Id.containsKey(name)) {
-                    throw new InitialComponentCatalogException("Component name [" + name + "] in Component-Server-Mappings doesn't exist in component define. ");
+                    throw new InitialComponentCatalogException("Component name [" + name + "] in Component-Server-Mappings doesn't exist in componentId define. ");
                 }
                 if (!componentName2Id.containsKey(serverName)) {
-                    throw new InitialComponentCatalogException("Server component name [" + serverName + "] in Component-Server-Mappings doesn't exist in component define. ");
+                    throw new InitialComponentCatalogException("Server componentId name [" + serverName + "] in Component-Server-Mappings doesn't exist in componentId define. ");
                 }
 
                 componentId2ServerId.put(componentName2Id.get(name), componentName2Id.get(serverName));
             });
             nameMapping.clear();
         } catch (FileNotFoundException e) {
-            logger.error("component-libraries.yml not found.", e);
+            logger.error("componentId-libraries.yml not found.", e);
         }
 
     }

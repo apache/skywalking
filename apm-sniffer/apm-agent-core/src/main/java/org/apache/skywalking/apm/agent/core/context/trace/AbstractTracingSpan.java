@@ -234,7 +234,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * Set the component of this span, with internal supported. Highly recommend to use this way.
+     * Set the componentId of this span, with internal supported. Highly recommend to use this way.
      *
      * @param component
      * @return span instance, for chaining.
@@ -246,7 +246,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     /**
-     * Set the component name. By using this, cost more memory and network.
+     * Set the componentId name. By using this, cost more memory and network.
      *
      * @param componentName
      * @return span instance, for chaining.
