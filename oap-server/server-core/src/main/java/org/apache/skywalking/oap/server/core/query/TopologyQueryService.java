@@ -131,7 +131,7 @@ public class TopologyQueryService implements Service {
             call.setSource(callDetail.getSource());
             call.setTarget(callDetail.getTarget());
             call.addDetectPoint(DetectPoint.SERVER);
-
+            topology.getCalls().add(call);
         });
 
         Set<Integer> nodeIds = new HashSet<>();
