@@ -31,7 +31,7 @@ public class FileGenerator {
     private AllDispatcherContext allDispatcherContext;
 
     public FileGenerator(OALScripts oalScripts, String outputPath) {
-        this.results = oalScripts.getIndicatorStmts();
+        this.results = oalScripts.getMetricsStmts();
         this.collection = oalScripts.getDisableCollection();
         this.outputPath = outputPath;
         configuration = new Configuration(new Version("2.3.28"));
@@ -43,7 +43,7 @@ public class FileGenerator {
 
     public void generate() throws IOException, TemplateException {
         for (AnalysisResult result : results) {
-            generate(result, "Indicator.java", writer -> generateIndicatorImplementor(result, writer));
+            generate(result, "Metrics.java", writer -> generateMetricsImplementor(result, writer));
 
             String scopeName = result.getSourceName();
             File file = new File(outputPath, "generated/" + scopeName.toLowerCase() + "/" + scopeName + "Dispatcher.java");
@@ -77,11 +77,11 @@ public class FileGenerator {
     private String buildSubFolderName(AnalysisResult result, String suffix) {
         return "generated/"
             + result.getSourceName().toLowerCase() + "/"
-            + result.getMetricName() + suffix;
+            + result.getMetricsName() + suffix;
     }
 
-    void generateIndicatorImplementor(AnalysisResult result, Writer output) throws IOException, TemplateException {
-        configuration.getTemplate("IndicatorImplementor.ftl").process(result, output);
+    void generateMetricsImplementor(AnalysisResult result, Writer output) throws IOException, TemplateException {
+        configuration.getTemplate("MetricsImplementor.ftl").process(result, output);
     }
 
     void generateDispatcher(AnalysisResult result, Writer output) throws IOException, TemplateException {
@@ -103,7 +103,7 @@ public class FileGenerator {
                 context.setPackageName(sourceName.toLowerCase());
                 allDispatcherContext.getAllContext().put(sourceName, context);
             }
-            context.getIndicators().add(result);
+            context.getMetrics().add(result);
         }
     }
 

@@ -52,7 +52,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.registerDAO = registerDAO;
         this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scopeId = scopeId;
-        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 1000);
+        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
 
         String name = "REGISTER_L2";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -134,12 +134,12 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
             int i = 0;
             while (sourceIterator.hasNext()) {
-                RegisterSource indicator = sourceIterator.next();
+                RegisterSource registerSource = sourceIterator.next();
                 i++;
                 if (i == data.size()) {
-                    indicator.getEndOfBatchContext().setEndOfBatch(true);
+                    registerSource.getEndOfBatchContext().setEndOfBatch(true);
                 }
-                persistent.onWork(indicator);
+                persistent.onWork(registerSource);
             }
         }
 

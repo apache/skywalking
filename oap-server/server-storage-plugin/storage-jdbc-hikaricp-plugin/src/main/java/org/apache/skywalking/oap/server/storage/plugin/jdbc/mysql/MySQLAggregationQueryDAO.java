@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
@@ -47,14 +47,14 @@ public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
         String tableName = DownSamplingModelNameBuilder.build(step, indName);
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
-        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Indicator.ENTITY_ID).append(" from ")
+        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Metrics.ENTITY_ID).append(" from ")
             .append(tableName).append(" where ");
         this.setTimeRangeCondition(sql, conditions, startTB, endTB);
         if (appender != null) {
             appender.append(sql, conditions);
         }
-        sql.append(" group by ").append(Indicator.ENTITY_ID);
-        sql.append(") AS INDICATOR order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
+        sql.append(" group by ").append(Metrics.ENTITY_ID);
+        sql.append(") AS METRICS order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
         try (Connection connection = getClient().getConnection()) {
@@ -63,7 +63,7 @@ public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
                 try {
                     while (resultSet.next()) {
                         TopNEntity topNEntity = new TopNEntity();
-                        topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
+                        topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
                         topNEntity.setValue(resultSet.getLong("value"));
                         topNEntities.add(topNEntity);
                     }
