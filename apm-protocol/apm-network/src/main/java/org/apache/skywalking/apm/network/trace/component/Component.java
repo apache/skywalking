@@ -20,7 +20,7 @@
 package org.apache.skywalking.apm.network.trace.component;
 
 /**
- * The <code>Component</code> represents componentId library,
+ * The <code>Component</code> represents component library,
  * which has been supported by skywalking sniffer.
  *
  * The supported list is in {@link ComponentsDefine}.

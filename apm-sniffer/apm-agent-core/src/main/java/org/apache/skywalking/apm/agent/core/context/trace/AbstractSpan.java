@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  */
 public interface AbstractSpan extends AsyncSpan {
     /**
-     * Set the componentId id, which defines in {@link ComponentsDefine}
+     * Set the component id, which defines in {@link ComponentsDefine}
      *
      * @param component
      * @return the span for chaining.
