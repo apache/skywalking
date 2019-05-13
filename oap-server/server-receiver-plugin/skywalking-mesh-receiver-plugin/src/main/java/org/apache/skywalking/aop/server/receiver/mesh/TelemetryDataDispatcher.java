@@ -259,14 +259,14 @@ public class TelemetryDataDispatcher {
     private static int protocol2Component(Protocol protocol) {
         switch (protocol) {
             case gRPC:
-                // GRPC in componentId-libraries.yml
+                // GRPC in component-libraries.yml
                 return 23;
             case HTTP:
-                // HTTP in componentId-libraries.yml
+                // HTTP in component-libraries.yml
                 return 49;
             case UNRECOGNIZED:
             default:
-                // RPC in componentId-libraries.yml
+                // RPC in component-libraries.yml
                 return 50;
         }
     }

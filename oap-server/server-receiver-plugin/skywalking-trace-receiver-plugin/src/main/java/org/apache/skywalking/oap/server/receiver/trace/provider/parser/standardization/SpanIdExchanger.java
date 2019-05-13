@@ -70,7 +70,7 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
 
             if (componentId == 0) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("componentId: {} in service: {} exchange failed", standardBuilder.getComponent(), serviceId);
+                    logger.debug("component: {} in service: {} exchange failed", standardBuilder.getComponent(), serviceId);
                 }
 
                 exchanged = false;

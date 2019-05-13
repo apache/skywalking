@@ -52,7 +52,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
     /**
      * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host, port,
-     * kind, componentId, url from {@link feign.Request}. Through the reflection of the way, set the http header of
+     * kind, component, url from {@link feign.Request}. Through the reflection of the way, set the http header of
      * context data into {@link feign.Request#headers}.
      *
      * @param method

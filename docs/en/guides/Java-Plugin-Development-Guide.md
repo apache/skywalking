@@ -96,9 +96,9 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
 ### AbstractSpan
 ```java
     /**
-     *componentId{@link ComponentsDefine}
+     *component{@link ComponentsDefine}
      *
-     * @param componentId
+     * @param component
      * @return the span for chaining.
      */
     AbstractSpan setComponent(Component component);

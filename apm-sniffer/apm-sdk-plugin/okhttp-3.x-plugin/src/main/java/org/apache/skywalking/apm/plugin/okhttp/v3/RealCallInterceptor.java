@@ -52,7 +52,7 @@ public class RealCallInterceptor implements InstanceMethodsAroundInterceptor, In
 
     /**
      * Get the {@link okhttp3.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host,
-     * port, kind, componentId, url from {@link okhttp3.Request}.
+     * port, kind, component, url from {@link okhttp3.Request}.
      * Through the reflection of the way, set the http header of context data into {@link okhttp3.Request#headers}.
      *
      * @param method
