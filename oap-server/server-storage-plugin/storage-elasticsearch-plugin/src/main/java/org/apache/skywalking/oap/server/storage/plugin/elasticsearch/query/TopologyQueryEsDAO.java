@@ -148,11 +148,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
             ServiceRelationDefineUtil.RelationDefine relationDefine = ServiceRelationDefineUtil.splitEntityId(entityId);
             Call.CallDetail call = new Call.CallDetail();
-            call.setId(entityId);
             call.setSource(relationDefine.getSource());
             call.setTarget(relationDefine.getDest());
             call.setComponentId(relationDefine.getComponentId());
             call.setDetectPoint(detectPoint);
+            call.generateID();
             calls.add(call);
         }
         return calls;

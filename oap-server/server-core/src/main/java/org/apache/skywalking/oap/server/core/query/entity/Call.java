@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.*;
 import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 /**
@@ -81,10 +82,15 @@ public class Call {
     @Setter
     @Getter
     public static class CallDetail {
+        @Setter(AccessLevel.PRIVATE)
         private String id;
         private Integer source;
         private Integer target;
         private DetectPoint detectPoint;
         private Integer componentId;
+
+        public void generateID() {
+            id = source + Const.ID_SPLIT + target;
+        }
     }
 }

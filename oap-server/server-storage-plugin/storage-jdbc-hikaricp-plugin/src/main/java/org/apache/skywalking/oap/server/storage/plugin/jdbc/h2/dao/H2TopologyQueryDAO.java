@@ -147,7 +147,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
             } else {
                 call.setDetectPoint(DetectPoint.SERVER);
             }
-            call.setId(entityId);
+            call.generateID();
             calls.add(call);
         }
     }
