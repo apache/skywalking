@@ -41,7 +41,7 @@ public class EndpointCallRelationDispatcher implements SourceDispatcher<Endpoint
         metrics.setSourceEndpointId(source.getEndpointId());
         metrics.setDestEndpointId(source.getChildEndpointId());
         metrics.setComponentId(source.getComponentId());
-        metrics.setEntityId(source.getEntityId());
+        metrics.buildEntityId();
         MetricsProcess.INSTANCE.in(metrics);
     }
 }

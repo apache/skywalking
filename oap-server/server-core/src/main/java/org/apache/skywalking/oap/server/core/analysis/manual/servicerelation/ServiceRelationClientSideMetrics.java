@@ -43,13 +43,20 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Setter @Getter @Column(columnName = SOURCE_SERVICE_ID) @IDColumn private int sourceServiceId;
     @Setter @Getter @Column(columnName = DEST_SERVICE_ID) @IDColumn private int destServiceId;
     @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
-    @Setter @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
+    @Setter(AccessLevel.PRIVATE) @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
         splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
             new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
         return splitJointId;
+    }
+
+    public void buildEntityId() {
+        String splitJointId = String.valueOf(sourceServiceId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
+        entityId = splitJointId;
     }
 
     @Override public void combine(Metrics metrics) {
