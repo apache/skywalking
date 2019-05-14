@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.*;
-import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.*;
 import org.apache.skywalking.oap.server.core.remote.client.*;
 import org.apache.skywalking.oap.server.core.remote.define.*;
@@ -145,11 +143,6 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
-
-        this.registerServiceImplementation(InventoryStreamProcessor.class, new InventoryStreamProcessor());
-        this.registerServiceImplementation(RecordStreamProcessor.class, new RecordStreamProcessor());
-        this.registerServiceImplementation(MetricsStreamProcessor.class, new MetricsStreamProcessor());
-        this.registerServiceImplementation(TopNStreamProcessor.class, new TopNStreamProcessor());
 
         annotationScan.registerListener(new StreamAnnotationListener(getManager()));
 

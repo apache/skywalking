@@ -24,15 +24,20 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author peng-yongsheng
  */
-public class RecordStreamProcessor implements StreamProcessor<Record>, Service {
+public class RecordStreamProcessor implements StreamProcessor<Record> {
+
+    private final static RecordStreamProcessor PROCESSOR = new RecordStreamProcessor();
 
     private Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
+
+    public static RecordStreamProcessor getInstance() {
+        return PROCESSOR;
+    }
 
     public void in(Record record) {
         RecordPersistentWorker worker = workers.get(record.getClass());

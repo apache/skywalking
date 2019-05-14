@@ -50,8 +50,7 @@ public class AlarmModuleProvider extends ModuleProvider {
         RulesReader reader = new RulesReader(applicationReader);
         Rules rules = reader.readRules();
         notifyHandler = new NotifyHandler(rules);
-        //TODO pengys
-        notifyHandler.init(new AlarmStandardPersistence(null));
+        notifyHandler.init(new AlarmStandardPersistence());
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 

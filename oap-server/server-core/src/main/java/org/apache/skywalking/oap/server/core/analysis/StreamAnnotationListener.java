@@ -20,7 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.Annotation;
 import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.storage.model.IModelSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
@@ -39,12 +41,23 @@ public class StreamAnnotationListener implements AnnotationListener {
         return Stream.class;
     }
 
+    @SuppressWarnings("unchecked")
     @Override public void notify(Class aClass) {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream)aClass.getAnnotation(Stream.class);
 
             moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, stream.name(), stream.scopeId(), stream.storage());
-            moduleDefineHolder.find(CoreModule.NAME).provider().getService(stream.processor()).create(moduleDefineHolder, stream, aClass);
+            if (stream.processor().equals(InventoryStreamProcessor.class)) {
+                InventoryStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(RecordStreamProcessor.class)) {
+                RecordStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(MetricsStreamProcessor.class)) {
+                MetricsStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(TopNStreamProcessor.class)) {
+                TopNStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else {
+                throw new UnexpectedException("Unknown stream processor.");
+            }
         } else {
             throw new UnexpectedException("Stream annotation listener could only parse the class present stream annotation.");
         }

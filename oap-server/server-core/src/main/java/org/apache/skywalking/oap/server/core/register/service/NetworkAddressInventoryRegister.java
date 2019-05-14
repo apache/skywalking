@@ -40,17 +40,9 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IServiceInventoryRegister serviceInventoryRegister;
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-    private InventoryStreamProcessor inventoryStreamProcessor;
 
     public NetworkAddressInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
-    }
-
-    private InventoryStreamProcessor getInventoryStreamProcessor() {
-        if (isNull(inventoryStreamProcessor)) {
-            this.inventoryStreamProcessor = moduleDefineHolder.find(CoreModule.NAME).provider().getService(InventoryStreamProcessor.class);
-        }
-        return inventoryStreamProcessor;
     }
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
@@ -95,7 +87,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             newNetworkAddress.setRegisterTime(now);
             newNetworkAddress.setHeartbeatTime(now);
 
-            getInventoryStreamProcessor().in(newNetworkAddress);
+            InventoryStreamProcessor.getInstance().in(newNetworkAddress);
         }
 
         return Const.NONE;
@@ -111,7 +103,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             networkAddress = networkAddress.getClone();
             networkAddress.setHeartbeatTime(heartBeatTime);
 
-            getInventoryStreamProcessor().in(networkAddress);
+            InventoryStreamProcessor.getInstance().in(networkAddress);
         } else {
             logger.warn("Network getAddress {} heartbeat, but not found in storage.", addressId);
         }
@@ -125,7 +117,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             newNetworkAddress.setNetworkAddressNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
-            getInventoryStreamProcessor().in(networkAddress);
+            InventoryStreamProcessor.getInstance().in(newNetworkAddress);
         }
     }
 

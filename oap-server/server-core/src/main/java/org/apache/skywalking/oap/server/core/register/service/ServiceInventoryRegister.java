@@ -39,7 +39,6 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     private final ModuleDefineHolder moduleDefineHolder;
     private ServiceInventoryCache serviceInventoryCache;
-    private InventoryStreamProcessor inventoryStreamProcessor;
 
     public ServiceInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
@@ -50,13 +49,6 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             this.serviceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
-    }
-
-    private InventoryStreamProcessor getInventoryStreamProcessor() {
-        if (isNull(inventoryStreamProcessor)) {
-            this.inventoryStreamProcessor = moduleDefineHolder.find(CoreModule.NAME).provider().getService(InventoryStreamProcessor.class);
-        }
-        return inventoryStreamProcessor;
     }
 
     @Override public int getOrCreate(String serviceName, JsonObject properties) {
@@ -75,7 +67,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setMappingLastUpdateTime(now);
             serviceInventory.setProperties(properties);
 
-            getInventoryStreamProcessor().in(serviceInventory);
+            InventoryStreamProcessor.getInstance().in(serviceInventory);
         }
         return serviceId;
     }
@@ -94,7 +86,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setHeartbeatTime(now);
             serviceInventory.setMappingLastUpdateTime(now);
 
-            getInventoryStreamProcessor().in(serviceInventory);
+            InventoryStreamProcessor.getInstance().in(serviceInventory);
         }
         return serviceId;
     }
@@ -108,7 +100,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
                 serviceInventory.setProperties(properties);
                 serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 
-                getInventoryStreamProcessor().in(serviceInventory);
+                InventoryStreamProcessor.getInstance().in(serviceInventory);
             }
         } else {
             logger.warn("Service {} nodeType/properties update, but not found in storage.", serviceId);
@@ -121,7 +113,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory = serviceInventory.getClone();
             serviceInventory.setHeartbeatTime(heartBeatTime);
 
-            getInventoryStreamProcessor().in(serviceInventory);
+            InventoryStreamProcessor.getInstance().in(serviceInventory);
         } else {
             logger.warn("Service {} heartbeat, but not found in storage.", serviceId);
         }
@@ -134,7 +126,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setMappingServiceId(mappingServiceId);
             serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 
-            getInventoryStreamProcessor().in(serviceInventory);
+            InventoryStreamProcessor.getInstance().in(serviceInventory);
         } else {
             logger.warn("Service {} mapping update, but not found in storage.", serviceId);
         }

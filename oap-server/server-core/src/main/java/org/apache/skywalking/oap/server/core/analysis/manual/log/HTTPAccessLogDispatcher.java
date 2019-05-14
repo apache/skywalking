@@ -18,18 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
-import org.apache.skywalking.oap.server.core.analysis.*;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.HTTPAccessLog;
 
 /**
  * @author wusheng
  */
-public class HTTPAccessLogDispatcher extends SourceDispatcher<HTTPAccessLog, Record> {
-
-    public HTTPAccessLogDispatcher(StreamProcessor<Record> processor) {
-        super(processor);
-    }
+public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> {
 
     @Override public void dispatch(HTTPAccessLog source) {
         HTTPAccessLogRecord record = new HTTPAccessLogRecord();
@@ -44,6 +40,6 @@ public class HTTPAccessLogDispatcher extends SourceDispatcher<HTTPAccessLog, Rec
         record.setContentType(source.getContentType().value());
         record.setContent(source.getContent());
 
-        getProcessor().in(record);
+        RecordStreamProcessor.getInstance().in(record);
     }
 }

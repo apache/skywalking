@@ -18,19 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.zipkin;
 
-import org.apache.skywalking.oap.server.core.analysis.*;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 
 /**
  * Dispatch for Zipkin native mode spans.
  *
  * @author wusheng
  */
-public class ZipkinSpanRecordDispatcher extends SourceDispatcher<ZipkinSpan, Record> {
-
-    public ZipkinSpanRecordDispatcher(StreamProcessor<Record> processor) {
-        super(processor);
-    }
+public class ZipkinSpanRecordDispatcher implements SourceDispatcher<ZipkinSpan> {
 
     @Override public void dispatch(ZipkinSpan source) {
         ZipkinSpanRecord segment = new ZipkinSpanRecord();
@@ -48,6 +44,6 @@ public class ZipkinSpanRecordDispatcher extends SourceDispatcher<ZipkinSpan, Rec
         segment.setTimeBucket(source.getTimeBucket());
         segment.setEncode(source.getEncode());
 
-        getProcessor().in(segment);
+        RecordStreamProcessor.getInstance().in(segment);
     }
 }

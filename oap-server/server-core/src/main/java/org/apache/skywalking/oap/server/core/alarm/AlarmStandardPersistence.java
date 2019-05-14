@@ -32,12 +32,6 @@ public class AlarmStandardPersistence implements AlarmCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(AlarmStandardPersistence.class);
 
-    private final RecordStreamProcessor recordStreamProcessor;
-
-    public AlarmStandardPersistence(RecordStreamProcessor recordStreamProcessor) {
-        this.recordStreamProcessor = recordStreamProcessor;
-    }
-
     @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
         alarmMessage.forEach(message -> {
             if (logger.isDebugEnabled()) {
@@ -53,7 +47,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setStartTime(message.getStartTime());
             record.setTimeBucket(TimeBucketUtils.INSTANCE.getSecondTimeBucket(message.getStartTime()));
 
-            recordStreamProcessor.in(record);
+            RecordStreamProcessor.getInstance().in(record);
         });
     }
 }

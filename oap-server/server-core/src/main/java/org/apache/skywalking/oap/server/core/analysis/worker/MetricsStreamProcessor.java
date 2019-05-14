@@ -24,15 +24,21 @@ import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author peng-yongsheng
  */
-public class MetricsStreamProcessor implements StreamProcessor<Metrics>, Service {
+public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
+
+    private final static MetricsStreamProcessor PROCESSOR = new MetricsStreamProcessor();
 
     private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new HashMap<>();
     @Getter private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
+
+    public static MetricsStreamProcessor getInstance() {
+        return PROCESSOR;
+    }
 
     public void in(Metrics metrics) {
         MetricsAggregateWorker worker = entryWorkers.get(metrics.getClass());

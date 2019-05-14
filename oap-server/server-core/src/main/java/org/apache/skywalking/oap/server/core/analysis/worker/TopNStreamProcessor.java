@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * TopN is a special process, which hold a certain size of windows, and cache all top N records, save to the persistence
@@ -33,10 +33,16 @@ import org.apache.skywalking.oap.server.library.module.*;
  *
  * @author wusheng
  */
-public class TopNStreamProcessor implements StreamProcessor<TopN>, Service {
+public class TopNStreamProcessor implements StreamProcessor<TopN> {
+
+    private static final TopNStreamProcessor PROCESSOR = new TopNStreamProcessor();
 
     @Getter private List<TopNWorker> persistentWorkers = new ArrayList<>();
     private Map<Class<? extends Record>, TopNWorker> workers = new HashMap<>();
+
+    public static TopNStreamProcessor getInstance() {
+        return PROCESSOR;
+    }
 
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends TopN> topNClass) {
         if (DisableRegister.INSTANCE.include(stream.name())) {

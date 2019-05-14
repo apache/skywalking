@@ -18,19 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import lombok.Getter;
 import org.apache.skywalking.oap.server.core.source.Source;
 
 /**
  * @author peng-yongsheng
  */
-public abstract class SourceDispatcher<SOURCE extends Source, STREAM> {
-
-    @Getter private final StreamProcessor<STREAM> processor;
-
-    public SourceDispatcher(StreamProcessor<STREAM> processor) {
-        this.processor = processor;
-    }
-
-    public abstract void dispatch(SOURCE source);
+public interface SourceDispatcher<SOURCE extends Source> {
+    void dispatch(SOURCE source);
 }

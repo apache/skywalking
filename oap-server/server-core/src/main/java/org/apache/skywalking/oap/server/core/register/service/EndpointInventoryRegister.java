@@ -38,17 +38,9 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
 
     private final ModuleDefineHolder moduleDefineHolder;
     private EndpointInventoryCache cacheService;
-    private InventoryStreamProcessor inventoryStreamProcessor;
 
     public EndpointInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
-    }
-
-    private InventoryStreamProcessor getInventoryStreamProcessor() {
-        if (isNull(inventoryStreamProcessor)) {
-            this.inventoryStreamProcessor = moduleDefineHolder.find(CoreModule.NAME).provider().getService(InventoryStreamProcessor.class);
-        }
-        return inventoryStreamProcessor;
     }
 
     private EndpointInventoryCache getCacheService() {
@@ -71,7 +63,7 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
             endpointInventory.setRegisterTime(now);
             endpointInventory.setHeartbeatTime(now);
 
-            getInventoryStreamProcessor().in(endpointInventory);
+            InventoryStreamProcessor.getInstance().in(endpointInventory);
         }
         return endpointId;
     }
@@ -85,7 +77,7 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         if (Objects.nonNull(endpointInventory)) {
             endpointInventory.setHeartbeatTime(heartBeatTime);
 
-            getInventoryStreamProcessor().in(endpointInventory);
+            InventoryStreamProcessor.getInstance().in(endpointInventory);
         } else {
             logger.warn("Endpoint {} heartbeat, but not found in storage.", endpointId);
         }

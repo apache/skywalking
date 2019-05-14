@@ -23,14 +23,20 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author peng-yongsheng
  */
-public class InventoryStreamProcessor implements StreamProcessor<RegisterSource>, Service {
+public class InventoryStreamProcessor implements StreamProcessor<RegisterSource> {
+
+    private static final InventoryStreamProcessor PROCESSOR = new InventoryStreamProcessor();
 
     private Map<Class<? extends RegisterSource>, RegisterDistinctWorker> entryWorkers = new HashMap<>();
+
+    public static InventoryStreamProcessor getInstance() {
+        return PROCESSOR;
+    }
 
     public void in(RegisterSource registerSource) {
         entryWorkers.get(registerSource.getClass()).in(registerSource);

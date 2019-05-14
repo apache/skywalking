@@ -18,18 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
 
-import org.apache.skywalking.oap.server.core.analysis.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 
 /**
  * @author wusheng, peng-yongsheng
  */
-public class EndpointCallRelationDispatcher extends SourceDispatcher<EndpointRelation, Metrics> {
-
-    public EndpointCallRelationDispatcher(StreamProcessor<Metrics> processor) {
-        super(processor);
-    }
+public class EndpointCallRelationDispatcher implements SourceDispatcher<EndpointRelation> {
 
     @Override
     public void dispatch(EndpointRelation source) {
@@ -47,6 +43,7 @@ public class EndpointCallRelationDispatcher extends SourceDispatcher<EndpointRel
         metrics.setDestEndpointId(source.getChildEndpointId());
         metrics.setComponentId(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
-        getProcessor().in(metrics);
+
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 }
