@@ -72,7 +72,7 @@
         <jackson-core.version>2.9.5</jackson-core.version>
         <jackson-annotations.version>2.9.5</jackson-annotations.version>
         <jackson-databind.version>2.9.5</jackson-databind.version>
-        <commons-codec.version>1.1.1</commons-codec.version>
+        <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <simpleclient.version>0.6.0</simpleclient.version>
 
