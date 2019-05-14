@@ -11,6 +11,7 @@
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
   * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
+  * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
