@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.generated.${packageName};
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 <#if (metrics?size>0)>
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
     <#list metrics as metrics>
         <#if metrics.filterExpressions??>
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.*;
@@ -66,6 +66,7 @@ public class ${source}Dispatcher implements SourceDispatcher<${source}> {
         metrics.${field.fieldSetter}(source.${field.fieldGetter}());
     </#list>
         metrics.${metrics.entryMethod.methodName}(<#list metrics.entryMethod.argsExpressions as arg>${arg}<#if arg_has_next>, </#if></#list>);
+
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 </#list>

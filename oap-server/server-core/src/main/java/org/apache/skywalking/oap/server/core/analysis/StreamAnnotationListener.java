@@ -46,15 +46,18 @@ public class StreamAnnotationListener implements AnnotationListener {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream)aClass.getAnnotation(Stream.class);
 
-            moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, stream.name(), stream.scopeId(), stream.storage());
             if (stream.processor().equals(InventoryStreamProcessor.class)) {
                 InventoryStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, false, stream.name(), stream.scopeId(), stream.storage());
             } else if (stream.processor().equals(RecordStreamProcessor.class)) {
                 RecordStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, false, stream.name(), stream.scopeId(), stream.storage());
             } else if (stream.processor().equals(MetricsStreamProcessor.class)) {
                 MetricsStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, true, stream.name(), stream.scopeId(), stream.storage());
             } else if (stream.processor().equals(TopNStreamProcessor.class)) {
                 TopNStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, false, stream.name(), stream.scopeId(), stream.storage());
             } else {
                 throw new UnexpectedException("Unknown stream processor.");
             }

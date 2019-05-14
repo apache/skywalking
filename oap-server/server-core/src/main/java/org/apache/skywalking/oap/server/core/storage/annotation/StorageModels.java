@@ -38,13 +38,13 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         this.models = new LinkedList<>();
     }
 
-    @Override public void putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage) {
+    @Override public void putIfAbsent(Class aClass, boolean isMetrics, String modelName, int scopeId, Storage storage) {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, false, storage.deleteHistory(), scopeId));
+        models.add(new Model(modelName, modelColumns, isMetrics, storage.deleteHistory(), scopeId));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {
