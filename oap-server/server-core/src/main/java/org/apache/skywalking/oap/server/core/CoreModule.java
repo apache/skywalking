@@ -19,13 +19,15 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
+import org.apache.skywalking.oap.server.core.remote.define.*;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.*;
@@ -58,6 +60,7 @@ public class CoreModule extends ModuleDefine {
         addRegisterService(classes);
         addCacheService(classes);
         addQueryService(classes);
+        addStreamProcessorService(classes);
 
         return classes.toArray(new Class[] {});
     }
@@ -79,9 +82,11 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addInsideService(List<Class> classes) {
+        classes.add(IModelSetter.class);
         classes.add(IModelGetter.class);
         classes.add(IModelOverride.class);
-        classes.add(StreamDataClassGetter.class);
+        classes.add(StreamDataMappingGetter.class);
+        classes.add(StreamDataMappingSetter.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);
     }
@@ -98,6 +103,13 @@ public class CoreModule extends ModuleDefine {
         classes.add(ServiceInstanceInventoryCache.class);
         classes.add(EndpointInventoryCache.class);
         classes.add(NetworkAddressInventoryCache.class);
+    }
+
+    private void addStreamProcessorService(List<Class> classes) {
+        classes.add(InventoryStreamProcessor.class);
+        classes.add(RecordStreamProcessor.class);
+        classes.add(MetricsStreamProcessor.class);
+        classes.add(TopNStreamProcessor.class);
     }
 
     private void addReceiverInterface(List<Class> classes) {

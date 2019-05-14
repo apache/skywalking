@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
 import org.slf4j.*;
 
@@ -31,6 +31,12 @@ import org.slf4j.*;
 public class AlarmStandardPersistence implements AlarmCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(AlarmStandardPersistence.class);
+
+    private final RecordStreamProcessor recordStreamProcessor;
+
+    public AlarmStandardPersistence(RecordStreamProcessor recordStreamProcessor) {
+        this.recordStreamProcessor = recordStreamProcessor;
+    }
 
     @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
         alarmMessage.forEach(message -> {
@@ -47,7 +53,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setStartTime(message.getStartTime());
             record.setTimeBucket(TimeBucketUtils.INSTANCE.getSecondTimeBucket(message.getStartTime()));
 
-            RecordProcess.INSTANCE.in(record);
+            recordStreamProcessor.in(record);
         });
     }
 }

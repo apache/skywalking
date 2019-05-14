@@ -22,14 +22,15 @@ import java.util.*;
 import lombok.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-@Stream(name = JaegerSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.JAEGER_SPAN, storage = @Storage(builder = JaegerSpanRecord.Builder.class), kind = StreamKind.Record)
+@Stream(name = JaegerSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.JAEGER_SPAN, storage = @Storage(builder = JaegerSpanRecord.Builder.class), processor = RecordStreamProcessor.class)
 public class JaegerSpanRecord extends Record {
     public static final String INDEX_NAME = "jaeger_span";
     public static final String TRACE_ID = "trace_id";

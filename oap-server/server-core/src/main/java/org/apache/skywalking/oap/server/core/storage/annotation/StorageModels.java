@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.slf4j.*;
@@ -30,34 +28,23 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class StorageAnnotationListener implements AnnotationListener, IModelGetter, IModelOverride {
+public class StorageModels implements IModelGetter, IModelSetter, IModelOverride {
 
-    private static final Logger logger = LoggerFactory.getLogger(StorageAnnotationListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageModels.class);
 
     @Getter private final List<Model> models;
 
-    public StorageAnnotationListener() {
+    public StorageModels() {
         this.models = new LinkedList<>();
     }
 
-    @Override public Class<? extends Annotation> annotation() {
-        return Storage.class;
-    }
-
-    @Override public void notify(Class aClass) {
-        logger.info("The owner class of storage annotation, class name: {}", aClass.getName());
-
-        String modelName = "";
-        int sourceScopeId = 1;
-//            String modelName = StorageEntityAnnotationUtils.getModelName(aClass);
-        boolean deleteHistory = StorageEntityAnnotationUtils.getDeleteHistory(aClass);
-//        int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(aClass);
+    @Override public void putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage) {
         // Check this scope id is valid.
-        DefaultScopeDefine.nameOf(sourceScopeId);
+        DefaultScopeDefine.nameOf(scopeId);
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, false, deleteHistory, sourceScopeId));
+        models.add(new Model(modelName, modelColumns, false, storage.deleteHistory(), scopeId));
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

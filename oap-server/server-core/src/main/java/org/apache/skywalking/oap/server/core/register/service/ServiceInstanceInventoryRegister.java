@@ -23,8 +23,8 @@ import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
 
@@ -37,16 +37,24 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryRegister.class);
 
-    private final ModuleManager moduleManager;
+    private final ModuleDefineHolder moduleDefineHolder;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
+    private InventoryStreamProcessor inventoryStreamProcessor;
 
-    public ServiceInstanceInventoryRegister(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public ServiceInstanceInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
+        this.moduleDefineHolder = moduleDefineHolder;
+    }
+
+    private InventoryStreamProcessor getInventoryStreamProcessor() {
+        if (isNull(inventoryStreamProcessor)) {
+            this.inventoryStreamProcessor = moduleDefineHolder.find(CoreModule.NAME).provider().getService(InventoryStreamProcessor.class);
+        }
+        return inventoryStreamProcessor;
     }
 
     private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
         if (isNull(serviceInstanceInventoryCache)) {
-            serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+            serviceInstanceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
         }
         return serviceInstanceInventoryCache;
     }
@@ -72,7 +80,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
             serviceInstanceInventory.setProperties(properties);
 
-            InventoryProcess.INSTANCE.in(serviceInstanceInventory);
+            getInventoryStreamProcessor().in(serviceInstanceInventory);
         }
         return serviceInstanceId;
     }
@@ -94,7 +102,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
             serviceInstanceInventory.setRegisterTime(registerTime);
             serviceInstanceInventory.setHeartbeatTime(registerTime);
 
-            InventoryProcess.INSTANCE.in(serviceInstanceInventory);
+            getInventoryStreamProcessor().in(serviceInstanceInventory);
         }
         return serviceInstanceId;
     }
@@ -103,7 +111,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         ServiceInstanceInventory serviceInstanceInventory = getServiceInstanceInventoryCache().get(serviceInstanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceInstanceInventory.setHeartbeatTime(heartBeatTime);
-            InventoryProcess.INSTANCE.in(serviceInstanceInventory);
+            getInventoryStreamProcessor().in(serviceInstanceInventory);
         } else {
             logger.warn("Service instance {} heartbeat, but not found in storage.", serviceInstanceId);
         }

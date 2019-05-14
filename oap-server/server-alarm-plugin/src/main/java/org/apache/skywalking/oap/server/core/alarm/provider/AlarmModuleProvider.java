@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 public class AlarmModuleProvider extends ModuleProvider {
+
     private NotifyHandler notifyHandler;
 
     @Override public String name() {
@@ -49,7 +50,8 @@ public class AlarmModuleProvider extends ModuleProvider {
         RulesReader reader = new RulesReader(applicationReader);
         Rules rules = reader.readRules();
         notifyHandler = new NotifyHandler(rules);
-        notifyHandler.init(new AlarmStandardPersistence());
+        //TODO pengys
+        notifyHandler.init(new AlarmStandardPersistence(null));
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 

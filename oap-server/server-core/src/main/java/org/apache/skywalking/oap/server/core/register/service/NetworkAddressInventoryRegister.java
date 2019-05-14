@@ -21,10 +21,10 @@ package org.apache.skywalking.oap.server.core.register.service;
 import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 import static java.util.Objects.isNull;
@@ -36,40 +36,40 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
 
-    private final ModuleManager moduleManager;
-    private ServiceInventoryCache serviceInventoryCache;
+    private final ModuleDefineHolder moduleDefineHolder;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IServiceInventoryRegister serviceInventoryRegister;
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
+    private InventoryStreamProcessor inventoryStreamProcessor;
 
-    public NetworkAddressInventoryRegister(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public NetworkAddressInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
+        this.moduleDefineHolder = moduleDefineHolder;
     }
 
-    private ServiceInventoryCache getServiceInventoryCache() {
-        if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+    private InventoryStreamProcessor getInventoryStreamProcessor() {
+        if (isNull(inventoryStreamProcessor)) {
+            this.inventoryStreamProcessor = moduleDefineHolder.find(CoreModule.NAME).provider().getService(InventoryStreamProcessor.class);
         }
-        return this.serviceInventoryCache;
+        return inventoryStreamProcessor;
     }
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
         if (isNull(networkAddressInventoryCache)) {
-            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
+            this.networkAddressInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
         }
         return this.networkAddressInventoryCache;
     }
 
     private IServiceInventoryRegister getServiceInventoryRegister() {
         if (isNull(serviceInventoryRegister)) {
-            this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+            this.serviceInventoryRegister = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
         }
         return this.serviceInventoryRegister;
     }
 
     private IServiceInstanceInventoryRegister getServiceInstanceInventoryRegister() {
         if (isNull(serviceInstanceInventoryRegister)) {
-            this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+            this.serviceInstanceInventoryRegister = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
         }
         return this.serviceInstanceInventoryRegister;
     }
@@ -95,7 +95,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             newNetworkAddress.setRegisterTime(now);
             newNetworkAddress.setHeartbeatTime(now);
 
-            InventoryProcess.INSTANCE.in(newNetworkAddress);
+            getInventoryStreamProcessor().in(newNetworkAddress);
         }
 
         return Const.NONE;
@@ -111,7 +111,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             networkAddress = networkAddress.getClone();
             networkAddress.setHeartbeatTime(heartBeatTime);
 
-            InventoryProcess.INSTANCE.in(networkAddress);
+            getInventoryStreamProcessor().in(networkAddress);
         } else {
             logger.warn("Network getAddress {} heartbeat, but not found in storage.", addressId);
         }
@@ -125,7 +125,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             newNetworkAddress.setNetworkAddressNodeType(nodeType);
             newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
 
-            InventoryProcess.INSTANCE.in(newNetworkAddress);
+            getInventoryStreamProcessor().in(networkAddress);
         }
     }
 

@@ -22,8 +22,9 @@ import java.util.*;
 import lombok.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
@@ -32,7 +33,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 /**
  * @author peng-yongsheng
  */
-@Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, storage = @Storage(builder = SegmentRecord.Builder.class), kind = StreamKind.Record)
+@Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, storage = @Storage(builder = SegmentRecord.Builder.class), processor = RecordStreamProcessor.class)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";

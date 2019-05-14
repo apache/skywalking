@@ -16,17 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.core.analysis;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataClassGetter extends Service {
+public interface StreamProcessor<STREAM> extends Service {
 
-    int findIdByClass(Class streamDataClass);
+    void in(STREAM stream);
 
-    Class<StreamData> findClassById(int id);
+    void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends STREAM> streamClass);
 }

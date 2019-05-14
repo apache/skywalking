@@ -18,15 +18,20 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jaeger;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
+import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * Dispatch for Zipkin native mode spans.
  *
  * @author wusheng
  */
-public class JaegerSpanRecordDispatcher implements SourceDispatcher<JaegerSpan> {
+public class JaegerSpanRecordDispatcher extends SourceDispatcher<JaegerSpan, Record> {
+
+    public JaegerSpanRecordDispatcher(StreamProcessor<Record> processor) {
+        super(processor);
+    }
+
     @Override public void dispatch(JaegerSpan source) {
         JaegerSpanRecord segment = new JaegerSpanRecord();
         segment.setTraceId(source.getTraceId());
@@ -43,6 +48,6 @@ public class JaegerSpanRecordDispatcher implements SourceDispatcher<JaegerSpan> 
         segment.setTimeBucket(source.getTimeBucket());
         segment.setEncode(source.getEncode());
 
-        RecordProcess.INSTANCE.in(segment);
+        getProcessor().in(segment);
     }
 }

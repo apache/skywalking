@@ -19,21 +19,23 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
+import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.*;
 import org.apache.skywalking.oap.server.core.remote.client.*;
+import org.apache.skywalking.oap.server.core.remote.define.*;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageAnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.annotation.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.core.worker.*;
@@ -42,30 +44,27 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
 public class CoreModuleProvider extends ModuleProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(CoreModuleProvider.class);
-
     private final CoreModuleConfig moduleConfig;
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
     private RemoteClientManager remoteClientManager;
     private final AnnotationScan annotationScan;
-    private final StorageAnnotationListener storageAnnotationListener;
-    private final StreamDataAnnotationContainer streamDataAnnotationContainer;
+    private final StorageModels storageModels;
+    private final StreamDataMapping streamDataMapping;
     private final SourceReceiverImpl receiver;
 
     public CoreModuleProvider() {
         super();
         this.moduleConfig = new CoreModuleConfig();
         this.annotationScan = new AnnotationScan();
-        this.storageAnnotationListener = new StorageAnnotationListener();
-        this.streamDataAnnotationContainer = new StreamDataAnnotationContainer();
+        this.streamDataMapping = new StreamDataMapping();
+        this.storageModels = new StorageModels();
         this.receiver = new SourceReceiverImpl();
     }
 
@@ -114,15 +113,17 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(SourceReceiver.class, receiver);
 
-        this.registerServiceImplementation(StreamDataClassGetter.class, streamDataAnnotationContainer);
+        this.registerServiceImplementation(StreamDataMappingGetter.class, streamDataMapping);
+        this.registerServiceImplementation(StreamDataMappingSetter.class, streamDataMapping);
 
         WorkerInstancesService instancesService = new WorkerInstancesService();
         this.registerServiceImplementation(IWorkerInstanceGetter.class, instancesService);
         this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
-        this.registerServiceImplementation(IModelGetter.class, storageAnnotationListener);
-        this.registerServiceImplementation(IModelOverride.class, storageAnnotationListener);
+        this.registerServiceImplementation(IModelSetter.class, storageModels);
+        this.registerServiceImplementation(IModelGetter.class, storageModels);
+        this.registerServiceImplementation(IModelOverride.class, storageModels);
 
         this.registerServiceImplementation(ServiceInventoryCache.class, new ServiceInventoryCache(getManager()));
         this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));
@@ -145,7 +146,12 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
 
-        annotationScan.registerListener(storageAnnotationListener);
+        this.registerServiceImplementation(InventoryStreamProcessor.class, new InventoryStreamProcessor());
+        this.registerServiceImplementation(RecordStreamProcessor.class, new RecordStreamProcessor());
+        this.registerServiceImplementation(MetricsStreamProcessor.class, new MetricsStreamProcessor());
+        this.registerServiceImplementation(TopNStreamProcessor.class, new TopNStreamProcessor());
+
+        annotationScan.registerListener(new StreamAnnotationListener(getManager()));
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
@@ -159,9 +165,8 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             receiver.scan();
 
-//            annotationScan.scan(() -> {
-//                streamDataAnnotationContainer.generate(streamAnnotationListener.getStreamClasses());
-//            });
+            annotationScan.scan(() -> {
+            });
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

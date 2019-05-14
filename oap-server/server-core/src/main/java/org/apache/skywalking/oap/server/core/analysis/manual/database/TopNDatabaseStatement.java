@@ -20,8 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis.manual.database;
 
 import java.util.*;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
@@ -31,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
  *
  * @author wusheng
  */
-@Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, storage = @Storage(builder = TopNDatabaseStatement.Builder.class), kind = StreamKind.TopN)
+@Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, storage = @Storage(builder = TopNDatabaseStatement.Builder.class), processor = TopNStreamProcessor.class)
 public class TopNDatabaseStatement extends TopN {
 
     public static final String INDEX_NAME = "top_n_database_statement";

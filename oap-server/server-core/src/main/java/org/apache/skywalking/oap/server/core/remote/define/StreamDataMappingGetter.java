@@ -16,23 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.core.remote.define;
 
-import java.lang.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Stream {
+public interface StreamDataMappingGetter extends Service {
 
-    String name();
+    int findIdByClass(Class<? extends StreamData> streamDataClass);
 
-    int scopeId();
-
-    Storage storage();
-
-    Class<? extends StreamProcessor> processor();
+    Class<? extends StreamData> findClassById(int id);
 }

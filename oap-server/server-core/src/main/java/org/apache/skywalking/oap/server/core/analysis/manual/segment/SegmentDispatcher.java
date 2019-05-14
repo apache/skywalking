@@ -18,14 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
+import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.source.Segment;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentDispatcher implements SourceDispatcher<Segment> {
+public class SegmentDispatcher extends SourceDispatcher<Segment, Record> {
+
+    public SegmentDispatcher(StreamProcessor<Record> processor) {
+        super(processor);
+    }
 
     @Override public void dispatch(Segment source) {
         SegmentRecord segment = new SegmentRecord();
@@ -43,6 +47,6 @@ public class SegmentDispatcher implements SourceDispatcher<Segment> {
         segment.setTimeBucket(source.getTimeBucket());
         segment.setVersion(source.getVersion());
 
-        RecordProcess.INSTANCE.in(segment);
+        getProcessor().in(segment);
     }
 }

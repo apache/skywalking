@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.*;
 import org.apache.skywalking.oap.server.core.source.*;
 
@@ -47,6 +47,6 @@ public class ServiceDispatcher implements SourceDispatcher<Service> {
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setEntityId(source.getEntityId());
         metrics.combine(source.getLatency(), 1);
-        MetricsProcess.INSTANCE.in(metrics);
+        MetricsStreamProcessor.INSTANCE.in(metrics);
     }
 }

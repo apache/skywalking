@@ -23,8 +23,8 @@ import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
 
@@ -37,18 +37,26 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryRegister.class);
 
-    private final ModuleManager moduleManager;
+    private final ModuleDefineHolder moduleDefineHolder;
     private ServiceInventoryCache serviceInventoryCache;
+    private InventoryStreamProcessor inventoryStreamProcessor;
 
-    public ServiceInventoryRegister(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public ServiceInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
+        this.moduleDefineHolder = moduleDefineHolder;
     }
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+            this.serviceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
+    }
+
+    private InventoryStreamProcessor getInventoryStreamProcessor() {
+        if (isNull(inventoryStreamProcessor)) {
+            this.inventoryStreamProcessor = moduleDefineHolder.find(CoreModule.NAME).provider().getService(InventoryStreamProcessor.class);
+        }
+        return inventoryStreamProcessor;
     }
 
     @Override public int getOrCreate(String serviceName, JsonObject properties) {
@@ -67,7 +75,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setMappingLastUpdateTime(now);
             serviceInventory.setProperties(properties);
 
-            InventoryProcess.INSTANCE.in(serviceInventory);
+            getInventoryStreamProcessor().in(serviceInventory);
         }
         return serviceId;
     }
@@ -86,7 +94,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setHeartbeatTime(now);
             serviceInventory.setMappingLastUpdateTime(now);
 
-            InventoryProcess.INSTANCE.in(serviceInventory);
+            getInventoryStreamProcessor().in(serviceInventory);
         }
         return serviceId;
     }
@@ -100,7 +108,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
                 serviceInventory.setProperties(properties);
                 serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 
-                InventoryProcess.INSTANCE.in(serviceInventory);
+                getInventoryStreamProcessor().in(serviceInventory);
             }
         } else {
             logger.warn("Service {} nodeType/properties update, but not found in storage.", serviceId);
@@ -113,7 +121,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory = serviceInventory.getClone();
             serviceInventory.setHeartbeatTime(heartBeatTime);
 
-            InventoryProcess.INSTANCE.in(serviceInventory);
+            getInventoryStreamProcessor().in(serviceInventory);
         } else {
             logger.warn("Service {} heartbeat, but not found in storage.", serviceId);
         }
@@ -126,7 +134,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setMappingServiceId(mappingServiceId);
             serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
 
-            InventoryProcess.INSTANCE.in(serviceInventory);
+            getInventoryStreamProcessor().in(serviceInventory);
         } else {
             logger.warn("Service {} mapping update, but not found in storage.", serviceId);
         }

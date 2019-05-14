@@ -18,14 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsProcess;
+import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 /**
  * @author wusheng
  */
-public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRelation> {
+public class ServiceCallRelationDispatcher extends SourceDispatcher<ServiceRelation, Metrics> {
+
+    public ServiceCallRelationDispatcher(StreamProcessor<Metrics> processor) {
+        super(processor);
+    }
+
     @Override
     public void dispatch(ServiceRelation source) {
         switch (source.getDetectPoint()) {
@@ -45,7 +50,7 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setComponentId(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
-        MetricsProcess.INSTANCE.in(metrics);
+        getProcessor().in(metrics);
     }
 
     private void clientSide(ServiceRelation source) {
@@ -55,6 +60,6 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setComponentId(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
-        MetricsProcess.INSTANCE.in(metrics);
+        getProcessor().in(metrics);
     }
 }

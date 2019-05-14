@@ -16,23 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.lang.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Stream {
-
-    String name();
-
-    int scopeId();
-
-    Storage storage();
-
-    Class<? extends StreamProcessor> processor();
+public interface IModelSetter extends Service {
+    void putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage);
 }

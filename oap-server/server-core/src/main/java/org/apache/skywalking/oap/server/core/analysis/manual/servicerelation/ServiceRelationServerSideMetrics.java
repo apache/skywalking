@@ -21,14 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
-@Stream(name = ServiceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION, storage = @Storage(builder = ServiceRelationServerSideMetrics.Builder.class), kind = StreamKind.Metrics)
+@Stream(name = ServiceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION, storage = @Storage(builder = ServiceRelationServerSideMetrics.Builder.class), processor = MetricsStreamProcessor.class)
 public class ServiceRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_relation_server_side";
