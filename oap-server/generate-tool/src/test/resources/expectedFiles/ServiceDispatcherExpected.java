@@ -47,6 +47,7 @@ public class ServiceDispatcher implements SourceDispatcher<Service> {
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setEntityId(source.getEntityId());
         metrics.combine(source.getLatency(), 1);
-        MetricsStreamProcessor.INSTANCE.in(metrics);
+
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 }

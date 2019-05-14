@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.*;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -58,12 +59,10 @@ public class H2RegisterLockInstaller {
         try (Connection connection = h2Client.getConnection()) {
             h2Client.execute(connection, tableCreateSQL.toString());
 
-            //TODO pengys
-//            for (Class registerSource : InventoryStreamProcessor.INSTANCE.getAllRegisterSources()) {
-                // TODO pengys
-//                int scopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-//                putIfAbsent(h2Client, connection, 1, DefaultScopeDefine.nameOf(1));
-//            }
+            for (Class registerSource : InventoryStreamProcessor.getInstance().getAllRegisterSources()) {
+                int scopeId = ((Stream)registerSource.getAnnotation(Stream.class)).scopeId();
+                putIfAbsent(h2Client, connection, scopeId, DefaultScopeDefine.nameOf(1));
+            }
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
         }

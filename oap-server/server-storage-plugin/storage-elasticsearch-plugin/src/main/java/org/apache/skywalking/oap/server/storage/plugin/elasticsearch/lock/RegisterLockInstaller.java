@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -53,12 +54,10 @@ public class RegisterLockInstaller {
                 createIndex();
             }
 
-            //TODO pengys
-//            for (Class registerSource : InventoryStreamProcessor.INSTANCE.getAllRegisterSources()) {
-                // TODO  pengys
-//                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-//                putIfAbsent(11);
-//            }
+            for (Class registerSource : InventoryStreamProcessor.getInstance().getAllRegisterSources()) {
+                int scopeId = ((Stream)registerSource.getAnnotation(Stream.class)).scopeId();
+                putIfAbsent(scopeId);
+            }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }

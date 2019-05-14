@@ -82,11 +82,9 @@ public enum PersistenceTimer {
             List batchAllCollection = new LinkedList();
             try {
                 List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
-
-                //TODO pengys
-//                persistenceWorkers.addAll(MetricsStreamProcessor.INSTANCE.getPersistentWorkers());
-//                persistenceWorkers.addAll(RecordStreamProcessor.INSTANCE.getPersistentWorkers());
-//                persistenceWorkers.addAll(TopNStreamProcessor.INSTANCE.getPersistentWorkers());
+                persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
+                persistenceWorkers.addAll(RecordStreamProcessor.getInstance().getPersistentWorkers());
+                persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
 
                 persistenceWorkers.forEach(worker -> {
                     if (logger.isDebugEnabled()) {

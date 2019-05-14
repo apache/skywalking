@@ -66,7 +66,7 @@ public class ${source}Dispatcher implements SourceDispatcher<${source}> {
         metrics.${field.fieldSetter}(source.${field.fieldGetter}());
     </#list>
         metrics.${metrics.entryMethod.methodName}(<#list metrics.entryMethod.argsExpressions as arg>${arg}<#if arg_has_next>, </#if></#list>);
-        MetricsProcess.INSTANCE.in(metrics);
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 </#list>
 }
