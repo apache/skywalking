@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>resteasy-plugin</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>6.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>resteasy-server-3.x-plugin</artifactId>
+    <packaging>jar</packaging>
+
+    <name>apm-resteasy-server-3.x-plugin</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <resteasy.version>3.1.0.Final</resteasy.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxrs</artifactId>
+            <version>${resteasy.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
