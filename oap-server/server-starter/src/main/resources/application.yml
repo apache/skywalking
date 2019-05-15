@@ -18,21 +18,24 @@ cluster:
   standalone:
 #   Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
 #   library the oap-libs folder with your ZooKeeper 3.4.x library.
-  zookeeper:
-    nameSpace: ${SW_NAMESPACE:""}
-    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
-    #Retry Policy
-    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
-    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
-  kubernetes:
-    watchTimeoutSeconds: ${SW_CLUSTER_K8S_WATCH_TIMEOUT:60}
-    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
-    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
-    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
-  consul:
-    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
-     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
-    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+#  zookeeper:
+#    nameSpace: ${SW_NAMESPACE:""}
+#    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
+#    #Retry Policy
+#    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
+#    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+#  kubernetes:
+#    watchTimeoutSeconds: ${SW_CLUSTER_K8S_WATCH_TIMEOUT:60}
+#    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+#    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+#    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
+#  consul:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+#    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+#  nacos:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
 core:
   default:
     # Mixed: Receive agent data, Level 1 aggregate, Level 2 aggregate
@@ -69,13 +72,13 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
-  h2:
-    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
-    user: ${SW_STORAGE_H2_USER:sa}
-    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
-  mysql:
-    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+#  h2:
+#    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
+#    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+#    user: ${SW_STORAGE_H2_USER:sa}
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+#  mysql:
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
 receiver-register:
@@ -120,7 +123,7 @@ telemetry:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
-exporter:
-  grpc:
-    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
-    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+#exporter:
+#  grpc:
+#    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+#    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
