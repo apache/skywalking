@@ -193,7 +193,7 @@ ShardingSphere:
   id: 60
   languages: Java
 RESTEasy:
-  id: 60
+  id: 61
   languages: Java
 
 # .NET/.NET Core components
