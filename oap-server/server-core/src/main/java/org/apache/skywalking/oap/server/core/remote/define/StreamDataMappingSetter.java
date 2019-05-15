@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.core.remote.define;
 
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -24,9 +24,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataClassGetter extends Service {
-
-    int findIdByClass(Class streamDataClass);
-
-    Class<StreamData> findClassById(int id);
+public interface StreamDataMappingSetter extends Service {
+    void putIfAbsent(Class<? extends StreamData> streamDataClass);
 }
