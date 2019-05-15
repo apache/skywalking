@@ -217,6 +217,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     Apache: groovy 2.4.5-indy: https://github.com/apache/groovy, Apache 2.0
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
+    Apache: fastjson 1.2.47:  https://github.com/alibaba/fastjson, Apache 2.0
 
 ========================================================================
 Apache 2.0 licenses
@@ -307,6 +308,7 @@ The text of each license is the standard Apache 2.0 license.
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
+    nacos 1.0.0: https://github.com/alibaba/nacos, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0

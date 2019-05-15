@@ -116,7 +116,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
-    public static final OfficialComponent RESTEASY =  new OfficialComponent(60, "RESTEasy");
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
+
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(61, "RESTEasy");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -127,7 +129,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[61];
+        components = new String[100];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -143,6 +145,7 @@ public class ComponentsDefine {
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
         addComponent(SHARDING_JDBC);
+        addComponent(SHARDING_SPHERE);
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
         addComponent(HTTP_ASYNC_CLIENT);

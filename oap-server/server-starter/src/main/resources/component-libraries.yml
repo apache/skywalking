@@ -207,8 +207,11 @@ Zookeeper:
 Vertx:
   id: 59
   languages: Java
-RESTEasy:
+ShardingSphere:
   id: 60
+  languages: Java
+RESTEasy:
+  id: 61
   languages: Java
 
 # .NET/.NET Core components

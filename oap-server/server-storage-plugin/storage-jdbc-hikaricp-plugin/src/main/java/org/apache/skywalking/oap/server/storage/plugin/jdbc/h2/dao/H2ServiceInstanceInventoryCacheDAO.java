@@ -38,7 +38,7 @@ public class H2ServiceInstanceInventoryCacheDAO extends H2SQLExecutor implements
 
     @Override public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
-            return (ServiceInstanceInventory)getByColumn(h2Client, ServiceInstanceInventory.MODEL_NAME, ServiceInstanceInventory.SEQUENCE, serviceInstanceId, new ServiceInstanceInventory.Builder());
+            return (ServiceInstanceInventory)getByColumn(h2Client, ServiceInstanceInventory.INDEX_NAME, ServiceInstanceInventory.SEQUENCE, serviceInstanceId, new ServiceInstanceInventory.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
@@ -56,6 +56,6 @@ public class H2ServiceInstanceInventoryCacheDAO extends H2SQLExecutor implements
     }
 
     private int getByID(String id) {
-        return getEntityIDByID(h2Client, ServiceInstanceInventory.SEQUENCE, ServiceInstanceInventory.MODEL_NAME, id);
+        return getEntityIDByID(h2Client, ServiceInstanceInventory.SEQUENCE, ServiceInstanceInventory.INDEX_NAME, id);
     }
 }
