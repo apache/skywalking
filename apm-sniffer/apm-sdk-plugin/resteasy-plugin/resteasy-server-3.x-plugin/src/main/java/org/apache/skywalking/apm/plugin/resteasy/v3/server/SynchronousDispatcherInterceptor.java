@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.jboss.resteasy.spi.HttpRequest;
+import org.jboss.resteasy.spi.HttpResponse;
 
 import java.lang.reflect.Method;
 
@@ -41,27 +42,31 @@ public class SynchronousDispatcherInterceptor implements InstanceMethodsAroundIn
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         HttpRequest request = (HttpRequest) allArguments[0];
-        if (request != null) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(request.getHttpHeaders().getHeaderString(next.getHeadKey()));
-            }
 
-            AbstractSpan span = ContextManager.createEntrySpan(request.getUri().getPath(), contextCarrier);
-            Tags.URL.set(span, request.getUri().getRequestUri().toString());
-            Tags.HTTP.METHOD.set(span, request.getHttpMethod());
-            span.setComponent(ComponentsDefine.RESTEASY);
-            SpanLayer.asHttp(span);
-
-            objInst.setSkyWalkingDynamicField(span);
+        ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            next.setHeadValue(request.getHttpHeaders().getHeaderString(next.getHeadKey()));
         }
+
+        AbstractSpan span = ContextManager.createEntrySpan(request.getUri().getPath(), contextCarrier);
+        Tags.URL.set(span, request.getUri().getRequestUri().toString());
+        Tags.HTTP.METHOD.set(span, request.getHttpMethod());
+        span.setComponent(ComponentsDefine.RESTEASY);
+        SpanLayer.asHttp(span);
+        objInst.setSkyWalkingDynamicField(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        HttpResponse response = (HttpResponse) allArguments[1];
+        AbstractSpan span = ContextManager.activeSpan();
+        if (response.getStatus() >= 400) {
+            span.errorOccurred();
+            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+        }
         ContextManager.stopSpan();
         return ret;
     }

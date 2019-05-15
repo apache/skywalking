@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.resteasy.v3.server;
 
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.jboss.resteasy.spi.HttpResponse;
 
 import java.lang.reflect.Method;
 
@@ -38,7 +40,13 @@ public class AsynchronousDeliveryInterceptor implements InstanceMethodsAroundInt
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ((AbstractSpan) objInst.getSkyWalkingDynamicField()).asyncFinish();
+        HttpResponse response = (HttpResponse) allArguments[1];
+        AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
+        if (response.getStatus() >= 400) {
+            span.errorOccurred();
+            Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+        }
+        span.asyncFinish();
         return ret;
     }
 
