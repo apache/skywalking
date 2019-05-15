@@ -16,29 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.record.annotation;
+package org.apache.skywalking.oap.server.core.remote.define;
 
-import java.lang.annotation.Annotation;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
-import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class RecordTypeListener implements AnnotationListener {
+public interface StreamDataMappingGetter extends Service {
 
-    private final ModuleManager moduleManager;
+    int findIdByClass(Class<? extends StreamData> streamDataClass);
 
-    public RecordTypeListener(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-    }
-
-    @Override public Class<? extends Annotation> annotation() {
-        return RecordType.class;
-    }
-
-    @Override public void notify(Class aClass) {
-        RecordProcess.INSTANCE.create(moduleManager, aClass);
-    }
+    Class<? extends StreamData> findClassById(int id);
 }

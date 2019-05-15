@@ -16,14 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 
 /**
  * @author peng-yongsheng
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StreamData {
+public @interface Stream {
+
+    String name();
+
+    int scopeId();
+
+    Storage storage();
+
+    Class<? extends StreamProcessor> processor();
 }

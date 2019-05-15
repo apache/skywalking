@@ -26,18 +26,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
  */
 public class StorageEntityAnnotationUtils {
 
-    public static String getModelName(Class aClass) {
-        if (aClass.isAnnotationPresent(StorageEntity.class)) {
-            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
-            return annotation.name();
-        } else {
-            throw new UnexpectedException("Fail to get model name from class " + aClass.getSimpleName());
-        }
-    }
-
     public static boolean getDeleteHistory(Class aClass) {
-        if (aClass.isAnnotationPresent(StorageEntity.class)) {
-            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
+        if (aClass.isAnnotationPresent(Storage.class)) {
+            Storage annotation = (Storage)aClass.getAnnotation(Storage.class);
             return annotation.deleteHistory();
         } else {
             throw new UnexpectedException("Fail to get delete history tag from class " + aClass.getSimpleName());
@@ -45,20 +36,11 @@ public class StorageEntityAnnotationUtils {
     }
 
     public static Class<? extends StorageBuilder> getBuilder(Class aClass) {
-        if (aClass.isAnnotationPresent(StorageEntity.class)) {
-            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
+        if (aClass.isAnnotationPresent(Storage.class)) {
+            Storage annotation = (Storage)aClass.getAnnotation(Storage.class);
             return annotation.builder();
         } else {
             throw new UnexpectedException("Fail to get entity builder from class " + aClass.getSimpleName());
-        }
-    }
-
-    public static int getSourceScope(Class aClass) {
-        if (aClass.isAnnotationPresent(StorageEntity.class)) {
-            StorageEntity annotation = (StorageEntity)aClass.getAnnotation(StorageEntity.class);
-            return annotation.sourceScopeId();
-        } else {
-            throw new UnexpectedException("Fail to get source scope from class " + aClass.getSimpleName());
         }
     }
 }
