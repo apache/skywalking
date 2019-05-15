@@ -486,11 +486,6 @@
                                 org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
                                 org/apache/skywalking/oal/tool/grammar/*.java,
                                 org/apache/skywalking/oap/server/exporter/grpc/*.java
-<!--                                grpc/health/v1/*.java,-->
-<!--                                io/envoyproxy/envoy/service/metrics/v2/*.java,-->
-<!--                                io/jaegertracing/api_v2/*.java,-->
-<!--                                io/istio/*.java,-->
-<!--                                com/lyft/pgv/validate/Validate.java-->
                             </excludes>
                         </configuration>
                         <goals>
