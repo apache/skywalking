@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
@@ -39,7 +39,7 @@ public class RemoteClientManager implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
-    private StreamDataClassGetter streamDataClassGetter;
+    private StreamDataMappingGetter streamDataMappingGetter;
     private ClusterNodesQuery clusterNodesQuery;
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
@@ -76,10 +76,10 @@ public class RemoteClientManager implements Service {
                 }
             }
 
-            if (Objects.isNull(streamDataClassGetter)) {
+            if (Objects.isNull(streamDataMappingGetter)) {
                 synchronized (RemoteClientManager.class) {
-                    if (Objects.isNull(streamDataClassGetter)) {
-                        this.streamDataClassGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
+                    if (Objects.isNull(streamDataMappingGetter)) {
+                        this.streamDataMappingGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataMappingGetter.class);
                     }
                 }
             }
@@ -199,7 +199,7 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         getFreeClients().add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, streamDataClassGetter, address, 1, 3000);
+                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, streamDataMappingGetter, address, 1, 3000);
                         client.connect();
                         getFreeClients().add(client);
                     }
