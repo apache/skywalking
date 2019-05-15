@@ -20,42 +20,42 @@ package org.apache.skywalking.oap.server.core.register.worker;
 
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author peng-yongsheng
  */
-public enum InventoryProcess {
-    INSTANCE;
+public class InventoryStreamProcessor implements StreamProcessor<RegisterSource> {
+
+    private static final InventoryStreamProcessor PROCESSOR = new InventoryStreamProcessor();
 
     private Map<Class<? extends RegisterSource>, RegisterDistinctWorker> entryWorkers = new HashMap<>();
+
+    public static InventoryStreamProcessor getInstance() {
+        return PROCESSOR;
+    }
 
     public void in(RegisterSource registerSource) {
         entryWorkers.get(registerSource.getClass()).in(registerSource);
     }
 
-    public void create(ModuleManager moduleManager, Class<? extends RegisterSource> inventoryClass) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(inventoryClass);
-        int scopeId = StorageEntityAnnotationUtils.getSourceScope(inventoryClass);
-
-        Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(inventoryClass);
-
-        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
+    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends RegisterSource> inventoryClass) {
+        StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRegisterDAO registerDAO;
         try {
-            registerDAO = storageDAO.newRegisterDao(builderClass.newInstance());
+            registerDAO = storageDAO.newRegisterDao(stream.storage().builder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " register DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " register DAO failure.", e);
         }
 
-        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(moduleManager, modelName, registerDAO, scopeId);
+        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(moduleDefineHolder, stream.name(), registerDAO, stream.scopeId());
 
-        RegisterRemoteWorker remoteWorker = new RegisterRemoteWorker(moduleManager, persistentWorker);
+        RegisterRemoteWorker remoteWorker = new RegisterRemoteWorker(moduleDefineHolder, persistentWorker);
 
-        RegisterDistinctWorker distinctWorker = new RegisterDistinctWorker(moduleManager, remoteWorker);
+        RegisterDistinctWorker distinctWorker = new RegisterDistinctWorker(moduleDefineHolder, remoteWorker);
 
         entryWorkers.put(inventoryClass, distinctWorker);
     }

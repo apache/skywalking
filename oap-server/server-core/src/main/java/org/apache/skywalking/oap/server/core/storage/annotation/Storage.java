@@ -26,15 +26,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StorageEntity {
-    String name();
+public @interface Storage {
 
     Class<? extends StorageBuilder> builder();
-
-    /**
-     * @return scope id.
-     */
-    int sourceScopeId();
 
     boolean deleteHistory() default true;
 }

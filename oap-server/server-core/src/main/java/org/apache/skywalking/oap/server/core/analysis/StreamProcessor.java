@@ -16,17 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.annotation;
+package org.apache.skywalking.oap.server.core.analysis;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author peng-yongsheng
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InventoryType {
+public interface StreamProcessor<STREAM> {
+
+    void in(STREAM stream);
+
+    void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends STREAM> streamClass);
 }

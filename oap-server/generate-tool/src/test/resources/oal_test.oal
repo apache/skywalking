@@ -72,5 +72,4 @@ instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPh
 instance_jvm_young_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.NEW).sum();
 instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.OLD).sum();
 
-
 // endpoint_Avg_for_prod_serv = from(Endpoint.latency).filter(name == "/product/service").longAvg();
