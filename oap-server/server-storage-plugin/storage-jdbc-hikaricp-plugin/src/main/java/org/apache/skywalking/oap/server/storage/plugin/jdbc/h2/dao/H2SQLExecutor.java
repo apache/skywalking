@@ -100,15 +100,15 @@ public class H2SQLExecutor {
         return Const.NONE;
     }
 
-    protected SQLExecutor getInsertExecutor(String modelName, StorageData indicator,
+    protected SQLExecutor getInsertExecutor(String modelName, StorageData metrics,
         StorageBuilder storageBuilder) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.data2Map(indicator);
+        Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
         List<Object> param = new ArrayList<>();
         sqlBuilder.append("(?,");
-        param.add(indicator.id());
+        param.add(metrics.id());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
             sqlBuilder.append("?");
@@ -128,9 +128,9 @@ public class H2SQLExecutor {
         return new SQLExecutor(sqlBuilder.toString(), param);
     }
 
-    protected SQLExecutor getUpdateExecutor(String modelName, StorageData indicator,
+    protected SQLExecutor getUpdateExecutor(String modelName, StorageData metrics,
         StorageBuilder storageBuilder) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.data2Map(indicator);
+        Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
         List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
@@ -150,7 +150,7 @@ public class H2SQLExecutor {
             }
         }
         sqlBuilder.append(" WHERE id = ?");
-        param.add(indicator.id());
+        param.add(metrics.id());
 
         return new SQLExecutor(sqlBuilder.toString(), param);
     }

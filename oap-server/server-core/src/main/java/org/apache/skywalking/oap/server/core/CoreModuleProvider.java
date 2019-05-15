@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
-import org.apache.skywalking.oap.server.core.analysis.indicator.annotation.IndicatorTypeListener;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsTypeListener;
 import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordTypeListener;
 import org.apache.skywalking.oap.server.core.analysis.topn.annotation.TopNTypeListener;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
@@ -153,7 +153,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         annotationScan.registerListener(storageAnnotationListener);
         annotationScan.registerListener(streamAnnotationListener);
-        annotationScan.registerListener(new IndicatorTypeListener(getManager()));
+        annotationScan.registerListener(new MetricsTypeListener(getManager()));
         annotationScan.registerListener(new InventoryTypeListener(getManager()));
         annotationScan.registerListener(new RecordTypeListener(getManager()));
         annotationScan.registerListener(new TopNTypeListener(getManager()));

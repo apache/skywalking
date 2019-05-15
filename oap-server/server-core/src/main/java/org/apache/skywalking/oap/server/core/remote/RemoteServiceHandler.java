@@ -45,22 +45,22 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     private final ModuleDefineHolder moduleDefineHolder;
     private StreamDataClassGetter streamDataClassGetter;
     private IWorkerInstanceGetter workerInstanceGetter;
-    private CounterMetric remoteInCounter;
-    private CounterMetric remoteInErrorCounter;
-    private HistogramMetric remoteInHistogram;
+    private CounterMetrics remoteInCounter;
+    private CounterMetrics remoteInErrorCounter;
+    private HistogramMetrics remoteInHistogram;
 
     public RemoteServiceHandler(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
 
-        remoteInCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+        remoteInCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_in_count", "The number(server side) of inside remote inside aggregate rpc.",
-                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_in_error_count", "The error number(server side) of inside remote inside aggregate rpc.",
-                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-        remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createHistogramMetric("remote_in_latency", "The latency(server side) of inside remote inside aggregate rpc.",
-                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
@@ -83,7 +83,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
         return new StreamObserver<RemoteMessage>() {
             @Override public void onNext(RemoteMessage message) {
                 remoteInCounter.inc();
-                HistogramMetric.Timer timer = remoteInHistogram.createTimer();
+                HistogramMetrics.Timer timer = remoteInHistogram.createTimer();
                 try {
                     int streamDataId = message.getStreamDataId();
                     int nextWorkerId = message.getNextWorkerId();

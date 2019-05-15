@@ -25,7 +25,7 @@ The core features are following.
 - Slow services and endpoints detected
 - Performance optimization
 - Distributed tracing and context propagation
-- Database access metric. Detect slow database access statements(including SQL statements).
+- Database access metrics. Detect slow database access statements(including SQL statements).
 - Alarm
 
 
@@ -38,7 +38,7 @@ including
 1. Istio telemetry format
 1. Zipkin v1/v2 format
 1. Jaeger gRPC format.
-1. Envoy metrics format (the metric entries itself is prometheus client [metric family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
+1. Envoy metrics format (the metrics entries itself is prometheus client [metrics family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
 
 
 # Document
@@ -84,7 +84,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 * Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNDQ3OTEwNzE1MDg5LWY2NjkwMTEzMGI2ZTI1NzUzMDk0MzJmMWM1NWVmODg0MzBjNjAxYzUwMjIwNDI3MjlhZWRjNmNhOTM5NmIxNDk)
-* QQ Group: 392443393
+* QQ Group: 392443393, 901167865
 
 # Who Uses SkyWalking?
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.

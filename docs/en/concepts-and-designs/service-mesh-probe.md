@@ -24,9 +24,9 @@ platform still works?
 
 Service Mesh probes collects telemetry data from each request, so it knows the source, destination, 
 endpoint, latency and status. By those, backend can tell the whole topology map by combining these call 
-as lines, and also the metric of each nodes through their incoming request. Backend asked for the same
-metric data from parsing tracing data. So, the right expression is: 
-**Service Mesh metric are exact the metric, what the traces parsers generate. They are same.**
+as lines, and also the metrics of each nodes through their incoming request. Backend asked for the same
+metrics data from parsing tracing data. So, the right expression is: 
+**Service Mesh metrics are exact the metrics, what the traces parsers generate. They are same.**
 
 ## What is Next?
 - If you want to use the service mesh probe, read [set SkyWalking on Service Mesh](../setup/README.md#on-service-mesh) document.

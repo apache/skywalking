@@ -20,7 +20,7 @@ package org.apache.skywalking.oal.tool.output;
 
 import freemarker.template.TemplateException;
 import java.io.*;
-import java.util.*;
+import java.util.LinkedList;
 import org.apache.skywalking.oal.tool.meta.*;
 import org.apache.skywalking.oal.tool.parser.*;
 import org.junit.*;
@@ -36,15 +36,15 @@ public class FileGeneratorTest {
 
     private AnalysisResult buildResult() {
         AnalysisResult result = new AnalysisResult();
-        result.setVarName("generate_indicator");
+        result.setVarName("generate_metrics");
         result.setSourceName("Service");
         result.setSourceScopeId(1);
         result.setPackageName("service.serviceavg");
         result.setTableName("service_avg");
         result.setSourceAttribute("latency");
-        result.setMetricName("ServiceAvg");
+        result.setMetricsName("ServiceAvg");
         result.setAggregationFunctionName("avg");
-        result.setIndicatorClassName("LongAvgIndicator");
+        result.setMetricsClassName("LongAvgMetrics");
 
         FilterExpression equalExpression = new FilterExpression();
         equalExpression.setExpressionObject("EqualMatch");
@@ -76,18 +76,18 @@ public class FileGeneratorTest {
     }
 
     @Test
-    public void testGenerateIndicatorImplementor() throws IOException, TemplateException {
+    public void testGenerateMetricsImplementor() throws IOException, TemplateException {
         AnalysisResult result = buildResult();
 
         OALScripts oalScripts = new OALScripts();
-        oalScripts.getIndicatorStmts().add(result);
+        oalScripts.getMetricsStmts().add(result);
 
         FileGenerator fileGenerator = new FileGenerator(oalScripts, ".");
         StringWriter writer = new StringWriter();
-        fileGenerator.generateIndicatorImplementor(result, writer);
-        Assert.assertEquals(readExpectedFile("IndicatorImplementorExpected.java"), writer.toString());
+        fileGenerator.generateMetricsImplementor(result, writer);
+        Assert.assertEquals(readExpectedFile("MetricsImplementorExpected.java"), writer.toString());
 
-        // fileGenerator.generateIndicatorImplementor(result, new OutputStreamWriter(System.out));
+//        fileGenerator.generateMetricsImplementor(result, new OutputStreamWriter(System.out));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class FileGeneratorTest {
         AnalysisResult result = buildResult();
 
         OALScripts oalScripts = new OALScripts();
-        oalScripts.getIndicatorStmts().add(result);
+        oalScripts.getMetricsStmts().add(result);
 
         FileGenerator fileGenerator = new FileGenerator(oalScripts, ".");
         StringWriter writer = new StringWriter();
