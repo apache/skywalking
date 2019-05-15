@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.Const;
         <#break>
     </#if>
 </#list>
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
