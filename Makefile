@@ -50,7 +50,7 @@ TAG?=latest
 
 docker: build.docker docker.all
 
-DOCKER_TARGETS:=docker.oap
+DOCKER_TARGETS:=docker.oap docker.ui
 
 docker.all: $(DOCKER_TARGETS)
 
@@ -58,6 +58,12 @@ docker.oap: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
+		$(DOCKER_RULE)
+
+docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
+docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
+docker.ui: $(SW_ROOT)/docker/ui/docker-entrypoint.sh
+docker.ui: $(SW_ROOT)/docker/ui/logback.xml
 		$(DOCKER_RULE)
 
 

@@ -17,7 +17,10 @@
 FROM openjdk:8u181-jdk-stretch
 
 ENV DIST_NAME=apache-skywalking-apm-bin \
-    JAVA_OPTS=" -Xms256M "
+    JAVA_OPTS=" -Xms256M " \
+    SW_OAP_ADDRESS="oap:12800" \
+    SW_TIMEOUT="20000" \
+    SW_ADMIN_PASSWORD="admin"
 
 COPY "$DIST_NAME.tar.gz" /
 
@@ -35,4 +38,4 @@ COPY logback.xml webapp/
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "docker-entrypoint.sh"]
+ENTRYPOINT ["bash", "docker-entrypoint.sh"]
