@@ -21,8 +21,8 @@ package org.apache.skywalking.oap.server.core.remote;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -43,7 +43,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     private static final Logger logger = LoggerFactory.getLogger(RemoteServiceHandler.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
-    private StreamDataClassGetter streamDataClassGetter;
+    private StreamDataMappingGetter streamDataMappingGetter;
     private IWorkerInstanceGetter workerInstanceGetter;
     private CounterMetrics remoteInCounter;
     private CounterMetrics remoteInErrorCounter;
@@ -64,10 +64,10 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     }
 
     @Override public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
-        if (Objects.isNull(streamDataClassGetter)) {
+        if (Objects.isNull(streamDataMappingGetter)) {
             synchronized (RemoteServiceHandler.class) {
-                if (Objects.isNull(streamDataClassGetter)) {
-                    streamDataClassGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
+                if (Objects.isNull(streamDataMappingGetter)) {
+                    streamDataMappingGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataMappingGetter.class);
                 }
             }
         }
@@ -89,7 +89,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                     int nextWorkerId = message.getNextWorkerId();
                     RemoteData remoteData = message.getRemoteData();
 
-                    Class<StreamData> streamDataClass = streamDataClassGetter.findClassById(streamDataId);
+                    Class<? extends StreamData> streamDataClass = streamDataMappingGetter.findClassById(streamDataId);
                     try {
                         StreamData streamData = streamDataClass.newInstance();
                         streamData.deserialize(remoteData);

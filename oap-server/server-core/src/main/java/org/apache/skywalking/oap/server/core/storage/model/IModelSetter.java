@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics.annotation;
+package org.apache.skywalking.oap.server.core.storage.model;
+
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public class MetricsAnnotationUtils {
-
-    public static boolean isMetrics(Class aClass) {
-        return aClass.isAnnotationPresent(MetricsType.class);
-    }
+public interface IModelSetter extends Service {
+    void putIfAbsent(Class aClass, boolean isMetrics, String modelName, int scopeId, Storage storage);
 }

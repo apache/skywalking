@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.remote.client;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.testing.module.*;
@@ -36,7 +36,7 @@ public class GRPCRemoteClientRealServer {
         ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
         moduleManager.put(CoreModule.NAME, moduleDefine);
 
-        moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, new GRPCRemoteClientRealClient.TestClassGetter());
+        moduleDefine.provider().registerServiceImplementation(StreamDataMappingGetter.class, new GRPCRemoteClientRealClient.TestMappingGetter());
 
         GRPCServer server = new GRPCServer("localhost", 10000);
         server.initialize();

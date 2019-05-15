@@ -23,8 +23,8 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -52,11 +52,11 @@ public class RemoteServiceHandlerTestCase {
         ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
         moduleManager.put(CoreModule.NAME, moduleDefine);
 
-        StreamDataClassGetter classGetter = mock(StreamDataClassGetter.class);
-        Class<?> dataClass = TestRemoteData.class;
-        when(classGetter.findClassById(streamDataClassId)).thenReturn((Class<StreamData>)dataClass);
+        StreamDataMappingGetter classGetter = mock(StreamDataMappingGetter.class);
+        Class dataClass = TestRemoteData.class;
+        when(classGetter.findClassById(streamDataClassId)).thenReturn(dataClass);
 
-        moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, classGetter);
+        moduleDefine.provider().registerServiceImplementation(StreamDataMappingGetter.class, classGetter);
 
         String serverName = InProcessServerBuilder.generateName();
         MetricsCreator metricsCreator = mock(MetricsCreator.class);

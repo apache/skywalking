@@ -16,44 +16,40 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.annotation;
+package org.apache.skywalking.oap.server.core.remote.define;
 
 import java.util.*;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class StreamDataAnnotationContainer implements StreamDataClassGetter {
-
-    private static final Logger logger = LoggerFactory.getLogger(StreamDataAnnotationContainer.class);
+public class StreamDataMapping implements StreamDataMappingGetter, StreamDataMappingSetter {
 
     private int id = 0;
-    private final Map<Class<StreamData>, Integer> classMap;
-    private final Map<Integer, Class<StreamData>> idMap;
+    private final Map<Class<? extends StreamData>, Integer> classMap;
+    private final Map<Integer, Class<? extends StreamData>> idMap;
 
-    public StreamDataAnnotationContainer() {
+    public StreamDataMapping() {
         this.classMap = new HashMap<>();
         this.idMap = new HashMap<>();
     }
 
-    @SuppressWarnings(value = "unchecked")
-    public synchronized void generate(List<Class> streamDataClasses) {
-        streamDataClasses.sort(Comparator.comparing(Class::getName));
-
-        for (Class streamDataClass : streamDataClasses) {
-            id++;
-            classMap.put(streamDataClass, id);
-            idMap.put(id, streamDataClass);
+    @Override public synchronized void putIfAbsent(Class<? extends StreamData> streamDataClass) {
+        if (classMap.containsKey(streamDataClass)) {
+            return;
         }
+
+        id++;
+        classMap.put(streamDataClass, id);
+        idMap.put(id, streamDataClass);
     }
 
-    @Override public int findIdByClass(Class streamDataClass) {
+    @Override public int findIdByClass(Class<? extends StreamData> streamDataClass) {
         return classMap.get(streamDataClass);
     }
 
-    @Override public Class<StreamData> findClassById(int id) {
+    @Override public Class<? extends StreamData> findClassById(int id) {
         return idMap.get(id);
     }
 }

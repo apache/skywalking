@@ -21,19 +21,23 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author peng-yongsheng
  */
-public enum RecordProcess {
-    INSTANCE;
+public class RecordStreamProcessor implements StreamProcessor<Record> {
+
+    private final static RecordStreamProcessor PROCESSOR = new RecordStreamProcessor();
 
     private Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
+
+    public static RecordStreamProcessor getInstance() {
+        return PROCESSOR;
+    }
 
     public void in(Record record) {
         RecordPersistentWorker worker = workers.get(record.getClass());
@@ -44,24 +48,20 @@ public enum RecordProcess {
 
     @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();
 
-    public void create(ModuleManager moduleManager, Class<? extends Record> recordClass) {
-        String modelName = StorageEntityAnnotationUtils.getModelName(recordClass);
-
-        if (DisableRegister.INSTANCE.include(modelName)) {
+    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Record> recordClass) {
+        if (DisableRegister.INSTANCE.include(stream.name())) {
             return;
         }
 
-        Class<? extends StorageBuilder> builderClass = StorageEntityAnnotationUtils.getBuilder(recordClass);
-
-        StorageDAO storageDAO = moduleManager.find(StorageModule.NAME).provider().getService(StorageDAO.class);
+        StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRecordDAO recordDAO;
         try {
-            recordDAO = storageDAO.newRecordDao(builderClass.newInstance());
+            recordDAO = storageDAO.newRecordDao(stream.storage().builder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + builderClass.getSimpleName() + " record DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " record DAO failure.", e);
         }
 
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleManager, modelName, 1000, recordDAO);
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, stream.name(), 1000, recordDAO);
         persistentWorkers.add(persistentWorker);
         workers.put(recordClass, persistentWorker);
     }
