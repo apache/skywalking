@@ -21,21 +21,19 @@ package org.apache.skywalking.oap.server.core.analysis.generated.service.service
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
  *
  * @author Observability Analysis Language code generator
  */
-@MetricsType
-@StreamData
-@StorageEntity(name = "service_avg", builder = ServiceAvgMetrics.Builder.class, sourceScopeId = 1)
+@Stream(name = "service_avg", scopeId = 1, storage = @Storage(builder = ServiceAvgMetrics.Builder.class), processor = MetricsStreamProcessor.class)
 public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
