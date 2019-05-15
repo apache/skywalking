@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.*;
@@ -64,18 +65,31 @@ public class AggregationQueryService implements Service {
     public List<TopNEntity> getAllServiceInstanceTopN(final String indName, final int topN, final Step step,
         final long startTB, final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllServiceInstanceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
-        for (TopNEntity entity : topNEntities) {
-            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.valueOf(entity.getId()));
-            if (inventory != null) {
-                entity.setName(inventory.getName());
-            }
-        }
-        return topNEntities;
+        return getServiceInstanceTopN(topNEntities);
     }
 
     public List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String indName, final int topN,
         final Step step, final long startTB, final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceInstanceTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        return getServiceInstanceTopN(topNEntities);
+    }
+
+    public List<TopNEntity> getAllEndpointTopN(final String indName, final int topN, final Step step,
+        final long startTB, final long endTB, final Order order) throws IOException {
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllEndpointTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        return getEndpointTopN(topNEntities);
+    }
+
+    public List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, final int topN,
+        final Step step, final long startTB, final long endTB, final Order order) throws IOException {
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getEndpointTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        return getEndpointTopN(topNEntities);
+    }
+
+    private List<TopNEntity> getServiceInstanceTopN(List<TopNEntity> topNEntities) {
+        if (topNEntities == null) {
+            return Collections.emptyList();
+        }
         for (TopNEntity entity : topNEntities) {
             ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {
@@ -85,21 +99,10 @@ public class AggregationQueryService implements Service {
         return topNEntities;
     }
 
-    public List<TopNEntity> getAllEndpointTopN(final String indName, final int topN, final Step step,
-        final long startTB, final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllEndpointTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
-        for (TopNEntity entity : topNEntities) {
-            EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.valueOf(entity.getId()));
-            if (inventory != null) {
-                entity.setName(inventory.getName());
-            }
+    private List<TopNEntity> getEndpointTopN(List<TopNEntity> topNEntities) {
+        if (topNEntities == null) {
+            return Collections.emptyList();
         }
-        return topNEntities;
-    }
-
-    public List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, final int topN,
-        final Step step, final long startTB, final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getEndpointTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
             EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {
