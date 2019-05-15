@@ -28,7 +28,7 @@
 
     <artifactId>apm-sdk-plugin</artifactId>
     <modules>
-        <module>dubbo-plugin</module>
+       <!-- <module>dubbo-plugin</module>
         <module>jdbc-commons</module>
         <module>httpClient-4.x-plugin</module>
         <module>jedis-2.x-plugin</module>
@@ -63,7 +63,8 @@
         <module>undertow-plugins</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
-        <module>canal-1.x-plugin</module>
+        <module>canal-1.x-plugin</module>-->
+        <module>solrj-7.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
