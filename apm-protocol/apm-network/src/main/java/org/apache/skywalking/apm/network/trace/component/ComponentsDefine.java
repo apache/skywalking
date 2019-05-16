@@ -118,6 +118,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
 
+    public static final OfficialComponent XXL_JOB = new OfficialComponent(61, "XXL_JOB");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
