@@ -175,6 +175,7 @@ public class ComponentsDefine {
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
+        addComponent(XXL_JOB);
     }
 
     private void addComponent(OfficialComponent component) {
