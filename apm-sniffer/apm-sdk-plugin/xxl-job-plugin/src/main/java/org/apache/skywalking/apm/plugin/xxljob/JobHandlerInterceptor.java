@@ -51,7 +51,7 @@ public class JobHandlerInterceptor implements InstanceMethodsAroundInterceptor {
             operateName = operateName + "_" + shardingVO.getIndex();
         }
         AbstractSpan span;
-        span = ContextManager.createEntrySpan(operateName, null);
+        span = ContextManager.createLocalSpan(operateName);
         span.setComponent(ComponentsDefine.XXL_JOB);
         span.tag(new StringTag("triggerParam"), triggerParam.toString());
 
