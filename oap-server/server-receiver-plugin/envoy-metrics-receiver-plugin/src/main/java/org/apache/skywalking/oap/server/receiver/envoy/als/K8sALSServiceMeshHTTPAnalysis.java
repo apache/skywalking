@@ -33,10 +33,7 @@ import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.apis.ExtensionsV1beta1Api;
-import io.kubernetes.client.models.V1ObjectMeta;
-import io.kubernetes.client.models.V1OwnerReference;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1PodList;
+import io.kubernetes.client.models.*;
 import io.kubernetes.client.util.Config;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -63,6 +60,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     private static final Logger logger = LoggerFactory.getLogger(K8sALSServiceMeshHTTPAnalysis.class);
+
+    private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
 
     @Getter(AccessLevel.PROTECTED)
     private final AtomicReference<Map<String, ServiceMetaInfo>> ipServiceMap = new AtomicReference<>();
@@ -94,6 +93,10 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
             Map<String, ServiceMetaInfo> ipMap = new HashMap<>(list.getItems().size());
             long startTime = System.nanoTime();
             for (V1Pod item : list.getItems()) {
+                if (item.getStatus().getPodIP().equals(item.getStatus().getHostIP())) {
+                    logger.warn("Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata().getName());
+                    continue;
+                }
                 ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
             }
             logger.info("Load {} pods in {}ms", ipMap.size(), (System.nanoTime() - startTime) / 1_000_000);
