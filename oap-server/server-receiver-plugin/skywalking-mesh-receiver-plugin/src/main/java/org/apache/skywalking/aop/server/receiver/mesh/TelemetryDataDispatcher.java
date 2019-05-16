@@ -150,6 +150,7 @@ public class TelemetryDataDispatcher {
         all.setEndpointName(metrics.getEndpoint());
         all.setLatency(metrics.getLatency());
         all.setStatus(metrics.getStatus());
+        all.setResponseCode(metrics.getResponseCode());
         all.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(all);
@@ -165,6 +166,7 @@ public class TelemetryDataDispatcher {
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());
         service.setStatus(metrics.getStatus());
+        service.setResponseCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(service);
@@ -204,6 +206,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());
+        serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(serviceInstance);
@@ -247,6 +250,7 @@ public class TelemetryDataDispatcher {
 
         endpoint.setLatency(metrics.getLatency());
         endpoint.setStatus(metrics.getStatus());
+        endpoint.setResponseCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(endpoint);

@@ -28,12 +28,41 @@ SkyWalking is a complex maven project, including many modules, which could cause
 If you just want to recompile part of the project, you have following options
 - Compile agent and package
 >  ./mvnw package -Pagent,dist
+
+or
+
+> make build.agent
+
 - Compile backend and package
 >  ./mvnw package -Pbackend,dist
+
+or
+
+> make build.backend
+
 - Compile UI and package
 >  ./mvnw package -Pui,dist
 
+or
 
+> make build.ui
+
+
+### Build docker images
+We can build docker images of `backend` and `ui` with `Makefile` located in root folder.
+
+- Build all docker images
+> make docker.all
+
+- Build oap server docker image
+> make docker.oap
+
+- Build ui docker image
+> make docker.ui
+
+`HUB` and `TAG` variables ares used to setup `REPOSITORY` and `TAG` of a docker image. To get
+a oap image with name `bar/oap:foo`, run the following command
+> HUB=bar TAG=foo make docker.oap
 
 ## Setup your IntelliJ IDEA
 1. Import the project as a maven project
