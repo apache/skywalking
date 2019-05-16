@@ -20,10 +20,11 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -48,6 +49,7 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
 
     @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();
 
+    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Record> recordClass) {
         if (DisableRegister.INSTANCE.include(stream.name())) {
             return;
@@ -61,7 +63,10 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
             throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " record DAO failure.", e);
         }
 
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, stream.name(), 1000, recordDAO);
+        IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
+        Model model = modelSetter.putIfAbsent(recordClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Second);
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model.getName(), 1000, recordDAO);
+
         persistentWorkers.add(persistentWorker);
         workers.put(recordClass, persistentWorker);
     }
