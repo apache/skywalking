@@ -52,7 +52,7 @@ public class SnifferConfigInitializer {
     /**
      * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
      * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
-     * /config dictionary of agent package.
+     * /config directory of agent package.
      * <p>
      * Also try to override the config by system.properties. All the keys in this place should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override
