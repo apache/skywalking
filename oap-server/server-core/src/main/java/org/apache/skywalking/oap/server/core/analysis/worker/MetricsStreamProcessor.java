@@ -23,7 +23,9 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -60,10 +62,28 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " metrics DAO failure.", e);
         }
 
-        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, stream.name());
-        MetricsPersistentWorker hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, stream.name() + Const.ID_SPLIT + Downsampling.Hour.getName());
-        MetricsPersistentWorker dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, stream.name() + Const.ID_SPLIT + Downsampling.Day.getName());
-        MetricsPersistentWorker monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, stream.name() + Const.ID_SPLIT + Downsampling.Month.getName());
+        IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
+        DownsamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
+
+        MetricsPersistentWorker hourPersistentWorker = null;
+        MetricsPersistentWorker dayPersistentWorker = null;
+        MetricsPersistentWorker monthPersistentWorker = null;
+
+        if (configService.shouldToHour()) {
+            Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Hour);
+            hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+        }
+        if (configService.shouldToDay()) {
+            Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Day);
+            dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+        }
+        if (configService.shouldToMonth()) {
+            Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Month);
+            monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+        }
+
+        Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Minute);
+        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model.getName());
 
         MetricsTransWorker transWorker = new MetricsTransWorker(moduleDefineHolder, stream.name(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, transWorker, stream.name());
