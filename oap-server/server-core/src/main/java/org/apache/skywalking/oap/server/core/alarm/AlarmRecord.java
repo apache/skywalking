@@ -21,8 +21,9 @@ package org.apache.skywalking.oap.server.core.alarm;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordType;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
@@ -34,9 +35,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
  */
 @Getter
 @Setter
-@RecordType
 @ScopeDeclaration(id = ALARM, name = "Alarm")
-@StorageEntity(name = AlarmRecord.INDEX_NAME, builder = AlarmRecord.Builder.class, sourceScopeId = DefaultScopeDefine.ALARM)
+@Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, storage = @Storage(builder = AlarmRecord.Builder.class), processor = RecordStreamProcessor.class)
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";

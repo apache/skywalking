@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
@@ -49,7 +49,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
+        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
@@ -58,7 +58,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
+        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
@@ -71,7 +71,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
 
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
 
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
@@ -83,7 +83,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         String indexName = DownSamplingModelNameBuilder.build(step, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
+        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
@@ -97,7 +97,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
 
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).lte(endTB).gte(startTB));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
 
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
@@ -112,8 +112,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         }
 
         TermsAggregationBuilder aggregationBuilder = AggregationBuilders
-            .terms(Indicator.ENTITY_ID)
-            .field(Indicator.ENTITY_ID)
+            .terms(Metrics.ENTITY_ID)
+            .field(Metrics.ENTITY_ID)
             .order(BucketOrder.aggregation(valueCName, asc))
             .size(topN)
             .subAggregation(
@@ -124,7 +124,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         SearchResponse response = getClient().search(indexName, sourceBuilder);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
-        Terms idTerms = response.getAggregations().get(Indicator.ENTITY_ID);
+        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());

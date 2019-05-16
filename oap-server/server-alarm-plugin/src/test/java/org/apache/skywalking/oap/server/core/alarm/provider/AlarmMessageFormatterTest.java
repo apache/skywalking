@@ -35,7 +35,7 @@ public class AlarmMessageFormatterTest {
                 return null;
             }
 
-            @Override public String getIndicatorName() {
+            @Override public String getMetricsName() {
                 return null;
             }
 
@@ -64,7 +64,7 @@ public class AlarmMessageFormatterTest {
                 return "service";
             }
 
-            @Override public String getIndicatorName() {
+            @Override public String getMetricsName() {
                 return null;
             }
 

@@ -19,13 +19,14 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.IndicatorProcess;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 /**
  * @author wusheng
  */
 public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRelation> {
+
     @Override
     public void dispatch(ServiceRelation source) {
         switch (source.getDetectPoint()) {
@@ -39,22 +40,24 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
     }
 
     private void serverSide(ServiceRelation source) {
-        ServiceRelationServerSideIndicator indicator = new ServiceRelationServerSideIndicator();
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
-        indicator.setComponentId(source.getComponentId());
-        indicator.setEntityId(source.getEntityId());
-        IndicatorProcess.INSTANCE.in(indicator);
+        ServiceRelationServerSideMetrics metrics = new ServiceRelationServerSideMetrics();
+        metrics.setTimeBucket(source.getTimeBucket());
+        metrics.setSourceServiceId(source.getSourceServiceId());
+        metrics.setDestServiceId(source.getDestServiceId());
+        metrics.setComponentId(source.getComponentId());
+        metrics.setEntityId(source.getEntityId());
+
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 
     private void clientSide(ServiceRelation source) {
-        ServiceRelationClientSideIndicator indicator = new ServiceRelationClientSideIndicator();
-        indicator.setTimeBucket(source.getTimeBucket());
-        indicator.setSourceServiceId(source.getSourceServiceId());
-        indicator.setDestServiceId(source.getDestServiceId());
-        indicator.setComponentId(source.getComponentId());
-        indicator.setEntityId(source.getEntityId());
-        IndicatorProcess.INSTANCE.in(indicator);
+        ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
+        metrics.setTimeBucket(source.getTimeBucket());
+        metrics.setSourceServiceId(source.getSourceServiceId());
+        metrics.setDestServiceId(source.getDestServiceId());
+        metrics.setComponentId(source.getComponentId());
+        metrics.setEntityId(source.getEntityId());
+
+        MetricsStreamProcessor.getInstance().in(metrics);
     }
 }

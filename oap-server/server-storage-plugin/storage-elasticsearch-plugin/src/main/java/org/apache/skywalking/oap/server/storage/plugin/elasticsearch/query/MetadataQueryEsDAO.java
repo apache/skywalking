@@ -80,7 +80,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
         return (int)response.getHits().getTotalHits();
     }
 
@@ -94,7 +94,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
         return (int)response.getHits().getTotalHits();
     }
 
@@ -105,7 +105,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
         return (int)response.getHits().getTotalHits();
     }
@@ -122,7 +122,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
         return buildServices(response);
     }
@@ -137,7 +137,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
         List<Database> databases = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
@@ -175,13 +175,13 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
         return buildServices(response);
     }
 
     @Override
     public Service searchService(String serviceCode) throws IOException {
-        GetResponse response = getClient().get(ServiceInventory.MODEL_NAME, ServiceInventory.buildId(serviceCode));
+        GetResponse response = getClient().get(ServiceInventory.INDEX_NAME, ServiceInventory.buildId(serviceCode));
         if (response.isExists()) {
             Service service = new Service();
             service.setId(((Number)response.getSource().get(ServiceInventory.SEQUENCE)).intValue());
@@ -209,7 +209,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
 
-        SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
 
         List<Endpoint> endpoints = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {
@@ -236,7 +236,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
 
-        SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, sourceBuilder);
 
         List<ServiceInstance> serviceInstances = new ArrayList<>();
         for (SearchHit searchHit : response.getHits()) {

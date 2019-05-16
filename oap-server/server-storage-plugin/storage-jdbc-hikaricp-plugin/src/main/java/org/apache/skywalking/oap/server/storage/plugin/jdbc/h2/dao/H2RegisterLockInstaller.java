@@ -19,10 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.*;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -59,9 +59,9 @@ public class H2RegisterLockInstaller {
         try (Connection connection = h2Client.getConnection()) {
             h2Client.execute(connection, tableCreateSQL.toString());
 
-            for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                int scopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(h2Client, connection, scopeId, DefaultScopeDefine.nameOf(scopeId));
+            for (Class registerSource : InventoryStreamProcessor.getInstance().getAllRegisterSources()) {
+                int scopeId = ((Stream)registerSource.getAnnotation(Stream.class)).scopeId();
+                putIfAbsent(h2Client, connection, scopeId, DefaultScopeDefine.nameOf(1));
             }
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);

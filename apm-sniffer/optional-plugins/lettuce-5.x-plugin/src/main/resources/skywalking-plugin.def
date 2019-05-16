@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+lettuce-5.x=org.apache.skywalking.apm.plugin.lettuce.v5.define.AbstractRedisClientInstrumentation
 lettuce-5.x=org.apache.skywalking.apm.plugin.lettuce.v5.define.AsyncCommandInstrumentation
 lettuce-5.x=org.apache.skywalking.apm.plugin.lettuce.v5.define.ClientOptionsInstrumentation
 lettuce-5.x=org.apache.skywalking.apm.plugin.lettuce.v5.define.RedisChannelWriterInstrumentation

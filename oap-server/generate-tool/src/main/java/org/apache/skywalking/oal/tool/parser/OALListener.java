@@ -31,7 +31,7 @@ public class OALListener extends OALParserBaseListener {
     private ConditionExpression conditionExpression;
 
     public OALListener(OALScripts scripts) {
-        this.results = scripts.getIndicatorStmts();
+        this.results = scripts.getMetricsStmts();
         this.collection = scripts.getDisableCollection();
     }
 
@@ -49,7 +49,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override public void enterSource(OALParser.SourceContext ctx) {
         current.setSourceName(ctx.getText());
-        current.setSourceScopeId(DefaultScopeDefine.valueOf(metricNameFormat(ctx.getText())));
+        current.setSourceScopeId(DefaultScopeDefine.valueOf(metricsNameFormat(ctx.getText())));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class OALListener extends OALParserBaseListener {
 
     @Override public void exitVariable(OALParser.VariableContext ctx) {
         current.setVarName(ctx.getText());
-        current.setMetricName(metricNameFormat(ctx.getText()));
+        current.setMetricsName(metricsNameFormat(ctx.getText()));
         current.setTableName(ctx.getText().toLowerCase());
     }
 
@@ -143,7 +143,7 @@ public class OALListener extends OALParserBaseListener {
         current.addFuncArg(ctx.getText());
     }
 
-    private String metricNameFormat(String source) {
+    private String metricsNameFormat(String source) {
         source = firstLetterUpper(source);
         int idx;
         while ((idx = source.indexOf("_")) > -1) {

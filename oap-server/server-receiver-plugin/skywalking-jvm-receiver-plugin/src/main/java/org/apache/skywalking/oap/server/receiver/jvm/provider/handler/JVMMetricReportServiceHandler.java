@@ -40,12 +40,12 @@ public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JV
         int serviceInstanceId = request.getServiceInstanceId();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("receive the jvm metric from service instance, id: {}", serviceInstanceId);
+            logger.debug("receive the jvm metrics from service instance, id: {}", serviceInstanceId);
         }
 
-        request.getMetricsList().forEach(metric -> {
-            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
-            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metric);
+        request.getMetricsList().forEach(metrics -> {
+            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metrics.getTime());
+            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());
