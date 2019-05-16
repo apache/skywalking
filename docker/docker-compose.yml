@@ -17,7 +17,7 @@
 version: '3.3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
     container_name: elasticsearch
     restart: always
     ports:
@@ -25,6 +25,10 @@ services:
       - 9300:9300
     environment:
       discovery.type: single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
   oap:
     image: skywalking/oap
     container_name: oap
@@ -36,8 +40,9 @@ services:
     ports:
       - 11800:11800
       - 12800:12800
-    volumes:
-      - ./config:/skywalking/config:ro
+    environment:
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
   ui:
     image: skywalking/ui
     container_name: ui
@@ -49,4 +54,4 @@ services:
     ports:
       - 8080:8080
     environment:
-      collectorListOfServers: oap:12800
+      SW_OAP_ADDRESS: oap:12800
