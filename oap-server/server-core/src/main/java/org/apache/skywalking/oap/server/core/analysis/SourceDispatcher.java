@@ -23,6 +23,6 @@ import org.apache.skywalking.oap.server.core.source.Source;
 /**
  * @author peng-yongsheng
  */
-public interface SourceDispatcher<S extends Source> {
-    void dispatch(S source);
+public interface SourceDispatcher<SOURCE extends Source> {
+    void dispatch(SOURCE source);
 }

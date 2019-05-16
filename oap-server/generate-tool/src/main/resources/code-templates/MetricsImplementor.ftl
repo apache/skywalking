@@ -28,21 +28,19 @@ import org.apache.skywalking.oap.server.core.Const;
         <#break>
     </#if>
 </#list>
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
 /**
  * This class is auto generated. Please don't change this class manually.
  *
  * @author Observability Analysis Language code generator
  */
-@MetricsType
-@StreamData
-@StorageEntity(name = "${tableName}", builder = ${metricsName}Metrics.Builder.class, sourceScopeId = ${sourceScopeId})
+@Stream(name = "${tableName}", scopeId = ${sourceScopeId}, storage = @Storage(builder = ${metricsName}Metrics.Builder.class), processor = MetricsStreamProcessor.class)
 public class ${metricsName}Metrics extends ${metricsClassName} implements WithMetadata {
 
 <#list fieldsFromSource as sourceField>
