@@ -79,7 +79,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            if (DefaultScopeDefine.SEGMENT == model.getSourceScopeId()) {
+            if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
                 if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID))
                     return "VARCHAR(300)";
             }
@@ -94,7 +94,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     protected void createIndexes(JDBCHikariCPClient client, Model model) throws StorageException {
-        switch (model.getSourceScopeId()) {
+        switch (model.getScopeId()) {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
             case NETWORK_ADDRESS:
