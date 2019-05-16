@@ -71,7 +71,7 @@ public class JobHandlerInterceptorTest {
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
-        assertThat(spans.get(0).transform().getComponentId(), is(60));
+        assertThat(spans.get(0).transform().getComponentId(), is(61));
         assertThat(spans.get(0).transform().getTags(0).getKey(), is("triggerParam"));
         assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
     }
