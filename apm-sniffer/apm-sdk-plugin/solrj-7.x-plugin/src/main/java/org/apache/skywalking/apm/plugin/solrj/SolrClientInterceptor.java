@@ -62,13 +62,13 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-//    	HttpSolrClient#request(SolrRequest, String):NamedList
+//    	HttpSolrClient#request(SolrRequest, ResponseParser, String):NamedList
 //    	HttpSolrClient client = (HttpSolrClient) objInst;
         SolrRequest<?> request = (SolrRequest<?>) allArguments[0];
         SolrjInstance instance = (SolrjInstance) objInst.getSkyWalkingDynamicField();
 
         String collection = instance.getCollection();
-        Object ocollection = allArguments[1];
+        Object ocollection = allArguments[2];
         if (ocollection != null) {
             collection = ocollection.toString();
         }
