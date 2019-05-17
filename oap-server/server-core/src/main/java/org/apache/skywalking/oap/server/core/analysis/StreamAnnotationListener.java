@@ -19,11 +19,10 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.Annotation;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
-import org.apache.skywalking.oap.server.core.storage.model.IModelSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -48,16 +47,12 @@ public class StreamAnnotationListener implements AnnotationListener {
 
             if (stream.processor().equals(InventoryStreamProcessor.class)) {
                 InventoryStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, false, stream.name(), stream.scopeId(), stream.storage());
             } else if (stream.processor().equals(RecordStreamProcessor.class)) {
                 RecordStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, false, stream.name(), stream.scopeId(), stream.storage());
             } else if (stream.processor().equals(MetricsStreamProcessor.class)) {
                 MetricsStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, true, stream.name(), stream.scopeId(), stream.storage());
             } else if (stream.processor().equals(TopNStreamProcessor.class)) {
                 TopNStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-                moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class).putIfAbsent(aClass, false, stream.name(), stream.scopeId(), stream.storage());
             } else {
                 throw new UnexpectedException("Unknown stream processor.");
             }

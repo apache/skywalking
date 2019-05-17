@@ -13,21 +13,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.DataTTL;
+import org.joda.time.DateTime;
 
 /**
  * @author peng-yongsheng
  */
-public interface IModelSetter extends Service {
+public class MinuteTTLCalculator implements TTLCalculator {
 
-    Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage);
-
-    Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage, Downsampling downsampling);
+    @Override public long timeBefore(DateTime currentTime, DataTTL dataTTL) {
+        return Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getMinuteMetricsDataTTL()).toString("yyyyMMddHHmm"));
+    }
 }
