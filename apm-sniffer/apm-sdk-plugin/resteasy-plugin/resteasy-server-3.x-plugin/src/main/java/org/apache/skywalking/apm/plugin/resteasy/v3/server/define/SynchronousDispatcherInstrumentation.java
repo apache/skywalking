@@ -85,7 +85,7 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("asynchronousDelivery").and(takesArguments(3));
+                    return named("asynchronousDelivery");
                 }
 
                 @Override
@@ -101,7 +101,7 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("asynchronousExceptionDelivery").and(takesArguments(3));
+                    return named("asynchronousExceptionDelivery");
                 }
 
                 @Override
