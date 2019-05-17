@@ -19,13 +19,17 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import java.util.*;
-import lombok.Getter;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author wusheng
+ * @author wusheng,gaohongtao
  */
-@Getter
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
-    private List<String> alsHTTPAnalysis = new ArrayList<>();
+    private String alsHTTPAnalysis;
+
+    public List<String> getAlsHTTPAnalysis() {
+        return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    }
 }
