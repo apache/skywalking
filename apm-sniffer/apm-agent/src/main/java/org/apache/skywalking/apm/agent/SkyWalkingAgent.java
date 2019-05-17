@@ -18,27 +18,22 @@
 
 package org.apache.skywalking.apm.agent;
 
+import java.lang.instrument.Instrumentation;
+import java.util.List;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
-import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.*;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
-import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.matcher.*;
 import net.bytebuddy.utility.JavaModule;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
-import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.boot.*;
+import org.apache.skywalking.apm.agent.core.conf.*;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.agent.core.plugin.*;
 
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-
+import static net.bytebuddy.dynamic.ClassFileLocator.ForClassLoader.ofBootLoader;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
@@ -80,16 +75,24 @@ public class SkyWalkingAgent {
         new AgentBuilder.Default(byteBuddy)
             .ignore(
                 nameStartsWith("net.bytebuddy.")
-                .or(nameStartsWith("org.slf4j."))
-                .or(nameStartsWith("org.apache.logging."))
-                .or(nameStartsWith("org.groovy."))
-                .or(nameContains("javassist"))
-                .or(nameContains(".asm."))
-                .or(nameStartsWith("sun.reflect"))
-                .or(allSkyWalkingAgentExcludeToolkit())
-                .or(ElementMatchers.<TypeDescription>isSynthetic()))
+                    .or(nameStartsWith("org.slf4j."))
+                    .or(nameStartsWith("org.apache.logging."))
+                    .or(nameStartsWith("org.groovy."))
+                    .or(nameContains("javassist"))
+                    .or(nameContains(".asm."))
+                    .or(nameStartsWith("sun.reflect"))
+                    .or(allSkyWalkingAgentExcludeToolkit())
+                    .or(ElementMatchers.<TypeDescription>isSynthetic()))
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
+            .with(new AgentBuilder.LocationStrategy.Compound(
+                new AgentBuilder.LocationStrategy() {
+                    @Override public ClassFileLocator classFileLocator(ClassLoader classLoader, JavaModule module) {
+                        return ofBootLoader();
+                    }
+                },
+                AgentBuilder.LocationStrategy.ForClassLoader.STRONG
+            ))
             .with(new Listener())
             .installOn(instrumentation);
 
