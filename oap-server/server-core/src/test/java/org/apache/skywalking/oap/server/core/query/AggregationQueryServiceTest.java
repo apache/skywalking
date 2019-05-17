@@ -45,36 +45,15 @@ import static org.mockito.Mockito.*;
 /**
  * Created by dengming in 2019-05-06
  */
-public class AggregationQueryServiceTest {
-
-    private ServiceInventoryCache serviceInventoryCache = mock(ServiceInventoryCache.class);
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache = mock(ServiceInstanceInventoryCache.class);
-    private EndpointInventoryCache endpointInventoryCache = mock(EndpointInventoryCache.class);
-
-
-    private ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
-
-    private ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
-
-    private ModuleManager moduleManager = mock(ModuleManager.class);
+public class AggregationQueryServiceTest extends AbstractTest {
 
     private AggregationQueryService aggregationQueryService = new AggregationQueryService(moduleManager);
 
     private IAggregationQueryDAO iAggregationQueryDAO = mock(IAggregationQueryDAO.class);
 
-
-    private ServiceInventory serviceInventory = mock(ServiceInventory.class);
-    private ServiceInstanceInventory serviceInstanceInventory = mock(ServiceInstanceInventory.class);
-    private EndpointInventory endpointInventory = mock(EndpointInventory.class);
-
-
     private static final String INS_NAME = "my-ins";
     private static final int SERVICE_ID = 12;
     private static final String C_NAME = "my-c-name";
-
-    private static final String SERVICE_INVENTORY_NAME = "service-inventory";
-    private static final String SERVICE_INSTANCE_INVENTORY_NAME = "service-instance-inventory";
-    private static final String ENDPOINT_INVENTORY_NAME = "endpoint-inventory";
 
     private static final int N = 10;
 
@@ -92,35 +71,9 @@ public class AggregationQueryServiceTest {
         // mock ValueColumnIds
         ValueColumnIds.INSTANCE.putIfAbsent(INS_NAME, C_NAME, Function.None);
 
-        // mock serviceInventory
-        when(serviceInventory.getName()).thenReturn(SERVICE_INVENTORY_NAME);
-
-        //mock serviceInstanceInventory
-        when(serviceInstanceInventory.getName()).thenReturn(SERVICE_INSTANCE_INVENTORY_NAME);
-
-        //mock endpointInventory
-        when(endpointInventory.getName()).thenReturn(ENDPOINT_INVENTORY_NAME);
-
-        //mock service inventory cache
-        when(serviceInventoryCache.get(anyInt())).thenReturn(serviceInventory);
-
-        //mock service instance inventory cache
-        when(serviceInstanceInventoryCache.get(anyInt())).thenReturn(serviceInstanceInventory);
-
-        //mock endpoint inventory cache
-        when(endpointInventoryCache.get(anyInt())).thenReturn(endpointInventory);
-
-        //mock moduleServiceHolder
-        when(moduleServiceHolder.getService(ServiceInventoryCache.class)).thenReturn(serviceInventoryCache);
-        when(moduleServiceHolder.getService(ServiceInstanceInventoryCache.class)).thenReturn(serviceInstanceInventoryCache);
+        // mock moduleServiceHolder
         when(moduleServiceHolder.getService(IAggregationQueryDAO.class)).thenReturn(iAggregationQueryDAO);
-        when(moduleServiceHolder.getService(EndpointInventoryCache.class)).thenReturn(endpointInventoryCache);
 
-        //mock moduleServiceHolder
-        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
-
-        //mock moduleManager
-        when(moduleManager.find(anyString())).thenReturn(moduleProviderHolder);
 
     }
 

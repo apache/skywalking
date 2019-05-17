@@ -33,13 +33,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by dengming in 2019-05-15
  */
-public class AlarmQueryServiceTest {
-
-    private ModuleManager moduleManager = mock(ModuleManager.class);
-
-    private ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
-
-    private ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+public class AlarmQueryServiceTest extends AbstractTest {
 
     private IAlarmQueryDAO alarmQueryDAO = mock(IAlarmQueryDAO.class);
 
@@ -67,10 +61,6 @@ public class AlarmQueryServiceTest {
 
         when(moduleServiceHolder.getService(IAlarmQueryDAO.class)).thenReturn(alarmQueryDAO);
 
-        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
-
-        when(moduleManager.find(anyString())).thenReturn(moduleProviderHolder);
-
         PAGINATION.setPageSize(PAGE_SIZE);
         PAGINATION.setPageNum(PAGE_NUM);
         Alarms alarms = new Alarms();
@@ -85,4 +75,6 @@ public class AlarmQueryServiceTest {
         Alarms alarms = alarmQueryService.getAlarm(SCOPE_ID, KEY_WORD, PAGINATION, START_TB, END_TB);
         assertEquals(ALARM_TOTAL, alarms.getTotal());
     }
+
+
 }
