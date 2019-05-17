@@ -58,7 +58,7 @@ public class SolrClientInstrumentation extends ClassInstanceMethodsEnhancePlugin
 				@Override
 				public ElementMatcher<MethodDescription> getMethodsMatcher() {
 //					executeMethod(HttpRequestBase, ResponseParser, boolean)
-					return ElementMatchers.named("request");
+					return ElementMatchers.named("request").and(ElementMatchers.takesArguments(3));
 				}
 
 				@Override

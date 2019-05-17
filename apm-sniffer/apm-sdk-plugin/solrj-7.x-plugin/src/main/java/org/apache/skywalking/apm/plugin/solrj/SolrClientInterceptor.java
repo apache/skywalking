@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 //
 public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 	private static final Pattern URL_REGEX = Pattern.compile("(?<pref>http(s)?://)*(?<domain>[\\w_.\\-\\d]+(:\\d+)?)?/(?<path>solr/(?<collection>[\\w_]+))?(/.*)?");
-	private static final ThreadLocal<Long> THREAD_LOCAL = new ThreadLocal<Long>();
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -110,16 +109,15 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         span.tag(SolrjTags.TAG_METHOD, request.getMethod().name());
         
         ContextManager.getRuntimeContext().put("instance", instance);
-//        ContextManager.getRuntimeContext().put("request.start", Long.valueOf());
-        THREAD_LOCAL.set(System.currentTimeMillis());
+        ContextManager.getRuntimeContext().put("request.start", Long.valueOf(System.currentTimeMillis()));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-//    	Long qstart = ContextManager.getRuntimeContext().get("request.start", Long.class);
-    	long elapse = System.currentTimeMillis() - THREAD_LOCAL.get().longValue();
+    	Long qstart = ContextManager.getRuntimeContext().get("request.start", Long.class);
+    	long elapse = System.currentTimeMillis() - qstart.longValue();
     	
         AbstractSpan span = ContextManager.activeSpan();
         if (ret instanceof SolrDocumentList) {
@@ -144,8 +142,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         SolrjTags.addElapseTime(span, elapse);
 
         ContextManager.getRuntimeContext().remove("instance");
-//        ContextManager.getRuntimeContext().remove("request.start");
-        THREAD_LOCAL.remove();;
+        ContextManager.getRuntimeContext().remove("request.start");
         ContextManager.stopSpan();
 
         return ret;
