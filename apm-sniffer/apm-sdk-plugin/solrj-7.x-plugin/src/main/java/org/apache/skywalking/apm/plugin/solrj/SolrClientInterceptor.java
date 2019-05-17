@@ -18,13 +18,13 @@
 package org.apache.skywalking.apm.plugin.solrj;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.solrj.commons.SolrjInstance;
 import org.apache.skywalking.apm.plugin.solrj.commons.SolrjTags;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -33,6 +33,7 @@ import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
+import org.apache.solr.common.params.UpdateParams;
 import org.apache.solr.common.util.NamedList;
 
 import java.lang.reflect.Method;
@@ -78,24 +79,34 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         // solr/collection/select
         String operatorName = String.format("solrJ/%s%s", collection, request.getPath());
         AbstractSpan span = ContextManager.createExitSpan(operatorName, instance.getRemotePeer())
+                .setComponent(ComponentsDefine.SOLRJ)
                 .setLayer(SpanLayer.DB);
         SolrParams params = request.getParams();
-        span.tag(new StringTag(12, "qt"), params.get(CommonParams.QT, "/select"));
+        span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/select"));
 
         if (request instanceof AbstractUpdateRequest) {
             AbstractUpdateRequest update = (AbstractUpdateRequest) request;
             String action = "add";
             if (update.getAction() != null) {
                 action = update.getAction().name();
+
+                if (update.getAction() == AbstractUpdateRequest.ACTION.COMMIT) {
+                    span.tag(SolrjTags.TAG_COMMIT, params.get(UpdateParams.COMMIT, "true" ));
+                    span.tag(SolrjTags.TAG_SOFT_COMMIT, params.get(UpdateParams.SOFT_COMMIT, "" ));
+                }
+                else if (update.getAction() == AbstractUpdateRequest.ACTION.OPTIMIZE) {
+                    span.tag(SolrjTags.TAG_OPTIMIZE, params.get(UpdateParams.OPTIMIZE, "true" ));
+                    span.tag(SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1" ));
+                }
             }
 
-            span.tag(SolrjTags.ACTION, action);
-            span.tag(SolrjTags.COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
+            span.tag(SolrjTags.TAG_ACTION, action);
+            span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
         }
 
-        span.tag(SolrjTags.PATH, request.getPath());
-        span.tag(SolrjTags.COLLECTION, collection);
-        span.tag(SolrjTags.METHOD, request.getMethod().name());
+        span.tag(SolrjTags.TAG_PATH, request.getPath());
+        span.tag(SolrjTags.TAG_COLLECTION, collection);
+        span.tag(SolrjTags.TAG_METHOD, request.getMethod().name());
         
         ContextManager.getRuntimeContext().put("instance", instance);
         ContextManager.getRuntimeContext().put("request.start", (Long) System.currentTimeMillis());
@@ -111,33 +122,34 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         AbstractSpan span = ContextManager.activeSpan();
         if (ret instanceof SolrDocumentList) {
             SolrDocumentList list = (SolrDocumentList) ret;
-            span.tag(SolrjTags.NUM_FOUND, String.valueOf(list.getNumFound()));
+            span.tag(SolrjTags.TAG_NUM_FOUND, String.valueOf(list.getNumFound()));
         } else {
 			NamedList<Object> response = (NamedList<Object>) ret;
             if (response != null) {
                 NamedList<Object> header = (NamedList<Object>) response.get("responseHeader");
                 if (header != null) { // common
-                    span.tag(SolrjTags.STATUS, header.get("status").toString());
-                    span.tag(SolrjTags.Q_TIME, header.get("QTime").toString());
+                    span.tag(SolrjTags.TAG_STATUS, header.get("status").toString());
+                    span.tag(SolrjTags.TAG_Q_TIME, header.get("QTime").toString());
                 }
                 SolrDocumentList list = (SolrDocumentList) response.get("response");
                 if (list != null) { // query
-                    span.tag(SolrjTags.NUM_FOUND, String.valueOf(list.getNumFound()));
+                    span.tag(SolrjTags.TAG_NUM_FOUND, String.valueOf(list.getNumFound()));
                 }
             }
         }
         SolrjInstance instance = ContextManager.getRuntimeContext().get("instance", SolrjInstance.class);
-        
-        SolrjTags.addHttpEntity(span, instance);
+        SolrjTags.addHttpResponse(span, instance);
         SolrjTags.addElapseTime(span, elapse);
+
+        ContextManager.getRuntimeContext().remove("instance");
+        ContextManager.getRuntimeContext().remove("request.start");
         ContextManager.stopSpan();
-        
-//        ContextManager.getRuntimeContext().remove("instance");
-//        ContextManager.getRuntimeContext().remove("request.start");
+
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

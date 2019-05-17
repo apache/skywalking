@@ -110,6 +110,10 @@ public class ComponentsDefine {
   
     public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
 
+    public static final OfficialComponent SOLR =  new OfficialComponent(57, "Solr");
+
+    public static final OfficialComponent SOLRJ =  new OfficialComponent(58, "SolrJ");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -161,6 +165,8 @@ public class ComponentsDefine {
         addComponent(CANAL);
         addComponent(GSON);
         addComponent(REDISSON);
+        addComponent(SOLR);
+        addComponent(SOLRJ);
     }
 
     private void addComponent(OfficialComponent component) {

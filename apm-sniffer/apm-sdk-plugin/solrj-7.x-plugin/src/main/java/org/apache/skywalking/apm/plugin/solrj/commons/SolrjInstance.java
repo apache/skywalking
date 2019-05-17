@@ -19,6 +19,7 @@ package org.apache.skywalking.apm.plugin.solrj.commons;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class SolrjInstance {
     private String collection;
@@ -43,8 +44,12 @@ public class SolrjInstance {
     long content_length;
     String content_type;
     String content_encoding;
+    int statusCode = -1;
     
-    public void withHttpResponse(HttpEntity entity) {
+    public void withHttpResponse(CloseableHttpResponse response) {
+        statusCode = response.getStatusLine().getStatusCode();
+
+        HttpEntity entity = response.getEntity();
     	Header header = entity.getContentEncoding();
     	if (header != null) 
     		content_encoding = header.toString();
