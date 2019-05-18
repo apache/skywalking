@@ -17,22 +17,23 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.skywalking</groupId>
-        <artifactId>spring-plugins</artifactId>
+        <artifactId>optional-spring-plugins</artifactId>
         <version>6.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>spring-cloud</artifactId>
+    <artifactId>optional-spring-cloud</artifactId>
     <modules>
-        <module>netflix-plugins</module>
+        <module>gateway-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
-    <name>spring-cloud</name>
+    <name>optional-spring-cloud</name>
     <url>http://maven.apache.org</url>
 
     <properties>
