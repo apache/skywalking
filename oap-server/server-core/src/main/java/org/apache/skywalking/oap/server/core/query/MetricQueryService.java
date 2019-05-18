@@ -58,7 +58,7 @@ public class MetricQueryService implements Service {
     public IntValues getValues(final String indName, final List<String> ids, final Step step, final long startTB,
         final long endTB) throws IOException {
         if (CollectionUtils.isEmpty(ids)) {
-            throw new RuntimeException("IDs can't be null");
+            throw new IllegalArgumentException("IDs can't be null");
         }
 
         Where where = new Where();
@@ -73,28 +73,24 @@ public class MetricQueryService implements Service {
     public IntValues getLinearIntValues(final String indName, final String id, final Step step, final long startTB,
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTB, endTB);
-        List<String> ids = new ArrayList<>();
-        if (StringUtil.isEmpty(id)) {
-            durationPoints.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
-        } else {
-            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
-        }
-
+        List<String> ids = durationToId(id, durationPoints);
         return getMetricQueryDAO().getLinearIntValues(indName, step, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }
 
     public Thermodynamic getThermodynamic(final String indName, final String id, final Step step, final long startTB,
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(step, startTB, endTB);
-        List<String> ids = new ArrayList<>();
-        durationPoints.forEach(durationPoint -> {
-            if (id == null) {
-                ids.add(durationPoint.getPoint() + "");
-            } else {
-                ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id);
-            }
-        });
-
+        List<String> ids = durationToId(id, durationPoints);
         return getMetricQueryDAO().getThermodynamic(indName, step, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+    }
+
+    private List<String> durationToId(String originId, List<DurationPoint> points) {
+        List<String> ids = new ArrayList<>();
+        if (StringUtil.isEmpty(originId)) {
+            points.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
+        } else {
+            points.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + originId));
+        }
+        return ids;
     }
 }

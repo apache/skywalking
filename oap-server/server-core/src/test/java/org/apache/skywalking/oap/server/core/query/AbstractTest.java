@@ -64,6 +64,9 @@ public abstract class AbstractTest {
     protected static final int PAGE_SIZE = 100;
     protected static final int PAGE_NUM = 10;
 
+    protected static final long START_TB = 201805L;
+    protected static final long END_TB = 201810L;
+
 
     public AbstractTest() {
 

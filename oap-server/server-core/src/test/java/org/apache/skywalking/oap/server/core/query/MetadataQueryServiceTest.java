@@ -1,4 +1,4 @@
-package org.apache.skywalking.oap.server.core.query;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,23 +15,22 @@ package org.apache.skywalking.oap.server.core.query;/*
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.server.core.query;
 
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.NodeType;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 /**
  * Created by dengming in 2019-05-18
@@ -52,7 +51,7 @@ public class MetadataQueryServiceTest extends AbstractTest {
     private static final long START_TIMESTAMP = 100L;
     private static final long END_TIMESTAMP = 200L;
 
-    private static final String KEYWORD= "keyword";
+    private static final String KEYWORD = "keyword";
 
     private static final String SERVICE_ID = "my-service-id";
 

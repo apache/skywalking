@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.query.entity.Log;
 import org.apache.skywalking.oap.server.core.query.entity.LogState;
 import org.apache.skywalking.oap.server.core.query.entity.Logs;
@@ -30,7 +29,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**
@@ -43,6 +43,7 @@ public class LogQueryServiceTest extends AbstractTest {
     private ILogQueryDAO logQueryDAO = mock(ILogQueryDAO.class);
 
     private static final int TOTAL = 10;
+
     @Before
     public void setUp() throws Exception {
         when(moduleServiceHolder.getService(ILogQueryDAO.class)).thenReturn(logQueryDAO);
@@ -53,8 +54,8 @@ public class LogQueryServiceTest extends AbstractTest {
         for (int i = 1; i <= TOTAL; i++) {
             Log log = new Log();
             log.setServiceId(i);
-            log.setServiceInstanceId(i*10);
-            log.setEndpointId(i*100);
+            log.setServiceInstanceId(i * 10);
+            log.setEndpointId(i * 100);
             logList.add(log);
         }
 
@@ -72,6 +73,7 @@ public class LogQueryServiceTest extends AbstractTest {
     public void queryLogs() throws Exception {
         Logs logs = logQueryService.queryLogs("metric-name", 123,
                 1234, 12345, "trace-id",
+
                 LogState.SUCCESS, "state", PAGINATION, 1234L, 2345L);
         assertNotNull(logs);
         assertEquals(TOTAL, logs.getTotal());
