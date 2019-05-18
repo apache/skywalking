@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
@@ -58,9 +59,16 @@ public abstract class AbstractTest {
     protected ServiceInstanceInventory serviceInstanceInventory = mock(ServiceInstanceInventory.class);
     protected EndpointInventory endpointInventory = mock(EndpointInventory.class);
 
+    protected static final Pagination PAGINATION = new Pagination();
+
+    protected static final int PAGE_SIZE = 100;
+    protected static final int PAGE_NUM = 10;
+
 
     public AbstractTest() {
-        // mock ValueColumnIds
+
+        PAGINATION.setPageSize(PAGE_SIZE);
+        PAGINATION.setPageNum(PAGE_NUM);
 
         // mock serviceInventory
         when(serviceInventory.getName()).thenReturn(SERVICE_INVENTORY_NAME);

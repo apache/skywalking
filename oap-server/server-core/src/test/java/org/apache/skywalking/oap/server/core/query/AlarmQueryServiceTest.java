@@ -43,26 +43,17 @@ public class AlarmQueryServiceTest extends AbstractTest {
 
     private static final String KEY_WORD = "key-word";
 
-    private static final Pagination PAGINATION = new Pagination();
-
-    private static final int PAGE_SIZE = 100;
-    private static final int PAGE_NUM = 10;
-
     private static final long START_TB = 123L;
 
     private static final long END_TB = 13L;
 
     private static final int ALARM_TOTAL = 100;
 
-
-
     @Before
     public void setUp() throws Exception {
 
         when(moduleServiceHolder.getService(IAlarmQueryDAO.class)).thenReturn(alarmQueryDAO);
 
-        PAGINATION.setPageSize(PAGE_SIZE);
-        PAGINATION.setPageNum(PAGE_NUM);
         Alarms alarms = new Alarms();
         alarms.setTotal(ALARM_TOTAL);
 
