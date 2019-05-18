@@ -95,6 +95,7 @@ Now, we have the following known optional plugins.
 * Lettuce 5.x(JRE1.8+) in optional plugin folder 
 * Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
+* Spring-cloud-gateway in optional plugin folder 
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
