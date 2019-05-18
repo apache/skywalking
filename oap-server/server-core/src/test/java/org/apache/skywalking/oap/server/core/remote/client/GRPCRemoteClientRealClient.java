@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -53,7 +53,7 @@ public class GRPCRemoteClientRealClient {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, new TestClassGetter(), address, 1, 10));
+        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, new TestMappingGetter(), address, 1, 10));
         remoteClient.connect();
 
         for (int i = 0; i < 10000; i++) {
@@ -64,7 +64,7 @@ public class GRPCRemoteClientRealClient {
         TimeUnit.MINUTES.sleep(10);
     }
 
-    public static class TestClassGetter implements StreamDataClassGetter {
+    public static class TestMappingGetter implements StreamDataMappingGetter {
 
         @Override public int findIdByClass(Class streamDataClass) {
             return 1;

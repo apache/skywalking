@@ -189,8 +189,11 @@ Zookeeper:
 Vertx:
   id: 59
   languages: Java
-spring-cloud-gateway:
+ShardingSphere:
   id: 60
+  languages: Java
+spring-cloud-gateway:
+  id: 61
   languages: Java
 
 # .NET/.NET Core components

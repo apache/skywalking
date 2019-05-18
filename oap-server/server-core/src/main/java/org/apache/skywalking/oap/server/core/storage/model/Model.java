@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.storage.ttl.*;
 
 /**
  * @author peng-yongsheng
@@ -27,21 +30,40 @@ import lombok.Getter;
 @Getter
 public class Model {
     private final String name;
-    private final boolean isMetrics;
     private final boolean deleteHistory;
     private final List<ModelColumn> columns;
-    private final int sourceScopeId;
+    private final int scopeId;
+    private final TTLCalculator ttlCalculator;
 
-    public Model(String name, List<ModelColumn> columns, boolean isMetrics, boolean deleteHistory,
-        int sourceScopeId) {
-        this.name = name;
+    public Model(String name, List<ModelColumn> columns, boolean deleteHistory,
+        int scopeId, Downsampling downsampling) {
         this.columns = columns;
-        this.isMetrics = isMetrics;
         this.deleteHistory = deleteHistory;
-        this.sourceScopeId = sourceScopeId;
-    }
+        this.scopeId = scopeId;
 
-    public Model copy(String name) {
-        return new Model(name, columns, isMetrics, deleteHistory, sourceScopeId);
+        switch (downsampling) {
+            case Minute:
+                this.name = name;
+                this.ttlCalculator = new MinuteTTLCalculator();
+                break;
+            case Hour:
+                this.name = name + Const.ID_SPLIT + Downsampling.Hour.getName();
+                this.ttlCalculator = new HourTTLCalculator();
+                break;
+            case Day:
+                this.name = name + Const.ID_SPLIT + Downsampling.Day.getName();
+                this.ttlCalculator = new DayTTLCalculator();
+                break;
+            case Month:
+                this.name = name + Const.ID_SPLIT + Downsampling.Month.getName();
+                this.ttlCalculator = new MonthTTLCalculator();
+                break;
+            case Second:
+                this.name = name;
+                this.ttlCalculator = new SecondTTLCalculator();
+                break;
+            default:
+                throw new UnexpectedException("Unexpected downsampling setting.");
+        }
     }
 }

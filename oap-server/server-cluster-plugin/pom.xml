@@ -32,6 +32,7 @@
         <module>cluster-standalone-plugin</module>
         <module>cluster-kubernetes-plugin</module>
         <module>cluster-consul-plugin</module>
+        <module>cluster-nacos-plugin</module>
     </modules>
 
     <dependencies>
