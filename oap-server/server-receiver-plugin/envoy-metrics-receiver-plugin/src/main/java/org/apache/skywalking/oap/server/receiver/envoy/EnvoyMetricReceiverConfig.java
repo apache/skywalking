@@ -18,18 +18,21 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import com.google.common.base.Strings;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author wusheng,gaohongtao
+ * @author wusheng, gaohongtao
  */
 public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String alsHTTPAnalysis;
 
     public List<String> getAlsHTTPAnalysis() {
+        if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
+            return Collections.EMPTY_LIST;
+        }
         return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
     }
 }
