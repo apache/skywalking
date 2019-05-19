@@ -14,4 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-seata-tm=org.apache.skywalking.apm.plugin.seata.TransactionManagerInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.define.TransactionManagerInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.define.TransactionCoordinatorInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.define.AbstractMessageInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.define.TmRpcClientInstrumentation

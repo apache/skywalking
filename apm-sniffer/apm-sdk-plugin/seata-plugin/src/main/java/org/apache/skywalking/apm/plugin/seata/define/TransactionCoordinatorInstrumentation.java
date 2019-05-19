@@ -1,6 +1,5 @@
-package org.apache.skywalking.apm.plugin.seata;
+package org.apache.skywalking.apm.plugin.seata.define;
 
-import io.seata.tm.DefaultTransactionManager;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -8,22 +7,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.anyOf;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class TransactionManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TransactionCoordinatorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-  private static final String ENHANCE_CLASS = DefaultTransactionManager.class.getName();
-
-  private static final String INTERCEPT_CLASS = TransactionManagerInterceptor.class.getName();
-
-  private static final ElementMatcher<MethodDescription> INTERCEPT_METHODS_MATCHER = anyOf(
-      named("begin"),
-      named("commit"),
-      named("rollback"),
-      named("getStatus")
-  );
+  private static final String ENHANCE_CLASS_TC = "io.seata.server.coordinator.DefaultCoordinator";
+  private static final String INTERCEPT_CLASS_TC = "org.apache.skywalking.apm.plugin.seata.interceptor.TransactionCoordinatorInterceptor";
 
   @Override
   protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -36,12 +26,16 @@ public class TransactionManagerInstrumentation extends ClassInstanceMethodsEnhan
         new InstanceMethodsInterceptPoint() {
           @Override
           public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return INTERCEPT_METHODS_MATCHER;
+            return named("doGlobalBegin")
+                .or(named("doGlobalCommit"))
+                .or(named("doGlobalRollback"))
+                .or(named("doGlobalStatus"))
+                ;
           }
 
           @Override
           public String getMethodsInterceptor() {
-            return INTERCEPT_CLASS;
+            return INTERCEPT_CLASS_TC;
           }
 
           @Override
@@ -54,6 +48,6 @@ public class TransactionManagerInstrumentation extends ClassInstanceMethodsEnhan
 
   @Override
   protected ClassMatch enhanceClass() {
-    return byName(ENHANCE_CLASS);
+    return byName(ENHANCE_CLASS_TC);
   }
 }
