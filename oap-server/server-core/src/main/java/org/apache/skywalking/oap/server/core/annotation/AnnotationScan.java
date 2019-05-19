@@ -52,16 +52,14 @@ public class AnnotationScan {
             }
         }
 
-        listeners.forEach(listener ->
-            listener.complete()
-        );
+        listeners.forEach(AnnotationListenerCache::complete);
 
         if (callBack != null) {
             callBack.run();
         }
     }
 
-    public class AnnotationListenerCache {
+    private class AnnotationListenerCache {
         private AnnotationListener listener;
         private List<Class<?>> matchedClass;
 

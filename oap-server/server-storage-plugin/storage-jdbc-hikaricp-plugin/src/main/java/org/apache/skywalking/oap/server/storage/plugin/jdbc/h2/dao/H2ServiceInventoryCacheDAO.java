@@ -19,17 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -44,17 +40,17 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
 
     @Override public int getServiceId(String serviceName) {
         String id = ServiceInventory.buildId(serviceName);
-        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.MODEL_NAME, id);
+        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.INDEX_NAME, id);
     }
 
     @Override public int getServiceId(int addressId) {
         String id = ServiceInventory.buildId(addressId);
-        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.MODEL_NAME, id);
+        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.INDEX_NAME, id);
     }
 
     @Override public ServiceInventory get(int serviceId) {
         try {
-            return (ServiceInventory)getByColumn(h2Client, ServiceInventory.MODEL_NAME, ServiceInventory.SEQUENCE, serviceId, new ServiceInventory.Builder());
+            return (ServiceInventory)getByColumn(h2Client, ServiceInventory.INDEX_NAME, ServiceInventory.SEQUENCE, serviceId, new ServiceInventory.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
@@ -66,7 +62,7 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
 
         try {
             StringBuilder sql = new StringBuilder("select * from ");
-            sql.append(ServiceInventory.MODEL_NAME);
+            sql.append(ServiceInventory.INDEX_NAME);
             sql.append(" where ").append(ServiceInventory.IS_ADDRESS).append("=? ");
             sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
 
@@ -74,7 +70,7 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 30 * 60 * 1000)) {
                     ServiceInventory serviceInventory;
                     do {
-                        serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder());
+                        serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.INDEX_NAME, new ServiceInventory.Builder());
                         if (serviceInventory != null) {
                             serviceInventories.add(serviceInventory);
                         }
