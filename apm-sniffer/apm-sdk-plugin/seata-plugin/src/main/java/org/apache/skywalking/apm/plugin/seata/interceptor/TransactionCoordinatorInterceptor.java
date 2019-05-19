@@ -1,6 +1,7 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.seata.core.protocol.transaction.GlobalBeginRequest;
+import io.seata.core.protocol.transaction.GlobalBeginResponse;
 import io.seata.core.protocol.transaction.GlobalCommitRequest;
 import io.seata.core.protocol.transaction.GlobalRollbackRequest;
 import io.seata.core.protocol.transaction.GlobalStatusRequest;
@@ -21,6 +22,8 @@ import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
 
+import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
+
 public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundInterceptor {
   @Override
   public void beforeMethod(final EnhancedInstance objInst,
@@ -33,21 +36,31 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
 
     EnhancedRequest enhancedRequest = null;
     String methodName = null;
+    String xid = null;
 
     if (request instanceof GlobalBeginRequest) {
       enhancedRequest = (EnhancedGlobalBeginRequest) request;
 
       methodName = "begin";
     } else if (request instanceof GlobalCommitRequest) {
-      enhancedRequest = (EnhancedGlobalCommitRequest) request;
+      final EnhancedGlobalCommitRequest commitRequest = (EnhancedGlobalCommitRequest) request;
+
+      xid = commitRequest.getXid();
+      enhancedRequest = commitRequest;
 
       methodName = "commit";
     } else if (request instanceof GlobalRollbackRequest) {
-      enhancedRequest = (EnhancedGlobalRollbackRequest) request;
+      final EnhancedGlobalRollbackRequest rollbackRequest = (EnhancedGlobalRollbackRequest) request;
+
+      xid = rollbackRequest.getXid();
+      enhancedRequest = rollbackRequest;
 
       methodName = "rollback";
     } else if (request instanceof GlobalStatusRequest) {
-      enhancedRequest = (EnhancedGlobalGetStatusRequest) request;
+      final EnhancedGlobalGetStatusRequest statusRequest = (EnhancedGlobalGetStatusRequest) request;
+
+      xid = statusRequest.getXid();
+      enhancedRequest = statusRequest;
 
       methodName = "getStatus";
     }
@@ -65,6 +78,10 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
           ComponentsDefine.SEATA.getName() + "/TC/" + methodName,
           contextCarrier
       );
+
+      if (xid != null) {
+        span.tag(XID, xid);
+      }
       span.setComponent(ComponentsDefine.SEATA);
       SpanLayer.asDB(span);
     }
@@ -76,7 +93,14 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
                             final Object[] allArguments,
                             final Class<?>[] argumentsTypes,
                             final Object ret) throws Throwable {
-    if (ContextManager.activeSpan() != null) {
+    final AbstractSpan activeSpan = ContextManager.activeSpan();
+    if (activeSpan != null) {
+      if (ret instanceof GlobalBeginResponse) {
+        final GlobalBeginResponse beginResponse = (GlobalBeginResponse) ret;
+        final String xid = beginResponse.getXid();
+        activeSpan.tag(XID, xid);
+      }
+
       ContextManager.stopSpan();
     }
     return ret;
