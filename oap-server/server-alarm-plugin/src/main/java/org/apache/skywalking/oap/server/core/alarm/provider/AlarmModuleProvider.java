@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 public class AlarmModuleProvider extends ModuleProvider {
+
     private NotifyHandler notifyHandler;
 
     @Override public String name() {
