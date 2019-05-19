@@ -17,19 +17,30 @@
  */
 package org.apache.skywalking.oap.server.core.query;
 
+import org.apache.skywalking.oap.server.core.query.entity.Topology;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by dengming in 2019-05-18
  */
-public class QueryModuleTest {
+public class TopologyBuilderTest extends AbstractTopologyTest {
+
+    private TopologyBuilder builder;
+
+    @Before
+    public void setUp() throws Exception {
+
+        builder = new TopologyBuilder(moduleManager);
+    }
 
     @Test
-    public void services() {
-        QueryModule module = new QueryModule();
-        Class[] services = module.services();
-        assertEquals(0, services.length);
+    public void build() {
+        Topology topology = builder.build(mockClientCall(), mockServerCall());
+        assertNotNull(topology);
+        assertTopology(topology);
     }
+
 }

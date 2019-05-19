@@ -18,20 +18,30 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import java.io.IOException;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.Call;
+import org.apache.skywalking.oap.server.core.query.entity.Node;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.query.*;
+import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.elasticsearch.common.Strings;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author peng-yongsheng
@@ -79,7 +89,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getGlobalTopology(final Step step, final long startTB, final long endTB, final long startTimestamp,
-        final long endTimestamp) throws IOException {
+                                      final long endTimestamp) throws IOException {
         logger.debug("step: {}, startTimeBucket: {}, endTimeBucket: {}", step, startTB, endTB);
         List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(step, startTB, endTB);
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(step, startTB, endTB);
@@ -91,7 +101,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getServiceTopology(final Step step, final long startTB, final long endTB,
-        final int serviceId) throws IOException {
+                                       final int serviceId) throws IOException {
         List<Integer> serviceIds = new ArrayList<>();
         serviceIds.add(serviceId);
 
@@ -121,6 +131,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getEndpointTopology(final Step step, final long startTB, final long endTB,
+<<<<<<< HEAD
         final int endpointId) throws IOException {
         List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
 
@@ -134,8 +145,18 @@ public class TopologyQueryService implements Service {
             topology.getCalls().add(call);
         });
 
+=======
+                                        final int endpointId) throws IOException {
+        Topology topology = new Topology();
+>>>>>>> Add unit tests for TopologyXXX
         Set<Integer> nodeIds = new HashSet<>();
+
+        List<Call> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(step, startTB, endTB, endpointId);
         serverSideCalls.forEach(call -> {
+            call.setDetectPoint(DetectPoint.SERVER);
+            call.setCallType(Const.EMPTY_STRING);
+            topology.getCalls().add(call);
+
             if (!nodeIds.contains(call.getSource())) {
                 topology.getNodes().add(buildEndpointNode(call.getSource()));
                 nodeIds.add(call.getSource());

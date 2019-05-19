@@ -23,8 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.Duration;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -80,7 +78,7 @@ public class DurationUtilsTest {
     public void startTimeToTimestamp() throws Exception {
         long time = utils.startTimeToTimestamp(Step.MONTH, "2018-05");
         assertEquals(1525104000000L, time);
-        time  = utils.startTimeToTimestamp(Step.DAY, "2018-05-23");
+        time = utils.startTimeToTimestamp(Step.DAY, "2018-05-23");
         assertEquals(1527004800000L, time);
 
         time = utils.startTimeToTimestamp(Step.HOUR, "2018-05-23 17");
@@ -97,7 +95,7 @@ public class DurationUtilsTest {
     public void endTimeToTimestamp() throws Exception {
         long time = utils.endTimeToTimestamp(Step.MONTH, "2018-05");
         assertEquals(1527782400000L, time);
-        time  = utils.endTimeToTimestamp(Step.DAY, "2018-05-23");
+        time = utils.endTimeToTimestamp(Step.DAY, "2018-05-23");
         assertEquals(1527091200000L, time);
 
         time = utils.endTimeToTimestamp(Step.HOUR, "2018-05-23 17");
@@ -153,12 +151,12 @@ public class DurationUtilsTest {
     }
 
     private void getDurationPoints(Step step, long start, long end) throws Exception {
-        long size = end - start +1;
+        long size = end - start + 1;
         List<DurationPoint> durations = utils.getDurationPoints(step, start, end);
         assertEquals(size, durations.size());
         for (int i = 0; i < size; i++) {
             DurationPoint point = durations.get(i);
-            assertEquals(start+i, point.getPoint());
+            assertEquals(start + i, point.getPoint());
         }
     }
 }

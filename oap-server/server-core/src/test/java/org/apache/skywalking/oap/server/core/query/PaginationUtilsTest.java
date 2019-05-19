@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.query;
 import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by dengming in 2019-05-18

@@ -26,7 +26,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -44,7 +44,7 @@ public class TopNRecordsQueryServiceTest extends AbstractTest {
 
     @Test
     public void getTopNRecords() throws Exception {
-        long startSecondTB=20190516013223L;
+        long startSecondTB = 20190516013223L;
         long endSecondTB = 20190516014223L;
         String metricName = "metricName";
         int serviceId = 1;

@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
-import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -34,11 +33,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -118,7 +116,7 @@ public class MetricQueryServiceTest extends AbstractTest {
         assertEquals(END_TB - START_TB + 1, idList.size());
 
         for (int i = 0; i < idList.size(); i++) {
-            assertEquals((START_TB+i) + Const.ID_SPLIT + id, idList.get(i));
+            assertEquals((START_TB + i) + Const.ID_SPLIT + id, idList.get(i));
         }
         assertEquals(mockIntValues, intValues);
 
@@ -133,7 +131,7 @@ public class MetricQueryServiceTest extends AbstractTest {
         assertEquals(END_TB - START_TB + 1, idList.size());
 
         for (int i = 0; i < idList.size(); i++) {
-            assertEquals(String.valueOf(START_TB+i), idList.get(i));
+            assertEquals(String.valueOf(START_TB + i), idList.get(i));
         }
         assertEquals(mockIntValues, intValues);
     }
@@ -163,10 +161,8 @@ public class MetricQueryServiceTest extends AbstractTest {
 
 
         for (int i = 0; i < ids.size(); i++) {
-            assertEquals((START_TB+i) + Const.ID_SPLIT + id, ids.get(i));
+            assertEquals((START_TB + i) + Const.ID_SPLIT + id, ids.get(i));
         }
-
-
 
 
         thermodynamic = queryService.getThermodynamic(IND_NAME, null, Step.MONTH, START_TB, END_TB);
@@ -179,7 +175,7 @@ public class MetricQueryServiceTest extends AbstractTest {
         assertEquals(END_TB - START_TB + 1, ids.size());
         assertEquals(VALUE_C_NAME, cNameCaptor.getValue());
         for (int i = 0; i < ids.size(); i++) {
-            assertEquals(String.valueOf(START_TB+i), ids.get(i));
+            assertEquals(String.valueOf(START_TB + i), ids.get(i));
         }
 
     }
