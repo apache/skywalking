@@ -41,22 +41,22 @@ public class SolrjInstance {
         this.remotePeer = remotePeer;
     }
     
-    long content_length;
-    String content_type;
-    String content_encoding;
+    long content_length = 0;
+    String content_type = "";
+    String content_encoding = "";
     int statusCode = -1;
     
-    public void withHttpResponse(CloseableHttpResponse response) {
-        statusCode = response.getStatusLine().getStatusCode();
-
-        HttpEntity entity = response.getEntity();
+    public void withHttpResponse(int statusCode, HttpEntity entity) {
     	Header header = entity.getContentEncoding();
-    	if (header != null) 
-    		content_encoding = header.toString();
-    	header = entity.getContentType();
-    	if (header != null) 
-    		content_type = header.toString();
-    	
-    	content_length = entity.getContentLength();
+        if (header != null) {
+            this.content_encoding = header.toString();
+        }
+        header = entity.getContentType();
+        if (header != null) {
+            this.content_type = header.toString();
+        }
+
+        this.statusCode = statusCode;
+        this.content_length = entity.getContentLength();
     }
 }

@@ -54,7 +54,7 @@ public class SolrConnectorInterceptor implements InstanceMethodsAroundIntercepto
     	SolrjInstance instance = ContextManager.getRuntimeContext().get("instance", SolrjInstance.class);
         if (ContextManager.isActive()) {
             CloseableHttpResponse response = (CloseableHttpResponse) ret;
-            instance.withHttpResponse(response);
+            instance.withHttpResponse(response.getStatusLine().getStatusCode(), response.getEntity());
         }
         return ret;
     }

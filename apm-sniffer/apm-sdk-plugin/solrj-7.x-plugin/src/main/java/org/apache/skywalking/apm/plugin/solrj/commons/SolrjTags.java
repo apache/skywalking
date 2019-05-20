@@ -35,16 +35,10 @@ public class SolrjTags {
 
 
     public static StringTag TAG_COMMIT = new StringTag(15, "commit");
-    public static StringTag TAG_SOFT_COMMIT = new StringTag(16, "solrCommit");
+    public static StringTag TAG_SOFT_COMMIT = new StringTag(16, "softCommit");
 
     public static StringTag TAG_OPTIMIZE = new StringTag(17, "optimize");
     public static StringTag TAG_MAX_OPTIMIZE_SEGMENTS = new StringTag(18, "maxOptimizeSegs");
-
-
-//    static StringTag HANDLE = new StringTag(1,"qt");
-//    static StringTag QT = new StringTag(1,"qt");
-//    static StringTag QT = new StringTag(1,"qt");
-
 
     public static StringTag TAG_STATUS_CODE = new StringTag(10, "statusCode");
     public static StringTag TAG_ELAPSE_TIME = new StringTag(11, "elapseTime");

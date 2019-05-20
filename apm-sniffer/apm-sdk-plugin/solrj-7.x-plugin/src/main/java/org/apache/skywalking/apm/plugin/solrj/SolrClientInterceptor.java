@@ -92,7 +92,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         if (request instanceof AbstractUpdateRequest) {
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/select"));
             AbstractUpdateRequest update = (AbstractUpdateRequest) request;
-            String action = "add";
+            String action = "ADD";
             if (update.getAction() != null) {
                 action = update.getAction().name();
 
@@ -126,8 +126,8 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
         if (!ContextManager.isActive()) return ret;
 
-    	Long qstart = ContextManager.getRuntimeContext().get("request.start", Long.class);
-    	long elapse = System.currentTimeMillis() - qstart.longValue();
+    	Long qStart = ContextManager.getRuntimeContext().get("request.start", Long.class);
+    	long elapse = System.currentTimeMillis() - qStart.longValue();
 
         AbstractSpan span = ContextManager.activeSpan();
         if (ret instanceof SolrDocumentList) {
