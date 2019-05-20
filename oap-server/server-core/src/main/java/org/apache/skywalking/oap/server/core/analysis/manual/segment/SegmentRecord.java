@@ -22,8 +22,9 @@ import java.util.*;
 import lombok.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.analysis.record.annotation.RecordType;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
@@ -32,8 +33,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 /**
  * @author peng-yongsheng
  */
-@RecordType
-@StorageEntity(name = SegmentRecord.INDEX_NAME, builder = SegmentRecord.Builder.class, sourceScopeId = DefaultScopeDefine.SEGMENT)
+@Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, storage = @Storage(builder = SegmentRecord.Builder.class), processor = RecordStreamProcessor.class)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";
@@ -50,18 +50,18 @@ public class SegmentRecord extends Record {
     public static final String DATA_BINARY = "data_binary";
     public static final String VERSION = "version";
 
-    @Setter @Getter @Column(columnName = SEGMENT_ID) @IDColumn private String segmentId;
-    @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
-    @Setter @Getter @Column(columnName = SERVICE_ID) @IDColumn private int serviceId;
-    @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) @IDColumn private int serviceInstanceId;
-    @Setter @Getter @Column(columnName = ENDPOINT_NAME, matchQuery = true) @IDColumn private String endpointName;
-    @Setter @Getter @Column(columnName = ENDPOINT_ID) @IDColumn private int endpointId;
-    @Setter @Getter @Column(columnName = START_TIME) @IDColumn private long startTime;
-    @Setter @Getter @Column(columnName = END_TIME) @IDColumn private long endTime;
-    @Setter @Getter @Column(columnName = LATENCY) @IDColumn private int latency;
-    @Setter @Getter @Column(columnName = IS_ERROR) @IDColumn private int isError;
-    @Setter @Getter @Column(columnName = DATA_BINARY) @IDColumn private byte[] dataBinary;
-    @Setter @Getter @Column(columnName = VERSION) @IDColumn private int version;
+    @Setter @Getter @Column(columnName = SEGMENT_ID) private String segmentId;
+    @Setter @Getter @Column(columnName = TRACE_ID) private String traceId;
+    @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
+    @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) private int serviceInstanceId;
+    @Setter @Getter @Column(columnName = ENDPOINT_NAME, matchQuery = true) private String endpointName;
+    @Setter @Getter @Column(columnName = ENDPOINT_ID) private int endpointId;
+    @Setter @Getter @Column(columnName = START_TIME) private long startTime;
+    @Setter @Getter @Column(columnName = END_TIME) private long endTime;
+    @Setter @Getter @Column(columnName = LATENCY) private int latency;
+    @Setter @Getter @Column(columnName = IS_ERROR) private int isError;
+    @Setter @Getter @Column(columnName = DATA_BINARY) private byte[] dataBinary;
+    @Setter @Getter @Column(columnName = VERSION) private int version;
 
     @Override public String id() {
         return segmentId;

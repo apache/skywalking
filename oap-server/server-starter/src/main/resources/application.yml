@@ -33,6 +33,9 @@ cluster:
 #    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
 #     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
 #    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+#  nacos:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
 core:
   default:
     # Mixed: Receive agent data, Level 1 aggregate, Level 2 aggregate
@@ -48,7 +51,7 @@ core:
       - Hour
       - Day
       - Month
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
@@ -67,11 +70,15 @@ storage:
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
+    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
 #  h2:
 #    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
 #    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
 #    user: ${SW_STORAGE_H2_USER:sa}
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 #  mysql:
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
 receiver-register:
@@ -98,11 +105,16 @@ istio-telemetry:
   default:
 envoy-metric:
   default:
+#    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
 #receiver_zipkin:
 #  default:
 #    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
 #    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
 #    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
+#receiver_jaeger:
+#  default:
+#    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
+#    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 query:
   graphql:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
@@ -110,7 +122,9 @@ alarm:
   default:
 telemetry:
   prometheus:
+    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 #exporter:
 #  grpc:
-#    targetHost: 127.0.0.1
-#    targetPort: 9870
+#    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+#    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -79,7 +79,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            if (DefaultScopeDefine.SEGMENT == model.getSourceScopeId()) {
+            if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
                 if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID))
                     return "VARCHAR(300)";
             }
@@ -94,7 +94,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     protected void createIndexes(JDBCHikariCPClient client, Model model) throws StorageException {
-        switch (model.getSourceScopeId()) {
+        switch (model.getScopeId()) {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
             case NETWORK_ADDRESS:
@@ -108,12 +108,12 @@ public class MySQLTableInstaller extends H2TableInstaller {
                 createAlarmIndexes(client, model);
                 return;
             default:
-                createIndexesForAllIndicators(client, model);
+                createIndexesForAllMetrics(client, model);
 
         }
     }
 
-    private void createIndexesForAllIndicators(JDBCHikariCPClient client, Model model) throws StorageException {
+    private void createIndexesForAllMetrics(JDBCHikariCPClient client, Model model) throws StorageException {
         try (Connection connection = client.getConnection()) {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TIME_BUCKET ");

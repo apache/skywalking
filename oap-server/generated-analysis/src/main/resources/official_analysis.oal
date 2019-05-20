@@ -16,7 +16,7 @@
  *
  */
 
-// All scope metric
+// All scope metrics
 all_p99 = from(All.latency).p99(10);
 all_p95 = from(All.latency).p95(10);
 all_p90 = from(All.latency).p90(10);
@@ -24,7 +24,7 @@ all_p75 = from(All.latency).p75(10);
 all_p50 = from(All.latency).p50(10);
 all_heatmap = from(All.latency).thermodynamic(100, 20);
 
-// Service scope metric
+// Service scope metrics
 service_resp_time = from(Service.latency).longAvg();
 service_sla = from(Service.*).percent(status == true);
 service_cpm = from(Service.*).cpm();
@@ -34,7 +34,7 @@ service_p90 = from(Service.latency).p90(10);
 service_p75 = from(Service.latency).p75(10);
 service_p50 = from(Service.latency).p50(10);
 
-// Service relation scope metric for topology
+// Service relation scope metrics for topology
 service_relation_client_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).cpm();
 service_relation_server_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();
 service_relation_client_call_sla = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).percent(status == true);
@@ -42,12 +42,12 @@ service_relation_server_call_sla = from(ServiceRelation.*).filter(detectPoint ==
 service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();
 service_relation_server_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).longAvg();
 
-// Service Instance Scope metric
+// Service Instance Scope metrics
 service_instance_sla = from(ServiceInstance.*).percent(status == true);
 service_instance_resp_time= from(ServiceInstance.latency).longAvg();
 service_instance_cpm = from(ServiceInstance.*).cpm();
 
-// Endpoint scope metric
+// Endpoint scope metrics
 endpoint_cpm = from(Endpoint.*).cpm();
 endpoint_avg = from(Endpoint.latency).longAvg();
 endpoint_sla = from(Endpoint.*).percent(status == true);
@@ -57,11 +57,11 @@ endpoint_p90 = from(Endpoint.latency).p90(10);
 endpoint_p75 = from(Endpoint.latency).p75(10);
 endpoint_p50 = from(Endpoint.latency).p50(10);
 
-// Endpoint relation scope metric
+// Endpoint relation scope metrics
 endpoint_relation_cpm = from(EndpointRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();
 endpoint_relation_resp_time = from(EndpointRelation.rpcLatency).filter(detectPoint == DetectPoint.SERVER).longAvg();
 
-// JVM instance metric
+// JVM instance metrics
 instance_jvm_cpu = from(ServiceInstanceJVMCPU.usePercent).doubleAvg();
 instance_jvm_memory_heap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == true).longAvg();
 instance_jvm_memory_noheap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == false).longAvg();
@@ -81,7 +81,7 @@ database_access_p90 = from(DatabaseAccess.latency).p90(10);
 database_access_p75 = from(DatabaseAccess.latency).p75(10);
 database_access_p50 = from(DatabaseAccess.latency).p50(10);
 
-// CLR instance metric
+// CLR instance metrics
 instance_clr_cpu = from(ServiceInstanceCLRCPU.usePercent).doubleAvg();
 instance_clr_gen0_collect_count = from(ServiceInstanceCLRGC.gen0CollectCount).sum();
 instance_clr_gen1_collect_count = from(ServiceInstanceCLRGC.gen1CollectCount).sum();
@@ -92,7 +92,7 @@ instance_clr_available_worker_threads = from(ServiceInstanceCLRThread.availableW
 instance_clr_max_completion_port_threads = from(ServiceInstanceCLRThread.maxCompletionPortThreads).max();
 instance_clr_max_worker_threads = from(ServiceInstanceCLRThread.maxWorkerThreads).max();
 
-// Envoy instance metric
+// Envoy instance metrics
 envoy_heap_memory_max_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.memory_heap_size").maxDouble();
 envoy_total_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.total_connections").maxDouble();
 envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.parent_connections").maxDouble();
@@ -102,3 +102,5 @@ envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricNam
 // disable(segment);
 // disable(endpoint_relation_server_side);
 // disable(top_n_database_statement);
+// disable(zipkin_span);
+// disable(jaeger_span);

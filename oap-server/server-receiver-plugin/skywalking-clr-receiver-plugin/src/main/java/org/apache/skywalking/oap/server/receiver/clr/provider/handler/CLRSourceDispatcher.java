@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.clr.provider.handler;
 
+import java.util.Objects;
 import org.apache.skywalking.apm.network.common.CPU;
 import org.apache.skywalking.apm.network.language.agent.CLRMetric;
 import org.apache.skywalking.apm.network.language.agent.ClrGC;
@@ -48,17 +49,17 @@ public class CLRSourceDispatcher {
         instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
-    void sendMetric(int serviceInstanceId, long minuteTimeBucket, CLRMetric metric) {
+    void sendMetric(int serviceInstanceId, long minuteTimeBucket, CLRMetric metrics) {
         ServiceInstanceInventory serviceInstanceInventory = instanceInventoryCache.get(serviceInstanceId);
         int serviceId;
-        if (serviceInstanceInventory == null) {
+        if (Objects.nonNull(serviceInstanceInventory)) {
             serviceId = serviceInstanceInventory.getServiceId();
         } else {
             logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
             return;
         }
 
-        CPU cpu = metric.getCpu();
+        CPU cpu = metrics.getCpu();
         ServiceInstanceCLRCPU serviceInstanceCLRCPU = new ServiceInstanceCLRCPU();
         serviceInstanceCLRCPU.setUsePercent(cpu.getUsagePercent());
         serviceInstanceCLRCPU.setTimeBucket(minuteTimeBucket);
@@ -68,7 +69,7 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRCPU.setServiceName(Const.EMPTY_STRING);
         sourceReceiver.receive(serviceInstanceCLRCPU);
 
-        ClrGC gc = metric.getGc();
+        ClrGC gc = metrics.getGc();
         ServiceInstanceCLRGC serviceInstanceCLRGC = new ServiceInstanceCLRGC();
         serviceInstanceCLRGC.setGen0CollectCount(gc.getGen0CollectCount());
         serviceInstanceCLRGC.setGen1CollectCount(gc.getGen1CollectCount());
@@ -81,7 +82,7 @@ public class CLRSourceDispatcher {
         serviceInstanceCLRGC.setServiceName(Const.EMPTY_STRING);
         sourceReceiver.receive(serviceInstanceCLRGC);
 
-        ClrThread thread = metric.getThread();
+        ClrThread thread = metrics.getThread();
         ServiceInstanceCLRThread serviceInstanceCLRThread = new ServiceInstanceCLRThread();
         serviceInstanceCLRThread.setAvailableCompletionPortThreads(thread.getAvailableCompletionPortThreads());
         serviceInstanceCLRThread.setAvailableWorkerThreads(thread.getAvailableWorkerThreads());

@@ -16,6 +16,11 @@
 
 #!/bin/bash
 
-set -ex
+set -e
 
-exec java -XX:+PrintFlagsFinal -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar webapp/skywalking-webapp.jar --logging.config=webapp/logback.xml "$@"
+export LOGGING_CONFIG="webapp/logback.xml"
+
+[[ ! -z "$SW_OAP_ADDRESS" ]] && export COLLECTOR_RIBBON_LISTOFSERVERS=${SW_OAP_ADDRESS} && echo "COLLECTOR_RIBBON_LISTOFSERVERS=$COLLECTOR_RIBBON_LISTOFSERVERS"
+[[ ! -z "$SW_TIMEOUT" ]] && export COLLECTOR_RIBBON_READTIMEOUT=${SW_TIMEOUT} && echo "COLLECTOR_RIBBON_READTIMEOUT=$COLLECTOR_RIBBON_READTIMEOUT"
+
+exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar webapp/skywalking-webapp.jar "$@"

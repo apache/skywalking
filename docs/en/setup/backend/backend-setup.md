@@ -66,20 +66,35 @@ DB. But clearly, it doesn't fit the product env. In here, you could find what ot
 Choose the one you like, we are also welcome anyone to contribute new storage implementor,
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
-1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metric accurate, only don't save some of traces
+1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metrics accurate, only don't save some of traces
 in storage based on rate.
 1. Follow [slow DB statement threshold](slow-db-statement.md) config document to understand that, 
 how to detect the Slow database statements(including SQL statements) in your system.
 1. Official [OAL scripts](../../guides/backend-oal-scripts.md). As you known from our [OAL introduction](../../concepts-and-designs/oal.md),
 most of backend analysis capabilities based on the scripts. Here is the description of official scripts,
-which helps you to understand which metric data are in process, also could be used in alarm.
+which helps you to understand which metrics data are in process, also could be used in alarm.
 1. [Alarm](backend-alarm.md). Alarm provides a time-series based check mechanism. You could set alarm 
-rules targeting the analysis oal metric objects.
+rules targeting the analysis oal metrics objects.
 1. [Advanced deployment options](advanced-deployment.md). If you want to deploy backend in very large
 scale and support high payload, you may need this. 
-1. [Metric exporter](metric-exporter.md). Use metric data exporter to forward metric data to 3rd party
+1. [Metrics exporter](metrics-exporter.md). Use metrics data exporter to forward metrics data to 3rd party
 system.
+1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, they would be saved forever, you could 
+set the expired time for each dimension.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
 we provide the telemetry for OAP backend itself. Follow [document](backend-telemetry.md) to use it.
+
+
+## FAQs
+#### When and why do we need to set Timezone?
+SkyWalking provides downsampling time series metrics features. 
+Query and storage at each time dimension(minute, hour, day, month metrics indexes)
+related to timezone when doing time format. 
+
+For example, metrics time will be formatted like YYYYMMDDHHmm in minute dimension metrics,
+which format process is timezone related.
+  
+In default, SkyWalking OAP backend choose the OS default timezone.
+If you want to override it, please follow Java and OS documents to do so.

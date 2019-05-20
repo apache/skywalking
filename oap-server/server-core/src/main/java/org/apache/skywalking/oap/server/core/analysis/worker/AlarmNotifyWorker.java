@@ -18,30 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
-import org.apache.skywalking.oap.server.core.analysis.indicator.WithMetadata;
+import org.apache.skywalking.oap.server.core.alarm.AlarmEntrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * Alarm notify worker, do a simple route to alarm core after the aggregation persistence.
  *
  * @author wusheng
  */
-public class AlarmNotifyWorker extends AbstractWorker<Indicator> {
-    private ModuleManager moduleManager;
+public class AlarmNotifyWorker extends AbstractWorker<Metrics> {
     private AlarmEntrance entrance;
 
-    public AlarmNotifyWorker(int workerId, ModuleManager moduleManager) {
-        super(workerId);
-        this.moduleManager = moduleManager;
-        this.entrance = new AlarmEntrance(moduleManager);
+    public AlarmNotifyWorker(ModuleDefineHolder moduleDefineHolder) {
+        super(moduleDefineHolder);
+        this.entrance = new AlarmEntrance(moduleDefineHolder);
     }
 
-    @Override public void in(Indicator indicator) {
-        if (indicator instanceof WithMetadata) {
-            entrance.forward(indicator);
+    @Override public void in(Metrics metrics) {
+        if (metrics instanceof WithMetadata) {
+            entrance.forward(metrics);
         }
     }
 }

@@ -46,7 +46,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
     @Override public int getAddressId(String networkAddress) {
         try {
             String id = NetworkAddressInventory.buildId(networkAddress);
-            GetResponse response = getClient().get(NetworkAddressInventory.MODEL_NAME, id);
+            GetResponse response = getClient().get(NetworkAddressInventory.INDEX_NAME, id);
             if (response.isExists()) {
                 return (int)response.getSource().getOrDefault(NetworkAddressInventory.SEQUENCE, 0);
             } else {
@@ -64,7 +64,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
             searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(NetworkAddressInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

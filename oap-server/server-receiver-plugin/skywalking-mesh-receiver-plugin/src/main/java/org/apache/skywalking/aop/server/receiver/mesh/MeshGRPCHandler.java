@@ -28,24 +28,24 @@ import org.slf4j.*;
 public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
 
-    private HistogramMetric histogram;
+    private HistogramMetrics histogram;
 
     public MeshGRPCHandler(ModuleManager moduleManager) {
-        MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-        histogram = metricCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry",
-            MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     @Override
     public StreamObserver<ServiceMeshMetric> collect(StreamObserver<MeshProbeDownstream> responseObserver) {
         return new StreamObserver<ServiceMeshMetric>() {
-            @Override public void onNext(ServiceMeshMetric metric) {
+            @Override public void onNext(ServiceMeshMetric metrics) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Received mesh metric: {}", metric);
+                    logger.debug("Received mesh metrics: {}", metrics);
                 }
-                HistogramMetric.Timer timer = histogram.createTimer();
+                HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    TelemetryDataDispatcher.preProcess(metric);
+                    TelemetryDataDispatcher.preProcess(metrics);
                 } finally {
                     timer.finish();
                 }

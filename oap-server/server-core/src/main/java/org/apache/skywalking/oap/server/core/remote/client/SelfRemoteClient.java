@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.worker.WorkerInstances;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
@@ -31,13 +31,15 @@ import org.apache.skywalking.oap.server.telemetry.api.*;
 public class SelfRemoteClient implements RemoteClient {
 
     private final Address address;
-    private CounterMetric remoteOutCounter;
+    private CounterMetrics remoteOutCounter;
+    private final IWorkerInstanceGetter workerInstanceGetter;
 
     public SelfRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address) {
         this.address = address;
-        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+        workerInstanceGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceGetter.class);
+        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "Y"));
+                new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address.toString(), "Y"));
     }
 
     @Override public Address getAddress() {
@@ -52,7 +54,7 @@ public class SelfRemoteClient implements RemoteClient {
     }
 
     @Override public void push(int nextWorkerId, StreamData streamData) {
-        WorkerInstances.INSTANCES.get(nextWorkerId).in(streamData);
+        workerInstanceGetter.get(nextWorkerId).in(streamData);
     }
 
     @Override public int compareTo(RemoteClient o) {
