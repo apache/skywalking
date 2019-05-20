@@ -46,7 +46,7 @@ public class OnInboundNextInterceptor implements InstanceMethodsAroundIntercepto
             }
 
             if (allArguments[1] instanceof HttpRequest) {
-                AbstractSpan span = ContextManager.createEntrySpan(request.uri(), contextCarrier);
+                AbstractSpan span = ContextManager.createEntrySpan(toPath(request.uri()), contextCarrier);
                 Tags.URL.set(span, request.uri());
                 Tags.HTTP.METHOD.set(span, request.method().name());
                 span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
@@ -64,5 +64,13 @@ public class OnInboundNextInterceptor implements InstanceMethodsAroundIntercepto
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private static String toPath(String uri) {
+        if (uri.contains("?")) {
+            return uri.substring(0, uri.indexOf("?"));
+        } else {
+            return uri;
+        }
     }
 }
