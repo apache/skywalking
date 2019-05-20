@@ -82,16 +82,12 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
             collection = "<empty>";
         }
 
-        // solr/collection/select
-        String operatorName = String.format("solrJ/%s%s", collection, request.getPath());
-        AbstractSpan span = ContextManager.createExitSpan(operatorName, instance.getRemotePeer())
-                .setComponent(ComponentsDefine.SOLRJ)
-                .setLayer(SpanLayer.DB);
-
         SolrParams params = request.getParams();
         if (params == null) {
             params = new ModifiableSolrParams();
         }
+
+        AbstractSpan span = null;
         if (request instanceof AbstractUpdateRequest) {
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/update"));
             AbstractUpdateRequest update = (AbstractUpdateRequest) request;
@@ -100,10 +96,14 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 action = update.getAction().name();
 
                 if (update.getAction() == AbstractUpdateRequest.ACTION.COMMIT) {
+                    span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
+
                     span.tag(SolrjTags.TAG_COMMIT, params.get(UpdateParams.COMMIT, "true" ));
                     span.tag(SolrjTags.TAG_SOFT_COMMIT, params.get(UpdateParams.SOFT_COMMIT, "" ));
                 }
                 else if (update.getAction() == AbstractUpdateRequest.ACTION.OPTIMIZE) {
+                    span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
+
                     span.tag(SolrjTags.TAG_OPTIMIZE, params.get(UpdateParams.OPTIMIZE, "true" ));
                     span.tag(SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1" ));
                 } else {
@@ -111,15 +111,18 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                         UpdateRequest ur = (UpdateRequest) update;
                         List<SolrInputDocument> documents = ur.getDocuments();
                         if (documents == null) {
-                            List<String> deleteById = ur.getDeleteById();
-                            if (deleteById != null && !deleteById.isEmpty()) {
-                                span.tag(SolrjTags.TAG_DELETE_BY_ID, deleteById.toString());
+                            span = getSpan(collection, request.getPath(), "DELETE", instance.getRemotePeer());
+                            List<String> deleteBy = ur.getDeleteById();
+                            if (deleteBy != null && !deleteBy.isEmpty()) {
+                                span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByIds");
                             }
                             List<String> deleteQuery = ur.getDeleteQuery();
                             if (deleteQuery != null && !deleteQuery.isEmpty()) {
-                                span.tag(SolrjTags.TAG_DELETE_BY_QUERY, deleteQuery.toString());
+                                span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByQuery");
                             }
+                            span.tag(SolrjTags.TAG_DELETE_VALUE, deleteBy.toString());
                         } else {
+                            span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
                             span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
                         }
                     }
@@ -129,6 +132,10 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
             span.tag(SolrjTags.TAG_ACTION, action);
         } else if (request instanceof QueryRequest) {
+            String operatorName = String.format("solrJ/%s%s", collection, request.getPath());
+            span = ContextManager.createExitSpan(operatorName, instance.getRemotePeer())
+                    .setComponent(ComponentsDefine.SOLRJ)
+                    .setLayer(SpanLayer.DB);
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/select"));
         }
 
@@ -138,6 +145,14 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         
         ContextManager.getRuntimeContext().put("instance", instance);
         ContextManager.getRuntimeContext().put("request.start", Long.valueOf(System.currentTimeMillis()));
+    }
+
+    static final AbstractSpan getSpan(String collection, String path, String action, String remotePeer) {
+        // solr/collection/update/
+        String operatorName = String.format("solrJ/%s%s/%s", collection, path, action);
+        return ContextManager.createExitSpan(operatorName, remotePeer)
+                .setComponent(ComponentsDefine.SOLRJ)
+                .setLayer(SpanLayer.DB);
     }
 
     @Override

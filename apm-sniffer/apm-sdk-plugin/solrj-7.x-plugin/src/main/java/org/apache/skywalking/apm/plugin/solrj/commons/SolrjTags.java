@@ -48,8 +48,8 @@ public class SolrjTags {
     public static StringTag TAG_OPTIMIZE = new StringTag(17, "optimize");
     public static StringTag TAG_MAX_OPTIMIZE_SEGMENTS = new StringTag(18, "maxOptimizeSegs");
 
-    public static StringTag TAG_DELETE_BY_ID = new StringTag(19, "deleteById");
-    public static StringTag TAG_DELETE_BY_QUERY = new StringTag(20, "deleteByQuery");
+    public static StringTag TAG_DELETE_TYPE = new StringTag(19, "delete.type");
+    public static StringTag TAG_DELETE_VALUE = new StringTag(20, "delete.by");
     public static StringTag TAG_DOCS_SIZE = new StringTag(21, "docsSize");
 
 
