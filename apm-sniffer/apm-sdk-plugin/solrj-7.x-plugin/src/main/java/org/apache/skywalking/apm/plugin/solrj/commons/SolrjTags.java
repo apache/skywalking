@@ -34,11 +34,6 @@ public class SolrjTags {
     public static StringTag TAG_NUM_FOUND = new StringTag(9, "numFound");
 
 
-    public static StringTag TAG_COMMIT = new StringTag(15, "commit");
-    public static StringTag TAG_SOFT_COMMIT = new StringTag(16, "softCommit");
-
-    public static StringTag TAG_OPTIMIZE = new StringTag(17, "optimize");
-    public static StringTag TAG_MAX_OPTIMIZE_SEGMENTS = new StringTag(18, "maxOptimizeSegs");
 
     public static StringTag TAG_STATUS_CODE = new StringTag(10, "statusCode");
     public static StringTag TAG_ELAPSE_TIME = new StringTag(11, "elapseTime");
@@ -47,10 +42,21 @@ public class SolrjTags {
     public static StringTag TAG_CONTENT_LENGTH = new StringTag(13, "contentLength");
     public static StringTag TAG_CONTENT_ENCODING = new StringTag(14, "contentEncoding");
 
+    public static StringTag TAG_COMMIT = new StringTag(15, "commit");
+    public static StringTag TAG_SOFT_COMMIT = new StringTag(16, "softCommit");
+
+    public static StringTag TAG_OPTIMIZE = new StringTag(17, "optimize");
+    public static StringTag TAG_MAX_OPTIMIZE_SEGMENTS = new StringTag(18, "maxOptimizeSegs");
+
+    public static StringTag TAG_DELETE_BY_ID = new StringTag(19, "deleteById");
+    public static StringTag TAG_DELETE_BY_QUERY = new StringTag(20, "deleteByQuery");
+    public static StringTag TAG_DOCS_SIZE = new StringTag(21, "docsSize");
+
+
     public static void addElapseTime(AbstractSpan span, long etime) {
     	span.tag(TAG_ELAPSE_TIME, Long.toString(etime));
     }
-    
+
     public static void addHttpResponse(AbstractSpan span, SolrjInstance instance) {
     	span.tag(TAG_CONTENT_TYPE, instance.content_type);
         span.tag(TAG_CONTENT_ENCODING, instance.content_encoding);

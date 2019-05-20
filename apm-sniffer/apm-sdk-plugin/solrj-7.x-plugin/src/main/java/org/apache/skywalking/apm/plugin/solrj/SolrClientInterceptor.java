@@ -31,8 +31,10 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.request.V2Request;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
@@ -40,6 +42,7 @@ import org.apache.solr.common.params.UpdateParams;
 import org.apache.solr.common.util.NamedList;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,7 +93,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
             params = new ModifiableSolrParams();
         }
         if (request instanceof AbstractUpdateRequest) {
-            span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/select"));
+            span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/update"));
             AbstractUpdateRequest update = (AbstractUpdateRequest) request;
             String action = "ADD";
             if (update.getAction() != null) {
@@ -103,13 +106,30 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 else if (update.getAction() == AbstractUpdateRequest.ACTION.OPTIMIZE) {
                     span.tag(SolrjTags.TAG_OPTIMIZE, params.get(UpdateParams.OPTIMIZE, "true" ));
                     span.tag(SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1" ));
+                } else {
+                    if (update instanceof UpdateRequest) {
+                        UpdateRequest ur = (UpdateRequest) update;
+                        List<SolrInputDocument> documents = ur.getDocuments();
+                        if (documents == null) {
+                            List<String> deleteById = ur.getDeleteById();
+                            if (deleteById != null && !deleteById.isEmpty()) {
+                                span.tag(SolrjTags.TAG_DELETE_BY_ID, deleteById.toString());
+                            }
+                            List<String> deleteQuery = ur.getDeleteQuery();
+                            if (deleteQuery != null && !deleteQuery.isEmpty()) {
+                                span.tag(SolrjTags.TAG_DELETE_BY_QUERY, deleteQuery.toString());
+                            }
+                        } else {
+                            span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
+                        }
+                    }
+                    span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
                 }
             }
 
             span.tag(SolrjTags.TAG_ACTION, action);
-            span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
         } else if (request instanceof QueryRequest) {
-            span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/update"));
+            span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/select"));
         }
 
         span.tag(SolrjTags.TAG_PATH, request.getPath());
