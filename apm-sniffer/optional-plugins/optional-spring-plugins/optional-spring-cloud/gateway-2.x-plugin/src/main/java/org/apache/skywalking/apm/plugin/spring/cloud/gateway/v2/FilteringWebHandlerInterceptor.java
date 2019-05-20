@@ -19,12 +19,10 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -44,16 +42,15 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
 
-        AbstractSpan span = ContextManager.createLocalSpan("Gateway/handle");
-        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
-        span.tag("route", route.getId());
-        Tags.URL.set(span, route.getUri().toString());
+        AbstractSpan span = ContextManager.activeSpan();
+        if (span != null) {
+            span.tag("route", route.getId());
+        }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
@@ -62,7 +59,9 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(t);
+        if (span != null) {
+            span.errorOccurred();
+            span.log(t);
+        }
     }
 }
