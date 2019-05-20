@@ -106,29 +106,29 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
                     span.tag(SolrjTags.TAG_OPTIMIZE, params.get(UpdateParams.OPTIMIZE, "true" ));
                     span.tag(SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1" ));
-                } else {
-                    if (update instanceof UpdateRequest) {
-                        UpdateRequest ur = (UpdateRequest) update;
-                        List<SolrInputDocument> documents = ur.getDocuments();
-                        if (documents == null) {
-                            span = getSpan(collection, request.getPath(), "DELETE", instance.getRemotePeer());
-                            List<String> deleteBy = ur.getDeleteById();
-                            if (deleteBy != null && !deleteBy.isEmpty()) {
-                                span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByIds");
-                            }
-                            List<String> deleteQuery = ur.getDeleteQuery();
-                            if (deleteQuery != null && !deleteQuery.isEmpty()) {
-                                span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByQuery");
-                            }
-                            span.tag(SolrjTags.TAG_DELETE_VALUE, deleteBy.toString());
-                        } else {
-                            span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
-                            span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
+                }
+            } else {
+                if (update instanceof UpdateRequest) {
+                    UpdateRequest ur = (UpdateRequest) update;
+                    List<SolrInputDocument> documents = ur.getDocuments();
+                    if (documents == null) {
+                        span = getSpan(collection, request.getPath(), "DELETE", instance.getRemotePeer());
+                        List<String> deleteBy = ur.getDeleteById();
+                        if (deleteBy != null && !deleteBy.isEmpty()) {
+                            span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByIds");
                         }
+                        List<String> deleteQuery = ur.getDeleteQuery();
+                        if (deleteQuery != null && !deleteQuery.isEmpty()) {
+                            span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByQuery");
+                        }
+                        span.tag(SolrjTags.TAG_DELETE_VALUE, deleteBy.toString());
+                    } else {
+                        span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
+                        span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
                     }
-                    span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
                 }
             }
+            span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
 
             span.tag(SolrjTags.TAG_ACTION, action);
         } else if (request instanceof QueryRequest) {
