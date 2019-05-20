@@ -53,7 +53,7 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
         InetSocketAddress remote = (InetSocketAddress) (channelOpt.channel().remoteAddress());
         String peer = remote.getHostName() + ":" + remote.getPort();
 
-        AbstractSpan span = ContextManager.createExitSpan(request.uri(), peer);
+        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), peer);
         ContextSnapshot snapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
 
         ContextManager.continued(snapshot);
@@ -83,5 +83,14 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private static String toPath(String uri) {
+        int index = uri.indexOf("?");
+        if (index > -1) {
+            return uri.substring(0, index);
+        } else {
+            return uri;
+        }
     }
 }
