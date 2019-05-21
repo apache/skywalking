@@ -28,16 +28,16 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ITopologyQueryDAO extends Service {
 
-    List<Call> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
+    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException;
 
-    List<Call> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
+    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException;
 
-    List<Call> loadServerSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadServerSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
 
-    List<Call> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
 
-    List<Call> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
+    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
         int destEndpointId) throws IOException;
 }

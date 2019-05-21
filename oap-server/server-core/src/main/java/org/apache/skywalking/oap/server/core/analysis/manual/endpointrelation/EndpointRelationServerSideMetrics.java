@@ -40,7 +40,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     @Setter @Getter @Column(columnName = SOURCE_ENDPOINT_ID) @IDColumn private int sourceEndpointId;
     @Setter @Getter @Column(columnName = DEST_ENDPOINT_ID) @IDColumn private int destEndpointId;
     @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
-    @Setter @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
+    @Setter(AccessLevel.PRIVATE) @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
@@ -48,6 +48,13 @@ public class EndpointRelationServerSideMetrics extends Metrics {
         splitJointId += Const.ID_SPLIT + destEndpointId;
         splitJointId += Const.ID_SPLIT + componentId;
         return splitJointId;
+    }
+
+    public void buildEntityId() {
+        String splitJointId = String.valueOf(sourceEndpointId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(destEndpointId);
+        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
+        entityId = splitJointId;
     }
 
     @Override public void combine(Metrics metrics) {
