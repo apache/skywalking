@@ -124,9 +124,9 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                     } else {
                         span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
                         span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
+                        span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
                     }
                 }
-                span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
             }
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/update"));
             span.tag(SolrjTags.TAG_ACTION, action);
