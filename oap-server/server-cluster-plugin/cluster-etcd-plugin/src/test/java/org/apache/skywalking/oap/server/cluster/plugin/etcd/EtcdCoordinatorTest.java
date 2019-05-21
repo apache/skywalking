@@ -53,7 +53,7 @@ public class EtcdCoordinatorTest {
 
     private ClusterModuleEtcdConfig etcdConfig = new ClusterModuleEtcdConfig();
 
-    private EtcdClient client ;
+    private EtcdClient client;
 
     private EtcdCoordinator coordinator;
 
@@ -63,7 +63,6 @@ public class EtcdCoordinatorTest {
     private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
 
     private Address internalAddress = new Address("10.0.0.3", 1002, false);
-
 
     private static final String SERVICE_NAME = "my-service";
 
@@ -87,7 +86,7 @@ public class EtcdCoordinatorTest {
         putPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
         getPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
 
-        PowerMockito.when(client.put(anyString(),anyString())).thenReturn(putRequest);
+        PowerMockito.when(client.put(anyString(), anyString())).thenReturn(putRequest);
         PowerMockito.when(putRequest.send()).thenReturn(putPromise);
         PowerMockito.when(client.get(SERVICE_NAME)).thenReturn(getRequest);
         PowerMockito.when(getRequest.send()).thenReturn(getPromise);
@@ -98,7 +97,6 @@ public class EtcdCoordinatorTest {
         when(putPromise.get()).thenReturn(response);
         when(getPromise.get()).thenReturn(response);
     }
-
 
     @Test
     @SuppressWarnings("unchecked")
@@ -168,13 +166,13 @@ public class EtcdCoordinatorTest {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
         verify(client).put(nameCaptor.capture(), argumentCaptor.capture());
-        return  gson.fromJson(argumentCaptor.getValue(), EtcdEndpoint.class);
+        return gson.fromJson(argumentCaptor.getValue(), EtcdEndpoint.class);
     }
 
     private void verifyRegistration(Address remoteAddress, EtcdEndpoint endpoint) {
         assertNotNull(endpoint);
         assertEquals(SERVICE_NAME, endpoint.getServiceId());
-        assertEquals(remoteAddress.getHost(),endpoint.getHost());
+        assertEquals(remoteAddress.getHost(), endpoint.getHost());
         assertEquals(remoteAddress.getPort(), endpoint.getPort());
     }
 

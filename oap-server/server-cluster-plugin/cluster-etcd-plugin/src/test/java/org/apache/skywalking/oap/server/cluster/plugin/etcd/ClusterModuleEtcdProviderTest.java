@@ -87,7 +87,6 @@ public class ClusterModuleEtcdProviderTest {
         assertEquals(etcdConfig.getHostPort(), cfg.getHostPort());
     }
 
-
     @Test
     public void prepareSingle() throws Exception {
         PowerMockito.mockStatic(EtcdUtils.class);
@@ -118,6 +117,6 @@ public class ClusterModuleEtcdProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = provider.requiredModules();
-        assertArrayEquals(new String[]{CoreModule.NAME}, modules);
+        assertArrayEquals(new String[] {CoreModule.NAME}, modules);
     }
 }

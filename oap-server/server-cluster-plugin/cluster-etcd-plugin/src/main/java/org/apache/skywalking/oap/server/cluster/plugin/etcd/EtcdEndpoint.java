@@ -29,7 +29,6 @@ import lombok.Setter;
  */
 public class EtcdEndpoint implements Serializable {
 
-
     @Setter @Getter private String serviceId;
 
     @Setter @Getter private String host;
@@ -41,7 +40,6 @@ public class EtcdEndpoint implements Serializable {
         setHost(builder.host);
         setPort(builder.port);
     }
-
 
     public static class Builder {
         private String serviceId;
@@ -64,7 +62,6 @@ public class EtcdEndpoint implements Serializable {
             this.port = port;
             return this;
         }
-
 
         public EtcdEndpoint build() {
             return new EtcdEndpoint(this);

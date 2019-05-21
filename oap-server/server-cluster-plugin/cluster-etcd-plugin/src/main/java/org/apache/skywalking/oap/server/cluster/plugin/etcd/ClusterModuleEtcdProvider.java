@@ -59,7 +59,7 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException{
+    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
 
         List<URI> uris = EtcdUtils.parse(config);
 

@@ -59,7 +59,8 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             EtcdKeysResponse response = client.get(serviceName).send().get();
             String json = response.getNode().getValue();
             Gson gson = new Gson();
-            List<EtcdEndpoint> list = gson.fromJson(json, new TypeToken<List<EtcdEndpoint>>(){}.getType());
+            List<EtcdEndpoint> list = gson.fromJson(json, new TypeToken<List<EtcdEndpoint>>() {
+            }.getType());
 
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(node -> {
