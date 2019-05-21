@@ -33,8 +33,33 @@
             <groupId>org.mousio</groupId>
             <artifactId>etcd4j</artifactId>
             <version>${etcd4j.version}</version>
-        </dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>netty-codec-dns</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
 
+                <exclusion>
+                    <artifactId>netty-codec-dns</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
+
+                <exclusion>
+                    <artifactId>netty-codec-http</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
+
+                <exclusion>
+                    <artifactId>netty-handler</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
+
+                <exclusion>
+                    <artifactId>netty-resolver-dns</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
 
