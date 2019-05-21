@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
-            <artifactId>sharding-core</artifactId>
+            <artifactId>sharding-core-execute</artifactId>
             <version>[4.0.0-RC1,5.0.0)</version>
             <scope>provided</scope>
         </dependency>
@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
-            <artifactId>sharding-proxy-frontend</artifactId>
+            <artifactId>sharding-proxy-frontend-core</artifactId>
             <version>[4.0.0-RC1,5.0.0)</version>
             <scope>provided</scope>
         </dependency>
