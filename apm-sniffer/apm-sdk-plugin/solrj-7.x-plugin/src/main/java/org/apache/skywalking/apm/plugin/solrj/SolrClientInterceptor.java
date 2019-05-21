@@ -87,9 +87,9 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
             params = new ModifiableSolrParams();
         }
 
+
         AbstractSpan span = null;
         if (request instanceof AbstractUpdateRequest) {
-            span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/update"));
             AbstractUpdateRequest update = (AbstractUpdateRequest) request;
             String action = "ADD";
             if (update.getAction() != null) {
@@ -128,6 +128,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                     }
                 }
             }
+            span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, "/update"));
             span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
 
             span.tag(SolrjTags.TAG_ACTION, action);
