@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4;
 
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -28,15 +28,15 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * {@link JDBCRootInvokeInterceptor} enhances {@link org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}, creating a local span that records the overall execution of sql.
+ * ProxyRootInvokeInterceptor enhances org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask, creating a local span that records the overall execution of sql.
  *
  * @author zhangyonglun
  */
-public class JDBCRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
+public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/JDBCRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+        ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
         ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
     

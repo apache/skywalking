@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,15 +29,15 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ExecuteInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback}.
+ * ProxyRootInvokeInstrumentation presents that skywalking intercepts org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask.
  *
  * @author zhangyonglun
  */
-public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback";
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask";
     
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.ExecuteInterceptor";
+    private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ProxyRootInvokeInterceptor";
     
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
@@ -45,12 +45,12 @@ public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDef
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute0");
+                    return named("run");
                 }
                 
                 @Override
                 public String getMethodsInterceptor() {
-                    return EXECUTE_INTERCEPTOR_CLASS;
+                    return PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS;
                 }
                 
                 @Override

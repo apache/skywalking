@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;

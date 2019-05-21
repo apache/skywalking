@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4;
 
 public final class Constant {
     

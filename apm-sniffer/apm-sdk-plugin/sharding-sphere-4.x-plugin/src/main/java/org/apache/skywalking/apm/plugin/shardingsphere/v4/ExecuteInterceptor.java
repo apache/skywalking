@@ -16,28 +16,36 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4;
 
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
- * ProxyRootInvokeInterceptor enhances org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask, creating a local span that records the overall execution of sql.
+ * {@link ExecuteInterceptor} enhances {@link org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback}, creating a local span that records the execution of sql.
  *
  * @author zhangyonglun
  */
-public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
+public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
-        ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
+        ContextManager.createLocalSpan("/ShardingSphere/executeSQL/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+        ContextSnapshot contextSnapshot = (ContextSnapshot) ShardingExecuteDataMap.getDataMap().get(Constant.CONTEXT_SNAPSHOT);
+        if (null == contextSnapshot) {
+            contextSnapshot = (ContextSnapshot) ((Map) allArguments[2]).get(Constant.CONTEXT_SNAPSHOT);
+        }
+        if (null != contextSnapshot) {
+            ContextManager.continued(contextSnapshot);
+        }
     }
     
     @Override

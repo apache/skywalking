@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,15 +29,15 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link JDBCRootInvokeInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}.
+ * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.route.router.sharding.ParsingSQLRouter}.
  *
  * @author zhangyonglun
  */
-public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ParseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor";
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.route.router.sharding.ParsingSQLRouter";
     
-    private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.JDBCRootInvokeInterceptor";
+    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ParseInterceptor";
     
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
@@ -45,12 +45,12 @@ public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePl
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("executeCallback");
+                    return named("parse");
                 }
                 
                 @Override
                 public String getMethodsInterceptor() {
-                    return JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS;
+                    return EXECUTE_INTERCEPTOR_CLASS;
                 }
                 
                 @Override
