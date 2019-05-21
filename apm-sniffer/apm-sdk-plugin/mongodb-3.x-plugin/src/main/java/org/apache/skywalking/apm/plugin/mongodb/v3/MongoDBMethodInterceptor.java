@@ -100,7 +100,7 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
             BsonDocument filter = ((ListCollectionsOperation)obj).getFilter();
             return limitFilter(filter.toString());
         } else if (obj instanceof MapReduceWithInlineResultsOperation) {
-            BsonDocument filter = ((ListCollectionsOperation)obj).getFilter();
+            BsonDocument filter = ((MapReduceWithInlineResultsOperation)obj).getFilter();
             return limitFilter(filter.toString());
         } else if (obj instanceof DeleteOperation) {
             List<DeleteRequest> writeRequestList = ((DeleteOperation)obj).getDeleteRequests();
