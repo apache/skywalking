@@ -108,7 +108,9 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                     UpdateRequest ur = (UpdateRequest) update;
                     List<SolrInputDocument> documents = ur.getDocuments();
                     if (documents == null) {
-                        span = getSpan(collection, request.getPath(), "DELETE", instance.getRemotePeer());
+                        action = "DELETE";
+
+                        span = getSpan(collection, request.getPath(), action, instance.getRemotePeer());
                         List<String> deleteBy = ur.getDeleteById();
                         if (deleteBy != null && !deleteBy.isEmpty()) {
                             span.tag(SolrjTags.TAG_DELETE_TYPE, "deleteByIds");
