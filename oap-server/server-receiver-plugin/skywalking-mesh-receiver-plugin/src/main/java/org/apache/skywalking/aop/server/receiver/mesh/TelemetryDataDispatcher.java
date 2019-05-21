@@ -98,8 +98,13 @@ public class TelemetryDataDispatcher {
             toServiceInstance(decorator, minuteTimeBucket);
             toEndpoint(decorator, minuteTimeBucket);
         }
-        toServiceRelation(decorator, minuteTimeBucket);
-        toServiceInstanceRelation(decorator, minuteTimeBucket);
+
+        int sourceServiceId = metrics.getSourceServiceId();
+        // Don't generate relation, if no source.
+        if (sourceServiceId != Const.NONE) {
+            toServiceRelation(decorator, minuteTimeBucket);
+            toServiceInstanceRelation(decorator, minuteTimeBucket);
+        }
     }
 
     private static void heartbeat(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
@@ -108,20 +113,23 @@ public class TelemetryDataDispatcher {
         int heartbeatCycle = 10000;
         // source
         int instanceId = metrics.getSourceServiceInstanceId();
-        ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
-        if (Objects.nonNull(serviceInstanceInventory)) {
-            if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
-                // trigger heartbeat every 10s.
-                SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metrics.getSourceServiceInstanceId(), metrics.getEndTime());
-                SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metrics.getEndTime());
+        // Don't generate source heartbeat, if no source.
+        if (instanceId != Const.NONE) {
+            ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
+            if (Objects.nonNull(serviceInstanceInventory)) {
+                if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
+                    // trigger heartbeat every 10s.
+                    SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metrics.getSourceServiceInstanceId(), metrics.getEndTime());
+                    SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metrics.getEndTime());
+                }
+            } else {
+                logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
             }
-        } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
         }
 
         // dest
         instanceId = metrics.getDestServiceInstanceId();
-        serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
+        ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
             if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
                 // trigger heartbeat every 10s.

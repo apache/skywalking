@@ -192,6 +192,9 @@ Vertx:
 ShardingSphere:
   id: 60
   languages: Java
+spring-cloud-gateway:
+  id: 61
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

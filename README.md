@@ -29,16 +29,18 @@ The core features are following.
 - Alarm
 
 
-<img src="http://skywalking.apache.org/assets/frame.jpeg?u=20190311"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg?u=20190518"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
 including
-1. Java, .NET Core, NodeJS and PHP auto-instrument agents in SkyWalking format
+1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs) and [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) auto-instrument agents in SkyWalking format
+1. Manual-instrument [Go agent](https://github.com/tetratelabs/go2sky) in SkyWalking format.
 1. Istio telemetry format
-1. Zipkin v1/v2 format
+1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh
+1. Envoy Metrics Service format.
+1. Zipkin v1/v2 format.
 1. Jaeger gRPC format.
-1. Envoy metrics format (the metrics entries itself is prometheus client [metrics family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
 
 
 # Document
