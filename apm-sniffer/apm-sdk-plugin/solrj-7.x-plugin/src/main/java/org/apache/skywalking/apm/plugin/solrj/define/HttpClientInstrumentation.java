@@ -28,37 +28,37 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 public class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static String ENHANCE_CLASS = "org.apache.http.impl.client.CloseableHttpClient";
 
-	@Override
-	protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-		return new ConstructorInterceptPoint[] {
-		};
-	}
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[]{};
+    }
 
-	@Override
-	protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-		return new InstanceMethodsInterceptPoint[] {
-			new InstanceMethodsInterceptPoint() {
-				@Override
-				public boolean isOverrideArgs() {
-					return false;
-				}
-				
-				@Override
-				public ElementMatcher<MethodDescription> getMethodsMatcher() {
-					return ElementMatchers.named("execute").and(ElementMatchers.takesArgument(0, HttpUriRequest.class));
-				}
-				
-				@Override
-				public String getMethodsInterceptor() {
-					return "org.apache.skywalking.apm.plugin.solrj.SolrConnectorInterceptor";
-				}
-			}
-		};
-	}
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
 
-	@Override
-	protected ClassMatch enhanceClass() {
-		return NameMatch.byName("org.apache.http.impl.client.CloseableHttpClient");
-	}
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return ElementMatchers.named("execute").and(ElementMatchers.takesArgument(0, HttpUriRequest.class));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.solrj.SolrConnectorInterceptor";
+                }
+            }
+        };
+    }
+
+    @Override
+    protected ClassMatch enhanceClass() {
+        return NameMatch.byName(ENHANCE_CLASS);
+    }
 }

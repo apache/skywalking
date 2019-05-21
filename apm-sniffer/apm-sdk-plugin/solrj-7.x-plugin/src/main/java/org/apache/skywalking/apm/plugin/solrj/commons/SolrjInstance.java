@@ -19,7 +19,6 @@ package org.apache.skywalking.apm.plugin.solrj.commons;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class SolrjInstance {
     private String collection;
@@ -41,22 +40,22 @@ public class SolrjInstance {
         this.remotePeer = remotePeer;
     }
     
-    long content_length = 0;
-    String content_type = "";
-    String content_encoding = "";
+    long contentLength = 0;
+    String contentType = "";
+    String contentEncoding = "";
     int statusCode = -1;
     
     public void withHttpResponse(int statusCode, HttpEntity entity) {
-    	Header header = entity.getContentEncoding();
+        Header header = entity.getContentEncoding();
         if (header != null) {
-            this.content_encoding = header.toString();
+            this.contentEncoding = header.toString();
         }
         header = entity.getContentType();
         if (header != null) {
-            this.content_type = header.toString();
+            this.contentType = header.toString();
         }
 
         this.statusCode = statusCode;
-        this.content_length = entity.getContentLength();
+        this.contentLength = entity.getContentLength();
     }
 }

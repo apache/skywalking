@@ -17,60 +17,59 @@
  */
 package org.apache.skywalking.apm.plugin.solrj.define;
 
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
 
 public class SolrClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-	@Override
-	protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-		return new ConstructorInterceptPoint[] {
-			new ConstructorInterceptPoint() {
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[]{
+            new ConstructorInterceptPoint() {
 
-				@Override
-				public String getConstructorInterceptor() {
-					return "org.apache.skywalking.apm.plugin.solrj.SolrClientInterceptor";
-				}
+                @Override
+                public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.solrj.SolrClientInterceptor";
+                }
 
-				@Override
-				public ElementMatcher<MethodDescription> getConstructorMatcher() {
-					return ElementMatchers.any();
-				}
-			}
-		};
-	}
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return ElementMatchers.any();
+                }
+            }
+        };
+    }
 
-	@Override
-	protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-		return new InstanceMethodsInterceptPoint[] {
-			new InstanceMethodsInterceptPoint() {
-				@Override
-				public boolean isOverrideArgs() {
-					return false;
-				}
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
 
-				@Override
-				public ElementMatcher<MethodDescription> getMethodsMatcher() {
-//					executeMethod(HttpRequestBase, ResponseParser, boolean)
-					return ElementMatchers.named("request").and(ElementMatchers.takesArguments(3));
-				}
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return ElementMatchers.named("request").and(ElementMatchers.takesArguments(3));
+                }
 
-				@Override
-				public String getMethodsInterceptor() {
-					return "org.apache.skywalking.apm.plugin.solrj.SolrClientInterceptor";
-				}
-			}
-		};
-	}
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.solrj.SolrClientInterceptor";
+                }
+            }
+        };
+    }
 
-	@Override
-	protected ClassMatch enhanceClass() {
-		return NameMatch.byName("org.apache.solr.client.solrj.impl.HttpSolrClient");
-	}
+    @Override
+    protected ClassMatch enhanceClass() {
+        return NameMatch.byName("org.apache.solr.client.solrj.impl.HttpSolrClient");
+    }
 }

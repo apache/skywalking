@@ -22,8 +22,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -33,11 +31,11 @@ import java.lang.reflect.Method;
 
 public class SolrConnectorInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override 
+    @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-    	HttpUriRequest request = (HttpUriRequest) allArguments[0];
-    	
+        HttpUriRequest request = (HttpUriRequest) allArguments[0];
+
         ContextCarrier carrier = new ContextCarrier();
         ContextManager.inject(carrier);
 
@@ -51,7 +49,7 @@ public class SolrConnectorInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-    	SolrjInstance instance = ContextManager.getRuntimeContext().get("instance", SolrjInstance.class);
+        SolrjInstance instance = ContextManager.getRuntimeContext().get("instance", SolrjInstance.class);
         if (ContextManager.isActive()) {
             CloseableHttpResponse response = (CloseableHttpResponse) ret;
             instance.withHttpResponse(response.getStatusLine().getStatusCode(), response.getEntity());
@@ -61,6 +59,6 @@ public class SolrConnectorInterceptor implements InstanceMethodsAroundIntercepto
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-    	ContextManager.activeSpan().errorOccurred().log(t);
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

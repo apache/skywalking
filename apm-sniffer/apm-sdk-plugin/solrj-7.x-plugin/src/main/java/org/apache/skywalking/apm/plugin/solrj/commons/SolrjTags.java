@@ -54,15 +54,15 @@ public class SolrjTags {
 
 
     public static void addElapseTime(AbstractSpan span, long etime) {
-    	span.tag(TAG_ELAPSE_TIME, Long.toString(etime));
+        span.tag(TAG_ELAPSE_TIME, Long.toString(etime));
     }
 
     public static void addHttpResponse(AbstractSpan span, SolrjInstance instance) {
-    	span.tag(TAG_CONTENT_TYPE, instance.content_type);
-        span.tag(TAG_CONTENT_ENCODING, instance.content_encoding);
+        span.tag(TAG_CONTENT_TYPE, instance.contentType);
+        span.tag(TAG_CONTENT_ENCODING, instance.contentEncoding);
 
         span.tag(TAG_STATUS_CODE, Integer.toString(instance.statusCode));
-        span.tag(TAG_CONTENT_LENGTH, Long.toString(instance.content_length));
+        span.tag(TAG_CONTENT_LENGTH, Long.toString(instance.contentLength));
     }
     
 
