@@ -103,13 +103,10 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
                             final Object ret) throws Throwable {
     final AbstractSpan activeSpan = ContextManager.activeSpan();
     if (activeSpan != null) {
-      final AbstractTransactionRequest message = (AbstractTransactionRequest) allArguments[0];
-
-      if (message instanceof GlobalBeginRequest) {
+      if (ret instanceof GlobalBeginResponse) {
         final GlobalBeginResponse response = (GlobalBeginResponse) ret;
         activeSpan.tag(XID, response.getXid());
       }
-
       ContextManager.stopSpan();
     }
     return ret;

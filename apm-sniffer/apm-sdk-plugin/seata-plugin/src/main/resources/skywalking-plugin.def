@@ -18,3 +18,4 @@ seata=org.apache.skywalking.apm.plugin.seata.define.TransactionManagerInstrument
 seata=org.apache.skywalking.apm.plugin.seata.define.TransactionCoordinatorInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.AbstractMessageInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.TmRpcClientInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.debug.DebugInstrumentation

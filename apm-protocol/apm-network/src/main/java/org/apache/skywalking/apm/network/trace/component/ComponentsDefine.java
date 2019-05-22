@@ -105,9 +105,9 @@ public class ComponentsDefine {
     public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
 
     public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
-  
+
     public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
-  
+
     public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
 
     public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
@@ -117,6 +117,8 @@ public class ComponentsDefine {
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
     public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
+
+    public static final OfficialComponent SEATA =  new OfficialComponent(61, "Seata");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -173,6 +175,7 @@ public class ComponentsDefine {
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
+        addComponent(SEATA);
     }
 
     private void addComponent(OfficialComponent component) {
