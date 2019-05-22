@@ -48,8 +48,8 @@ public class TopologyQueryServiceTest extends AbstractTopologyTest {
 
     @Test
     public void getGlobalTopology() throws Exception {
-        List<Call> serverCalls = mockServerCall();
-        List<Call> clientCalls = mockClientCall();
+        List<Call.CallDetail> serverCalls = mockServerCall();
+        List<Call.CallDetail> clientCalls = mockClientCall();
 
         when(queryDAO.loadServerSideServiceRelations(Step.MONTH, START_TB, END_TB)).thenReturn(serverCalls);
         when(queryDAO.loadClientSideServiceRelations(Step.MONTH, START_TB, END_TB)).thenReturn(clientCalls);
@@ -62,10 +62,10 @@ public class TopologyQueryServiceTest extends AbstractTopologyTest {
     @SuppressWarnings("unchecked")
     public void getServiceTopology() throws Exception {
 
-        List<Call> serverCalls = mockServerCall();
-        List<Call> clientCalls = mockClientCall();
+        List<Call.CallDetail> serverCalls = mockServerCall();
+        List<Call.CallDetail> clientCalls = mockClientCall();
 
-        List<Call> sourceCalls = mockSourceServiceCall();
+        List<Call.CallDetail> sourceCalls = mockSourceServiceCall();
 
         when(queryDAO.loadSpecifiedServerSideServiceRelations(any(Step.class), anyLong(),
                 anyLong(), anyListOf(Integer.class))).thenReturn(serverCalls, sourceCalls);
@@ -75,12 +75,12 @@ public class TopologyQueryServiceTest extends AbstractTopologyTest {
         Topology topology = queryService.getServiceTopology(Step.MONTH, START_TB, END_TB, 12);
         assertTopology(topology);
         assertTrue(topology.getNodes().stream()
-                .anyMatch(node -> "component-name-0".equals(node.getType()) && node.getId() == 33));
+                .anyMatch(node -> "component-name-3".equals(node.getType()) && node.getId() == 33));
     }
 
     @Test
     public void getEndpointTopology() throws Exception {
-        List<Call> serverCalls = mockServerCall();
+        List<Call.CallDetail> serverCalls = mockServerCall();
         when(queryDAO.loadSpecifiedDestOfServerSideEndpointRelations(any(Step.class), anyLong(),
                 anyLong(), anyInt())).thenReturn(serverCalls);
         Topology topology = queryService.getEndpointTopology(Step.MONTH, START_TB, END_TB, 1);
@@ -88,24 +88,23 @@ public class TopologyQueryServiceTest extends AbstractTopologyTest {
         assertNotNull(topology);
 
         assertEquals(4, topology.getCalls().size());
-        assertEquals(0, topology.getCalls().get(0).getSource());
-        assertEquals(101, topology.getCalls().get(1).getSource());
-        assertEquals(111, topology.getCalls().get(1).getTarget());
 
-        assertEquals(102, topology.getCalls().get(2).getSource());
-        assertEquals(122, topology.getCalls().get(2).getTarget());
+        for (int i = 0; i < 4; i++) {
+            Call.CallDetail serverDetail = serverCalls.get(i);
+            Call topologyCall = topology.getCalls().get(i);
+            assertEquals(serverDetail.getSource(), topologyCall.getSource());
+            assertEquals(serverDetail.getTarget(), topologyCall.getTarget());
+        }
 
-        assertEquals(103, topology.getCalls().get(3).getSource());
-        assertEquals(133, topology.getCalls().get(3).getTarget());
-
-        assertEquals(7, topology.getNodes().size());
+        assertEquals(8, topology.getNodes().size());
         assertNode(0, topology.getNodes().get(0));
-        assertNode(101, topology.getNodes().get(1));
-        assertNode(111, topology.getNodes().get(2));
-        assertNode(102, topology.getNodes().get(3));
-        assertNode(122, topology.getNodes().get(4));
-        assertNode(103, topology.getNodes().get(5));
-        assertNode(133, topology.getNodes().get(6));
+        assertNode(100, topology.getNodes().get(1));
+        assertNode(101, topology.getNodes().get(2));
+        assertNode(111, topology.getNodes().get(3));
+        assertNode(102, topology.getNodes().get(4));
+        assertNode(122, topology.getNodes().get(5));
+        assertNode(103, topology.getNodes().get(6));
+        assertNode(133, topology.getNodes().get(7));
 
     }
 
@@ -116,9 +115,10 @@ public class TopologyQueryServiceTest extends AbstractTopologyTest {
         assertEquals(ENDPOINT_INVENTORY_NAME, node.getName());
     }
 
-    private List<Call> mockSourceServiceCall() {
-        Call call = new Call();
+    private List<Call.CallDetail> mockSourceServiceCall() {
+        Call.CallDetail call = new Call.CallDetail();
         call.setTarget(33);
+        call.setComponentId(3);
         return Lists.newArrayList(call);
     }
 }

@@ -84,36 +84,37 @@ public class AbstractTopologyTest extends AbstractTest {
 
         assertEquals(6, topology.getCalls().size());
         Call call0 = topology.getCalls().get(0);
-        assertEquals(1, call0.getSource());
-        assertEquals(11, call0.getTarget());
+        assertEquals(1, call0.getSource().intValue());
+        assertEquals(11, call0.getTarget().intValue());
         Call call1 = topology.getCalls().get(1);
-        assertEquals(2, call1.getSource());
-        assertEquals(22, call1.getTarget());
+        assertEquals(2, call1.getSource().intValue());
+        assertEquals(22, call1.getTarget().intValue());
         Call call2 = topology.getCalls().get(2);
-        assertEquals(3, call2.getSource());
-        assertEquals(33, call2.getTarget());
+        assertEquals(3, call2.getSource().intValue());
+        assertEquals(33, call2.getTarget().intValue());
 
         Call call3 = topology.getCalls().get(3);
-        assertEquals(101, call3.getSource());
-        assertEquals(111, call3.getTarget());
+        assertEquals(101, call3.getSource().intValue());
+        assertEquals(111, call3.getTarget().intValue());
         Call call4 = topology.getCalls().get(4);
-        assertEquals(102, call4.getSource());
-        assertEquals(122, call4.getTarget());
+        assertEquals(102, call4.getSource().intValue());
+        assertEquals(122, call4.getTarget().intValue());
         Call call5 = topology.getCalls().get(5);
-        assertEquals(103, call5.getSource());
-        assertEquals(133, call5.getTarget());
+        assertEquals(103, call5.getSource().intValue());
+        assertEquals(133, call5.getTarget().intValue());
     }
 
-    protected List<Call> mockClientCall() {
+    protected List<Call.CallDetail> mockClientCall() {
 
-        List<Call> result = new ArrayList<>(10);
+        List<Call.CallDetail> result = new ArrayList<>(10);
 
-        Call call0 = new Call();
+        Call.CallDetail call0 = new Call.CallDetail();
         call0.setSource(0);
         result.add(call0);
 
-        Call call1 = new Call();
+        Call.CallDetail call1 = new Call.CallDetail();
         call1.setSource(1);
+        call1.setComponentId(1);
         call1.setTarget(11);
         ServiceInventory inventorySource1 = mock(ServiceInventory.class);
         when(inventorySource1.getSequence()).thenReturn(11);
@@ -124,8 +125,9 @@ public class AbstractTopologyTest extends AbstractTest {
         when(serviceInventoryCache.get(1)).thenReturn(inventorySource1);
         when(serviceInventoryCache.get(11)).thenReturn(inventoryTarget1);
 
-        Call call2 = new Call();
+        Call.CallDetail call2 = new Call.CallDetail();
         call2.setSource(2);
+        call2.setComponentId(2);
         call2.setTarget(22);
 
         ServiceInventory inventorySource2 = mock(ServiceInventory.class);
@@ -136,8 +138,9 @@ public class AbstractTopologyTest extends AbstractTest {
         when(serviceInventoryCache.get(2)).thenReturn(inventorySource2);
         when(serviceInventoryCache.get(22)).thenReturn(inventoryTarget2);
 
-        Call call3 = new Call();
+        Call.CallDetail call3 = new Call.CallDetail();
         call3.setSource(3);
+        call3.setComponentId(3);
         call3.setTarget(33);
 
         ServiceInventory inventorySource3 = mock(ServiceInventory.class);
@@ -148,8 +151,9 @@ public class AbstractTopologyTest extends AbstractTest {
         when(serviceInventoryCache.get(3)).thenReturn(inventorySource3);
         when(serviceInventoryCache.get(33)).thenReturn(inventoryTarget3);
 
-        Call call4 = new Call();
+        Call.CallDetail call4 = new Call.CallDetail();
         call4.setSource(4);
+        call1.setComponentId(4);
         call4.setTarget(44);
 
         ServiceInventory inventorySource4 = mock(ServiceInventory.class);
@@ -167,17 +171,18 @@ public class AbstractTopologyTest extends AbstractTest {
         return result;
     }
 
-    protected List<Call> mockServerCall() {
-        List<Call> result = new ArrayList<>(10);
+    protected List<Call.CallDetail> mockServerCall() {
+        List<Call.CallDetail> result = new ArrayList<>(10);
 
-        Call call0 = new Call();
+        Call.CallDetail call0 = new Call.CallDetail();
         call0.setSource(0);
+        call0.setTarget(100);
         result.add(call0);
 
-        Call call1 = new Call();
+        Call.CallDetail call1 = new Call.CallDetail();
         call1.setSource(101);
         call1.setTarget(111);
-        call1.setId("1");
+        call1.generateID();
         call1.setComponentId(1);
         ServiceInventory inventorySource1 = mock(ServiceInventory.class);
         when(inventorySource1.getSequence()).thenReturn(1);
@@ -188,10 +193,10 @@ public class AbstractTopologyTest extends AbstractTest {
         when(serviceInventoryCache.get(111)).thenReturn(inventoryTarget1);
 
 
-        Call call2 = new Call();
+        Call.CallDetail call2 = new Call.CallDetail();
         call2.setSource(102);
         call2.setTarget(122);
-        call2.setId("2");
+        call2.generateID();
         call2.setComponentId(2);
 
         ServiceInventory inventorySource2 = mock(ServiceInventory.class);
@@ -202,10 +207,10 @@ public class AbstractTopologyTest extends AbstractTest {
         when(serviceInventoryCache.get(102)).thenReturn(inventorySource2);
         when(serviceInventoryCache.get(122)).thenReturn(inventoryTarget2);
 
-        Call call3 = new Call();
+        Call.CallDetail call3 = new Call.CallDetail();
         call3.setSource(103);
         call3.setTarget(133);
-        call3.setId("3");
+        call3.generateID();
         call3.setComponentId(3);
 
         ServiceInventory inventorySource3 = mock(ServiceInventory.class);

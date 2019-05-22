@@ -81,25 +81,33 @@ public enum DurationUtils {
     }
 
     public long startTimeToTimestamp(Step step, String dateStr) throws ParseException {
-        return dateStrToTimeStamp(step, dateStr, 0);
+        switch (step) {
+            case MONTH:
+                return new SimpleDateFormat("yyyy-MM").parse(dateStr).getTime();
+            case DAY:
+                return new SimpleDateFormat("yyyy-MM-dd").parse(dateStr).getTime();
+            case HOUR:
+                return new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr).getTime();
+            case MINUTE:
+                return new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr).getTime();
+            case SECOND:
+                return new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr).getTime();
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
     }
 
     public long endTimeToTimestamp(Step step, String dateStr) throws ParseException {
-        return dateStrToTimeStamp(step, dateStr, 1);
-    }
-
-    private long dateStrToTimeStamp(Step step, String dateStr, int plus) throws ParseException {
         switch (step) {
             case MONTH:
-                return new DateTime(new SimpleDateFormat("yyyy-MM").parse(dateStr)).plusMonths(plus).getMillis();
+                return new DateTime(new SimpleDateFormat("yyyy-MM").parse(dateStr)).plusMonths(1).getMillis();
             case DAY:
-                return new DateTime(new SimpleDateFormat("yyyy-MM-dd").parse(dateStr)).plusDays(plus).getMillis();
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd").parse(dateStr)).plusDays(1).getMillis();
             case HOUR:
-                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr)).plusHours(plus).getMillis();
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HH").parse(dateStr)).plusHours(1).getMillis();
             case MINUTE:
-                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr)).plusMinutes(plus).getMillis();
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HHmm").parse(dateStr)).plusMinutes(1).getMillis();
             case SECOND:
-                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr)).plusSeconds(plus).getMillis();
+                return new DateTime(new SimpleDateFormat("yyyy-MM-dd HHmmss").parse(dateStr)).plusSeconds(1).getMillis();
         }
         throw new UnexpectedException("Unsupported step " + step.name());
     }
@@ -153,7 +161,7 @@ public enum DurationUtils {
     }
 
     public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket,
-        long endTimeBucket) throws ParseException {
+                                                 long endTimeBucket) throws ParseException {
         DateTime dateTime = parseToDateTime(step, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();

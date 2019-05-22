@@ -75,41 +75,6 @@ public class DurationUtilsTest {
     }
 
     @Test
-    public void startTimeToTimestamp() throws Exception {
-        long time = utils.startTimeToTimestamp(Step.MONTH, "2018-05");
-        assertEquals(1525104000000L, time);
-        time = utils.startTimeToTimestamp(Step.DAY, "2018-05-23");
-        assertEquals(1527004800000L, time);
-
-        time = utils.startTimeToTimestamp(Step.HOUR, "2018-05-23 17");
-        assertEquals(1527066000000L, time);
-
-        time = utils.startTimeToTimestamp(Step.MINUTE, "2018-05-23 1743");
-        assertEquals(1527068580000L, time);
-
-        time = utils.startTimeToTimestamp(Step.SECOND, "2018-05-23 174321");
-        assertEquals(1527068601000L, time);
-    }
-
-    @Test
-    public void endTimeToTimestamp() throws Exception {
-        long time = utils.endTimeToTimestamp(Step.MONTH, "2018-05");
-        assertEquals(1527782400000L, time);
-        time = utils.endTimeToTimestamp(Step.DAY, "2018-05-23");
-        assertEquals(1527091200000L, time);
-
-        time = utils.endTimeToTimestamp(Step.HOUR, "2018-05-23 17");
-        assertEquals(1527069600000L, time);
-
-        time = utils.endTimeToTimestamp(Step.MINUTE, "2018-05-23 1743");
-        assertEquals(1527068640000L, time);
-
-        time = utils.endTimeToTimestamp(Step.SECOND, "2018-05-23 174321");
-
-        assertEquals(1527068602000L, time);
-    }
-
-    @Test
     public void minutesBetween() throws Exception {
         DateTime dateTime = new DateTime(2018, 5, 17, 21, 34);
         assertEquals(44640, utils.minutesBetween(Step.MONTH, dateTime));
