@@ -224,7 +224,7 @@ EOT
     fi
 
     if [[ "$SW_EXPORTER_ENABLED" = "true" ]]; then
-        cat <<EOT >> \${var_application_file}
+        cat <<EOT >> ${var_application_file}
 exporter:
   grpc:
     targetHost: \${SW_EXPORTER_GRPC_HOST:127.0.0.1}
