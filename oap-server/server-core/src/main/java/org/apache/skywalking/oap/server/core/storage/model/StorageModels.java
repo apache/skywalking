@@ -13,16 +13,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.storage.annotation;
+package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.slf4j.*;
 
 /**
@@ -38,13 +38,27 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         this.models = new LinkedList<>();
     }
 
-    @Override public void putIfAbsent(Class aClass, boolean isMetrics, String modelName, int scopeId, Storage storage) {
+    @Override public Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage) {
+        return putIfAbsent(aClass, modelName, scopeId, storage, Downsampling.Minute);
+    }
+
+    @Override public Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage, Downsampling downsampling) {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
+
+        for (Model model : models) {
+            if (model.getName().equals(modelName)) {
+                return model;
+            }
+        }
+
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelName, modelColumns);
 
-        models.add(new Model(modelName, modelColumns, isMetrics, storage.deleteHistory(), scopeId));
+        Model model = new Model(modelName, modelColumns, storage.deleteHistory(), scopeId, downsampling);
+        models.add(model);
+
+        return model;
     }
 
     private void retrieval(Class clazz, String modelName, List<ModelColumn> modelColumns) {

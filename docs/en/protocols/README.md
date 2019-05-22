@@ -36,7 +36,7 @@ By following this protocol, the trace segments in different processes could be l
 
 Since SkyWalking v6.0.0-beta, SkyWalking agent and backend are using Trace Data Protocol v2, and v1 is still supported in backend.
 * [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) define the communication way and format between agent and backend
-* [SkyWalking Trace Data Protocol v1](Trace-Data-Protocol.md). This protocol is used in old version. Still supported.
+* [SkyWalking Trace Data Protocol v1](Trace-Data-Protocol-v1.md). This protocol is used in old version. Still supported.
 
 
 ### Service Mesh probe protocol

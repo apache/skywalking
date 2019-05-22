@@ -118,7 +118,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
 
-    public static final OfficialComponent RESTEASY =  new OfficialComponent(61, "RESTEasy");
+    public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
+
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -175,6 +177,7 @@ public class ComponentsDefine {
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
+        addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
     }
 

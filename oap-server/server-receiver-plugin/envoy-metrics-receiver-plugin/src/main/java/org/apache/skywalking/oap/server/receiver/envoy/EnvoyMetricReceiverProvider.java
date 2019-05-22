@@ -27,6 +27,12 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
  * @author wusheng
  */
 public class EnvoyMetricReceiverProvider extends ModuleProvider {
+    private final EnvoyMetricReceiverConfig config;
+
+    public EnvoyMetricReceiverProvider() {
+        config = new EnvoyMetricReceiverConfig();
+    }
+
     @Override public String name() {
         return "default";
     }
@@ -36,7 +42,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return null;
+        return config;
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
@@ -46,6 +52,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
         service.addHandler(new MetricServiceGRPCHandler(getManager()));
+        service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {

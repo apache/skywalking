@@ -20,11 +20,12 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -44,6 +45,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         return PROCESSOR;
     }
 
+    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends TopN> topNClass) {
         if (DisableRegister.INSTANCE.include(stream.name())) {
             return;
@@ -57,7 +59,10 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
             throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " top n record DAO failure.", e);
         }
 
-        TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, stream.name(), 50, recordDAO);
+        IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
+        Model model = modelSetter.putIfAbsent(topNClass, stream.name(), stream.scopeId(), stream.storage());
+
+        TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, model.getName(), 50, recordDAO);
         persistentWorkers.add(persistentWorker);
         workers.put(topNClass, persistentWorker);
     }
