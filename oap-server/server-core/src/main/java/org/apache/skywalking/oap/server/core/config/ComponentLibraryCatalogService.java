@@ -98,7 +98,7 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
                     throw new InitialComponentCatalogException("Component name [" + name + "] in Component-Server-Mappings doesn't exist in component define. ");
                 }
                 if (!componentName2Id.containsKey(serverName)) {
-                    throw new InitialComponentCatalogException("Server component name [" + serverName + "] in Component-Server-Mappings doesn't exist in component define. ");
+                    throw new InitialComponentCatalogException("Server componentId name [" + serverName + "] in Component-Server-Mappings doesn't exist in component define. ");
                 }
 
                 componentId2ServerId.put(componentName2Id.get(name), componentName2Id.get(serverName));
