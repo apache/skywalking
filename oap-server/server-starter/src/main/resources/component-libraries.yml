@@ -210,8 +210,11 @@ Vertx:
 ShardingSphere:
   id: 60
   languages: Java
-Seata:
+spring-cloud-gateway:
   id: 61
+  languages: Java
+Seata:
+  id: 62
   languages: Java
 
 # .NET/.NET Core components
