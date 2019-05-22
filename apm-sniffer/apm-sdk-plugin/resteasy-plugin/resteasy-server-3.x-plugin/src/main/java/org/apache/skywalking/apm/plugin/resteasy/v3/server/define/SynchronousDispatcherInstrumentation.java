@@ -39,9 +39,6 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
     private static final String INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.SynchronousDispatcherInterceptor";
     private static final String INVOKE_EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.SynchronousDispatcherExceptionInterceptor";
 
-    private static final String ASYNC_DELIVERY_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.AsynchronousDeliveryInterceptor";
-    private static final String ASYNC_DELIVERY_EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.AsynchronousDeliveryExceptionInterceptor";
-
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
@@ -75,38 +72,6 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
                 @Override
                 public String getMethodsInterceptor() {
                     return INVOKE_EXCEPTION_INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("asynchronousDelivery");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return ASYNC_DELIVERY_INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("asynchronousExceptionDelivery");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return ASYNC_DELIVERY_EXCEPTION_INTERCEPT_CLASS;
                 }
 
                 @Override

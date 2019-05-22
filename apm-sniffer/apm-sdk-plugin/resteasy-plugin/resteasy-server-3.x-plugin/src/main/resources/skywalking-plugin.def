@@ -15,4 +15,3 @@
 # limitations under the License.
 
 resteasy-server-3.x=org.apache.skywalking.apm.plugin.resteasy.v3.server.define.SynchronousDispatcherInstrumentation
-resteasy-server-3.x=org.apache.skywalking.apm.plugin.resteasy.v3.server.define.AsynchronousResponseInjectorInstrumentation

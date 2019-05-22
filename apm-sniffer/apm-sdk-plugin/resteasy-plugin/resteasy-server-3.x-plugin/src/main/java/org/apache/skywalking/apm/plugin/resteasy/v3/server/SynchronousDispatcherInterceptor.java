@@ -51,11 +51,10 @@ public class SynchronousDispatcherInterceptor implements InstanceMethodsAroundIn
         }
 
         AbstractSpan span = ContextManager.createEntrySpan(request.getUri().getPath(), contextCarrier);
-        Tags.URL.set(span, request.getUri().getRequestUri().toString());
+        Tags.URL.set(span, toPath(request.getUri().getRequestUri().toString()));
         Tags.HTTP.METHOD.set(span, request.getHttpMethod());
         span.setComponent(ComponentsDefine.RESTEASY);
         SpanLayer.asHttp(span);
-        objInst.setSkyWalkingDynamicField(span);
     }
 
     @Override
@@ -75,5 +74,13 @@ public class SynchronousDispatcherInterceptor implements InstanceMethodsAroundIn
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private static String toPath(String uri) {
+        if (uri.contains("?")) {
+            return uri.substring(0, uri.indexOf("?"));
+        } else {
+            return uri;
+        }
     }
 }
