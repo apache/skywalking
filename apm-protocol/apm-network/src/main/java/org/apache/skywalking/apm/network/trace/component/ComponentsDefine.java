@@ -120,6 +120,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
 
+    public static final OfficialComponent SOLRJ  =  new OfficialComponent(62, "solrj");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -176,6 +178,7 @@ public class ComponentsDefine {
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
         addComponent(SPRING_CLOUD_GATEWAY);
+        addComponent(SOLRJ);
     }
 
     private void addComponent(OfficialComponent component) {
