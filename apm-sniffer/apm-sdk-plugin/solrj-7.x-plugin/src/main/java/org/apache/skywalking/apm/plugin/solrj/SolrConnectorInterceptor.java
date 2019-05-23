@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.solrj.commons.Context;
 import org.apache.skywalking.apm.plugin.solrj.commons.SolrjInstance;
 
 import java.lang.reflect.Method;
@@ -52,7 +53,7 @@ public class SolrConnectorInterceptor implements InstanceMethodsAroundIntercepto
         SolrjInstance instance = ContextManager.getRuntimeContext().get("instance", SolrjInstance.class);
         if (ContextManager.isActive()) {
             CloseableHttpResponse response = (CloseableHttpResponse) ret;
-            instance.withHttpResponse(response.getStatusLine().getStatusCode(), response.getEntity());
+            Context.get().withHttpResponse(response.getStatusLine().getStatusCode(), response.getEntity());
         }
         return ret;
     }

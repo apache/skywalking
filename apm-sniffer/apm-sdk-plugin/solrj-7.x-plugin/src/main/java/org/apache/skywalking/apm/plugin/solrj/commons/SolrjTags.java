@@ -53,16 +53,16 @@ public class SolrjTags {
     public static StringTag TAG_DOCS_SIZE = new StringTag(21, "docsSize");
 
 
-    public static void addElapseTime(AbstractSpan span, long etime) {
-        span.tag(TAG_ELAPSE_TIME, Long.toString(etime));
+    public static void addElapseTime(AbstractSpan span, long eTime) {
+        span.tag(TAG_ELAPSE_TIME, Long.toString(eTime));
     }
 
-    public static void addHttpResponse(AbstractSpan span, SolrjInstance instance) {
-        span.tag(TAG_CONTENT_TYPE, instance.contentType);
-        span.tag(TAG_CONTENT_ENCODING, instance.contentEncoding);
+    public static void addHttpResponse(AbstractSpan span, Context context) {
+        span.tag(TAG_CONTENT_TYPE, context.getContentType());
+        span.tag(TAG_CONTENT_ENCODING, context.getContentEncoding());
 
-        span.tag(TAG_STATUS_CODE, Integer.toString(instance.statusCode));
-        span.tag(TAG_CONTENT_LENGTH, Long.toString(instance.contentLength));
+        span.tag(TAG_STATUS_CODE, Integer.toString(context.getStatusCode()));
+        span.tag(TAG_CONTENT_LENGTH, Long.toString(context.getContentLength()));
     }
     
 

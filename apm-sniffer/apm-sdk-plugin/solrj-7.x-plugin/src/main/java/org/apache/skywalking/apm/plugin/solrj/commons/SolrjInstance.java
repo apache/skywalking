@@ -17,12 +17,9 @@
  */
 package org.apache.skywalking.apm.plugin.solrj.commons;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-
 public class SolrjInstance {
-    private String collection;
-    private String remotePeer;
+    private String collection = "Unknown";
+    private String remotePeer = "Unknown";
 
     public String getCollection() {
         return collection;
@@ -38,24 +35,5 @@ public class SolrjInstance {
 
     public void setRemotePeer(String remotePeer) {
         this.remotePeer = remotePeer;
-    }
-    
-    long contentLength = 0;
-    String contentType = "";
-    String contentEncoding = "";
-    int statusCode = -1;
-    
-    public void withHttpResponse(int statusCode, HttpEntity entity) {
-        Header header = entity.getContentEncoding();
-        if (header != null) {
-            this.contentEncoding = header.toString();
-        }
-        header = entity.getContentType();
-        if (header != null) {
-            this.contentType = header.toString();
-        }
-
-        this.statusCode = statusCode;
-        this.contentLength = entity.getContentLength();
     }
 }

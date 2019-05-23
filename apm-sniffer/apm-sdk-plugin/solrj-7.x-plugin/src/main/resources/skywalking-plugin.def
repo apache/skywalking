@@ -14,5 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-solrj=org.apache.skywalking.apm.plugin.solrj.define.SolrClientInstrumentation
-solrj=org.apache.skywalking.apm.plugin.solrj.define.HttpClientInstrumentation
+solrj-7.x=org.apache.skywalking.apm.plugin.solrj.define.SolrClientInstrumentation
+solrj-7.x=org.apache.skywalking.apm.plugin.solrj.define.HttpClientInstrumentation
