@@ -50,7 +50,6 @@ public class SolrConnectorInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        SolrjInstance instance = ContextManager.getRuntimeContext().get("instance", SolrjInstance.class);
         if (ContextManager.isActive()) {
             CloseableHttpResponse response = (CloseableHttpResponse) ret;
             Context.get().withHttpResponse(response.getStatusLine().getStatusCode(), response.getEntity());
