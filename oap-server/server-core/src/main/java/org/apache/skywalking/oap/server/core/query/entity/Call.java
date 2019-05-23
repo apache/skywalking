@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import java.util.*;
 import lombok.*;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 /**
@@ -27,10 +29,68 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 @Getter
 @Setter
 public class Call {
-    private int source;
-    private int target;
-    private int componentId;
-    private String callType;
+    private Integer source;
+    private Integer target;
+    private List<String> sourceComponents;
+    private List<String> targetComponents;
     private String id;
-    private DetectPoint detectPoint;
+    private List<DetectPoint> detectPoints;
+
+    private List<Integer> sourceComponentIDs;
+    private List<Integer> targetComponentIDs;
+
+    public Call() {
+        sourceComponents = new ArrayList<>();
+        targetComponents = new ArrayList<>();
+        detectPoints = new ArrayList<>();
+    }
+
+    public void setSource(int source) {
+        this.source = source;
+    }
+
+    public void setTarget(int target) {
+        this.target = target;
+    }
+
+    public void addSourceComponentId(int componentId) {
+        sourceComponentIDs.add(componentId);
+    }
+
+    public void addTargetComponentId(int componentId) {
+        targetComponentIDs.add(componentId);
+    }
+
+    public void addSourceComponent(String component) {
+        if (!sourceComponents.contains(component)) {
+            sourceComponents.add(component);
+        }
+    }
+
+    public void addTargetComponent(String component) {
+        if (!targetComponents.contains(component)) {
+            targetComponents.add(component);
+        }
+    }
+
+    public void addDetectPoint(DetectPoint point) {
+        if (!detectPoints.contains(point)) {
+            detectPoints.add(point);
+        }
+    }
+
+    @Setter
+    @Getter
+    public static class CallDetail {
+        @Setter(AccessLevel.PRIVATE)
+        private String id;
+        private Integer source;
+        private Integer target;
+        private DetectPoint detectPoint;
+        private Integer componentId;
+
+        public void generateID() {
+            id = source + Const.ID_SPLIT + target;
+        }
+    }
 }
