@@ -10,7 +10,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **service-mesh**. gRPC services accept data from inbound mesh probes.
 1. **receiver-jvm**. gRPC services accept JVM metrics data.
 1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
-1. **envoy-metric**. Envoy `metrics_service` supported by this receiver. OAL script support all GAUGE type metrics. 
+1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
 
