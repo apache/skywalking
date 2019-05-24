@@ -186,8 +186,6 @@ service-mesh:
     bufferFileCleanWhenRestart: \${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 istio-telemetry:
   default:
-envoy-metric:
-  default:
 query:
   graphql:
     path: \${SW_QUERY_GRAPHQL_PATH:/graphql}
@@ -197,7 +195,14 @@ telemetry:
   prometheus:
     host: \${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: \${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+envoy-metric:
+  default:
 EOT
+    if [[ "$SW_ENVOY_ALS_ENABLED" = "true" ]]; then
+        cat <<EOT >> ${var_application_file}
+    alsHTTPAnalysis: \${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
+EOT
+    fi
 
     if [[ "$SW_RECEIVER_ZIPKIN_ENABLED" = "true" ]]; then
         cat <<EOT >> ${var_application_file}
@@ -219,7 +224,7 @@ EOT
     fi
 
     if [[ "$SW_EXPORTER_ENABLED" = "true" ]]; then
-        cat <<EOT >> \${var_application_file}
+        cat <<EOT >> ${var_application_file}
 exporter:
   grpc:
     targetHost: \${SW_EXPORTER_GRPC_HOST:127.0.0.1}
