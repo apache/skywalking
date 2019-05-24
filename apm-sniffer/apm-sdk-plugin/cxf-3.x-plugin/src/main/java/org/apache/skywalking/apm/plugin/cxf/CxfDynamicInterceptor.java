@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package cxf;
+package org.apache.skywalking.apm.plugin.cxf;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Message;

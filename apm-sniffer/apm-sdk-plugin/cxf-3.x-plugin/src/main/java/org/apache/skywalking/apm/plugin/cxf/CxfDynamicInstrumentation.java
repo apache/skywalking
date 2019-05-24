@@ -16,7 +16,7 @@
  *
  */
 
-package cxf;
+package org.apache.skywalking.apm.plugin.cxf;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -28,10 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-public class CxfInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class CxfDynamicInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "org.apache.axis.transport.http.HTTPSender";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.cxf.CxfInterceptor";
+
+    private static final String ENHANCE_CLASS = "org.apache.cxf.transport.http.URLConnectionHTTPConduit";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.CxfDynamicInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -46,11 +47,11 @@ public class CxfInstrumentation extends ClassInstanceMethodsEnhancePluginDefine 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
-                //通过wsdl生成客户端进行调用
+                //直接调用wsdl
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        ElementMatcher<MethodDescription> em = named("invoke");
+                        ElementMatcher<MethodDescription> em = named("createConnection");
                         return em;
                     }
 

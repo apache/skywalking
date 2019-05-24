@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package cxf;
+package org.apache.skywalking.apm.plugin.cxf;
 
 import org.apache.axis.Message;
 import org.apache.axis.MessageContext;
@@ -29,7 +29,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 
 import javax.xml.soap.MimeHeaders;
 import java.lang.reflect.Method;
