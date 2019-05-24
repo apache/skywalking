@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
@@ -36,7 +36,11 @@ public class PrintMDCTraceIdInterceptor implements InstanceMethodsAroundIntercep
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return "TID:" + ContextManager.getGlobalTraceId();
+        String tid = ContextManager.getGlobalTraceId();
+        if ("N/A".equals(tid)) {
+            tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+        }
+        return "TID:" + tid;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
