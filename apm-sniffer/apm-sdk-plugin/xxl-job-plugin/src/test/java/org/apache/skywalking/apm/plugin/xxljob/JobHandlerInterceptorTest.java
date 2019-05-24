@@ -89,7 +89,7 @@ public class JobHandlerInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
-        assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
+        assertThat(spans.get(0).transform().getOperationName(), is(ComponentsDefine.XXL_JOB.getName()));
         assertThat(spans.get(0).transform().getComponentId(), is(ComponentsDefine.XXL_JOB.getId()));
         assertThat(spans.get(0).transform().getTags(0).getKey(), is("triggerParam"));
         assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
@@ -103,7 +103,7 @@ public class JobHandlerInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
-        assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
+        assertThat(spans.get(0).transform().getOperationName(), is(ComponentsDefine.XXL_JOB.getName()));
         assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
     }
 
