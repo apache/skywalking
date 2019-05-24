@@ -51,7 +51,6 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-//      HttpSolrClient(HttpSolrClient.Builder builder)
         SolrjInstance instance = new SolrjInstance();
         HttpSolrClient client = (HttpSolrClient) objInst;
 
@@ -119,12 +118,12 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 }
             }
             span.tag(SolrjTags.TAG_ACTION, actionName);
-        } else if (request instanceof QueryRequest) { // It failed to spot that through 'path' when it had defined QueryType.
+        } else if (request instanceof QueryRequest) {
             String operatorName = String.format("solrJ/%s%s", collection, request.getPath());
             span = ContextManager.createExitSpan(operatorName, instance.getRemotePeer())
                     .setComponent(ComponentsDefine.SOLRJ)
                     .setLayer(SpanLayer.DB);
-        } else { // No admin API
+        } else { // No Admin API
             return;
         }
 
@@ -149,12 +148,12 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         NamedList<Object> response = (NamedList<Object>) ret;
         if (response != null) {
             NamedList<Object> header = (NamedList<Object>) response.get("responseHeader");
-            if (header != null) { // common
-                span.tag(SolrjTags.TAG_STATUS, header.get("status").toString());
-                span.tag(SolrjTags.TAG_Q_TIME, header.get("QTime").toString());
+            if (header != null) {
+                span.tag(SolrjTags.TAG_STATUS, String.valueOf(header.get("status")));
+                span.tag(SolrjTags.TAG_Q_TIME, String.valueOf(header.get("QTime")));
             }
             SolrDocumentList list = (SolrDocumentList) response.get("response");
-            if (list != null) { // query
+            if (list != null) {
                 span.tag(SolrjTags.TAG_NUM_FOUND, String.valueOf(list.getNumFound()));
             }
         }
@@ -171,7 +170,6 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     }
 
     private static final AbstractSpan getSpan(String collection, String path, String action, String remotePeer) {
-        // solr/collection/update/
         String operatorName = String.format("solrJ/%s%s/%s", collection, path, action);
         return ContextManager.createExitSpan(operatorName, remotePeer)
                 .setComponent(ComponentsDefine.SOLRJ)
