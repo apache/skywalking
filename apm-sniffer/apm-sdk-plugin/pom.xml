@@ -71,6 +71,7 @@
         <module>dubbo-2.7.x-plugin</module>
         <module>dubbo-2.7.x-conflict-patch</module>
         <module>vertx-plugins</module>
+        <module>cxf-3.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
