@@ -178,6 +178,7 @@ public class ComponentsDefine {
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
         addComponent(SPRING_CLOUD_GATEWAY);
+        addComponent(XXL_JOB);
     }
 
     private void addComponent(OfficialComponent component) {
