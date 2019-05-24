@@ -122,7 +122,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
 
-    public static final OfficialComponent RESTEASY =  new OfficialComponent(63, "solrj");
+    public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
