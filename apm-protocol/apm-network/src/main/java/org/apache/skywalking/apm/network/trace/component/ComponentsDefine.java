@@ -122,6 +122,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
 
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(63, "solrj");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -179,6 +181,7 @@ public class ComponentsDefine {
         addComponent(VERTX);
         addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
+        addComponent(SOLRJ);
     }
 
     private void addComponent(OfficialComponent component) {

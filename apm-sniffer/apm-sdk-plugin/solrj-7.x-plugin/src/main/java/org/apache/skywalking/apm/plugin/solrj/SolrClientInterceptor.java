@@ -123,9 +123,10 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
             span = ContextManager.createExitSpan(operatorName, instance.getRemotePeer())
                     .setComponent(ComponentsDefine.SOLRJ)
                     .setLayer(SpanLayer.DB);
-        } else { // No Admin API
-            return;
         }
+
+        if (null == span)
+            return;
 
         span.tag(SolrjTags.TAG_PATH, request.getPath());
         span.tag(SolrjTags.TAG_COLLECTION, collection);
@@ -166,7 +167,9 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 
     private static final AbstractSpan getSpan(String collection, String path, String action, String remotePeer) {
