@@ -35,8 +35,10 @@ public class AsyncAppenderBaseMethodInterceptor implements InstanceMethodsAround
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instances = (EnhancedInstance) allArguments[0];
-        instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
+        if (allArguments[0] instanceof EnhancedInstance) {
+            EnhancedInstance instances = (EnhancedInstance) allArguments[0];
+            instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
+        }
     }
 
     @Override

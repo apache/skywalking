@@ -38,11 +38,13 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        String tid = ContextManager.getGlobalTraceId();
-        if ("N/A".equals(tid)) {
-            tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+        if (allArguments[0] instanceof EnhancedInstance) {
+            String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+            if (tid != null) {
+                return "TID:" + tid;
+            }
         }
-        return "TID:" + tid;
+        return "TID:" + ContextManager.getGlobalTraceId();
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
