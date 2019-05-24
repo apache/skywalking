@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.xxljob;
 
+import com.xxl.job.core.biz.model.TriggerParam;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,7 +28,6 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +49,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class JobHandlerInterceptorTest {
+public class ExecutorBizrInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -56,14 +57,17 @@ public class JobHandlerInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private JobHandlerInterceptor jobHandlerInterceptor;
+    private ExecutorBizInterceptor executorBizInterceptor;
 
     private EnhancedInstance enhancedInstance;
 
 
     @Before
     public void setUp() throws SQLException {
-        jobHandlerInterceptor = new JobHandlerInterceptor();
+
+        ContextManager.createLocalSpan("XXLJOB");
+
+        executorBizInterceptor = new ExecutorBizInterceptor();
 
         enhancedInstance = new EnhancedInstance() {
 
@@ -83,35 +87,31 @@ public class JobHandlerInterceptorTest {
 
     @Test
     public void assertSuccess() throws Throwable {
-        jobHandlerInterceptor.beforeMethod(enhancedInstance, null, new Object[]{mockShardingContext("xxljob"), 1}, null, null);
-        jobHandlerInterceptor.afterMethod(enhancedInstance, null, null, null, null);
+        executorBizInterceptor.beforeMethod(enhancedInstance, null, new Object[]{getTriggerParam(), 1}, null, null);
+        executorBizInterceptor.afterMethod(enhancedInstance, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
-        assertThat(spans.get(0).transform().getComponentId(), is(ComponentsDefine.XXL_JOB.getId()));
-        assertThat(spans.get(0).transform().getTags(0).getKey(), is("triggerParam"));
-        assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
     }
 
     @Test
     public void assertSuccessWithoutSharding() throws Throwable {
-        jobHandlerInterceptor.beforeMethod(enhancedInstance, null, new Object[]{mockShardingContext("xxljob"), 0}, null, null);
-        jobHandlerInterceptor.afterMethod(enhancedInstance, null, null, null, null);
+        executorBizInterceptor.beforeMethod(enhancedInstance, null, new Object[]{getTriggerParam(), 0}, null, null);
+        executorBizInterceptor.afterMethod(enhancedInstance, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).transform().getOperationName(), is("XXLJOB"));
-        assertThat(spans.get(0).transform().getTags(0).getValue(), is("xxljob"));
     }
 
     @Test
     public void assertError() throws Throwable {
-        jobHandlerInterceptor.beforeMethod(enhancedInstance, null, new Object[]{mockShardingContext("xxljob"), 0}, null, null);
-        jobHandlerInterceptor.handleMethodException(enhancedInstance, null, null, null, new Exception("fooError"));
-        jobHandlerInterceptor.afterMethod(enhancedInstance, null, null, null, null);
+        executorBizInterceptor.beforeMethod(enhancedInstance, null, new Object[]{getTriggerParam(), 0}, null, null);
+        executorBizInterceptor.handleMethodException(enhancedInstance, null, null, null, new Exception("fooError"));
+        executorBizInterceptor.afterMethod(enhancedInstance, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
@@ -120,8 +120,13 @@ public class JobHandlerInterceptorTest {
         assertThat(spans.get(0).transform().getLogs(0).getDataList().size(), is(4));
     }
 
-    private String mockShardingContext(String param) {
-        return param;
+    private TriggerParam getTriggerParam() {
+
+        TriggerParam triggerParam = new TriggerParam();
+        triggerParam.setExecutorHandler("XXLJOB");
+        triggerParam.setBroadcastIndex(0);
+
+        return triggerParam;
     }
 
 }

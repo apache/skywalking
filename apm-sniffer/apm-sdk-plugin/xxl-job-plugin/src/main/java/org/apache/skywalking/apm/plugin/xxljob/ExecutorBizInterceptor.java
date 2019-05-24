@@ -1,4 +1,4 @@
-/*
+package org.apache.skywalking.apm.plugin.xxljob;/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,17 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.xxljob;
-
-import com.xxl.job.core.util.ShardingUtil;
+import com.xxl.job.core.biz.model.TriggerParam;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
@@ -34,50 +29,42 @@ import java.lang.reflect.Method;
  * @author tianjunwei
  * 2019/4/21 10:55
  */
-public class JobHandlerInterceptor implements InstanceMethodsAroundInterceptor {
+public class ExecutorBizInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-        String triggerParam = (String) allArguments[0];
-        String operateName = null;
-        if (method != null) {
-            operateName = method.getDeclaringClass().getName();
-        } else {
-            operateName = ComponentsDefine.XXL_JOB.getName();
+        TriggerParam triggerParam = (TriggerParam) allArguments[0];
+        String operateName = triggerParam.getExecutorHandler();
+        if (triggerParam.getBroadcastIndex() != 0) {
+            operateName += "-" + triggerParam.getBroadcastIndex();
         }
-        ShardingUtil.ShardingVO shardingVO = ShardingUtil.getShardingVo();
-        if (shardingVO != null) {
-
-            operateName = operateName + "_" + shardingVO.getIndex();
-        }
-        AbstractSpan span;
+        ContextSnapshot contextSnapshot = ContextManager.capture();
+        contextSnapshot.setEntryOperationName(operateName);
 
         EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField();
-        if (enhanceRequireObjectCache != null) {
-            ContextSnapshot contextSnapshot = enhanceRequireObjectCache.getContextSnapshot();
-            ContextManager.continued(contextSnapshot);
-            span = ContextManager.activeSpan();
 
-        } else {
-            span = ContextManager.createLocalSpan(operateName);
+        if (enhanceRequireObjectCache == null) {
+            synchronized (objInst) {
+                if (enhanceRequireObjectCache == null) {
+                    enhanceRequireObjectCache = new EnhanceRequireObjectCache();
+                    objInst.setSkyWalkingDynamicField(enhanceRequireObjectCache);
+                }
+                enhanceRequireObjectCache.setContextSnapshot(contextSnapshot);
+            }
         }
-        span.setComponent(ComponentsDefine.XXL_JOB);
-        span.tag(new StringTag("triggerParam"), triggerParam.toString());
+
 
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-
         ContextManager.stopSpan();
-
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-
         ContextManager.activeSpan().errorOccurred().log(t);
 
     }
