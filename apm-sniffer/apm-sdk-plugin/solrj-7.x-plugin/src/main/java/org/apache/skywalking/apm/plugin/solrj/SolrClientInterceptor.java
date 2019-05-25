@@ -42,24 +42,27 @@ import org.apache.solr.common.params.UpdateParams;
 import org.apache.solr.common.util.NamedList;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-    private static final Pattern URL_REGEX = Pattern.compile("http(s)?://(?<domain>[\\w_.-]+(:\\d+)?)?/(?<path>solr/(?<collection>[\\w-_]+))?");
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         SolrjInstance instance = new SolrjInstance();
         HttpSolrClient client = (HttpSolrClient) objInst;
 
-        Matcher matcher = URL_REGEX.matcher(client.getBaseURL());
-        if (matcher.find()) {
-            instance.setRemotePeer(matcher.group(2));
-            if (matcher.group(4) != null) {
-                instance.setCollection(matcher.group(4));
+        try {
+            URL url = new URL(client.getBaseURL());
+            instance.setRemotePeer(url.getHost() + ":" + url.getPort());
+
+            String path = url.getPath();
+            int idx = path.lastIndexOf('/');
+            if (idx > 0) {
+                instance.setCollection(path.substring(idx + 1));
             }
+        } catch (MalformedURLException ignore) {
         }
         objInst.setSkyWalkingDynamicField(instance);
     }
