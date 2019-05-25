@@ -47,7 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-    private static final Pattern URL_REGEX = Pattern.compile("(?<pref>http(s)?://)*(?<domain>[\\w_.\\-\\d]+(:\\d+)?)?/(?<path>solr/(?<collection>[\\w_]+))?(/.*)?");
+    private static final Pattern URL_REGEX = Pattern.compile("http(s)?://(?<domain>[\\w_.-]+(:\\d+)?)?/(?<path>solr/(?<collection>[\\w-_]+))?");
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -56,9 +56,9 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
         Matcher matcher = URL_REGEX.matcher(client.getBaseURL());
         if (matcher.find()) {
-            instance.setRemotePeer(matcher.group(3));
-            if (matcher.group(6) != null) {
-                instance.setCollection(matcher.group(6));
+            instance.setRemotePeer(matcher.group(2));
+            if (matcher.group(4) != null) {
+                instance.setCollection(matcher.group(4));
             }
         }
         objInst.setSkyWalkingDynamicField(instance);
