@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3;
 
 import com.mongodb.ReadPreference;
@@ -47,6 +46,7 @@ import com.mongodb.operation.ReadOperation;
 import com.mongodb.operation.UpdateOperation;
 import com.mongodb.operation.WriteOperation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -201,7 +201,13 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         Cluster cluster = (Cluster)allArguments[0];
         StringBuilder peers = new StringBuilder();
-        for (ServerDescription description : cluster.getDescription().getServerDescriptions()) {
+        Collection<ServerDescription> descriptions;
+        try {
+            descriptions = cluster.getDescription().getServerDescriptions();
+        } catch (Throwable t) {
+            descriptions = cluster.getDescription().getAll();
+        }
+        for (ServerDescription description : descriptions) {
             ServerAddress address = description.getAddress();
             peers.append(address.getHost() + ":" + address.getPort() + ";");
         }
