@@ -23,11 +23,14 @@ import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -64,13 +67,19 @@ public class AggregationQueryServiceTest extends AbstractTest {
 
     }
 
+    @After
+    public void tearDown() throws Exception {
+        //clear the instance
+        Whitebox.setInternalState(ValueColumnIds.INSTANCE, "mapping", new HashMap<>());
+    }
+
     @Test
     public void getServiceTopN() throws Exception {
 
         List<TopNEntity> mockEntities = mockTopNForDAO();
         List<TopNEntity> topNEntities = aggregationQueryService.getServiceTopN(INS_NAME, N, STEP, START_TB, END_TB, ORDER);
 
-        assertTopNEntities(mockEntities, topNEntities, SERVICE_INVENTORY_NAME);
+        validTopNEntities(mockEntities, topNEntities, SERVICE_INVENTORY_NAME);
     }
 
     @Test
@@ -85,28 +94,28 @@ public class AggregationQueryServiceTest extends AbstractTest {
 
         List<TopNEntity> mockEntities = mockTopNForDAO();
         List<TopNEntity> topNEntities = aggregationQueryService.getAllServiceInstanceTopN(INS_NAME, N, STEP, START_TB, END_TB, ORDER);
-        assertTopNEntities(mockEntities, topNEntities, SERVICE_INSTANCE_INVENTORY_NAME);
+        validTopNEntities(mockEntities, topNEntities, SERVICE_INSTANCE_INVENTORY_NAME);
     }
 
     @Test
     public void getServiceInstanceTopN() throws Exception {
         List<TopNEntity> mockEntities = mockTopNForDAO();
         List<TopNEntity> topNEntities = aggregationQueryService.getServiceInstanceTopN(SERVICE_ID, INS_NAME, N, STEP, START_TB, END_TB, ORDER);
-        assertTopNEntities(mockEntities, topNEntities, SERVICE_INSTANCE_INVENTORY_NAME);
+        validTopNEntities(mockEntities, topNEntities, SERVICE_INSTANCE_INVENTORY_NAME);
     }
 
     @Test
     public void getAllEndpointTopN() throws Exception {
         List<TopNEntity> mockEntities = mockTopNForDAO();
         List<TopNEntity> topNEntities = aggregationQueryService.getAllEndpointTopN(INS_NAME, N, STEP, START_TB, END_TB, ORDER);
-        assertTopNEntities(mockEntities, topNEntities, ENDPOINT_INVENTORY_NAME);
+        validTopNEntities(mockEntities, topNEntities, ENDPOINT_INVENTORY_NAME);
     }
 
     @Test
     public void getEndpointTopN() throws Exception {
         List<TopNEntity> mockEntities = mockTopNForDAO();
         List<TopNEntity> topNEntities = aggregationQueryService.getEndpointTopN(SERVICE_ID, INS_NAME, N, STEP, START_TB, END_TB, ORDER);
-        assertTopNEntities(mockEntities, topNEntities, ENDPOINT_INVENTORY_NAME);
+        validTopNEntities(mockEntities, topNEntities, ENDPOINT_INVENTORY_NAME);
     }
 
 
@@ -116,7 +125,6 @@ public class AggregationQueryServiceTest extends AbstractTest {
         for (int i = 0; i < N; i++) {
             TopNEntity en = new TopNEntity();
             en.setId(String.valueOf(i));
-            en.setName("name-" + i);
             en.setValue(i * 10);
             entities.add(en);
         }
@@ -184,18 +192,18 @@ public class AggregationQueryServiceTest extends AbstractTest {
         )).thenReturn(topNEntities);
     }
 
-    private void assertTopNEntities(List<TopNEntity> expected, List<TopNEntity> actual, String expectedName) {
+    private void validTopNEntities(List<TopNEntity> expected, List<TopNEntity> actual, String expectedName) {
 
         assertEquals(expected.size(), actual.size());
         assertEquals(N, expected.size());
         for (int i = 0; i < N; i++) {
-            assertTopNEntity(expected.get(i), actual.get(i), expectedName);
+            validTopNEntity(expected.get(i), actual.get(i), expectedName);
         }
     }
 
-    private void assertTopNEntity(TopNEntity expected, TopNEntity actual, String expecteName) {
+    private void validTopNEntity(TopNEntity expected, TopNEntity actual, String expectedName) {
         assertEquals(expected.getId(), actual.getId());
-        assertEquals(expecteName, actual.getName());
+        assertEquals(expectedName, actual.getName());
         assertEquals(expected.getValue(), actual.getValue());
     }
 }

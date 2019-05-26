@@ -29,11 +29,14 @@ import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.powermock.reflect.Whitebox;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -58,6 +61,12 @@ public class MetricQueryServiceTest extends AbstractTest {
         ValueColumnIds.INSTANCE.putIfAbsent(IND_NAME, VALUE_C_NAME, FUNCTION);
 
         when(moduleServiceHolder.getService(IMetricsQueryDAO.class)).thenReturn(queryDAO);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        //clear the instance
+        Whitebox.setInternalState(ValueColumnIds.INSTANCE, "mapping", new HashMap<>());
     }
 
     @Test
