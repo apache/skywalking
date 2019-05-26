@@ -16,72 +16,72 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.vertx3;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
 
-import io.vertx.core.http.HttpClientRequest;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import reactor.netty.channel.ChannelOperations;
+import reactor.netty.http.client.HttpClientRequest;
 
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
 
 /**
- * @author brandon.fergerson
+ * @author zhaoyuguang
  */
-public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String host;
-        int port;
-        if (allArguments[3] instanceof Integer) {
-            host = (String) allArguments[2];
-            port = (Integer) allArguments[3];
-        } else {
-            host = (String) allArguments[3];
-            port = (Integer) allArguments[4];
-        }
-        objInst.setSkyWalkingDynamicField(host + ":" + port);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         HttpClientRequest request = (HttpClientRequest) objInst;
+        EnhancedInstance instance = (EnhancedInstance) request;
+
+        HttpHeaders header = request.requestHeaders();
+        ChannelOperations channelOpt = (ChannelOperations) objInst;
+        InetSocketAddress remote = (InetSocketAddress) (channelOpt.channel().remoteAddress());
+        String peer = remote.getHostName() + ":" + remote.getPort();
+
+        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), peer);
+        ContextSnapshot snapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
+
+        ContextManager.continued(snapshot);
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
-                (String) objInst.getSkyWalkingDynamicField());
-        span.setComponent(ComponentsDefine.VERTX);
+        ContextManager.inject(contextCarrier);
+
+        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
+        Tags.URL.set(span, peer + request.uri());
+        Tags.HTTP.METHOD.set(span, request.method().name());
         SpanLayer.asHttp(span);
-        Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.uri());
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            request.headers().add(next.getHeadKey(), next.getHeadValue());
+            header.set(next.getHeadKey(), next.getHeadValue());
         }
-        objInst.setSkyWalkingDynamicField(new VertxContext(ContextManager.capture(), span.prepareForAsync()));
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
-        ContextManager.stopSpan();
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                                Class<?>[] argumentsTypes, Throwable t) {
+
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 

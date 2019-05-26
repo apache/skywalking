@@ -56,9 +56,14 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-- Host in Beijing. Go to [demo](http://106.75.237.45:8080/).
-  - Username: admin
-  - Password: admin
+Host in Beijing. Go to [demo](http://106.75.237.45:8080/).
+- Username: admin
+- Password: admin
+
+**Video on youtube.com**
+
+[![RocketBot UI](http://img.youtube.com/vi/JC-Anlshqx8/0.jpg)](http://www.youtube.com/watch?v=JC-Anlshqx8)
+
 
 # Screenshot
 <table>
@@ -86,7 +91,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 * Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNDQ3OTEwNzE1MDg5LWY2NjkwMTEzMGI2ZTI1NzUzMDk0MzJmMWM1NWVmODg0MzBjNjAxYzUwMjIwNDI3MjlhZWRjNmNhOTM5NmIxNDk)
-* QQ Group: 392443393, 901167865
+* QQ Group: 392443393(2000/2000, not available), 901167865(available)
 
 # Who Uses SkyWalking?
 A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
