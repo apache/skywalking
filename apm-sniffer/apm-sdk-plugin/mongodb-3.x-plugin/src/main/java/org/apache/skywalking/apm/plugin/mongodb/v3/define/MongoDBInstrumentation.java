@@ -80,4 +80,8 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
         return NameMatch.byName(ENHANCE_CLASS);
     }
 
+    @Override protected String[] witnessClasses() {
+        return new String[] {"com.mongodb.event.ServerListener"};
+    }
+
 }
