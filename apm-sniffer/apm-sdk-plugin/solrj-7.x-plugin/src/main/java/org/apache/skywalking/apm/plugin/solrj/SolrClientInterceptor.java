@@ -136,7 +136,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         span.tag(SolrjTags.TAG_METHOD, request.getMethod().name());
         span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, request.getPath()));
 
-        Context.get().start();
+        ContextManager.getRuntimeContext().put("context", new Context());
     }
 
     @Override
@@ -145,26 +145,29 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
         if (!ContextManager.isActive()) return ret;
 
-        final Context context = Context.remove();
-        final long elapse = System.currentTimeMillis() - context.getStartTime();
+        try {
+            final Context context = ContextManager.getRuntimeContext().get("context", Context.class);
+            final long elapse = System.currentTimeMillis() - context.getStartTime();
 
-        AbstractSpan span = ContextManager.activeSpan();
-        NamedList<Object> response = (NamedList<Object>) ret;
-        if (response != null) {
-            NamedList<Object> header = (NamedList<Object>) response.get("responseHeader");
-            if (header != null) {
-                span.tag(SolrjTags.TAG_STATUS, String.valueOf(header.get("status")));
-                span.tag(SolrjTags.TAG_Q_TIME, String.valueOf(header.get("QTime")));
+            AbstractSpan span = ContextManager.activeSpan();
+            NamedList<Object> response = (NamedList<Object>) ret;
+            if (response != null) {
+                NamedList<Object> header = (NamedList<Object>) response.get("responseHeader");
+                if (header != null) {
+                    span.tag(SolrjTags.TAG_STATUS, String.valueOf(header.get("status")));
+                    span.tag(SolrjTags.TAG_Q_TIME, String.valueOf(header.get("QTime")));
+                }
+                SolrDocumentList list = (SolrDocumentList) response.get("response");
+                if (list != null) {
+                    span.tag(SolrjTags.TAG_NUM_FOUND, String.valueOf(list.getNumFound()));
+                }
             }
-            SolrDocumentList list = (SolrDocumentList) response.get("response");
-            if (list != null) {
-                span.tag(SolrjTags.TAG_NUM_FOUND, String.valueOf(list.getNumFound()));
-            }
+            SolrjTags.addHttpResponse(span, context);
+            SolrjTags.addElapseTime(span, elapse);
+        } finally {
+            ContextManager.stopSpan();
+            ContextManager.getRuntimeContext().remove("context");
         }
-        SolrjTags.addHttpResponse(span, context);
-        SolrjTags.addElapseTime(span, elapse);
-
-        ContextManager.stopSpan();
         return ret;
     }
 

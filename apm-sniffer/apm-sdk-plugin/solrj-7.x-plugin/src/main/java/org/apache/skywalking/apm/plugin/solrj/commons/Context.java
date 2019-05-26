@@ -22,13 +22,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
 public class Context {
-    private static final ThreadLocal<Context> CONTEXT = new ThreadLocal<Context>() {
-        @Override
-        protected Context initialValue() {
-            return new Context();
-        }
-    };
-
     private long contentLength = 0;
     private String contentType = "";
     private String contentEncoding = "";
@@ -36,36 +29,23 @@ public class Context {
 
     private long startTime = 0;
 
-    private Context() {
-    }
-
-    public void start() {
+    public Context() {
         startTime = System.currentTimeMillis();
     }
 
-    public static final void withHttpResponse(int statusCode, HttpEntity entity) {
-        final Context context = CONTEXT.get();
-        Header header = entity.getContentEncoding();
+    public final void withHttpResponse(int statusCode, HttpEntity entity) {
+        Header header = null;
+        header = entity.getContentEncoding();
         if (header != null) {
-            context.contentEncoding = header.toString();
+            this.contentEncoding = header.toString();
         }
         header = entity.getContentType();
         if (header != null) {
-            context.contentType = header.toString();
+            this.contentType = header.toString();
         }
 
-        context.statusCode = statusCode;
-        context.contentLength = entity.getContentLength();
-    }
-
-    public static final Context get() {
-        return CONTEXT.get();
-    }
-
-    public static final Context remove() {
-        final Context context = CONTEXT.get();
-        CONTEXT.remove();
-        return context;
+        this.statusCode = statusCode;
+        this.contentLength = entity.getContentLength();
     }
 
     public long getContentLength() {
