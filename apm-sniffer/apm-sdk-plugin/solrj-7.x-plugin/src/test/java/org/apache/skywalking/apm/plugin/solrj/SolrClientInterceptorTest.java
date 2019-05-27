@@ -104,7 +104,7 @@ public class SolrClientInterceptorTest {
 
     @Test
     public void testConstructor() throws Throwable {
-        arguments = new Object[] { builder };
+        arguments = new Object[] {builder};
         interceptor.onConstruct(enhancedInstance, arguments);
         SolrjInstance instance = (SolrjInstance) enhancedInstance.getSkyWalkingDynamicField();
         Assert.assertEquals(instance.getRemotePeer(), "solr-server:8983");
@@ -116,7 +116,7 @@ public class SolrClientInterceptorTest {
     public void testUpdateWithAdd() throws Throwable {
         UpdateRequest request = new UpdateRequest();
         List<SolrInputDocument> docs = Lists.newArrayList();
-        for (int start=0; start<100; start++) {
+        for (int start = 0; start < 100; start++) {
             SolrInputDocument doc = new SolrInputDocument();
             doc.addField("id", start);
             docs.add(doc);
@@ -320,7 +320,7 @@ public class SolrClientInterceptorTest {
         list.setNumFound(100);
         list.setMaxScore(.0f);
 
-        for (int start=0; start<10; start++) {
+        for (int start = 0; start < 10; start++) {
             SolrDocument doc = new SolrDocument();
             doc.addField("id", start);
             doc.addField("_version", 1634676349644832768L);
