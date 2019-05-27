@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 /**
  * LoggingEvent implements ILoggingEvent,
  * which is a message in the blockingQueue of the AsyncAppenderBase.class.
- * It is enhanced to use the tid just inside it and bring it to the asynchronous thread.
+ * The LoggingEvent is enhanced to carry the tid in the synchronization thread using `dynamicField`.
  *
  * @author zhaoyuguang
  */
