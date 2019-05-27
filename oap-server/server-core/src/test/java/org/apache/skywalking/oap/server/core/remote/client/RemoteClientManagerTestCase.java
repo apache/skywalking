@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.remote.client;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.apache.skywalking.oap.server.testing.module.*;
@@ -46,11 +46,11 @@ public class RemoteClientManagerTestCase {
         ClusterNodesQuery clusterNodesQuery = mock(ClusterNodesQuery.class);
         clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
 
-        StreamDataClassGetter streamDataClassGetter = mock(StreamDataClassGetter.class);
-        coreModuleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, streamDataClassGetter);
+        StreamDataMappingGetter streamDataMappingGetter = mock(StreamDataMappingGetter.class);
+        coreModuleDefine.provider().registerServiceImplementation(StreamDataMappingGetter.class, streamDataMappingGetter);
 
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetrics() {
             @Override public void inc() {
 
             }
@@ -73,7 +73,7 @@ public class RemoteClientManagerTestCase {
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
 

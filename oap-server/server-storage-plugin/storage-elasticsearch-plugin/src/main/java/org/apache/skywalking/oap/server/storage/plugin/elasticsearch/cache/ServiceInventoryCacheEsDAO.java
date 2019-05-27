@@ -57,7 +57,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
 
     private int get(String id) {
         try {
-            GetResponse response = getClient().get(ServiceInventory.MODEL_NAME, id);
+            GetResponse response = getClient().get(ServiceInventory.INDEX_NAME, id);
             if (response.isExists()) {
                 return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
@@ -75,7 +75,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());
@@ -101,7 +101,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             searchSourceBuilder.query(boolQuery);
             searchSourceBuilder.size(50);
 
-            SearchResponse response = getClient().search(ServiceInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
 
             for (SearchHit searchHit : response.getHits().getHits()) {
                 serviceInventories.add(this.builder.map2Data(searchHit.getSourceAsMap()));

@@ -44,6 +44,7 @@
         <module>jetty-plugin</module>
         <module>spymemcached-2.x-plugin</module>
         <module>sharding-jdbc-1.5.x-plugin</module>
+        <module>sharding-sphere-3.x-plugin</module>
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
         <module>mysql-5.x-plugin</module>
@@ -70,6 +71,7 @@
         <module>dubbo-2.7.x-plugin</module>
         <module>dubbo-2.7.x-conflict-patch</module>
         <module>vertx-plugins</module>
+        <module>resteasy-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import org.apache.skywalking.oap.server.core.alarm.AlarmEntrance;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
  *
  * @author wusheng
  */
-public class AlarmNotifyWorker extends AbstractWorker<Indicator> {
+public class AlarmNotifyWorker extends AbstractWorker<Metrics> {
     private AlarmEntrance entrance;
 
     public AlarmNotifyWorker(ModuleDefineHolder moduleDefineHolder) {
@@ -36,9 +36,9 @@ public class AlarmNotifyWorker extends AbstractWorker<Indicator> {
         this.entrance = new AlarmEntrance(moduleDefineHolder);
     }
 
-    @Override public void in(Indicator indicator) {
-        if (indicator instanceof WithMetadata) {
-            entrance.forward(indicator);
+    @Override public void in(Metrics metrics) {
+        if (metrics instanceof WithMetadata) {
+            entrance.forward(metrics);
         }
     }
 }
