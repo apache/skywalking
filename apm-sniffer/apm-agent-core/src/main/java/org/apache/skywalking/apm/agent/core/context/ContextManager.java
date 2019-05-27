@@ -44,9 +44,6 @@ public class ContextManager implements BootService {
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
         AbstractTracerContext context = CONTEXT.get();
-        if (EXTEND_SERVICE == null) {
-            EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
-        }
         if (context == null) {
             if (StringUtil.isEmpty(operationName)) {
                 if (logger.isDebugEnable()) {
@@ -57,6 +54,9 @@ public class ContextManager implements BootService {
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
                     && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
                 ) {
+                    if (EXTEND_SERVICE == null) {
+                        EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+                    }
                     context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
                 } else {
                     /**
