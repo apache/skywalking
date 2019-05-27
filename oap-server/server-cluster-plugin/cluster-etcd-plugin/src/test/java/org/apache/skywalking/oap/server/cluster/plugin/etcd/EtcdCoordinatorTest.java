@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
@@ -158,15 +159,16 @@ public class EtcdCoordinatorTest {
 
     private void registerRemote(Address address) {
         coordinator.registerRemote(new RemoteInstance(address));
-        EtcdEndpoint endpoint = afterRegister();
+        EtcdEndpoint endpoint = afterRegister().get(0);
         verifyRegistration(address, endpoint);
     }
 
-    private EtcdEndpoint afterRegister() {
+    private List<EtcdEndpoint> afterRegister() {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
         verify(client).put(nameCaptor.capture(), argumentCaptor.capture());
-        return gson.fromJson(argumentCaptor.getValue(), EtcdEndpoint.class);
+        return gson.fromJson(argumentCaptor.getValue(), new TypeToken<List<EtcdEndpoint>>() {
+        }.getType());
     }
 
     private void verifyRegistration(Address remoteAddress, EtcdEndpoint endpoint) {

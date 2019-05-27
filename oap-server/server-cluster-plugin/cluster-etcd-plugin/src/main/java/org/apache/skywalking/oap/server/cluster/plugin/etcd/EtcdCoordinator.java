@@ -85,9 +85,11 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         this.selfAddress = remoteInstance.getAddress();
 
         EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceId(serviceName).host(selfAddress.getHost()).port(selfAddress.getPort()).build();
+        List<EtcdEndpoint> list = new ArrayList<>();
+        list.add(endpoint);
 
         try {
-            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(serviceName, new Gson().toJson(endpoint)).send();
+            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(serviceName, new Gson().toJson(list)).send();
             //check register.
             promise.get();
         } catch (Exception e) {

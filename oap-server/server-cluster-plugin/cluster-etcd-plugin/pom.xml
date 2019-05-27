@@ -37,6 +37,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd.version>v3.2.3</etcd.version>
     </properties>
 
     <dependencies>
@@ -69,7 +70,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns</artifactId>
-            <version>4.1.27.Final</version>
+            <version>4.1.32.Final</version>
         </dependency>
 
         <dependency>
@@ -101,9 +102,76 @@
                     <artifactId>netty-resolver-dns</artifactId>
                     <groupId>io.netty</groupId>
                 </exclusion>
+
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-afterburner</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-afterburner</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <sourceMode>all</sourceMode>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
+                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>quayio/coreos-etcd:${etcd.version}</name>
+                                    <alias>etcd-client-integration-test</alias>
+                                    <run>
+                                        <ports>
+                                            <port>2379:2379</port>
+                                        </ports>
+                                        <wait>
+                                            <time>30000</time>
+                                        </wait>
+                                        <entrypoint>
+                                            <!-- exec form  -->
+                                            <exec>
+                                                <arg>/usr/local/bin/etcd</arg>
+                                                <arg>--advertise-client-urls=http://0.0.0.0:2379</arg>
+                                                <arg>--listen-client-urls=http://0.0.0.0:2379</arg>
+                                            </exec>
+                                        </entrypoint>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>remove-it-etcd</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
