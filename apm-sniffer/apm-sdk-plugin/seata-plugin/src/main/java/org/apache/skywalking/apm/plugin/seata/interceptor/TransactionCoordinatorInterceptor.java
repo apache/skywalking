@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
-import io.seata.core.protocol.transaction.GlobalBeginRequest;
 import io.seata.core.protocol.transaction.GlobalBeginResponse;
-import io.seata.core.protocol.transaction.GlobalCommitRequest;
-import io.seata.core.protocol.transaction.GlobalRollbackRequest;
-import io.seata.core.protocol.transaction.GlobalStatusRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -32,10 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRegisterRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchReportRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalRollbackRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedLockQueryRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
@@ -49,38 +48,46 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
                            final Object[] allArguments,
                            final Class<?>[] argumentsTypes,
                            final MethodInterceptResult result) throws Throwable {
+    final String methodName = method.getName();
     final Object request = allArguments[0];
+
     final ContextCarrier contextCarrier = new ContextCarrier();
 
     EnhancedRequest enhancedRequest = null;
-    String methodName = null;
     String xid = null;
 
-    if (request instanceof GlobalBeginRequest) {
+    if ("doGlobalBegin".equals(methodName)) {
       enhancedRequest = (EnhancedGlobalBeginRequest) request;
-
-      methodName = "begin";
-    } else if (request instanceof GlobalCommitRequest) {
+    } else if ("doGlobalCommit".equals(methodName)) {
       final EnhancedGlobalCommitRequest commitRequest = (EnhancedGlobalCommitRequest) request;
 
       xid = commitRequest.getXid();
       enhancedRequest = commitRequest;
-
-      methodName = "commit";
-    } else if (request instanceof GlobalRollbackRequest) {
+    } else if ("doGlobalRollback".equals(methodName)) {
       final EnhancedGlobalRollbackRequest rollbackRequest = (EnhancedGlobalRollbackRequest) request;
 
       xid = rollbackRequest.getXid();
       enhancedRequest = rollbackRequest;
-
-      methodName = "rollback";
-    } else if (request instanceof GlobalStatusRequest) {
+    } else if ("doGlobalStatus".equals(methodName)) {
       final EnhancedGlobalGetStatusRequest statusRequest = (EnhancedGlobalGetStatusRequest) request;
 
       xid = statusRequest.getXid();
       enhancedRequest = statusRequest;
+    } else if ("doBranchRegister".equals(methodName)) {
+      final EnhancedBranchRegisterRequest registerRequest = (EnhancedBranchRegisterRequest) request;
 
-      methodName = "getStatus";
+      xid = registerRequest.getXid();
+      enhancedRequest = registerRequest;
+    } else if ("doBranchReport".equals(methodName)) {
+      final EnhancedBranchReportRequest reportRequest = (EnhancedBranchReportRequest) request;
+
+      xid = reportRequest.getXid();
+      enhancedRequest = reportRequest;
+    } else if ("doLockCheck".equals(methodName)) {
+      final EnhancedLockQueryRequest lockQueryRequest = (EnhancedLockQueryRequest) request;
+
+      xid = lockQueryRequest.getXid();
+      enhancedRequest = lockQueryRequest;
     }
 
     if (enhancedRequest != null) {
@@ -91,18 +98,16 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
       }
     }
 
-    if (methodName != null) {
-      final AbstractSpan span = ContextManager.createEntrySpan(
-          ComponentsDefine.SEATA.getName() + "/TC/" + methodName,
-          contextCarrier
-      );
+    final AbstractSpan span = ContextManager.createEntrySpan(
+        operationName(method),
+        contextCarrier
+    );
 
-      if (xid != null) {
-        span.tag(XID, xid);
-      }
-      span.setComponent(ComponentsDefine.SEATA);
-      SpanLayer.asDB(span);
+    if (xid != null) {
+      span.tag(XID, xid);
     }
+    span.setComponent(ComponentsDefine.SEATA);
+    SpanLayer.asDB(span);
   }
 
   @Override
@@ -111,10 +116,11 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
                             final Object[] allArguments,
                             final Class<?>[] argumentsTypes,
                             final Object ret) throws Throwable {
+    final String methodName = method.getName();
     final AbstractSpan activeSpan = ContextManager.activeSpan();
     if (activeSpan != null) {
-      if (ret instanceof GlobalBeginResponse) {
-        final GlobalBeginResponse beginResponse = (GlobalBeginResponse) ret;
+      if ("doGlobalBegin".equals(methodName)) {
+        final GlobalBeginResponse beginResponse = (GlobalBeginResponse) allArguments[1];
         final String xid = beginResponse.getXid();
         activeSpan.tag(XID, xid);
       }
@@ -130,10 +136,17 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
                                     final Object[] allArguments,
                                     final Class<?>[] argumentsTypes,
                                     final Throwable t) {
-    AbstractSpan span = ContextManager.activeSpan();
+    final AbstractSpan span = ContextManager.activeSpan();
     if (span != null) {
       span.errorOccurred();
       span.log(t);
     }
+  }
+
+  private String operationName(final Method method) {
+    final String methodName = method.getName();
+    return ComponentsDefine.SEATA.getName()
+        + "/TC/"
+        + (methodName.startsWith("do") ? methodName.substring(2) : methodName);
   }
 }

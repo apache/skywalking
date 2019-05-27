@@ -27,29 +27,19 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
-public class TmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TmRmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-  private static final String ENHANCE_CLASS = "io.seata.core.rpc.netty.TmRpcClient";
-  private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.TmRpcClientInterceptor";
-  private static final String INTERCEPT_CTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.TmRpcClientCtorInterceptor";
+  private static final String[] ENHANCE_CLASSES = new String[]{
+      "io.seata.core.rpc.netty.TmRpcClient",
+      "io.seata.core.rpc.netty.RmRpcClient"
+  };
+  private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.TmRmRpcClientInterceptor";
 
   @Override
   protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-    return new ConstructorInterceptPoint[]{
-        new ConstructorInterceptPoint() {
-          @Override
-          public ElementMatcher<MethodDescription> getConstructorMatcher() {
-            return takesArguments(0);
-          }
-
-          @Override
-          public String getConstructorInterceptor() {
-            return INTERCEPT_CTOR_CLASS;
-          }
-        }
-    };
+    return new ConstructorInterceptPoint[0];
   }
 
   @Override
@@ -58,7 +48,8 @@ public class TmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
         new InstanceMethodsInterceptPoint() {
           @Override
           public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return named("loadBalance");
+            return named("loadBalance")
+                .and(takesArguments(String.class));
           }
 
           @Override
@@ -76,6 +67,6 @@ public class TmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
   @Override
   protected ClassMatch enhanceClass() {
-    return byName(ENHANCE_CLASS);
+    return byMultiClassMatch(ENHANCE_CLASSES);
   }
 }

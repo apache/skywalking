@@ -57,6 +57,11 @@ abstract class EnhancedRequestHelper {
 
   static void decode(final ByteBuffer byteBuffer,
                      final Map<String, String> headers) {
+    // There may be cases where the TC is enhanced by SkyWalking
+    // but the TM is not
+    if (!byteBuffer.hasRemaining()) {
+      return;
+    }
     final int headersCount = byteBuffer.getInt();
     for (int i = 0; i < headersCount; i++) {
       byte[] keyBs = new byte[byteBuffer.getShort()];

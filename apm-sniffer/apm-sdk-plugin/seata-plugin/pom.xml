@@ -23,5 +23,11 @@
             <version>${seata.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-rm</artifactId>
+            <version>${seata.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

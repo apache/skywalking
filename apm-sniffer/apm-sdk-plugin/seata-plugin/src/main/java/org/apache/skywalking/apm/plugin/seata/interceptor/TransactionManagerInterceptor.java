@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
+// TODO: replace instanceof's
 public class TransactionManagerInterceptor implements InstanceMethodsAroundInterceptor {
   @Override
   public void beforeMethod(final EnhancedInstance objInst,

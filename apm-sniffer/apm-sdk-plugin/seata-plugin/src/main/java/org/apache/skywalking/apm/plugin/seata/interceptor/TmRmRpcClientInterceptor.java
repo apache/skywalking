@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-public class TmRpcClientInterceptor implements InstanceMethodsAroundInterceptor {
+public class TmRmRpcClientInterceptor implements InstanceMethodsAroundInterceptor {
 
   @Override
   public void beforeMethod(final EnhancedInstance objInst,
@@ -32,6 +32,7 @@ public class TmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
                            final Object[] allArguments,
                            final Class<?>[] argumentsTypes,
                            final MethodInterceptResult result) throws Throwable {
+
   }
 
   @Override

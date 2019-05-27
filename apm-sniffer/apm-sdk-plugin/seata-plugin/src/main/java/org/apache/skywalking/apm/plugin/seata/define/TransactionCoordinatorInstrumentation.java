@@ -48,6 +48,9 @@ public class TransactionCoordinatorInstrumentation extends ClassInstanceMethodsE
                 .or(named("doGlobalCommit"))
                 .or(named("doGlobalRollback"))
                 .or(named("doGlobalStatus"))
+                .or(named("doBranchRegister"))
+                .or(named("doBranchReport"))
+                .or(named("doLockCheck"))
                 ;
           }
 
