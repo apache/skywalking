@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.apm.commons.datacarrier;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 /**
  * @author dengming
@@ -57,6 +57,15 @@ public class EnvUtilTest {
     public void getLong() {
         assertEquals(12345678901234567L, EnvUtil.getLong("myLong", 123L));
         assertEquals(987654321987654321L, EnvUtil.getLong("wrongLong", 987654321987654321L));
+    }
+
+    @Test
+    public void testGetIntCatchesNumberFormatException(){
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.getenv("a")).thenReturn("a");
+
+        assertEquals(1, EnvUtil.getInt("a", 1));
+        assertEquals(2, EnvUtil.getInt("a", 2));
     }
 
 }
