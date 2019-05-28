@@ -100,8 +100,8 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                     continue;
                 }
                 if (item.getStatus().getPodIP().equals(item.getStatus().getHostIP())) {
-                    logger.debug("Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata().getName()
-                            , item.getMetadata().getNamespace());
+                    logger.debug("Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata().getName(),
+                            item.getMetadata().getNamespace());
                     continue;
                 }
                 ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
