@@ -63,6 +63,8 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
 
     private static final String ADDRESS_TYPE_INTERNAL_IP = "InternalIP";
 
+    private static final String VALID_PHASE = "Running";
+
     @Getter(AccessLevel.PROTECTED)
     private final AtomicReference<Map<String, ServiceMetaInfo>> ipServiceMap = new AtomicReference<>();
 
@@ -93,8 +95,13 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
             Map<String, ServiceMetaInfo> ipMap = new HashMap<>(list.getItems().size());
             long startTime = System.nanoTime();
             for (V1Pod item : list.getItems()) {
+                if (!item.getStatus().getPhase().equals(VALID_PHASE)) {
+                    logger.debug("Invalid pod {} is not in a valid phase {}", item.getMetadata().getName(), item.getStatus().getPhase());
+                    continue;
+                }
                 if (item.getStatus().getPodIP().equals(item.getStatus().getHostIP())) {
-                    logger.warn("Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata().getName());
+                    logger.debug("Pod {}.{} is removed because hostIP and podIP are identical ", item.getMetadata().getName()
+                            , item.getMetadata().getNamespace());
                     continue;
                 }
                 ipMap.put(item.getStatus().getPodIP(), createServiceMetaInfo(item.getMetadata()));
