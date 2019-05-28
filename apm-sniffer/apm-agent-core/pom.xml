@@ -53,10 +53,8 @@
         <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
         <shade.io.opencensus.source>io.opencensus</shade.io.opencensus.source>
         <shade.io.opencensus.target>${shade.package}.${shade.io.opencensus.source}</shade.io.opencensus.target>
-        <shade.org.apache.http.source>org.apache.http</shade.org.apache.http.source>
-        <shade.org.apache.http.target>${shade.package}.${shade.org.apache.http.source}</shade.org.apache.http.target>
         <shade.org.apache.commons.source>org.apache.commons</shade.org.apache.commons.source>
-        <shade.org.apache.commons.target>${shade.package}.${shade.org.apache.http.source}
+        <shade.org.apache.commons.target>${shade.package}.${shade.org.apache.commons.source}
         </shade.org.apache.commons.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
     </properties>
