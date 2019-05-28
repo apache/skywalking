@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.common.base.Strings;
-import java.util.*;
 
 /**
  * @author peng-yongsheng
