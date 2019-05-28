@@ -77,8 +77,9 @@ public class SynchronousDispatcherInterceptor implements InstanceMethodsAroundIn
     }
 
     private static String toPath(String uri) {
-        if (uri.contains("?")) {
-            return uri.substring(0, uri.indexOf("?"));
+        int index = uri.indexOf("?");
+        if (index > -1) {
+            return uri.substring(0, index);
         } else {
             return uri;
         }
