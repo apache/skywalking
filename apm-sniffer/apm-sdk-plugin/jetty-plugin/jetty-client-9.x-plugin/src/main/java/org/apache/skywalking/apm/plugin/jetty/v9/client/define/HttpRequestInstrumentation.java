@@ -53,7 +53,7 @@ public class HttpRequestInstrumentation extends ClassInstanceMethodsEnhancePlugi
             new InstanceMethodsInterceptPoint() {
                 //sync call interceptor point
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_CLASS_NAME).and(takesArguments(0));
+                    return named(ENHANCE_CLASS_NAME).and(takesArguments(2));
                 }
 
                 @Override public String getMethodsInterceptor() {
