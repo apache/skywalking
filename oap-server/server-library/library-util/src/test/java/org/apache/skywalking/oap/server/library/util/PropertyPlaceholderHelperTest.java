@@ -53,7 +53,7 @@ public class PropertyPlaceholderHelperTest {
         Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
         if (CollectionUtils.isNotEmpty(moduleConfig)) {
             moduleConfig.forEach((moduleName, providerConfig) -> {
-                if (providerConfig.size() > 0) {
+                if (!providerConfig.isEmpty()) {
                     providerConfig.forEach((name, propertiesConfig) -> {
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> properties.put(key, value));

@@ -26,15 +26,15 @@ import java.util.*;
 public class CollectionUtils {
 
     public static boolean isEmpty(Map map) {
-        return map == null || map.size() == 0;
+        return map == null || map.isEmpty();
     }
 
     public static boolean isEmpty(List list) {
-        return list == null || list.size() == 0;
+        return list == null || list.isEmpty();
     }
 
     public static boolean isEmpty(Set set) {
-        return set == null || set.size() == 0;
+        return set == null || set.isEmpty();
     }
 
     public static boolean isNotEmpty(List list) {

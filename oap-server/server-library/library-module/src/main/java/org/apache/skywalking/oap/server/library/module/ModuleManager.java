@@ -56,7 +56,7 @@ public class ModuleManager implements ModuleDefineHolder {
         // Finish prepare stage
         isInPrepareStage = false;
 
-        if (moduleList.size() > 0) {
+        if (!moduleList.isEmpty()) {
             throw new ModuleNotFoundException(moduleList.toString() + " missing.");
         }
 

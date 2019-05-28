@@ -108,6 +108,6 @@ class BootstrapFlow {
                 throw new CycleDependencyException("Exist cycle module dependencies in \n" + unSequencedProviders.substring(0, unSequencedProviders.length() - 1));
             }
         }
-        while (allProviders.size() != 0);
+        while (!allProviders.isEmpty());
     }
 }
