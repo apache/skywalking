@@ -44,61 +44,61 @@ import java.lang.reflect.Method;
 
 public class AbstractMessageInterceptor implements StaticMethodsAroundInterceptor {
 
-  @Override
-  public void beforeMethod(final Class clazz,
-                           final Method method,
-                           final Object[] allArguments,
-                           final Class<?>[] parameterTypes,
-                           final MethodInterceptResult result) {
+    @Override
+    public void beforeMethod(final Class clazz,
+                             final Method method,
+                             final Object[] allArguments,
+                             final Class<?>[] parameterTypes,
+                             final MethodInterceptResult result) {
 
-  }
-
-  @Override
-  public Object afterMethod(final Class clazz,
-                            final Method method,
-                            final Object[] allArguments,
-                            final Class<?>[] parameterTypes,
-                            final Object ret) {
-    if ("getMergeRequestInstanceByCode".equals(method.getName())) {
-      final int typeCode = (Integer) allArguments[0];
-
-      switch (typeCode) {
-        case AbstractMessage.TYPE_GLOBAL_BEGIN:
-          return new EnhancedGlobalBeginRequest((GlobalBeginRequest) ret);
-        case AbstractMessage.TYPE_GLOBAL_COMMIT:
-          return new EnhancedGlobalCommitRequest((GlobalCommitRequest) ret);
-        case AbstractMessage.TYPE_GLOBAL_ROLLBACK:
-          return new EnhancedGlobalRollbackRequest((GlobalRollbackRequest) ret);
-        case AbstractMessage.TYPE_GLOBAL_STATUS:
-          return new EnhancedGlobalGetStatusRequest((GlobalStatusRequest) ret);
-        case AbstractMessage.TYPE_GLOBAL_LOCK_QUERY:
-          return new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) ret);
-        case AbstractMessage.TYPE_BRANCH_REGISTER:
-          return new EnhancedBranchRegisterRequest((BranchRegisterRequest) ret);
-        case AbstractMessage.TYPE_BRANCH_STATUS_REPORT:
-          return new EnhancedBranchReportRequest((BranchReportRequest) ret);
-        default:
-          return ret;
-      }
-    } else if ("getMsgInstanceByCode".equals(method.getName())) {
-      final short typeCode = (Short) allArguments[0];
-      switch (typeCode) {
-        case AbstractMessage.TYPE_BRANCH_COMMIT:
-          return new EnhancedBranchCommitRequest((BranchCommitRequest) ret);
-        case AbstractMessage.TYPE_BRANCH_ROLLBACK:
-          return new EnhancedBranchRollbackRequest((BranchRollbackRequest) ret);
-        default:
-          return ret;
-      }
     }
-    return ret;
-  }
 
-  @Override
-  public void handleMethodException(final Class clazz,
-                                    final Method method,
-                                    final Object[] allArguments,
-                                    final Class<?>[] parameterTypes,
-                                    final Throwable t) {
-  }
+    @Override
+    public Object afterMethod(final Class clazz,
+                              final Method method,
+                              final Object[] allArguments,
+                              final Class<?>[] parameterTypes,
+                              final Object ret) {
+        if ("getMergeRequestInstanceByCode".equals(method.getName())) {
+            final int typeCode = (Integer) allArguments[0];
+
+            switch (typeCode) {
+                case AbstractMessage.TYPE_GLOBAL_BEGIN:
+                    return new EnhancedGlobalBeginRequest((GlobalBeginRequest) ret);
+                case AbstractMessage.TYPE_GLOBAL_COMMIT:
+                    return new EnhancedGlobalCommitRequest((GlobalCommitRequest) ret);
+                case AbstractMessage.TYPE_GLOBAL_ROLLBACK:
+                    return new EnhancedGlobalRollbackRequest((GlobalRollbackRequest) ret);
+                case AbstractMessage.TYPE_GLOBAL_STATUS:
+                    return new EnhancedGlobalGetStatusRequest((GlobalStatusRequest) ret);
+                case AbstractMessage.TYPE_GLOBAL_LOCK_QUERY:
+                    return new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) ret);
+                case AbstractMessage.TYPE_BRANCH_REGISTER:
+                    return new EnhancedBranchRegisterRequest((BranchRegisterRequest) ret);
+                case AbstractMessage.TYPE_BRANCH_STATUS_REPORT:
+                    return new EnhancedBranchReportRequest((BranchReportRequest) ret);
+                default:
+                    return ret;
+            }
+        } else if ("getMsgInstanceByCode".equals(method.getName())) {
+            final short typeCode = (Short) allArguments[0];
+            switch (typeCode) {
+                case AbstractMessage.TYPE_BRANCH_COMMIT:
+                    return new EnhancedBranchCommitRequest((BranchCommitRequest) ret);
+                case AbstractMessage.TYPE_BRANCH_ROLLBACK:
+                    return new EnhancedBranchRollbackRequest((BranchRollbackRequest) ret);
+                default:
+                    return ret;
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public void handleMethodException(final Class clazz,
+                                      final Method method,
+                                      final Object[] allArguments,
+                                      final Class<?>[] parameterTypes,
+                                      final Throwable t) {
+    }
 }

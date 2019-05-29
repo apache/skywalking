@@ -25,42 +25,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EnhancedGlobalLockQueryRequest extends GlobalLockQueryRequest implements EnhancedRequest {
-  private Map<String, String> headers = new HashMap<String, String>();
+    private Map<String, String> headers = new HashMap<String, String>();
 
-  public EnhancedGlobalLockQueryRequest(final GlobalLockQueryRequest lockQueryRequest) {
-    setApplicationData(lockQueryRequest.getApplicationData());
-    setBranchType(lockQueryRequest.getBranchType());
-    setLockKey(lockQueryRequest.getLockKey());
-    setResourceId(lockQueryRequest.getResourceId());
-    setXid(lockQueryRequest.getXid());
-  }
+    public EnhancedGlobalLockQueryRequest(final GlobalLockQueryRequest lockQueryRequest) {
+        setApplicationData(lockQueryRequest.getApplicationData());
+        setBranchType(lockQueryRequest.getBranchType());
+        setLockKey(lockQueryRequest.getLockKey());
+        setResourceId(lockQueryRequest.getResourceId());
+        setXid(lockQueryRequest.getXid());
+    }
 
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
-  public void setHeaders(final Map<String, String> headers) {
-    this.headers = headers;
-  }
+    public void setHeaders(final Map<String, String> headers) {
+        this.headers = headers;
+    }
 
-  @Override
-  public void put(final String key, final String value) {
-    headers.put(key, value);
-  }
+    @Override
+    public void put(final String key, final String value) {
+        headers.put(key, value);
+    }
 
-  @Override
-  public String get(final String key) {
-    return headers.get(key);
-  }
+    @Override
+    public String get(final String key) {
+        return headers.get(key);
+    }
 
-  @Override
-  public byte[] encode() {
-    return EnhancedRequestHelper.encode(super.encode(), getHeaders());
-  }
+    @Override
+    public byte[] encode() {
+        return EnhancedRequestHelper.encode(super.encode(), getHeaders());
+    }
 
-  @Override
-  public void decode(final ByteBuffer byteBuffer) {
-    super.decode(byteBuffer);
-    EnhancedRequestHelper.decode(byteBuffer, getHeaders());
-  }
+    @Override
+    public void decode(final ByteBuffer byteBuffer) {
+        super.decode(byteBuffer);
+        EnhancedRequestHelper.decode(byteBuffer, getHeaders());
+    }
 }

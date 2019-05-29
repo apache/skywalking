@@ -31,39 +31,39 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class RpcServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-  private static final String ENHANCE_CLASS = "io.seata.core.rpc.netty.RpcServer";
-  private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.RpcServerInterceptor";
+    private static final String ENHANCE_CLASS = "io.seata.core.rpc.netty.RpcServer";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.RpcServerInterceptor";
 
-  @Override
-  protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-    return new ConstructorInterceptPoint[0];
-  }
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
 
-  @Override
-  protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-    return new InstanceMethodsInterceptPoint[]{
-        new InstanceMethodsInterceptPoint() {
-          @Override
-          public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return named("sendAsyncRequestWithResponse")
-                .and(takesArguments(String.class, Channel.class, Object.class, long.class));
-          }
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("sendAsyncRequestWithResponse")
+                        .and(takesArguments(String.class, Channel.class, Object.class, long.class));
+                }
 
-          @Override
-          public String getMethodsInterceptor() {
-            return INTERCEPTOR_CLASS;
-          }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-          @Override
-          public boolean isOverrideArgs() {
-            return true;
-          }
-        }
-    };
-  }
+                @Override
+                public boolean isOverrideArgs() {
+                    return true;
+                }
+            }
+        };
+    }
 
-  @Override
-  protected ClassMatch enhanceClass() {
-    return byName(ENHANCE_CLASS);
-  }
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
 }

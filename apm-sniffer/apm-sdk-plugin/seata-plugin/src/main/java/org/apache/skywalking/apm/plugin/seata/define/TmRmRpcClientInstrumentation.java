@@ -31,42 +31,42 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 
 public class TmRmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-  private static final String[] ENHANCE_CLASSES = new String[]{
-      "io.seata.core.rpc.netty.TmRpcClient",
-      "io.seata.core.rpc.netty.RmRpcClient"
-  };
-  private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.TmRmRpcClientInterceptor";
-
-  @Override
-  protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-    return new ConstructorInterceptPoint[0];
-  }
-
-  @Override
-  protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-    return new InstanceMethodsInterceptPoint[]{
-        new InstanceMethodsInterceptPoint() {
-          @Override
-          public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return named("loadBalance")
-                .and(takesArguments(String.class));
-          }
-
-          @Override
-          public String getMethodsInterceptor() {
-            return INTERCEPT_CLASS;
-          }
-
-          @Override
-          public boolean isOverrideArgs() {
-            return false;
-          }
-        }
+    private static final String[] ENHANCE_CLASSES = new String[] {
+        "io.seata.core.rpc.netty.TmRpcClient",
+        "io.seata.core.rpc.netty.RmRpcClient"
     };
-  }
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.TmRmRpcClientInterceptor";
 
-  @Override
-  protected ClassMatch enhanceClass() {
-    return byMultiClassMatch(ENHANCE_CLASSES);
-  }
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
+
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("loadBalance")
+                        .and(takesArguments(String.class));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
+    }
+
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byMultiClassMatch(ENHANCE_CLASSES);
+    }
 }

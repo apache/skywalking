@@ -43,118 +43,118 @@ import java.lang.reflect.Method;
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
 public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundInterceptor {
-  @Override
-  public void beforeMethod(final EnhancedInstance objInst,
-                           final Method method,
-                           final Object[] allArguments,
-                           final Class<?>[] argumentsTypes,
-                           final MethodInterceptResult result) throws Throwable {
-    final String methodName = method.getName();
-    final Object request = allArguments[0];
+    @Override
+    public void beforeMethod(final EnhancedInstance objInst,
+                             final Method method,
+                             final Object[] allArguments,
+                             final Class<?>[] argumentsTypes,
+                             final MethodInterceptResult result) throws Throwable {
+        final String methodName = method.getName();
+        final Object request = allArguments[0];
 
-    final ContextCarrier contextCarrier = new ContextCarrier();
+        final ContextCarrier contextCarrier = new ContextCarrier();
 
-    EnhancedRequest enhancedRequest = null;
-    String xid = null;
+        EnhancedRequest enhancedRequest = null;
+        String xid = null;
 
-    if ("doGlobalBegin".equals(methodName)) {
-      enhancedRequest = (EnhancedGlobalBeginRequest) request;
-    } else if ("doGlobalCommit".equals(methodName)) {
-      final EnhancedGlobalCommitRequest commitRequest = (EnhancedGlobalCommitRequest) request;
+        if ("doGlobalBegin".equals(methodName)) {
+            enhancedRequest = (EnhancedGlobalBeginRequest) request;
+        } else if ("doGlobalCommit".equals(methodName)) {
+            final EnhancedGlobalCommitRequest commitRequest = (EnhancedGlobalCommitRequest) request;
 
-      xid = commitRequest.getXid();
-      enhancedRequest = commitRequest;
-    } else if ("doGlobalRollback".equals(methodName)) {
-      final EnhancedGlobalRollbackRequest rollbackRequest = (EnhancedGlobalRollbackRequest) request;
+            xid = commitRequest.getXid();
+            enhancedRequest = commitRequest;
+        } else if ("doGlobalRollback".equals(methodName)) {
+            final EnhancedGlobalRollbackRequest rollbackRequest = (EnhancedGlobalRollbackRequest) request;
 
-      xid = rollbackRequest.getXid();
-      enhancedRequest = rollbackRequest;
-    } else if ("doGlobalStatus".equals(methodName)) {
-      final EnhancedGlobalGetStatusRequest statusRequest = (EnhancedGlobalGetStatusRequest) request;
+            xid = rollbackRequest.getXid();
+            enhancedRequest = rollbackRequest;
+        } else if ("doGlobalStatus".equals(methodName)) {
+            final EnhancedGlobalGetStatusRequest statusRequest = (EnhancedGlobalGetStatusRequest) request;
 
-      xid = statusRequest.getXid();
-      enhancedRequest = statusRequest;
-    } else if ("doBranchRegister".equals(methodName)) {
-      final EnhancedBranchRegisterRequest registerRequest = (EnhancedBranchRegisterRequest) request;
+            xid = statusRequest.getXid();
+            enhancedRequest = statusRequest;
+        } else if ("doBranchRegister".equals(methodName)) {
+            final EnhancedBranchRegisterRequest registerRequest = (EnhancedBranchRegisterRequest) request;
 
-      xid = registerRequest.getXid();
-      enhancedRequest = registerRequest;
-    } else if ("doBranchReport".equals(methodName)) {
-      final EnhancedBranchReportRequest reportRequest = (EnhancedBranchReportRequest) request;
+            xid = registerRequest.getXid();
+            enhancedRequest = registerRequest;
+        } else if ("doBranchReport".equals(methodName)) {
+            final EnhancedBranchReportRequest reportRequest = (EnhancedBranchReportRequest) request;
 
-      xid = reportRequest.getXid();
-      enhancedRequest = reportRequest;
-    } else if ("doLockCheck".equals(methodName)) {
-      final EnhancedGlobalLockQueryRequest lockQueryRequest = (EnhancedGlobalLockQueryRequest) request;
+            xid = reportRequest.getXid();
+            enhancedRequest = reportRequest;
+        } else if ("doLockCheck".equals(methodName)) {
+            final EnhancedGlobalLockQueryRequest lockQueryRequest = (EnhancedGlobalLockQueryRequest) request;
 
-      xid = lockQueryRequest.getXid();
-      enhancedRequest = lockQueryRequest;
-    }
-
-    if (enhancedRequest != null) {
-      CarrierItem next = contextCarrier.items();
-      while (next.hasNext()) {
-        next = next.next();
-        next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
-      }
-    }
-
-    final AbstractSpan span = ContextManager.createEntrySpan(
-        operationName(method),
-        contextCarrier
-    );
-
-    if (xid != null) {
-      span.tag(XID, xid);
-
-      if ("doGlobalCommit".equals(methodName) || "doGlobalRollback".equals(methodName)) {
-        final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
-        if (globalSession != null) {
-          globalSession.setSkyWalkingDynamicField(ContextManager.capture());
+            xid = lockQueryRequest.getXid();
+            enhancedRequest = lockQueryRequest;
         }
-      }
+
+        if (enhancedRequest != null) {
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
+            }
+        }
+
+        final AbstractSpan span = ContextManager.createEntrySpan(
+            operationName(method),
+            contextCarrier
+        );
+
+        if (xid != null) {
+            span.tag(XID, xid);
+
+            if ("doGlobalCommit".equals(methodName) || "doGlobalRollback".equals(methodName)) {
+                final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
+                if (globalSession != null) {
+                    globalSession.setSkyWalkingDynamicField(ContextManager.capture());
+                }
+            }
+        }
+        span.setComponent(ComponentsDefine.SEATA);
+        SpanLayer.asDB(span);
     }
-    span.setComponent(ComponentsDefine.SEATA);
-    SpanLayer.asDB(span);
-  }
 
-  @Override
-  public Object afterMethod(final EnhancedInstance objInst,
-                            final Method method,
-                            final Object[] allArguments,
-                            final Class<?>[] argumentsTypes,
-                            final Object ret) throws Throwable {
-    final String methodName = method.getName();
-    final AbstractSpan activeSpan = ContextManager.activeSpan();
-    if (activeSpan != null) {
-      if ("doGlobalBegin".equals(methodName)) {
-        final GlobalBeginResponse beginResponse = (GlobalBeginResponse) allArguments[1];
-        final String xid = beginResponse.getXid();
-        activeSpan.tag(XID, xid);
-      }
+    @Override
+    public Object afterMethod(final EnhancedInstance objInst,
+                              final Method method,
+                              final Object[] allArguments,
+                              final Class<?>[] argumentsTypes,
+                              final Object ret) throws Throwable {
+        final String methodName = method.getName();
+        final AbstractSpan activeSpan = ContextManager.activeSpan();
+        if (activeSpan != null) {
+            if ("doGlobalBegin".equals(methodName)) {
+                final GlobalBeginResponse beginResponse = (GlobalBeginResponse) allArguments[1];
+                final String xid = beginResponse.getXid();
+                activeSpan.tag(XID, xid);
+            }
 
-      ContextManager.stopSpan();
+            ContextManager.stopSpan();
+        }
+        return ret;
     }
-    return ret;
-  }
 
-  @Override
-  public void handleMethodException(final EnhancedInstance objInst,
-                                    final Method method,
-                                    final Object[] allArguments,
-                                    final Class<?>[] argumentsTypes,
-                                    final Throwable t) {
-    final AbstractSpan span = ContextManager.activeSpan();
-    if (span != null) {
-      span.errorOccurred();
-      span.log(t);
+    @Override
+    public void handleMethodException(final EnhancedInstance objInst,
+                                      final Method method,
+                                      final Object[] allArguments,
+                                      final Class<?>[] argumentsTypes,
+                                      final Throwable t) {
+        final AbstractSpan span = ContextManager.activeSpan();
+        if (span != null) {
+            span.errorOccurred();
+            span.log(t);
+        }
     }
-  }
 
-  private String operationName(final Method method) {
-    final String methodName = method.getName();
-    return ComponentsDefine.SEATA.getName()
-        + "/TC/"
-        + (methodName.startsWith("do") ? methodName.substring(2) : methodName);
-  }
+    private String operationName(final Method method) {
+        final String methodName = method.getName();
+        return ComponentsDefine.SEATA.getName()
+            + "/TC/"
+            + (methodName.startsWith("do") ? methodName.substring(2) : methodName);
+    }
 }

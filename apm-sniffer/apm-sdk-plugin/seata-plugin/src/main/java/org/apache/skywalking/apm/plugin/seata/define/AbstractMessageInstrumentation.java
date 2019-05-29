@@ -32,44 +32,44 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class AbstractMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-  private static final String ENHANCE_CLASS = "io.seata.core.protocol.AbstractMessage";
-  private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.AbstractMessageInterceptor";
+    private static final String ENHANCE_CLASS = "io.seata.core.protocol.AbstractMessage";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.AbstractMessageInterceptor";
 
-  @Override
-  protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-    return new ConstructorInterceptPoint[0];
-  }
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
 
-  @Override
-  protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-    return new StaticMethodsInterceptPoint[]{
-        new StaticMethodsInterceptPoint() {
-          @Override
-          public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return (named("getMergeRequestInstanceByCode").and(takesArguments(int.class)))
-                .or(named("getMsgInstanceByCode").and(takesArguments(short.class)));
-          }
+    @Override
+    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return (named("getMergeRequestInstanceByCode").and(takesArguments(int.class)))
+                        .or(named("getMsgInstanceByCode").and(takesArguments(short.class)));
+                }
 
-          @Override
-          public String getMethodsInterceptor() {
-            return INTERCEPT_CLASS;
-          }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
 
-          @Override
-          public boolean isOverrideArgs() {
-            return false;
-          }
-        }
-    };
-  }
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
+        };
+    }
 
-  @Override
-  protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-    return new InstanceMethodsInterceptPoint[0];
-  }
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
+    }
 
-  @Override
-  protected ClassMatch enhanceClass() {
-    return byName(ENHANCE_CLASS);
-  }
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
 }

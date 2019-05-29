@@ -14,54 +14,54 @@ import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 import java.lang.reflect.Method;
 
 public class AbstractRMHandlerInterceptor implements InstanceMethodsAroundInterceptor {
-  @Override
-  public void beforeMethod(final EnhancedInstance objInst,
-                           final Method method,
-                           final Object[] allArguments,
-                           final Class<?>[] argumentsTypes,
-                           final MethodInterceptResult result) throws Throwable {
-    final ContextCarrier contextCarrier = new ContextCarrier();
+    @Override
+    public void beforeMethod(final EnhancedInstance objInst,
+                             final Method method,
+                             final Object[] allArguments,
+                             final Class<?>[] argumentsTypes,
+                             final MethodInterceptResult result) throws Throwable {
+        final ContextCarrier contextCarrier = new ContextCarrier();
 
-    final EnhancedRequest enhancedRequest = ((EnhancedRequest) allArguments[0]);
-    CarrierItem next = contextCarrier.items();
-    while (next.hasNext()) {
-      next = next.next();
-      next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
+        final EnhancedRequest enhancedRequest = ((EnhancedRequest) allArguments[0]);
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
+        }
+
+        final AbstractSpan span = ContextManager.createEntrySpan(
+            operationName(method),
+            contextCarrier
+        );
+
+        span.setComponent(ComponentsDefine.SEATA);
+        SpanLayer.asDB(span);
     }
 
-    final AbstractSpan span = ContextManager.createEntrySpan(
-        operationName(method),
-        contextCarrier
-    );
-
-    span.setComponent(ComponentsDefine.SEATA);
-    SpanLayer.asDB(span);
-  }
-
-  @Override
-  public Object afterMethod(final EnhancedInstance objInst,
-                            final Method method,
-                            final Object[] allArguments,
-                            final Class<?>[] argumentsTypes,
-                            final Object ret) throws Throwable {
-    if (ContextManager.isActive()) {
-      ContextManager.stopSpan();
+    @Override
+    public Object afterMethod(final EnhancedInstance objInst,
+                              final Method method,
+                              final Object[] allArguments,
+                              final Class<?>[] argumentsTypes,
+                              final Object ret) throws Throwable {
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
+        return ret;
     }
-    return ret;
-  }
 
-  @Override
-  public void handleMethodException(final EnhancedInstance objInst,
-                                    final Method method,
-                                    final Object[] allArguments,
-                                    final Class<?>[] argumentsTypes,
-                                    final Throwable t) {
-    if (ContextManager.isActive()) {
-      ContextManager.activeSpan().errorOccurred().log(t);
+    @Override
+    public void handleMethodException(final EnhancedInstance objInst,
+                                      final Method method,
+                                      final Object[] allArguments,
+                                      final Class<?>[] argumentsTypes,
+                                      final Throwable t) {
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
-  }
 
-  private String operationName(final Method method) {
-    return ComponentsDefine.SEATA.getName() + "/RM/" + method.getName();
-  }
+    private String operationName(final Method method) {
+        return ComponentsDefine.SEATA.getName() + "/RM/" + method.getName();
+    }
 }

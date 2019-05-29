@@ -27,45 +27,45 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EnhancedBranchCommitRequest extends BranchCommitRequest implements EnhancedRequest {
-  private Map<String, String> headers = new HashMap<String, String>();
+    private Map<String, String> headers = new HashMap<String, String>();
 
-  public EnhancedBranchCommitRequest(final BranchCommitRequest branchCommitRequest) {
-    setApplicationData(branchCommitRequest.getApplicationData());
-    setBranchType(branchCommitRequest.getBranchType());
-    setBranchId(branchCommitRequest.getBranchId());
-    setResourceId(branchCommitRequest.getResourceId());
-    setXid(branchCommitRequest.getXid());
-  }
-
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
-
-  public void setHeaders(final Map<String, String> headers) {
-    this.headers = headers;
-  }
-
-  @Override
-  public void put(final String key, final String value) {
-    headers.put(key, value);
-  }
-
-  @Override
-  public String get(final String key) {
-    return headers.get(key);
-  }
-
-  @Override
-  public byte[] encode() {
-    return EnhancedRequestHelper.encode(super.encode(), getHeaders());
-  }
-
-  @Override
-  public boolean decode(final ByteBuf in) {
-    if (!super.decode(in)) {
-      return false;
+    public EnhancedBranchCommitRequest(final BranchCommitRequest branchCommitRequest) {
+        setApplicationData(branchCommitRequest.getApplicationData());
+        setBranchType(branchCommitRequest.getBranchType());
+        setBranchId(branchCommitRequest.getBranchId());
+        setResourceId(branchCommitRequest.getResourceId());
+        setXid(branchCommitRequest.getXid());
     }
-    EnhancedRequestHelper.decode(in, getHeaders());
-    return true;
-  }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(final Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    @Override
+    public void put(final String key, final String value) {
+        headers.put(key, value);
+    }
+
+    @Override
+    public String get(final String key) {
+        return headers.get(key);
+    }
+
+    @Override
+    public byte[] encode() {
+        return EnhancedRequestHelper.encode(super.encode(), getHeaders());
+    }
+
+    @Override
+    public boolean decode(final ByteBuf in) {
+        if (!super.decode(in)) {
+            return false;
+        }
+        EnhancedRequestHelper.decode(in, getHeaders());
+        return true;
+    }
 }

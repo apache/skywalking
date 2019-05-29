@@ -26,45 +26,45 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EnhancedBranchRollbackRequest extends BranchRollbackRequest implements EnhancedRequest {
-  private Map<String, String> headers = new HashMap<String, String>();
+    private Map<String, String> headers = new HashMap<String, String>();
 
-  public EnhancedBranchRollbackRequest(final BranchRollbackRequest branchRollbackRequest) {
-    setApplicationData(branchRollbackRequest.getApplicationData());
-    setBranchType(branchRollbackRequest.getBranchType());
-    setBranchId(branchRollbackRequest.getBranchId());
-    setResourceId(branchRollbackRequest.getResourceId());
-    setXid(branchRollbackRequest.getXid());
-  }
-
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
-
-  public void setHeaders(final Map<String, String> headers) {
-    this.headers = headers;
-  }
-
-  @Override
-  public void put(final String key, final String value) {
-    headers.put(key, value);
-  }
-
-  @Override
-  public String get(final String key) {
-    return headers.get(key);
-  }
-
-  @Override
-  public byte[] encode() {
-    return EnhancedRequestHelper.encode(super.encode(), getHeaders());
-  }
-
-  @Override
-  public boolean decode(final ByteBuf in) {
-    if (!super.decode(in)) {
-      return false;
+    public EnhancedBranchRollbackRequest(final BranchRollbackRequest branchRollbackRequest) {
+        setApplicationData(branchRollbackRequest.getApplicationData());
+        setBranchType(branchRollbackRequest.getBranchType());
+        setBranchId(branchRollbackRequest.getBranchId());
+        setResourceId(branchRollbackRequest.getResourceId());
+        setXid(branchRollbackRequest.getXid());
     }
-    EnhancedRequestHelper.decode(in, getHeaders());
-    return true;
-  }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(final Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    @Override
+    public void put(final String key, final String value) {
+        headers.put(key, value);
+    }
+
+    @Override
+    public String get(final String key) {
+        return headers.get(key);
+    }
+
+    @Override
+    public byte[] encode() {
+        return EnhancedRequestHelper.encode(super.encode(), getHeaders());
+    }
+
+    @Override
+    public boolean decode(final ByteBuf in) {
+        if (!super.decode(in)) {
+            return false;
+        }
+        EnhancedRequestHelper.decode(in, getHeaders());
+        return true;
+    }
 }

@@ -32,39 +32,39 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class TransactionManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-  private static final String ENHANCE_CLASS_TM = "io.seata.tm.DefaultTransactionManager";
-  private static final String INTERCEPT_CLASS_TM = "org.apache.skywalking.apm.plugin.seata.interceptor.TransactionManagerInterceptor";
+    private static final String ENHANCE_CLASS_TM = "io.seata.tm.DefaultTransactionManager";
+    private static final String INTERCEPT_CLASS_TM = "org.apache.skywalking.apm.plugin.seata.interceptor.TransactionManagerInterceptor";
 
-  @Override
-  protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-    return new ConstructorInterceptPoint[0];
-  }
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
 
-  @Override
-  protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-    return new InstanceMethodsInterceptPoint[] {
-        new InstanceMethodsInterceptPoint() {
-          @Override
-          public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return named("syncCall")
-                .and(takesArguments(AbstractTransactionRequest.class));
-          }
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("syncCall")
+                        .and(takesArguments(AbstractTransactionRequest.class));
+                }
 
-          @Override
-          public String getMethodsInterceptor() {
-            return INTERCEPT_CLASS_TM;
-          }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS_TM;
+                }
 
-          @Override
-          public boolean isOverrideArgs() {
-            return true;
-          }
-        }
-    };
-  }
+                @Override
+                public boolean isOverrideArgs() {
+                    return true;
+                }
+            }
+        };
+    }
 
-  @Override
-  protected ClassMatch enhanceClass() {
-    return byName(ENHANCE_CLASS_TM);
-  }
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS_TM);
+    }
 }

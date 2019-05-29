@@ -12,33 +12,33 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class GlobalSessionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-  private static final String ENHANCE_CLASS = "io.seata.server.session.GlobalSession";
-  private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.GlobalSessionInterceptor";
+    private static final String ENHANCE_CLASS = "io.seata.server.session.GlobalSession";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.GlobalSessionInterceptor";
 
-  @Override
-  protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-    return new ConstructorInterceptPoint[] {
-        new ConstructorInterceptPoint() {
-          @Override
-          public ElementMatcher<MethodDescription> getConstructorMatcher() {
-            return any();
-          }
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
 
-          @Override
-          public String getConstructorInterceptor() {
-            return INTERCEPTOR_CLASS;
-          }
-        }
-    };
-  }
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+            }
+        };
+    }
 
-  @Override
-  protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-    return new InstanceMethodsInterceptPoint[0];
-  }
+    @Override
+    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
+    }
 
-  @Override
-  protected ClassMatch enhanceClass() {
-    return byName(ENHANCE_CLASS);
-  }
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
 }

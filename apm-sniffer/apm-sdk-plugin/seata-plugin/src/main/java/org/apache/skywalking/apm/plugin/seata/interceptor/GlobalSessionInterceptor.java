@@ -5,7 +5,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 public class GlobalSessionInterceptor implements InstanceConstructorInterceptor {
 
-  @Override
-  public void onConstruct(final EnhancedInstance objInst, final Object[] allArguments) {
-  }
+    @Override
+    public void onConstruct(final EnhancedInstance objInst, final Object[] allArguments) {
+    }
 }
