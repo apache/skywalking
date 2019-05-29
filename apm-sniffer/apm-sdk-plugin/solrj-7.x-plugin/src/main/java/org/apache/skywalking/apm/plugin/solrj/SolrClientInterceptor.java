@@ -43,6 +43,7 @@ import org.apache.solr.common.util.NamedList;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
@@ -79,56 +80,50 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
         if ("/update".equals(request.getPath())) {
             AbstractUpdateRequest update = (AbstractUpdateRequest) request;
 
-            String actionName = "ADD";
             AbstractUpdateRequest.ACTION action = update.getAction();
             if (action == null) {
                 if (update instanceof UpdateRequest) {
                     UpdateRequest ur = (UpdateRequest) update;
                     List<SolrInputDocument> documents = ur.getDocuments();
                     if (documents == null) {
-                        actionName = "DELETE_BY_IDS";
+                        String actionName = "DELETE_BY_IDS";
 
                         List<String> deleteBy = ur.getDeleteById();
                         if (deleteBy == null) {
                             actionName = "DELETE_BY_QUERY";
                             deleteBy = ur.getDeleteQuery();
                         }
-                        if (deleteBy != null) {
-                            span = getSpan(collection, request.getPath(), actionName, instance.getRemotePeer());
-                            span.tag(SolrjTags.TAG_DELETE_VALUE, deleteBy.toString());
+                        if (deleteBy == null) {
+                            deleteBy = new ArrayList<String>();
                         }
-                    } else {
                         span = getSpan(collection, request.getPath(), actionName, instance.getRemotePeer());
+                        span.tag(SolrjTags.TAG_DELETE_VALUE, deleteBy.toString());
+                    } else {
+                        span = getSpan(collection, request.getPath(), "ADD", instance.getRemotePeer());
                         span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
                         span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(update.getCommitWithin()));
                     }
                 } else {
-                    span = getSpan(collection, request.getPath(), "", instance.getRemotePeer());
+                    span = getSpan(collection, request.getPath(), instance.getRemotePeer());
                 }
             } else {
-                actionName = action.name();
                 if (action == AbstractUpdateRequest.ACTION.COMMIT) {
-                    span = getSpan(collection, request.getPath(), actionName, instance.getRemotePeer());
+                    span = getSpan(collection, request.getPath(), action.name(), instance.getRemotePeer());
                     span.tag(SolrjTags.TAG_SOFT_COMMIT, params.get(UpdateParams.SOFT_COMMIT, ""));
                 } else {
-                    span = getSpan(collection, request.getPath(), actionName, instance.getRemotePeer());
+                    span = getSpan(collection, request.getPath(), action.name(), instance.getRemotePeer());
                     span.tag(SolrjTags.TAG_MAX_OPTIMIZE_SEGMENTS, params.get(UpdateParams.MAX_OPTIMIZE_SEGMENTS, "1"));
                 }
             }
         } else if (request instanceof QueryRequest) {
-            String operatorName = String.format("solrJ/%s%s", collection, request.getPath());
-            span = ContextManager.createExitSpan(operatorName, instance.getRemotePeer())
-                    .setComponent(ComponentsDefine.SOLRJ)
-                    .setLayer(SpanLayer.DB);
+            span = getSpan(collection, request.getPath(), instance.getRemotePeer());
 
             span.tag(SolrjTags.TAG_SORT_BY, params.get(CommonParams.SORT, ""));
             span.tag(SolrjTags.TAG_START, params.get(CommonParams.START, "0"));
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, request.getPath()));
+        } else {
+            span = getSpan(collection, request.getPath(), instance.getRemotePeer());
         }
-
-        if (null == span)
-            return;
-
         span.tag(SolrjTags.TAG_COLLECTION, collection);
     }
 
@@ -136,21 +131,24 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     @SuppressWarnings("unchecked")
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (!ContextManager.isActive()) return ret;
+        if (!ContextManager.isActive()) {
+            return ret;
+        }
 
         AbstractSpan span = ContextManager.activeSpan();
-        NamedList<Object> response = (NamedList<Object>) ret;
-        if (response != null) {
-            NamedList<Object> header = (NamedList<Object>) response.get("responseHeader");
+        NamedList<Object> result = (NamedList<Object>) ret;
+        if (result != null) {
+            NamedList<Object> header = (NamedList<Object>) result.get("responseHeader");
             if (header != null) {
                 span.tag(SolrjTags.TAG_STATUS, String.valueOf(header.get("status")));
                 span.tag(SolrjTags.TAG_Q_TIME, String.valueOf(header.get("QTime")));
             }
-            SolrDocumentList list = (SolrDocumentList) response.get("response");
+            SolrDocumentList list = (SolrDocumentList) result.get("response");
             if (list != null) {
                 span.tag(SolrjTags.TAG_NUM_FOUND, String.valueOf(list.getNumFound()));
             }
         }
+
         ContextManager.stopSpan();
         return ret;
     }
@@ -164,6 +162,13 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     private static final AbstractSpan getSpan(String collection, String path, String action, String remotePeer) {
         String operatorName = String.format("solrJ/%s%s/%s", collection, path, action);
+        return ContextManager.createExitSpan(operatorName, remotePeer)
+                .setComponent(ComponentsDefine.SOLRJ)
+                .setLayer(SpanLayer.DB);
+    }
+
+    private static final AbstractSpan getSpan(String collection, String path, String remotePeer) {
+        String operatorName = String.format("solrJ/%s%s", collection, path);
         return ContextManager.createExitSpan(operatorName, remotePeer)
                 .setComponent(ComponentsDefine.SOLRJ)
                 .setLayer(SpanLayer.DB);
