@@ -1,6 +1,5 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -18,11 +17,8 @@ public class AbstractResourceManagerInterceptor implements InstanceMethodsAround
                            final Object[] allArguments,
                            final Class<?>[] argumentsTypes,
                            final MethodInterceptResult result) throws Throwable {
-    final ContextCarrier contextCarrier = new ContextCarrier();
-
-    final AbstractSpan span = ContextManager.createEntrySpan(
-        operationName(method),
-        contextCarrier
+    final AbstractSpan span = ContextManager.createLocalSpan(
+        operationName(method)
     );
 
     span.setComponent(ComponentsDefine.SEATA);
