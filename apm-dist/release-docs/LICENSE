@@ -315,6 +315,8 @@ The text of each license is the standard Apache 2.0 license.
     proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
     proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
     proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
+    json-flatter 0.6.0: https://github.com/wnameless/json-flattener  Apache 2.0
+    Apache: commons-text 1.4: https://github.com/apache/commons-text Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -330,6 +332,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
     bcpkix-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
+    minimao-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
 
 ========================================================================
 BSD licenses
