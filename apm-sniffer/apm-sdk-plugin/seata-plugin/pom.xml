@@ -13,7 +13,7 @@
     <artifactId>seata-plugin</artifactId>
 
     <properties>
-        <seata.version>0.5.1</seata.version>
+        <seata.version>0.6.0</seata.version>
     </properties>
 
     <dependencies>
@@ -27,6 +27,18 @@
             <groupId>io.seata</groupId>
             <artifactId>seata-rm</artifactId>
             <version>${seata.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-server</artifactId>
+            <version>${seata.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>provided</scope>
         </dependency>
     </dependencies>

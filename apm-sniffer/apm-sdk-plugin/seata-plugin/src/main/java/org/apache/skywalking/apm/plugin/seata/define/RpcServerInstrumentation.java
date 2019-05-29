@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.seata.define;
 
+import io.netty.channel.Channel;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -29,9 +30,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class RmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-  private static final String ENHANCE_CLASS = "io.seata.core.rpc.netty.RmRpcClient";
-  private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.RmRpcClientInterceptor";
+public class RpcServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+  private static final String ENHANCE_CLASS = "io.seata.core.rpc.netty.RpcServer";
+  private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.RpcServerInterceptor";
 
   @Override
   protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -40,11 +41,12 @@ public class RmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
   @Override
   protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-    return new InstanceMethodsInterceptPoint[] {
+    return new InstanceMethodsInterceptPoint[]{
         new InstanceMethodsInterceptPoint() {
           @Override
           public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return named("sendMsgWithResponse").and(takesArguments(1));
+            return named("sendAsyncRequestWithResponse")
+                .and(takesArguments(String.class, Channel.class, Object.class, long.class));
           }
 
           @Override

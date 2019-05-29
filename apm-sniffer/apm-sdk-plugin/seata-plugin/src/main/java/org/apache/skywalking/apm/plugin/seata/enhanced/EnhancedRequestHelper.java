@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.seata.enhanced;
 
+import io.netty.buffer.ByteBuf;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -68,6 +70,23 @@ abstract class EnhancedRequestHelper {
       byteBuffer.get(keyBs);
       byte[] valBs = new byte[byteBuffer.getShort()];
       byteBuffer.get(valBs);
+      headers.put(new String(keyBs), new String(valBs));
+    }
+  }
+
+  static void decode(final ByteBuf byteBuffer,
+                     final Map<String, String> headers) {
+    // There may be cases where the TC is enhanced by SkyWalking
+    // but the TM is not
+    if (byteBuffer.readableBytes() <= 0) {
+      return;
+    }
+    final int headersCount = byteBuffer.readInt();
+    for (int i = 0; i < headersCount; i++) {
+      byte[] keyBs = new byte[byteBuffer.readShort()];
+      byteBuffer.readBytes(keyBs);
+      byte[] valBs = new byte[byteBuffer.readShort()];
+      byteBuffer.readBytes(valBs);
       headers.put(new String(keyBs), new String(valBs));
     }
   }

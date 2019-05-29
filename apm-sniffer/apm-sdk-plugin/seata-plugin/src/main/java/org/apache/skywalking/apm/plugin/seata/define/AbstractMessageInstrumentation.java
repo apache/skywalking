@@ -42,12 +42,12 @@ public class AbstractMessageInstrumentation extends ClassInstanceMethodsEnhanceP
 
   @Override
   protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-    return new StaticMethodsInterceptPoint[] {
+    return new StaticMethodsInterceptPoint[]{
         new StaticMethodsInterceptPoint() {
           @Override
           public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return named("getMergeRequestInstanceByCode")
-                .and(takesArguments(int.class));
+            return (named("getMergeRequestInstanceByCode").and(takesArguments(int.class)))
+                .or(named("getMsgInstanceByCode").and(takesArguments(short.class)));
           }
 
           @Override

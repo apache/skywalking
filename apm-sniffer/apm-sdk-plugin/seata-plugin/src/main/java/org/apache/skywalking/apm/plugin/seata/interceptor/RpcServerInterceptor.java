@@ -18,84 +18,87 @@
 
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
-import io.seata.core.protocol.transaction.AbstractTransactionRequest;
-import io.seata.core.protocol.transaction.GlobalBeginRequest;
-import io.seata.core.protocol.transaction.GlobalBeginResponse;
-import io.seata.core.protocol.transaction.GlobalCommitRequest;
-import io.seata.core.protocol.transaction.GlobalRollbackRequest;
-import io.seata.core.protocol.transaction.GlobalStatusRequest;
-import io.seata.core.rpc.netty.TmRpcClient;
+import io.netty.channel.Channel;
+import io.seata.core.protocol.transaction.BranchCommitRequest;
+import io.seata.core.protocol.transaction.BranchRollbackRequest;
+import io.seata.server.session.GlobalSession;
+import io.seata.server.session.SessionHolder;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalRollbackRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchCommitRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRollbackRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 
+import static org.apache.skywalking.apm.plugin.seata.Constants.BRANCH_ID;
+import static org.apache.skywalking.apm.plugin.seata.Constants.RESOURCE_ID;
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
-// TODO: replace instanceof's
-public class TransactionManagerInterceptor implements InstanceMethodsAroundInterceptor {
+public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
   @Override
   public void beforeMethod(final EnhancedInstance objInst,
                            final Method method,
                            final Object[] allArguments,
                            final Class<?>[] argumentsTypes,
                            final MethodInterceptResult result) throws Throwable {
-    final AbstractTransactionRequest message = (AbstractTransactionRequest) allArguments[0];
-    final ContextCarrier contextCarrier = new ContextCarrier();
+    final Channel channel = (Channel) allArguments[1];
+    final Object argument2 = allArguments[2];
 
-    String xid = null;
-    String methodName = null;
     EnhancedRequest enhancedRequest = null;
+    String xid = null;
+    String branchId = null;
+    String resourceId = null;
+    String operation = null;
 
-    if (message instanceof GlobalBeginRequest) {
-      methodName = "begin";
+    if (argument2 instanceof BranchCommitRequest) {
+      final BranchCommitRequest branchCommitRequest = (BranchCommitRequest) argument2;
 
-      enhancedRequest = new EnhancedGlobalBeginRequest((GlobalBeginRequest) message);
-    } else if (message instanceof GlobalCommitRequest) {
-      final GlobalCommitRequest request = (GlobalCommitRequest) message;
+      xid = branchCommitRequest.getXid();
+      branchId = String.valueOf(branchCommitRequest.getBranchId());
+      resourceId = branchCommitRequest.getResourceId();
+      enhancedRequest = new EnhancedBranchCommitRequest(branchCommitRequest);
+      operation = "BranchCommit";
+    } else if (argument2 instanceof BranchRollbackRequest) {
+      final BranchRollbackRequest branchRollbackRequest = (BranchRollbackRequest) argument2;
 
-      methodName = "commit";
-      xid = request.getXid();
-
-      enhancedRequest = new EnhancedGlobalCommitRequest(request);
-    } else if (message instanceof GlobalRollbackRequest) {
-      final GlobalRollbackRequest request = (GlobalRollbackRequest) message;
-
-      methodName = "rollback";
-      xid = request.getXid();
-
-      enhancedRequest = new EnhancedGlobalRollbackRequest(request);
-    } else if (message instanceof GlobalStatusRequest) {
-      final GlobalStatusRequest request = (GlobalStatusRequest) message;
-
-      methodName = "getStatus";
-      xid = request.getXid();
-
-      enhancedRequest = new EnhancedGlobalGetStatusRequest(request);
+      xid = branchRollbackRequest.getXid();
+      branchId = String.valueOf(branchRollbackRequest.getBranchId());
+      resourceId = branchRollbackRequest.getResourceId();
+      enhancedRequest = new EnhancedBranchRollbackRequest(branchRollbackRequest);
+      operation = "BranchRollback";
     }
 
-    if (methodName != null) {
-      final Object client = TmRpcClient.getInstance();
-      final EnhancedInstance tmRpcClient = (EnhancedInstance) client;
-      final String peerAddress = (String) tmRpcClient.getSkyWalkingDynamicField();
+    if (enhancedRequest != null) {
+      final ContextCarrier contextCarrier = new ContextCarrier();
+      final InetSocketAddress inetSocketAddress = (InetSocketAddress) channel.remoteAddress();
+      final String peerAddress = inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort();
 
       final AbstractSpan span = ContextManager.createExitSpan(
-          ComponentsDefine.SEATA.getName() + "/TM/" + methodName,
+          operationName(operation),
           contextCarrier,
           peerAddress
       );
+
+      if (xid != null) {
+        span.tag(XID, xid);
+
+        final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
+        if (globalSession != null && globalSession.getSkyWalkingDynamicField() != null) {
+          ContextManager.continued(
+              (ContextSnapshot) globalSession.getSkyWalkingDynamicField()
+          );
+        }
+      }
 
       CarrierItem next = contextCarrier.items();
       while (next.hasNext()) {
@@ -103,10 +106,14 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
         enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
       }
 
-      allArguments[0] = enhancedRequest;
+      allArguments[2] = enhancedRequest;
 
-      if (xid != null) {
-        span.tag(XID, xid);
+      if (branchId != null) {
+        span.tag(BRANCH_ID, branchId);
+      }
+
+      if (resourceId != null) {
+        span.tag(RESOURCE_ID, resourceId);
       }
 
       span.setComponent(ComponentsDefine.SEATA);
@@ -120,12 +127,7 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
                             final Object[] allArguments,
                             final Class<?>[] argumentsTypes,
                             final Object ret) throws Throwable {
-    final AbstractSpan activeSpan = ContextManager.activeSpan();
-    if (activeSpan != null) {
-      if (ret instanceof GlobalBeginResponse) {
-        final GlobalBeginResponse response = (GlobalBeginResponse) ret;
-        activeSpan.tag(XID, response.getXid());
-      }
+    if (ContextManager.isActive()) {
       ContextManager.stopSpan();
     }
     return ret;
@@ -137,10 +139,14 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
                                     final Object[] allArguments,
                                     final Class<?>[] argumentsTypes,
                                     final Throwable t) {
-    AbstractSpan span = ContextManager.activeSpan();
-    if (span != null) {
-      span.errorOccurred();
-      span.log(t);
+    final AbstractSpan activeSpan = ContextManager.activeSpan();
+    if (activeSpan != null) {
+      activeSpan.errorOccurred();
+      activeSpan.log(t);
     }
+  }
+
+  private String operationName(final String operation) {
+    return ComponentsDefine.SEATA.getName() + "/TC/" + operation;
   }
 }

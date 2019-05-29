@@ -19,8 +19,10 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.seata.core.protocol.AbstractMessage;
+import io.seata.core.protocol.transaction.BranchCommitRequest;
 import io.seata.core.protocol.transaction.BranchRegisterRequest;
 import io.seata.core.protocol.transaction.BranchReportRequest;
+import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import io.seata.core.protocol.transaction.GlobalBeginRequest;
 import io.seata.core.protocol.transaction.GlobalCommitRequest;
 import io.seata.core.protocol.transaction.GlobalLockQueryRequest;
@@ -28,8 +30,10 @@ import io.seata.core.protocol.transaction.GlobalRollbackRequest;
 import io.seata.core.protocol.transaction.GlobalStatusRequest;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRegisterRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchReportRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRollbackRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
@@ -55,26 +59,39 @@ public class AbstractMessageInterceptor implements StaticMethodsAroundIntercepto
                             final Object[] allArguments,
                             final Class<?>[] parameterTypes,
                             final Object ret) {
-    final int typeCode = (Integer) allArguments[0];
+    if ("getMergeRequestInstanceByCode".equals(method.getName())) {
+      final int typeCode = (Integer) allArguments[0];
 
-    switch (typeCode) {
-      case AbstractMessage.TYPE_GLOBAL_BEGIN:
-        return new EnhancedGlobalBeginRequest((GlobalBeginRequest) ret);
-      case AbstractMessage.TYPE_GLOBAL_COMMIT:
-        return new EnhancedGlobalCommitRequest((GlobalCommitRequest) ret);
-      case AbstractMessage.TYPE_GLOBAL_ROLLBACK:
-        return new EnhancedGlobalRollbackRequest((GlobalRollbackRequest) ret);
-      case AbstractMessage.TYPE_GLOBAL_STATUS:
-        return new EnhancedGlobalGetStatusRequest((GlobalStatusRequest) ret);
-      case AbstractMessage.TYPE_GLOBAL_LOCK_QUERY:
-        return new EnhancedLockQueryRequest((GlobalLockQueryRequest) ret);
-      case AbstractMessage.TYPE_BRANCH_REGISTER:
-        return new EnhancedBranchRegisterRequest((BranchRegisterRequest) ret);
-      case AbstractMessage.TYPE_BRANCH_STATUS_REPORT:
-        return new EnhancedBranchReportRequest((BranchReportRequest) ret);
-      default:
-        return ret;
+      switch (typeCode) {
+        case AbstractMessage.TYPE_GLOBAL_BEGIN:
+          return new EnhancedGlobalBeginRequest((GlobalBeginRequest) ret);
+        case AbstractMessage.TYPE_GLOBAL_COMMIT:
+          return new EnhancedGlobalCommitRequest((GlobalCommitRequest) ret);
+        case AbstractMessage.TYPE_GLOBAL_ROLLBACK:
+          return new EnhancedGlobalRollbackRequest((GlobalRollbackRequest) ret);
+        case AbstractMessage.TYPE_GLOBAL_STATUS:
+          return new EnhancedGlobalGetStatusRequest((GlobalStatusRequest) ret);
+        case AbstractMessage.TYPE_GLOBAL_LOCK_QUERY:
+          return new EnhancedLockQueryRequest((GlobalLockQueryRequest) ret);
+        case AbstractMessage.TYPE_BRANCH_REGISTER:
+          return new EnhancedBranchRegisterRequest((BranchRegisterRequest) ret);
+        case AbstractMessage.TYPE_BRANCH_STATUS_REPORT:
+          return new EnhancedBranchReportRequest((BranchReportRequest) ret);
+        default:
+          return ret;
+      }
+    } else if ("getMsgInstanceByCode".equals(method.getName())) {
+      final short typeCode = (Short) allArguments[0];
+      switch (typeCode) {
+        case AbstractMessage.TYPE_BRANCH_COMMIT:
+          return new EnhancedBranchCommitRequest((BranchCommitRequest) ret);
+        case AbstractMessage.TYPE_BRANCH_ROLLBACK:
+          return new EnhancedBranchRollbackRequest((BranchRollbackRequest) ret);
+        default:
+          return ret;
+      }
     }
+    return ret;
   }
 
   @Override

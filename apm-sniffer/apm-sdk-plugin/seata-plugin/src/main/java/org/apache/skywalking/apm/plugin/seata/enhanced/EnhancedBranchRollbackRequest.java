@@ -18,22 +18,22 @@
 
 package org.apache.skywalking.apm.plugin.seata.enhanced;
 
-import io.seata.core.protocol.transaction.BranchReportRequest;
+import io.netty.buffer.ByteBuf;
+import io.seata.core.protocol.transaction.BranchCommitRequest;
+import io.seata.core.protocol.transaction.BranchRollbackRequest;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnhancedBranchReportRequest extends BranchReportRequest implements EnhancedRequest {
+public class EnhancedBranchRollbackRequest extends BranchRollbackRequest implements EnhancedRequest {
   private Map<String, String> headers = new HashMap<String, String>();
 
-  public EnhancedBranchReportRequest(final BranchReportRequest reportRequest) {
-    setApplicationData(reportRequest.getApplicationData());
-    setBranchType(reportRequest.getBranchType());
-    setBranchId(reportRequest.getBranchId());
-    setResourceId(reportRequest.getResourceId());
-    setXid(reportRequest.getXid());
-    setStatus(reportRequest.getStatus());
+  public EnhancedBranchRollbackRequest(final BranchRollbackRequest branchRollbackRequest) {
+    setApplicationData(branchRollbackRequest.getApplicationData());
+    setBranchType(branchRollbackRequest.getBranchType());
+    setBranchId(branchRollbackRequest.getBranchId());
+    setResourceId(branchRollbackRequest.getResourceId());
+    setXid(branchRollbackRequest.getXid());
   }
 
   public Map<String, String> getHeaders() {
@@ -60,8 +60,11 @@ public class EnhancedBranchReportRequest extends BranchReportRequest implements 
   }
 
   @Override
-  public void decode(final ByteBuffer byteBuffer) {
-    super.decode(byteBuffer);
-    EnhancedRequestHelper.decode(byteBuffer, getHeaders());
+  public boolean decode(final ByteBuf in) {
+    if (!super.decode(in)) {
+      return false;
+    }
+    EnhancedRequestHelper.decode(in, getHeaders());
+    return true;
   }
 }
