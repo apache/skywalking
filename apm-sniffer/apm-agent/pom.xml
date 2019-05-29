@@ -73,9 +73,6 @@
                             <artifactSet>
                                 <excludes>
                                     <exclude>com.lmax:*</exclude>
-                                    <exclude>org.apache.httpcomponents:*</exclude>
-                                    <exclude>commons-logging:*</exclude>
-                                    <exclude>commons-codec:*</exclude>
                                     <exclude>*:gson</exclude>
                                     <exclude>io.grpc:*</exclude>
                                     <exclude>io.netty:*</exclude>
