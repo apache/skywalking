@@ -20,9 +20,7 @@ package org.apache.skywalking.apm.plugin.seata.enhanced;
 
 import io.netty.buffer.ByteBuf;
 import io.seata.core.protocol.transaction.BranchCommitRequest;
-import io.seata.core.protocol.transaction.BranchRegisterRequest;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 

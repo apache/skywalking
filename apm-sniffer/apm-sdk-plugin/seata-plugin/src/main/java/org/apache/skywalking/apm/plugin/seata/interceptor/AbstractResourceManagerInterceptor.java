@@ -1,5 +1,7 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -7,6 +9,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
 
@@ -17,8 +20,19 @@ public class AbstractResourceManagerInterceptor implements InstanceMethodsAround
                              final Object[] allArguments,
                              final Class<?>[] argumentsTypes,
                              final MethodInterceptResult result) throws Throwable {
-        final AbstractSpan span = ContextManager.createLocalSpan(
-            operationName(method)
+        final EnhancedRequest enhancedRequest = ContextManager.getRuntimeContext().get("EnhancedRequest", EnhancedRequest.class);
+        ContextManager.getRuntimeContext().remove("EnhancedRequest");
+
+        final ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
+        }
+
+        final AbstractSpan span = ContextManager.createEntrySpan(
+            operationName(method),
+            contextCarrier
         );
 
         span.setComponent(ComponentsDefine.SEATA);

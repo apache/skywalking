@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.seata.interceptor;
 import io.netty.channel.Channel;
 import io.seata.core.protocol.transaction.BranchCommitRequest;
 import io.seata.core.protocol.transaction.BranchRollbackRequest;
-import io.seata.server.session.GlobalSession;
 import io.seata.server.session.SessionHolder;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -40,9 +39,7 @@ import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
-import static org.apache.skywalking.apm.plugin.seata.Constants.BRANCH_ID;
-import static org.apache.skywalking.apm.plugin.seata.Constants.RESOURCE_ID;
-import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
+import static org.apache.skywalking.apm.plugin.seata.Constants.*;
 
 public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override

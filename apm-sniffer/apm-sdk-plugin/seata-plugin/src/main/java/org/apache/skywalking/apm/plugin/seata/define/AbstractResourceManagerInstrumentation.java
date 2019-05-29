@@ -9,7 +9,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 public class AbstractResourceManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.seata.rm.AbstractResourceManager";
@@ -26,8 +26,8 @@ public class AbstractResourceManagerInstrumentation extends ClassInstanceMethods
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return (named("branchCommit").and(takesArguments(6))
-                        .or(named("branchRollback")).and(takesArguments(5)));
+                    return named("branchCommit").and(takesArguments(5))
+                        .or(named("branchRollback")).and(takesArguments(5));
                 }
 
                 @Override
@@ -45,6 +45,8 @@ public class AbstractResourceManagerInstrumentation extends ClassInstanceMethods
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byHierarchyMatch(new String[] {
+            ENHANCE_CLASS
+        });
     }
 }
