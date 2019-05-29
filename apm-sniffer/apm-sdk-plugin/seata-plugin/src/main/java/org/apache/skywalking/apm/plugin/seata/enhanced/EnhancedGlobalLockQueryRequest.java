@@ -24,10 +24,10 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnhancedLockQueryRequest extends GlobalLockQueryRequest implements EnhancedRequest {
+public class EnhancedGlobalLockQueryRequest extends GlobalLockQueryRequest implements EnhancedRequest {
   private Map<String, String> headers = new HashMap<String, String>();
 
-  public EnhancedLockQueryRequest(final GlobalLockQueryRequest lockQueryRequest) {
+  public EnhancedGlobalLockQueryRequest(final GlobalLockQueryRequest lockQueryRequest) {
     setApplicationData(lockQueryRequest.getApplicationData());
     setBranchType(lockQueryRequest.getBranchType());
     setLockKey(lockQueryRequest.getLockKey());

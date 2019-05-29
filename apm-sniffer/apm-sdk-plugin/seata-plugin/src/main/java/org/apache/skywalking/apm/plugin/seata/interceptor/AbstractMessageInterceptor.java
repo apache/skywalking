@@ -38,7 +38,7 @@ import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginReques
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalRollbackRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedLockQueryRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalLockQueryRequest;
 
 import java.lang.reflect.Method;
 
@@ -72,7 +72,7 @@ public class AbstractMessageInterceptor implements StaticMethodsAroundIntercepto
         case AbstractMessage.TYPE_GLOBAL_STATUS:
           return new EnhancedGlobalGetStatusRequest((GlobalStatusRequest) ret);
         case AbstractMessage.TYPE_GLOBAL_LOCK_QUERY:
-          return new EnhancedLockQueryRequest((GlobalLockQueryRequest) ret);
+          return new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) ret);
         case AbstractMessage.TYPE_BRANCH_REGISTER:
           return new EnhancedBranchRegisterRequest((BranchRegisterRequest) ret);
         case AbstractMessage.TYPE_BRANCH_STATUS_REPORT:

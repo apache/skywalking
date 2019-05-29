@@ -19,27 +19,23 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.seata.core.protocol.transaction.GlobalBeginResponse;
-import io.seata.server.session.GlobalSession;
 import io.seata.server.session.SessionHolder;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRegisterRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchReportRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRollbackRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalRollbackRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedLockQueryRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalLockQueryRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
@@ -89,7 +85,7 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
       xid = reportRequest.getXid();
       enhancedRequest = reportRequest;
     } else if ("doLockCheck".equals(methodName)) {
-      final EnhancedLockQueryRequest lockQueryRequest = (EnhancedLockQueryRequest) request;
+      final EnhancedGlobalLockQueryRequest lockQueryRequest = (EnhancedGlobalLockQueryRequest) request;
 
       xid = lockQueryRequest.getXid();
       enhancedRequest = lockQueryRequest;

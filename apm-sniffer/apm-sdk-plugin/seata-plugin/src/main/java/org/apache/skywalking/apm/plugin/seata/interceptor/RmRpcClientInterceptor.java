@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.seata.core.protocol.transaction.BranchRegisterRequest;
 import io.seata.core.protocol.transaction.BranchReportRequest;
+import io.seata.core.protocol.transaction.GlobalLockQueryRequest;
 import io.seata.core.rpc.netty.RmRpcClient;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -32,6 +33,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRegisterRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchReportRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalLockQueryRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
@@ -51,7 +53,13 @@ public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
     String methodName = null;
     EnhancedRequest enhancedRequest = null;
 
-    if (argument0 instanceof BranchRegisterRequest) {
+    if (argument0 instanceof GlobalLockQueryRequest) {
+      final EnhancedGlobalLockQueryRequest globalLockQueryRequest = new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) argument0);
+      xid = globalLockQueryRequest.getXid();
+
+      enhancedRequest = globalLockQueryRequest;
+      methodName = "GlobalLockQuery";
+    } else if (argument0 instanceof BranchRegisterRequest) {
       final EnhancedBranchRegisterRequest branchRegisterRequest = new EnhancedBranchRegisterRequest((BranchRegisterRequest) argument0);
       xid = branchRegisterRequest.getXid();
 

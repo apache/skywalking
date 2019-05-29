@@ -27,8 +27,8 @@ public class AbstractResourceManagerInstrumentation extends ClassInstanceMethods
         new InstanceMethodsInterceptPoint() {
           @Override
           public ElementMatcher<MethodDescription> getMethodsMatcher() {
-            return (named("branchCommit").and(takesArguments(BranchType.class, String.class, long.class, String.class, String.class))
-                .or(named("branchRollback")).and(takesArguments(BranchType.class, String.class, long.class, String.class, String.class)));
+            return (named("branchCommit").and(takesArguments(6))
+                .or(named("branchRollback")).and(takesArguments(5)));
           }
 
           @Override
