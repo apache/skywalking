@@ -113,7 +113,7 @@ public class DeepAnalysisTest {
         Assert.assertEquals(1, filterExpressions.size());
         FilterExpression filterExpression = filterExpressions.get(0);
         Assert.assertEquals("EqualMatch", filterExpression.getExpressionObject());
-        Assert.assertEquals("source.getName()", filterExpression.getLeft());
+        Assert.assertEquals("source.getItemName()", filterExpression.getLeft());
         Assert.assertEquals("\"/service/prod/save\"", filterExpression.getRight());
     }
 }

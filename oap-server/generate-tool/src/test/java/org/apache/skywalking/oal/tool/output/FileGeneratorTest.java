@@ -48,7 +48,7 @@ public class FileGeneratorTest {
 
         FilterExpression equalExpression = new FilterExpression();
         equalExpression.setExpressionObject("EqualMatch");
-        equalExpression.setLeft("source.getName()");
+        equalExpression.setLeft("source.getItemName()");
         equalExpression.setRight("\"/service/prod/save\"");
         result.addFilterExpressions(equalExpression);
 

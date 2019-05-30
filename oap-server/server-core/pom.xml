@@ -46,6 +46,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-api</artifactId>
+            <version>6.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>library-util</artifactId>
             <version>${project.version}</version>
         </dependency>
