@@ -23,7 +23,7 @@
 * HTTP Gateway
   * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.1.x.RELEASE (Optional²)
 * JDBC
-  * Mysql Driver 5.x, 6.x
+  * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
   * H2 Driver 1.3.x -> 1.4.x
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
