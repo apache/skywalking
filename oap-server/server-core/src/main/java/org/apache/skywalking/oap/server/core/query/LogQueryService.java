@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.library.module.*;
  * @author wusheng
  */
 public class LogQueryService implements Service {
+    
     private final ModuleManager moduleManager;
     private ILogQueryDAO logQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
