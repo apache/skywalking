@@ -13,34 +13,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.storage.model;
 
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
 /**
  * @author peng-yongsheng
  */
-public class DownSamplingModelNameBuilder {
+public class ModelName {
 
-    private DownSamplingModelNameBuilder() {
-    }
-
-    public static String build(Step step, String modelName) {
-        switch (step) {
-            case MONTH:
-                modelName = modelName + Const.ID_SPLIT + Downsampling.Month.getName();
-                break;
-            case DAY:
-                modelName = modelName + Const.ID_SPLIT + Downsampling.Day.getName();
-                break;
-            case HOUR:
-                modelName = modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
-                break;
+    public static String build(Downsampling downsampling, String modelName) {
+        switch (downsampling) {
+            case Month:
+                return modelName + Const.ID_SPLIT + Downsampling.Month.getName();
+            case Day:
+                return modelName + Const.ID_SPLIT + Downsampling.Day.getName();
+            case Hour:
+                return modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
+            case Minute:
+                return modelName + Const.ID_SPLIT + Downsampling.Minute.getName();
+            case Second:
+                return modelName + Const.ID_SPLIT + Downsampling.Second.getName();
+            default:
+                return modelName;
         }
-        return modelName;
     }
 }
