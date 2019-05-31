@@ -32,7 +32,7 @@ public enum DurationUtils {
     INSTANCE;
 
     public long exchangeToTimeBucket(String dateStr) {
-        dateStr = dateStr.replaceAll(Const.ID_SPLIT, Const.EMPTY_STRING);
+        dateStr = dateStr.replaceAll(Const.LINE, Const.EMPTY_STRING);
         dateStr = dateStr.replaceAll(Const.SPACE, Const.EMPTY_STRING);
         return Long.valueOf(dateStr);
     }
