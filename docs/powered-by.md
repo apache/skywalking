@@ -119,3 +119,6 @@ enterprise service mesh environment.
 
 ## lagou.com
 Lagou.com use Skywalking for JVM-based applications, deployed in production. Custom and optimize muiti collector functions, such as alarm, sql metric, circle operation metric, thread monitor, detail mode. Support 200+ Instances, over 4500k Segments Per Minute.
+
+## Yonghui Superstores
+Yonghui Superstores Co., Ltd. use SkyWalking as primary APM system, to monitor 1k+ instances clusters, which supports 150k+ tps/qps payload. SkyWalking collect, analysis and save 10 billions trace segments(cost 3T disk) each day in 100% sampling strategy. SkyWalking backend cluster is built with 15 nodes OAP and 20 nodes ElasticSearch.
