@@ -45,19 +45,24 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
         Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         ConnectionInfo connectInfo = (ConnectionInfo)objInst.getSkyWalkingDynamicField();
-        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), connectInfo.getDatabasePeer());
-        Tags.DB_TYPE.set(span, "sql");
-        Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-        Tags.DB_STATEMENT.set(span, "");
-        span.setComponent(connectInfo.getComponent());
-        SpanLayer.asDB(span);
+        if (connectInfo != null) {
+            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method.getName(), connectInfo.getDatabasePeer());
+            Tags.DB_TYPE.set(span, "sql");
+            Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
+            Tags.DB_STATEMENT.set(span, "");
+            span.setComponent(connectInfo.getComponent());
+            SpanLayer.asDB(span);
+        }
     }
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        ConnectionInfo connectInfo = (ConnectionInfo)objInst.getSkyWalkingDynamicField();
+        if (connectInfo != null) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
