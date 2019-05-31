@@ -39,5 +39,10 @@ public class ConfigTable {
     public static class ConfigItem {
         private String name;
         private String value;
+
+        public ConfigItem(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
     }
 }
