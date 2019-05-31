@@ -19,23 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.entity.IntValues;
-import org.apache.skywalking.oap.server.core.query.entity.KVInt;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
-import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
-import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.sql.*;
+import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -50,9 +40,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override
-    public IntValues getValues(String indName, Step step, long startTB, long endTB, Where where, String valueCName,
+    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where, String valueCName,
         Function function) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, indName);
+        String tableName = ModelName.build(downsampling, indName);
 
         List<KeyValues> whereKeyValues = where.getKeyValues();
         String op;
@@ -109,9 +99,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return orderWithDefault0(intValues, ids);
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
         String valueCName) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, indName);
+        String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
         for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
@@ -158,9 +148,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return intValues;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
         String valueCName) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, indName);
+        String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
         for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
@@ -182,7 +172,6 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                 + ThermodynamicMetrics.DETAIL_GROUP + " detail_group, "
                 + "id "
                 + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
-
 
                 while (resultSet.next()) {
                     axisYStep = resultSet.getInt("step");
@@ -222,5 +211,4 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             throw new IOException(e);
         }
     }
-
 }

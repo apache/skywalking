@@ -13,28 +13,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.query;
+
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
 /**
  * @author peng-yongsheng
  */
-public class Const {
-    public static final int NONE = 0;
-    public static final String ID_SPLIT = "_";
-    public static final String LINE = "-";
-    public static final String SPACE = " ";
-    public static final String KEY_VALUE_SPLIT = ",";
-    public static final String ARRAY_SPLIT = "|";
-    public static final String ARRAY_PARSER_SPLIT = "\\|";
-    public static final int USER_SERVICE_ID = 1;
-    public static final int USER_INSTANCE_ID = 1;
-    public static final int USER_ENDPOINT_ID = 1;
-    public static final String USER_CODE = "User";
-    public static final String SEGMENT_SPAN_SPLIT = "S";
-    public static final String UNKNOWN = "Unknown";
-    public static final String EMPTY_STRING = "";
-    public static final String DOMAIN_OPERATION_NAME = "{domain}";
+public class StepToDownsampling {
+
+    public static Downsampling transform(Step step) {
+        switch (step) {
+            case SECOND:
+                return Downsampling.Second;
+            case MINUTE:
+                return Downsampling.Minute;
+            case HOUR:
+                return Downsampling.Hour;
+            case DAY:
+                return Downsampling.Day;
+            case MONTH:
+                return Downsampling.Month;
+        }
+        throw new UnexpectedException("Unknown step value.");
+    }
 }
