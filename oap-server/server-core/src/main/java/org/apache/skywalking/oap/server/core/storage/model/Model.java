@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.storage.ttl.*;
 
 /**
