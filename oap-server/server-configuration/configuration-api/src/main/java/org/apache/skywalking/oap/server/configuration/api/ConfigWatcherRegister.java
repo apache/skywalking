@@ -61,7 +61,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         isStarted = true;
 
         configSync();
-        logger.info("Current the config value after the bootstrap sync." + LINE_SEPARATOR + register.toString());
+        logger.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + register.toString());
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
             new RunnableWithExceptionProtection(() -> configSync(),
@@ -95,6 +95,8 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
                 logger.warn("Config {} from configuration center, doesn't match any watcher, ignore.", itemName);
             }
         });
+
+        logger.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
     }
 
     public abstract ConfigTable readConfig();
