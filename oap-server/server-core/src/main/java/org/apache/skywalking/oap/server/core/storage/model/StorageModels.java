@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.slf4j.*;
 
