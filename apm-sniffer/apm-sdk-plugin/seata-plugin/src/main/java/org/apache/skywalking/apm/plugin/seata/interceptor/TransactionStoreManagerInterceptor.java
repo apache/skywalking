@@ -1,44 +1,45 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import io.seata.server.session.SessionCondition;
+import io.seata.server.store.TransactionStoreManager;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
 
-public class AbstractResourceManagerInterceptor implements InstanceMethodsAroundInterceptor {
+import static org.apache.skywalking.apm.plugin.seata.Constants.*;
+
+public class TransactionStoreManagerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
                              final Method method,
                              final Object[] allArguments,
                              final Class<?>[] argumentsTypes,
                              final MethodInterceptResult result) throws Throwable {
-        final EnhancedRequest enhancedRequest = ContextManager.getRuntimeContext().get("EnhancedRequest", EnhancedRequest.class);
-        ContextManager.getRuntimeContext().remove("EnhancedRequest");
-        final ContextSnapshot contextSnapshot = ContextManager.getRuntimeContext().get("ContextSnapshot", ContextSnapshot.class);
-        ContextManager.getRuntimeContext().remove("ContextSnapshot");
+        final String methodName = method.getName();
 
-        final ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
-        }
-
-        final AbstractSpan span = ContextManager.createEntrySpan(
-            operationName(method),
-            contextCarrier
+        final AbstractSpan span = ContextManager.createLocalSpan(
+            operationName(method)
         );
 
-        ContextManager.continued(contextSnapshot);
+        if ("writeSession".equals(methodName)) {
+            final TransactionStoreManager.LogOperation logOperation = (TransactionStoreManager.LogOperation) allArguments[0];
+            span.tag(LOG_OPERATION, logOperation.name());
+        } else if ("readSession".equals(methodName)) {
+            final Object argument0 = allArguments[0];
+            if (argument0 instanceof String) {
+                span.tag(XID, (String) argument0);
+            } else if (argument0 instanceof SessionCondition) {
+                final SessionCondition sessionCondition = (SessionCondition) argument0;
+                span.tag(XID, sessionCondition.getXid());
+                span.tag(TRANSACTION_ID, String.valueOf(sessionCondition.getTransactionId()));
+            }
+        }
 
         span.setComponent(ComponentsDefine.SEATA);
         SpanLayer.asDB(span);
@@ -68,6 +69,6 @@ public class AbstractResourceManagerInterceptor implements InstanceMethodsAround
     }
 
     private String operationName(final Method method) {
-        return ComponentsDefine.SEATA.getName() + "/RM/" + method.getName();
+        return ComponentsDefine.SEATA.getName() + "/TransactionStoreManager/" + method.getName();
     }
 }

@@ -16,10 +16,12 @@
 
 seata=org.apache.skywalking.apm.plugin.seata.define.AbstractMessageInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.AbstractResourceManagerInstrumentation
-seata=org.apache.skywalking.apm.plugin.seata.define.AbstractRMHandlerInstrumentation
+# seata=org.apache.skywalking.apm.plugin.seata.define.AbstractRMHandlerInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.GlobalSessionInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.RmRpcClientInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.RpcServerInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.TmRmRpcClientInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.TransactionCoordinatorInstrumentation
 seata=org.apache.skywalking.apm.plugin.seata.define.TransactionManagerInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.define.UndoLogManagerInstrumentation
+seata=org.apache.skywalking.apm.plugin.seata.define.TransactionStoreManagerInstrumentation

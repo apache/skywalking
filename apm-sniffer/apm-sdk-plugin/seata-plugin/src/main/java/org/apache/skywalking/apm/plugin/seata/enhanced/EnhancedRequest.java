@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.seata.enhanced;
 
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+
 public interface EnhancedRequest {
     void put(final String key, final String value);
 

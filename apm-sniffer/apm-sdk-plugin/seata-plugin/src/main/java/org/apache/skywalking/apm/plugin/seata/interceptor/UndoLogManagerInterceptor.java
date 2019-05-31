@@ -18,15 +18,21 @@
 
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
-import io.seata.core.protocol.AbstractMessage;
-import io.seata.core.protocol.transaction.*;
+import com.google.common.collect.Iterables;
+import io.seata.rm.datasource.ConnectionProxy;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.plugin.seata.enhanced.*;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
-public class AbstractMessageInterceptor implements StaticMethodsAroundInterceptor {
+import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
+
+public class UndoLogManagerInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(final Class clazz,
@@ -34,7 +40,28 @@ public class AbstractMessageInterceptor implements StaticMethodsAroundIntercepto
                              final Object[] allArguments,
                              final Class<?>[] parameterTypes,
                              final MethodInterceptResult result) {
+        final String methodName = method.getName();
 
+        String xid = null;
+
+        if ("flushUndoLogs".equals(methodName)) {
+            final ConnectionProxy connectionProxy = (ConnectionProxy) allArguments[0];
+            xid = connectionProxy.getContext().getXid();
+        } else if ("undo".equals(methodName)) {
+            xid = (String) allArguments[1];
+        } else if ("batchDeleteUndoLog".equals(methodName)) {
+            final Set<String> xids = (Set<String>) allArguments[0];
+            xid = Iterables.toString(xids);
+        }
+
+        final AbstractSpan span = ContextManager.createLocalSpan(
+            ComponentsDefine.SEATA.getName() + "/UndoLogManager/" + methodName
+        );
+        if (xid != null) {
+            span.tag(XID, xid);
+        }
+        span.setComponent(ComponentsDefine.SEATA);
+        SpanLayer.asDB(span);
     }
 
     @Override
@@ -43,37 +70,8 @@ public class AbstractMessageInterceptor implements StaticMethodsAroundIntercepto
                               final Object[] allArguments,
                               final Class<?>[] parameterTypes,
                               final Object ret) {
-        if ("getMergeRequestInstanceByCode".equals(method.getName())) {
-            final int typeCode = (Integer) allArguments[0];
-
-            switch (typeCode) {
-                case AbstractMessage.TYPE_GLOBAL_BEGIN:
-                    return new EnhancedGlobalBeginRequest((GlobalBeginRequest) ret);
-                case AbstractMessage.TYPE_GLOBAL_COMMIT:
-                    return new EnhancedGlobalCommitRequest((GlobalCommitRequest) ret);
-                case AbstractMessage.TYPE_GLOBAL_ROLLBACK:
-                    return new EnhancedGlobalRollbackRequest((GlobalRollbackRequest) ret);
-                case AbstractMessage.TYPE_GLOBAL_STATUS:
-                    return new EnhancedGlobalGetStatusRequest((GlobalStatusRequest) ret);
-                case AbstractMessage.TYPE_GLOBAL_LOCK_QUERY:
-                    return new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) ret);
-                case AbstractMessage.TYPE_BRANCH_REGISTER:
-                    return new EnhancedBranchRegisterRequest((BranchRegisterRequest) ret);
-                case AbstractMessage.TYPE_BRANCH_STATUS_REPORT:
-                    return new EnhancedBranchReportRequest((BranchReportRequest) ret);
-                default:
-                    return ret;
-            }
-        } else if ("getMsgInstanceByCode".equals(method.getName())) {
-            final short typeCode = (Short) allArguments[0];
-            switch (typeCode) {
-                case AbstractMessage.TYPE_BRANCH_COMMIT:
-                    return new EnhancedBranchCommitRequest((BranchCommitRequest) ret);
-                case AbstractMessage.TYPE_BRANCH_ROLLBACK:
-                    return new EnhancedBranchRollbackRequest((BranchRollbackRequest) ret);
-                default:
-                    return ret;
-            }
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
         }
         return ret;
     }
@@ -84,5 +82,10 @@ public class AbstractMessageInterceptor implements StaticMethodsAroundIntercepto
                                       final Object[] allArguments,
                                       final Class<?>[] parameterTypes,
                                       final Throwable t) {
+        final AbstractSpan activeSpan = ContextManager.activeSpan();
+
+        if (activeSpan != null) {
+            activeSpan.errorOccurred().log(t);
+        }
     }
 }

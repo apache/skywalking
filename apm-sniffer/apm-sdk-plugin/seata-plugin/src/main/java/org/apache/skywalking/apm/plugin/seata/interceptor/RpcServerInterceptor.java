@@ -124,7 +124,7 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
-        if (ContextManager.isActive()) {
+        if (ContextManager.isActive() && allArguments[2] instanceof EnhancedRequest) {
             ContextManager.stopSpan();
         }
         return ret;

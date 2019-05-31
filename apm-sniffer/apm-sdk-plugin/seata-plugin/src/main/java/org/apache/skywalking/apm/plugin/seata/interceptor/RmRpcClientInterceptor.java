@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
+import io.seata.core.protocol.RpcMessage;
+import io.seata.core.protocol.transaction.BranchCommitRequest;
 import io.seata.core.protocol.transaction.BranchRegisterRequest;
 import io.seata.core.protocol.transaction.BranchReportRequest;
 import io.seata.core.protocol.transaction.GlobalLockQueryRequest;
@@ -31,10 +33,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRegisterRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchReportRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalLockQueryRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.*;
 
 import java.lang.reflect.Method;
 
@@ -49,56 +48,69 @@ public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
                              final MethodInterceptResult result) throws Throwable {
         final Object argument0 = allArguments[0];
 
-        String xid = null;
-        String methodName = null;
-        EnhancedRequest enhancedRequest = null;
+        if ("sendMsgWithResponse".equals(method.getName())) {
+            String xid = null;
+            String methodName = null;
+            EnhancedRequest enhancedRequest = null;
 
-        if (argument0 instanceof GlobalLockQueryRequest) {
-            final EnhancedGlobalLockQueryRequest globalLockQueryRequest = new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) argument0);
-            xid = globalLockQueryRequest.getXid();
+            if (argument0 instanceof GlobalLockQueryRequest) {
+                final EnhancedGlobalLockQueryRequest globalLockQueryRequest = new EnhancedGlobalLockQueryRequest((GlobalLockQueryRequest) argument0);
+                xid = globalLockQueryRequest.getXid();
 
-            enhancedRequest = globalLockQueryRequest;
-            methodName = "GlobalLockQuery";
-        } else if (argument0 instanceof BranchRegisterRequest) {
-            final EnhancedBranchRegisterRequest branchRegisterRequest = new EnhancedBranchRegisterRequest((BranchRegisterRequest) argument0);
-            xid = branchRegisterRequest.getXid();
+                enhancedRequest = globalLockQueryRequest;
+                methodName = "GlobalLockQuery";
+            } else if (argument0 instanceof BranchRegisterRequest) {
+                final EnhancedBranchRegisterRequest branchRegisterRequest = new EnhancedBranchRegisterRequest((BranchRegisterRequest) argument0);
+                xid = branchRegisterRequest.getXid();
 
-            enhancedRequest = branchRegisterRequest;
-            methodName = "BranchRegister";
-        } else if (argument0 instanceof BranchReportRequest) {
-            final EnhancedBranchReportRequest branchReportRequest = new EnhancedBranchReportRequest((BranchReportRequest) argument0);
-            xid = branchReportRequest.getXid();
+                enhancedRequest = branchRegisterRequest;
+                methodName = "BranchRegister";
+            } else if (argument0 instanceof BranchReportRequest) {
+                final EnhancedBranchReportRequest branchReportRequest = new EnhancedBranchReportRequest((BranchReportRequest) argument0);
+                xid = branchReportRequest.getXid();
 
-            enhancedRequest = branchReportRequest;
-            methodName = "BranchReport";
-        }
-
-        final ContextCarrier contextCarrier = new ContextCarrier();
-        if (methodName != null) {
-            final Object client = RmRpcClient.getInstance();
-            final EnhancedInstance rmRpcClient = (EnhancedInstance) client;
-            final String peerAddress = (String) rmRpcClient.getSkyWalkingDynamicField();
-
-            final AbstractSpan span = ContextManager.createExitSpan(
-                ComponentsDefine.SEATA.getName() + "/RM/" + methodName,
-                contextCarrier,
-                peerAddress
-            );
-
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
+                enhancedRequest = branchReportRequest;
+                methodName = "BranchReport";
             }
 
-            allArguments[0] = enhancedRequest;
+            final ContextCarrier contextCarrier = new ContextCarrier();
+            if (methodName != null) {
+                final Object client = RmRpcClient.getInstance();
+                final EnhancedInstance rmRpcClient = (EnhancedInstance) client;
+                final String peerAddress = (String) rmRpcClient.getSkyWalkingDynamicField();
 
-            if (xid != null) {
-                span.tag(XID, xid);
+                final AbstractSpan span = ContextManager.createExitSpan(
+                    ComponentsDefine.SEATA.getName() + "/RM/" + methodName,
+                    contextCarrier,
+                    peerAddress
+                );
+
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
+                }
+
+                allArguments[0] = enhancedRequest;
+
+                if (xid != null) {
+                    span.tag(XID, xid);
+                }
+
+                span.setComponent(ComponentsDefine.SEATA);
+                SpanLayer.asDB(span);
             }
-
-            span.setComponent(ComponentsDefine.SEATA);
-            SpanLayer.asDB(span);
+        } else if ("channelRead".equals(method.getName())) {
+            final Object msg = allArguments[1];
+            if (msg instanceof RpcMessage) {
+                final RpcMessage rpcMessage = (RpcMessage) msg;
+                final Object body = rpcMessage.getBody();
+                if (rpcMessage.isRequest() && body instanceof BranchCommitRequest) {
+                    final EnhancedBranchCommitRequest branchCommitRequest = (EnhancedBranchCommitRequest) body;
+                    ContextManager.getRuntimeContext().put("EnhancedRequest", branchCommitRequest);
+                    ContextManager.getRuntimeContext().put("ContextSnapshot", ContextManager.capture());
+                }
+            }
         }
     }
 
