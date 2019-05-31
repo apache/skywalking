@@ -116,3 +116,6 @@ An open-source observant programming assistant which aims to bridge APM tools wi
 ## Tetrate
 Tetrate provides enterprise level service mesh. SkyWalking acts as the core observability platform for hybrid
 enterprise service mesh environment.
+
+## lagou.com
+Lagou.com use Skywalking for JVM-based applications, deployed in production. Custom and optimize muiti collector functions, such as alarm, sql metric, circle operation metric, thread monitor, detail mode. Support 200+ Instances, over 4500k Segments Per Minute.
