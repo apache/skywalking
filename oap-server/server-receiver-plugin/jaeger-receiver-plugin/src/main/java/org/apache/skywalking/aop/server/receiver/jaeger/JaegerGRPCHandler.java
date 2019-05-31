@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.Base64;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.util.*;
 import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
@@ -98,7 +99,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
 
                 long duration = span.getDuration().getNanos() / 1_000_000;
                 jaegerSpan.setStartTime(Instant.ofEpochSecond(span.getStartTime().getSeconds(), span.getStartTime().getNanos()).toEpochMilli());
-                long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(jaegerSpan.getStartTime());
+                long timeBucket = TimeBucket.getSecondTimeBucket(jaegerSpan.getStartTime());
                 jaegerSpan.setTimeBucket(timeBucket);
                 jaegerSpan.setEndTime(jaegerSpan.getStartTime() + duration);
                 jaegerSpan.setLatency((int)duration);
