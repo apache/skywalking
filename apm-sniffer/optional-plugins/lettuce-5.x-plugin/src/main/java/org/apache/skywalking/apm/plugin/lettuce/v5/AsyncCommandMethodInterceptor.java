@@ -43,7 +43,7 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
         String operationName = "Lettuce/" + asyncCommand.getType().name();
         AbstractSpan span = ContextManager.createLocalSpan(operationName + "/onComplete");
         span.setComponent(ComponentsDefine.LETTUCE);
-        if(allArguments[0] instanceof Consumer){
+        if (allArguments[0] instanceof Consumer) {
             allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture(), operationName);
         } else {
             allArguments[0] = new SWBiConsumer((BiConsumer) allArguments[0], ContextManager.capture(), operationName);
