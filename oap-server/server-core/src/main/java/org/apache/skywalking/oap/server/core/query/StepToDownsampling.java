@@ -13,21 +13,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.query;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
-public interface IModelSetter extends Service {
+public class StepToDownsampling {
 
-    Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage);
-
-    Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage, Downsampling downsampling);
+    public static Downsampling transform(Step step) {
+        switch (step) {
+            case SECOND:
+                return Downsampling.Second;
+            case MINUTE:
+                return Downsampling.Minute;
+            case HOUR:
+                return Downsampling.Hour;
+            case DAY:
+                return Downsampling.Day;
+            case MONTH:
+                return Downsampling.Month;
+        }
+        throw new UnexpectedException("Unknown step value.");
+    }
 }
