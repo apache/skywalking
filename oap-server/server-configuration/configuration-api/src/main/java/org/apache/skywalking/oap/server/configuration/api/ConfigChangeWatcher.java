@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
-import lombok.Getter;
+import lombok.*;
 import org.apache.skywalking.oap.server.library.module.*;
 
 /**
- * ConfigChangeWatcher represents a watcher implementor,
- * it will be called when the target value changed.
+ * ConfigChangeWatcher represents a watcher implementor, it will be called when the target value changed.
  *
  * @author wusheng
  */
@@ -44,7 +43,7 @@ public abstract class ConfigChangeWatcher {
      *
      * @param value of new.
      */
-    public abstract void notify(String value);
+    public abstract void notify(ConfigChangeEvent value);
 
     /**
      * @return current value of current config.
@@ -57,5 +56,22 @@ public abstract class ConfigChangeWatcher {
             ", provider=" + provider +
             ", itemName='" + itemName + '\'' +
             '}';
+    }
+
+    @Setter(AccessLevel.PACKAGE)
+    @Getter
+    public static class ConfigChangeEvent {
+        private String newValue;
+        private EventType eventType;
+
+        public ConfigChangeEvent(String newValue,
+            EventType eventType) {
+            this.newValue = newValue;
+            this.eventType = eventType;
+        }
+    }
+
+    public enum EventType {
+        ADD, MODIFY, DELETE
     }
 }

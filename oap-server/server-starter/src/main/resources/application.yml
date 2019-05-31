@@ -124,6 +124,8 @@ telemetry:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+configuration:
+  none:
 #exporter:
 #  grpc:
 #    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}

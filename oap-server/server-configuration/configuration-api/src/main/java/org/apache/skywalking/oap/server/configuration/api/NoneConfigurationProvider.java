@@ -21,35 +21,40 @@ package org.apache.skywalking.oap.server.configuration.api;
 import org.apache.skywalking.oap.server.library.module.*;
 
 /**
- * The recommendation default base implementor of Configuration module. The real implementor could extend this provider
- * to make a new one, easily.
+ * A nutshell configuration implementor.
  *
  * @author wusheng
  */
-public abstract class AbstractConfigurationProvider extends ModuleProvider {
-    private ConfigWatcherRegister configWatcherRegister;
+public class NoneConfigurationProvider extends ModuleProvider {
+    @Override public String name() {
+        return "none";
+    }
 
     @Override public Class<? extends ModuleDefine> module() {
         return ConfigurationModule.class;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        configWatcherRegister = initConfigReader();
-        this.registerServiceImplementation(DynamicConfigurationService.class, configWatcherRegister);
+    @Override public ModuleConfig createConfigBeanIfAbsent() {
+        return null;
     }
 
-    protected abstract ConfigWatcherRegister initConfigReader();
+    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        this.registerServiceImplementation(DynamicConfigurationService.class, new DynamicConfigurationService() {
+            @Override public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
+
+            }
+        });
+    }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        configWatcherRegister.start();
+
     }
 
     @Override public String[] requiredModules() {
         return new String[0];
     }
-
 }

@@ -29,11 +29,21 @@ import org.slf4j.*;
  *
  * @author wusheng
  */
-public class ConfigWatcherRegister implements DynamicConfigurationService {
+public abstract class ConfigWatcherRegister implements DynamicConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(ConfigWatcherRegister.class);
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
 
-    private Map<String, WatcherHolder> register = new HashMap<>();
+    private Register register = new Register();
     private volatile boolean isStarted = false;
+    private final long syncPeriod;
+
+    public ConfigWatcherRegister() {
+        this(60);
+    }
+
+    public ConfigWatcherRegister(long syncPeriod) {
+        this.syncPeriod = syncPeriod;
+    }
 
     @Override synchronized public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
         if (isStarted) {
@@ -50,13 +60,73 @@ public class ConfigWatcherRegister implements DynamicConfigurationService {
     public void start() {
         isStarted = true;
 
+        configSync();
+        logger.info("Current the config value after the bootstrap sync." + LINE_SEPARATOR + register.toString());
+
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(() -> sync(),
-                t -> logger.error("Sync config center error.", t)), 1, 60, TimeUnit.SECONDS);
+            new RunnableWithExceptionProtection(() -> configSync(),
+                t -> logger.error("Sync config center error.", t)), syncPeriod, syncPeriod, TimeUnit.SECONDS);
     }
 
-    private void sync() {
+    private void configSync() {
+        ConfigTable configTable = readConfig();
 
+        configTable.getItems().forEach(item -> {
+            String itemName = item.getName();
+            WatcherHolder holder = register.get(itemName);
+            if (holder != null) {
+                ConfigChangeWatcher watcher = holder.getWatcher();
+                String newItemValue = item.getValue();
+                if (newItemValue == null) {
+                    if (watcher.value() != null) {
+                        // Notify watcher, the new value is null with delete event type.
+                        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
+                    } else {
+                        // Don't need to notify, stay in null.
+                    }
+                } else {
+                    if (!newItemValue.equals(watcher.value())) {
+                        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(newItemValue, ConfigChangeWatcher.EventType.MODIFY));
+                    } else {
+                        // Don't need to notify, stay in the same config value.
+                    }
+                }
+            } else {
+                logger.warn("Config {} from configuration center, doesn't match any watcher, ignore.", itemName);
+            }
+        });
+    }
+
+    public abstract ConfigTable readConfig();
+
+    public class Register {
+        private Map<String, WatcherHolder> register = new HashMap<>();
+
+        private boolean containsKey(String key) {
+            return register.containsKey(key);
+        }
+
+        private void put(String key, WatcherHolder holder) {
+            register.put(key, holder);
+        }
+
+        public WatcherHolder get(String name) {
+            return register.get(name);
+        }
+
+        @Override public String toString() {
+            StringBuilder registerTableDescription = new StringBuilder();
+            registerTableDescription.append("Following dynamic config items are available.").append(LINE_SEPARATOR);
+            register.forEach((key, holder) -> {
+                ConfigChangeWatcher watcher = holder.getWatcher();
+                registerTableDescription.append("key:").append(key)
+                    .append("    module:").append(watcher.getModule())
+                    .append("    provider:").append(watcher.getProvider())
+                    .append("    value(current):").append(watcher.value())
+                    .append(LINE_SEPARATOR);
+            });
+            return registerTableDescription.toString();
+        }
     }
 
     @Getter
