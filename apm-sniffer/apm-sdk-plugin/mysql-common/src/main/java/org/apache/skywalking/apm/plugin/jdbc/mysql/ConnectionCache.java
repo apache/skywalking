@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5;
+package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.apache.skywalking.apm.util.StringUtil;
