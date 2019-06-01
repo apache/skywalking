@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.seata.define;
 
-import io.netty.channel.ChannelHandlerContext;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;

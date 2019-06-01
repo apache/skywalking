@@ -36,7 +36,7 @@ import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
 /**
  * @author kezhenxu94
- *
+ * <p>
  * TODO: replace instanceof's
  */
 public class TransactionManagerInterceptor implements InstanceMethodsAroundInterceptor {
