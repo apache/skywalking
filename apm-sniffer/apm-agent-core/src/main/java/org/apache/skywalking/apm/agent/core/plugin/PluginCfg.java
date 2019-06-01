@@ -35,17 +35,21 @@ public enum PluginCfg {
 
     private static final ILog logger = LogManager.getLogger(PluginCfg.class);
 
+    /*自定义插件列表*/
     private List<PluginDefine> pluginClassList = new ArrayList<PluginDefine>();
 
     void load(InputStream input) throws IOException {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String pluginDefine = null;
+            /*遍历读取每一行*/
             while ((pluginDefine = reader.readLine()) != null) {
                 try {
+                    /*过滤掉#开头的注释行*/
                     if (pluginDefine == null || pluginDefine.trim().length() == 0 || pluginDefine.startsWith("#")) {
                         continue;
                     }
+                    /*构建插件对象*/
                     PluginDefine plugin = PluginDefine.build(pluginDefine);
                     pluginClassList.add(plugin);
                 } catch (IllegalPluginDefineException e) {

@@ -129,7 +129,8 @@ public class MySQLStorageProvider extends ModuleProvider {
 
             new MySQLRegisterLockInstaller().install(mysqlClient, lockDAO);
         } catch (StorageException e) {
-            throw new ModuleStartException(e.getMessage(), e);
+            logger.error("创建连接失败",e);
+            throw new ModuleStartException("创建连接失败",e);
         }
     }
 

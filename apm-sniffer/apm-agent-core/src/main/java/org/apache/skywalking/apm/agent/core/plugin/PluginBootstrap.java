@@ -38,13 +38,16 @@ public class PluginBootstrap {
     private static final ILog logger = LogManager.getLogger(PluginBootstrap.class);
 
     /**
+     * 加载全部插件
      * load all plugins.
      *
      * @return plugin definition list.
      */
     public List<AbstractClassEnhancePluginDefine> loadPlugins() throws AgentPackageNotFoundException {
+        /*初始化AgentClassLoader*/
         AgentClassLoader.initDefaultLoader();
 
+        /*插件资源解析器*/
         PluginResourcesResolver resolver = new PluginResourcesResolver();
         List<URL> resources = resolver.getResources();
 
@@ -63,6 +66,7 @@ public class PluginBootstrap {
 
         List<PluginDefine> pluginClassList = PluginCfg.INSTANCE.getPluginClassList();
 
+        /*从pluginClassList中获取插件增强类*/
         List<AbstractClassEnhancePluginDefine> plugins = new ArrayList<AbstractClassEnhancePluginDefine>();
         for (PluginDefine pluginDefine : pluginClassList) {
             try {

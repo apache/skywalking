@@ -33,10 +33,12 @@ import org.apache.skywalking.apm.util.StringUtil;
  * {@link ContextCarrier} is a data carrier of {@link TracingContext}. It holds the snapshot (current state) of {@link
  * TracingContext}.
  * <p>
+ *  传输的数据
  * Created by wusheng on 2017/2/17.
  */
 public class ContextCarrier implements Serializable {
     /**
+     *
      * {@link TraceSegment#traceSegmentId}
      */
     private ID traceSegmentId;
@@ -47,26 +49,31 @@ public class ContextCarrier implements Serializable {
     private int spanId = -1;
 
     /**
+     * 父应用实例的ID
      * id of parent application instance, it's the id assigned by collector.
      */
     private int parentServiceInstanceId = DictionaryUtil.nullValue();
 
     /**
+     * 第一个应用的实例ID
      * id of first application instance in this distributed trace, it's the id assigned by collector.
      */
     private int entryServiceInstanceId = DictionaryUtil.nullValue();
 
     /**
+     * 伙伴主机
      * peer(ipv4s/ipv6/hostname + port) of the server, from client side.
      */
     private String peerHost;
 
     /**
+     * 分布式链路追踪的第一个操作/服务名,可能是个压缩的整数
      * Operation/Service name of the first one in this distributed trace. This name may be compressed to an integer.
      */
     private String entryEndpointName;
 
     /**
+     * 分布式链路追踪的第一个的父操作/服务,可能是个压缩的整数
      * Operation/Service name of the parent one in this distributed trace. This name may be compressed to an integer.
      */
     private String parentEndpointName;

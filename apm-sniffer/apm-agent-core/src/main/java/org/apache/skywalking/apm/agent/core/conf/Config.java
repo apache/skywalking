@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
 /**
+ * sniffer代理的核心配置
  * This is the core config in sniffer agent.
  *
  * @author wusheng
@@ -72,11 +73,13 @@ public class Config {
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
         /**
+         * 6.0版本协议
          * Active V2 header in default
          */
         public static boolean ACTIVE_V2_HEADER = true;
 
         /**
+         * 3.0版本协议
          * Deactive V1 header in default
          */
         public static boolean ACTIVE_V1_HEADER = false;

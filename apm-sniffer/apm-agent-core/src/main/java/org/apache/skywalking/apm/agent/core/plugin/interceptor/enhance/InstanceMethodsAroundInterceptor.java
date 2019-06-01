@@ -24,13 +24,13 @@ import java.lang.reflect.Method;
 /**
  * A interceptor, which intercept method's invocation. The target methods will be defined in {@link
  * ClassEnhancePluginDefine}'s subclass, most likely in {@link ClassInstanceMethodsEnhancePluginDefine}
- *
+ * 实例方法拦截器
  * @author wusheng
  */
 public interface InstanceMethodsAroundInterceptor {
     /**
      * called before target method invocation.
-     *
+     * 方法前置拦截
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */
@@ -39,10 +39,10 @@ public interface InstanceMethodsAroundInterceptor {
 
     /**
      * called after target method invocation. Even method's invocation triggers an exception.
-     *
+     * 方法后置拦截
      * @param method
-     * @param ret the method's original return value.
-     * @return the method's actual return value.
+     * @param ret the method's original return value. 原始方法的返回值
+     * @return the method's actual return value. 方法实际返回值
      * @throws Throwable
      */
     Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -50,7 +50,7 @@ public interface InstanceMethodsAroundInterceptor {
 
     /**
      * called when occur exception.
-     *
+     * 方法异常拦截
      * @param method
      * @param t the exception occur.
      */

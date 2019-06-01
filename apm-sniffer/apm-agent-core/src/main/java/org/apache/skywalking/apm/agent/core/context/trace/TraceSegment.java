@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
  * {@link TraceSegment} is a segment or fragment of the distributed trace. See https://github.com/opentracing/specification/blob/master/specification.md#the-opentracing-data-model
  * A {@link TraceSegment} means the segment, which exists in current {@link Thread}. And the distributed trace is formed
  * by multi {@link TraceSegment}s, because the distributed trace crosses multi-processes, multi-threads. <p>
- *
+ * 记录线程所在的链路数据
  * @author wusheng
  */
 public class TraceSegment {

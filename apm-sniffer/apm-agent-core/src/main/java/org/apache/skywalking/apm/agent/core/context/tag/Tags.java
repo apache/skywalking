@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.agent.core.context.tag;
 
 /**
+ * span tags 被sky-walking引擎支持,默认所有的tags都将会存储,但是只有一个有特定的含义
  * The span tags are supported by sky-walking engine. As default, all tags will be stored, but these ones have
  * particular meanings.
  * <p>
@@ -76,5 +77,7 @@ public final class Tags {
 
     public static final class HTTP {
         public static final StringTag METHOD = new StringTag(10, "http.method");
+
+        public static final StringTag PARAM = new StringTag(11, "http.param");
     }
 }

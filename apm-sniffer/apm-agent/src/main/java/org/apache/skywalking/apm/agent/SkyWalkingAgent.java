@@ -41,7 +41,7 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
  * The main entrance of sky-waking agent, based on javaagent mechanism.
- *
+ * skywalking 初始化入口,依赖 javaagent mechanism
  * @author wusheng
  */
 public class SkyWalkingAgent {
@@ -49,7 +49,7 @@ public class SkyWalkingAgent {
 
     /**
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
-     *
+     * 主要入口,加载我们定义的插件
      * @param agentArgs
      * @param instrumentation
      * @throws PluginException
@@ -59,6 +59,9 @@ public class SkyWalkingAgent {
         try {
             SnifferConfigInitializer.initialize(agentArgs);
 
+            /**
+             * 项目启动,加载全部插件
+             */
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
         } catch (Exception e) {
@@ -80,10 +83,10 @@ public class SkyWalkingAgent {
                 .or(nameStartsWith("sun.reflect"))
                 .or(allSkyWalkingAgentExcludeToolkit())
                 .or(ElementMatchers.<TypeDescription>isSynthetic()))
-            .type(pluginFinder.buildMatch())
-            .transform(new Transformer(pluginFinder))
-            .with(new Listener())
-            .installOn(instrumentation);
+            .type(pluginFinder.buildMatch()) // 设置要拦截的类
+            .transform(new Transformer(pluginFinder))  // 设置Java类的修改逻辑
+            .with(new Listener()) // 添加监听器
+            .installOn(instrumentation); // 添加监听器
 
         try {
             ServiceManager.INSTANCE.boot();
@@ -108,12 +111,16 @@ public class SkyWalkingAgent {
         @Override
         public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
             ClassLoader classLoader, JavaModule module) {
+            // 查询定义了哪些增强插件,设置了插件所有的拦截类
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
+            // 防御性编程
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
                 EnhanceContext context = new EnhanceContext();
                 for (AbstractClassEnhancePluginDefine define : pluginDefines) {
+                    // 定义如何拦截需要修改的java类
                     DynamicType.Builder<?> possibleNewBuilder = define.define(typeDescription, newBuilder, classLoader, context);
+                    // 可能返回为空,原因springmvc3 和 springmvc4 都会对@RequestMapper进行拦截,但是只有一个起作用
                     if (possibleNewBuilder != null) {
                         newBuilder = possibleNewBuilder;
                     }

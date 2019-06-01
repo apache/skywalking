@@ -24,6 +24,7 @@ package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
  * Any plugin, which wants to intercept constructor, must implement this interface.
  * <p>
  *
+ * 构造方法拦截器
  * @author wusheng
  */
 public interface InstanceConstructorInterceptor {

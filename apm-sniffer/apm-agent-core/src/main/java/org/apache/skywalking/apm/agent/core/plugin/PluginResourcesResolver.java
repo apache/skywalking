@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 /**
  * Use the current classloader to read all plugin define file.
  * The file must be named 'skywalking-plugin.def'
- *
+ * 插件资源解析器,读取所有插件定义的文件。插件定义文件必须以 skywalking-plugin.def 命名
  * @author wusheng
  */
 public class PluginResourcesResolver {
@@ -43,6 +43,7 @@ public class PluginResourcesResolver {
         try {
             urls = AgentClassLoader.getDefault().getResources("skywalking-plugin.def");
 
+            /*获取所有的插件类*/
             while (urls.hasMoreElements()) {
                 URL pluginUrl = urls.nextElement();
                 cfgUrlPaths.add(pluginUrl);

@@ -28,7 +28,7 @@ import org.springframework.aop.framework.AdvisedSupport;
 /**
  * <code>CreateAopProxyInterceptor</code> check that the bean has been implement {@link EnhancedInstance}.
  * if yes, true will be returned.
- *
+ * springmvc的拦截器工具
  * @author zhang xin
  */
 public class CreateAopProxyInterceptor implements InstanceMethodsAroundInterceptor {
@@ -36,7 +36,7 @@ public class CreateAopProxyInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-
+        // 空实现
     }
 
     @Override
@@ -53,6 +53,6 @@ public class CreateAopProxyInterceptor implements InstanceMethodsAroundIntercept
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-
+        // 空实现
     }
 }

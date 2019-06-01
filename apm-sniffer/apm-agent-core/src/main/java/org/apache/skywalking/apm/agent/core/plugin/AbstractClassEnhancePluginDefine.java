@@ -32,13 +32,14 @@ import org.apache.skywalking.apm.util.StringUtil;
  * <p>
  * It provides the outline of enhancing the target class.
  * If you want to know more about enhancing, you should go to see {@link ClassEnhancePluginDefine}
+ * 类增强插件定义抽象类
  */
 public abstract class AbstractClassEnhancePluginDefine {
     private static final ILog logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
 
     /**
      * Main entrance of enhancing the class.
-     *
+     * 类增强主入口
      * @param typeDescription target class description.
      * @param builder byte-buddy's builder to manipulate target class's bytecode.
      * @param classLoader load the given transformClass
@@ -47,7 +48,9 @@ public abstract class AbstractClassEnhancePluginDefine {
      */
     public DynamicType.Builder<?> define(TypeDescription typeDescription,
                                          DynamicType.Builder<?> builder, ClassLoader classLoader, EnhanceContext context) throws PluginException {
+        // 拦截器定义的类名称
         String interceptorDefineClassName = this.getClass().getName();
+        // 需要转化的方法名称
         String transformClassName = typeDescription.getTypeName();
         if (StringUtil.isEmpty(transformClassName)) {
             logger.warn("classname of being intercepted is not defined by {}.", interceptorDefineClassName);
@@ -57,6 +60,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         logger.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
 
         /**
+         * 见证类的监视类
          * find witness classes for enhance class
          */
         String[] witnessClasses = witnessClasses();
@@ -86,7 +90,7 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     /**
      * Define the {@link ClassMatch} for filtering class.
-     *
+     * 需要增量的Class
      * @return {@link ClassMatch}
      */
     protected abstract ClassMatch enhanceClass();
@@ -98,7 +102,10 @@ public abstract class AbstractClassEnhancePluginDefine {
      * (let's say 1.0 for example), version number is obvious not an option, this is the moment you need "Witness
      * classes". You can add any classes only in this particular release version ( something like class
      * com.company.1.x.A, only in 1.0 ), and you can achieve the goal.
-     *
+     * 见证类列表,为什么要见证类名,让我们看以下场景,一个基础包发布了两个版本,都包括相同的类,但是由于版本的迭代,他们有相同
+     * 的name,但是有不同的的方法,不同的构造方法,因此,如果我希望目标版本的类使用不同的插件类,然而版本不是一个选项,这时候需要一个见证类
+     * 列表,判断当前引用库的版本
+     * 当方法返回空数组时候,即默认情况,插件生效,无需见证类列表
      * @return
      */
     protected String[] witnessClasses() {

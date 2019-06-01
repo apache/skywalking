@@ -59,9 +59,11 @@ public class AgentClassLoader extends ClassLoader {
 
     private List<File> classpath;
     private List<Jar> allJars;
+    /*扫描Jar时的锁*/
     private ReentrantLock jarScanLock = new ReentrantLock();
 
     /**
+     * 方法描述,解决类加载死锁问题,jdk7以后
      * Functional Description: solve the classloader dead lock when jvm start
      * only support JDK7+, since ParallelCapable appears in JDK7+
      */
@@ -195,20 +197,27 @@ public class AgentClassLoader extends ClassLoader {
         };
     }
 
+    /**
+     * 获取所有Jar
+     * @return
+     */
     private List<Jar> getAllJars() {
         if (allJars == null) {
             jarScanLock.lock();
             try {
                 if (allJars == null) {
                     allJars = new LinkedList<Jar>();
+                    /*遍历所有路径*/
                     for (File path : classpath) {
                         if (path.exists() && path.isDirectory()) {
+                            // 获得所有jar文件
                             String[] jarFileNames = path.list(new FilenameFilter() {
                                 @Override
                                 public boolean accept(File dir, String name) {
                                     return name.endsWith(".jar");
                                 }
                             });
+                            // 获得所有Jar
                             for (String fileName : jarFileNames) {
                                 try {
                                     File file = new File(path, fileName);
@@ -231,7 +240,13 @@ public class AgentClassLoader extends ClassLoader {
     }
 
     private class Jar {
+        /**
+         * Jar文件,用于查找jar里面的类
+         */
         private JarFile jarFile;
+        /**
+         * Jar文件路径
+         */
         private File sourceFile;
 
         private Jar(JarFile jarFile, File sourceFile) {

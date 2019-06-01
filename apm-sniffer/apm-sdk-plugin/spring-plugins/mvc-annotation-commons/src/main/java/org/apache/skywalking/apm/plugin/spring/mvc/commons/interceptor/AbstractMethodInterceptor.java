@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
-import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -33,11 +30,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
-import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
+
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.*;
 
 /**
+ * 抽象拦截器
  * the abstract method inteceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
@@ -72,10 +72,19 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 next = next.next();
                 next.setHeadValue(request.getHeader(next.getHeadKey()));
             }
-
+            /**
+             * 从ContextManager中获取 EntrySpan
+             * requestURL 请求路径
+             * contextCarrier 传输的数据
+             */
             AbstractSpan span = ContextManager.createEntrySpan(requestURL, contextCarrier);
+            // 设置span中tag的路径
             Tags.URL.set(span, request.getRequestURL().toString());
+            // 设置 span 中的method属性
             Tags.HTTP.METHOD.set(span, request.getMethod());
+            // 设置 span 中的param属性
+            Tags.HTTP.PARAM.set(span,"1212121212");
+            // 设置span的组件为springmvc
             span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             SpanLayer.asHttp(span);
         }
