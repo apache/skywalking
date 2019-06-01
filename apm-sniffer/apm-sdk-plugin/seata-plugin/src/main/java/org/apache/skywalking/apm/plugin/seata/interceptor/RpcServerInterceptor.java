@@ -108,12 +108,6 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
                         ContextManager.continued(
                             enhancedContextSnapshot.getContextSnapshot()
                         );
-//                        // restore
-//                        CarrierItem next = contextCarrier.items();
-//                        while (next.hasNext()) {
-//                            next = next.next();
-//                            next.setHeadValue(enhancedContextSnapshot.get(next.getHeadKey()));
-//                        }
                     }
                 }
                 // propagate
