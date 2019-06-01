@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author kezhenxu94
+ */
 public class EnhancedContextSnapshot {
     private final ContextSnapshot contextSnapshot;
     private final Map<String, String> headers = new HashMap<String, String>();
@@ -35,7 +38,7 @@ public class EnhancedContextSnapshot {
         return contextSnapshot;
     }
 
-    public void set(final String key, final String value) {
+    public void put(final String key, final String value) {
         headers.put(key, value);
     }
 

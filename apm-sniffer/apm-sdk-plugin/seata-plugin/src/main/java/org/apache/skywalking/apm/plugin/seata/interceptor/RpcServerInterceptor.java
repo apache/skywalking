@@ -83,38 +83,44 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
             final String peerAddress = inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort();
 
             if (xid != null) {
+                final AbstractSpan span = ContextManager.createExitSpan(
+                    operationName(operation),
+                    contextCarrier,
+                    peerAddress
+                );
+
+                span.tag(XID, xid);
+
+                if (branchId != null) {
+                    span.tag(BRANCH_ID, branchId);
+                }
+
+                if (resourceId != null) {
+                    span.tag(RESOURCE_ID, resourceId);
+                }
+
+                span.setComponent(ComponentsDefine.SEATA);
+
                 final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
                 if (globalSession != null) {
                     final EnhancedContextSnapshot enhancedContextSnapshot = (EnhancedContextSnapshot) globalSession.getSkyWalkingDynamicField();
                     if (enhancedContextSnapshot != null) {
-                        // restore
-                        CarrierItem next = contextCarrier.items();
-                        while (next.hasNext()) {
-                            next = next.next();
-                            next.setHeadValue(enhancedContextSnapshot.get(next.getHeadKey()));
-                            enhancedRequest.put(next.getHeadKey(), enhancedContextSnapshot.get(next.getHeadKey()));
-                        }
-                        final AbstractSpan span = ContextManager.createExitSpan(
-                            operationName(operation),
-                            contextCarrier,
-                            peerAddress
-                        );
                         ContextManager.continued(
                             enhancedContextSnapshot.getContextSnapshot()
                         );
-
-                        span.tag(XID, xid);
-
-                        if (branchId != null) {
-                            span.tag(BRANCH_ID, branchId);
-                        }
-
-                        if (resourceId != null) {
-                            span.tag(RESOURCE_ID, resourceId);
-                        }
-
-                        span.setComponent(ComponentsDefine.SEATA);
+//                        // restore
+//                        CarrierItem next = contextCarrier.items();
+//                        while (next.hasNext()) {
+//                            next = next.next();
+//                            next.setHeadValue(enhancedContextSnapshot.get(next.getHeadKey()));
+//                        }
                     }
+                }
+                // propagate
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
                 }
             }
 

@@ -106,11 +106,6 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
                 final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
                 if (globalSession != null) {
                     final EnhancedContextSnapshot enhancedContextSnapshot = new EnhancedContextSnapshot(ContextManager.capture());
-                    CarrierItem next = contextCarrier.items();
-                    while (next.hasNext()) {
-                        next = next.next();
-                        enhancedContextSnapshot.set(next.getHeadKey(), next.getHeadValue());
-                    }
                     globalSession.setSkyWalkingDynamicField(enhancedContextSnapshot);
                 }
             }

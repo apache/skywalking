@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.seata.core.protocol.transaction.AbstractBranchEndRequest;
+import io.seata.core.protocol.transaction.BranchCommitRequest;
+import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -34,6 +36,9 @@ import java.lang.reflect.Method;
 import static org.apache.skywalking.apm.plugin.seata.Constants.RESOURCE_ID;
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
+/**
+ * @author kezhenxu94
+ */
 public class AbstractRMHandlerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -54,7 +59,7 @@ public class AbstractRMHandlerInterceptor implements InstanceMethodsAroundInterc
         }
 
         final AbstractSpan span = ContextManager.createEntrySpan(
-            operationName(method),
+            operationName(method, allArguments),
             contextCarrier
         );
 
@@ -86,7 +91,14 @@ public class AbstractRMHandlerInterceptor implements InstanceMethodsAroundInterc
         }
     }
 
-    private String operationName(final Method method) {
+    private String operationName(final Method method,
+                                 final Object[] allArguments) {
+        final Object argument0 = allArguments[0];
+        if (argument0 instanceof BranchCommitRequest) {
+            return ComponentsDefine.SEATA.getName() + "/RM/BranchCommit";
+        } else if (argument0 instanceof BranchRollbackRequest) {
+            return ComponentsDefine.SEATA.getName() + "/RM/BranchRollback";
+        }
         return ComponentsDefine.SEATA.getName() + "/RM/" + method.getName();
     }
 }
