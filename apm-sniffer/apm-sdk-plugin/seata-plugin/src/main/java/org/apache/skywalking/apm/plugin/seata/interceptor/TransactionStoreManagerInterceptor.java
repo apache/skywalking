@@ -4,7 +4,6 @@ import io.seata.server.session.SessionCondition;
 import io.seata.server.store.TransactionStoreManager;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -14,6 +13,9 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.*;
 
+/**
+ * @author kezhenxu94
+ */
 public class TransactionStoreManagerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -42,7 +44,6 @@ public class TransactionStoreManagerInterceptor implements InstanceMethodsAround
         }
 
         span.setComponent(ComponentsDefine.SEATA);
-        SpanLayer.asDB(span);
     }
 
     @Override

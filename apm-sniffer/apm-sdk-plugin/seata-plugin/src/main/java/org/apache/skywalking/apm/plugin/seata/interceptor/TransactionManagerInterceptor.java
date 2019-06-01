@@ -18,33 +18,27 @@
 
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
-import io.seata.core.protocol.transaction.AbstractTransactionRequest;
-import io.seata.core.protocol.transaction.GlobalBeginRequest;
-import io.seata.core.protocol.transaction.GlobalBeginResponse;
-import io.seata.core.protocol.transaction.GlobalCommitRequest;
-import io.seata.core.protocol.transaction.GlobalRollbackRequest;
-import io.seata.core.protocol.transaction.GlobalStatusRequest;
+import io.seata.core.protocol.transaction.*;
 import io.seata.core.rpc.netty.TmRpcClient;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalRollbackRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.*;
 
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
-// TODO: replace instanceof's
+/**
+ * @author kezhenxu94
+ *
+ * TODO: replace instanceof's
+ */
 public class TransactionManagerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -110,7 +104,6 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
             }
 
             span.setComponent(ComponentsDefine.SEATA);
-            SpanLayer.asDB(span);
         }
     }
 

@@ -24,6 +24,9 @@ import io.seata.core.protocol.transaction.BranchCommitRequest;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author kezhenxu94
+ */
 public class EnhancedBranchCommitRequest extends BranchCommitRequest implements EnhancedRequest {
     private Map<String, String> headers = new HashMap<String, String>();
 

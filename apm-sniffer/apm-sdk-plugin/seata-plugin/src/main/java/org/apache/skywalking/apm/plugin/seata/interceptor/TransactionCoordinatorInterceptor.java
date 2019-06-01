@@ -24,24 +24,19 @@ import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRegisterRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchReportRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalBeginRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalCommitRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalGetStatusRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalRollbackRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedGlobalLockQueryRequest;
-import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.*;
 
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
+/**
+ * @author kezhenxu94
+ */
 public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -110,12 +105,17 @@ public class TransactionCoordinatorInterceptor implements InstanceMethodsAroundI
             if ("doGlobalCommit".equals(methodName) || "doGlobalRollback".equals(methodName)) {
                 final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
                 if (globalSession != null) {
-                    globalSession.setSkyWalkingDynamicField(ContextManager.capture());
+                    final EnhancedContextSnapshot enhancedContextSnapshot = new EnhancedContextSnapshot(ContextManager.capture());
+                    CarrierItem next = contextCarrier.items();
+                    while (next.hasNext()) {
+                        next = next.next();
+                        enhancedContextSnapshot.set(next.getHeadKey(), next.getHeadValue());
+                    }
+                    globalSession.setSkyWalkingDynamicField(enhancedContextSnapshot);
                 }
             }
         }
         span.setComponent(ComponentsDefine.SEATA);
-        SpanLayer.asDB(span);
     }
 
     @Override

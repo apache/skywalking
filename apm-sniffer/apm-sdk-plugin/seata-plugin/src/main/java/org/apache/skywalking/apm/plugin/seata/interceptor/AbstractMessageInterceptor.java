@@ -26,6 +26,9 @@ import org.apache.skywalking.apm.plugin.seata.enhanced.*;
 
 import java.lang.reflect.Method;
 
+/**
+ * @author kezhenxu94
+ */
 public class AbstractMessageInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override

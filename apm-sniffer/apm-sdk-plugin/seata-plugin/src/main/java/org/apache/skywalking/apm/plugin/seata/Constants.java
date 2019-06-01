@@ -2,6 +2,9 @@ package org.apache.skywalking.apm.plugin.seata;
 
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 
+/**
+ * @author kezhenxu94
+ */
 public class Constants {
     public static final StringTag XID = new StringTag("XID");
     public static final StringTag TRANSACTION_ID = new StringTag("TransactionID");

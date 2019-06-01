@@ -29,6 +29,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
+/**
+ * @author kezhenxu94
+ */
 public class TmRmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String[] ENHANCE_CLASSES = new String[] {

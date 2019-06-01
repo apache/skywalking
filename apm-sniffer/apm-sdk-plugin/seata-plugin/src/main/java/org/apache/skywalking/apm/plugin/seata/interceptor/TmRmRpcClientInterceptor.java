@@ -24,6 +24,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
+/**
+ * @author kezhenxu94
+ */
 public class TmRmRpcClientInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

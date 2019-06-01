@@ -39,6 +39,9 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
+/**
+ * @author kezhenxu94
+ */
 public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -98,7 +101,6 @@ public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
                 }
 
                 span.setComponent(ComponentsDefine.SEATA);
-                SpanLayer.asDB(span);
             }
         } else if ("channelRead".equals(method.getName())) {
             final Object msg = allArguments[1];
@@ -106,9 +108,21 @@ public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
                 final RpcMessage rpcMessage = (RpcMessage) msg;
                 final Object body = rpcMessage.getBody();
                 if (rpcMessage.isRequest() && body instanceof BranchCommitRequest) {
-                    final EnhancedBranchCommitRequest branchCommitRequest = (EnhancedBranchCommitRequest) body;
-                    ContextManager.getRuntimeContext().put("EnhancedRequest", branchCommitRequest);
-                    ContextManager.getRuntimeContext().put("ContextSnapshot", ContextManager.capture());
+                    final EnhancedBranchCommitRequest enhancedRequest = (EnhancedBranchCommitRequest) body;
+                    final ContextCarrier contextCarrier = new ContextCarrier();
+                    CarrierItem next = contextCarrier.items();
+                    while (next.hasNext()) {
+                        next = next.next();
+                        next.setHeadValue(enhancedRequest.get(next.getHeadKey()));
+                    }
+
+                    final AbstractSpan span = ContextManager.createEntrySpan(
+                        operationName(method),
+                        contextCarrier
+                    );
+
+                    span.setComponent(ComponentsDefine.SEATA);
+                    SpanLayer.asDB(span);
                 }
             }
         }
@@ -137,5 +151,9 @@ public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
             activeSpan.errorOccurred();
             activeSpan.log(t);
         }
+    }
+
+    private String operationName(final Method method) {
+        return ComponentsDefine.SEATA.getName() + "/RM/" + method.getName();
     }
 }

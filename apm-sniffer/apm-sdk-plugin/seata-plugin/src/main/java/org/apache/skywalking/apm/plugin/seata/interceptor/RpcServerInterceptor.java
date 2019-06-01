@@ -25,15 +25,14 @@ import io.seata.server.session.SessionHolder;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchCommitRequest;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedBranchRollbackRequest;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedContextSnapshot;
 import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 import java.lang.reflect.Method;
@@ -41,6 +40,9 @@ import java.net.InetSocketAddress;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.*;
 
+/**
+ * @author kezhenxu94
+ */
 public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -80,41 +82,43 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
             final InetSocketAddress inetSocketAddress = (InetSocketAddress) channel.remoteAddress();
             final String peerAddress = inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort();
 
-            final AbstractSpan span = ContextManager.createExitSpan(
-                operationName(operation),
-                contextCarrier,
-                peerAddress
-            );
-
             if (xid != null) {
-                span.tag(XID, xid);
-
                 final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
-                if (globalSession != null && globalSession.getSkyWalkingDynamicField() != null) {
-                    ContextManager.continued(
-                        (ContextSnapshot) globalSession.getSkyWalkingDynamicField()
-                    );
+                if (globalSession != null) {
+                    final EnhancedContextSnapshot enhancedContextSnapshot = (EnhancedContextSnapshot) globalSession.getSkyWalkingDynamicField();
+                    if (enhancedContextSnapshot != null) {
+                        // restore
+                        CarrierItem next = contextCarrier.items();
+                        while (next.hasNext()) {
+                            next = next.next();
+                            next.setHeadValue(enhancedContextSnapshot.get(next.getHeadKey()));
+                            enhancedRequest.put(next.getHeadKey(), enhancedContextSnapshot.get(next.getHeadKey()));
+                        }
+                        final AbstractSpan span = ContextManager.createExitSpan(
+                            operationName(operation),
+                            contextCarrier,
+                            peerAddress
+                        );
+                        ContextManager.continued(
+                            enhancedContextSnapshot.getContextSnapshot()
+                        );
+
+                        span.tag(XID, xid);
+
+                        if (branchId != null) {
+                            span.tag(BRANCH_ID, branchId);
+                        }
+
+                        if (resourceId != null) {
+                            span.tag(RESOURCE_ID, resourceId);
+                        }
+
+                        span.setComponent(ComponentsDefine.SEATA);
+                    }
                 }
             }
 
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
-            }
-
             allArguments[2] = enhancedRequest;
-
-            if (branchId != null) {
-                span.tag(BRANCH_ID, branchId);
-            }
-
-            if (resourceId != null) {
-                span.tag(RESOURCE_ID, resourceId);
-            }
-
-            span.setComponent(ComponentsDefine.SEATA);
-            SpanLayer.asDB(span);
         }
     }
 
@@ -124,7 +128,7 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
-        if (ContextManager.isActive() && allArguments[2] instanceof EnhancedRequest) {
+        if (ContextManager.isActive() && (allArguments[2] instanceof BranchCommitRequest || allArguments[2] instanceof BranchRollbackRequest)) {
             ContextManager.stopSpan();
         }
         return ret;

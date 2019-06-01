@@ -30,8 +30,15 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * Intercepts the creating process of {@code io.seata.core.protocol.AbstractMessage}
+ * when decoding from the protocol {@code io.seata.core.protocol.RpcMessage#body},
+ * and returns the enhanced request {@code org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest}
+ * with headers in it.
+ *
+ * @author kezhenxu94
+ */
 public class AbstractMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
     private static final String ENHANCE_CLASS = "io.seata.core.protocol.AbstractMessage";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.AbstractMessageInterceptor";
 

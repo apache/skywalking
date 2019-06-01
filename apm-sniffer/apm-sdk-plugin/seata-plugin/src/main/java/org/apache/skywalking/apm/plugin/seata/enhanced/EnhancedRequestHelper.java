@@ -24,6 +24,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+/**
+ * @author kezhenxu94
+ */
 abstract class EnhancedRequestHelper {
     private static final Charset UTF8 = Charset.forName("utf-8");
 

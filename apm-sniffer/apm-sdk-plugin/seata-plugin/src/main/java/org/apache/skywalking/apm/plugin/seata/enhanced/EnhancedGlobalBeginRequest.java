@@ -24,6 +24,9 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author kezhenxu94
+ */
 public class EnhancedGlobalBeginRequest extends GlobalBeginRequest implements EnhancedRequest {
     private Map<String, String> headers = new HashMap<String, String>();
 

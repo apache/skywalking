@@ -22,7 +22,6 @@ import com.google.common.collect.Iterables;
 import io.seata.rm.datasource.ConnectionProxy;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -32,6 +31,9 @@ import java.util.Set;
 
 import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 
+/**
+ * @author kezhenxu94
+ */
 public class UndoLogManagerInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
@@ -61,7 +63,6 @@ public class UndoLogManagerInterceptor implements StaticMethodsAroundInterceptor
             span.tag(XID, xid);
         }
         span.setComponent(ComponentsDefine.SEATA);
-        SpanLayer.asDB(span);
     }
 
     @Override

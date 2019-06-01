@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.seata.define;
 import io.netty.channel.ChannelHandlerContext;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -31,6 +30,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * @author kezhenxu94
+ */
 public class RmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.seata.core.rpc.netty.RmRpcClient";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.seata.interceptor.RmRpcClientInterceptor";
@@ -46,8 +48,9 @@ public class RmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("sendMsgWithResponse").and(takesArguments(1))
-                        .or(named("channelRead").and(ElementMatchers.takesArguments(ChannelHandlerContext.class, Object.class)));
+                    return named("sendMsgWithResponse").and(takesArguments(1));
+//                        .or(named("channelRead").and(takesArguments(ChannelHandlerContext.class, Object.class)));
+//                        .or(named("sendRequest").and(takesArguments(Channel.class, Object.class)));
                 }
 
                 @Override

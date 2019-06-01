@@ -24,6 +24,9 @@ import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author kezhenxu94
+ */
 public class EnhancedBranchRollbackRequest extends BranchRollbackRequest implements EnhancedRequest {
     private Map<String, String> headers = new HashMap<String, String>();
 
