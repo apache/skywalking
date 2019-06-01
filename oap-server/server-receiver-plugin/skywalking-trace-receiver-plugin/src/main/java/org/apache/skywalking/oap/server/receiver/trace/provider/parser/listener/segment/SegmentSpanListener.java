@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
@@ -68,7 +68,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             return;
         }
 
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
+        long timeBucket = TimeBucket.getSecondTimeBucket(segmentCoreInfo.getStartTime());
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
         segment.setServiceId(segmentCoreInfo.getServiceId());

@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.receiver.trace.provider.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
@@ -157,7 +157,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             statement.setId(segmentCoreInfo.getSegmentId() + "-" + spanDecorator.getSpanId());
             statement.setDatabaseServiceId(sourceBuilder.getDestServiceId());
             statement.setLatency(sourceBuilder.getLatency());
-            statement.setTimeBucket(TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime()));
+            statement.setTimeBucket(TimeBucket.getSecondTimeBucket(segmentCoreInfo.getStartTime()));
             statement.setTraceId(traceId);
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {

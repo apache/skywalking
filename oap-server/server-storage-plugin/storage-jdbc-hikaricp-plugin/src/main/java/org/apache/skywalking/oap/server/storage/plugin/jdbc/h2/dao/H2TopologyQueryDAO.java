@@ -21,13 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -41,34 +42,31 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
+    @Override public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideMetrics.INDEX_NAME);
+        String tableName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, true);
     }
 
-    @Override public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
+    @Override public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideMetrics.INDEX_NAME);
+        String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, false);
     }
 
-    @Override public List<Call.CallDetail> loadServerSideServiceRelations(Step step, long startTB,
-        long endTB) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideMetrics.INDEX_NAME);
+    @Override public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
+        String tableName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), false);
     }
 
-    @Override public List<Call.CallDetail> loadClientSideServiceRelations(Step step, long startTB,
-        long endTB) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideMetrics.INDEX_NAME);
+    @Override public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
+        String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), true);
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
-        int destEndpointId) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, EndpointRelationServerSideMetrics.INDEX_NAME);
+    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException {
+        String tableName = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         List<Call.CallDetail> calls = loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId, false);
         calls.addAll(loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId, true));
