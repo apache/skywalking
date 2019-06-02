@@ -29,6 +29,7 @@ import java.util.Map;
  */
 abstract class EnhancedRequestHelper {
     private static final Charset UTF8 = Charset.forName("utf-8");
+    private static final short MAGIC = (short) 0xdada;
 
     static byte[] encode(final byte[] encodedPart,
                          final Map<String, String> headers) {
@@ -37,7 +38,7 @@ abstract class EnhancedRequestHelper {
         byteBuffer.put(encodedPart);
 
         if (!headers.isEmpty()) {
-            byteBuffer.putInt(headers.size());
+            byteBuffer.putShort((short) headers.size());
             for (final Map.Entry<String, String> entry : headers.entrySet()) {
                 byte[] keyBs = entry.getKey().getBytes(UTF8);
                 byteBuffer.putShort((short) keyBs.length);
@@ -51,7 +52,7 @@ abstract class EnhancedRequestHelper {
                 }
             }
         } else {
-            byteBuffer.putInt(0);
+            byteBuffer.putShort((short) 0);
         }
 
         byteBuffer.flip();
@@ -67,7 +68,7 @@ abstract class EnhancedRequestHelper {
         if (!byteBuffer.hasRemaining()) {
             return;
         }
-        final int headersCount = byteBuffer.getInt();
+        final int headersCount = byteBuffer.getShort();
         for (int i = 0; i < headersCount; i++) {
             byte[] keyBs = new byte[byteBuffer.getShort()];
             byteBuffer.get(keyBs);
@@ -77,20 +78,46 @@ abstract class EnhancedRequestHelper {
         }
     }
 
-    static void decode(final ByteBuf byteBuffer,
-                       final Map<String, String> headers) {
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    static boolean decode(final ByteBuf byteBuffer,
+                          final Map<String, String> headers) {
         // There may be cases where the TC is enhanced by SkyWalking
         // but the TM is not
-        if (byteBuffer.readableBytes() <= 0) {
-            return;
+        if (byteBuffer.readableBytes() <= 2) {
+            return false;
         }
-        final int headersCount = byteBuffer.readInt();
+
+        final short possibleMagic = byteBuffer.readShort();
+        if (possibleMagic == MAGIC) {
+            return true;
+        }
+
+        final int headersCount = possibleMagic;
+
         for (int i = 0; i < headersCount; i++) {
-            byte[] keyBs = new byte[byteBuffer.readShort()];
+            if (byteBuffer.readableBytes() < 2) {
+                return false;
+            }
+
+            final short keyLength = byteBuffer.readShort();
+            if (byteBuffer.readableBytes() < keyLength) {
+                return false;
+            }
+            byte[] keyBs = new byte[keyLength];
             byteBuffer.readBytes(keyBs);
-            byte[] valBs = new byte[byteBuffer.readShort()];
+
+            if (byteBuffer.readableBytes() < 2) {
+                return false;
+            }
+            final short valLength = byteBuffer.readShort();
+            if (byteBuffer.readableBytes() < valLength) {
+                return false;
+            }
+            byte[] valBs = new byte[valLength];
             byteBuffer.readBytes(valBs);
+
             headers.put(new String(keyBs), new String(valBs));
         }
+        return true;
     }
 }

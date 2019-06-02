@@ -66,7 +66,6 @@ public class EnhancedBranchCommitRequest extends BranchCommitRequest implements 
         if (!super.decode(in)) {
             return false;
         }
-        EnhancedRequestHelper.decode(in, getHeaders());
-        return true;
+        return EnhancedRequestHelper.decode(in, getHeaders());
     }
 }
