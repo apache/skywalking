@@ -32,7 +32,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
-    private static final String PREPARED_STATEMENT_SERVERSIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
+    private static final String PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
 
     private static final String SERVICE_METHOD_INTERCEPTOR =  Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
 
@@ -62,6 +62,6 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME,PREPARED_STATEMENT_SERVERSIDE_CLASS_NAME);
+        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME, PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME);
     }
 }
