@@ -37,6 +37,7 @@ import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 public class UndoLogManagerInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void beforeMethod(final Class clazz,
                              final Method method,
                              final Object[] allArguments,

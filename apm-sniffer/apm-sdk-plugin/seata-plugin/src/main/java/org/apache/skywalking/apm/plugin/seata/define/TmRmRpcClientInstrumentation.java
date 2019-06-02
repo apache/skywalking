@@ -30,7 +30,11 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
+ * Intercept the method {@code io.seata.core.rpc.netty.AbstractRpcRemotingClient#loadBalance(java.lang.String)}
+ * to get the real peer address, and attach the real address to be used later.
+ *
  * @author kezhenxu94
+ * @see org.apache.skywalking.apm.plugin.seata.interceptor.TmRmRpcClientInterceptor
  */
 public class TmRmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

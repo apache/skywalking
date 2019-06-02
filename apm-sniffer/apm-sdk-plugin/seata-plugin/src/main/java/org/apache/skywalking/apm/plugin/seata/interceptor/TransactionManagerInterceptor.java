@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.seata.core.protocol.transaction.*;
 import io.seata.core.rpc.netty.TmRpcClient;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -28,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.seata.Utils;
 import org.apache.skywalking.apm.plugin.seata.enhanced.*;
 
 import java.lang.reflect.Method;
@@ -37,7 +37,7 @@ import static org.apache.skywalking.apm.plugin.seata.Constants.XID;
 /**
  * @author kezhenxu94
  * <p>
- * TODO: replace instanceof's
+ * TODO: replace instanceof's if possible
  */
 public class TransactionManagerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -54,27 +54,27 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
         EnhancedRequest enhancedRequest = null;
 
         if (message instanceof GlobalBeginRequest) {
-            methodName = "begin";
+            methodName = "Begin";
 
             enhancedRequest = new EnhancedGlobalBeginRequest((GlobalBeginRequest) message);
         } else if (message instanceof GlobalCommitRequest) {
             final GlobalCommitRequest request = (GlobalCommitRequest) message;
 
-            methodName = "commit";
+            methodName = "Commit";
             xid = request.getXid();
 
             enhancedRequest = new EnhancedGlobalCommitRequest(request);
         } else if (message instanceof GlobalRollbackRequest) {
             final GlobalRollbackRequest request = (GlobalRollbackRequest) message;
 
-            methodName = "rollback";
+            methodName = "Rollback";
             xid = request.getXid();
 
             enhancedRequest = new EnhancedGlobalRollbackRequest(request);
         } else if (message instanceof GlobalStatusRequest) {
             final GlobalStatusRequest request = (GlobalStatusRequest) message;
 
-            methodName = "getStatus";
+            methodName = "GetStatus";
             xid = request.getXid();
 
             enhancedRequest = new EnhancedGlobalGetStatusRequest(request);
@@ -91,11 +91,7 @@ public class TransactionManagerInterceptor implements InstanceMethodsAroundInter
                 peerAddress
             );
 
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
-            }
+            Utils.dumpContext(contextCarrier, enhancedRequest);
 
             allArguments[0] = enhancedRequest;
 

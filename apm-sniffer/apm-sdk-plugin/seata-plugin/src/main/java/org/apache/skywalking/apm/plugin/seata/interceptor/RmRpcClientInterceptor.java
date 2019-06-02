@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.seata.Utils;
 import org.apache.skywalking.apm.plugin.seata.enhanced.*;
 
 import java.lang.reflect.Method;
@@ -88,11 +89,7 @@ public class RmRpcClientInterceptor implements InstanceMethodsAroundInterceptor 
                     peerAddress
                 );
 
-                CarrierItem next = contextCarrier.items();
-                while (next.hasNext()) {
-                    next = next.next();
-                    enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
-                }
+                Utils.dumpContext(contextCarrier, enhancedRequest);
 
                 allArguments[0] = enhancedRequest;
 

@@ -16,21 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.seata.interceptor;
+package org.apache.skywalking.apm.plugin.seata;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.plugin.seata.enhanced.EnhancedRequest;
 
 /**
- * Just to make the {@code io.seata.server.session.GlobalSession} be enhanced by SkyWalking
- * so that dynamic field can be set.
+ * Class that holds commonly used methods within this plugin.
  *
  * @author kezhenxu94
- * @see TransactionCoordinatorInterceptor
  */
-public class GlobalSessionInterceptor implements InstanceConstructorInterceptor {
-
-    @Override
-    public void onConstruct(final EnhancedInstance objInst, final Object[] allArguments) {
+public final class Utils {
+    public static void dumpContext(final ContextCarrier contextCarrier,
+                                   final EnhancedRequest enhancedRequest) {
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            enhancedRequest.put(next.getHeadKey(), next.getHeadValue());
+        }
     }
 }

@@ -69,6 +69,7 @@ public class AbstractMessageInterceptor implements StaticMethodsAroundIntercepto
             }
         } else if ("getMsgInstanceByCode".equals(method.getName())) {
             final short typeCode = (Short) allArguments[0];
+
             switch (typeCode) {
                 case AbstractMessage.TYPE_BRANCH_COMMIT:
                     return new EnhancedBranchCommitRequest((BranchCommitRequest) ret);

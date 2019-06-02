@@ -37,6 +37,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * with headers in it.
  *
  * @author kezhenxu94
+ * @see org.apache.skywalking.apm.plugin.seata.interceptor.AbstractMessageInterceptor
  */
 public class AbstractMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.seata.core.protocol.AbstractMessage";

@@ -32,6 +32,8 @@ import java.lang.reflect.Method;
 import static org.apache.skywalking.apm.plugin.seata.Constants.*;
 
 /**
+ * TODO: revise the writeSession operations, it produces too many spans
+ *
  * @author kezhenxu94
  */
 public class TransactionStoreManagerInterceptor implements InstanceMethodsAroundInterceptor {

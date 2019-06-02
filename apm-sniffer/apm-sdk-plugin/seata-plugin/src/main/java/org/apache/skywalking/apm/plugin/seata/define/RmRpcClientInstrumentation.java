@@ -48,8 +48,6 @@ public class RmRpcClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("sendMsgWithResponse").and(takesArguments(1));
-//                        .or(named("channelRead").and(takesArguments(ChannelHandlerContext.class, Object.class)));
-//                        .or(named("sendRequest").and(takesArguments(Channel.class, Object.class)));
                 }
 
                 @Override

@@ -31,6 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 /**
  * @author kezhenxu94
+ * @see org.apache.skywalking.apm.plugin.seata.interceptor.AbstractResourceManagerInterceptor
  */
 public class AbstractResourceManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.seata.rm.AbstractResourceManager";

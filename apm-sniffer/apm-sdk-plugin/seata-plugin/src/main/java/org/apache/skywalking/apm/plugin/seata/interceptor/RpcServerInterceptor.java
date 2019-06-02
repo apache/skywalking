@@ -78,16 +78,26 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
         }
 
         if (enhancedRequest != null) {
-            final ContextCarrier contextCarrier = new ContextCarrier();
             final InetSocketAddress inetSocketAddress = (InetSocketAddress) channel.remoteAddress();
             final String peerAddress = inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort();
 
             if (xid != null) {
                 final AbstractSpan span = ContextManager.createExitSpan(
                     operationName(operation),
-                    contextCarrier,
                     peerAddress
                 );
+
+                final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
+                if (globalSession != null) {
+                    final EnhancedContextSnapshot enhancedContextSnapshot = (EnhancedContextSnapshot) globalSession.getSkyWalkingDynamicField();
+                    if (enhancedContextSnapshot != null) {
+                        ContextManager.continued(
+                            enhancedContextSnapshot.getContextSnapshot()
+                        );
+                    }
+                }
+                final ContextCarrier contextCarrier = new ContextCarrier();
+                ContextManager.inject(contextCarrier);
 
                 span.tag(XID, xid);
 
@@ -101,15 +111,6 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
 
                 span.setComponent(ComponentsDefine.SEATA);
 
-                final EnhancedInstance globalSession = (EnhancedInstance) SessionHolder.findGlobalSession(xid);
-                if (globalSession != null) {
-                    final EnhancedContextSnapshot enhancedContextSnapshot = (EnhancedContextSnapshot) globalSession.getSkyWalkingDynamicField();
-                    if (enhancedContextSnapshot != null) {
-                        ContextManager.continued(
-                            enhancedContextSnapshot.getContextSnapshot()
-                        );
-                    }
-                }
                 // propagate
                 CarrierItem next = contextCarrier.items();
                 while (next.hasNext()) {
