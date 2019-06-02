@@ -35,5 +35,5 @@ You have following settings in Elasticsearch storage.
 ``` 
 
 - `recordDataTTL` affects **Record** data.
-- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. If you want to set them manually, you must set `otherMetricsDataTTL: 0`.
+- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. If you want to set them manually, please remove `otherMetricsDataTTL`.
 - `monthMetricsDataTTL` affects month dimension of metrics.
