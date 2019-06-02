@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5;
+package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -27,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: dingshaocheng
  */
 public class ConnectionCache {
-    private static ConcurrentHashMap<String, ConnectionInfo> CONNECTIONS_MAP = new ConcurrentHashMap<String, ConnectionInfo>();
+    private static final ConcurrentHashMap<String, ConnectionInfo> CONNECTIONS_MAP = new ConcurrentHashMap<String, ConnectionInfo>();
 
-    private static String CONNECTION_SPLIT_STR = ",";
+    private static final String CONNECTION_SPLIT_STR = ",";
 
     public static ConnectionInfo get(String host, String port) {
         final String connStr = String.format("%s:%s", host, port);

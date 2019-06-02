@@ -16,32 +16,39 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v6;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.ConnectionCache;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
 /**
- * @author: dingshaocheng
+ * for mysql connector java 6.0.2,6.0.3
+ * @author lican
  */
-public class DriverConnectInterceptor implements InstanceMethodsAroundInterceptor {
+public class ConnectionCreateOldInterceptor implements StaticMethodsAroundInterceptor {
+
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        ConnectionCache.save(URLParser.parser(allArguments[0].toString()));
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+        if (ret instanceof EnhancedInstance) {
+            ConnectionInfo connectionInfo = ConnectionCache.get(allArguments[1].toString(), allArguments[2].toString());
+            ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
+        }
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
 
     }
 }
