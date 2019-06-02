@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -29,13 +29,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DRIVER_CONNECT_INTERCEPTOR;
 
 /**
- * @author: dingshaocheng
+ * @author dingshaocheng lican
  */
 public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
-    private static final String ENHANCE_CLASS_NON_REG_REP = "com.mysql.jdbc.NonRegisteringReplicationDriver";
-    private static final String ENHANCE_CLASS = "com.mysql.jdbc.Driver";
-    private static final String ENHANCE_CLASS_NON_REG = "com.mysql.jdbc.NonRegisteringDriver";
+    private static final String ENHANCE_CLASS_NON_REG = "com.mysql.cj.jdbc.NonRegisteringDriver";
 
 
     @Override
@@ -45,28 +43,27 @@ public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("connect");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return DRIVER_CONNECT_INTERCEPTOR;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
+        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
+            @Override
+            public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                return named("connect");
             }
+
+            @Override
+            public String getMethodsInterceptor() {
+                return DRIVER_CONNECT_INTERCEPTOR;
+            }
+
+            @Override
+            public boolean isOverrideArgs() {
+                return false;
+            }
+        }
         };
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(ENHANCE_CLASS,ENHANCE_CLASS_NON_REG,ENHANCE_CLASS_NON_REG_REP);
+        return byMultiClassMatch(ENHANCE_CLASS_NON_REG);
     }
 }

@@ -16,36 +16,34 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v6;
 
+import com.mysql.cj.core.conf.url.HostInfo;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
-import org.apache.skywalking.apm.plugin.jdbc.mysql.ConnectionCache;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
 /**
- * ConnectionImpl#getInstance in mysql-5.x has 5 parameters such as
- * getInstance(String hostToConnectTo, int portToConnectTo, Properties info, String databaseToConnectTo, String url)
- *
- * @author: dingshaocheng
+ * for mysql connector java 6.0.4+
+ * @author lican
  */
-public class ConnectionCreate5xInterceptor implements StaticMethodsAroundInterceptor {
+public class ConnectionCreateNewInterceptor implements StaticMethodsAroundInterceptor {
+
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
         if (ret instanceof EnhancedInstance) {
-            ConnectionInfo connectionInfo = ConnectionCache.get(allArguments[0].toString(), allArguments[1].toString());
-            if (connectionInfo == null) {
-                connectionInfo = URLParser.parser(allArguments[4].toString());
-            }
+            final HostInfo hostInfo = (HostInfo) allArguments[0];
+            ConnectionInfo connectionInfo = URLParser.parser(hostInfo.getDatabaseUrl());
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
         }
         return ret;
