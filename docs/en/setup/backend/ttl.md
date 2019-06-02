@@ -21,9 +21,8 @@ metrics data in minute/hour/day/month dimensions.
 
 
 **Specifically:**  
-Because of the feature of Elasticsearch, it rebuild the index after execute delete by query command.
-That is a heavy operate, it will hung up the Elasticsearch server for a few seconds. However, there 
-are above 500+ indexes. So, we create the index by day to avoid execute delete by query operate, then 
+Because of the feature of Elasticsearch, it rebuilds the index after executing delete by query command.
+That is a heavy operate, it will hang up the Elasticsearch server for a few seconds. However, there are above 500+ indexes. So, we create the index by day to avoid execute delete by query operate, then 
 delete the index directly, this is a high performance operate, say goodbye to hung up.
 
 
