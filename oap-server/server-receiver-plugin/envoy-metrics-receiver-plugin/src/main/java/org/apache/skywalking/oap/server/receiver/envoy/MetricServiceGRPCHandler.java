@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.*;
@@ -134,7 +134,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                                         metricSource.setName(serviceInstanceName);
                                         metricSource.setMetricName(metricFamily.getName());
                                         metricSource.setValue(value);
-                                        metricSource.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(timestamp));
+                                        metricSource.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestamp));
                                         sourceReceiver.receive(metricSource);
                                     }
                                     break;

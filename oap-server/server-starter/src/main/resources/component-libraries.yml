@@ -213,8 +213,11 @@ ShardingSphere:
 spring-cloud-gateway:
   id: 61
   languages: Java
-Seata:
+RESTEasy:
   id: 62
+  languages: Java
+Seata:
+  id: 63
   languages: Java
 
 # .NET/.NET Core components

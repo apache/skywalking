@@ -50,20 +50,20 @@ public class MetricQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public IntValues getLinearIntValues(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public Thermodynamic getThermodynamic(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), duration.getStep(), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 }

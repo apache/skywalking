@@ -120,7 +120,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
 
-    public static final OfficialComponent SEATA =  new OfficialComponent(62, "Seata");
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
+
+    public static final OfficialComponent SEATA =  new OfficialComponent(63, "Seata");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
@@ -178,6 +180,7 @@ public class ComponentsDefine {
         addComponent(ZOOKEEPER);
         addComponent(VERTX);
         addComponent(SPRING_CLOUD_GATEWAY);
+        addComponent(RESTEASY);
         addComponent(SEATA);
     }
 
