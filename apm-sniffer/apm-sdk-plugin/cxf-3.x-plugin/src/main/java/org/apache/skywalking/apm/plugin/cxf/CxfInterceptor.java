@@ -52,7 +52,8 @@ public class CxfInterceptor implements InstanceMethodsAroundInterceptor {
             next = next.next();
             mimeHeaders.addHeader(next.getHeadKey(), next.getHeadValue());
         }
-        Tags.URL.set(span, od.getName());
+        Tags.URL.set(span, msgContext.getProperty("transport.url").toString());
+        //span.setComponent(ComponentsDefine.CXF);
         SpanLayer.asHttp(span);
     }
 

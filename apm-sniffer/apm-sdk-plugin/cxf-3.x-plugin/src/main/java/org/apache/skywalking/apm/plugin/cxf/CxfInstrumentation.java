@@ -31,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class CxfInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.axis.transport.http.HTTPSender";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.CxfInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.cxf.CxfInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {

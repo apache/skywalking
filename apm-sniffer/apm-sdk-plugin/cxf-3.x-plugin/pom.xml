@@ -15,7 +15,9 @@
   ~ limitations under the License.
   ~
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -23,18 +25,19 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cxf-3.x-plugin</artifactId>
-
-
+    <artifactId>apm-cxf-3.x-plugin</artifactId>
+    <packaging>jar</packaging>
 
     <name>cxf-3.x-plugin</name>
     <url>http://maven.apache.org</url>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <axis.version>1.4</axis.version>
         <axis-jaxrpc.version>1.4</axis-jaxrpc.version>
-        <cxf.version>3.1.6</cxf.version>
+        <cxf.version>3.3.2</cxf.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.axis</groupId>

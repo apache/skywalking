@@ -38,6 +38,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 public class CxfDynamicInterceptor implements InstanceMethodsAroundInterceptor {
     private static final ILog logger = LogManager.getLogger(CxfDynamicInterceptor.class);
@@ -92,9 +93,15 @@ public class CxfDynamicInterceptor implements InstanceMethodsAroundInterceptor {
             String headValue = next.getHeadValue();
             headerList.add(headValue);
             headsMap.put(headKey, headerList);
-            message.put(Message.PROTOCOL_HEADERS, headsMap);
+            TreeMap orgHeadsMap = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
+            if (null == orgHeadsMap) {
+                orgHeadsMap = new TreeMap();
+            }
+            orgHeadsMap.putAll(headsMap);
+            message.put(Message.PROTOCOL_HEADERS, orgHeadsMap);
         }
-        Tags.URL.set(span, operationName);
+        Tags.URL.set(span, remotePeer);
+        //span.setComponent(ComponentsDefine.CXF);
         if (messageObject instanceof SoapMessage) {
             SpanLayer.asRPCFramework(span);
         } else if (messageObject instanceof MessageImpl) {
@@ -118,12 +125,10 @@ public class CxfDynamicInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     /**
-     * Log the throwable, which occurs in Dubbo RPC service.
+     * Log the throwable, which occurs in cxf RPC service.
      */
     private void dealException(Throwable throwable) {
-        AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(throwable);
+        ContextManager.activeSpan().errorOccurred().log(throwable);
     }
 
 

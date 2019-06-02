@@ -32,7 +32,9 @@ public class CxfDynamicInstrumentation extends ClassInstanceMethodsEnhancePlugin
 
 
     private static final String ENHANCE_CLASS = "org.apache.cxf.transport.http.URLConnectionHTTPConduit";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.CxfDynamicInterceptor";
+    //private static final String ENHANCE_CLASS = "org.apache.cxf.transport.AbstractConduit";
+
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.cxf.CxfDynamicInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -47,11 +49,12 @@ public class CxfDynamicInstrumentation extends ClassInstanceMethodsEnhancePlugin
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
-                //直接调用wsdl
+                //直接调用wsdl，动态生成客户端
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
                         ElementMatcher<MethodDescription> em = named("createConnection");
+                        //ElementMatcher<MethodDescription> em = named("close");
                         return em;
                     }
 
