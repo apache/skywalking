@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.core.DataTTL;
+import org.apache.skywalking.oap.server.core.DataTTLConfig;
 import org.joda.time.DateTime;
 
 /**
@@ -25,7 +25,7 @@ import org.joda.time.DateTime;
  */
 public class SecondTTLCalculator implements TTLCalculator {
 
-    @Override public long timeBefore(DateTime currentTime, DataTTL dataTTL) {
-        return Long.valueOf(currentTime.plusMinutes(0 - dataTTL.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
+    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
+        return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
     }
 }

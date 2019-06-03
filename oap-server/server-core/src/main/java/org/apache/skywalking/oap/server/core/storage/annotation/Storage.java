@@ -31,4 +31,6 @@ public @interface Storage {
     Class<? extends StorageBuilder> builder();
 
     boolean deleteHistory() default true;
+
+    boolean capableOfTimeSeries() default true;
 }

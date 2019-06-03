@@ -17,15 +17,23 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.core.DataTTLConfig;
-import org.joda.time.DateTime;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
 /**
  * @author peng-yongsheng
  */
-public class DayTTLCalculator implements TTLCalculator {
+public class GeneralStorageTTL implements StorageTTL {
 
-    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getDayMetricsDataTTL()).toString("yyyyMMdd"));
+    @Override public TTLCalculator calculator(Downsampling downsampling) {
+        switch (downsampling) {
+            case Hour:
+                return new HourTTLCalculator();
+            case Day:
+                return new DayTTLCalculator();
+            case Month:
+                return new MonthTTLCalculator();
+            default:
+                return new MinuteTTLCalculator();
+        }
     }
 }
