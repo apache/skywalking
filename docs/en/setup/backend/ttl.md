@@ -19,12 +19,12 @@ You have following settings for different types.
 - `minuteMetricsDataTTL`, `hourMetricsDataTTL`, `dayMetricsDataTTL` and `monthMetricsDataTTL` affects
 metrics data in minute/hour/day/month dimensions.
 
-
+## ElasticSearch 6 storage TTL 
 **Specifically:**  
-Because of the feature of Elasticsearch, it rebuilds the index after executing delete by query command.
-That is a heavy operate, it will hang up the Elasticsearch server for a few seconds. However, there are above 500+ indexes. So, we create the index by day to avoid execute delete by query operate, then 
-delete the index directly, this is a high performance operate, say goodbye to hung up.
-
+Because of the feature of ElasticSearch, it rebuilds the index after executing delete by query command.
+That is a heavy operation, it will hang up the ElasticSearch server for a few seconds each time. The fact is there are above hundred indexes which may cause ElasticSearch out of service unexpected. 
+So, we create the index by day to avoid execute delete by query operation, 
+then delete the index directly, this is a high performance operation, say goodbye to hung up.
 
 You have following settings in Elasticsearch storage.
 ```yaml
@@ -35,5 +35,5 @@ You have following settings in Elasticsearch storage.
 ``` 
 
 - `recordDataTTL` affects **Record** data.
-- `otherMetricsDataTTL` affects minute/hour/day dimensions.
-- `monthMetricsDataTTL` affects month dimensions.
+- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. If you want to set them manually, please remove `otherMetricsDataTTL`.
+- `monthMetricsDataTTL` affects month dimension of metrics.

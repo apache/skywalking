@@ -43,7 +43,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private int minuteMetricsDataTTL = 2;
     @Setter private int hourMetricsDataTTL = 2;
     @Setter private int dayMetricsDataTTL = 2;
-    private int otherMetricsDataTTL = 45;
+    private int otherMetricsDataTTL = 0;
     @Setter private int monthMetricsDataTTL = 18;
 
     public void setOtherMetricsDataTTL(int otherMetricsDataTTL) {

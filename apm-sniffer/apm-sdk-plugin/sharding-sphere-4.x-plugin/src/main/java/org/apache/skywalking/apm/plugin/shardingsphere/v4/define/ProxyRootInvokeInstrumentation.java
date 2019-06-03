@@ -16,47 +16,43 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DRIVER_CONNECT_INTERCEPTOR;
 
 /**
- * @author: dingshaocheng
+ * ProxyRootInvokeInstrumentation presents that skywalking intercepts org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask.
+ *
+ * @author zhangyonglun
  */
-public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
-
-    private static final String ENHANCE_CLASS_NON_REG_REP = "com.mysql.jdbc.NonRegisteringReplicationDriver";
-    private static final String ENHANCE_CLASS = "com.mysql.jdbc.Driver";
-    private static final String ENHANCE_CLASS_NON_REG = "com.mysql.jdbc.NonRegisteringDriver";
-
-
-    @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
-    }
-
+public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask";
+    
+    private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ProxyRootInvokeInterceptor";
+    
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("connect");
+                    return named("run");
                 }
-
+                
                 @Override
                 public String getMethodsInterceptor() {
-                    return DRIVER_CONNECT_INTERCEPTOR;
+                    return PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS;
                 }
-
+                
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -64,9 +60,14 @@ public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
             }
         };
     }
-
+    
+    @Override
+    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
+    
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(ENHANCE_CLASS,ENHANCE_CLASS_NON_REG,ENHANCE_CLASS_NON_REG_REP);
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 }
