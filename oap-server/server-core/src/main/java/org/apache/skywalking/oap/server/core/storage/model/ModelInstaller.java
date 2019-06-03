@@ -42,7 +42,6 @@ public abstract class ModelInstaller {
         IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
 
         List<Model> models = modelGetter.getModels();
-        boolean debug = System.getProperty("debug") != null;
 
         if (RunningMode.isNoInitMode()) {
             for (Model model : models) {
@@ -60,12 +59,7 @@ public abstract class ModelInstaller {
                 if (!isExists(client, model)) {
                     logger.info("table: {} does not exist", model.getName());
                     createTable(client, model);
-                } else if (debug) {
-                    logger.info("table: {} exists", model.getName());
-                    deleteTable(client, model);
-                    createTable(client, model);
                 }
-                columnCheck(client, model);
             }
         }
     }
@@ -76,10 +70,6 @@ public abstract class ModelInstaller {
     }
 
     protected abstract boolean isExists(Client client, Model model) throws StorageException;
-
-    protected abstract void columnCheck(Client client, Model model) throws StorageException;
-
-    protected abstract void deleteTable(Client client, Model model) throws StorageException;
 
     protected abstract void createTable(Client client, Model model) throws StorageException;
 }

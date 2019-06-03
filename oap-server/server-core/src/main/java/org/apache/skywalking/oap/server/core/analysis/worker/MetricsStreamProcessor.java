@@ -71,19 +71,19 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         if (configService.shouldToHour()) {
             Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Hour);
-            hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+            hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
         }
         if (configService.shouldToDay()) {
             Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Day);
-            dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+            dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
         }
         if (configService.shouldToMonth()) {
             Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Month);
-            monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+            monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
         }
 
         Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Minute);
-        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model.getName());
+        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model);
 
         MetricsTransWorker transWorker = new MetricsTransWorker(moduleDefineHolder, stream.name(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, transWorker, stream.name());
@@ -92,19 +92,19 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         entryWorkers.put(metricsClass, aggregateWorker);
     }
 
-    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, String modelName) {
+    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 
-        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, modelName,
+        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model,
             1000, metricsDAO, alarmNotifyWorker, exportWorker);
         persistentWorkers.add(minutePersistentWorker);
 
         return minutePersistentWorker;
     }
 
-    private MetricsPersistentWorker worker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, String modelName) {
-        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, modelName,
+    private MetricsPersistentWorker worker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model) {
+        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model,
             1000, metricsDAO, null, null);
         persistentWorkers.add(persistentWorker);
 

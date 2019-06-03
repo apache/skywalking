@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.NonMergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -35,15 +36,15 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
 
     private static final Logger logger = LoggerFactory.getLogger(RecordPersistentWorker.class);
 
-    private final String modelName;
+    private final Model model;
     private final NonMergeDataCache<Record> nonMergeDataCache;
     private final IRecordDAO recordDAO;
     private final DataCarrier<Record> dataCarrier;
 
-    RecordPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName, int batchSize,
+    RecordPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, int batchSize,
         IRecordDAO recordDAO) {
         super(moduleDefineHolder, batchSize);
-        this.modelName = modelName;
+        this.model = model;
         this.nonMergeDataCache = new NonMergeDataCache<>();
         this.recordDAO = recordDAO;
 
@@ -71,7 +72,7 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
         List<Object> batchCollection = new LinkedList<>();
         cache.getLast().collection().forEach(record -> {
             try {
-                batchCollection.add(recordDAO.prepareBatchInsert(modelName, record));
+                batchCollection.add(recordDAO.prepareBatchInsert(model, record));
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }

@@ -15,17 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.storage.ttl;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl;
 
 import org.apache.skywalking.oap.server.core.DataTTLConfig;
+import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
 import org.joda.time.DateTime;
 
 /**
  * @author peng-yongsheng
  */
-public class DayTTLCalculator implements TTLCalculator {
+public class EsMinuteTTLCalculator implements TTLCalculator {
 
     @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getDayMetricsDataTTL()).toString("yyyyMMdd"));
+        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getMinuteMetricsDataTTL()).toString("yyyyMMdd"));
     }
 }
