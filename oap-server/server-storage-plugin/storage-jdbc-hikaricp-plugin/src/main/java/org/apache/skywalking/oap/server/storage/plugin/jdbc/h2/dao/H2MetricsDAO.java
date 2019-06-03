@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
@@ -37,15 +37,15 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO<SQLExecut
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Metrics get(String modelName, Metrics metrics) throws IOException {
-        return (Metrics)getByID(h2Client, modelName, metrics.id(), storageBuilder);
+    @Override public Metrics get(Model model, Metrics metrics) throws IOException {
+        return (Metrics)getByID(h2Client, model.getName(), metrics.id(), storageBuilder);
     }
 
-    @Override public SQLExecutor prepareBatchInsert(String modelName, Metrics metrics) throws IOException {
-        return getInsertExecutor(modelName, metrics, storageBuilder);
+    @Override public SQLExecutor prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+        return getInsertExecutor(model.getName(), metrics, storageBuilder);
     }
 
-    @Override public SQLExecutor prepareBatchUpdate(String modelName, Metrics metrics) throws IOException {
-        return getUpdateExecutor(modelName, metrics, storageBuilder);
+    @Override public SQLExecutor prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+        return getUpdateExecutor(model.getName(), metrics, storageBuilder);
     }
 }

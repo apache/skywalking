@@ -153,12 +153,12 @@ public class ITElasticSearchClient {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
             .field("name", "pengys")
             .endObject();
-        client.forceInsert(indexName + "_2019", "testid", builder);
+        client.forceInsert(indexName + "-2019", "testid", builder);
 
-        JsonObject index = client.getIndex(indexName + "_2019");
+        JsonObject index = client.getIndex(indexName + "-2019");
         logger.info(index.toString());
-        Assert.assertEquals(1, index.getAsJsonObject(indexName + "_2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
-        Assert.assertEquals(0, index.getAsJsonObject(indexName + "_2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
+        Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
+        Assert.assertEquals(0, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
 
         client.deleteTemplate(indexName);
         Assert.assertFalse(client.isExistsTemplate(indexName));

@@ -62,14 +62,6 @@ public class StorageInstallerTestCase {
             return false;
         }
 
-        @Override protected void columnCheck(Client client, Model tableDefine) throws StorageException {
-
-        }
-
-        @Override protected void deleteTable(Client client, Model tableDefine) throws StorageException {
-
-        }
-
         @Override protected void createTable(Client client, Model tableDefine) throws StorageException {
 
         }

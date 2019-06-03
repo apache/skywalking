@@ -20,10 +20,11 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
-import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -44,9 +45,9 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         super(client);
     }
 
-    public IntValues getValues(String indName, Step step, long startTB, long endTB, Where where, String valueCName,
+    @Override public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where, String valueCName,
         Function function) throws IOException {
-        String indexName = DownSamplingModelNameBuilder.build(step, indName);
+        String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
@@ -99,9 +100,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Step step, List<String> ids,
-        String valueCName) throws IOException {
-        String indexName = DownSamplingModelNameBuilder.build(step, indName);
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
+        String indexName = ModelName.build(downsampling, indName);
 
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 
@@ -120,9 +120,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return intValues;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Step step, List<String> ids,
-        String valueCName) throws IOException {
-        String indexName = DownSamplingModelNameBuilder.build(step, indName);
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
+        String indexName = ModelName.build(downsampling, indName);
 
         MultiGetResponse response = getClient().multiGet(indexName, ids);
 

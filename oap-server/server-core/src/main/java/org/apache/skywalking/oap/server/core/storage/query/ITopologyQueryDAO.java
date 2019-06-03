@@ -20,7 +20,8 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -28,16 +29,13 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ITopologyQueryDAO extends Service {
 
-    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
-        List<Integer> serviceIds) throws IOException;
+    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
-        List<Integer> serviceIds) throws IOException;
+    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException;
 
-    List<Call.CallDetail> loadServerSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException;
 
-    List<Call.CallDetail> loadClientSideServiceRelations(Step step, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
-        int destEndpointId) throws IOException;
+    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException;
 }

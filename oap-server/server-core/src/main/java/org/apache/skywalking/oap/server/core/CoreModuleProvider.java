@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHan
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
-import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.core.worker.*;
@@ -181,8 +180,9 @@ public class CoreModuleProvider extends ModuleProvider {
 
         PersistenceTimer.INSTANCE.start(getManager());
 
-        DataTTLKeeperTimer.INSTANCE.setDataTTL(moduleConfig.getDataTTL());
-        DataTTLKeeperTimer.INSTANCE.start(getManager());
+        if (moduleConfig.isEnableDataKeeperExecutor()) {
+            DataTTLKeeperTimer.INSTANCE.start(getManager());
+        }
 
         CacheUpdateTimer.INSTANCE.start(getManager());
     }
