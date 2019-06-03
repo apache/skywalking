@@ -27,7 +27,7 @@
   * Oracle Driver (Optional¹)
   * H2 Driver 1.3.x -> 1.4.x
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
-  * [ShardingSphere](https://github.com/apache/incubator-shardingsphere) 3.0.0
+  * [ShardingSphere](https://github.com/apache/incubator-shardingsphere) 3.0.0, 4.0.0-RC1
   * PostgreSQL Driver 8.x, 9.x, 42.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
