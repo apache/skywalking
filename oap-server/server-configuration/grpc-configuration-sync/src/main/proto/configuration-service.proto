@@ -37,10 +37,10 @@ message ConfigurationResponse {
     // Include all config items.
     // All config name should be not empty,
     // the name is composed by "module name"."provider name"."item name".
-    // Each watcher implementor will provide this, and it will be notified when the name matched.
+    // Each watcher implementor provides this, and it will be notified when the value changed.
     //
     // If the config center wants to set the value to NULL or empty,
-    // must set the name with empty and NULL explicitly.
+    // must set the name with empty value explicitly.
     repeated Config configTable = 1;
 }
 
