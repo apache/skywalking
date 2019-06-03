@@ -200,6 +200,8 @@ telemetry:
   prometheus:
     host: \${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: \${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+configuration:
+  none:
 envoy-metric:
   default:
 EOT
