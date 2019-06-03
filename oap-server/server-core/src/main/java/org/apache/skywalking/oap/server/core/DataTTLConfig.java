@@ -13,19 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.core.storage.ttl;
+package org.apache.skywalking.oap.server.core;
 
-import org.apache.skywalking.oap.server.core.DataTTLConfig;
-import org.joda.time.DateTime;
+import lombok.*;
 
 /**
  * @author peng-yongsheng
  */
-public class DayTTLCalculator implements TTLCalculator {
-
-    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getDayMetricsDataTTL()).toString("yyyyMMdd"));
-    }
+@Setter
+@Getter
+public class DataTTLConfig {
+    private int recordDataTTL;
+    private int minuteMetricsDataTTL;
+    private int hourMetricsDataTTL;
+    private int dayMetricsDataTTL;
+    private int monthMetricsDataTTL;
 }
