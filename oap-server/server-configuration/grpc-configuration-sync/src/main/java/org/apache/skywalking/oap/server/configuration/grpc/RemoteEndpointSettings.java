@@ -29,6 +29,15 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class RemoteEndpointSettings extends ModuleConfig {
     private String host;
     private int port;
+    private String clusterName = "default";
     // Sync configuration per 60 seconds.
     private int period = 60;
+
+    @Override public String toString() {
+        return "RemoteEndpointSettings{" +
+            "host='" + host + '\'' +
+            ", port=" + port +
+            ", clusterName='" + clusterName + '\'' +
+            '}';
+    }
 }

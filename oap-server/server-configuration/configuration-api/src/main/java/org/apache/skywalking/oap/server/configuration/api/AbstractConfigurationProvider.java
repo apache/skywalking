@@ -38,7 +38,7 @@ public abstract class AbstractConfigurationProvider extends ModuleProvider {
         this.registerServiceImplementation(DynamicConfigurationService.class, configWatcherRegister);
     }
 
-    protected abstract ConfigWatcherRegister initConfigReader();
+    protected abstract ConfigWatcherRegister initConfigReader() throws ModuleStartException;
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
 

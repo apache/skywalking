@@ -20,22 +20,34 @@ package org.apache.skywalking.oap.server.configuration.grpc;
 
 import io.grpc.netty.NettyChannelBuilder;
 import org.apache.skywalking.oap.server.configuration.api.*;
-import org.apache.skywalking.oap.server.configuration.service.ConfigurationServiceGrpc;
+import org.apache.skywalking.oap.server.configuration.service.*;
+import org.slf4j.*;
 
 /**
  * @author wusheng
  */
 public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
+    private static final Logger logger = LoggerFactory.getLogger(GRPCConfigWatcherRegister.class);
+
     private RemoteEndpointSettings settings;
     private ConfigurationServiceGrpc.ConfigurationServiceBlockingStub stub;
 
     public GRPCConfigWatcherRegister(RemoteEndpointSettings settings) {
         super(settings.getPeriod());
         this.settings = settings;
-        stub = ConfigurationServiceGrpc.newBlockingStub(NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort()).build());
+        stub = ConfigurationServiceGrpc.newBlockingStub(NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort()).usePlaintext().build());
     }
 
     @Override public ConfigTable readConfig() {
-        return null;
+        ConfigTable table = new ConfigTable();
+        try {
+            ConfigurationResponse response = stub.call(ConfigurationRequest.newBuilder().setClusterName(settings.getClusterName()).build());
+            response.getConfigTableList().forEach(config -> {
+                table.add(new ConfigTable.ConfigItem(config.getName(), config.getValue()));
+            });
+        } catch (Exception e) {
+            logger.error("Remote config center [" + settings + "] is not available.", e);
+        }
+        return table;
     }
 }
