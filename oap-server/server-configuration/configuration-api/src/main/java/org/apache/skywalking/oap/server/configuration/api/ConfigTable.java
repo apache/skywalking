@@ -16,36 +16,33 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider;
+package org.apache.skywalking.oap.server.configuration.api;
 
 import java.util.*;
+import lombok.*;
 
 /**
+ * ConfigTable contains all config.
+ *
  * @author wusheng
  */
-public class DBLatencyThresholds {
-    private Map<String, Integer> thresholds;
+public class ConfigTable {
+    @Getter
+    private List<ConfigItem> items = new ArrayList<>();
 
-    DBLatencyThresholds(String config) {
-        thresholds = new HashMap<>();
-        String[] settings = config.split(",");
-        for (String setting : settings) {
-            String[] typeValue = setting.split(":");
-            if (typeValue.length == 2) {
-                thresholds.put(typeValue[0].trim().toLowerCase(), Integer.parseInt(typeValue[1].trim()));
-            }
-        }
-        if (!thresholds.containsKey("default")) {
-            thresholds.put("default", 10000);
-        }
+    public void add(ConfigItem item) {
+        items.add(item);
     }
 
-    public int getThreshold(String type) {
-        type = type.toLowerCase();
-        if (thresholds.containsKey(type)) {
-            return thresholds.get(type);
-        } else {
-            return thresholds.get("default");
+    @Getter
+    @Setter
+    public static class ConfigItem {
+        private String name;
+        private String value;
+
+        public ConfigItem(String name, String value) {
+            this.name = name;
+            this.value = value;
         }
     }
 }

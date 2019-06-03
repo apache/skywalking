@@ -16,17 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.module;
+package org.apache.skywalking.oap.server.configuration.api;
+
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
- * @author peng-yongsheng
+ * DynamicConfigurationService provides API to register config change watcher.
+ *
+ * @author wusheng
  */
-public class ModuleStartException extends Exception {
-    public ModuleStartException(String message) {
-        super(message);
-    }
-
-    public ModuleStartException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public interface DynamicConfigurationService extends Service {
+    /**
+     * Register a watcher to the target value
+     *
+     * @param watcher to register
+     */
+    void registerConfigChangeWatcher(ConfigChangeWatcher watcher);
 }
