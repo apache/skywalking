@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.solrj;
 
 import com.google.common.collect.Lists;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -34,10 +35,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.QueryRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.StringUtils;
+import org.apache.solr.common.*;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.junit.Assert;
@@ -99,6 +97,9 @@ public class SolrClientInterceptorTest {
         header = new NamedList<Object>();
         header.add("status", 0);
         header.add("QTime", 5);
+
+//        Config.Plugin.SolrJ.TRACE_STATEMENT = true;
+//        Config.Plugin.SolrJ.TRACE_OPS_PARAMS = true;
     }
 
 
@@ -136,9 +137,14 @@ public class SolrClientInterceptorTest {
         Assert.assertEquals(spans.size(), 1);
 
         AbstractTracingSpan span = spans.get(0);
-        SpanAssert.assertTag(span, 0, "100");
-        SpanAssert.assertTag(span, 1, "-1");
-        spanCommonAssert(span, 2,"solrJ/collection/update/ADD");
+        int pox = 0;
+        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+            SpanAssert.assertTag(span, ++pox, "100");
+        }
+        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+            SpanAssert.assertTag(span, ++pox, "-1");
+        }
+        spanCommonAssert(span, pox,"solrJ/collection/update/ADD");
     }
 
     @Test
@@ -159,9 +165,12 @@ public class SolrClientInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segments.get(0));
         Assert.assertEquals(spans.size(), 1);
 
+        int start = 0;
         AbstractTracingSpan span = spans.get(0);
-        SpanAssert.assertTag(span, 0, String.valueOf(softCommit));
-        spanCommonAssert(span, 1, "solrJ/collection/update/COMMIT");
+        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+            SpanAssert.assertTag(span, ++start, String.valueOf(softCommit));
+        }
+        spanCommonAssert(span, start, "solrJ/collection/update/COMMIT");
     }
 
     @Test
@@ -183,8 +192,11 @@ public class SolrClientInterceptorTest {
         Assert.assertEquals(spans.size(), 1);
 
         AbstractTracingSpan span = spans.get(0);
-        SpanAssert.assertTag(span, 0, String.valueOf(maxSegments));
-        spanCommonAssert(span, 1, "solrJ/collection/update/OPTIMIZE");
+        int start = 0;
+        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+            SpanAssert.assertTag(span, ++start, String.valueOf(maxSegments));
+        }
+        spanCommonAssert(span, start, "solrJ/collection/update/OPTIMIZE");
     }
 
     @Test
@@ -195,6 +207,7 @@ public class SolrClientInterceptorTest {
             null,
             collection
         };
+
         interceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, null);
         interceptor.afterMethod(enhancedInstance, method, arguments, argumentType, getQueryResponse());
 
@@ -205,8 +218,7 @@ public class SolrClientInterceptorTest {
         Assert.assertEquals(spans.size(), 1);
 
         AbstractTracingSpan span = spans.get(0);
-        querySpanAssert(span, "/select", 100);
-        spanCommonAssert(span, 3, "solrJ/collection/select");
+        querySpanAssert(span, "/select", 100, "solrJ/collection/select");
     }
 
     @Test
@@ -232,8 +244,7 @@ public class SolrClientInterceptorTest {
         Assert.assertEquals(spans.size(), 1);
 
         AbstractTracingSpan span = spans.get(0);
-        querySpanAssert(span, "/get", 1);
-        spanCommonAssert(span, 3, "solrJ/collection/get");
+        querySpanAssert(span, "/get", 1, "solrJ/collection/get");
     }
 
     @Test
@@ -254,8 +265,7 @@ public class SolrClientInterceptorTest {
         Assert.assertEquals(spans.size(), 1);
 
         AbstractTracingSpan span = spans.get(0);
-        SpanAssert.assertTag(span, 0, "[12]");
-        spanCommonAssert(span, 1, "solrJ/collection/update/DELETE_BY_IDS");
+        spanDeleteAssert(span, "solrJ/collection/update/DELETE_BY_IDS", "[12]");
     }
 
     @Test
@@ -276,21 +286,52 @@ public class SolrClientInterceptorTest {
         Assert.assertEquals(spans.size(), 1);
 
         AbstractTracingSpan span = spans.get(0);
-        SpanAssert.assertTag(span, 0, "[id:[2 TO 5]]");
-        spanCommonAssert(span, 1,"solrJ/collection/update/DELETE_BY_QUERY");
+        spanDeleteAssert(span, "solrJ/collection/update/DELETE_BY_QUERY", "[id:[2 TO 5]]");
     }
 
-    private void SegmentCommonAssert(List<TraceSegment> segments) {
+    @Test
+    public void testException() throws Throwable {
+        QueryRequest request = new QueryRequest();
+        arguments = new Object[] {
+            request,
+            null,
+            collection
+        };
+        NamedList<Object> response = new NamedList<Object>();
+        NamedList<Object> header = new NamedList<Object>();
+        header.add("status", 500);
+        header.add("QTime", 5);
+        response.add("responseHeader", header);
+
+        interceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, null);
+        interceptor.handleMethodException(enhancedInstance, method, arguments, argumentType,
+                new SolrException(SolrException.ErrorCode.SERVER_ERROR, "for test",  new Exception()));
+        interceptor.afterMethod(enhancedInstance, method, arguments, argumentType, response);
+
+        List<TraceSegment> segments = segmentStorage.getTraceSegments();
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segments.get(0));
+
         Assert.assertEquals(segments.size(), 1);
-        TraceSegment segment = segments.get(0);
+        Assert.assertEquals(spans.size(), 1);
+
+        AbstractTracingSpan span = spans.get(0);
+        SpanAssert.assertOccurException(span, true);
     }
 
-    private void querySpanAssert(AbstractSpan span, String qt, int numFound) {
-        SpanAssert.assertTag(span, 0, "");
+
+
+    private void querySpanAssert(AbstractSpan span, String qt, int numFound, String operationName) {
+        Assert.assertEquals(span.getOperationName(), operationName);
+        SpanAssert.assertTag(span, 0, "Solr");
         SpanAssert.assertTag(span, 1, "0");
         SpanAssert.assertTag(span, 2, qt);
-        SpanAssert.assertTag(span, 6, String.valueOf(numFound));
-        SpanAssert.assertTagSize(span, 7);
+
+        int start = 3;
+        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+            start++;
+        }
+        SpanAssert.assertTag(span, start++, "5");
+        SpanAssert.assertTag(span, start++, String.valueOf(numFound));
     }
 
     private void spanCommonAssert(AbstractSpan span, int start, String operationName) {
@@ -299,11 +340,30 @@ public class SolrClientInterceptorTest {
         SpanAssert.assertLogSize(span, 0);
         SpanAssert.assertLayer(span, SpanLayer.DB);
 
-        SpanAssert.assertTag(span, start, "collection");
-        SpanAssert.assertTag(span, start + 1, "0");
-        SpanAssert.assertTag(span, start + 2, "5");
+        SpanAssert.assertTag(span, 0, "Solr");
+        SpanAssert.assertTag(span, start + 1, "5");
 
         Assert.assertEquals(span.getOperationName(), operationName);
+    }
+
+    private void spanDeleteAssert(AbstractSpan span, String operationName, String statement) {
+        Assert.assertEquals(span.getOperationName(), operationName);
+        SpanAssert.assertComponent(span, ComponentsDefine.SOLRJ);
+        SpanAssert.assertOccurException(span, false);
+        SpanAssert.assertLogSize(span, 0);
+        SpanAssert.assertLayer(span, SpanLayer.DB);
+
+        SpanAssert.assertTag(span, 0, "Solr");
+
+        int start = 0;
+        if (Config.Plugin.SolrJ.TRACE_STATEMENT) {
+            SpanAssert.assertTag(span, ++start, statement);
+        }
+        if (Config.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+            SpanAssert.assertTag(span, ++start, "-1");
+        }
+
+        SpanAssert.assertTag(span, start + 1, "5");
     }
 
     private NamedList<Object> getResponse() {
