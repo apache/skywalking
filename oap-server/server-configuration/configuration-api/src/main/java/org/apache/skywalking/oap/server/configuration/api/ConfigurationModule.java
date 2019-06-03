@@ -16,17 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.module;
+package org.apache.skywalking.oap.server.configuration.api;
+
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * @author peng-yongsheng
+ * Configuration Module sync the settings from remote service, the remote service could be implemented by this module
+ * provider.
+ *
+ * Any configuration item in the whole OAP backend could register a watcher to configuration module, the item change
+ * watcher will be called, if the value changed.
+ *
+ * @author wusheng
  */
-public class ModuleStartException extends Exception {
-    public ModuleStartException(String message) {
-        super(message);
+public class ConfigurationModule extends ModuleDefine {
+    public static final String NAME = "configuration";
+
+    public ConfigurationModule() {
+        super(NAME);
     }
 
-    public ModuleStartException(String message, Throwable cause) {
-        super(message, cause);
+    @Override public Class[] services() {
+        return new Class[] {DynamicConfigurationService.class};
     }
 }

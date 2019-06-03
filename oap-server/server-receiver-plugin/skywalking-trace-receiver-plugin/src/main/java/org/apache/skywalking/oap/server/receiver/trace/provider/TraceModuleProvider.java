@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.configuration.api.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -42,6 +43,7 @@ public class TraceModuleProvider extends ModuleProvider {
     private final TraceServiceModuleConfig moduleConfig;
     private SegmentParse.Producer segmentProducer;
     private SegmentParseV2.Producer segmentProducerV2;
+    private DBLatencyThresholdsAndWatcher thresholds;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -60,7 +62,9 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException {
-        moduleConfig.setDbLatencyThresholds(new DBLatencyThresholds(moduleConfig.getSlowDBAccessThreshold()));
+        thresholds = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
+
+        moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
 
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         if (moduleConfig.isTraceAnalysis()) {
@@ -84,9 +88,11 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ModuleStartException {
+        DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME).provider().getService(DynamicConfigurationService.class);
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
         JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(JettyHandlerRegister.class);
         try {
+            dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
 
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
             grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(segmentProducerV2, getManager()));
@@ -111,6 +117,6 @@ public class TraceModuleProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME, ConfigurationModule.NAME};
     }
 }
