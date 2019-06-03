@@ -173,7 +173,7 @@ public class EtcdCoordinatorTest {
 
     private void verifyRegistration(Address remoteAddress, EtcdEndpoint endpoint) {
         assertNotNull(endpoint);
-        assertEquals(SERVICE_NAME, endpoint.getServiceId());
+        assertEquals(SERVICE_NAME, endpoint.getServiceName());
         assertEquals(remoteAddress.getHost(), endpoint.getHost());
         assertEquals(remoteAddress.getPort(), endpoint.getPort());
     }

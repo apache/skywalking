@@ -112,14 +112,14 @@ public class ITClusterEtcdPluginTest {
 
     private void verifyRegistration(Address remoteAddress, EtcdEndpoint endpoint) {
         assertNotNull(endpoint);
-        assertEquals(SERVICE_NAME, endpoint.getServiceId());
+        assertEquals(SERVICE_NAME, endpoint.getServiceName());
         assertEquals(remoteAddress.getHost(), endpoint.getHost());
         assertEquals(remoteAddress.getPort(), endpoint.getPort());
     }
 
     private EtcdEndpoint buildEndpoint(RemoteInstance instance) {
         Address address = instance.getAddress();
-        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().host(address.getHost()).port(address.getPort()).serviceId(SERVICE_NAME).build();
+        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().host(address.getHost()).port(address.getPort()).serviceName(SERVICE_NAME).build();
         return endpoint;
     }
 
