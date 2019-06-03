@@ -55,7 +55,7 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, modelName, modelColumns);
 
-        Model model = new Model(modelName, modelColumns, storage.timeSeriesAble(), storage.deleteHistory(), scopeId, downsampling);
+        Model model = new Model(modelName, modelColumns, storage.capableOfTimeSeries(), storage.deleteHistory(), scopeId, downsampling);
         models.add(model);
 
         return model;

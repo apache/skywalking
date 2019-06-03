@@ -32,5 +32,5 @@ public @interface Storage {
 
     boolean deleteHistory() default true;
 
-    boolean timeSeriesAble() default true;
+    boolean capableOfTimeSeries() default true;
 }

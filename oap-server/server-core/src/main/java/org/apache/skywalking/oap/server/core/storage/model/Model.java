@@ -29,15 +29,15 @@ import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 public class Model {
 
     private final String name;
-    private final boolean timeSeriesAble;
+    private final boolean capableOfTimeSeries;
     private final Downsampling downsampling;
     private final boolean deleteHistory;
     private final List<ModelColumn> columns;
     private final int scopeId;
 
-    public Model(String name, List<ModelColumn> columns, boolean timeSeriesAble, boolean deleteHistory, int scopeId, Downsampling downsampling) {
+    public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory, int scopeId, Downsampling downsampling) {
         this.columns = columns;
-        this.timeSeriesAble = timeSeriesAble;
+        this.capableOfTimeSeries = capableOfTimeSeries;
         this.downsampling = downsampling;
         this.deleteHistory = deleteHistory;
         this.scopeId = scopeId;

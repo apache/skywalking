@@ -48,7 +48,7 @@ public class StorageEsInstaller extends ModelInstaller {
     @Override protected boolean isExists(Client client, Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         try {
-            if (model.isTimeSeriesAble()) {
+            if (model.isCapableOfTimeSeries()) {
                 return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(model.getName());
             } else {
                 return esClient.isExistsIndex(model.getName());
@@ -66,7 +66,7 @@ public class StorageEsInstaller extends ModelInstaller {
         logger.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping.toString());
 
         try {
-            if (model.isTimeSeriesAble()) {
+            if (model.isCapableOfTimeSeries()) {
                 if (!esClient.isExistsTemplate(model.getName())) {
                     boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
                     logger.info("create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);

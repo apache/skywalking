@@ -32,7 +32,7 @@ class TimeSeriesUtils {
     }
 
     static String timeSeries(Model model, long timeBucket) {
-        if (!model.isTimeSeriesAble()) {
+        if (!model.isCapableOfTimeSeries()) {
             return model.getName();
         }
 

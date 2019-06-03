@@ -37,7 +37,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
  * @author peng-yongsheng
  */
 @ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
-@Stream(name = ServiceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INVENTORY, storage = @Storage(builder = ServiceInventory.Builder.class, deleteHistory = false, timeSeriesAble = false), processor = InventoryStreamProcessor.class)
+@Stream(name = ServiceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INVENTORY, storage = @Storage(builder = ServiceInventory.Builder.class, deleteHistory = false, capableOfTimeSeries = false), processor = InventoryStreamProcessor.class)
 public class ServiceInventory extends RegisterSource {
 
     public static final String INDEX_NAME = "service_inventory";

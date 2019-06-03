@@ -35,7 +35,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
  * @author peng-yongsheng
  */
 @ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
-@Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, storage = @Storage(builder = NetworkAddressInventory.Builder.class, deleteHistory = false, timeSeriesAble = false), processor = InventoryStreamProcessor.class)
+@Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, storage = @Storage(builder = NetworkAddressInventory.Builder.class, deleteHistory = false, capableOfTimeSeries = false), processor = InventoryStreamProcessor.class)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String INDEX_NAME = "network_address_inventory";

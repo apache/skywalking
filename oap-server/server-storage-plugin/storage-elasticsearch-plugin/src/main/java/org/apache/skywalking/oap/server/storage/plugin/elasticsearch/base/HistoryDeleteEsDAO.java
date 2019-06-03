@@ -53,7 +53,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         ElasticSearchClient client = getClient();
         long timeBefore = storageTTL.calculator(model.getDownsampling()).timeBefore(new DateTime(), configService.getDataTTLConfig());
 
-        if (model.isTimeSeriesAble()) {
+        if (model.isCapableOfTimeSeries()) {
             List<String> indexes = client.retrievalIndexByAliases(model.getName());
 
             List<String> prepareDeleteIndexes = new ArrayList<>();
