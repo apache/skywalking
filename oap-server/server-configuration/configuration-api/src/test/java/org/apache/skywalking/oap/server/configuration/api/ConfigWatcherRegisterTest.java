@@ -42,7 +42,7 @@ public class ConfigWatcherRegisterTest {
     public void testInit() {
         final String[] newValue = new String[1];
 
-        register.registerConfigChangeWatcher(new ConfigChangeWatcher(new MockModule(), new MockProvider(), "prop2") {
+        register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
             @Override public void notify(ConfigChangeEvent value) {
                 newValue[0] = value.getNewValue();
             }
@@ -59,7 +59,7 @@ public class ConfigWatcherRegisterTest {
 
     @Test
     public void testRegisterTableLog() {
-        register.registerConfigChangeWatcher(new ConfigChangeWatcher(new MockModule(), new MockProvider(), "prop2") {
+        register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
             @Override public void notify(ConfigChangeEvent value) {
             }
 

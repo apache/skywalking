@@ -123,7 +123,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
             register.forEach((key, holder) -> {
                 ConfigChangeWatcher watcher = holder.getWatcher();
                 registerTableDescription.append("key:").append(key)
-                    .append("    module:").append(watcher.getModule().name())
+                    .append("    module:").append(watcher.getModule())
                     .append("    provider:").append(watcher.getProvider().name())
                     .append("    value(current):").append(watcher.value())
                     .append(LINE_SEPARATOR);
@@ -139,7 +139,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
 
         public WatcherHolder(ConfigChangeWatcher watcher) {
             this.watcher = watcher;
-            this.key = String.join(".", watcher.getModule().name(), watcher.getProvider().name(), watcher.getItemName());
+            this.key = String.join(".", watcher.getModule(), watcher.getProvider().name(), watcher.getItemName());
         }
     }
 }

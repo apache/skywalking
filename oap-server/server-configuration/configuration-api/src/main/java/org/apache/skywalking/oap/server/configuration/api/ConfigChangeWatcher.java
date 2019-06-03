@@ -28,11 +28,11 @@ import org.apache.skywalking.oap.server.library.module.*;
  */
 @Getter
 public abstract class ConfigChangeWatcher {
-    private final ModuleDefine module;
+    private final String module;
     private final ModuleProvider provider;
     private final String itemName;
 
-    public ConfigChangeWatcher(ModuleDefine module, ModuleProvider provider, String itemName) {
+    public ConfigChangeWatcher(String module, ModuleProvider provider, String itemName) {
         this.module = module;
         this.provider = provider;
         this.itemName = itemName;
