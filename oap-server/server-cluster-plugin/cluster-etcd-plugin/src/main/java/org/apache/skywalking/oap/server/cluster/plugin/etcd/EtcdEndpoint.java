@@ -29,27 +29,27 @@ import lombok.Setter;
  */
 public class EtcdEndpoint implements Serializable {
 
-    @Setter @Getter private String serviceId;
+    @Setter @Getter private String serviceName;
 
     @Setter @Getter private String host;
 
     @Setter @Getter private int port;
 
     public EtcdEndpoint(Builder builder) {
-        setServiceId(builder.serviceId);
+        setServiceName(builder.serviceName);
         setHost(builder.host);
         setPort(builder.port);
     }
 
     public static class Builder {
-        private String serviceId;
+        private String serviceName;
 
         private String host;
 
         private int port;
 
-        public Builder serviceId(String serviceId) {
-            this.serviceId = serviceId;
+        public Builder serviceName(String serviceName) {
+            this.serviceName = serviceName;
             return this;
         }
 
