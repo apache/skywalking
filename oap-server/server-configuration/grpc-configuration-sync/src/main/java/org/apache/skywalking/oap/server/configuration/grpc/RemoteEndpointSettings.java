@@ -16,17 +16,28 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.module;
+package org.apache.skywalking.oap.server.configuration.grpc;
+
+import lombok.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class ModuleStartException extends Exception {
-    public ModuleStartException(String message) {
-        super(message);
-    }
+@Setter
+@Getter
+public class RemoteEndpointSettings extends ModuleConfig {
+    private String host;
+    private int port;
+    private String clusterName = "default";
+    // Sync configuration per 60 seconds.
+    private int period = 60;
 
-    public ModuleStartException(String message, Throwable cause) {
-        super(message, cause);
+    @Override public String toString() {
+        return "RemoteEndpointSettings{" +
+            "host='" + host + '\'' +
+            ", port=" + port +
+            ", clusterName='" + clusterName + '\'' +
+            '}';
     }
 }

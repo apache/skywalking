@@ -38,7 +38,7 @@ public class TraceServiceModuleConfig extends ModuleConfig {
      * The threshold used to check the slow database access. Unit, millisecond.
      */
     @Setter @Getter private String slowDBAccessThreshold = "default:200";
-    @Setter @Getter private DBLatencyThresholds dbLatencyThresholds;
+    @Setter @Getter private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
     /**
      * Analysis trace status.
      *

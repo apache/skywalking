@@ -171,6 +171,13 @@
             <artifactId>exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- configuration -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>grpc-configuration-sync</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>skywalking-oap</finalName>
