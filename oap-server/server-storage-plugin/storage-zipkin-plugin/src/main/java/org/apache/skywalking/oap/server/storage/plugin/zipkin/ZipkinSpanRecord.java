@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-@Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, storage = @Storage(builder = ZipkinSpanRecord.Builder.class), processor = RecordStreamProcessor.class)
+@Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class ZipkinSpanRecord extends Record {
     public static final String INDEX_NAME = "zipkin_span";
     public static final String TRACE_ID = "trace_id";

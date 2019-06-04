@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProc
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.elasticsearch.common.Strings;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
@@ -35,7 +35,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
  * @author peng-yongsheng
  */
 @ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
-@Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, storage = @Storage(builder = NetworkAddressInventory.Builder.class, deleteHistory = false, capableOfTimeSeries = false), processor = InventoryStreamProcessor.class)
+@Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, builder = NetworkAddressInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class NetworkAddressInventory extends RegisterSource {
 
     public static final String INDEX_NAME = "network_address_inventory";
