@@ -34,10 +34,10 @@ import java.util.Properties;
 public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigWatcherRegister.class);
 
-    private final RemoteEndpointSettings settings;
+    private final NacosServerSettings settings;
     private final ConfigService configService;
 
-    public NacosConfigWatcherRegister(RemoteEndpointSettings settings) throws NacosException {
+    public NacosConfigWatcherRegister(NacosServerSettings settings) throws NacosException {
         super(settings.getPeriod());
 
         this.settings = settings;

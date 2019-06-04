@@ -36,7 +36,7 @@ public class NacosConfigWatcherRegisterTest {
     public void shouldReadConfigs() throws NacosException {
         final NacosConfigWatcherRegister mockRegister = mock(NacosConfigWatcherRegister.class);
         final ConfigService mockConfigService = mock(ConfigService.class);
-        final RemoteEndpointSettings mockSettings = mock(RemoteEndpointSettings.class);
+        final NacosServerSettings mockSettings = mock(NacosServerSettings.class);
 
         when(mockSettings.getGroup()).thenReturn("skywalking");
         when(mockSettings.getTimeOutInMs()).thenReturn(3000L);

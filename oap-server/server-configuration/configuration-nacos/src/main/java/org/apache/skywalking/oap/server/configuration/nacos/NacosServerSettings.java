@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author kezhenxu94
  */
-public class RemoteEndpointSettings extends ModuleConfig {
+public class NacosServerSettings extends ModuleConfig {
     private String clusterName = "default";
     private String serverAddr;
     private int port = 8848;
@@ -93,7 +93,7 @@ public class RemoteEndpointSettings extends ModuleConfig {
 
 
     public String toString() {
-        return "RemoteEndpointSettings(clusterName=" + this.getClusterName()
+        return "NacosServerSettings(clusterName=" + this.getClusterName()
             + ", serverAddr=" + this.getServerAddr()
             + ", dataIds=" + Arrays.toString(this.getDataIds())
             + ", group=" + this.getGroup()

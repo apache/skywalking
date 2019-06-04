@@ -31,10 +31,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  * @author kezhenxu94
  */
 public class NacosConfigurationProvider extends AbstractConfigurationProvider {
-    private RemoteEndpointSettings settings;
+    private NacosServerSettings settings;
 
     public NacosConfigurationProvider() {
-        settings = new RemoteEndpointSettings();
+        settings = new NacosServerSettings();
     }
 
     @Override
