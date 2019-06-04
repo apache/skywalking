@@ -80,7 +80,6 @@ public class NacosServerSettings extends ModuleConfig {
         this.period = period;
     }
 
-
     public String toString() {
         return "NacosServerSettings(clusterName=" + this.getClusterName()
             + ", serverAddr=" + this.getServerAddr()
