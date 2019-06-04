@@ -38,6 +38,7 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int maxConcurrentCallsPerConnection;
     @Setter private int maxMessageSize;
     private final List<String> downsampling;
+    @Setter private boolean enableDataKeeperExecutor = true;
     @Setter private int recordDataTTL;
     @Setter private int minuteMetricsDataTTL;
     @Setter private int hourMetricsDataTTL;
@@ -48,14 +49,14 @@ public class CoreModuleConfig extends ModuleConfig {
         this.downsampling = new ArrayList<>();
     }
 
-    public DataTTL getDataTTL() {
-        DataTTL dataTTL = new DataTTL();
-        dataTTL.setRecordDataTTL(recordDataTTL);
-        dataTTL.setMinuteMetricsDataTTL(minuteMetricsDataTTL);
-        dataTTL.setHourMetricsDataTTL(hourMetricsDataTTL);
-        dataTTL.setDayMetricsDataTTL(dayMetricsDataTTL);
-        dataTTL.setMonthMetricsDataTTL(monthMetricsDataTTL);
-        return dataTTL;
+    public DataTTLConfig getDataTTL() {
+        DataTTLConfig dataTTLConfig = new DataTTLConfig();
+        dataTTLConfig.setRecordDataTTL(recordDataTTL);
+        dataTTLConfig.setMinuteMetricsDataTTL(minuteMetricsDataTTL);
+        dataTTLConfig.setHourMetricsDataTTL(hourMetricsDataTTL);
+        dataTTLConfig.setDayMetricsDataTTL(dayMetricsDataTTL);
+        dataTTLConfig.setMonthMetricsDataTTL(monthMetricsDataTTL);
+        return dataTTLConfig;
     }
 
     public enum Role {

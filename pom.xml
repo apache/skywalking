@@ -485,7 +485,8 @@
                                 org/apache/skywalking/apm/network/language/**/*.java,
                                 org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
                                 org/apache/skywalking/oal/tool/grammar/*.java,
-                                org/apache/skywalking/oap/server/exporter/grpc/*.java
+                                org/apache/skywalking/oap/server/exporter/grpc/*.java,
+                                org/apache/skywalking/oap/server/configuration/service/*.java
                             </excludes>
                         </configuration>
                         <goals>

@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 import org.slf4j.*;
 
@@ -38,24 +37,20 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         this.models = new LinkedList<>();
     }
 
-    @Override public Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage) {
-        return putIfAbsent(aClass, modelName, scopeId, storage, Downsampling.Minute);
-    }
-
-    @Override public Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage, Downsampling downsampling) {
+    @Override public Model putIfAbsent(Class aClass, int scopeId, Storage storage) {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
         for (Model model : models) {
-            if (model.getName().equals(modelName)) {
+            if (model.getName().equals(storage.getModelName())) {
                 return model;
             }
         }
 
         List<ModelColumn> modelColumns = new LinkedList<>();
-        retrieval(aClass, modelName, modelColumns);
+        retrieval(aClass, storage.getModelName(), modelColumns);
 
-        Model model = new Model(modelName, modelColumns, storage.deleteHistory(), scopeId, downsampling);
+        Model model = new Model(storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId, storage.getDownsampling());
         models.add(model);
 
         return model;
@@ -83,15 +78,13 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
     }
 
     @Override public void overrideColumnName(String columnName, String newName) {
-        models.forEach(model -> {
-            model.getColumns().forEach(column -> {
-                ColumnName existColumnName = column.getColumnName();
-                String name = existColumnName.getName();
-                if (name.equals(columnName)) {
-                    existColumnName.setStorageName(newName);
-                    logger.debug("Model {} column {} has been override. The new column name is {}.", model.getName(), name, newName);
-                }
-            });
-        });
+        models.forEach(model -> model.getColumns().forEach(column -> {
+            ColumnName existColumnName = column.getColumnName();
+            String name = existColumnName.getName();
+            if (name.equals(columnName)) {
+                existColumnName.setStorageName(newName);
+                logger.debug("Model {} column {} has been override. The new column name is {}.", model.getName(), name, newName);
+            }
+        }));
     }
 }
