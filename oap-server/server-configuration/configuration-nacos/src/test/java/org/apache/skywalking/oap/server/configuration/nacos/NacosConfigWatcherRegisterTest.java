@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.configuration.nacos;
 
-import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,29 +35,31 @@ import static org.mockito.Mockito.when;
 public class NacosConfigWatcherRegisterTest {
     @Test
     public void shouldReadConfigs() throws NacosException {
-        final NacosConfigWatcherRegister mockRegister = mock(NacosConfigWatcherRegister.class);
-        final ConfigService mockConfigService = mock(ConfigService.class);
+        final String group = "skywalking";
+        final String testKey1 = "receiver-trace.default.slowDBAccessThreshold";
+        final String testVal1 = "test";
+        final String testKey2 = "testKey";
+        final String testVal2 = "testVal";
+
         final NacosServerSettings mockSettings = mock(NacosServerSettings.class);
+        when(mockSettings.getGroup()).thenReturn(group);
+        when(mockSettings.getDataIds()).thenReturn(Arrays.asList(
+            testKey1, testKey2
+        ));
 
-        when(mockSettings.getGroup()).thenReturn("skywalking");
-        when(mockSettings.getTimeOutInMs()).thenReturn(3000L);
-        when(mockSettings.getDataIds()).thenReturn(new String[] {
-            "receiver-trace.default.slowDBAccessThreshold", "test"
-        });
-        when(mockConfigService.getConfig("receiver-trace.default.slowDBAccessThreshold", "skywalking", 3000L)).thenReturn("testValue1");
-        when(mockConfigService.getConfig("test", "skywalking", 3000L)).thenReturn("testValue2");
+        final NacosConfigWatcherRegister mockRegister = new NacosConfigWatcherRegister(mockSettings);
 
-        Whitebox.setInternalState(mockRegister, "configService", mockConfigService);
-        Whitebox.setInternalState(mockRegister, "settings", mockSettings);
-
-        when(mockRegister.readConfig()).thenCallRealMethod();
+        mockRegister.onDataIdValueChanged(testKey1, testVal1);
+        mockRegister.onDataIdValueChanged(testKey2, testVal2);
 
         final ConfigTable configTable = mockRegister.readConfig();
 
         assertEquals(2, configTable.getItems().size());
-        assertEquals("receiver-trace.default.slowDBAccessThreshold", configTable.getItems().get(0).getName());
-        assertEquals("testValue1", configTable.getItems().get(0).getValue());
-        assertEquals("test", configTable.getItems().get(1).getName());
-        assertEquals("testValue2", configTable.getItems().get(1).getValue());
+        Map<String, String> kvs = new HashMap<>();
+        for (ConfigTable.ConfigItem item : configTable.getItems()) {
+            kvs.put(item.getName(), item.getValue());
+        }
+        assertEquals(testVal1, kvs.get(testKey1));
+        assertEquals(testVal2, kvs.get(testKey2));
     }
 }

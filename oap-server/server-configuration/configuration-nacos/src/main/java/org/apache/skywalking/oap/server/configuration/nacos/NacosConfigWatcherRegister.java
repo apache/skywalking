@@ -20,7 +20,12 @@ package org.apache.skywalking.oap.server.configuration.nacos;
 
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
+import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
@@ -36,6 +41,7 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
 
     private final NacosServerSettings settings;
     private final ConfigService configService;
+    private final Map<String, String> cachedConfigs = new ConcurrentHashMap<>();
 
     public NacosConfigWatcherRegister(NacosServerSettings settings) throws NacosException {
         super(settings.getPeriod());
@@ -48,21 +54,40 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
         final Properties properties = new Properties();
         properties.put("serverAddr", serverAddr + ":" + port);
         this.configService = NacosFactory.createConfigService(properties);
+
+        final String group = settings.getGroup();
+        for (final String dataId : settings.getDataIds()) {
+            this.configService.addListener(dataId, group, new Listener() {
+                @Override
+                public Executor getExecutor() {
+                    return null;
+                }
+
+                @Override
+                public void receiveConfigInfo(String configInfo) {
+                    onDataIdValueChanged(dataId, configInfo);
+                }
+            });
+        }
+    }
+
+    void onDataIdValueChanged(String dataId, String configInfo) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Nacos config changed: {}: {}", dataId, configInfo);
+        }
+        if (configInfo == null) {
+            cachedConfigs.remove(dataId);
+        } else {
+            cachedConfigs.put(dataId, configInfo);
+        }
     }
 
     @Override
     public ConfigTable readConfig() {
         final ConfigTable table = new ConfigTable();
-        try {
-            final String group = settings.getGroup();
-            final long timeOutInMs = settings.getTimeOutInMs();
-            for (final String dataId : settings.getDataIds()) {
-                final String key = dataId;
-                final String value = configService.getConfig(dataId, group, timeOutInMs);
-                table.add(new ConfigTable.ConfigItem(key, value));
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to fetch configurations from Nacos server: {}", this.settings, e);
+        for (final String key : settings.getDataIds()) {
+            final String val = cachedConfigs.get(key);
+            table.add(new ConfigTable.ConfigItem(key, val));
         }
         return table;
     }

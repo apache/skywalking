@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.configuration.api.AbstractConfigurationP
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * Get configuration from Nacos.
@@ -58,8 +59,8 @@ public class NacosConfigurationProvider extends AbstractConfigurationProvider {
         if (Strings.isNullOrEmpty(settings.getGroup())) {
             throw new ModuleStartException("Nacos group cannot be null or empty.");
         }
-        if (settings.getDataIds() == null || settings.getDataIds().length == 0) {
-            throw new ModuleStartException("Nacos dataId cannot be null or empty.");
+        if (CollectionUtils.isEmpty(settings.getDataIds())) {
+            throw new ModuleStartException("Nacos dataIds cannot be null or empty.");
         }
 
         try {

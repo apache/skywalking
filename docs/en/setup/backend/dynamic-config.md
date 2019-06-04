@@ -45,7 +45,7 @@ configuration:
     # Nacos Configuration Group
     group: 'skywalking'
     # Dynamically configured keys
-    data-ids:
+    dataIds:
       - receiver-trace.default.slowDBAccessThreshold
       # - other-key
     # Unit seconds, sync period. Default fetch every 60 seconds.

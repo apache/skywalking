@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.oap.server.configuration.nacos;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author kezhenxu94
@@ -30,9 +28,8 @@ public class NacosServerSettings extends ModuleConfig {
     private String clusterName = "default";
     private String serverAddr;
     private int port = 8848;
-    private String[] dataIds;
+    private List<String> dataIds;
     private String group;
-    private long timeOutInMs = TimeUnit.SECONDS.toMillis(3);
     private int period = 60;
 
     public String getClusterName() {
@@ -59,11 +56,11 @@ public class NacosServerSettings extends ModuleConfig {
         this.port = port;
     }
 
-    public String[] getDataIds() {
+    public List<String> getDataIds() {
         return dataIds;
     }
 
-    public void setDataIds(String[] dataIds) {
+    public void setDataIds(List<String> dataIds) {
         this.dataIds = dataIds;
     }
 
@@ -73,14 +70,6 @@ public class NacosServerSettings extends ModuleConfig {
 
     public void setGroup(String group) {
         this.group = group;
-    }
-
-    public long getTimeOutInMs() {
-        return timeOutInMs;
-    }
-
-    public void setTimeOutInMs(long timeOutInMs) {
-        this.timeOutInMs = timeOutInMs;
     }
 
     public int getPeriod() {
@@ -95,7 +84,7 @@ public class NacosServerSettings extends ModuleConfig {
     public String toString() {
         return "NacosServerSettings(clusterName=" + this.getClusterName()
             + ", serverAddr=" + this.getServerAddr()
-            + ", dataIds=" + Arrays.toString(this.getDataIds())
+            + ", dataIds=" + this.getDataIds()
             + ", group=" + this.getGroup()
             + ", period=" + this.getPeriod() + ")";
     }
