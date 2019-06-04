@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.zookeeper.ClientCnxn;
 import org.apache.zookeeper.client.StaticHostProvider;
 import org.apache.zookeeper.proto.RequestHeader;
 
@@ -87,6 +88,9 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
                 peer.append(address.getHostName()).append(":").append(address.getPort()).append(";");
             }
             objInst.setSkyWalkingDynamicField(peer.toString());
+            Field eventThread = ClientCnxn.class.getDeclaredField("eventThread");
+            eventThread.setAccessible(true);
+            ((EnhancedInstance) eventThread.get(objInst)).setSkyWalkingDynamicField(peer.toString());
         } catch (NoSuchFieldException e) {
             logger.warn("NoSuchFieldException, not be compatible with this version of zookeeper", e);
         } catch (IllegalAccessException e) {

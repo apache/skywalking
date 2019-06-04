@@ -47,6 +47,7 @@ public class EventThreadMethodInterceptor implements InstanceMethodsAroundInterc
             ZooOpt.setTags(span, event);
             span.setComponent(ComponentsDefine.ZOOKEEPER);
             Tags.DB_TYPE.set(span, "Zookeeper");
+            span.setPeer((String) objInst.getSkyWalkingDynamicField());
         }
     }
 
