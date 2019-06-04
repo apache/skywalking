@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -75,6 +77,13 @@ public class EtcdCoordinatorTest {
 
     private EtcdKeyGetRequest getRequest = mock(EtcdKeyGetRequest.class);
 
+    private EtcdKeyPutRequest putDirRequest = mock(EtcdKeyPutRequest.class);
+
+    private EtcdResponsePromise<EtcdKeysResponse> putDirPromise;
+
+    @Mock
+    private List<EtcdKeysResponse.EtcdNode> list = mock(List.class);
+
     @Before
     public void setUp() throws Exception {
         etcdConfig.setServiceName(SERVICE_NAME);
@@ -86,10 +95,13 @@ public class EtcdCoordinatorTest {
 
         putPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
         getPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
+        putDirPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
 
+        PowerMockito.when(client.putDir(anyString())).thenReturn(putDirRequest);
+        PowerMockito.when(putDirRequest.send()).thenReturn(putDirPromise);
         PowerMockito.when(client.put(anyString(), anyString())).thenReturn(putRequest);
         PowerMockito.when(putRequest.send()).thenReturn(putPromise);
-        PowerMockito.when(client.get(SERVICE_NAME)).thenReturn(getRequest);
+        PowerMockito.when(client.get(anyString())).thenReturn(getRequest);
         PowerMockito.when(getRequest.send()).thenReturn(getPromise);
 
         response = PowerMockito.mock(EtcdKeysResponse.class);
@@ -97,6 +109,7 @@ public class EtcdCoordinatorTest {
         response = PowerMockito.mock(EtcdKeysResponse.class);
         when(putPromise.get()).thenReturn(response);
         when(getPromise.get()).thenReturn(response);
+        when(putDirPromise.get()).thenReturn(response);
     }
 
     @Test
@@ -104,7 +117,7 @@ public class EtcdCoordinatorTest {
     public void queryRemoteNodesWithNonOrEmpty() {
         EtcdKeysResponse.EtcdNode node = PowerMockito.mock(EtcdKeysResponse.EtcdNode.class);
         when(response.getNode()).thenReturn(node);
-        when(node.getValue()).thenReturn("[]");
+        when(node.getValue()).thenReturn("{}");
         assertEquals(0, coordinator.queryRemoteNodes().size());
         assertEquals(0, coordinator.queryRemoteNodes().size());
     }
@@ -114,24 +127,19 @@ public class EtcdCoordinatorTest {
         registerSelfRemote();
 
         EtcdKeysResponse.EtcdNode node = PowerMockito.mock(EtcdKeysResponse.EtcdNode.class);
+        EtcdKeysResponse.EtcdNode node1 = PowerMockito.mock(EtcdKeysResponse.EtcdNode.class);
+
         when(response.getNode()).thenReturn(node);
-        when(node.getValue()).thenReturn("[{\"serviceId\":\"my-service\",\"host\":\"10.0.0.2\",\"port\":1001}]");
+        list = new ArrayList<>();
+        List list1 = Mockito.spy(list);
+        list1.add(node1);
+        when(node.getNodes()).thenReturn(list1);
+        when(node1.getValue()).thenReturn("{\"serviceId\":\"my-service\",\"host\":\"10.0.0.2\",\"port\":1001}");
         List<RemoteInstance> remoteInstances = coordinator.queryRemoteNodes();
         assertEquals(1, remoteInstances.size());
 
         RemoteInstance selfInstance = remoteInstances.get(0);
         velidate(selfRemoteAddress, selfInstance);
-//
-//        RemoteInstance notSelfInstance = remoteInstances.get(1);
-//        velidate(remoteAddress, notSelfInstance);
-    }
-
-    @Test
-    public void queryRemoteNodesWithNullSelf() {
-//        List<ServiceHealth> serviceHealths = mockHealth();
-//        when(consulResponse.getResponse()).thenReturn(serviceHealths);
-//        List<RemoteInstance> remoteInstances = coordinator.queryRemoteNodes();
-//        assertTrue(remoteInstances.isEmpty());
     }
 
     @Test
@@ -167,8 +175,10 @@ public class EtcdCoordinatorTest {
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
         verify(client).put(nameCaptor.capture(), argumentCaptor.capture());
-        return gson.fromJson(argumentCaptor.getValue(), new TypeToken<List<EtcdEndpoint>>() {
-        }.getType());
+        EtcdEndpoint endpoint = gson.fromJson(argumentCaptor.getValue(), EtcdEndpoint.class);
+        List<EtcdEndpoint> list = new ArrayList<>();
+        list.add(endpoint);
+        return list;
     }
 
     private void verifyRegistration(Address remoteAddress, EtcdEndpoint endpoint) {

@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
@@ -31,7 +30,6 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * @author Alan Lau
@@ -56,17 +54,15 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
 
         List<RemoteInstance> res = new ArrayList<>();
         try {
-            EtcdKeysResponse response = client.get(serviceName).send().get();
-            String json = response.getNode().getValue();
+            EtcdKeysResponse response = client.get(serviceName + "/").send().get();
+            List<EtcdKeysResponse.EtcdNode> nodes = response.getNode().getNodes();
+
             Gson gson = new Gson();
-            List<EtcdEndpoint> list = gson.fromJson(json, new TypeToken<List<EtcdEndpoint>>() {
-            }.getType());
-
-            if (CollectionUtils.isNotEmpty(list)) {
-                list.forEach(node -> {
-                    res.add(new RemoteInstance(new Address(node.getHost(), node.getPort(), true)));
+            if (nodes != null) {
+                nodes.forEach(node -> {
+                    EtcdEndpoint endpoint = gson.fromJson(node.getValue(), EtcdEndpoint.class);
+                    res.add(new RemoteInstance(new Address(endpoint.getHost(), endpoint.getPort(), true)));
                 });
-
             }
 
         } catch (Exception e) {
@@ -85,17 +81,19 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         this.selfAddress = remoteInstance.getAddress();
 
         EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceName(serviceName).host(selfAddress.getHost()).port(selfAddress.getPort()).build();
-        List<EtcdEndpoint> list = new ArrayList<>();
-        list.add(endpoint);
-
         try {
-            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(serviceName, new Gson().toJson(list)).send();
+            client.putDir(serviceName).send();
+            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(buildKey(serviceName, selfAddress), new Gson().toJson(endpoint)).send();
             //check register.
             promise.get();
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }
 
+    }
+
+    private String buildKey(String serviceName, Address address) {
+        return new StringBuilder(serviceName).append("/").append(address.getHost()).toString();
     }
 
     private boolean needUsingInternalAddr() {

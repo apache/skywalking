@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import java.net.URI;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
+import mousio.etcd4j.promises.EtcdResponsePromise;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.After;
@@ -65,31 +66,35 @@ public class ITClusterEtcdPluginTest {
     }
 
     @Test
-    public void registerRemote() {
+    public void registerRemote() throws Throwable {
         registerRemote(remoteAddress);
+        clear(remoteAddress);
     }
 
     @Test
-    public void registerSelfRemote() {
+    public void registerSelfRemote() throws Throwable {
         registerRemote(selfRemoteAddress);
+        clear(selfRemoteAddress);
     }
 
     @Test
-    public void registerRemoteUsingInternal() {
+    public void registerRemoteUsingInternal() throws Throwable {
         etcdConfig.setInternalComHost(internalAddress.getHost());
         etcdConfig.setInternalComPort(internalAddress.getPort());
         etcdConfig.setServiceName(SERVICE_NAME);
         registerRemote(internalAddress);
+        clear(internalAddress);
     }
 
     @Test
-    public void queryRemoteNodes() {
-        registerSelfRemote();
+    public void queryRemoteNodes() throws Throwable {
+        registerRemote(selfRemoteAddress);
         List<RemoteInstance> remoteInstances = coordinator.queryRemoteNodes();
         assertEquals(1, remoteInstances.size());
 
         RemoteInstance selfInstance = remoteInstances.get(0);
         velidate(selfRemoteAddress, selfInstance);
+        clear(selfRemoteAddress);
     }
 
     private void velidate(Address originArress, RemoteInstance instance) {
@@ -108,6 +113,12 @@ public class ITClusterEtcdPluginTest {
         List<RemoteInstance> list = coordinator.queryRemoteNodes();
         assertEquals(list.size(), 1L);
         return buildEndpoint(list.get(0));
+    }
+
+    private void clear(Address address) throws Throwable {
+        String dir = new StringBuilder("/").append(SERVICE_NAME).append("/").append(address.getHost()).toString();
+        EtcdResponsePromise promise = client.deleteDir(dir).dir().send();
+        promise.get();
     }
 
     private void verifyRegistration(Address remoteAddress, EtcdEndpoint endpoint) {
