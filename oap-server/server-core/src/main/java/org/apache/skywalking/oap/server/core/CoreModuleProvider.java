@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
@@ -33,7 +34,6 @@ import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHan
 import org.apache.skywalking.oap.server.core.server.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
-import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.core.worker.*;
@@ -180,14 +180,15 @@ public class CoreModuleProvider extends ModuleProvider {
 
         PersistenceTimer.INSTANCE.start(getManager());
 
-        DataTTLKeeperTimer.INSTANCE.setDataTTL(moduleConfig.getDataTTL());
-        DataTTLKeeperTimer.INSTANCE.start(getManager());
+        if (moduleConfig.isEnableDataKeeperExecutor()) {
+            DataTTLKeeperTimer.INSTANCE.start(getManager());
+        }
 
         CacheUpdateTimer.INSTANCE.start(getManager());
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME};
+        return new String[] {TelemetryModule.NAME, ConfigurationModule.NAME};
     }
 }

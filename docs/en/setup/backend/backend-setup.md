@@ -81,6 +81,8 @@ scale and support high payload, you may need this.
 system.
 1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, they would be saved forever, you could 
 set the expired time for each dimension.
+1. [Dynamic Configuration](dynamic-config.md). Make configuration of OAP changed dynamic, from remote service
+or 3rd party configuration management system.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,

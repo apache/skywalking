@@ -13,22 +13,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import lombok.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
 /**
  * @author peng-yongsheng
  */
-@Setter
-@Getter
-public class DataTTL {
-    private int recordDataTTL;
-    private int minuteMetricsDataTTL;
-    private int hourMetricsDataTTL;
-    private int dayMetricsDataTTL;
-    private int monthMetricsDataTTL;
+public interface StorageTTL {
+    TTLCalculator calculator(Downsampling downsampling);
 }
