@@ -216,6 +216,12 @@ spring-cloud-gateway:
 RESTEasy:
   id: 62
   languages: Java
+SolrJ:
+  id: 63
+  languages: Java
+Solr:
+  id: 64
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -315,3 +321,4 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
+  SolrJ: Solr
