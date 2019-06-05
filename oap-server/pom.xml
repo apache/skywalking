@@ -78,6 +78,7 @@
         <simpleclient.version>0.6.0</simpleclient.version>
 
         <maven-docker-plugin.version>0.28.0</maven-docker-plugin.version>
+        <apollo.version>1.3.0</apollo.version>
     </properties>
 
     <dependencies>
@@ -358,6 +359,12 @@
                 <groupId>io.prometheus</groupId>
                 <artifactId>simpleclient</artifactId>
                 <version>${simpleclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>apollo-client</artifactId>
+                <version>${apollo.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

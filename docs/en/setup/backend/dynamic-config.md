@@ -31,6 +31,19 @@ configuration:
     #clusterName: "default" # the name of current cluster, set the name if you want to upstream system known.  
 ```
 
+## Apollo DCS
+
+[Apollo](https://github.com/ctripcorp/apollo/) is also supported in DCS, to use it, just configured as follows:
+
+```yaml
+configuration:
+  apollo:
+    apolloMeta: <your apollo meta address>
+    apolloCluster: default
+    # apolloEnv: # defaults to null
+    appId: skywalking
+    period: 5
+```
 
 ## 3rd party Configuration Center
 We are welcome contributions to implement this module provider to support popular configuration center, 
