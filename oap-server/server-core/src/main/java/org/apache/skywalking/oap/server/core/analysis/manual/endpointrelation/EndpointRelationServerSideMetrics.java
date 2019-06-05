@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
-@Stream(name = EndpointRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_RELATION, storage = @Storage(builder = EndpointRelationServerSideMetrics.Builder.class), processor = MetricsStreamProcessor.class)
+@Stream(name = EndpointRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_RELATION, builder = EndpointRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class EndpointRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_relation_server_side";

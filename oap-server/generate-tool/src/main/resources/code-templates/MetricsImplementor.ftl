@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  *
  * @author Observability Analysis Language code generator
  */
-@Stream(name = "${tableName}", scopeId = ${sourceScopeId}, storage = @Storage(builder = ${metricsName}Metrics.Builder.class), processor = MetricsStreamProcessor.class)
+@Stream(name = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class ${metricsName}Metrics extends ${metricsClassName} implements WithMetadata {
 
 <#list fieldsFromSource as sourceField>
