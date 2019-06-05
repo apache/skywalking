@@ -13,7 +13,7 @@ By using Aggregation Function, the requests will group by time and **Group Key(s
 
 ### SCOPE `Service`
 
-Calculate the metric data from each request of the service. 
+Calculate the metrics data from each request of the service. 
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -28,7 +28,7 @@ Calculate the metric data from each request of the service.
 
 ### SCOPE `ServiceInstance`
 
-Calculate the metric data from each request of the service instance. 
+Calculate the metrics data from each request of the service instance. 
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -43,7 +43,7 @@ Calculate the metric data from each request of the service instance.
 
 #### Secondary scopes of `ServiceInstance` 
 
-Calculate the metric data if the service instance is a JVM and collected by javaagent.
+Calculate the metrics data if the service instance is a JVM and collected by javaagent.
 
 1. SCOPE `ServiceInstanceJVMCPU`
 
@@ -61,7 +61,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 | id | Represent the unique id of the service instance, usually a number. | yes | int |
 | name |  Represent the name of the service instance. Such as `ip:port@Service Name`.  **Notice**: current native agent uses `processId@Service name` as instance name, which is useless when you want to setup a filter in aggregation. | | string|
 | serviceName | Represent the name of the service. | | string |
-| heapStatus | Represent this value the memory metric values are heap or not | | bool |
+| heapStatus | Represent this value the memory metrics values are heap or not | | bool |
 | init | See JVM document | | long |
 | max | See JVM document | | long |
 | used | See JVM document | | long |
@@ -93,7 +93,7 @@ Calculate the metric data if the service instance is a JVM and collected by java
 
 ### SCOPE `Endpoint`
 
-Calculate the metric data from each request of the endpoint in the service. 
+Calculate the metrics data from each request of the endpoint in the service. 
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -108,7 +108,7 @@ Calculate the metric data from each request of the endpoint in the service.
 
 ### SCOPE `ServiceRelation`
 
-Calculate the metric data from each request between one service and the other service
+Calculate the metrics data from each request between one service and the other service
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -129,7 +129,7 @@ Calculate the metric data from each request between one service and the other se
 
 ### SCOPE `ServiceInstanceRelation`
 
-Calculate the metric data from each request between one service instance and the other service instance
+Calculate the metrics data from each request between one service instance and the other service instance
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
@@ -149,7 +149,7 @@ Calculate the metric data from each request between one service instance and the
 
 ### SCOPE `EndpointRelation`
 
-Calculate the metric data of the dependency between one endpoint and the other endpoint. 
+Calculate the metrics data of the dependency between one endpoint and the other endpoint. 
 This relation is hard to detect, also depends on tracing lib to propagate the prev endpoint. 
 So `EndpointRelation` scope aggregation effects only in service under tracing by SkyWalking native agents, 
 including auto instrument agents(like Java, .NET), OpenCensus SkyWalking exporter implementation or others propagate tracing context in SkyWalking spec.

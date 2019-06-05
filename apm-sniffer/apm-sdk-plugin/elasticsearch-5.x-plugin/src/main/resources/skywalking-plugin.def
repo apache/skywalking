@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-elasticsearch-5.x=org.apache.skywalking.apm.plugin.elasticsearch.v5.define.ActionRequestBuilderInstrumentation
 elasticsearch-5.x=org.apache.skywalking.apm.plugin.elasticsearch.v5.define.TransportProxyClientInstrumentation
 elasticsearch-5.x=org.apache.skywalking.apm.plugin.elasticsearch.v5.define.TransportActionNodeProxyInstrumentation
 elasticsearch-5.x=org.apache.skywalking.apm.plugin.elasticsearch.v5.define.PlainListenableActionFutureInstrumentation
+elasticsearch-5.x=org.apache.skywalking.apm.plugin.elasticsearch.v5.define.GenericActionInstrumentation
+elasticsearch-5.x=org.apache.skywalking.apm.plugin.elasticsearch.v5.define.TransportClientNodesServiceInstrumentation

@@ -63,13 +63,15 @@ public class AgentDataMock {
 
         TimeUnit.SECONDS.sleep(10);
 
-        globalTraceId = UniqueIdBuilder.INSTANCE.create();
-        serviceASegmentId = UniqueIdBuilder.INSTANCE.create();
-        serviceBSegmentId = UniqueIdBuilder.INSTANCE.create();
-        serviceCSegmentId = UniqueIdBuilder.INSTANCE.create();
-        serviceAMock.mock(streamObserver, globalTraceId, serviceASegmentId, startTimestamp, false);
-        serviceBMock.mock(streamObserver, globalTraceId, serviceBSegmentId, serviceASegmentId, startTimestamp, false);
-        serviceCMock.mock(streamObserver, globalTraceId, serviceCSegmentId, serviceBSegmentId, startTimestamp, false);
+        for (int i = 0; i < 500; i++) {
+            globalTraceId = UniqueIdBuilder.INSTANCE.create();
+            serviceASegmentId = UniqueIdBuilder.INSTANCE.create();
+            serviceBSegmentId = UniqueIdBuilder.INSTANCE.create();
+            serviceCSegmentId = UniqueIdBuilder.INSTANCE.create();
+            serviceAMock.mock(streamObserver, globalTraceId, serviceASegmentId, startTimestamp, true);
+            serviceBMock.mock(streamObserver, globalTraceId, serviceBSegmentId, serviceASegmentId, startTimestamp, true);
+            serviceCMock.mock(streamObserver, globalTraceId, serviceCSegmentId, serviceBSegmentId, startTimestamp, true);
+        }
 
         streamObserver.onCompleted();
         while (!IS_COMPLETED) {

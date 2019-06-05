@@ -129,6 +129,9 @@ h2-jdbc-driver:
 mysql-connector-java:
   id: 33
   languages: Java
+ojdbc:
+  id: 34
+  languages: Java
 Spymemcached:
   id: 35
   languages: Java
@@ -173,6 +176,27 @@ transport-client:
   languages: Java
 Undertow:
   id: 49
+  languages: Java
+Redisson:
+  id: 56
+  languages: Java
+Lettuce:
+  id: 57
+  languages: Java
+Zookeeper:
+  id: 58
+  languages: Java
+Vertx:
+  id: 59
+  languages: Java
+ShardingSphere:
+  id: 60
+  languages: Java
+spring-cloud-gateway:
+  id: 61
+  languages: Java
+RESTEasy:
+  id: 62
   languages: Java
 
 # .NET/.NET Core components
@@ -222,6 +246,9 @@ InMemoryDatabase:
 AspNet:
   id: 3015
   languages: C#
+SmartSql:
+  id: 3016
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
@@ -255,6 +282,9 @@ Component-Server-Mappings:
   h2-jdbc-driver: H2
   mysql-connector-java: Mysql
   Jedis: Redis
+  Redisson: Redis
+  Lettuce: Redis
+  Zookeeper: Zookeeper
   StackExchange.Redis: Redis
   SqlClient: SqlServer
   Npgsql: PostgreSQL

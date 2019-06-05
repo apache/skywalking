@@ -25,9 +25,7 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
  * @author peng-yongsheng
  */
 public interface IRegisterDAO extends DAO {
-
-    int max(String modelName) throws IOException;
-
+    
     RegisterSource get(String modelName, String id) throws IOException;
 
     void forceInsert(String modelName, RegisterSource source) throws IOException;

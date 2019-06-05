@@ -22,7 +22,8 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.receiver.sharing.server.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class MeshReceiverProvider extends ModuleProvider {
     private MeshModuleConfig config;
@@ -47,7 +48,7 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        MeshDataBufferFileCache cache = new MeshDataBufferFileCache(config);
+        MeshDataBufferFileCache cache = new MeshDataBufferFileCache(config, getManager());
         try {
             cache.start();
             TelemetryDataDispatcher.setCache(cache, getManager());
@@ -55,8 +56,8 @@ public class MeshReceiverProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
         CoreRegisterLinker.setModuleManager(getManager());
-        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        service.addHandler(new MeshGRPCHandler());
+        GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        service.addHandler(new MeshGRPCHandler(getManager()));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
@@ -64,6 +65,6 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME};
     }
 }

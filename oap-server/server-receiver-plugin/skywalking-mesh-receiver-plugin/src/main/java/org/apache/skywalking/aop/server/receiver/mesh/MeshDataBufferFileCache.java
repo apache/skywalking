@@ -23,17 +23,29 @@ import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.oap.server.library.buffer.BufferStream;
-import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
+import org.apache.skywalking.oap.server.library.buffer.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 
 public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataDecorator>, DataStreamReader.CallBack<ServiceMeshMetric> {
     private MeshModuleConfig config;
     private DataCarrier<ServiceMeshMetricDataDecorator> dataCarrier;
     private BufferStream<ServiceMeshMetric> stream;
+    private CounterMetrics meshBufferFileIn;
+    private CounterMetrics meshBufferFileRetry;
+    private CounterMetrics meshBufferFileOut;
 
-    public MeshDataBufferFileCache(MeshModuleConfig config) {
+    public MeshDataBufferFileCache(MeshModuleConfig config, ModuleManager moduleManager) {
         this.config = config;
         dataCarrier = new DataCarrier<>("MeshDataBufferFileCache", 3, 1024);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        meshBufferFileIn = metricsCreator.createCounter("mesh_buffer_file_in", "The number of mesh telemetry into the buffer file",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        meshBufferFileRetry = metricsCreator.createCounter("mesh_buffer_file_retry", "The number of retry mesh telemetry from the buffer file, but haven't registered successfully.",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        meshBufferFileOut = metricsCreator.createCounter("mesh_buffer_file_out", "The number of mesh telemetry out of the buffer file",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     void start() throws IOException {
@@ -53,8 +65,8 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
 
     }
 
-    public void in(ServiceMeshMetric metric) {
-        dataCarrier.produce(new ServiceMeshMetricDataDecorator(metric));
+    public void in(ServiceMeshMetric metrics) {
+        dataCarrier.produce(new ServiceMeshMetricDataDecorator(metrics));
     }
 
     /**
@@ -67,6 +79,7 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
             if (decorator.tryMetaDataRegister()) {
                 TelemetryDataDispatcher.doDispatch(decorator);
             } else {
+                meshBufferFileIn.inc();
                 stream.write(decorator.getMetric());
             }
         }
@@ -83,15 +96,17 @@ public class MeshDataBufferFileCache implements IConsumer<ServiceMeshMetricDataD
     /**
      * File buffer callback. Block reading from buffer file, until metadata register done.
      *
-     * @param message
+     * @param bufferData
      * @return
      */
-    @Override public boolean call(ServiceMeshMetric message) {
-        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(message);
+    @Override public boolean call(BufferData<ServiceMeshMetric> bufferData) {
+        ServiceMeshMetricDataDecorator decorator = new ServiceMeshMetricDataDecorator(bufferData.getMessageType());
         if (decorator.tryMetaDataRegister()) {
+            meshBufferFileOut.inc();
             TelemetryDataDispatcher.doDispatch(decorator);
             return true;
         }
+        meshBufferFileRetry.inc();
         return false;
     }
 }

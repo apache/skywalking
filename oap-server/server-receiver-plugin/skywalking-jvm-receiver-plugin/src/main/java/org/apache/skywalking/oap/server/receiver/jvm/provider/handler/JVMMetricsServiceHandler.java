@@ -19,16 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.language.agent.Downstream;
-import org.apache.skywalking.apm.network.language.agent.JVMMetrics;
-import org.apache.skywalking.apm.network.language.agent.JVMMetricsServiceGrpc;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -40,19 +35,19 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
     public JVMMetricsServiceHandler(ModuleManager moduleManager) {
-        this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class));
+        this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
     }
 
     @Override public void collect(JVMMetrics request, StreamObserver<Downstream> responseObserver) {
         int serviceInstanceId = request.getApplicationInstanceId();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("receive the jvm metric from service instance, id: {}", serviceInstanceId);
+            logger.debug("receive the jvm metrics from service instance, id: {}", serviceInstanceId);
         }
 
-        request.getMetricsList().forEach(metric -> {
-            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
-            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metric);
+        request.getMetricsList().forEach(metrics -> {
+            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
+            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());

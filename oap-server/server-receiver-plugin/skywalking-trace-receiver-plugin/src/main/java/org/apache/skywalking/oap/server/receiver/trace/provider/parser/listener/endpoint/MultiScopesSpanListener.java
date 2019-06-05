@@ -18,28 +18,19 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.source.EndpointRelation;
-import org.apache.skywalking.oap.server.core.source.RequestType;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import java.util.*;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.receiver.trace.provider.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
+import org.slf4j.*;
 
 import static java.util.Objects.nonNull;
 
@@ -52,7 +43,7 @@ import static java.util.Objects.nonNull;
  *
  * @author peng-yongsheng, wusheng
  */
-public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener {
+public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiScopesSpanListener.class);
 
@@ -63,20 +54,26 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
     private final List<SourceBuilder> entrySourceBuilders;
     private final List<SourceBuilder> exitSourceBuilders;
+    private final List<DatabaseSlowStatement> slowDatabaseAccesses;
+    private final TraceServiceModuleConfig config;
     private SpanDecorator entrySpanDecorator;
     private long minuteTimeBucket;
+    private String traceId;
 
-    private MultiScopesSpanListener(ModuleManager moduleManager) {
+    private MultiScopesSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.entrySourceBuilders = new LinkedList<>();
         this.exitSourceBuilders = new LinkedList<>();
+        this.slowDatabaseAccesses = new ArrayList<>(10);
         this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+        this.config = config;
+        this.traceId = null;
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.TraceIds.equals(point);
     }
 
     @Override
@@ -152,6 +149,34 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         sourceBuilder.setComponentId(spanDecorator.getComponentId());
         setPublicAttrs(sourceBuilder, spanDecorator);
         exitSourceBuilders.add(sourceBuilder);
+
+        if (sourceBuilder.getType().equals(RequestType.DATABASE)) {
+            boolean isSlowDBAccess = false;
+
+            DatabaseSlowStatement statement = new DatabaseSlowStatement();
+            statement.setId(segmentCoreInfo.getSegmentId() + "-" + spanDecorator.getSpanId());
+            statement.setDatabaseServiceId(sourceBuilder.getDestServiceId());
+            statement.setLatency(sourceBuilder.getLatency());
+            statement.setTimeBucket(TimeBucket.getSecondTimeBucket(segmentCoreInfo.getStartTime()));
+            statement.setTraceId(traceId);
+            for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
+                if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
+                    statement.setStatement(tag.getValue());
+
+                } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
+                    String dbType = tag.getValue();
+                    DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
+                    int threshold = thresholds.getThreshold(dbType);
+                    if (sourceBuilder.getLatency() > threshold) {
+                        isSlowDBAccess = true;
+                    }
+                }
+            }
+
+            if (isSlowDBAccess) {
+                slowDatabaseAccesses.add(statement);
+            }
+        }
     }
 
     private void setPublicAttrs(SourceBuilder sourceBuilder, SpanDecorator spanDecorator) {
@@ -211,13 +236,33 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
+                sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
+            }
         });
+
+        slowDatabaseAccesses.forEach(sourceReceiver::receive);
+    }
+
+    @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+        if (traceId == null) {
+            StringBuilder traceIdBuilder = new StringBuilder();
+            for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                if (i == 0) {
+                    traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
+                } else {
+                    traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
+                }
+            }
+            traceId = traceIdBuilder.toString();
+        }
     }
 
     public static class Factory implements SpanListenerFactory {
 
-        @Override public SpanListener create(ModuleManager moduleManager) {
-            return new MultiScopesSpanListener(moduleManager);
+        @Override
+        public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+            return new MultiScopesSpanListener(moduleManager, config);
         }
     }
 }

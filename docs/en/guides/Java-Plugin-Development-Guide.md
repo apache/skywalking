@@ -14,10 +14,10 @@ There are three types of Span
 
 1.1 EntrySpan
 EntrySpan represents a service provider, also the endpoint of server side. As an APM system, we are targeting the 
-application servers. So almost all the services and MQ-comsumer are EntrySpan(s).
+application servers. So almost all the services and MQ-consumer are EntrySpan(s).
 
 1.2 LocalSpan
-LocalSpan represents a normal Java method, which don't relate with remote service, neither a MQ producer/comsumer
+LocalSpan represents a normal Java method, which does not relate to remote service, neither a MQ producer/consumer
 nor a service(e.g. HTTP service) provider/consumer.
 
 1.3 ExitSpan
@@ -158,7 +158,43 @@ SpanLayer is the catalog of span. Here are 5 values:
 1. MQ
 
 Component IDs are defined and reserved by SkyWalking project.
-For component name/ID extension, please follow [cComponent library definition and extension](Component-library-settings.md) document.
+For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
+
+### Advanced APIs
+#### Async Span APIs
+There is a set of advanced APIs in Span, which work specific for async scenario. When tags, logs, attributes(including end time) of the span
+needs to set in another thread, you should use these APIs.
+
+```java
+    /**
+     * The span finish at current tracing context, but the current span is still alive, until {@link #asyncFinish}
+     * called.
+     *
+     * This method must be called<br/>
+     * 1. In original thread(tracing context).
+     * 2. Current span is active span.
+     *
+     * During alive, tags, logs and attributes of the span could be changed, in any thread.
+     *
+     * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
+     *
+     * @return the current span
+     */
+    AbstractSpan prepareForAsync();
+
+    /**
+     * Notify the span, it could be finished.
+     *
+     * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
+     *
+     * @return the current span
+     */
+    AbstractSpan asyncFinish();
+```
+1. Call `#prepareForAsync` in original context.
+1. Propagate the span to any other thread.
+1. After all set, call `#asyncFinish` in any thread.
+1. Tracing context will be finished and report to backend when all spans's `#prepareForAsync` finished(Judged by count of API execution).
 
 ## Develop a plugin
 ### Abstract
@@ -185,13 +221,13 @@ ClassMatch represents how to match the target classes, there are 4 ways:
 * byName, through the full class name(package name + `.` + class name)
 * byClassAnnotationMatch, through the class existed certain annotations.
 * byMethodAnnotationMatch, through the class's method existed certain annotations.
-* byHierarchyMatch, throught the class's parent classes or interfaces
+* byHierarchyMatch, through the class's parent classes or interfaces
 
 **Attentions**:
 * Forbid to use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
 avoiding ClassLoader issues.
 * `by*AnnotationMatch` doesn't support the inherited annotations.
-* Don't recommend use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
+* Don't recommend to use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
 many unexcepted methods, which causes performance issues and concerns.
 
 Example：
@@ -281,9 +317,10 @@ We are welcome everyone to contribute plugins.
 
 Please follow there steps:
 1. Submit an issue about which plugins are you going to contribute, including supported version.
-1. Create sub modules under `apm-sniffer/apm-sdk-plugin`, and the name should include supported library name and versions
+1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
 1. Follow this guide to develop. Make sure comments and test cases are provided.
 1. Develop and test.
-1. Send the pull request and ask for review, and provide the automatic test cases by following PMC members guides.
-1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
+1. Send the pull request and ask for review. 
+1. Provide the automatic test cases. 
+1. The plugin committers approve your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 

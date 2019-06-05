@@ -90,6 +90,7 @@ public class GRPCServer implements Server {
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
+
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize);
         logger.info("Server started, host {} listening on {}", host, port);
@@ -111,10 +112,12 @@ public class GRPCServer implements Server {
     }
 
     public void addHandler(BindableService handler) {
+        logger.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(handler);
     }
 
     public void addHandler(ServerServiceDefinition definition) {
+        logger.info("Bind handler {} into gRPC server {}:{}", definition.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(definition);
     }
 

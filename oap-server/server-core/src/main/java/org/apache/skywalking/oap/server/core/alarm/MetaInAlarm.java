@@ -19,18 +19,17 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.Objects;
-import org.apache.skywalking.oap.server.core.source.Scope;
 
 public abstract class MetaInAlarm {
-    public abstract Scope getScope();
+    public abstract int getScopeId();
 
     public abstract String getName();
 
-    public abstract String getIndicatorName();
+    public abstract String getMetricsName();
 
     /**
      * In most scopes, there is only id0, as primary id. Such as Service, Endpoint. But in relation, the ID includes
-     * two, actually. Such as ServiceRelation, id0 represents the source service id
+     * two, actually. Such as ServiceRelation, id0 represents the sourceScopeId service id
      *
      * @return the primary id.
      */

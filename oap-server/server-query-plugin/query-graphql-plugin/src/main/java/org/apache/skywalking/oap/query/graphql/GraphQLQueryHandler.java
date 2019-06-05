@@ -30,6 +30,7 @@ import graphql.GraphQLError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,8 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
     private static final String MESSAGE = "message";
 
     private final Gson gson = new Gson();
+    private final Type mapOfStringObjectType = new TypeToken<Map<String, Object>>() {
+    }.getType();
 
     private final String path;
 
@@ -75,8 +78,7 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
 
         JsonObject requestJson = gson.fromJson(request.toString(), JsonObject.class);
 
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), new TypeToken<Map<String, Object>>() {
-        }.getType()));
+        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapOfStringObjectType));
     }
 
     private JsonObject execute(String request, Map<String, Object> variables) {

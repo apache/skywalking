@@ -19,14 +19,15 @@
 package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.*;
 
 public class StandaloneManagerTest {
     @Test
     public void test() {
         StandaloneManager standaloneManager = new StandaloneManager();
-        RemoteInstance remote1 = new RemoteInstance("A", 100, true);
-        RemoteInstance remote2 = new RemoteInstance("B", 100, false);
+        RemoteInstance remote1 = new RemoteInstance(new Address("A", 100, true));
+        RemoteInstance remote2 = new RemoteInstance(new Address("B", 100, false));
 
         standaloneManager.registerRemote(remote1);
         Assert.assertEquals(remote1, standaloneManager.queryRemoteNodes().get(0));

@@ -27,8 +27,6 @@ class Constants {
 
     static final String ELASTICSEARCH_DB_OP_PREFIX = "Elasticsearch/";
 
-    static final String ES_ENHANCE_INFO = "es_enhance_info";
-
     static final String BASE_FUTURE_METHOD = "actionGet";
 
     static final String ES_NODE = "node.address";

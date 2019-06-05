@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This is the core config in sniffer agent.
  *
@@ -37,8 +40,8 @@ public class Config {
         public static String NAMESPACE = "";
 
         /**
-         * Application code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one
-         * application's nodes share the same code.
+         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
+         * service instance nodes share the same code
          */
         public static String SERVICE_NAME = "";
 
@@ -50,7 +53,7 @@ public class Config {
 
         /**
          * Negative or zero means off, by default. {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
-         * 10 seconds tops.
+         * 3 seconds tops.
          */
         public static int SAMPLE_N_PER_3_SECS = -1;
 
@@ -80,6 +83,11 @@ public class Config {
          * Deactive V1 header in default
          */
         public static boolean ACTIVE_V1_HEADER = false;
+
+        /**
+         * The identify of the instance
+         */
+        public static String INSTANCE_UUID = "";
     }
 
     public static class Collector {
@@ -88,7 +96,7 @@ public class Config {
          */
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
-         * application and service registry check interval
+         * service and endpoint registry check interval
          */
         public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
         /**
@@ -147,14 +155,43 @@ public class Config {
     public static class Plugin {
         public static class MongoDB {
             /**
-             * If true, trace all the parameters, default is false. Only trace the operation, not include parameters.
+             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.
              */
             public static boolean TRACE_PARAM = false;
         }
 
         public static class Elasticsearch {
-
+            /**
+             * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
+             */
             public static boolean TRACE_DSL = false;
+        }
+
+        public static class Customize {
+            /**
+             * Custom enhancement class configuration file path, recommended to use an absolute path.
+             */
+            public static String ENHANCE_FILE = "";
+
+            /**
+             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+             * And using Map CONTEXT for avoiding classloader isolation issue.
+             */
+            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+        }
+
+        public static class SpringMVC {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+        }
+
+        public static class Toolkit {
+            /**
+             * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
     }
 }

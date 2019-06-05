@@ -20,11 +20,13 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.NonMergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -34,19 +36,28 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
 
     private static final Logger logger = LoggerFactory.getLogger(RecordPersistentWorker.class);
 
-    private final String modelName;
+    private final Model model;
     private final NonMergeDataCache<Record> nonMergeDataCache;
     private final IRecordDAO recordDAO;
     private final DataCarrier<Record> dataCarrier;
 
-    RecordPersistentWorker(int workerId, String modelName, int batchSize, ModuleManager moduleManager,
+    RecordPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, int batchSize,
         IRecordDAO recordDAO) {
-        super(moduleManager, workerId, batchSize);
-        this.modelName = modelName;
+        super(moduleDefineHolder, batchSize);
+        this.model = model;
         this.nonMergeDataCache = new NonMergeDataCache<>();
         this.recordDAO = recordDAO;
+
+        String name = "RECORD_PERSISTENT";
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, 1, 20);
+        try {
+            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
+        } catch (Exception e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+
         this.dataCarrier = new DataCarrier<>(1, 10000);
-        this.dataCarrier.consume(new RecordPersistentWorker.PersistentConsumer(this), 1);
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new RecordPersistentWorker.PersistentConsumer(this));
     }
 
     @Override public void in(Record record) {
@@ -61,7 +72,7 @@ public class RecordPersistentWorker extends PersistenceWorker<Record, NonMergeDa
         List<Object> batchCollection = new LinkedList<>();
         cache.getLast().collection().forEach(record -> {
             try {
-                batchCollection.add(recordDAO.prepareBatchInsert(modelName, record));
+                batchCollection.add(recordDAO.prepareBatchInsert(model, record));
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }

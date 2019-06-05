@@ -18,21 +18,21 @@
 
 package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
 
+import com.google.common.base.Joiner;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import io.istio.HandleMetricServiceGrpc;
-import io.istio.IstioMetricProto;
+import io.istio.*;
 import io.istio.api.mixer.adapter.model.v1beta1.ReportProto;
 import io.istio.api.policy.v1beta1.TypeProto;
-import java.time.Duration;
-import java.time.Instant;
+import java.time.*;
 import java.util.Map;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.slf4j.*;
 
 /**
  * Handle istio telemetry data.
@@ -43,49 +43,84 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
 
     private static final Logger logger = LoggerFactory.getLogger(IstioTelemetryGRPCHandler.class);
 
+    private static final Joiner JOINER = Joiner.on(".");
+
+    private CounterMetrics counter;
+    private HistogramMetrics histogram;
+
+    public IstioTelemetryGRPCHandler(ModuleManager moduleManager) {
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        counter = metricsCreator.createCounter("istio_mesh_grpc_in_count", "The count of istio service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        histogram = metricsCreator.createHistogramMetric("istio_mesh_grpc_in_latency", "The process latency of istio service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+    }
+
     @Override public void handleMetric(IstioMetricProto.HandleMetricRequest request,
         StreamObserver<ReportProto.ReportResult> responseObserver) {
         if (logger.isDebugEnabled()) {
             logger.debug("Received msg {}", request);
         }
         for (IstioMetricProto.InstanceMsg i : request.getInstancesList()) {
-            String requestMethod = string(i, "requestMethod");
-            String requestPath = string(i, "requestPath");
-            String requestScheme = string(i, "requestScheme");
-            long responseCode = int64(i, "responseCode");
-            String reporter = string(i, "reporter");
-            String protocol = string(i, "apiProtocol");
+            counter.inc();
+            HistogramMetrics.Timer timer = histogram.createTimer();
 
-            String endpoint;
-            boolean status = true;
-            Protocol netProtocol;
-            if (protocol.equals("http") || protocol.equals("https") || requestScheme.equals("http") || requestScheme.equals("https")) {
-                endpoint = requestScheme + "/" + requestMethod + "/" + requestPath;
-                status = responseCode >= 200 && responseCode < 400;
-                netProtocol = Protocol.HTTP;
-            } else {
-                //grpc
-                endpoint = protocol + "/" + requestPath;
-                netProtocol = Protocol.gRPC;
+            try {
+                String requestMethod = string(i, "requestMethod");
+                String requestPath = string(i, "requestPath");
+                String requestScheme = string(i, "requestScheme");
+                long responseCode = int64(i, "responseCode");
+                String reporter = string(i, "reporter");
+                String protocol = string(i, "apiProtocol");
+
+                String endpoint;
+                boolean status = true;
+                Protocol netProtocol;
+                if (protocol.equals("http") || protocol.equals("https") || requestScheme.equals("http") || requestScheme.equals("https")) {
+                    endpoint = requestScheme + "/" + requestMethod + "/" + requestPath;
+                    status = responseCode >= 200 && responseCode < 400;
+                    netProtocol = Protocol.HTTP;
+                } else {
+                    //grpc
+                    endpoint = protocol + "/" + requestPath;
+                    netProtocol = Protocol.gRPC;
+                }
+                Instant requestTime = time(i, "requestTime");
+                Instant responseTime = time(i, "responseTime");
+                int latency = Math.toIntExact(Duration.between(requestTime, responseTime).toMillis());
+
+                DetectPoint detectPoint;
+                if (reporter.equals("source")) {
+                    detectPoint = DetectPoint.client;
+                } else {
+                    detectPoint = DetectPoint.server;
+                }
+
+                String sourceServiceName;
+                if (has(i, "sourceNamespace")) {
+                    sourceServiceName = JOINER.join(string(i, "sourceService"), string(i, "sourceNamespace"));
+                } else {
+                    sourceServiceName = string(i, "sourceService");
+                }
+
+                String destServiceName;
+                if (has(i, "destinationNamespace")) {
+                    destServiceName = JOINER.join(string(i, "destinationService"), string(i, "destinationNamespace"));
+                } else {
+                    destServiceName = string(i, "destinationService");
+                }
+
+                ServiceMeshMetric metrics = ServiceMeshMetric.newBuilder().setStartTime(requestTime.toEpochMilli())
+                    .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(sourceServiceName)
+                    .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(destServiceName)
+                    .setDestServiceInstance(string(i, "destinationUID")).setEndpoint(endpoint).setLatency(latency)
+                    .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
+                logger.debug("Transformed metrics {}", metrics);
+
+                TelemetryDataDispatcher.preProcess(metrics);
+            } finally {
+                timer.finish();
             }
-            Instant requestTime = time(i, "requestTime");
-            Instant responseTime = time(i, "responseTime");
-            int latency = Math.toIntExact(Duration.between(requestTime, responseTime).toMillis());
-
-            DetectPoint detectPoint;
-            if (reporter.equals("source")) {
-                detectPoint = DetectPoint.client;
-            } else {
-                detectPoint = DetectPoint.server;
-            }
-            ServiceMeshMetric metric = ServiceMeshMetric.newBuilder().setStartTime(requestTime.toEpochMilli())
-                .setEndTime(responseTime.toEpochMilli()).setSourceServiceName(string(i, "sourceService"))
-                .setSourceServiceInstance(string(i, "sourceUID")).setDestServiceName(string(i, "destinationService"))
-                .setDestServiceInstance(string(i, "destinationUID")).setEndpoint(endpoint).setLatency(latency)
-                .setResponseCode(Math.toIntExact(responseCode)).setStatus(status).setProtocol(netProtocol).setDetectPoint(detectPoint).build();
-            logger.debug("Transformed metric {}", metric);
-
-            TelemetryDataDispatcher.preProcess(metric);
         }
         responseObserver.onNext(ReportProto.ReportResult.newBuilder().build());
         responseObserver.onCompleted();
@@ -114,5 +149,10 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
         if (!map.containsKey(key)) {
             throw new IllegalArgumentException(String.format("Lack dimension %s", key));
         }
+    }
+
+    private boolean has(final IstioMetricProto.InstanceMsg instanceMsg, final String key) {
+        Map<String, TypeProto.Value> map = instanceMsg.getDimensionsMap();
+        return map.containsKey(key);
     }
 }

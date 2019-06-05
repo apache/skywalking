@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
 import org.slf4j.*;
 
@@ -53,16 +53,18 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
-        if (standardBuilder.getEntryEndpointId() == 0) {
-            String entryEndpointName = StringUtils.isNotEmpty(standardBuilder.getEntryEndpointName()) ? standardBuilder.getEntryEndpointName() : Const.DOMAIN_OPERATION_NAME;
-            int entryEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId(), entryEndpointName, DetectPoint.SERVER.ordinal());
+        boolean exchanged = true;
 
+        if (standardBuilder.getEntryEndpointId() == 0) {
+            String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
+            int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
+            int entryEndpointId = getEndpointId(entryServiceId, entryEndpointName);
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
                     logger.debug("entry endpoint name: {} from service id: {} exchange failed", entryEndpointName, entryServiceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setEntryEndpointId(entryEndpointId);
@@ -71,15 +73,16 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentEndpointId() == 0) {
-            String parentEndpointName = StringUtils.isNotEmpty(standardBuilder.getParentEndpointName()) ? standardBuilder.getParentEndpointName() : Const.DOMAIN_OPERATION_NAME;
-            int parentEndpointId = endpointInventoryRegister.get(serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId(), parentEndpointName, DetectPoint.SERVER.ordinal());
+            String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getParentEndpointName();
+            int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
+            int parentEndpointId = getEndpointId(parentServiceId, parentEndpointName);
 
             if (parentEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
-                    int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
                     logger.debug("parent endpoint name: {} from service id: {} exchange failed", parentEndpointName, parentServiceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setParentEndpointId(parentEndpointId);
@@ -87,20 +90,45 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             }
         }
 
-        if (standardBuilder.getNetworkAddressId() == 0 && StringUtils.isNotEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getNetworkAddress());
+        if (standardBuilder.getNetworkAddressId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getNetworkAddress())) {
+            int networkAddressId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getNetworkAddress(), null);
 
             if (networkAddressId == 0) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("network address: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
+                    logger.debug("network getAddress: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
                 }
-                return false;
+
+                exchanged = false;
             } else {
                 standardBuilder.toBuilder();
                 standardBuilder.setNetworkAddressId(networkAddressId);
                 standardBuilder.setNetworkAddress(Const.EMPTY_STRING);
             }
         }
-        return true;
+        return exchanged;
+    }
+
+    /**
+     * Endpoint in ref could be local or exit span's operation name.
+     * Especially if it is local span operation name,
+     * exchange may not happen at agent, such as Java agent,
+     * then put literal endpoint string in the header,
+     * Need to try to get the id by assuming the endpoint name is detected at server, local or client.
+     *
+     * If agent does the exchange, then always use endpoint id.
+     *
+     * @param serviceId
+     * @param endpointName
+     * @return
+     */
+    private int getEndpointId(int serviceId, String endpointName) {
+        int endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.SERVER.ordinal());
+        if (endpointId == Const.NONE) {
+            endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.CLIENT.ordinal());
+            if (endpointId == Const.NONE) {
+                endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.UNRECOGNIZED.ordinal());
+            }
+        }
+        return endpointId;
     }
 }

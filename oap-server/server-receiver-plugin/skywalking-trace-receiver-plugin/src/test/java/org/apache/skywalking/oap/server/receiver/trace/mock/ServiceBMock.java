@@ -31,6 +31,7 @@ class ServiceBMock {
     private final RegisterMock registerMock;
     private static int SERVICE_ID;
     static int SERVICE_INSTANCE_ID;
+    static String DUBBO_PROVIDER_ENDPOINT = "org.skywaking.apm.testcase.dubbo.services.GreetServiceImpl.doBusiness()";
     static String ROCKET_MQ_ENDPOINT = "org.apache.skywalking.RocketMQ";
     static String ROCKET_MQ_ADDRESS = "RocketMQAddress:2000";
 
@@ -98,7 +99,7 @@ class ServiceBMock {
         span.addRefs(createReference(uniqueId, isPrepare));
 
         if (isPrepare) {
-            span.setOperationName(ServiceAMock.DUBBO_ENDPOINT);
+            span.setOperationName(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
         } else {
             span.setOperationNameId(4);
         }
@@ -112,9 +113,11 @@ class ServiceBMock {
         span.setSpanLayer(SpanLayer.Database);
         span.setParentSpanId(0);
         span.setStartTime(startTimestamp + 550);
-        span.setEndTime(startTimestamp + 1000);
+        span.setEndTime(startTimestamp + 1500);
         span.setComponentId(ComponentsDefine.MONGO_DRIVER.getId());
         span.setIsError(true);
+        span.addTags(KeyWithStringValue.newBuilder().setKey("db.statement").setValue("select * from database where complex = 1;").build());
+        span.addTags(KeyWithStringValue.newBuilder().setKey("db.type").setValue("mongodb").build());
 
         if (isPrepare) {
             span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");

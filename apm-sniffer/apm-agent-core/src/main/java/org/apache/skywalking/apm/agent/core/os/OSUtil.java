@@ -100,11 +100,11 @@ public class OSUtil {
 
         String osName = getOsName();
         if (osName != null) {
-            osInfo.add(KeyStringValuePair.newBuilder().setKey("OSName").setValue(osName).build());
+            osInfo.add(KeyStringValuePair.newBuilder().setKey("os_name").setValue(osName).build());
         }
         String hostName = getHostName();
         if (hostName != null) {
-            osInfo.add(KeyStringValuePair.newBuilder().setKey("hostname").setValue(hostName).build());
+            osInfo.add(KeyStringValuePair.newBuilder().setKey("host_name").setValue(hostName).build());
         }
         List<String> allIPV4 = getAllIPV4();
         if (allIPV4.size() > 0) {
@@ -112,7 +112,8 @@ public class OSUtil {
                 osInfo.add(KeyStringValuePair.newBuilder().setKey("ipv4").setValue(ipv4).build());
             }
         }
-        osInfo.add(KeyStringValuePair.newBuilder().setKey("ProcessNo").setValue(getProcessNo() + "").build());
+        osInfo.add(KeyStringValuePair.newBuilder().setKey("process_no").setValue(getProcessNo() + "").build());
+        osInfo.add(KeyStringValuePair.newBuilder().setKey("language").setValue("java").build());
         return osInfo;
     }
 }

@@ -23,7 +23,7 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -36,15 +36,15 @@ public class RegisterRemoteWorker extends AbstractWorker<RegisterSource> {
     private final AbstractWorker<RegisterSource> nextWorker;
     private final RemoteSenderService remoteSender;
 
-    RegisterRemoteWorker(int workerId, ModuleManager moduleManager, AbstractWorker<RegisterSource> nextWorker) {
-        super(workerId);
-        this.remoteSender = moduleManager.find(CoreModule.NAME).provider().getService(RemoteSenderService.class);
+    RegisterRemoteWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<RegisterSource> nextWorker) {
+        super(moduleDefineHolder);
+        this.remoteSender = moduleDefineHolder.find(CoreModule.NAME).provider().getService(RemoteSenderService.class);
         this.nextWorker = nextWorker;
     }
 
-    @Override public final void in(RegisterSource indicator) {
+    @Override public final void in(RegisterSource registerSource) {
         try {
-            remoteSender.send(nextWorker.getWorkerId(), indicator, Selector.ForeverFirst);
+            remoteSender.send(nextWorker.getWorkerId(), registerSource, Selector.ForeverFirst);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

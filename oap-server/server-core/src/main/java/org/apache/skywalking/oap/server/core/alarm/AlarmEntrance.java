@@ -18,66 +18,33 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author wusheng
  */
 public class AlarmEntrance {
-    private ModuleManager moduleManager;
-    private ServiceInventoryCache serviceInventoryCache;
-    private IndicatorNotify indicatorNotify;
-    private ReentrantLock initLock;
+    private ModuleDefineHolder moduleDefineHolder;
+    private MetricsNotify metricsNotify;
 
-    public AlarmEntrance(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-        this.initLock = new ReentrantLock();
+    public AlarmEntrance(ModuleDefineHolder moduleDefineHolder) {
+        this.moduleDefineHolder = moduleDefineHolder;
     }
 
-    public void forward(Indicator indicator) {
-        if (!moduleManager.has(AlarmModule.NAME)) {
+    public void forward(Metrics metrics) {
+        if (!moduleDefineHolder.has(AlarmModule.NAME)) {
             return;
         }
 
         init();
 
-        AlarmMeta alarmMeta = ((AlarmSupported)indicator).getAlarmMeta();
-
-        MetaInAlarm metaInAlarm = null;
-        switch (alarmMeta.getScope()) {
-            case Service:
-                int serviceId = Integer.parseInt(alarmMeta.getId());
-                ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
-                ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
-                serviceMetaInAlarm.setIndicatorName(alarmMeta.getIndicatorName());
-                serviceMetaInAlarm.setId(serviceId);
-                serviceMetaInAlarm.setName(serviceInventory.getName());
-                metaInAlarm = serviceMetaInAlarm;
-                break;
-            default:
-                return;
-        }
-
-        indicatorNotify.notify(metaInAlarm, indicator);
+        metricsNotify.notify(metrics);
     }
 
     private void init() {
-        if (serviceInventoryCache == null) {
-            initLock.lock();
-            try {
-                if (serviceInventoryCache == null) {
-                    serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-                    indicatorNotify = moduleManager.find(AlarmModule.NAME).provider().getService(IndicatorNotify.class);
-                    indicatorNotify.init(new AlarmStandardPersistence());
-                }
-            } finally {
-                initLock.unlock();
-            }
+        if (metricsNotify == null) {
+            metricsNotify = moduleDefineHolder.find(AlarmModule.NAME).provider().getService(MetricsNotify.class);
         }
     }
 }

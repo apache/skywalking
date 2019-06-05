@@ -38,12 +38,12 @@ public class H2NetworkAddressInventoryCacheDAO extends H2SQLExecutor implements 
 
     @Override public int getAddressId(String networkAddress) {
         String id = NetworkAddressInventory.buildId(networkAddress);
-        return getEntityIDByID(h2Client, NetworkAddressInventory.SEQUENCE, NetworkAddressInventory.MODEL_NAME, id);
+        return getEntityIDByID(h2Client, NetworkAddressInventory.SEQUENCE, NetworkAddressInventory.INDEX_NAME, id);
     }
 
     @Override public NetworkAddressInventory get(int addressId) {
         try {
-            return (NetworkAddressInventory)getByColumn(h2Client, NetworkAddressInventory.MODEL_NAME, NetworkAddressInventory.SEQUENCE, addressId, new NetworkAddressInventory.Builder());
+            return (NetworkAddressInventory)getByColumn(h2Client, NetworkAddressInventory.INDEX_NAME, NetworkAddressInventory.SEQUENCE, addressId, new NetworkAddressInventory.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;

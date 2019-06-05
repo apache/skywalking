@@ -21,21 +21,20 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_RELATION;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
 public class EndpointRelation extends Source {
 
-    @Override public Scope scope() {
-        return Scope.EndpointRelation;
+    @Override public int scope() {
+        return DefaultScopeDefine.ENDPOINT_RELATION;
     }
 
     @Override public String getEntityId() {
-        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId) + Const.ID_SPLIT + String.valueOf(componentId);
-    }
-
-    public static String buildEntityId(int endpointId, int childEndpointId, int componentId) {
-        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId) + Const.ID_SPLIT + String.valueOf(componentId);
+        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
     }
 
     @Getter @Setter private int endpointId;

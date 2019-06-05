@@ -25,7 +25,7 @@
 
 RELEASE_VERSION=${RELEASE_VERSION}
 TAG_NAME=v${RELEASE_VERSION}
-PRODUCT_NAME="apache-skywalking-apm-incubating"
+PRODUCT_NAME="apache-skywalking-apm"
 
 echo "Release version "${RELEASE_VERSION}
 echo "Source tag "${TAG_NAME}
@@ -43,7 +43,7 @@ PRODUCT_NAME=${PRODUCT_NAME}-${RELEASE_VERSION}
 rm -rf ${PRODUCT_NAME}
 mkdir ${PRODUCT_NAME}
 
-git clone https://github.com/apache/incubator-skywalking.git ./${PRODUCT_NAME}
+git clone https://github.com/apache/skywalking.git ./${PRODUCT_NAME}
 cd ${PRODUCT_NAME}
 
 TAG_EXIST=`git tag -l ${TAG_NAME} | wc -l`

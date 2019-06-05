@@ -21,14 +21,16 @@ package org.apache.skywalking.apm.plugin.spring.resttemplate.async;
 import java.lang.reflect.Method;
 import java.net.URI;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.commons.EnhanceCacheObjects;
 import org.springframework.http.HttpMethod;
 
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
@@ -59,7 +61,8 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
         cacheValues[2] = ContextManager.capture();
         if (ret != null) {
-            ((EnhancedInstance)ret).setSkyWalkingDynamicField(cacheValues);
+            URI uri = (URI)cacheValues[0];
+            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new EnhanceCacheObjects(uri.getPath(), ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, (ContextSnapshot)cacheValues[2]));
         }
         ContextManager.stopSpan();
         return ret;

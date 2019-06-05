@@ -88,6 +88,7 @@ class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
             writeOffset.setOffset(position);
             if (position >= (FileUtils.ONE_MB * dataFileMaxSize)) {
                 File writingFile = createNewFile();
+                outputStream.close();
                 outputStream = FileUtils.openOutputStream(writingFile, true);
             }
         } catch (IOException e) {

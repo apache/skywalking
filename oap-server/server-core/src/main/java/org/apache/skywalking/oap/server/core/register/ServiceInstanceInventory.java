@@ -18,52 +18,47 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
+import org.elasticsearch.common.Strings;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
-@StorageEntity(name = ServiceInstanceInventory.MODEL_NAME, builder = ServiceInstanceInventory.Builder.class, deleteHistory = false, source = Scope.ServiceInstanceInventory)
+@ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
+@Stream(name = ServiceInstanceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY, builder = ServiceInstanceInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class ServiceInstanceInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "service_instance_inventory";
+    public static final String INDEX_NAME = "service_instance_inventory";
 
     public static final String NAME = "name";
     public static final String INSTANCE_UUID = "instance_uuid";
     public static final String SERVICE_ID = "service_id";
     private static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
-    public static final String OS_NAME = "os_name";
-    public static final String HOST_NAME = "host_name";
-    public static final String PROCESS_NO = "process_no";
-    public static final String IPV4S = "ipv4s";
-    public static final String LANGUAGE = "language";
+    public static final String PROPERTIES = "properties";
+    private static final Gson GSON = new Gson();
 
     @Setter @Getter @Column(columnName = INSTANCE_UUID, matchQuery = true)
     private String instanceUUID = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = NAME) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
-    @Setter @Getter @Column(columnName = LANGUAGE) private int language;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
-    @Setter @Getter @Column(columnName = OS_NAME) private String osName;
-    @Setter @Getter @Column(columnName = HOST_NAME) private String hostName;
-    @Setter @Getter @Column(columnName = PROCESS_NO) private int processNo;
-    @Setter @Getter @Column(columnName = IPV4S) private String ipv4s;
+    @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop;
+    @Getter private JsonObject properties;
 
     public static String buildId(int serviceId, String uuid) {
         return serviceId + Const.ID_SPLIT + uuid + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
@@ -88,6 +83,24 @@ public class ServiceInstanceInventory extends RegisterSource {
         result = 31 * result + isAddress;
         result = 31 * result + addressId;
         return result;
+    }
+
+    public void setProperties(JsonObject properties) {
+        this.properties = properties;
+        if (properties != null && properties.keySet().size() > 0) {
+            this.prop = properties.toString();
+        }
+    }
+
+    private void setProp(String prop) {
+        this.prop = prop;
+        if (!Strings.isNullOrEmpty(prop)) {
+            this.properties = GSON.fromJson(prop, JsonObject.class);
+        }
+    }
+
+    public boolean hasProperties() {
+        return prop != null && prop.length() > 0;
     }
 
     @Override public boolean equals(Object obj) {
@@ -115,38 +128,30 @@ public class ServiceInstanceInventory extends RegisterSource {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataIntegers(getSequence());
         remoteBuilder.addDataIntegers(serviceId);
-        remoteBuilder.addDataIntegers(language);
         remoteBuilder.addDataIntegers(isAddress);
         remoteBuilder.addDataIntegers(addressId);
-        remoteBuilder.addDataIntegers(processNo);
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
 
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(osName, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(hostName, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(ipv4s, Const.EMPTY_STRING));
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(instanceUUID, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(instanceUUID) ? Const.EMPTY_STRING : instanceUUID);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(prop) ? Const.EMPTY_STRING : prop);
         return remoteBuilder;
     }
 
     @Override public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setServiceId(remoteData.getDataIntegers(1));
-        setLanguage(remoteData.getDataIntegers(2));
-        setIsAddress(remoteData.getDataIntegers(3));
-        setAddressId(remoteData.getDataIntegers(4));
-        setProcessNo(remoteData.getDataIntegers(5));
+        setIsAddress(remoteData.getDataIntegers(2));
+        setAddressId(remoteData.getDataIntegers(3));
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
 
         setName(remoteData.getDataStrings(0));
-        setOsName(remoteData.getDataStrings(1));
-        setHostName(remoteData.getDataStrings(2));
-        setIpv4s(remoteData.getDataStrings(3));
-        setInstanceUUID(remoteData.getDataStrings(4));
+        setInstanceUUID(remoteData.getDataStrings(1));
+        setProp(remoteData.getDataStrings(2));
     }
 
     @Override public int remoteHashCode() {
@@ -159,19 +164,15 @@ public class ServiceInstanceInventory extends RegisterSource {
             ServiceInstanceInventory inventory = new ServiceInstanceInventory();
             inventory.setSequence((Integer)dbMap.get(SEQUENCE));
             inventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
-            inventory.setLanguage((Integer)dbMap.get(LANGUAGE));
             inventory.setIsAddress((Integer)dbMap.get(IS_ADDRESS));
             inventory.setAddressId((Integer)dbMap.get(ADDRESS_ID));
-            inventory.setProcessNo((Integer)dbMap.get(PROCESS_NO));
 
             inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
             inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
 
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setOsName((String)dbMap.get(OS_NAME));
-            inventory.setHostName((String)dbMap.get(HOST_NAME));
-            inventory.setIpv4s((String)dbMap.get(IPV4S));
             inventory.setInstanceUUID((String)dbMap.get(INSTANCE_UUID));
+            inventory.setProp((String)dbMap.get(PROPERTIES));
             return inventory;
         }
 
@@ -179,32 +180,25 @@ public class ServiceInstanceInventory extends RegisterSource {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(LANGUAGE, storageData.getLanguage());
             map.put(IS_ADDRESS, storageData.getIsAddress());
             map.put(ADDRESS_ID, storageData.getAddressId());
-            map.put(PROCESS_NO, storageData.getProcessNo());
 
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
 
             map.put(NAME, storageData.getName());
-            map.put(OS_NAME, storageData.getOsName());
-            map.put(HOST_NAME, storageData.getHostName());
-            map.put(IPV4S, storageData.getIpv4s());
             map.put(INSTANCE_UUID, storageData.getInstanceUUID());
+            map.put(PROPERTIES, storageData.getProp());
             return map;
         }
     }
 
-    public static class AgentOsInfo {
-        @Setter @Getter private String osName;
-        @Setter @Getter private String hostname;
-        @Setter @Getter private int processNo;
-        @Getter private List<String> ipv4s;
-
-        public AgentOsInfo() {
-            this.ipv4s = new ArrayList<>();
-        }
+    public static class PropertyUtil {
+        public static final String OS_NAME = "os_name";
+        public static final String HOST_NAME = "host_name";
+        public static final String PROCESS_NO = "process_no";
+        public static final String IPV4S = "ipv4s";
+        public static final String LANGUAGE = "language";
 
         public static String ipv4sSerialize(List<String> ipv4) {
             Gson gson = new Gson();

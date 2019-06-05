@@ -18,4 +18,4 @@ We are already in the middle of discussion, see https://github.com/census-instru
 After OC provides this officially, we can.
 
 ## How about Zipkin instrument SDKs?
-See [Zipkin receiver](trace-receiver.md) in backend section. It is different
+See [Zipkin receiver](../setup/backend/backend-receivers.md) in backend **Choose receiver** section. 

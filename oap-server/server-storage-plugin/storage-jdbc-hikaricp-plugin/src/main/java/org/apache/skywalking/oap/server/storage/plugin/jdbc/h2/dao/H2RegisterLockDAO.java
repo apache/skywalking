@@ -18,20 +18,44 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.source.Scope;
+import java.sql.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.slf4j.*;
 
 /**
- * No need to create any lock table. In SQL based database, could use `select... for update` to avoid lock table.
+ * In MySQL, use a row lock of LOCK table.
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2RegisterLockDAO implements IRegisterLockDAO {
-    @Override public boolean tryLock(Scope scope) {
-        return true;
+
+    private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockDAO.class);
+
+    private JDBCHikariCPClient h2Client;
+
+    public H2RegisterLockDAO(JDBCHikariCPClient h2Client) {
+        this.h2Client = h2Client;
     }
 
-    @Override public void releaseLock(Scope scope) {
-
+    @Override public int getId(int scopeId, RegisterSource registerSource) {
+        try (Connection connection = h2Client.getTransactionConnection()) {
+            ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scopeId + " for update");
+            while (resultSet.next()) {
+                int sequence = resultSet.getInt("sequence");
+                sequence++;
+                h2Client.execute(connection, "update " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scopeId);
+                connection.commit();
+                return sequence;
+            }
+        } catch (JDBCClientException | SQLException e) {
+            logger.error("try inventory register lock for scope id={} name={} failure.", scopeId, scopeId);
+            logger.error("tryLock error", e);
+            return Const.NONE;
+        }
+        return Const.NONE;
     }
 }

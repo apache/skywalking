@@ -19,21 +19,13 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.*;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
-import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.curator.x.discovery.*;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.library.module.*;
+import org.slf4j.*;
 
 /**
  * Use Zookeeper to manage all instances in SkyWalking cluster.
@@ -71,8 +63,10 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(), config.getMaxRetries());
         client = CuratorFrameworkFactory.newClient(config.getHostPort(), retryPolicy);
 
+        String path = BASE_PATH + (StringUtil.isEmpty(config.getNameSpace()) ? "" : "/" + config.getNameSpace());
+
         serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class).client(client)
-            .basePath(BASE_PATH)
+            .basePath(path)
             .watchInstances(true)
             .serializer(new SWInstanceSerializer()).build();
 
@@ -85,7 +79,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        ZookeeperCoordinator coordinator = new ZookeeperCoordinator(serviceDiscovery);
+        ZookeeperCoordinator coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }

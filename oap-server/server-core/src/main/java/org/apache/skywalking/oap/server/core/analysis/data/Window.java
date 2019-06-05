@@ -33,6 +33,16 @@ public abstract class Window<DATA> {
     private SWCollection<DATA> windowDataB;
 
     Window() {
+        this(true);
+    }
+
+    Window(boolean autoInit) {
+        if (autoInit) {
+            init();
+        }
+    }
+
+    protected void init() {
         this.windowDataA = collectionInstance();
         this.windowDataB = collectionInstance();
         this.pointer = windowDataA;

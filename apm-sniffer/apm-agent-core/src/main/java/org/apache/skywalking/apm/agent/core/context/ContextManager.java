@@ -18,14 +18,11 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.BootService;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.*;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -39,7 +36,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  *
  * @author wusheng
  */
-public class ContextManager implements TracingContextListener, BootService, IgnoreTracerContextListener {
+public class ContextManager implements BootService {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
     private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
@@ -47,9 +44,6 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
         AbstractTracerContext context = CONTEXT.get();
-        if (EXTEND_SERVICE == null) {
-            EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
-        }
         if (context == null) {
             if (StringUtil.isEmpty(operationName)) {
                 if (logger.isDebugEnable()) {
@@ -59,7 +53,10 @@ public class ContextManager implements TracingContextListener, BootService, Igno
             } else {
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
                     && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
-                    ) {
+                ) {
+                    if (EXTEND_SERVICE == null) {
+                        EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+                    }
                     context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
                 } else {
                     /**
@@ -152,6 +149,14 @@ public class ContextManager implements TracingContextListener, BootService, Igno
         }
     }
 
+    public static AbstractTracerContext awaitFinishAsync(AbstractSpan span) {
+        AbstractSpan activeSpan = activeSpan();
+        if (span != activeSpan) {
+            throw new RuntimeException("Span is not the active in current context.");
+        }
+        return get().awaitFinishAsync();
+    }
+
     public static AbstractSpan activeSpan() {
         return get().activeSpan();
     }
@@ -161,7 +166,9 @@ public class ContextManager implements TracingContextListener, BootService, Igno
     }
 
     public static void stopSpan(AbstractSpan span) {
-        get().stopSpan(span);
+        if (get().stopSpan(span)) {
+            CONTEXT.remove();
+        }
     }
 
     @Override
@@ -171,8 +178,6 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     @Override
     public void boot() {
-        ContextManagerExtendService service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
-        service.registerListeners(this);
     }
 
     @Override
@@ -182,16 +187,6 @@ public class ContextManager implements TracingContextListener, BootService, Igno
 
     @Override public void shutdown() throws Throwable {
 
-    }
-
-    @Override
-    public void afterFinished(TraceSegment traceSegment) {
-        CONTEXT.remove();
-    }
-
-    @Override
-    public void afterFinished(IgnoredTracerContext traceSegment) {
-        CONTEXT.remove();
     }
 
     public static boolean isActive() {

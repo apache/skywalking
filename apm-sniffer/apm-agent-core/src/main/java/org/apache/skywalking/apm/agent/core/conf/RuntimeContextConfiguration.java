@@ -23,6 +23,7 @@ public class RuntimeContextConfiguration {
 
     public static String[] NEED_PROPAGATE_CONTEXT_KEY = new String[] {
         "SW_REQUEST",
-        "SW_RESPONSE"
+        "SW_RESPONSE",
+        "SW_WEBFLUX_REQUEST_KEY"
     };
 }

@@ -100,6 +100,28 @@ public class ComponentsDefine {
 
     public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
 
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52,"rabbitmq-producer");
+
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
+
+    public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
+  
+    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
+  
+    public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
+
+    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
+
+    public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
+
+    public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
+
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
+
+    public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
+
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -109,7 +131,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[50];
+        components = new String[100];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -125,6 +147,7 @@ public class ComponentsDefine {
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
         addComponent(SHARDING_JDBC);
+        addComponent(SHARDING_SPHERE);
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
         addComponent(HTTP_ASYNC_CLIENT);
@@ -146,6 +169,16 @@ public class ComponentsDefine {
         addComponent(ACTIVEMQ_PRODUCER);
         addComponent(ACTIVEMQ_CONSUMER);
         addComponent(UNDERTOW);
+        addComponent(RABBITMQ_PRODUCER);
+        addComponent(RABBITMQ_CONSUMER);
+        addComponent(CANAL);
+        addComponent(GSON);
+        addComponent(REDISSON);
+        addComponent(LETTUCE);
+        addComponent(ZOOKEEPER);
+        addComponent(VERTX);
+        addComponent(SPRING_CLOUD_GATEWAY);
+        addComponent(RESTEASY);
     }
 
     private void addComponent(OfficialComponent component) {

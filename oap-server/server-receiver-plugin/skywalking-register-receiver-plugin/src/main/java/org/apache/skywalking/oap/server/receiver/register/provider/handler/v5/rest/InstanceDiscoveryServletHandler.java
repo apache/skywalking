@@ -20,16 +20,17 @@ package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.r
 
 import com.google.gson.*;
 import java.io.IOException;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.*;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
+
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
 
 /**
  * @author peng-yongsheng
@@ -70,25 +71,27 @@ public class InstanceDiscoveryServletHandler extends JettyJsonHandler {
             long registerTime = instance.get(REGISTER_TIME).getAsLong();
             JsonObject osInfoJson = instance.get(OS_INFO).getAsJsonObject();
 
-            ServiceInstanceInventory.AgentOsInfo agentOsInfo = new ServiceInstanceInventory.AgentOsInfo();
-            agentOsInfo.setHostname(osInfoJson.get("osName").getAsString());
-            agentOsInfo.setOsName(osInfoJson.get("hostName").getAsString());
-            agentOsInfo.setProcessNo(osInfoJson.get("processId").getAsInt());
-
+            List<String> ipv4sList = new ArrayList<>();
             JsonArray ipv4s = osInfoJson.get("ipv4s").getAsJsonArray();
-            ipv4s.forEach(ipv4 -> agentOsInfo.getIpv4s().add(ipv4.getAsString()));
+            ipv4s.forEach(ipv4 -> ipv4sList.add(ipv4.getAsString()));
 
             ServiceInventory serviceInventory = serviceInventoryCache.get(applicationId);
 
+            JsonObject instanceProperties = new JsonObject();
+            instanceProperties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, osInfoJson.get("hostName").getAsString());
+            instanceProperties.addProperty(ServiceInstanceInventory.PropertyUtil.OS_NAME, osInfoJson.get("osName").getAsString());
+            instanceProperties.addProperty(ServiceInstanceInventory.PropertyUtil.PROCESS_NO, osInfoJson.get("processId").getAsInt() + "");
+            instanceProperties.addProperty(ServiceInstanceInventory.PropertyUtil.IPV4S, ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4sList));
+
             String instanceName = serviceInventory.getName();
-            if (agentOsInfo.getProcessNo() != 0) {
-                instanceName += "-pid:" + agentOsInfo.getProcessNo();
+            if (instanceProperties.has(PROCESS_NO)) {
+                instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();
             }
-            if (StringUtils.isNotEmpty(agentOsInfo.getHostname())) {
-                instanceName += "@" + agentOsInfo.getHostname();
+            if (instanceProperties.has(HOST_NAME)) {
+                instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
             }
 
-            int instanceId = serviceInstanceInventoryRegister.getOrCreate(applicationId, instanceName, agentUUID, registerTime, agentOsInfo);
+            int instanceId = serviceInstanceInventoryRegister.getOrCreate(applicationId, instanceName, agentUUID, registerTime, instanceProperties);
             responseJson.addProperty(APPLICATION_ID, applicationId);
             responseJson.addProperty(INSTANCE_ID, instanceId);
         } catch (IOException e) {

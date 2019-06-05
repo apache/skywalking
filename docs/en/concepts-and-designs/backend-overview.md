@@ -3,11 +3,11 @@ OAP(Observability Analysis Platform) is a new concept, which starts in SkyWalkin
 old SkyWalking whole backend. The capabilities of the platform are following.
 
 ## OAP capabilities
-OAP accepts data from more sources, which belongs two groups: **Tracing** and **Metric**.
+OAP accepts data from more sources, which belongs two groups: **Tracing** and **Metrics**.
 
 - **Tracing**. Including, SkyWalking native data formats. Zipkin v1,v2 data formats and Jaeger data formats.
-- **Metric**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, Linkerd, to provide observability from data panel 
-or control panel. Also, SkyWalking native agents can run in metric mode, which highly improve the 
+- **Metrics**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, Linkerd, to provide observability from data panel 
+or control panel. Also, SkyWalking native agents can run in metrics mode, which highly improve the 
 performance.
 
 At the same time by using any integration solution provided, such as SkyWalking log plugin or toolkits, 
@@ -19,16 +19,16 @@ As usual, all services provided by gRPC and HTTP protocol to make integration ea
 ## Tracing in OAP
 Tracing in OAP has two ways to process.
 1. Traditional way in SkyWalking 5 series. Format tracing data in SkyWalking trace segment and span formats, 
-even for Zipkin data format. The AOP analysis the segments to get metrics, and push the metric data into
+even for Zipkin data format. The OAP analysis the segments to get metrics, and push the metrics data into
 the streaming aggregation.
 1. Consider tracing as some kinds of logging only. Just provide save and visualization capabilities for trace. 
 
 Also, SkyWalking accepts trace formats from other project, such as Zipkin, Jeager, OpenCensus.
 These formats could be processed in the two ways too.
 
-## Metric in OAP
-Metric in OAP is totally new feature in 6 series. Build observability for a distributed system based on metric of connected nodes.
+## Metrics in OAP
+Metrics in OAP is totally new feature in 6 series. Build observability for a distributed system based on metrics of connected nodes.
 No tracing data is required.
 
-Metric data are aggregated inside AOP cluster in streaming mode. See about [Observability Analysis Language](oal.md),
+Metrics data are aggregated inside OAP cluster in streaming mode. See about [Observability Analysis Language](oal.md),
 which provides the easy way to do aggregation and analysis in script style. 

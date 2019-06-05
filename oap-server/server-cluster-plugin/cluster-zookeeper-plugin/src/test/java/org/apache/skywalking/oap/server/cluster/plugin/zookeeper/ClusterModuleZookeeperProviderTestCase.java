@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.curator.test.TestingServer;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.junit.*;
 
@@ -52,7 +53,7 @@ public class ClusterModuleZookeeperProviderTestCase {
         ClusterRegister moduleRegister = provider.getService(ClusterRegister.class);
         ClusterNodesQuery clusterNodesQuery = provider.getService(ClusterNodesQuery.class);
 
-        RemoteInstance remoteInstance = new RemoteInstance("ProviderAHost", 1000, true);
+        RemoteInstance remoteInstance = new RemoteInstance(new Address("ProviderAHost", 1000, true));
 
         moduleRegister.registerRemote(remoteInstance);
 
@@ -63,8 +64,8 @@ public class ClusterModuleZookeeperProviderTestCase {
                 continue;
             }
             Assert.assertEquals(1, detailsList.size());
-            Assert.assertEquals("ProviderAHost", detailsList.get(0).getHost());
-            Assert.assertEquals(1000, detailsList.get(0).getPort());
+            Assert.assertEquals("ProviderAHost", detailsList.get(0).getAddress().getHost());
+            Assert.assertEquals(1000, detailsList.get(0).getAddress().getPort());
         }
 
     }

@@ -19,23 +19,36 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetricServiceGrpc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.slf4j.*;
 
 public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
 
+    private HistogramMetrics histogram;
+
+    public MeshGRPCHandler(ModuleManager moduleManager) {
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+    }
+
     @Override
     public StreamObserver<ServiceMeshMetric> collect(StreamObserver<MeshProbeDownstream> responseObserver) {
         return new StreamObserver<ServiceMeshMetric>() {
-            @Override public void onNext(ServiceMeshMetric metric) {
+            @Override public void onNext(ServiceMeshMetric metrics) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Received mesh metric: {}", metric);
+                    logger.debug("Received mesh metrics: {}", metrics);
                 }
-                TelemetryDataDispatcher.preProcess(metric);
+                HistogramMetrics.Timer timer = histogram.createTimer();
+                try {
+                    TelemetryDataDispatcher.preProcess(metrics);
+                } finally {
+                    timer.finish();
+                }
             }
 
             @Override public void onError(Throwable throwable) {

@@ -22,10 +22,13 @@ import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentSource;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +36,14 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
 
-    private final Boolean debug;
     private final SegmentParseV2.Producer segmentProducer;
+    private HistogramMetrics histogram;
 
-    public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer) {
-        this.debug = System.getProperty("debug") != null;
+    public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer, ModuleManager moduleManager) {
         this.segmentProducer = segmentProducer;
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric("trace_grpc_v6_in_latency", "The process latency of service mesh telemetry",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Commands> responseObserver) {
@@ -48,7 +53,12 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                     logger.debug("receive segment");
                 }
 
-                segmentProducer.send(segment, SegmentSource.Agent);
+                HistogramMetrics.Timer timer = histogram.createTimer();
+                try {
+                    segmentProducer.send(segment, SegmentSource.Agent);
+                } finally {
+                    timer.finish();
+                }
             }
 
             @Override public void onError(Throwable throwable) {

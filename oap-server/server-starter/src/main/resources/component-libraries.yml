@@ -129,6 +129,9 @@ h2-jdbc-driver:
 mysql-connector-java:
   id: 33
   languages: Java
+ojdbc:
+  id: 34
+  languages: Java
 Spymemcached:
   id: 35
   languages: Java
@@ -177,6 +180,42 @@ http:
 rpc:
   id: 50
   languages: Java,C#,Node.js
+RabbitMQ:
+  id: 51
+  languages: Java
+rabbitmq-producer:
+  id: 52
+  languages: Java
+rabbitmq-consumer:
+  id: 53
+  languages: Java
+Canal:
+  id: 54
+  languages: Java
+Gson:
+  id: 55
+  languages: Java
+Redisson:
+  id: 56
+  languages: Java
+Lettuce:
+  id: 57
+  languages: Java
+Zookeeper:
+  id: 58
+  languages: Java
+Vertx:
+  id: 59
+  languages: Java
+ShardingSphere:
+  id: 60
+  languages: Java
+spring-cloud-gateway:
+  id: 61
+  languages: Java
+RESTEasy:
+  id: 62
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -225,6 +264,9 @@ InMemoryDatabase:
 AspNet:
   id: 3015
   languages: C#
+SmartSql:
+  id: 3016
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
@@ -252,6 +294,8 @@ Component-Server-Mappings:
   kafka-consumer: Kafka
   activemq-producer: ActiveMQ
   activemq-consumer: ActiveMQ
+  rabbitmq-producer: RabbitMQ
+  rabbitmq-consumer: RabbitMQ
   postgresql-jdbc-driver: PostgreSQL
   Xmemcached: Memcached
   Spymemcached: Memcached
@@ -259,6 +303,9 @@ Component-Server-Mappings:
   mysql-connector-java: Mysql
   Jedis: Redis
   StackExchange.Redis: Redis
+  Redisson: Redis
+  Lettuce: Redis
+  Zookeeper: Zookeeper
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql

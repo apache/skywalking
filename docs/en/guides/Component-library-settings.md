@@ -55,6 +55,9 @@ Remote server will be conjectured by the local component. The mappings are based
 Component-Server-Mappings:
   Jedis: Redis
   StackExchange.Redis: Redis
+  Redisson: Redis
+  Lettuce: Redis
+  Zookeeper: Zookeeper
   SqlClient: SqlServer
   Npgsql: PostgreSQL
   MySqlConnector: Mysql

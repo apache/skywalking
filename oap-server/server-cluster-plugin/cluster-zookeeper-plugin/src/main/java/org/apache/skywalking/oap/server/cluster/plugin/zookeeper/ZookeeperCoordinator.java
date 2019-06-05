@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import com.google.common.base.Strings;
 import java.util.*;
 import org.apache.curator.x.discovery.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.*;
 
 /**
@@ -29,23 +32,28 @@ import org.slf4j.*;
 public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
     private static final Logger logger = LoggerFactory.getLogger(ZookeeperCoordinator.class);
 
+    private final ClusterModuleZookeeperConfig config;
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private volatile ServiceCache<RemoteInstance> serviceCache;
-    private volatile RemoteInstance selfInstance;
+    private volatile Address selfAddress;
 
-    ZookeeperCoordinator(ServiceDiscovery<RemoteInstance> serviceDiscovery) {
+    ZookeeperCoordinator(ClusterModuleZookeeperConfig config, ServiceDiscovery<RemoteInstance> serviceDiscovery) {
+        this.config = config;
         this.serviceDiscovery = serviceDiscovery;
     }
 
     @Override public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
             String remoteNamePath = "remote";
+            if (needUsingInternalAddr()) {
+                remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
+            }
 
             ServiceInstance<RemoteInstance> thisInstance = ServiceInstance.<RemoteInstance>builder()
                 .name(remoteNamePath)
                 .id(UUID.randomUUID().toString())
-                .address(remoteInstance.getHost())
-                .port(remoteInstance.getPort())
+                .address(remoteInstance.getAddress().getHost())
+                .port(remoteInstance.getAddress().getPort())
                 .payload(remoteInstance)
                 .build();
 
@@ -57,7 +65,8 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
             serviceCache.start();
 
-            this.selfInstance = remoteInstance;
+            this.selfAddress = remoteInstance.getAddress();
+            TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }
@@ -70,14 +79,18 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();
-                if (instance.equals(selfInstance)) {
-                    instance.setSelf(true);
+                if (instance.getAddress().equals(selfAddress)) {
+                    instance.getAddress().setSelf(true);
                 } else {
-                    instance.setSelf(false);
+                    instance.getAddress().setSelf(false);
                 }
                 remoteInstanceDetails.add(instance);
             });
         }
         return remoteInstanceDetails;
+    }
+
+    private boolean needUsingInternalAddr() {
+        return !Strings.isNullOrEmpty(config.getInternalComHost()) && config.getInternalComPort() > 0;
     }
 }
