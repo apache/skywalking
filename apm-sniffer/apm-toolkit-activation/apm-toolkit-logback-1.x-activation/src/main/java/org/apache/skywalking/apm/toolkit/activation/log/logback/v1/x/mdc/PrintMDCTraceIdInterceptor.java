@@ -36,6 +36,14 @@ public class PrintMDCTraceIdInterceptor implements InstanceMethodsAroundIntercep
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        if (!ContextManager.isActive()) {
+            if (allArguments[0] instanceof EnhancedInstance) {
+                String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+                if (tid != null) {
+                    return "TID:" + tid;
+                }
+            }
+        }
         return "TID:" + ContextManager.getGlobalTraceId();
     }
 
