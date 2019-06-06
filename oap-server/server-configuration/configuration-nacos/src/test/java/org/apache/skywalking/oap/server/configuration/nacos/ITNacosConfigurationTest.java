@@ -67,7 +67,7 @@ public class ITNacosConfigurationTest {
         assertNull(provider.watcher.value());
 
         final Properties properties = new Properties();
-        properties.put("serverAddr", "127.0.0.1:8848");
+        properties.put("serverAddr", "localhost:8848");
         final ConfigService configService = NacosFactory.createConfigService(properties);
         assertTrue(configService.publishConfig("test-module.default.testKey", "skywalking", "500"));
 
@@ -78,7 +78,7 @@ public class ITNacosConfigurationTest {
 
         assertTrue(configService.removeConfig("test-module.default.testKey", "skywalking"));
 
-        for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
+        for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
         }
 
         assertNull(provider.watcher.value());
