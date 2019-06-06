@@ -67,7 +67,7 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>mysql</name>
+                                    <name>mysql:5.7</name>
                                     <alias>mysql</alias>
                                     <run>
                                         <env>
