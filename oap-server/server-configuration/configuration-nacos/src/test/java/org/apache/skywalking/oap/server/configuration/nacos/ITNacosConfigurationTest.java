@@ -74,6 +74,13 @@ public class ITNacosConfigurationTest {
         }
 
         assertEquals("500", provider.watcher.value());
+
+        assertTrue(configService.removeConfig("test-module.default.testKey", "skywalking"));
+
+        for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
+        }
+
+        assertNull(provider.watcher.value());
     }
 
     @SuppressWarnings("unchecked")
