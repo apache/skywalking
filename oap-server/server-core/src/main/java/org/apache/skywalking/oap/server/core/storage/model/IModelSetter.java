@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -27,7 +26,5 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface IModelSetter extends Service {
 
-    Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage);
-
-    Model putIfAbsent(Class aClass, String modelName, int scopeId, Storage storage, Downsampling downsampling);
+    Model putIfAbsent(Class aClass, int scopeId, Storage storage);
 }

@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.*;
  *
  * @author Observability Analysis Language code generator
  */
-@Stream(name = "service_avg", scopeId = 1, storage = @Storage(builder = ServiceAvgMetrics.Builder.class), processor = MetricsStreamProcessor.class)
+@Stream(name = "service_avg", scopeId = 1, builder = ServiceAvgMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
 
     @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;

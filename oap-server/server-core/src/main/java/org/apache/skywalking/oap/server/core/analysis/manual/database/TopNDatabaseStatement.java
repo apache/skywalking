@@ -25,14 +25,13 @@ import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  *
  * @author wusheng
  */
-@Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, storage = @Storage(builder = TopNDatabaseStatement.Builder.class), processor = TopNStreamProcessor.class)
+@Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
 public class TopNDatabaseStatement extends TopN {
 
     public static final String INDEX_NAME = "top_n_database_statement";

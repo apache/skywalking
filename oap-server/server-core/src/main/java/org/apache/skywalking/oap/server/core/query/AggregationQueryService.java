@@ -21,14 +21,15 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
-import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
@@ -49,9 +50,9 @@ public class AggregationQueryService implements Service {
         return aggregationQueryDAO;
     }
 
-    public List<TopNEntity> getServiceTopN(final String indName, final int topN, final Step step, final long startTB,
+    public List<TopNEntity> getServiceTopN(final String indName, final int topN, final Downsampling downsampling, final long startTB,
         final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
             ServiceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {
@@ -61,9 +62,9 @@ public class AggregationQueryService implements Service {
         return topNEntities;
     }
 
-    public List<TopNEntity> getAllServiceInstanceTopN(final String indName, final int topN, final Step step,
+    public List<TopNEntity> getAllServiceInstanceTopN(final String indName, final int topN, final Downsampling downsampling,
         final long startTB, final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllServiceInstanceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllServiceInstanceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
             ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {
@@ -74,8 +75,8 @@ public class AggregationQueryService implements Service {
     }
 
     public List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String indName, final int topN,
-        final Step step, final long startTB, final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceInstanceTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        final Downsampling downsampling, final long startTB, final long endTB, final Order order) throws IOException {
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceInstanceTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
             ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {
@@ -85,9 +86,9 @@ public class AggregationQueryService implements Service {
         return topNEntities;
     }
 
-    public List<TopNEntity> getAllEndpointTopN(final String indName, final int topN, final Step step,
+    public List<TopNEntity> getAllEndpointTopN(final String indName, final int topN, final Downsampling downsampling,
         final long startTB, final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllEndpointTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllEndpointTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
             EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {
@@ -98,8 +99,8 @@ public class AggregationQueryService implements Service {
     }
 
     public List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, final int topN,
-        final Step step, final long startTB, final long endTB, final Order order) throws IOException {
-        List<TopNEntity> topNEntities = getAggregationQueryDAO().getEndpointTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, step, startTB, endTB, order);
+        final Downsampling downsampling, final long startTB, final long endTB, final Order order) throws IOException {
+        List<TopNEntity> topNEntities = getAggregationQueryDAO().getEndpointTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
             EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.valueOf(entity.getId()));
             if (inventory != null) {

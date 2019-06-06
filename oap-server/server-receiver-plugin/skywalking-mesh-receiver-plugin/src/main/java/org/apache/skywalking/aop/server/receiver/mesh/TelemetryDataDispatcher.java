@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.slf4j.*;
 
 /**
@@ -89,7 +89,7 @@ public class TelemetryDataDispatcher {
      */
     static void doDispatch(ServiceMeshMetricDataDecorator decorator) {
         ServiceMeshMetric metrics = decorator.getMetric();
-        long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metrics.getStartTime());
+        long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getStartTime());
 
         heartbeat(decorator, minuteTimeBucket);
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metrics.getDetectPoint())) {
