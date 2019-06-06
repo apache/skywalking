@@ -55,7 +55,7 @@
                     <sourceMode>all</sourceMode>
                     <logDate>default</logDate>
                     <verbose>true</verbose>
-                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                    <imagePullPolicy>Always</imagePullPolicy>
                 </configuration>
                 <executions>
                     <execution>
@@ -101,6 +101,9 @@
                                         <dependsOn>
                                             <container>mysql</container>
                                         </dependsOn>
+                                        <links>
+                                            <llink>mysql</llink>
+                                        </links>
                                         <ports>
                                             <port>8848:8848</port>
                                         </ports>
