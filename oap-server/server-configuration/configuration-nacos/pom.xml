@@ -45,4 +45,83 @@
             <artifactId>nacos-client</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <sourceMode>all</sourceMode>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
+                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>mysql</name>
+                                    <alias>mysql</alias>
+                                    <run>
+                                        <env>
+                                            <MYSQL_MASTER_SERVICE_HOST>127.0.0.1</MYSQL_MASTER_SERVICE_HOST>
+                                            <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
+                                        </env>
+                                        <ports>
+                                            <port>3307:3306</port>
+                                        </ports>
+                                        <wait>
+                                            <log>ready for connections</log>
+                                            <time>30000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+                                <image>
+                                    <name>nacos/nacos-server:${nacos.version}</name>
+                                    <alias>nacos-dynamic-configuration-integration-test</alias>
+                                    <run>
+                                        <env>
+                                            <MODE>standalone</MODE>
+                                            <MYSQL_MASTER_SERVICE_HOST>127.0.0.1</MYSQL_MASTER_SERVICE_HOST>
+                                            <MYSQL_MASTER_SERVICE_DB_NAME>test</MYSQL_MASTER_SERVICE_DB_NAME>
+                                            <MYSQL_MASTER_SERVICE_PORT>3307</MYSQL_MASTER_SERVICE_PORT>
+                                        </env>
+                                        <volumes>
+                                            <bind>
+                                                <volume>docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d</volume>
+                                            </bind>
+                                        </volumes>
+                                        <dependsOn>
+                                            <container>mysql</container>
+                                        </dependsOn>
+                                        <ports>
+                                            <port>8848:8848</port>
+                                        </ports>
+                                        <wait>
+                                            <log>Nacos started successfully</log>
+                                            <time>60000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

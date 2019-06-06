@@ -22,14 +22,15 @@ import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 
 /**
  * @author kezhenxu94
@@ -39,12 +40,13 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
 
     private final NacosServerSettings settings;
     private final ConfigService configService;
-    private final Map<String, String> cachedConfigs = new ConcurrentHashMap<>();
+    private final Map<String, ConfigTable.ConfigItem> configItemKeyedByName;
 
     public NacosConfigWatcherRegister(NacosServerSettings settings) throws NacosException {
         super(settings.getPeriod());
 
         this.settings = settings;
+        this.configItemKeyedByName = new ConcurrentHashMap<>();
 
         final int port = this.settings.getPort();
         final String serverAddr = this.settings.getServerAddr();
@@ -73,20 +75,21 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Nacos config changed: {}: {}", dataId, configInfo);
         }
-        if (configInfo == null) {
-            cachedConfigs.remove(dataId);
-        } else {
-            cachedConfigs.put(dataId, configInfo);
-        }
+
+        final ConfigTable.ConfigItem configItem =
+            configItemKeyedByName.computeIfAbsent(dataId, name -> new ConfigTable.ConfigItem(name, null));
+
+        configItem.setValue(configInfo);
     }
 
     @Override
     public ConfigTable readConfig() {
         final ConfigTable table = new ConfigTable();
-        for (final String key : settings.getDataIds()) {
-            final String val = cachedConfigs.get(key);
-            table.add(new ConfigTable.ConfigItem(key, val));
+
+        for (ConfigTable.ConfigItem item : configItemKeyedByName.values()) {
+            table.add(item);
         }
+
         return table;
     }
 }
