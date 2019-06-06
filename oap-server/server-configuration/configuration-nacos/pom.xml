@@ -77,6 +77,11 @@
                                         <ports>
                                             <port>3307:3306</port>
                                         </ports>
+                                        <volumes>
+                                            <bind>
+                                                <volume>src/test/resources/docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d</volume>
+                                            </bind>
+                                        </volumes>
                                         <wait>
                                             <log>ready for connections</log>
                                             <time>30000</time>
@@ -93,11 +98,6 @@
                                             <MYSQL_MASTER_SERVICE_DB_NAME>test</MYSQL_MASTER_SERVICE_DB_NAME>
                                             <MYSQL_MASTER_SERVICE_PORT>3307</MYSQL_MASTER_SERVICE_PORT>
                                         </env>
-                                        <volumes>
-                                            <bind>
-                                                <volume>docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d</volume>
-                                            </bind>
-                                        </volumes>
                                         <dependsOn>
                                             <container>mysql</container>
                                         </dependsOn>

@@ -19,8 +19,8 @@
 CREATE DATABASE test DEFAULT CHARACTER SET = 'utf8';
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = config_info   */
+/*   database name = nacos_config   */
+/*   table_name = config_info   */
 /******************************************/
 CREATE TABLE `config_info` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -44,8 +44,8 @@ CREATE TABLE `config_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='config_info';
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = config_info_aggr   */
+/*   database name = nacos_config   */
+/*   table name = config_info_aggr   */
 /******************************************/
 CREATE TABLE `config_info_aggr` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -62,8 +62,8 @@ CREATE TABLE `config_info_aggr` (
 
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = config_info_beta   */
+/*   database name = nacos_config   */
+/*   table name = config_info_beta   */
 /******************************************/
 CREATE TABLE `config_info_beta` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -83,8 +83,8 @@ CREATE TABLE `config_info_beta` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='config_info_beta';
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = config_info_tag   */
+/*   database name = nacos_config   */
+/*   table name = config_info_tag   */
 /******************************************/
 CREATE TABLE `config_info_tag` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -104,8 +104,8 @@ CREATE TABLE `config_info_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='config_info_tag';
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = config_tags_relation   */
+/*   database name = nacos_config   */
+/*   table name = config_tags_relation   */
 /******************************************/
 CREATE TABLE `config_tags_relation` (
   `id` bigint(20) NOT NULL COMMENT 'id',
@@ -121,8 +121,8 @@ CREATE TABLE `config_tags_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='config_tag_relation';
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = group_capacity   */
+/*   database name = nacos_config   */
+/*   table name = group_capacity   */
 /******************************************/
 CREATE TABLE `group_capacity` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -140,8 +140,8 @@ CREATE TABLE `group_capacity` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='集群、各Group容量信息表';
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = his_config_info   */
+/*   database name = nacos_config   */
+/*   table name = his_config_info   */
 /******************************************/
 CREATE TABLE `his_config_info` (
   `id` bigint(64) unsigned NOT NULL,
@@ -165,8 +165,8 @@ CREATE TABLE `his_config_info` (
 
 
 /******************************************/
-/*   数据库全名 = nacos_config   */
-/*   表名称 = tenant_capacity   */
+/*   database name = nacos_config   */
+/*   table name = tenant_capacity   */
 /******************************************/
 CREATE TABLE `tenant_capacity` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
