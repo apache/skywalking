@@ -61,6 +61,7 @@ public class ITNacosConfigurationTest {
         assertNotNull(provider);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Test(timeout = 10000)
     public void shouldReadUpdated() throws NacosException {
         assertNull(provider.watcher.value());
