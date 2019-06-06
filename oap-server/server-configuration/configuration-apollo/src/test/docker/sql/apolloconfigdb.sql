@@ -67,11 +67,9 @@ CREATE TABLE `App` (
 -- Dumping data for table `App`
 --
 
-LOCK TABLES `App` WRITE;
 /*!40000 ALTER TABLE `App` DISABLE KEYS */;
 INSERT INTO `App` VALUES (1,'SampleApp','Sample App','TEST1','样例部门1','apollo','apollo@acme.com','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `App` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `AppNamespace`
@@ -103,11 +101,9 @@ CREATE TABLE `AppNamespace` (
 -- Dumping data for table `AppNamespace`
 --
 
-LOCK TABLES `AppNamespace` WRITE;
 /*!40000 ALTER TABLE `AppNamespace` DISABLE KEYS */;
 INSERT INTO `AppNamespace` VALUES (1,'application','SampleApp','properties','\0','default app namespace','\0','','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `AppNamespace` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Audit`
@@ -136,10 +132,8 @@ CREATE TABLE `Audit` (
 -- Dumping data for table `Audit`
 --
 
-LOCK TABLES `Audit` WRITE;
 /*!40000 ALTER TABLE `Audit` DISABLE KEYS */;
 /*!40000 ALTER TABLE `Audit` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Cluster`
@@ -169,11 +163,9 @@ CREATE TABLE `Cluster` (
 -- Dumping data for table `Cluster`
 --
 
-LOCK TABLES `Cluster` WRITE;
 /*!40000 ALTER TABLE `Cluster` DISABLE KEYS */;
 INSERT INTO `Cluster` VALUES (1,'default','SampleApp',0,'\0','','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `Cluster` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Commit`
@@ -206,10 +198,8 @@ CREATE TABLE `Commit` (
 -- Dumping data for table `Commit`
 --
 
-LOCK TABLES `Commit` WRITE;
 /*!40000 ALTER TABLE `Commit` DISABLE KEYS */;
 /*!40000 ALTER TABLE `Commit` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `GrayReleaseRule`
@@ -242,10 +232,8 @@ CREATE TABLE `GrayReleaseRule` (
 -- Dumping data for table `GrayReleaseRule`
 --
 
-LOCK TABLES `GrayReleaseRule` WRITE;
 /*!40000 ALTER TABLE `GrayReleaseRule` DISABLE KEYS */;
 /*!40000 ALTER TABLE `GrayReleaseRule` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Instance`
@@ -273,10 +261,8 @@ CREATE TABLE `Instance` (
 -- Dumping data for table `Instance`
 --
 
-LOCK TABLES `Instance` WRITE;
 /*!40000 ALTER TABLE `Instance` DISABLE KEYS */;
 /*!40000 ALTER TABLE `Instance` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `InstanceConfig`
@@ -307,10 +293,8 @@ CREATE TABLE `InstanceConfig` (
 -- Dumping data for table `InstanceConfig`
 --
 
-LOCK TABLES `InstanceConfig` WRITE;
 /*!40000 ALTER TABLE `InstanceConfig` DISABLE KEYS */;
 /*!40000 ALTER TABLE `InstanceConfig` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Item`
@@ -341,11 +325,9 @@ CREATE TABLE `Item` (
 -- Dumping data for table `Item`
 --
 
-LOCK TABLES `Item` WRITE;
 /*!40000 ALTER TABLE `Item` DISABLE KEYS */;
 INSERT INTO `Item` VALUES (1,1,'timeout','100','sample timeout配置',1,'\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `Item` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Namespace`
@@ -375,11 +357,9 @@ CREATE TABLE `Namespace` (
 -- Dumping data for table `Namespace`
 --
 
-LOCK TABLES `Namespace` WRITE;
 /*!40000 ALTER TABLE `Namespace` DISABLE KEYS */;
 INSERT INTO `Namespace` VALUES (1,'SampleApp','default','application','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `Namespace` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `NamespaceLock`
@@ -406,10 +386,8 @@ CREATE TABLE `NamespaceLock` (
 -- Dumping data for table `NamespaceLock`
 --
 
-LOCK TABLES `NamespaceLock` WRITE;
 /*!40000 ALTER TABLE `NamespaceLock` DISABLE KEYS */;
 /*!40000 ALTER TABLE `NamespaceLock` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Release`
@@ -444,11 +422,9 @@ CREATE TABLE `Release` (
 -- Dumping data for table `Release`
 --
 
-LOCK TABLES `Release` WRITE;
 /*!40000 ALTER TABLE `Release` DISABLE KEYS */;
 INSERT INTO `Release` VALUES (1,'20161009155425-d3a0749c6e20bc15','20161009155424-release','Sample发布','SampleApp','default','application','{\"timeout\":\"100\"}','\0','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `Release` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ReleaseHistory`
@@ -483,11 +459,9 @@ CREATE TABLE `ReleaseHistory` (
 -- Dumping data for table `ReleaseHistory`
 --
 
-LOCK TABLES `ReleaseHistory` WRITE;
 /*!40000 ALTER TABLE `ReleaseHistory` DISABLE KEYS */;
 INSERT INTO `ReleaseHistory` VALUES (1,'SampleApp','default','application','default',1,0,0,'{}','\0','apollo','2019-06-06 15:14:00','apollo','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `ReleaseHistory` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ReleaseMessage`
@@ -510,10 +484,8 @@ CREATE TABLE `ReleaseMessage` (
 -- Dumping data for table `ReleaseMessage`
 --
 
-LOCK TABLES `ReleaseMessage` WRITE;
 /*!40000 ALTER TABLE `ReleaseMessage` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ReleaseMessage` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ServerConfig`
@@ -543,11 +515,9 @@ CREATE TABLE `ServerConfig` (
 -- Dumping data for table `ServerConfig`
 --
 
-LOCK TABLES `ServerConfig` WRITE;
 /*!40000 ALTER TABLE `ServerConfig` DISABLE KEYS */;
 INSERT INTO `ServerConfig` VALUES (1,'eureka.service.url','default','http://localhost:8080/eureka/','Eureka服务Url，多个service以英文逗号分隔','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(2,'namespace.lock.switch','default','false','一次发布只能有一个人修改开关','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(3,'item.value.length.limit','default','20000','item value最大长度限制','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(4,'config-service.cache.enabled','default','false','ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(5,'item.key.length.limit','default','128','item key 最大长度限制','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `ServerConfig` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

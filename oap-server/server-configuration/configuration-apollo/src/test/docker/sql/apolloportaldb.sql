@@ -67,11 +67,9 @@ CREATE TABLE `App` (
 -- Dumping data for table `App`
 --
 
-LOCK TABLES `App` WRITE;
 /*!40000 ALTER TABLE `App` DISABLE KEYS */;
 INSERT INTO `App` VALUES (1,'SampleApp','Sample App','TEST1','样例部门1','apollo','apollo@acme.com','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `App` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `AppNamespace`
@@ -103,11 +101,9 @@ CREATE TABLE `AppNamespace` (
 -- Dumping data for table `AppNamespace`
 --
 
-LOCK TABLES `AppNamespace` WRITE;
 /*!40000 ALTER TABLE `AppNamespace` DISABLE KEYS */;
 INSERT INTO `AppNamespace` VALUES (1,'application','SampleApp','properties','\0','default app namespace','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `AppNamespace` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Authorities`
@@ -128,11 +124,9 @@ CREATE TABLE `Authorities` (
 -- Dumping data for table `Authorities`
 --
 
-LOCK TABLES `Authorities` WRITE;
 /*!40000 ALTER TABLE `Authorities` DISABLE KEYS */;
 INSERT INTO `Authorities` VALUES (1,'apollo','ROLE_user');
 /*!40000 ALTER TABLE `Authorities` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Consumer`
@@ -164,11 +158,9 @@ CREATE TABLE `Consumer` (
 -- Dumping data for table `Consumer`
 --
 
-LOCK TABLES `Consumer` WRITE;
 /*!40000 ALTER TABLE `Consumer` DISABLE KEYS */;
 INSERT INTO `Consumer` VALUES (1,'SkyWalking','SkyWalking','TEST1','样例部门1','apollo','apollo@acme.com','\0','apollo','2019-06-06 15:17:07','apollo','2019-06-06 15:17:07');
 /*!40000 ALTER TABLE `Consumer` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ConsumerAudit`
@@ -193,11 +185,6 @@ CREATE TABLE `ConsumerAudit` (
 --
 -- Dumping data for table `ConsumerAudit`
 --
-
-LOCK TABLES `ConsumerAudit` WRITE;
-/*!40000 ALTER TABLE `ConsumerAudit` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ConsumerAudit` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ConsumerRole`
@@ -226,11 +213,6 @@ CREATE TABLE `ConsumerRole` (
 -- Dumping data for table `ConsumerRole`
 --
 
-LOCK TABLES `ConsumerRole` WRITE;
-/*!40000 ALTER TABLE `ConsumerRole` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ConsumerRole` ENABLE KEYS */;
-UNLOCK TABLES;
-
 --
 -- Table structure for table `ConsumerToken`
 --
@@ -258,11 +240,9 @@ CREATE TABLE `ConsumerToken` (
 -- Dumping data for table `ConsumerToken`
 --
 
-LOCK TABLES `ConsumerToken` WRITE;
 /*!40000 ALTER TABLE `ConsumerToken` DISABLE KEYS */;
 INSERT INTO `ConsumerToken` VALUES (1,1,'f71f002a4ff9845639ef655ee7019759e31449de','2099-01-01 00:00:00','\0','apollo','2019-06-06 15:17:07','apollo','2019-06-06 15:17:07');
 /*!40000 ALTER TABLE `ConsumerToken` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Favorite`
@@ -292,11 +272,6 @@ CREATE TABLE `Favorite` (
 -- Dumping data for table `Favorite`
 --
 
-LOCK TABLES `Favorite` WRITE;
-/*!40000 ALTER TABLE `Favorite` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Favorite` ENABLE KEYS */;
-UNLOCK TABLES;
-
 --
 -- Table structure for table `Permission`
 --
@@ -323,11 +298,9 @@ CREATE TABLE `Permission` (
 -- Dumping data for table `Permission`
 --
 
-LOCK TABLES `Permission` WRITE;
 /*!40000 ALTER TABLE `Permission` DISABLE KEYS */;
 INSERT INTO `Permission` VALUES (1,'CreateCluster','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,'CreateNamespace','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,'AssignRole','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(4,'ModifyNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(5,'ReleaseNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `Permission` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Role`
@@ -354,11 +327,9 @@ CREATE TABLE `Role` (
 -- Dumping data for table `Role`
 --
 
-LOCK TABLES `Role` WRITE;
 /*!40000 ALTER TABLE `Role` DISABLE KEYS */;
 INSERT INTO `Role` VALUES (1,'Master+SampleApp','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,'ModifyNamespace+SampleApp+application','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,'ReleaseNamespace+SampleApp+application','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `Role` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `RolePermission`
@@ -387,11 +358,9 @@ CREATE TABLE `RolePermission` (
 -- Dumping data for table `RolePermission`
 --
 
-LOCK TABLES `RolePermission` WRITE;
 /*!40000 ALTER TABLE `RolePermission` DISABLE KEYS */;
 INSERT INTO `RolePermission` VALUES (1,1,1,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,1,2,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,1,3,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(4,2,4,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(5,3,5,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `RolePermission` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ServerConfig`
@@ -420,11 +389,9 @@ CREATE TABLE `ServerConfig` (
 -- Dumping data for table `ServerConfig`
 --
 
-LOCK TABLES `ServerConfig` WRITE;
 /*!40000 ALTER TABLE `ServerConfig` DISABLE KEYS */;
 INSERT INTO `ServerConfig` VALUES (1,'apollo.portal.envs','dev','可支持的环境列表','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,'organizations','[{\"orgId\":\"TEST1\",\"orgName\":\"样例部门1\"},{\"orgId\":\"TEST2\",\"orgName\":\"样例部门2\"}]','部门列表','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,'superAdmin','apollo','Portal超级管理员','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(4,'api.readTimeout','10000','http接口read timeout','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(5,'consumer.token.salt','someSalt','consumer token salt','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(6,'admin.createPrivateNamespace.switch','true','是否允许项目管理员创建私有namespace','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(7,'configView.memberOnly.envs','dev','只对项目成员显示配置信息的环境列表，多个env以英文逗号分隔','\0','default','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `ServerConfig` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `UserRole`
@@ -453,11 +420,9 @@ CREATE TABLE `UserRole` (
 -- Dumping data for table `UserRole`
 --
 
-LOCK TABLES `UserRole` WRITE;
 /*!40000 ALTER TABLE `UserRole` DISABLE KEYS */;
 INSERT INTO `UserRole` VALUES (1,'apollo',1,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,'apollo',2,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,'apollo',3,'\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `UserRole` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Users`
@@ -480,11 +445,9 @@ CREATE TABLE `Users` (
 -- Dumping data for table `Users`
 --
 
-LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
 INSERT INTO `Users` VALUES (1,'apollo','$2a$10$7r20uS.BQ9uBpf3Baj3uQOZvMVvB1RN3PYoKE94gtz2.WAOuiiwXS','apollo@acme.com',1);
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

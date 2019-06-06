@@ -28,7 +28,7 @@ public class ApolloConfigurationCenterSettings extends ModuleConfig {
     private String apolloMeta;
     private String apolloEnv;
     private String appId = "skywalking";
-    private String namespace;
+    private String namespace = "application";
     private String clusterName = "default";
     private int period = 60;
 
