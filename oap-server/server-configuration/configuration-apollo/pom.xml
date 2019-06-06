@@ -47,4 +47,56 @@
             <artifactId>apollo-client</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <sourceMode>all</sourceMode>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
+                    <showLogs>true</showLogs>
+                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                    <images>
+                        <image>
+                            <alias>apollo-quick-start</alias>
+                            <external>
+                                <type>compose</type>
+                                <basedir>src/test/docker</basedir>
+                                <composeFile>docker-compose.yml</composeFile>
+                            </external>
+                            <run>
+                                <wait>
+                                    <http>
+                                        <url>http://localhost:8070</url>
+                                        <method>GET</method>
+                                        <status>200..399</status>
+                                    </http>
+                                    <time>600000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-dynamic-apollo-config</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>remove-it-containers</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
