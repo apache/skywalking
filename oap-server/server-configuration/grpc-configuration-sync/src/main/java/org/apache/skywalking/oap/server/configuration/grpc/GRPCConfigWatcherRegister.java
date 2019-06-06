@@ -23,6 +23,8 @@ import org.apache.skywalking.oap.server.configuration.api.*;
 import org.apache.skywalking.oap.server.configuration.service.*;
 import org.slf4j.*;
 
+import java.util.Set;
+
 /**
  * @author wusheng
  */
@@ -38,12 +40,15 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
         stub = ConfigurationServiceGrpc.newBlockingStub(NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort()).usePlaintext().build());
     }
 
-    @Override public ConfigTable readConfig() {
+    @Override public ConfigTable readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
         try {
             ConfigurationResponse response = stub.call(ConfigurationRequest.newBuilder().setClusterName(settings.getClusterName()).build());
             response.getConfigTableList().forEach(config -> {
-                table.add(new ConfigTable.ConfigItem(config.getName(), config.getValue()));
+                final String name = config.getName();
+                if (keys.contains(name)) {
+                    table.add(new ConfigTable.ConfigItem(name, config.getValue()));
+                }
             });
         } catch (Exception e) {
             logger.error("Remote config center [" + settings + "] is not available.", e);
