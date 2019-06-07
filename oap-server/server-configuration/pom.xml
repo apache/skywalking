@@ -33,6 +33,7 @@
         <module>configuration-api</module>
         <module>grpc-configuration-sync</module>
         <module>configuration-apollo</module>
+        <module>configuration-nacos</module>
     </modules>
 
 </project>

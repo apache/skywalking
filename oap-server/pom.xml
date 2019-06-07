@@ -79,6 +79,7 @@
 
         <maven-docker-plugin.version>0.28.0</maven-docker-plugin.version>
         <apollo.version>1.4.0</apollo.version>
+        <nacos.version>1.0.0</nacos.version>
     </properties>
 
     <dependencies>
@@ -365,6 +366,11 @@
                 <groupId>com.ctrip.framework.apollo</groupId>
                 <artifactId>apollo-client</artifactId>
                 <version>${apollo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
