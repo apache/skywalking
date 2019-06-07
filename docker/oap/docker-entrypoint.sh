@@ -202,17 +202,6 @@ telemetry:
     port: \${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 configuration:
   none:
-#  nacos:
-#    # Nacos Server Host
-#    serverAddr: 127.0.0.1
-#    # Nacos Server Port
-#    port: 8848
-#    # Nacos Configuration Group
-#    group: 'skywalking'
-#    # Unit seconds, sync period. Default fetch every 60 seconds.
-#    period : 60
-#    # the name of current cluster, set the name if you want to upstream system known.
-#    clusterName: "default"
 envoy-metric:
   default:
 EOT
