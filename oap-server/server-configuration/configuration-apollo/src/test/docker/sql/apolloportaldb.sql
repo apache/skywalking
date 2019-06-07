@@ -1,20 +1,3 @@
--- Licensed to the Apache Software Foundation (ASF) under one
--- or more contributor license agreements.  See the NOTICE file
--- distributed with this work for additional information
--- regarding copyright ownership.  The ASF licenses this file
--- to you under the Apache License, Version 2.0 (the
--- "License"); you may not use this file except in compliance
--- with the License.  You may obtain a copy of the License at
---
---     http://www.apache.org/licenses/LICENSE-2.0
---
--- Unless required by applicable law or agreed to in writing, software
--- distributed under the License is distributed on an "AS IS" BASIS,
--- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
--- See the License for the specific language governing permissions and
--- limitations under the License.
---
-
 -- MySQL dump 10.13  Distrib 5.7.16, for osx10.11 (x86_64)
 --
 -- Host: 127.0.0.1    Database: ApolloPortalDB
@@ -32,9 +15,13 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE DATABASE IF NOT EXISTS ApolloPortalDB DEFAULT CHARACTER SET = utf8mb4;
+--
+-- Current Database: `ApolloPortalDB`
+--
 
-USE ApolloPortalDB;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ApolloPortalDB` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+
+USE `ApolloPortalDB`;
 
 --
 -- Table structure for table `App`
@@ -179,12 +166,16 @@ CREATE TABLE `ConsumerAudit` (
   PRIMARY KEY (`Id`),
   KEY `IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `IX_ConsumerId` (`ConsumerId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `ConsumerAudit`
 --
+
+/*!40000 ALTER TABLE `ConsumerAudit` DISABLE KEYS */;
+INSERT INTO `ConsumerAudit` VALUES (1,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:27:32','2019-06-07 02:27:32'),(2,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:28:50','2019-06-07 02:28:50'),(3,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:28:50','2019-06-07 02:28:50'),(4,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:31:18','2019-06-07 02:31:18'),(5,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:31:50','2019-06-07 02:31:50'),(6,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:31:50','2019-06-07 02:31:50'),(7,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:34:37','2019-06-07 02:34:37'),(8,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:34:37','2019-06-07 02:34:37'),(9,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:36:21','2019-06-07 02:36:21'),(10,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:38:04','2019-06-07 02:38:04'),(11,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:38:04','2019-06-07 02:38:04'),(12,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:42:10','2019-06-07 02:42:10'),(13,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:42:51','2019-06-07 02:42:51'),(14,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:42:51','2019-06-07 02:42:51'),(15,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:43:33','2019-06-07 02:43:33'),(16,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:43:33','2019-06-07 02:43:33'),(17,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:44:34','2019-06-07 02:44:34'),(18,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:44:34','2019-06-07 02:44:34'),(19,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:52:32','2019-06-07 02:52:32'),(20,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:52:32','2019-06-07 02:52:32'),(21,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:54:21','2019-06-07 02:54:21'),(22,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:54:21','2019-06-07 02:54:21'),(23,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 02:54:31','2019-06-07 02:54:31'),(24,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:54:31','2019-06-07 02:54:31'),(25,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:55:47','2019-06-07 02:55:47'),(26,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:55:47','2019-06-07 02:55:47'),(27,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 02:55:57','2019-06-07 02:55:57'),(28,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:55:57','2019-06-07 02:55:57'),(29,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:58:12','2019-06-07 02:58:12'),(30,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:58:12','2019-06-07 02:58:12'),(31,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 02:58:22','2019-06-07 02:58:22'),(32,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:58:22','2019-06-07 02:58:22'),(33,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 02:59:03','2019-06-07 02:59:03'),(34,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:59:03','2019-06-07 02:59:03'),(35,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 02:59:13','2019-06-07 02:59:13'),(36,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 02:59:13','2019-06-07 02:59:13'),(37,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 03:01:38','2019-06-07 03:01:38'),(38,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:01:38','2019-06-07 03:01:38'),(39,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 03:01:48','2019-06-07 03:01:48'),(40,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:01:48','2019-06-07 03:01:48'),(41,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 03:02:19','2019-06-07 03:02:19'),(42,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:02:19','2019-06-07 03:02:19'),(43,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 03:02:29','2019-06-07 03:02:29'),(44,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:02:29','2019-06-07 03:02:29'),(45,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 03:04:05','2019-06-07 03:04:05'),(46,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:04:05','2019-06-07 03:04:05'),(47,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 03:04:15','2019-06-07 03:04:15'),(48,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:04:15','2019-06-07 03:04:15'),(49,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 03:05:21','2019-06-07 03:05:21'),(50,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:05:21','2019-06-07 03:05:21'),(51,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 03:05:31','2019-06-07 03:05:31'),(52,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:05:31','2019-06-07 03:05:31'),(53,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items','POST','2019-06-07 03:08:42','2019-06-07 03:08:42'),(54,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:08:42','2019-06-07 03:08:42'),(55,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/items/test-module.default.testKey?operator=apollo','DELETE','2019-06-07 03:08:52','2019-06-07 03:08:52'),(56,1,'/openapi/v1/envs/DEV/apps/SampleApp/clusters/default/namespaces/application/releases','POST','2019-06-07 03:08:52','2019-06-07 03:08:52');
+/*!40000 ALTER TABLE `ConsumerAudit` ENABLE KEYS */;
 
 --
 -- Table structure for table `ConsumerRole`
@@ -206,12 +197,16 @@ CREATE TABLE `ConsumerRole` (
   KEY `IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `IX_RoleId` (`RoleId`),
   KEY `IX_ConsumerId_RoleId` (`ConsumerId`,`RoleId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `ConsumerRole`
 --
+
+/*!40000 ALTER TABLE `ConsumerRole` DISABLE KEYS */;
+INSERT INTO `ConsumerRole` VALUES (1,1,1,'\0','apollo','2019-06-07 02:28:21','apollo','2019-06-07 02:28:21');
+/*!40000 ALTER TABLE `ConsumerRole` ENABLE KEYS */;
 
 --
 -- Table structure for table `ConsumerToken`
@@ -272,6 +267,9 @@ CREATE TABLE `Favorite` (
 -- Dumping data for table `Favorite`
 --
 
+/*!40000 ALTER TABLE `Favorite` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Favorite` ENABLE KEYS */;
+
 --
 -- Table structure for table `Permission`
 --
@@ -299,12 +297,7 @@ CREATE TABLE `Permission` (
 --
 
 /*!40000 ALTER TABLE `Permission` DISABLE KEYS */;
-INSERT INTO `Permission` VALUES
-(1,'CreateCluster','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
-(2,'CreateNamespace','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
-(3,'AssignRole','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
-(4,'ModifyNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
-(5,'ReleaseNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
+INSERT INTO `Permission` VALUES (1,'CreateCluster','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,'CreateNamespace','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,'AssignRole','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(4,'ModifyNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(5,'ReleaseNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `Permission` ENABLE KEYS */;
 
 --
@@ -463,4 +456,4 @@ INSERT INTO `Users` VALUES (1,'apollo','$2a$10$7r20uS.BQ9uBpf3Baj3uQOZvMVvB1RN3P
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-06 23:25:27
+-- Dump completed on 2019-06-07 11:25:01

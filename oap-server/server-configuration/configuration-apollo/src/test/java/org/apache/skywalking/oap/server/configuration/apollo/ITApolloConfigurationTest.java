@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.configuration.apollo;
 
-import com.ctrip.framework.apollo.ConfigService;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
@@ -81,8 +80,6 @@ public class ITApolloConfigurationTest {
     public void shouldReadUpdated() throws IOException {
         assertNull(provider.watcher.value());
 
-        System.out.println("ConfigService.getAppConfig().getPropertyNames() = " + ConfigService.getAppConfig().getPropertyNames());
-
         final HttpPost createConfigPost =
             new HttpPost(
                 baseUrl +
@@ -124,8 +121,6 @@ public class ITApolloConfigurationTest {
         releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
         final String releaseCreateResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
         LOGGER.info("releaseCreateResponse: {}", releaseCreateResponse);
-
-        System.out.println("ConfigService.getAppConfig().getPropertyNames() = " + ConfigService.getAppConfig().getPropertyNames());
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
