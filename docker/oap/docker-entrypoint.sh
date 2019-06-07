@@ -210,7 +210,7 @@ configuration:
 #    # Nacos Configuration Group
 #    group: 'skywalking'
 #    # Unit seconds, sync period. Default fetch every 60 seconds.
-#    period : 5
+#    period : 60
 #    # the name of current cluster, set the name if you want to upstream system known.
 #    clusterName: "default"
 envoy-metric:

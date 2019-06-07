@@ -27,10 +27,7 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
@@ -42,7 +39,7 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
 
     private final NacosServerSettings settings;
     private final ConfigService configService;
-    private final Map<String, ConfigTable.ConfigItem> configItemKeyedByName;
+    private final Map<String, Optional<String>> configItemKeyedByName;
     private final Map<String, Listener> listenersByKey;
 
     public NacosConfigWatcherRegister(NacosServerSettings settings) throws NacosException {
@@ -67,8 +64,15 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
 
         final ConfigTable table = new ConfigTable();
 
-        for (ConfigTable.ConfigItem item : configItemKeyedByName.values()) {
-            table.add(item);
+        for (Map.Entry<String, Optional<String>> entry : configItemKeyedByName.entrySet()) {
+            final String key = entry.getKey();
+            final Optional<String> value = entry.getValue();
+
+            if (value.isPresent()) {
+                table.add(new ConfigTable.ConfigItem(key, value.get()));
+            } else {
+                table.add(new ConfigTable.ConfigItem(key, null));
+            }
         }
 
         return table;
@@ -123,9 +127,6 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
             LOGGER.info("Nacos config changed: {}: {}", dataId, configInfo);
         }
 
-        final ConfigTable.ConfigItem configItem =
-            configItemKeyedByName.computeIfAbsent(dataId, name -> new ConfigTable.ConfigItem(name, null));
-
-        configItem.setValue(configInfo);
+        configItemKeyedByName.put(dataId, Optional.ofNullable(configInfo));
     }
 }

@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.configuration.nacos;
 
+import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.google.common.collect.Sets;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author kezhenxu94
@@ -45,10 +46,12 @@ public class NacosConfigWatcherRegisterTest {
         final NacosServerSettings mockSettings = mock(NacosServerSettings.class);
         when(mockSettings.getGroup()).thenReturn(group);
 
-        final NacosConfigWatcherRegister mockRegister = new NacosConfigWatcherRegister(mockSettings);
+        final NacosConfigWatcherRegister mockRegister = spy(new NacosConfigWatcherRegister(mockSettings));
+        final ConfigService mockConfigService = mock(ConfigService.class);
+        when(mockConfigService.getConfig(testKey1, group, 1000)).thenReturn(testVal1);
+        when(mockConfigService.getConfig(testKey2, group, 1000)).thenReturn(testVal2);
 
-        mockRegister.onDataIdValueChanged(testKey1, testVal1);
-        mockRegister.onDataIdValueChanged(testKey2, testVal2);
+        Whitebox.setInternalState(mockRegister, "configService", mockConfigService);
 
         final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(testKey1, testKey2));
 
