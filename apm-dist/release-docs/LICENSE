@@ -232,6 +232,7 @@ The text of each license is the standard Apache 2.0 license.
     Google: gprc-java 1.14.0: https://github.com/grpc/grpc-java, Apache 2.0
     Google: gprc-java 1.15.1: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 20.0: https://github.com/google/guava , Apache 2.0
+    Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.1: https://github.com/google/gson , Apache 2.0
     Google: opencensus-java 0.12.3: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
     Google: proto-google-common-protos 0.1.9: https://github.com/googleapis/googleapis , Apache 2.0
@@ -315,6 +316,10 @@ The text of each license is the standard Apache 2.0 license.
     proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
     proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
     proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
+    Ctripcorp: apollo-core 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
+    Ctripcorp: apollo-client 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
+    AOP Alliance: aopalliance-1.0.jar: http://aopalliance.sourceforge.net Public
+    javax-inject 1: https://github.com/javax-inject/javax-inject Apache 2.0
 
 ========================================================================
 MIT licenses
