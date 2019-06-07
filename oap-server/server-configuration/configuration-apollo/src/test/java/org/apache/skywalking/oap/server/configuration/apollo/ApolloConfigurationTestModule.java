@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.nacos;
+package org.apache.skywalking.oap.server.configuration.apollo;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 

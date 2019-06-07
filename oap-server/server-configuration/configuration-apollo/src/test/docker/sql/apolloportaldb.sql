@@ -299,7 +299,12 @@ CREATE TABLE `Permission` (
 --
 
 /*!40000 ALTER TABLE `Permission` DISABLE KEYS */;
-INSERT INTO `Permission` VALUES (1,'CreateCluster','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(2,'CreateNamespace','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(3,'AssignRole','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(4,'ModifyNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),(5,'ReleaseNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
+INSERT INTO `Permission` VALUES
+(1,'CreateCluster','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
+(2,'CreateNamespace','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
+(3,'AssignRole','SampleApp','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
+(4,'ModifyNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01'),
+(5,'ReleaseNamespace','SampleApp+application','\0','','2019-06-06 15:14:01','','2019-06-06 15:14:01');
 /*!40000 ALTER TABLE `Permission` ENABLE KEYS */;
 
 --

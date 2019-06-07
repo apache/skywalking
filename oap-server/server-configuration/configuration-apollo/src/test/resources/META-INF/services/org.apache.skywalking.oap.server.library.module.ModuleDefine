@@ -17,4 +17,4 @@
 #
 
 org.apache.skywalking.oap.server.configuration.api.ConfigurationModule
-org.apache.skywalking.oap.server.configuration.nacos.ApolloConfigurationTestModule
+org.apache.skywalking.oap.server.configuration.apollo.ApolloConfigurationTestModule

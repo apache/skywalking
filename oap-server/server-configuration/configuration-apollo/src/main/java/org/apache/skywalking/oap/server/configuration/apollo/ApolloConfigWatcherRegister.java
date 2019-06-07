@@ -26,6 +26,8 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 /**
  * @author kezhenxu94
  */
@@ -55,10 +57,10 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
     }
 
     @Override
-    public ConfigTable readConfig() {
+    public ConfigTable readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
 
-        for (final String name : configReader.getPropertyNames()) {
+        for (final String name : keys) {
             final String value = configReader.getProperty(name, null);
             configTable.add(new ConfigTable.ConfigItem(name, value));
         }

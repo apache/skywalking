@@ -21,8 +21,8 @@ test-module:
 
 configuration:
   apollo:
-    apolloMeta: http://106.12.25.204:8080
+    apolloMeta: http://127.0.0.1:8080
     apolloCluster: default
     apolloEnv: DEV
     appId: SampleApp
-    period: 5
+    period: 1

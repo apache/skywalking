@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.server.configuration.nacos.ApolloConfigurationTestProvider
+org.apache.skywalking.oap.server.configuration.apollo.ApolloConfigurationTestProvider
