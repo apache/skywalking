@@ -27,8 +27,10 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
@@ -41,12 +43,14 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
     private final NacosServerSettings settings;
     private final ConfigService configService;
     private final Map<String, ConfigTable.ConfigItem> configItemKeyedByName;
+    private final Map<String, Listener> listenersByKey;
 
     public NacosConfigWatcherRegister(NacosServerSettings settings) throws NacosException {
         super(settings.getPeriod());
 
         this.settings = settings;
         this.configItemKeyedByName = new ConcurrentHashMap<>();
+        this.listenersByKey = new ConcurrentHashMap<>();
 
         final int port = this.settings.getPort();
         final String serverAddr = this.settings.getServerAddr();
@@ -54,21 +58,64 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
         final Properties properties = new Properties();
         properties.put("serverAddr", serverAddr + ":" + port);
         this.configService = NacosFactory.createConfigService(properties);
+    }
 
-        final String group = settings.getGroup();
-        for (final String dataId : settings.getDataIds()) {
-            this.configService.addListener(dataId, group, new Listener() {
-                @Override
-                public Executor getExecutor() {
-                    return null;
-                }
+    @Override
+    public ConfigTable readConfig(Set<String> keys) {
+        removeUninterestedKeys(keys);
+        registerKeyListeners(keys);
 
-                @Override
-                public void receiveConfigInfo(String configInfo) {
-                    onDataIdValueChanged(dataId, configInfo);
-                }
-            });
+        final ConfigTable table = new ConfigTable();
+
+        for (ConfigTable.ConfigItem item : configItemKeyedByName.values()) {
+            table.add(item);
         }
+
+        return table;
+    }
+
+    private void registerKeyListeners(final Set<String> keys) {
+        final String group = settings.getGroup();
+
+        for (final String dataId : keys) {
+            if (listenersByKey.containsKey(dataId)) {
+                continue;
+            }
+            try {
+                listenersByKey.putIfAbsent(dataId, new Listener() {
+                    @Override
+                    public Executor getExecutor() {
+                        return null;
+                    }
+
+                    @Override
+                    public void receiveConfigInfo(String configInfo) {
+                        onDataIdValueChanged(dataId, configInfo);
+                    }
+                });
+                configService.addListener(dataId, group, listenersByKey.get(dataId));
+
+                // the key is newly added, read the config for the first time
+                final String config = configService.getConfig(dataId, group, 1000);
+                onDataIdValueChanged(dataId, config);
+            } catch (NacosException e) {
+                LOGGER.warn("Failed to register Nacos listener for dataId: {}", dataId);
+            }
+        }
+    }
+
+    private void removeUninterestedKeys(final Set<String> interestedKeys) {
+        final String group = settings.getGroup();
+
+        final Set<String> uninterestedKeys = new HashSet<>(listenersByKey.keySet());
+        uninterestedKeys.removeAll(interestedKeys);
+
+        uninterestedKeys.forEach(k -> {
+            final Listener listener = listenersByKey.remove(k);
+            if (listener != null) {
+                configService.removeListener(k, group, listener);
+            }
+        });
     }
 
     void onDataIdValueChanged(String dataId, String configInfo) {
@@ -80,16 +127,5 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
             configItemKeyedByName.computeIfAbsent(dataId, name -> new ConfigTable.ConfigItem(name, null));
 
         configItem.setValue(configInfo);
-    }
-
-    @Override
-    public ConfigTable readConfig() {
-        final ConfigTable table = new ConfigTable();
-
-        for (ConfigTable.ConfigItem item : configItemKeyedByName.values()) {
-            table.add(item);
-        }
-
-        return table;
     }
 }

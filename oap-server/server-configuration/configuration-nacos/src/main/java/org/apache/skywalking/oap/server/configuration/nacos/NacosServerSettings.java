@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.configuration.nacos;
 
-import java.util.List;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
@@ -28,7 +27,6 @@ public class NacosServerSettings extends ModuleConfig {
     private String clusterName = "default";
     private String serverAddr;
     private int port = 8848;
-    private List<String> dataIds;
     private String group;
     private int period = 60;
 
@@ -56,14 +54,6 @@ public class NacosServerSettings extends ModuleConfig {
         this.port = port;
     }
 
-    public List<String> getDataIds() {
-        return dataIds;
-    }
-
-    public void setDataIds(List<String> dataIds) {
-        this.dataIds = dataIds;
-    }
-
     public String getGroup() {
         return group;
     }
@@ -83,7 +73,6 @@ public class NacosServerSettings extends ModuleConfig {
     public String toString() {
         return "NacosServerSettings(clusterName=" + this.getClusterName()
             + ", serverAddr=" + this.getServerAddr()
-            + ", dataIds=" + this.getDataIds()
             + ", group=" + this.getGroup()
             + ", period=" + this.getPeriod() + ")";
     }

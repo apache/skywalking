@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.configuration.nacos;
 
 import com.alibaba.nacos.api.exception.NacosException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.Sets;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -43,16 +44,13 @@ public class NacosConfigWatcherRegisterTest {
 
         final NacosServerSettings mockSettings = mock(NacosServerSettings.class);
         when(mockSettings.getGroup()).thenReturn(group);
-        when(mockSettings.getDataIds()).thenReturn(Arrays.asList(
-            testKey1, testKey2
-        ));
 
         final NacosConfigWatcherRegister mockRegister = new NacosConfigWatcherRegister(mockSettings);
 
         mockRegister.onDataIdValueChanged(testKey1, testVal1);
         mockRegister.onDataIdValueChanged(testKey2, testVal2);
 
-        final ConfigTable configTable = mockRegister.readConfig();
+        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(testKey1, testKey2));
 
         assertEquals(2, configTable.getItems().size());
         Map<String, String> kvs = new HashMap<>();
