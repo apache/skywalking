@@ -25,3 +25,5 @@ seata/0.6.0=org.apache.skywalking.apm.plugin.seata.define.TransactionCoordinator
 seata/0.6.0=org.apache.skywalking.apm.plugin.seata.define.TransactionManagerInstrumentation
 seata/0.6.0=org.apache.skywalking.apm.plugin.seata.define.UndoLogManagerInstrumentation
 seata/0.6.0=org.apache.skywalking.apm.plugin.seata.define.TransactionStoreManagerInstrumentation
+
+seata/0.6.0=org.apache.skywalking.apm.plugin.seata.define.LockManagerInstrumentation
