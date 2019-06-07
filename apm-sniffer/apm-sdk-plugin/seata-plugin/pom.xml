@@ -31,25 +31,13 @@
     <artifactId>seata-plugin</artifactId>
 
     <properties>
-        <seata.version>0.6.0</seata.version>
+        <seata.version>0.6.1</seata.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.seata</groupId>
-            <artifactId>seata-tm</artifactId>
-            <version>${seata.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.seata</groupId>
-            <artifactId>seata-rm</artifactId>
-            <version>${seata.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.seata</groupId>
-            <artifactId>seata-rm-datasource</artifactId>
+            <artifactId>seata-all</artifactId>
             <version>${seata.version}</version>
             <scope>provided</scope>
         </dependency>
