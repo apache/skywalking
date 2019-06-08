@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface MetricValuesExportService extends Service {
     /**
-     * This method is sync-mode export, the performance effects the persistence result. Queue mode is high recommended.
+     * This method is sync-mode export, the performance effects the persistence result. Queue mode is highly recommended.
      *
      * @param event value is only accurate when the method invokes. Don't cache it.
      */

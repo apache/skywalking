@@ -57,7 +57,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     }
 
     @Override public void export(ExportEvent event) {
-        if (ExportEvent.EventType.TOTAL.equals(event.getType())) {
+        if (ExportEvent.EventType.TOTAL == event.getType()) {
             Metrics metrics = event.getMetrics();
             if (metrics instanceof WithMetadata) {
                 MetricsMetaInfo meta = ((WithMetadata)metrics).getMeta();
