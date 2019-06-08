@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>server-configuration</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>6.2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>configuration-nacos</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <sourceMode>all</sourceMode>
+                    <showLogs>true</showLogs>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
+                    <imagePullPolicy>Always</imagePullPolicy>
+                    <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
+                    <images>
+                        <image>
+                            <name>mysql:5.7</name>
+                            <alias>nacos-dynamic-configuration-integration-test-mysql</alias>
+                            <run>
+                                <network>
+                                    <name>test-network</name>
+                                    <alias>mysql</alias>
+                                </network>
+                                <env>
+                                    <MYSQL_MASTER_SERVICE_HOST>127.0.0.1</MYSQL_MASTER_SERVICE_HOST>
+                                    <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
+                                </env>
+                                <namingStrategy>none</namingStrategy>
+                                <ports>
+                                    <port>3307:3306</port>
+                                </ports>
+                                <volumes>
+                                    <bind>
+                                        <volume>
+                                            src/test/resources/docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+                                        </volume>
+                                    </bind>
+                                </volumes>
+                                <wait>
+                                    <log>ready for connections</log>
+                                    <time>30000</time>
+                                </wait>
+                            </run>
+                        </image>
+                        <image>
+                            <name>nacos/nacos-server:${nacos.version}</name>
+                            <alias>nacos-dynamic-configuration-integration-test-nacos</alias>
+                            <run>
+                                <network>
+                                    <name>test-network</name>
+                                    <alias>nacos</alias>
+                                </network>
+                                <env>
+                                    <MODE>standalone</MODE>
+                                    <MYSQL_MASTER_SERVICE_HOST>mysql</MYSQL_MASTER_SERVICE_HOST>
+                                    <MYSQL_MASTER_SERVICE_DB_NAME>test</MYSQL_MASTER_SERVICE_DB_NAME>
+                                    <MYSQL_MASTER_SERVICE_PORT>3307</MYSQL_MASTER_SERVICE_PORT>
+                                </env>
+                                <namingStrategy>none</namingStrategy>
+                                <dependsOn>
+                                    <container>nacos-dynamic-configuration-integration-test-mysql</container>
+                                </dependsOn>
+                                <links>
+                                    <link>nacos-dynamic-configuration-integration-test-mysql</link>
+                                </links>
+                                <ports>
+                                    <port>8848:8848</port>
+                                </ports>
+                                <wait>
+                                    <log>Nacos started successfully</log>
+                                    <time>60000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

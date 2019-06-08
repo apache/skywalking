@@ -16,35 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.api;
+package org.apache.skywalking.oap.server.configuration.nacos;
 
-import java.util.*;
-import lombok.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * ConfigTable contains all config.
- *
- * @author wusheng
+ * @author kezhenxu94
  */
-@ToString
-public class ConfigTable {
-    @Getter
-    private List<ConfigItem> items = new ArrayList<>();
+public class NacosConfigurationTestModule extends ModuleDefine {
+    public static final String NAME = "test-module";
 
-    public void add(ConfigItem item) {
-        items.add(item);
+    public NacosConfigurationTestModule() {
+        super(NAME);
     }
 
-    @Getter
-    @Setter
-    @ToString
-    public static class ConfigItem {
-        private String name;
-        private String value;
-
-        public ConfigItem(String name, String value) {
-            this.name = name;
-            this.value = value;
-        }
+    @Override
+    public Class[] services() {
+        return new Class[0];
     }
 }

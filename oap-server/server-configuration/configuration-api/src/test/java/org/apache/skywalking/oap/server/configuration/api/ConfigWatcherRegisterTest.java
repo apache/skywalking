@@ -22,6 +22,8 @@ import org.apache.skywalking.oap.server.library.module.*;
 import org.junit.*;
 import org.powermock.reflect.Whitebox;
 
+import java.util.Set;
+
 /**
  * @author wusheng
  */
@@ -80,7 +82,7 @@ public class ConfigWatcherRegisterTest {
 
     public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
 
-        @Override public ConfigTable readConfig() {
+        @Override public ConfigTable readConfig(Set<String> keys) {
             ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("module.provider.prop1", "abc");
             ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("MockModule.provider.prop2", "abc2");
 
