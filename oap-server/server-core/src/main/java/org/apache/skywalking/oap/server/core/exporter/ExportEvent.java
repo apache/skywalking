@@ -18,18 +18,36 @@
 
 package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 
 /**
- * Export the metrics value from metrics through this service, if provider exists.
+ * The event for exporter {@link MetricValuesExportService} implementation processes.
+ * {@link #metrics} should not be changed in any case.
  *
  * @author wusheng
  */
-public interface MetricValuesExportService extends Service {
+@Getter
+public class ExportEvent {
     /**
-     * This method is sync-mode export, the performance effects the persistence result. Queue mode is high recommended.
-     *
-     * @param event value is only accurate when the method invokes. Don't cache it.
+     * Fields of this should not be changed in any case.
      */
-    void export(ExportEvent event);
+    private Metrics metrics;
+    private EventType type;
+
+    public ExportEvent(Metrics metrics, EventType type) {
+        this.metrics = metrics;
+        this.type = type;
+    }
+
+    public enum EventType {
+        /**
+         * The metrics aggregated in this bulk, not include the existing persistent data.
+         */
+        INCREMENT,
+        /**
+         * Final result of the metrics at this moment.
+         */
+        TOTAL
+    }
 }
