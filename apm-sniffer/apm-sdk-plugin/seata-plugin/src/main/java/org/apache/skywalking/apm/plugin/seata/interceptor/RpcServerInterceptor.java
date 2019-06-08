@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.netty.channel.Channel;
+import io.seata.core.protocol.transaction.AbstractBranchEndRequest;
+import io.seata.core.protocol.transaction.AbstractBranchEndResponse;
 import io.seata.core.protocol.transaction.BranchCommitRequest;
 import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import io.seata.server.session.SessionHolder;
@@ -129,8 +131,21 @@ public class RpcServerInterceptor implements InstanceMethodsAroundInterceptor {
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
-        if (ContextManager.isActive() && (allArguments[2] instanceof BranchCommitRequest || allArguments[2] instanceof BranchRollbackRequest)) {
-            ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            final AbstractSpan activeSpan = ContextManager.activeSpan();
+
+            if (allArguments[2] instanceof BranchCommitRequest || allArguments[2] instanceof BranchRollbackRequest) {
+                final AbstractBranchEndResponse branchEndResponse = (AbstractBranchEndResponse) ret;
+                switch (branchEndResponse.getBranchStatus()) {
+                    case PhaseTwo_CommitFailed_Retryable:
+                    case PhaseTwo_CommitFailed_Unretryable:
+                    case PhaseTwo_RollbackFailed_Retryable:
+                    case PhaseTwo_RollbackFailed_Unretryable:
+                        activeSpan.errorOccurred();
+                        break;
+                }
+                ContextManager.stopSpan();
+            }
         }
         return ret;
     }
