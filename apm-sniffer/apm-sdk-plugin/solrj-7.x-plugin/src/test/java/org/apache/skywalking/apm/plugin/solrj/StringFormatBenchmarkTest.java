@@ -27,6 +27,10 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Benchmark                                Mode  Cnt    Score    Error   Units
+ * StringFormatBenchmark.testStringConcat  thrpt   10  326.444 ± 46.432  ops/ms
+ * StringFormatBenchmark.testStringFormat  thrpt   10    6.094 ±  1.065  ops/ms
+ *
  * @author kezhenxu94
  */
 @BenchmarkMode(Mode.Throughput)
