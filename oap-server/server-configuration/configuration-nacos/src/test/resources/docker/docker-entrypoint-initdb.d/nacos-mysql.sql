@@ -17,6 +17,8 @@
 
 CREATE DATABASE test DEFAULT CHARACTER SET = 'utf8';
 
+USE test;
+
 /******************************************/
 /*   database name = nacos_config   */
 /*   table_name = config_info   */
