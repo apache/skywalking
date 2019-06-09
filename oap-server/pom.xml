@@ -383,8 +383,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <reuseForks>false</reuseForks>
-                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                    <reuseForks>true</reuseForks>
+                    <argLine>-Xmx2048m -XX:MaxPermSize=256m</argLine>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <excludes>
                         <exclude>IT*.class</exclude>
