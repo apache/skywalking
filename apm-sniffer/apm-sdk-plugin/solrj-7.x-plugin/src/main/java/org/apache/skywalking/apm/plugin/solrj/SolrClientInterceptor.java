@@ -193,11 +193,11 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     }
 
     private static final String getOperatorNameWithAction(String collection, String path, String action) {
-        return String.format("solrJ/%s%s/%s", collection, path, action);
+        return "solrJ/" + collection + path + "/" + action;
     }
 
     private static final String getOperatorName(String collection, String path) {
-        return String.format("solrJ/%s%s", collection, path);
+        return "solrJ/" + collection + path;
     }
 
     private static final String getCollection(SolrjInstance instance, Object argument) {
