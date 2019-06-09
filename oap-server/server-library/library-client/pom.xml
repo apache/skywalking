@@ -17,7 +17,9 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>server-library</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -64,7 +66,7 @@
                     <sourceMode>all</sourceMode>
                     <logDate>default</logDate>
                     <verbose>true</verbose>
-                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                    <imagePullPolicy>Always</imagePullPolicy>
                 </configuration>
                 <executions>
                     <execution>
@@ -80,12 +82,15 @@
                                     <alias>elastic-client-integration-test</alias>
                                     <run>
                                         <ports>
-                                            <port>9200:9200</port>
+                                            <port>es-port:9200</port>
                                         </ports>
                                         <wait>
                                             <log>started</log>
                                             <time>30000</time>
                                         </wait>
+                                        <env>
+                                            <discovery.type>single-node</discovery.type>
+                                        </env>
                                     </run>
                                 </image>
                             </images>
@@ -96,6 +101,46 @@
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>${gmaven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-default-properties</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <providerSelection>2.0</providerSelection>
+                            <source>
+                                project.properties.setProperty('docker.hostname', 'localhost')
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <elastic.search.address>
+                            ${docker.hostname}:${es-port}
+                        </elastic.search.address>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>

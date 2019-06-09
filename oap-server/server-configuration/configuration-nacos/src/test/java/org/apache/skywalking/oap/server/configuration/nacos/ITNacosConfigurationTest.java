@@ -29,6 +29,8 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
@@ -42,6 +44,8 @@ import static org.junit.Assert.*;
  * @author kezhenxu94
  */
 public class ITNacosConfigurationTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ITNacosConfigurationTest.class);
+
     private final Yaml yaml = new Yaml();
 
     private NacosConfigurationTestProvider provider;
@@ -69,7 +73,11 @@ public class ITNacosConfigurationTest {
         assertNull(provider.watcher.value());
 
         final Properties properties = new Properties();
-        properties.put("serverAddr", "localhost:8848");
+        final String nacosHost = System.getProperty("nacos.host");
+        final String nacosPort = System.getProperty("nacos.port");
+        LOGGER.info("nacosHost: {}, nacosPort: {}", nacosHost, nacosPort);
+        properties.put("serverAddr", nacosHost + ":" + nacosPort);
+
         final ConfigService configService = NacosFactory.createConfigService(properties);
         assertTrue(configService.publishConfig("test-module.default.testKey", "skywalking", "500"));
 

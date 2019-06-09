@@ -21,17 +21,13 @@ pipeline {
         label 'ubuntu'
     }
 
-    tools {
-        jdk 'JDK 1.8 (latest)'
-    }
-
     options {
         buildDiscarder(logRotator(
-            numToKeepStr: '30',
+            numToKeepStr: '60',
         ))
         timestamps()
         skipStagesAfterUnstable()
-        timeout time: 30, unit: 'MINUTES'
+        timeout time: 60, unit: 'MINUTES'
     }
 
     stages {
@@ -39,6 +35,7 @@ pipeline {
             steps {
                 deleteDir()
                 checkout scm
+                sh 'git submodule update --init'
             }
         }
 
@@ -51,15 +48,14 @@ pipeline {
             }
         }
 
-        stage('Run install') {
-            steps {
-                sh './mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report --quiet --batch-mode -nsu'
+        stage('Install & Test on JDK 1.8') {
+            tools {
+                jdk 'JDK 1.8 (latest)'
             }
-        }
 
-        stage('Run install') {
             steps {
-                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true --quiet'
+                sh './mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
             }
         }
     }

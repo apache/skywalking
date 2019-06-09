@@ -186,6 +186,7 @@
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
         <jmh.version>1.21</jmh.version>
+        <gmaven-plugin.version>1.5</gmaven-plugin.version>
     </properties>
 
     <dependencies>

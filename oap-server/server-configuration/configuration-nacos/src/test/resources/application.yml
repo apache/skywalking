@@ -22,9 +22,9 @@ test-module:
 configuration:
   nacos:
     # Nacos Server Host
-    serverAddr: localhost
+    serverAddr: ${nacos.host}
     # Nacos Server Port
-    port: 8848
+    port: ${nacos.port}
     # Nacos Configuration Group
     group: 'skywalking'
     # Dynamically configured keys
