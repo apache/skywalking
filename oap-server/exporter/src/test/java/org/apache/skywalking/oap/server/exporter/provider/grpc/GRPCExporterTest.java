@@ -19,7 +19,8 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.testing.GrpcServerRule;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
 import org.junit.Before;
@@ -58,7 +59,14 @@ public class GRPCExporterTest {
 
     @Test
     public void export() {
-        exporter.export(metaInfo, new MockMetrics());
+        ExportEvent event = new ExportEvent(new MockExporterMetrics(), ExportEvent.EventType.TOTAL);
+        exporter.export(event);
+    }
+
+    public static class MockExporterMetrics extends MockMetrics implements WithMetadata {
+        @Override public MetricsMetaInfo getMeta() {
+            return new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
+        }
     }
 
     @Test
