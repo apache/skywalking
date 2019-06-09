@@ -251,12 +251,14 @@ The text of each license is the standard Apache 2.0 license.
     Eclipse (Jetty) 3.3.6: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.9.9: http://www.joda.org/joda-time/ , Apache 2.0
+    Joda-Convert 1.2: https://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
     Spring Cloud Netflix Zuul 1.3.0: https://github.com/spring-cloud/spring-cloud-netflix, Apache 2.0
     Apache: commons-logging 1.1.3: https://github.com/apache/commons-logging, Apache 2.0
     Apache: commons-codec 1.10: https://github.com/apache/commons-codec, Apache 2.0
+    Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
     Apache: commons-dbcp 1.4: https://github.com/apache/commons-dbcp, Apache 2.0
     Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
@@ -315,11 +317,15 @@ The text of each license is the standard Apache 2.0 license.
     proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
     proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
     proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
-    proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
-    Ctripcorp: apollo-core 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
-    Ctripcorp: apollo-client 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
-    AOP Alliance: aopalliance-1.0.jar: http://aopalliance.sourceforge.net Public
-    javax-inject 1: https://github.com/javax-inject/javax-inject Apache 2.0
+    proto files from gogo/googleapis: https://github.com/gogo/googleapis, Apache 2.0
+    AOP Alliance: aopalliance-1.0.jar: http://aopalliance.sourceforge.net, Public
+    Ctripcorp: apollo-core 1.4.0: https://github.com/ctripcorp/apollo, Apache 2.0
+    Ctripcorp: apollo-client 1.4.0: https://github.com/ctripcorp/apollo, Apache 2.0
+    builder-annotations 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
+    resourcecify-annotations 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
+    sundr-codegen 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
+    sundr-core 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
+    javax-inject 1: https://github.com/javax-inject/javax-inject, Apache 2.0
 
 ========================================================================
 MIT licenses
