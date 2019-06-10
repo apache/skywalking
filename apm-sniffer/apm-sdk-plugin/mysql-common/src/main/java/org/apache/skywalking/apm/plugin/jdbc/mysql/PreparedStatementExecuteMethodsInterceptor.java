@@ -33,7 +33,11 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DISPLAYABLE_TYPES;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_IGNORED_SETTERS;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETERS;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACE_HOLDER;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -47,9 +51,9 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         final String methodName = method.getName();
         final boolean traceSqlParameters = Config.Plugin.MySQL.TRACE_SQL_PARAMETERS;
 
-        if (traceSqlParameters && methodName.startsWith("set")) {
+        if (traceSqlParameters && (PS_SETTERS.contains(methodName) || PS_IGNORED_SETTERS.contains(methodName))) {
             final int index = (Integer) allArguments[0];
-            final Object parameter = allArguments[1];
+            final Object parameter = getDisplayedParameter(method, argumentsTypes, allArguments);
             cacheObject.setParameter(index, parameter);
         }
 
@@ -100,5 +104,24 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String buildOperationName(ConnectionInfo connectionInfo, String methodName, String statementName) {
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
+    }
+
+    private Object getDisplayedParameter(final Method method, final Class<?>[] argumentTypes, final Object[] allArguments) {
+        final String methodName = method.getName();
+        if ("setNull".equals(methodName)) {
+            return "null";
+        }
+        if ("setObject".equals(methodName)) {
+            final Object parameter = allArguments[0];
+            final Class<?> parameterType = argumentTypes[1];
+
+            if (DISPLAYABLE_TYPES.contains(parameterType)) {
+                return parameter;
+            }
+        }
+        if (PS_SETTERS.contains(methodName)) {
+            return allArguments[1];
+        }
+        return SQL_PARAMETER_PLACE_HOLDER;
     }
 }

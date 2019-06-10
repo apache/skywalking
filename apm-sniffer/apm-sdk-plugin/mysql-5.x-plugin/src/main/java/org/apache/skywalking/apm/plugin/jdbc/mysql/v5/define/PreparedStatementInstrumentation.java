@@ -29,6 +29,8 @@ import org.apache.skywalking.apm.plugin.jdbc.mysql.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_IGNORED_SETTERS;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 
 /**
  * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
@@ -56,18 +58,19 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                  ElementMatcher.Junction<MethodDescription> matcher = named("execute")
-                      .or(named("executeQuery"))
-                      .or(named("executeUpdate"))
-                      .or(named("executeLargeUpdate"));
-                  if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
-                    // TODO: more setter
-                    matcher = matcher
-                        .or(named("setString"))
-                        .or(named("setInt"))
-                        .or(named("setLong"));
-                  }
-                  return matcher;
+                    ElementMatcher.Junction<MethodDescription> matcher = named("execute")
+                        .or(named("executeQuery"))
+                        .or(named("executeUpdate"))
+                        .or(named("executeLargeUpdate"));
+                    if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+                        for (String setter : PS_SETTERS) {
+                            matcher = matcher.or(named(setter));
+                        }
+                        for (String setter : PS_IGNORED_SETTERS) {
+                            matcher = matcher.or(named(setter));
+                        }
+                    }
+                    return matcher;
                 }
 
                 @Override public String getMethodsInterceptor() {

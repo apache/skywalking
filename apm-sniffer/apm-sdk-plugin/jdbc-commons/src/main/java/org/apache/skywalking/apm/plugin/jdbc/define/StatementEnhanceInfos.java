@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.jdbc.define;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 

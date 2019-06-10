@@ -18,7 +18,17 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
+import com.google.common.collect.Sets;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author: dingshaocheng
@@ -33,4 +43,60 @@ public class Constants {
     public static final String DRIVER_CONNECT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.DriverConnectInterceptor";
 
     public static final StringTag SQL_PARAMETERS = new StringTag("db.sql.parameters");
+    public static final String SQL_PARAMETER_PLACE_HOLDER = "?";
+    public static final Set<String> PS_SETTERS = Sets.newHashSet(
+        "setArray",
+        "setBigDecimal",
+        "setBoolean",
+        "setByte",
+        "setDate",
+        "setDouble",
+        "setFloat",
+        "setInt",
+        "setLong",
+        "setNString",
+        "setNull",
+        "setObject",
+        "setRowId",
+        "setShort",
+        "setString",
+        "setTime",
+        "setTimestamp",
+        "setURL"
+    );
+    public static final Set<Class<?>> DISPLAYABLE_TYPES = new HashSet<Class<?>>(Arrays.asList(
+        BigDecimal.class,
+        Boolean.class,
+        boolean.class,
+        Byte.class,
+        byte.class,
+        Date.class,
+        Double.class,
+        double.class,
+        Float.class,
+        float.class,
+        Integer.class,
+        int.class,
+        Long.class,
+        long.class,
+        String.class,
+        Short.class,
+        short.class,
+        Time.class,
+        Timestamp.class,
+        URL.class
+    ));
+    public static final Set<String> PS_IGNORED_SETTERS = Sets.newHashSet(
+        "setAsciiStream",
+        "setBinaryStream",
+        "setBlob",
+        "setBytes",
+        "setCharacterStream",
+        "setClob",
+        "setNCharacterStream",
+        "setNClob",
+        "setRef",
+        "setSQLXML",
+        "setUnicodeStream"
+    );
 }
