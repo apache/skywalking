@@ -205,5 +205,13 @@ public class Config {
              */
             public static boolean TRACE_OPS_PARAMS = false;
         }
+
+        public static class MySQL {
+            /**
+             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement})
+             * would be collected.
+             */
+            public static boolean TRACE_SQL_PARAMETERS = false;
+        }
     }
 }

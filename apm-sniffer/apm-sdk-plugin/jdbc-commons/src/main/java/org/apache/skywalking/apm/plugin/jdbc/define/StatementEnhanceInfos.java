@@ -21,6 +21,10 @@ package org.apache.skywalking.apm.plugin.jdbc.define;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
  * <code>sql</code> for trace mysql.
@@ -31,11 +35,13 @@ public class StatementEnhanceInfos {
     private ConnectionInfo connectionInfo;
     private String statementName;
     private String sql;
+    private Map<Integer, Object> parametersKeyedByIndex;
 
     public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
         this.connectionInfo = connectionInfo;
         this.sql = sql;
         this.statementName = statementName;
+        this.parametersKeyedByIndex = new TreeMap<Integer, Object>();
     }
 
     public ConnectionInfo getConnectionInfo() {
@@ -48,5 +54,13 @@ public class StatementEnhanceInfos {
 
     public String getStatementName() {
         return statementName;
+    }
+
+    public void setParameter(final int index, final Object parameter) {
+        parametersKeyedByIndex.put(index, parameter);
+    }
+
+    public Map<Integer, Object> getParameters() {
+        return parametersKeyedByIndex;
     }
 }

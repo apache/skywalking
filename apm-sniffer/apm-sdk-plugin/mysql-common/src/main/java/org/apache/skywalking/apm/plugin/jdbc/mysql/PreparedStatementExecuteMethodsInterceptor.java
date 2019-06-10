@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
+import com.google.common.base.Joiner;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -29,6 +31,9 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETERS;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -38,6 +43,16 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         MethodInterceptResult result) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
+
+        final String methodName = method.getName();
+        final boolean traceSqlParameters = Config.Plugin.MySQL.TRACE_SQL_PARAMETERS;
+
+        if (traceSqlParameters && methodName.startsWith("set")) {
+            final int index = (Integer) allArguments[0];
+            final Object parameter = allArguments[1];
+            cacheObject.setParameter(index, parameter);
+        }
+
         /**
          * For avoid NPE. In this particular case, Execute sql inside the {@link com.mysql.jdbc.ConnectionImpl} constructor,
          * before the interceptor sets the connectionInfo.
@@ -46,11 +61,19 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
          */
         if (connectInfo != null) {
 
-            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, methodName, cacheObject.getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, cacheObject.getSql());
             span.setComponent(connectInfo.getComponent());
+
+            if (traceSqlParameters) {
+                final Map<Integer, Object> parametersKeyedByIndex = cacheObject.getParameters();
+                if (!parametersKeyedByIndex.isEmpty()) {
+                    final String parameters = Joiner.on(",").join(parametersKeyedByIndex.values());
+                    SQL_PARAMETERS.set(span, parameters);
+                }
+            }
 
             SpanLayer.asDB(span);
         }

@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -31,13 +32,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 
 /**
  * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
- * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and 
+ * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and
  * com.mysql.cj.jdbc.PreparedStatement class:
- * 1. execute 
- * 2. executeQuery 
- * 3. executeUpdate 
- * 4. executeLargeUpdate 
- * 5. addBatch 
+ * 1. execute
+ * 2. executeQuery
+ * 3. executeUpdate
+ * 4. executeLargeUpdate
+ * 5. addBatch
  *
  * @author zhangxin
  */
@@ -55,10 +56,18 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute")
-                        .or(named("executeQuery"))
-                        .or(named("executeUpdate"))
-                        .or(named("executeLargeUpdate"));
+                  ElementMatcher.Junction<MethodDescription> matcher = named("execute")
+                      .or(named("executeQuery"))
+                      .or(named("executeUpdate"))
+                      .or(named("executeLargeUpdate"));
+                  if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+                    // TODO: more setter
+                    matcher = matcher
+                        .or(named("setString"))
+                        .or(named("setInt"))
+                        .or(named("setLong"));
+                  }
+                  return matcher;
                 }
 
                 @Override public String getMethodsInterceptor() {
