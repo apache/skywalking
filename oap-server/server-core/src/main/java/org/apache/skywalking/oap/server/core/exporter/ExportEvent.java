@@ -16,35 +16,38 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.api;
+package org.apache.skywalking.oap.server.core.exporter;
 
-import java.util.*;
-import lombok.*;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 
 /**
- * ConfigTable contains all config.
+ * The event for exporter {@link MetricValuesExportService} implementation processes.
+ * {@link #metrics} should not be changed in any case.
  *
  * @author wusheng
  */
-@ToString
-public class ConfigTable {
-    @Getter
-    private List<ConfigItem> items = new ArrayList<>();
+@Getter
+public class ExportEvent {
+    /**
+     * Fields of this should not be changed in any case.
+     */
+    private Metrics metrics;
+    private EventType type;
 
-    public void add(ConfigItem item) {
-        items.add(item);
+    public ExportEvent(Metrics metrics, EventType type) {
+        this.metrics = metrics;
+        this.type = type;
     }
 
-    @Getter
-    @Setter
-    @ToString
-    public static class ConfigItem {
-        private String name;
-        private String value;
-
-        public ConfigItem(String name, String value) {
-            this.name = name;
-            this.value = value;
-        }
+    public enum EventType {
+        /**
+         * The metrics aggregated in this bulk, not include the existing persistent data.
+         */
+        INCREMENT,
+        /**
+         * Final result of the metrics at this moment.
+         */
+        TOTAL
     }
 }
