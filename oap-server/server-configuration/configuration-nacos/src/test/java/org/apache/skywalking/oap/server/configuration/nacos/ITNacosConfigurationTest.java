@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,10 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author kezhenxu94
@@ -67,7 +69,6 @@ public class ITNacosConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Ignore // because of instability
     @Test(timeout = 10000)
     public void shouldReadUpdated() throws NacosException {
         assertNull(provider.watcher.value());
