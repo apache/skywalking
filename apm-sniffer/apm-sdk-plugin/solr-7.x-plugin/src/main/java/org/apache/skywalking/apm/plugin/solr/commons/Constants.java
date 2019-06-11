@@ -21,15 +21,21 @@ package org.apache.skywalking.apm.plugin.solr.commons;
 public interface Constants {
     String SW_ENHANCE_FLAG = "_sw_enhance_flag_";
 
-    String OPER_SHARD_PREF = "Solr/shard/";
+    String OPER_SHARD_PREF = "Solr/shard";
+
+    String OPER_SHARD_PREF_SLASH = "Solr/shard/";
+
     String OPER_STAGE_PREF = "Solr/stage/";
+
     String OPER_SOLR_PREF = "Solr";
 
     String SKIP_ADMIN_PREF = "/admin/";
 
     String TRACE_ID_PREF = "t:";
 
-    String MDC_KEY_SHARD = "shard";
+    String MDC_KEY_CORE = "core";
 
     String MDC_KEY_NODE_NAME = "node_name";
+
+    String MDC_KEY_TRACE_ID = "traceId";
 }

@@ -27,30 +27,32 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import static org.apache.skywalking.apm.plugin.solr.commons.Constants.*;
 import org.slf4j.MDC;
 
 import java.lang.reflect.Method;
+
+import static org.apache.skywalking.apm.plugin.solr.commons.Constants.*;
 
 public class ConcurrentUpdateSolrClientInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        String coreName = MDC.get(MDC_KEY_CORE).substring(2);
         if (ContextManager.isActive()) {
-            objInst.setSkyWalkingDynamicField(ContextManager.capture());
+            objInst.setSkyWalkingDynamicField(new Object[] {ContextManager.capture(), coreName});
         }
     }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ContextSnapshot snapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
+        Object[] params = (Object[]) objInst.getSkyWalkingDynamicField();
+        ContextSnapshot snapshot = (ContextSnapshot) params[0];
 
         String nodeName = MDC.get(MDC_KEY_NODE_NAME);
         final String peer = nodeName.substring(2, nodeName.length() - 5);
-        String shardName = MDC.get(MDC_KEY_SHARD).substring(2);
 
-        AbstractSpan span = ContextManager.createExitSpan(OPER_SHARD_PREF + shardName + "/update", peer);
+        AbstractSpan span = ContextManager.createExitSpan(OPER_SHARD_PREF_SLASH + params[1] + "/update", peer);
         span.setComponent(ComponentsDefine.SOLR).setLayer(SpanLayer.HTTP);
 
         if (snapshot != null) {

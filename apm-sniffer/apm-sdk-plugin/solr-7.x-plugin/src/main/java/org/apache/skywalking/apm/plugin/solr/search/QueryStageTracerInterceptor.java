@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.plugin.solr.search;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -47,7 +46,6 @@ public class QueryStageTracerInterceptor implements InstanceMethodsAroundInterce
             ResponseBuilder rb = (ResponseBuilder) allArguments[0];
             AbstractSpan span = ContextManager.createLocalSpan(OPER_STAGE_PREF + NamesMap.getStagName(rb.stage));
             span.setComponent(ComponentsDefine.SOLR);
-            span.setLayer(SpanLayer.HTTP);
 
             if (snapshot != null) {
                 ContextManager.continued(snapshot);

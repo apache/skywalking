@@ -39,9 +39,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.apache.skywalking.apm.plugin.solr.commons.Constants.OPER_SHARD_PREF;
-import static org.apache.skywalking.apm.plugin.solr.commons.Constants.SKIP_ADMIN_PREF;
-import static org.apache.skywalking.apm.plugin.solr.commons.Constants.SW_ENHANCE_FLAG;
+import static org.apache.skywalking.apm.plugin.solr.commons.Constants.*;
 
 public class ShardRequestInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
@@ -54,7 +52,7 @@ public class ShardRequestInterceptor implements InstanceMethodsAroundInterceptor
             peer = url.getHost() + ":" + url.getPort();
             int idx = url.getPath().lastIndexOf('/');
             if (idx > 0) {
-                core = url.getPath().substring(idx + 1);
+                core = url.getPath().substring(idx);
             }
         } catch (MalformedURLException ignore) {
         }
@@ -80,7 +78,7 @@ public class ShardRequestInterceptor implements InstanceMethodsAroundInterceptor
             }
             ((ModifiableSolrParams) params).remove(SW_ENHANCE_FLAG);
             final int purpose = params.getInt(ShardParams.SHARDS_PURPOSE, 0);
-            operationName = OPER_SHARD_PREF + NamesMap.gePurposeName(purpose);
+            operationName = operationName + NamesMap.gePurposeName(purpose);
         }
 
         AbstractSpan span = ContextManager.createExitSpan(operationName, info[0]);

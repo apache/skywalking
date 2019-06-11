@@ -22,22 +22,22 @@ import org.apache.solr.handler.component.ShardRequest;
 
 public class NamesMap {
     private static final String[] PURPOSENAMES = {
-        "PRIVATE",
-        "GET_TERM_DFS",
-        "GET_TOP_IDS",
-        "REFINE_TOP_IDS",
-        "GET_FACETS",
-        "REFINE_FACETS",
-        "GET_FIELDS",
-        "GET_HIGHLIGHTS",
-        "GET_DEBUG",
-        "GET_STATS",
-        "GET_TERMS",
-        "GET_TOP_GROUPS",
-        "GET_MLT_RESULTS",
-        "REFINE_PIVOT_FACETS",
-        "SET_TERM_STATS",
-        "GET_TERM_STATS"
+        "/PRIVATE",
+        "/GET_TERM_DFS",
+        "/GET_TOP_IDS",
+        "/REFINE_TOP_IDS",
+        "/GET_FACETS",
+        "/REFINE_FACETS",
+        "/GET_FIELDS",
+        "/GET_HIGHLIGHTS",
+        "/GET_DEBUG",
+        "/GET_STATS",
+        "/GET_TERMS",
+        "/GET_TOP_GROUPS",
+        "/GET_MLT_RESULTS",
+        "/REFINE_PIVOT_FACETS",
+        "/SET_TERM_STATS",
+        "/GET_TERM_STATS"
     };
 
     public static String getStagName(int stage) {
@@ -61,7 +61,7 @@ public class NamesMap {
 
     public static String gePurposeName(int purpose) {
         if (purpose < ShardRequest.PURPOSE_PRIVATE || purpose > ShardRequest.PURPOSE_GET_TERM_STATS)
-            return "PENDING";
+            return "/PENDING";
         return PURPOSENAMES[Integer.numberOfTrailingZeros(purpose)];
     }
 

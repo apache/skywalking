@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.solr;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Solr.*;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -40,6 +39,8 @@ import org.slf4j.MDC;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
+import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Solr.PRINT_TRACE_ID_ON_LOG;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Solr.SKIP_ADMIN_REQUEST;
 import static org.apache.skywalking.apm.plugin.solr.commons.Constants.*;
 
 public class RequestHandlerBaseInterceptor implements InstanceMethodsAroundInterceptor {
@@ -60,7 +61,6 @@ public class RequestHandlerBaseInterceptor implements InstanceMethodsAroundInter
             items = items.next();
             items.setHeadValue(req.getHeader(items.getHeadKey()));
         }
-        LOG.info("path={}, query={}", request.getPath(), request.getParams().toLocalParamsString());
 
         SolrParams params = request.getParams();
         String operationPref = OPER_SOLR_PREF;
@@ -72,7 +72,7 @@ public class RequestHandlerBaseInterceptor implements InstanceMethodsAroundInter
 
         createSpan(operationPref + req.getServletPath(), carrier);
         if (PRINT_TRACE_ID_ON_LOG) {
-            MDC.put("traceId", TRACE_ID_PREF + ContextManager.getGlobalTraceId());
+            MDC.put(MDC_KEY_TRACE_ID, TRACE_ID_PREF + ContextManager.getGlobalTraceId());
         }
     }
 
