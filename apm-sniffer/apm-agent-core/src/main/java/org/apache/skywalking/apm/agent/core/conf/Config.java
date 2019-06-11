@@ -205,5 +205,18 @@ public class Config {
              */
             public static boolean TRACE_OPS_PARAMS = false;
         }
+
+        public static class Solr {
+
+            /**
+             * If true, the Trace_ID will be put into MDC. Default is false.
+             */
+            public static boolean PRINT_TRACE_ID_ON_LOG = false;
+
+            /**
+             * If true, not trace admin request, include /admin/ping, /admin/metrics etc. Default is true.
+             */
+            public static boolean SKIP_ADMIN_REQUEST = true;
+        }
     }
 }
