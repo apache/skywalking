@@ -33,20 +33,22 @@ import java.util.Set;
  */
 public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     private final PathChildrenCache childrenCache;
+    private final String prefix;
 
     public ZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
         super(settings.getPeriod());
+        prefix = settings.getNameSpace() + "/";
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(settings.getBaseSleepTimeMs(), settings.getMaxRetries());
         CuratorFramework client = CuratorFrameworkFactory.newClient(settings.getHostPort(), retryPolicy);
         client.start();
-        childrenCache = new PathChildrenCache(client, settings.getNameSpace(), true);
-        childrenCache.start();
+        this.childrenCache = new PathChildrenCache(client, settings.getNameSpace(), true);
+        this.childrenCache.start();
     }
 
     @Override
     public ConfigTable readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
-        childrenCache.getCurrentData().forEach(e -> table.add(new ConfigTable.ConfigItem(e.getPath(), new String(e.getData()))));
+        this.childrenCache.getCurrentData().forEach(e -> table.add(new ConfigTable.ConfigItem(e.getPath().substring(this.prefix.length()), new String(e.getData()))));
         return table;
     }
 }
