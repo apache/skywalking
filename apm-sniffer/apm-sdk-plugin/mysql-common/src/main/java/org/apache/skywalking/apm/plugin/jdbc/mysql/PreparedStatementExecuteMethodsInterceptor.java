@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
-import com.google.common.base.Joiner;
+import com.google.common.base.Ascii;
+import com.google.gson.Gson;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -40,6 +41,7 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETE
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACE_HOLDER;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
+    private final Gson gson = new Gson();
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -63,7 +65,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
          *
          * @see JDBCDriverInterceptor#afterMethod(EnhancedInstance, Method, Object[], Class[], Object)
          */
-        if (connectInfo != null) {
+        if (connectInfo != null && !PS_SETTERS.contains(methodName) && !PS_IGNORED_SETTERS.contains(methodName)) {
 
             AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, methodName, cacheObject.getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
@@ -74,7 +76,11 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             if (traceSqlParameters) {
                 final Map<Integer, Object> parametersKeyedByIndex = cacheObject.getParameters();
                 if (!parametersKeyedByIndex.isEmpty()) {
-                    final String parameters = Joiner.on(",").join(parametersKeyedByIndex.values());
+                    String parameters = gson.toJson(parametersKeyedByIndex.values());
+                    int sqlParametersMaxLength = Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH;
+                    if (sqlParametersMaxLength > 0) {
+                        parameters = Ascii.truncate(parameters, sqlParametersMaxLength, "...");
+                    }
                     SQL_PARAMETERS.set(span, parameters);
                 }
             }
@@ -88,7 +94,9 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
-        if (cacheObject.getConnectionInfo() != null) {
+        ConnectionInfo connectionInfo = cacheObject.getConnectionInfo();
+        String methodName = method.getName();
+        if (connectionInfo != null && !PS_SETTERS.contains(methodName) && !PS_IGNORED_SETTERS.contains(methodName)) {
             ContextManager.stopSpan();
         }
         return ret;
