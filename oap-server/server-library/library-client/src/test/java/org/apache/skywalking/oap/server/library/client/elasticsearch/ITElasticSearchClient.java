@@ -124,12 +124,6 @@ public class ITElasticSearchClient {
         Assert.assertEquals("pengys", response.getSource().get("user"));
         Assert.assertEquals("trying out Elasticsearch", response.getSource().get("message"));
 
-        List<String> ids = new ArrayList<>();
-        ids.add(id);
-        MultiGetResponse responses = client.multiGet(indexName, ids);
-        Assert.assertEquals(1, responses.getResponses().length);
-        Assert.assertEquals("pengys", responses.getResponses()[0].getResponse().getSource().get("user"));
-
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.termQuery("user", "pengys"));
         SearchResponse searchResponse = client.search(indexName, sourceBuilder);
