@@ -22,6 +22,9 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -43,6 +46,10 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     private volatile Address selfAddress;
 
     private final String serviceName;
+
+    private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+
+    private static final Integer KEY_TTL = 45;
 
     public EtcdCoordinator(ClusterModuleEtcdConfig config, EtcdClient client) {
         this.config = config;
@@ -83,13 +90,26 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceName(serviceName).host(selfAddress.getHost()).port(selfAddress.getPort()).build();
         try {
             client.putDir(serviceName).send();
-            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(buildKey(serviceName, selfAddress), new Gson().toJson(endpoint)).ttl(30).send();
+            String key = buildKey(serviceName, selfAddress);
+            String json = new Gson().toJson(endpoint);
+            EtcdResponsePromise<EtcdKeysResponse> promise = client.put(key, json).ttl(KEY_TTL).send();
             //check register.
             promise.get();
+            renew(client, key, json);
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }
 
+    }
+
+    private void renew(EtcdClient client, String key, String json) {
+        service.scheduleAtFixedRate(() -> {
+            try {
+                client.refresh(key, KEY_TTL);
+            } catch (Exception e) {
+
+            }
+        }, 5 * 1000, 30 * 1000, TimeUnit.NANOSECONDS);
     }
 
     private String buildKey(String serviceName, Address address) {
