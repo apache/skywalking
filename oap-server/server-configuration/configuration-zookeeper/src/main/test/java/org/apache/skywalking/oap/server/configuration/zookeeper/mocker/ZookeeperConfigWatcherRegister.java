@@ -16,34 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.zookeeper;
+package org.apache.skywalking.oap.server.configuration.zookeeper.mocker;
 
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperServerSettings;
 
 import java.util.Set;
 
 /**
  * @author zhaoyuguang
  */
+
 public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
-    private final PathChildrenCache childrenCache;
+    private PathChildrenCache childrenCache;
     private final String prefix;
 
     public ZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
         super(settings.getPeriod());
         prefix = settings.getNameSpace() + "/";
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(settings.getBaseSleepTimeMs(), settings.getMaxRetries());
-        CuratorFramework client = CuratorFrameworkFactory.newClient(settings.getHostPort(), retryPolicy);
-        client.start();
-        this.childrenCache = new PathChildrenCache(client, settings.getNameSpace(), true);
-        this.childrenCache.start();
     }
 
     @Override
