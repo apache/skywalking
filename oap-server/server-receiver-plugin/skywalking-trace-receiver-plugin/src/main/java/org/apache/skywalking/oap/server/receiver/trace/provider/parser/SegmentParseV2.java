@@ -85,7 +85,7 @@ public class SegmentParseV2 {
             if (bufferData.getV2Segment() == null) {
                 bufferData.setV2Segment(parseBinarySegment(upstreamSegment));
             }
-            SegmentObject segmentObject = parseBinarySegment(upstreamSegment);
+            SegmentObject segmentObject = bufferData.getV2Segment();
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
