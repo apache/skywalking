@@ -61,7 +61,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        Model model = modelSetter.putIfAbsent(topNClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute));
+        Model model = modelSetter.putIfAbsent(topNClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second));
 
         TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, model, 50, recordDAO);
         persistentWorkers.add(persistentWorker);
