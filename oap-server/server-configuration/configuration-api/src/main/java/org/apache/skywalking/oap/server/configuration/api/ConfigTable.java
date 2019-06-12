@@ -26,6 +26,7 @@ import lombok.*;
  *
  * @author wusheng
  */
+@ToString
 public class ConfigTable {
     @Getter
     private List<ConfigItem> items = new ArrayList<>();
@@ -36,6 +37,7 @@ public class ConfigTable {
 
     @Getter
     @Setter
+    @ToString
     public static class ConfigItem {
         private String name;
         private String value;

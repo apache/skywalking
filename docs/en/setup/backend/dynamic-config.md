@@ -31,9 +31,27 @@ configuration:
     #clusterName: "default" # the name of current cluster, set the name if you want to upstream system known.  
 ```
 
+## Nacos DCS
+
+[Nacos](https://github.com/alibaba/nacos) is also supported in DCS, to use it, please configure as follows:
+
+```yaml
+configuration:
+  nacos:
+    # Nacos Server Host
+    serverAddr: 127.0.0.1
+    # Nacos Server Port
+    port: 8848
+    # Nacos Configuration Group
+    group: 'skywalking'
+    # Unit seconds, sync period. Default fetch every 60 seconds.
+    period : 60
+    # the name of current cluster, set the name if you want to upstream system known.
+    clusterName: "default"
+```
 
 ## 3rd party Configuration Center
 We are welcome contributions to implement this module provider to support popular configuration center, 
-such as Zookeeper, etcd, Consul, Nacos. Submit issue to discuss.
+such as Zookeeper, etcd, Consul. Submit issue to discuss.
 
 

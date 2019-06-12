@@ -64,12 +64,12 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         logger.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + register.toString());
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(() -> configSync(),
+            new RunnableWithExceptionProtection(this::configSync,
                 t -> logger.error("Sync config center error.", t)), syncPeriod, syncPeriod, TimeUnit.SECONDS);
     }
 
     void configSync() {
-        ConfigTable configTable = readConfig();
+        ConfigTable configTable = readConfig(register.keys());
 
         configTable.getItems().forEach(item -> {
             String itemName = item.getName();
@@ -99,7 +99,7 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         logger.trace("Current configurations after the sync." + LINE_SEPARATOR + register.toString());
     }
 
-    public abstract ConfigTable readConfig();
+    public abstract ConfigTable readConfig(Set<String> keys);
 
     public class Register {
         private Map<String, WatcherHolder> register = new HashMap<>();
@@ -114,6 +114,10 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
 
         public WatcherHolder get(String name) {
             return register.get(name);
+        }
+
+        public Set<String> keys() {
+            return register.keySet();
         }
 
         @Override public String toString() {

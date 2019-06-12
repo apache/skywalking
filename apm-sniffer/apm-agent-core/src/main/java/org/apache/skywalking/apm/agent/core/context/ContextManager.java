@@ -168,6 +168,7 @@ public class ContextManager implements BootService {
     public static void stopSpan(AbstractSpan span) {
         if (get().stopSpan(span)) {
             CONTEXT.remove();
+            RUNTIME_CONTEXT.remove();
         }
     }
 

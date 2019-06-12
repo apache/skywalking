@@ -78,6 +78,7 @@
         <simpleclient.version>0.6.0</simpleclient.version>
 
         <maven-docker-plugin.version>0.28.0</maven-docker-plugin.version>
+        <nacos.version>1.0.0</nacos.version>
     </properties>
 
     <dependencies>
@@ -358,6 +359,11 @@
                 <groupId>io.prometheus</groupId>
                 <artifactId>simpleclient</artifactId>
                 <version>${simpleclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
