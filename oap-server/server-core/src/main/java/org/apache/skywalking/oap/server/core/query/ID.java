@@ -15,28 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.query;
 
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
 /**
  * @author peng-yongsheng
  */
-public class ModelName {
+@Getter
+public class ID {
 
-    public static String build(Downsampling downsampling, String modelName) {
-        switch (downsampling) {
-            case Month:
-                return modelName + Const.ID_SPLIT + Downsampling.Month.getName();
-            case Day:
-                return modelName + Const.ID_SPLIT + Downsampling.Day.getName();
-            case Hour:
-                return modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
-//            case Second:
-//                return modelName + Const.ID_SPLIT + Downsampling.Second.getName();
-            default:
-                return modelName;
+    private final long timeBucket;
+    private final String entityId;
+
+    public ID(long timeBucket, String entityId) {
+        this.timeBucket = timeBucket;
+        this.entityId = entityId;
+    }
+
+    public ID(long timeBucket) {
+        this.timeBucket = timeBucket;
+        this.entityId = Const.EMPTY_STRING;
+    }
+
+    @Override public String toString() {
+        if (entityId.length() > 0) {
+            return timeBucket + Const.ID_SPLIT + entityId;
+        } else {
+            return String.valueOf(timeBucket);
         }
     }
 }
