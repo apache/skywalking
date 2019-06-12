@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.plugin.seata.interceptor;
 
 import io.netty.channel.Channel;
-import io.seata.core.protocol.transaction.AbstractBranchEndRequest;
 import io.seata.core.protocol.transaction.AbstractBranchEndResponse;
 import io.seata.core.protocol.transaction.BranchCommitRequest;
 import io.seata.core.protocol.transaction.BranchRollbackRequest;
