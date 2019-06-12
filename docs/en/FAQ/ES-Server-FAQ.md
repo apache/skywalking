@@ -17,5 +17,7 @@ thread_pool.bulk.queue_size: 1000
 thread_pool.bulk.size: 16
 thread_pool.index.queue_size: 500
 thread_pool.write.queuq_size: 500
+
+# When you face query error at trace page, remember to check this.
 index.max_result_window: 1000000
 ```
