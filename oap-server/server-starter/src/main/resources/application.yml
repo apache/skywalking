@@ -142,12 +142,12 @@ configuration:
 #    period : 5
 #    # the name of current cluster, set the name if you want to upstream system known.
 #    clusterName: "default"
-  zookeeper:
-    nameSpace: /default
-    hostPort: localhost:2181
-    #Retry Policy
-    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
-    maxRetries: 3 # max number of times to retry
+#  zookeeper:
+#    nameSpace: /default
+#    hostPort: localhost:2181
+#    #Retry Policy
+#    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+#    maxRetries: 3 # max number of times to retry
 
 #exporter:
 #  grpc:
