@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.*;
@@ -112,12 +112,6 @@ public class ITElasticSearchClient {
         response = client.get(indexName, id);
         Assert.assertEquals("pengys", response.getSource().get("user"));
         Assert.assertEquals("trying out Elasticsearch", response.getSource().get("message"));
-
-        List<String> ids = new ArrayList<>();
-        ids.add(id);
-        MultiGetResponse responses = client.multiGet(indexName, ids);
-        Assert.assertEquals(1, responses.getResponses().length);
-        Assert.assertEquals("pengys", responses.getResponses()[0].getResponse().getSource().get("user"));
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.termQuery("user", "pengys"));
