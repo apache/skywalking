@@ -41,6 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -98,8 +99,10 @@ public class EtcdCoordinatorTest {
         putDirPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
 
         PowerMockito.when(client.putDir(anyString())).thenReturn(putDirRequest);
+        PowerMockito.when(putDirRequest.ttl(anyInt())).thenReturn(putDirRequest);
         PowerMockito.when(putDirRequest.send()).thenReturn(putDirPromise);
         PowerMockito.when(client.put(anyString(), anyString())).thenReturn(putRequest);
+        PowerMockito.when(putRequest.ttl(anyInt())).thenReturn(putRequest);
         PowerMockito.when(putRequest.send()).thenReturn(putPromise);
         PowerMockito.when(client.get(anyString())).thenReturn(getRequest);
         PowerMockito.when(getRequest.send()).thenReturn(getPromise);
