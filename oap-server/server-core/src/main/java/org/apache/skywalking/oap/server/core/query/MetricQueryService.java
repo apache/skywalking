@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -71,11 +70,11 @@ public class MetricQueryService implements Service {
     public IntValues getLinearIntValues(final String indName, final String id, final Downsampling downsampling, final long startTB,
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
-        List<String> ids = new ArrayList<>();
+        List<ID> ids = new ArrayList<>();
         if (StringUtil.isEmpty(id)) {
-            durationPoints.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
+            durationPoints.forEach(durationPoint -> ids.add(new ID(durationPoint.getPoint())));
         } else {
-            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+            durationPoints.forEach(durationPoint -> ids.add(new ID(durationPoint.getPoint(), id)));
         }
 
         return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
@@ -84,12 +83,12 @@ public class MetricQueryService implements Service {
     public Thermodynamic getThermodynamic(final String indName, final String id, final Downsampling downsampling, final long startTB,
         final long endTB) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
-        List<String> ids = new ArrayList<>();
+        List<ID> ids = new ArrayList<>();
         durationPoints.forEach(durationPoint -> {
             if (id == null) {
-                ids.add(durationPoint.getPoint() + "");
+                ids.add(new ID(durationPoint.getPoint()));
             } else {
-                ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id);
+                ids.add(new ID(durationPoint.getPoint(), id));
             }
         });
 
