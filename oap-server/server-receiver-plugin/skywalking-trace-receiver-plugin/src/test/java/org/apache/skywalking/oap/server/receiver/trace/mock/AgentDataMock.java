@@ -22,6 +22,7 @@ import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.joda.time.DateTime;
 
 /**
  * @author peng-yongsheng
@@ -38,7 +39,8 @@ public class AgentDataMock {
         StreamObserver<UpstreamSegment> streamObserver = createStreamObserver();
 
         UniqueId.Builder globalTraceId = UniqueIdBuilder.INSTANCE.create();
-        long startTimestamp = System.currentTimeMillis();
+//        long startTimestamp = System.currentTimeMillis();
+        long startTimestamp = new DateTime().minusDays(2).getMillis();
 
         // ServiceAMock
         ServiceAMock serviceAMock = new ServiceAMock(registerMock);
