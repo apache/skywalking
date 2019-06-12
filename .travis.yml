@@ -4,11 +4,9 @@ os:
   - linux
 
 jdk:
-  - oraclejdk9
   - openjdk8
 
 language: java
 
 install:
-  - ./mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report --quiet
-  - ./mvnw javadoc:javadoc -Dmaven.test.skip=true --quiet
+  - ./mvnw clean install --quiet
