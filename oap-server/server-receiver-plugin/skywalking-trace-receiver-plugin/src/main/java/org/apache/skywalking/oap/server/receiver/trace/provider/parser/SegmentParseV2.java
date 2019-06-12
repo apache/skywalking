@@ -82,11 +82,10 @@ public class SegmentParseV2 {
 
             List<UniqueId> traceIds = upstreamSegment.getGlobalTraceIdsList();
 
-            SegmentObject segmentObject = parseBinarySegment(upstreamSegment);
-
             if (bufferData.getV2Segment() == null) {
-                bufferData.setV2Segment(segmentObject);
+                bufferData.setV2Segment(parseBinarySegment(upstreamSegment));
             }
+            SegmentObject segmentObject = bufferData.getV2Segment();
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
