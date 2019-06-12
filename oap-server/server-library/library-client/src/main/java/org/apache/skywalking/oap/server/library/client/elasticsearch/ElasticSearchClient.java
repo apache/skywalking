@@ -216,13 +216,6 @@ public class ElasticSearchClient implements Client {
         return client.get(request);
     }
 
-    public MultiGetResponse multiGet(String indexName, List<String> ids) throws IOException {
-        final String newIndexName = formatIndexName(indexName);
-        MultiGetRequest request = new MultiGetRequest();
-        ids.forEach(id -> request.add(newIndexName, TYPE, id));
-        return client.multiGet(request);
-    }
-
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
         IndexRequest request = prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
