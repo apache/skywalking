@@ -84,7 +84,7 @@
                                 </volumes>
                                 <wait>
                                     <log>ready for connections</log>
-                                    <time>30000</time>
+                                    <time>60000</time>
                                 </wait>
                             </run>
                         </image>
@@ -114,7 +114,7 @@
                                 </ports>
                                 <wait>
                                     <log>Nacos started successfully</log>
-                                    <time>60000</time>
+                                    <time>120000</time>
                                 </wait>
                             </run>
                         </image>
