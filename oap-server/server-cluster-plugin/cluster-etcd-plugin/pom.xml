@@ -29,8 +29,6 @@
     <artifactId>cluster-etcd-plugin</artifactId>
 
     <name>cluster-etcd-plugin</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
 
     <properties>
         <etcd4j.version>2.17.0</etcd4j.version>
