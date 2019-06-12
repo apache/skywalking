@@ -136,6 +136,13 @@ configuration:
 #    period : 60
 #    # the name of current cluster, set the name if you want to upstream system known.
 #    clusterName: "default"
+#  zookeeper:
+#    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+#    nameSpace: /default
+#    hostPort: localhost:2181
+#    #Retry Policy
+#    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+#    maxRetries: 3 # max number of times to retry
 #exporter:
 #  grpc:
 #    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}

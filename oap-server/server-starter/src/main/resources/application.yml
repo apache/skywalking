@@ -143,6 +143,7 @@ configuration:
 #    # the name of current cluster, set the name if you want to upstream system known.
 #    clusterName: "default"
 #  zookeeper:
+#    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
 #    nameSpace: /default
 #    hostPort: localhost:2181
 #    #Retry Policy

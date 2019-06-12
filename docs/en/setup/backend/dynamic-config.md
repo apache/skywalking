@@ -50,8 +50,24 @@ configuration:
     clusterName: "default"
 ```
 
+
+## Zookeeper DCS
+
+[Zookeeper](https://github.com/apache/zookeeper) is also supported in DCS, to use it, please configure as follows:
+
+```yaml
+configuration:
+  zookeeper:
+    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    nameSpace: /default
+    hostPort: localhost:2181
+    #Retry Policy
+    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+    maxRetries: 3 # max number of times to retry
+```
+
 ## 3rd party Configuration Center
 We are welcome contributions to implement this module provider to support popular configuration center, 
-such as Zookeeper, etcd, Consul. Submit issue to discuss.
+such as etcd, Consul. Submit issue to discuss.
 
 
