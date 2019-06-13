@@ -18,17 +18,32 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
 /**
  * @author peng-yongsheng
  */
-class TimeSeriesUtils {
+public class TimeSeriesUtils {
 
     static String timeSeries(Model model) {
         long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
         return timeSeries(model, timeBucket);
+    }
+
+    public static String timeSeries(String modelName, long timeBucket, Downsampling downsampling) {
+        switch (downsampling) {
+            case None:
+                return modelName;
+            case Hour:
+                return modelName + Const.LINE + timeBucket / 100;
+            case Minute:
+                return modelName + Const.LINE + timeBucket / 10000;
+            case Second:
+                return modelName + Const.LINE + timeBucket / 1000000;
+            default:
+                return modelName + Const.LINE + timeBucket;
+        }
     }
 
     static String timeSeries(Model model, long timeBucket) {
@@ -36,18 +51,7 @@ class TimeSeriesUtils {
             return model.getName();
         }
 
-        switch (model.getDownsampling()) {
-            case None:
-                return model.getName();
-            case Hour:
-                return model.getName() + Const.LINE + timeBucket / 100;
-            case Minute:
-                return model.getName() + Const.LINE + timeBucket / 10000;
-            case Second:
-                return model.getName() + Const.LINE + timeBucket / 1000000;
-            default:
-                return model.getName() + Const.LINE + timeBucket;
-        }
+        return timeSeries(model.getName(), timeBucket, model.getDownsampling());
     }
 
     static long indexTimeSeries(String indexName) {
