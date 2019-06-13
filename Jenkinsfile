@@ -17,9 +17,7 @@
  */
 
 pipeline {
-    agent {
-        label 'ubuntu'
-    }
+    agent none
 
     options {
         buildDiscarder(logRotator(
@@ -48,14 +46,47 @@ pipeline {
             }
         }
 
-        stage('Install & Test on JDK 1.8') {
-            tools {
-                jdk 'JDK 1.8 (latest)'
-            }
+        parallel {
+            stage('Install & Test on JDK 1.8 (ubuntu)') {
+                agent {
+                    label 'ubuntu'
+                }
 
-            steps {
-                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+                tools {
+                    jdk 'JDK 1.8 (latest)'
+                }
+
+                steps {
+                    parallel(
+                        install: {
+                            sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                        },
+                        javadoc: {
+                            sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+                        }
+                    )
+                }
+            }
+            
+            stage('Install & Test on JDK 1.8 (xenial)') {
+                agent {
+                    label 'xenial'
+                }
+
+                tools {
+                    jdk 'JDK 1.8 (latest)'
+                }
+
+                steps {
+                    parallel(
+                        install: {
+                            sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                        },
+                        javadoc: {
+                            sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+                        }
+                    )
+                }
             }
         }
     }
