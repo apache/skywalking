@@ -5,7 +5,6 @@ os:
 
 jdk:
   - openjdk8
-  - openjdk9
 
 language: java
 
