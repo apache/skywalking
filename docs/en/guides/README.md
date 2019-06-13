@@ -24,7 +24,11 @@ All the following channels are open to the community, you could choose the way y
 * QQ Group: 392443393
 
 ## For code developer
-As a develop, first step, read [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local.
+For developers, we have detailed guides to help you quickly get started.
+
+- [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the development environment.
+- Development Guide. For any specific topic, please refer the their own section below, such as agent, storage, ui, etc.
+- [Writing and Running Tests](How-to-build.md#write-necessary-tests-and-run-them). This chapter will explain how to verify your codes with UTs and ITs.
 
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
