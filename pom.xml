@@ -329,7 +329,7 @@
                             <rules>
                                 <requireJavaVersion>
                                     <!-- Build has not yet been updated for Java 9+ -->
-                                    <version>[1.8,9]</version>
+                                    <version>1.8</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
