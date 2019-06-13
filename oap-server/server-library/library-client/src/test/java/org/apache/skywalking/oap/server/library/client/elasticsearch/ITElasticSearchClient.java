@@ -19,18 +19,25 @@
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.*;
-import org.slf4j.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author peng-yongsheng
@@ -43,7 +50,8 @@ public class ITElasticSearchClient {
 
     @Before
     public void before() throws IOException {
-        client = new ElasticSearchClient("localhost:9200", "", "test", "test");
+        final String esAddress = System.getProperty("elastic.search.address");
+        client = new ElasticSearchClient(esAddress, "", "test", "test");
         client.connect();
     }
 
