@@ -90,38 +90,44 @@ public class EasyLogger implements ILog {
 
     @Override
     public void info(String format) {
-        if (isInfoEnable())
+        if (isInfoEnable()) {
             logger(LogLevel.INFO, format, null);
+        }
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        if (isInfoEnable())
+        if (isInfoEnable()) {
             logger(LogLevel.INFO, replaceParam(format, arguments), null);
+        }
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        if (isWarnEnable())
+        if (isWarnEnable()) {
             logger(LogLevel.WARN, replaceParam(format, arguments), null);
+        }
     }
 
     @Override
     public void warn(Throwable e, String format, Object... arguments) {
-        if (isWarnEnable())
+        if (isWarnEnable()) {
             logger(LogLevel.WARN, replaceParam(format, arguments), e);
+        }
     }
 
     @Override
     public void error(String format, Throwable e) {
-        if (isErrorEnable())
+        if (isErrorEnable()) {
             logger(LogLevel.ERROR, format, e);
+        }
     }
 
     @Override
     public void error(Throwable e, String format, Object... arguments) {
-        if (isErrorEnable())
+        if (isErrorEnable()) {
             logger(LogLevel.ERROR, replaceParam(format, arguments), e);
+        }
     }
 
     @Override

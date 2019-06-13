@@ -130,16 +130,18 @@ public class AgentClassLoader extends ClassLoader {
                         }
                         data = baos.toByteArray();
                     } finally {
-                        if (is != null)
+                        if (is != null) {
                             try {
                                 is.close();
                             } catch (IOException ignored) {
                             }
-                        if (baos != null)
+                        }
+                        if (baos != null) {
                             try {
                                 baos.close();
                             } catch (IOException ignored) {
                             }
+                        }
                     }
                     return defineClass(name, data, 0, data.length);
                 } catch (MalformedURLException e) {
