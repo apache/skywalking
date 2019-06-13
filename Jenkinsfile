@@ -17,57 +17,63 @@
  */
 
 pipeline {
-    agent {
-        label 'ubuntu'
-    }
-
-    tools {
-        jdk 'JDK 1.8 (latest)'
-    }
+    agent none
 
     options {
         buildDiscarder(logRotator(
-            numToKeepStr: '30',
+            numToKeepStr: '60',
         ))
         timestamps()
         skipStagesAfterUnstable()
-        timeout time: 30, unit: 'MINUTES'
+        timeout time: 60, unit: 'MINUTES'
     }
 
     stages {
-        stage('SCM Checkout') {
-            steps {
-                deleteDir()
-                checkout scm
-            }
-        }
+        stage('Install & Test') {
+            parallel {
+                stage('JDK 1.8 on Linux') {
+                    agent {
+                        label 'xenial'
+                    }
 
-        stage('Check environment') {
-            steps {
-                sh 'env'
-                sh 'pwd'
-                sh 'ls'
-                sh 'git status'
-            }
-        }
+                    tools {
+                        jdk 'JDK 1.8 (latest)'
+                    }
 
-        stage('Run install') {
-            steps {
-                sh './mvnw org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report --quiet --batch-mode -nsu'
-            }
-        }
+                    stages {
+                        stage('SCM Checkout') {
+                            steps {
+                                deleteDir()
+                                checkout scm
+                                sh 'git submodule update --init'
+                            }
+                        }
 
-        stage('Run install') {
-            steps {
-                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true --quiet'
-            }
-        }
-    }
+                        stage('Check environment') {
+                            steps {
+                                sh 'env'
+                                sh 'pwd'
+                                sh 'ls'
+                                sh 'git status'
+                            }
+                        }    
 
-    post {
-        always {
-            junit '**/target/surefire-reports/*.xml'
-            deleteDir()
+                        stage('Test & Report') {
+                            steps {
+                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+                            }
+                        }
+                    }
+
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/*.xml'
+                            deleteDir()
+                        }
+                    }
+                }
+            }
         }
     }
 }
