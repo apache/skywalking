@@ -41,7 +41,8 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, Upd
     }
 
     @Override public Metrics get(Model model, Metrics metrics) throws IOException {
-        GetResponse response = getClient().get(model.getName(), metrics.id());
+        String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
+        GetResponse response = getClient().get(modelName, metrics.id());
         if (response.isExists()) {
             return storageBuilder.map2Data(response.getSource());
         } else {
