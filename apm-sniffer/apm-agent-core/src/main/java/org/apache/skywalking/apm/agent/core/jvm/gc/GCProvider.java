@@ -63,7 +63,7 @@ public enum GCProvider {
         } else if (name.indexOf("G1") > -1) {
             // G1 collector ( -XX:+UseG1GC )
             return new G1GCModule(beans);
-        } else if ("MarkSweepCompact".equals(name)) {
+        } else if (name.equals("MarkSweepCompact")) {
             // Serial collector ( -XX:+UseSerialGC )
             return new SerialGCModule(beans);
         } else {

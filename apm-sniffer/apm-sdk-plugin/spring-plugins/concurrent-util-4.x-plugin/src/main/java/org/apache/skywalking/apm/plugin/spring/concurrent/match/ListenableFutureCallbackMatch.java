@@ -74,7 +74,7 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
 
         if (!isMatch) {
             TypeDescription.Generic superClazz = clazz.getSuperClass();
-            if (superClazz != null && !"java.lang.Object".equals(clazz.getTypeName())) {
+            if (superClazz != null && !clazz.getTypeName().equals("java.lang.Object")) {
                 isMatch = isMatch || matchExactClass(superClazz);
             }
         }

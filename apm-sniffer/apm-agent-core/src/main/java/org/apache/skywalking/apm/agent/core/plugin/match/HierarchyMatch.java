@@ -95,7 +95,7 @@ public class HierarchyMatch implements IndirectMatch {
         }
 
         TypeDescription.Generic superClazz = clazz.getSuperClass();
-        if (superClazz != null && !"java.lang.Object".equals(clazz.getTypeName())) {
+        if (superClazz != null && !clazz.getTypeName().equals("java.lang.Object")) {
             matchHierarchyClass(superClazz, parentTypes);
         }
 
