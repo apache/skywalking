@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.zookeeper.mocker;
+package org.apache.skywalking.oap.server.configuration.zookeeper.ut;
 
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -30,11 +30,11 @@ import java.util.Set;
  * @author zhaoyuguang
  */
 
-public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
+public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     private PathChildrenCache childrenCache;
     private final String prefix;
 
-    public ZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
+    public MockZookeeperConfigWatcherRegister(ZookeeperServerSettings settings) throws Exception {
         super(settings.getPeriod());
         prefix = settings.getNameSpace() + "/";
     }

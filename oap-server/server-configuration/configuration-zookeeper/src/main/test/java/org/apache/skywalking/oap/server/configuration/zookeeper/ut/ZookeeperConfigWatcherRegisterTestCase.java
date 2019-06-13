@@ -16,13 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.zookeeper;
+package org.apache.skywalking.oap.server.configuration.zookeeper.ut;
 
 import com.google.common.collect.Sets;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.zookeeper.mocker.ZookeeperConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperServerSettings;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
@@ -42,7 +42,7 @@ public class ZookeeperConfigWatcherRegisterTestCase {
         final ZookeeperServerSettings mockSettings = mock(ZookeeperServerSettings.class);
         when(mockSettings.getNameSpace()).thenReturn(nameSpace);
 
-        final ZookeeperConfigWatcherRegister mockRegister = spy(new ZookeeperConfigWatcherRegister(mockSettings));
+        final MockZookeeperConfigWatcherRegister mockRegister = spy(new MockZookeeperConfigWatcherRegister(mockSettings));
         final PathChildrenCache mockPathChildrenCache = mock(PathChildrenCache.class);
         when(mockPathChildrenCache.getCurrentData(nameSpace + "/" + key)).thenReturn(new ChildData(nameSpace + "/" + key, null, value.getBytes()));
 
