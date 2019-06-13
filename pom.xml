@@ -155,6 +155,12 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>CI-with-IT</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
     </profiles>
 
     <properties>
