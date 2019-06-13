@@ -275,7 +275,7 @@ public class SegmentParseV2 {
             segmentParse.setStandardizationWorker(standardizationWorker);
             boolean parseResult = segmentParse.parse(bufferData, SegmentSource.Buffer);
             if (parseResult) {
-                segmentParse.TRACE_BUFFER_FILE_OUT.inc();
+                TRACE_BUFFER_FILE_OUT.inc();
             }
 
             return parseResult;
