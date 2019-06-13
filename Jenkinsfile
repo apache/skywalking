@@ -54,8 +54,8 @@ pipeline {
             }
 
             steps {
-                sh './mvnw -T 2C -PCI-with-IT org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-                sh './mvnw -T 2C javadoc:javadoc -Dmaven.test.skip=true'
+                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
             }
         }
     }
