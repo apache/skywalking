@@ -75,7 +75,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         }
         if (LogState.ERROR.equals(state)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
-        } else if (LogState.ERROR.equals(state)) {
+        } else if (LogState.SUCCESS.equals(state)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(false)));
         }
 
