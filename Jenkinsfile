@@ -46,49 +46,51 @@ pipeline {
             }
         }
 
-        parallel {
-            stage('Install & Test on JDK 1.8 (ubuntu)') {
-                agent {
-                    label 'ubuntu'
-                }
+		stage('Install & Test on JDK 1.8') {
+			parallel {
+				stage('ubuntu') {
+					agent {
+						label 'ubuntu'
+					}
 
-                tools {
-                    jdk 'JDK 1.8 (latest)'
-                }
+					tools {
+						jdk 'JDK 1.8 (latest)'
+					}
 
-                steps {
-                    parallel(
-                        install: {
-                            sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-                        },
-                        javadoc: {
-                            sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
-                        }
-                    )
-                }
-            }
-            
-            stage('Install & Test on JDK 1.8 (xenial)') {
-                agent {
-                    label 'xenial'
-                }
+					steps {
+						parallel(
+							install: {
+								sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+							},
+							javadoc: {
+								sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+							}
+						)
+					}
+				}
+				
+				stage('Windows') {
+					agent {
+						label 'Windows'
+					}
 
-                tools {
-                    jdk 'JDK 1.8 (latest)'
-                }
+					tools {
+						jdk 'JDK 1.8 (latest)'
+					}
 
-                steps {
-                    parallel(
-                        install: {
-                            sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-                        },
-                        javadoc: {
-                            sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
-                        }
-                    )
-                }
-            }
-        }
+					steps {
+						parallel(
+							install: {
+								sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+							},
+							javadoc: {
+								sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+							}
+						)
+					}
+				}
+			}
+		}
     }
 
     post {
