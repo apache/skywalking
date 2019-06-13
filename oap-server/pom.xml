@@ -79,6 +79,8 @@
 
         <maven-docker-plugin.version>0.28.0</maven-docker-plugin.version>
         <nacos.version>1.0.0</nacos.version>
+        <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd.version>v3.2.3</etcd.version>
     </properties>
 
     <dependencies>
@@ -364,6 +366,11 @@
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mousio</groupId>
+                <artifactId>etcd4j</artifactId>
+                <version>${etcd4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
