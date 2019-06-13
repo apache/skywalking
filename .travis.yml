@@ -8,5 +8,5 @@ jdk:
 
 language: java
 
-install:
+script:
   - ./mvnw -DskipTests clean install --quiet
