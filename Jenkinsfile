@@ -40,27 +40,29 @@ pipeline {
 						jdk 'JDK 1.8 (latest)'
 					}
 
-					stage('SCM Checkout') {
-						steps {
-							deleteDir()
-							checkout scm
-							sh 'git submodule update --init'
+					stages {
+						stage('SCM Checkout') {
+							steps {
+								deleteDir()
+								checkout scm
+								sh 'git submodule update --init'
+							}
 						}
-					}
 
-					stage('Check environment') {
-						steps {
-							sh 'env'
-								sh 'pwd'
-								sh 'ls'
-								sh 'git status'
-						}
-					}	
+						stage('Check environment') {
+							steps {
+								sh 'env'
+									sh 'pwd'
+									sh 'ls'
+									sh 'git status'
+							}
+						}	
 
-					stage('Test & Report') {
-						steps {
-							sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-							sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+						stage('Test & Report') {
+							steps {
+								sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+								sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+							}
 						}
 					}
 
