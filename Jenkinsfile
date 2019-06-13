@@ -40,37 +40,28 @@ pipeline {
 						jdk 'JDK 1.8 (latest)'
 					}
 
-					steps {
-						deleteDir()
-						checkout scm
-						sh 'git submodule update --init'
-						sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-						sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
-					}
-
-					post {
-						always {
-							junit '**/target/surefire-reports/*.xml'
+					stage('SCM Checkout') {
+						steps {
 							deleteDir()
+							checkout scm
+							sh 'git submodule update --init'
 						}
 					}
-				}
-				
-				stage('JDK 1.8 on Windows') {
-					agent {
-						label 'Windows'
-					}
 
-					tools {
-						jdk 'JDK 1.8 (latest)'
-					}
+					stage('Check environment') {
+						steps {
+							sh 'env'
+								sh 'pwd'
+								sh 'ls'
+								sh 'git status'
+						}
+					}	
 
-					steps {
-						deleteDir()
-						checkout scm
-						bat 'git submodule update --init'
-						bat './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-						bat './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+					stage('Test & Report') {
+						steps {
+							sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+							sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+						}
 					}
 
 					post {
