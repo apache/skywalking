@@ -52,9 +52,52 @@ pipeline {
 						stage('Check environment') {
 							steps {
 								sh 'env'
-									sh 'pwd'
-									sh 'ls'
-									sh 'git status'
+								sh 'pwd'
+								sh 'ls'
+								sh 'git status'
+							}
+						}	
+
+						stage('Test & Report') {
+							steps {
+								sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+								sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+							}
+						}
+					}
+
+					post {
+						always {
+							junit '**/target/surefire-reports/*.xml'
+							deleteDir()
+						}
+					}
+				}
+
+				stage('JDK 1.8 on xenial') {
+					agent {
+						label 'xenial'
+					}
+
+					tools {
+						jdk 'JDK 1.8 (latest)'
+					}
+
+					stages {
+						stage('SCM Checkout') {
+							steps {
+								deleteDir()
+								checkout scm
+								sh 'git submodule update --init'
+							}
+						}
+
+						stage('Check environment') {
+							steps {
+								sh 'env'
+								sh 'pwd'
+								sh 'ls'
+								sh 'git status'
 							}
 						}	
 
