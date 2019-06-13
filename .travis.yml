@@ -9,4 +9,4 @@ jdk:
 language: java
 
 install:
-  - ./mvnw clean install --quiet
+  - ./mvnw -DskipTests clean install --quiet
