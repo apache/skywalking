@@ -68,9 +68,9 @@ pipeline {
 					steps {
 						deleteDir()
 						checkout scm
-						sh 'git submodule update --init'
-						sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-						sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+						bat 'git submodule update --init'
+						bat './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+						bat './mvnw javadoc:javadoc -Dmaven.test.skip=true'
 					}
 
 					post {
