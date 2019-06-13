@@ -32,7 +32,7 @@ public class ScriptParserTest {
         InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
         MetaSettings metaSettings = reader.read(stream);
         SourceColumnsFactory.setSettings(metaSettings);
-        Indicators.init();
+        MetricsHolder.init();
 
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
@@ -50,18 +50,18 @@ public class ScriptParserTest {
             "Endpoint_avg = from(Endpoint.latency).longAvg(); //comment test" + "\n" +
                 "Service_avg = from(Service.latency).longAvg()"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         Assert.assertEquals(2, results.size());
 
         AnalysisResult endpointAvg = results.get(0);
-        Assert.assertEquals("EndpointAvg", endpointAvg.getMetricName());
+        Assert.assertEquals("EndpointAvg", endpointAvg.getMetricsName());
         Assert.assertEquals("Endpoint", endpointAvg.getSourceName());
         Assert.assertEquals("latency", endpointAvg.getSourceAttribute());
         Assert.assertEquals("longAvg", endpointAvg.getAggregationFunctionName());
 
         AnalysisResult serviceAvg = results.get(1);
-        Assert.assertEquals("ServiceAvg", serviceAvg.getMetricName());
+        Assert.assertEquals("ServiceAvg", serviceAvg.getMetricsName());
         Assert.assertEquals("Service", serviceAvg.getSourceName());
         Assert.assertEquals("latency", serviceAvg.getSourceAttribute());
         Assert.assertEquals("longAvg", serviceAvg.getAggregationFunctionName());
@@ -72,10 +72,10 @@ public class ScriptParserTest {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "Endpoint_percent = from(Endpoint.*).percent(status == true);"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
-        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
+        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricsName());
         Assert.assertEquals("Endpoint", endpointPercent.getSourceName());
         Assert.assertEquals("*", endpointPercent.getSourceAttribute());
         Assert.assertEquals("percent", endpointPercent.getAggregationFunctionName());
@@ -91,10 +91,10 @@ public class ScriptParserTest {
         ScriptParser parser = ScriptParser.createFromScriptText(
             "Endpoint_percent = from(Endpoint.*).filter(status == true).filter(name == \"/product/abc\").longAvg();"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
-        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricName());
+        Assert.assertEquals("EndpointPercent", endpointPercent.getMetricsName());
         Assert.assertEquals("Endpoint", endpointPercent.getSourceName());
         Assert.assertEquals("*", endpointPercent.getSourceAttribute());
         Assert.assertEquals("longAvg", endpointPercent.getAggregationFunctionName());
@@ -121,10 +121,10 @@ public class ScriptParserTest {
                 "service_response_s3_summary = from(Service.latency).filter(latency >= 3000).sum();" + "\n" +
                 "service_response_s4_summary = from(Service.latency).filter(latency <= 4000).sum();"
         );
-        List<AnalysisResult> results = parser.parse();
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult responseSummary = results.get(0);
-        Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricName());
+        Assert.assertEquals("ServiceResponseS1Summary", responseSummary.getMetricsName());
         Assert.assertEquals("Service", responseSummary.getSourceName());
         Assert.assertEquals("latency", responseSummary.getSourceAttribute());
         Assert.assertEquals("sum", responseSummary.getAggregationFunctionName());
@@ -166,5 +166,15 @@ public class ScriptParserTest {
         Assert.assertEquals("latency", booleanMatchExp.getAttribute());
         Assert.assertEquals("4000", booleanMatchExp.getValue());
         Assert.assertEquals("lessEqualMatch", booleanMatchExp.getExpressionType());
+    }
+
+    @Test
+    public void testDisable() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "disable(segment);");
+        DisableCollection collection = parser.parse().getDisableCollection();
+        List<String> sources = collection.getAllDisableSources();
+        Assert.assertEquals(1, sources.size());
+        Assert.assertEquals("segment", sources.get(0));
     }
 }

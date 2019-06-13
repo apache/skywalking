@@ -114,6 +114,16 @@ public class ComponentsDefine {
 
     public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
 
+    public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
+
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
+
+    public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
+
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
+
+    public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -123,7 +133,7 @@ public class ComponentsDefine {
     }
 
     public ComponentsDefine() {
-        components = new String[59];
+        components = new String[100];
         addComponent(TOMCAT);
         addComponent(HTTPCLIENT);
         addComponent(DUBBO);
@@ -139,6 +149,7 @@ public class ComponentsDefine {
         addComponent(JETTY_CLIENT);
         addComponent(JETTY_SERVER);
         addComponent(SHARDING_JDBC);
+        addComponent(SHARDING_SPHERE);
         addComponent(GRPC);
         addComponent(ELASTIC_JOB);
         addComponent(HTTP_ASYNC_CLIENT);
@@ -167,6 +178,10 @@ public class ComponentsDefine {
         addComponent(REDISSON);
         addComponent(LETTUCE);
         addComponent(ZOOKEEPER);
+        addComponent(VERTX);
+        addComponent(SPRING_CLOUD_GATEWAY);
+        addComponent(RESTEASY);
+        addComponent(SOLRJ);
     }
 
     private void addComponent(OfficialComponent component) {

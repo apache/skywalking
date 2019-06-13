@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
@@ -38,8 +38,11 @@ import org.elasticsearch.search.sort.SortOrder;
  */
 public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
-    public TraceQueryEsDAO(ElasticSearchClient client) {
+    private int segmentQueryMaxSize;
+
+    public TraceQueryEsDAO(ElasticSearchClient client, int segmentQueryMaxSize) {
         super(client);
+        this.segmentQueryMaxSize = segmentQueryMaxSize;
     }
 
     @Override
@@ -67,7 +70,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             boolQueryBuilder.must().add(rangeQueryBuilder);
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(SegmentRecord.ENDPOINT_NAME, endpointName));
+            String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
+            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
         if (serviceId != 0) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
@@ -123,7 +127,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
-        sourceBuilder.size(20);
+        sourceBuilder.size(segmentQueryMaxSize);
 
         SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
 
@@ -146,5 +150,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             segmentRecords.add(segmentRecord);
         }
         return segmentRecords;
+    }
+
+    @Override public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
+        return Collections.emptyList();
     }
 }

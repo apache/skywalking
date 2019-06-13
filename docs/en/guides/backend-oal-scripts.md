@@ -9,7 +9,7 @@ You need to use OAL tool code generator to build the real analysis codes from it
 All generated codes are under `oal` folder in **oap-server/generated-analysis/target/generated-sources**.
 
 All metrics named in this script could be used in alarm and UI query. Of course, you can change this 
-scripts and re-generate the analysis process and metric, such as adding filter condition. 
+scripts and re-generate the analysis process and metrics, such as adding filter condition. 
 
-If you try to add or remove some metric, UI may break, we only recommend you to do this when you plan
+If you try to add or remove some metrics, UI may break, we only recommend you to do this when you plan
 to build your own UI based on the customization analysis core. 

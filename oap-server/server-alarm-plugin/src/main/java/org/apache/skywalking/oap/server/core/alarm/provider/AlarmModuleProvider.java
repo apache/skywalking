@@ -25,6 +25,9 @@ import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 public class AlarmModuleProvider extends ModuleProvider {
+
+    private NotifyHandler notifyHandler;
+
     @Override public String name() {
         return "default";
     }
@@ -46,16 +49,16 @@ public class AlarmModuleProvider extends ModuleProvider {
         }
         RulesReader reader = new RulesReader(applicationReader);
         Rules rules = reader.readRules();
-        NotifyHandler notifyHandler = new NotifyHandler(rules);
+        notifyHandler = new NotifyHandler(rules);
         notifyHandler.init(new AlarmStandardPersistence());
-        this.registerServiceImplementation(IndicatorNotify.class, notifyHandler);
+        this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-
+        notifyHandler.initCache(getManager());
     }
 
     @Override public String[] requiredModules() {

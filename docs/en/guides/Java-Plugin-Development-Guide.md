@@ -14,10 +14,10 @@ There are three types of Span
 
 1.1 EntrySpan
 EntrySpan represents a service provider, also the endpoint of server side. As an APM system, we are targeting the 
-application servers. So almost all the services and MQ-comsumer are EntrySpan(s).
+application servers. So almost all the services and MQ-consumer are EntrySpan(s).
 
 1.2 LocalSpan
-LocalSpan represents a normal Java method, which don't relate with remote service, neither a MQ producer/comsumer
+LocalSpan represents a normal Java method, which does not relate to remote service, neither a MQ producer/consumer
 nor a service(e.g. HTTP service) provider/consumer.
 
 1.3 ExitSpan
@@ -158,7 +158,7 @@ SpanLayer is the catalog of span. Here are 5 values:
 1. MQ
 
 Component IDs are defined and reserved by SkyWalking project.
-For component name/ID extension, please follow [cComponent library definition and extension](Component-library-settings.md) document.
+For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
 
 ### Advanced APIs
 #### Async Span APIs
@@ -221,13 +221,13 @@ ClassMatch represents how to match the target classes, there are 4 ways:
 * byName, through the full class name(package name + `.` + class name)
 * byClassAnnotationMatch, through the class existed certain annotations.
 * byMethodAnnotationMatch, through the class's method existed certain annotations.
-* byHierarchyMatch, throught the class's parent classes or interfaces
+* byHierarchyMatch, through the class's parent classes or interfaces
 
 **Attentions**:
 * Forbid to use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
 avoiding ClassLoader issues.
 * `by*AnnotationMatch` doesn't support the inherited annotations.
-* Don't recommend use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
+* Don't recommend to use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
 many unexcepted methods, which causes performance issues and concerns.
 
 Example：
@@ -322,5 +322,5 @@ Please follow there steps:
 1. Develop and test.
 1. Send the pull request and ask for review. 
 1. Provide the automatic test cases. 
-1. The plugin committers approves your plugins after automatic test cases provided and the tests passed in our CI.
+1. The plugin committers approve your plugins after automatic test cases provided and the tests passed in our CI.
 1. The plugin accepted by SkyWalking. 

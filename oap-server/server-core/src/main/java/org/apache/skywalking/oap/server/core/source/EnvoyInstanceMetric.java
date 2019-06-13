@@ -21,15 +21,16 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.*;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENVOY_INSTANCE_METRIC;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
 /**
- * The envoy metrics. This group of metrics are in Prometheus metric format family.
+ * The envoy metrics. This group of metrics are in Prometheus metrics format family.
  *
- * This metric source supports Counter and Gauge types.
+ * This metrics source supports Counter and Gauge types.
  *
  * @author wusheng
  */
-@ScopeDeclaration(id = ENVOY_INSTANCE_METRIC, name = "EnvoyInstanceMetric")
+@ScopeDeclaration(id = ENVOY_INSTANCE_METRIC, name = "EnvoyInstanceMetric", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 public class EnvoyInstanceMetric extends Source {
     @Override public int scope() {
         return ENVOY_INSTANCE_METRIC;

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.LinkedList;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataAnnotationContainer;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMapping;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -35,7 +35,7 @@ public class StorageInstallerTestCase {
 
     @Test
     public void testInstall() throws StorageException, ServiceNotProvidedException {
-        StreamDataAnnotationContainer streamDataAnnotationContainer = new StreamDataAnnotationContainer();
+        StreamDataMapping streamDataMapping = new StreamDataMapping();
         CoreModuleProvider moduleProvider = Mockito.mock(CoreModuleProvider.class);
         CoreModule moduleDefine = Mockito.spy(CoreModule.class);
         ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
@@ -44,9 +44,9 @@ public class StorageInstallerTestCase {
         moduleProviders.add(moduleProvider);
 
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleDefine);
-        Mockito.when(moduleProvider.getService(StreamDataAnnotationContainer.class)).thenReturn(streamDataAnnotationContainer);
+        Mockito.when(moduleProvider.getService(StreamDataMapping.class)).thenReturn(streamDataMapping);
 
-//        streamDataAnnotationContainer.generate();
+//        streamDataMapping.generate();
 
 //        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
 //        installer.install(null);
@@ -60,14 +60,6 @@ public class StorageInstallerTestCase {
 
         @Override protected boolean isExists(Client client, Model tableDefine) throws StorageException {
             return false;
-        }
-
-        @Override protected void columnCheck(Client client, Model tableDefine) throws StorageException {
-
-        }
-
-        @Override protected void deleteTable(Client client, Model tableDefine) throws StorageException {
-
         }
 
         @Override protected void createTable(Client client, Model tableDefine) throws StorageException {

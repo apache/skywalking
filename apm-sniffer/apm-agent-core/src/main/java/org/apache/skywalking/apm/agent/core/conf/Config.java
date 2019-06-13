@@ -40,7 +40,7 @@ public class Config {
         public static String NAMESPACE = "";
 
         /**
-         * Application code is showed in skywalking-ui. Suggestion: set a unique name for each service,
+         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
          * service instance nodes share the same code
          */
         public static String SERVICE_NAME = "";
@@ -192,6 +192,18 @@ public class Config {
              * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
              */
             public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
+        }
+
+        public static class SolrJ {
+            /**
+             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.
+             */
+            public static boolean TRACE_STATEMENT = false;
+
+            /**
+             * If true, trace all the operation parameters in Solr request, default is false.
+             */
+            public static boolean TRACE_OPS_PARAMS = false;
         }
     }
 }

@@ -22,6 +22,7 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>19</version>
+        <relativePath />
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,5 +30,4 @@
     <artifactId>apm-checkstyle</artifactId>
     <version>6.1.0</version>
     <description>Module to hold Checkstyle for SkyWalking.</description>
-
 </project>

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -70,6 +70,11 @@
             <artifactId>cluster-consul-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-nacos-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- cluster module -->
 
         <!-- receiver module -->
@@ -108,6 +113,11 @@
             <artifactId>zipkin-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-clr-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- storage module -->
@@ -119,6 +129,16 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-elasticsearch-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-zipkin-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>jaeger-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->
@@ -142,6 +162,25 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>telemetry-prometheus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>exporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- configuration -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>grpc-configuration-sync</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-nacos</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -174,6 +213,7 @@
                         <exclude>alarm-settings.yml</exclude>
                         <exclude>component-libraries.yml</exclude>
                         <exclude>datasource-settings.properties</exclude>
+                        <exclude>endpoint_naming_rules.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>

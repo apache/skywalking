@@ -82,19 +82,22 @@ property key | Description | Default |
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
 `plugin.springmvc.use_qualified_name_as_endpoint_name`|If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.|`false`|
 `plugin.toolit.use_qualified_name_as_operation_name`|If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.|`false`|
+`plugin.solrj.trace_statement`|If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.|`false`|
+`plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositores.
 For using these plugins, you need to put the target plugin jar file into `/plugins`.
 
 Now, we have the following known optional plugins.
-* [Trace Spring annotation beans](agent-optional-plugins/Spring-annotation-plugin.md)
-* [Trace Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
+* [Plugin of tracing Spring annotation beans](agent-optional-plugins/Spring-annotation-plugin.md)
+* [Plugin of tracing Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
-* Gson serialization lib in optional plugin folder
-* Lettuce 5.x(JRE1.8+) in optional plugin folder 
-* Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
+* Plugin of Gson serialization lib in optional plugin folder.
+* Plugin of Lettuce 5.x(JRE 8+) in optional plugin folder. Agent is compatible in JDK 1.6+, this plugin could be used in JRE 8+, by matching the lib requirement.
+* Plugin of Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
+* Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway.
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).

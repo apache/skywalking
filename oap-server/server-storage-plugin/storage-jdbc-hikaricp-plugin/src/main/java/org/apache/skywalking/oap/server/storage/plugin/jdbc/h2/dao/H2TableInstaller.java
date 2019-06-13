@@ -18,23 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import java.sql.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.*;
+import org.slf4j.*;
 
 public class H2TableInstaller extends ModelInstaller {
     private static final Logger logger = LoggerFactory.getLogger(H2TableInstaller.class);
@@ -58,14 +51,6 @@ public class H2TableInstaller extends ModelInstaller {
             throw new StorageException(e.getMessage(), e);
         }
         return false;
-    }
-
-    @Override protected void columnCheck(Client client, Model model) throws StorageException {
-
-    }
-
-    @Override protected void deleteTable(Client client, Model model) throws StorageException {
-
     }
 
     @Override protected void createTable(Client client, Model model) throws StorageException {

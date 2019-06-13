@@ -18,31 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
 import org.apache.skywalking.oap.server.core.exporter.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * @author wusheng
  */
-public class ExportWorker extends AbstractWorker<Indicator> {
-    private ModuleManager moduleManager;
+public class ExportWorker extends AbstractWorker<ExportEvent> {
     private MetricValuesExportService exportService;
 
-    public ExportWorker(int workerId, ModuleManager moduleManager) {
-        super(workerId);
-        this.moduleManager = moduleManager;
+    public ExportWorker(ModuleDefineHolder moduleDefineHolder) {
+        super(moduleDefineHolder);
     }
 
-    @Override public void in(Indicator indicator) {
-        if (exportService != null || moduleManager.has(ExporterModule.NAME)) {
-            if (indicator instanceof WithMetadata) {
-                if (exportService == null) {
-                    exportService = moduleManager.find(ExporterModule.NAME).provider().getService(MetricValuesExportService.class);
-                }
-                exportService.export(((WithMetadata)indicator).getMeta(), indicator);
+    @Override public void in(ExportEvent event) {
+        if (exportService != null || getModuleDefineHolder().has(ExporterModule.NAME)) {
+            if (exportService == null) {
+                exportService = getModuleDefineHolder().find(ExporterModule.NAME).provider().getService(MetricValuesExportService.class);
             }
+            exportService.export(event);
         }
     }
+
 }

@@ -21,8 +21,9 @@ package org.apache.skywalking.oap.server.core.query;
 import java.text.*;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
-import org.joda.time.*;
+import org.joda.time.DateTime;
 
 /**
  * @author peng-yongsheng
@@ -31,8 +32,8 @@ public enum DurationUtils {
     INSTANCE;
 
     public long exchangeToTimeBucket(String dateStr) {
-        dateStr = dateStr.replaceAll("-", Const.EMPTY_STRING);
-        dateStr = dateStr.replaceAll(" ", Const.EMPTY_STRING);
+        dateStr = dateStr.replaceAll(Const.LINE, Const.EMPTY_STRING);
+        dateStr = dateStr.replaceAll(Const.SPACE, Const.EMPTY_STRING);
         return Long.valueOf(dateStr);
     }
 
@@ -112,93 +113,73 @@ public enum DurationUtils {
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
-    public int minutesBetween(Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
-        Date startDate = formatDate(step, startTimeBucket);
-        Date endDate = formatDate(step, endTimeBucket);
-
-        return Minutes.minutesBetween(new DateTime(startDate), new DateTime(endDate)).getMinutes();
-    }
-
-    public int minutesBetween(Step step, DateTime dateTime) {
-        switch (step) {
-            case MONTH:
+    public int minutesBetween(Downsampling downsampling, DateTime dateTime) {
+        switch (downsampling) {
+            case Month:
                 return dateTime.dayOfMonth().getMaximumValue() * 24 * 60;
-            case DAY:
+            case Day:
                 return 24 * 60;
-            case HOUR:
+            case Hour:
                 return 60;
-            case MINUTE:
-                return 1;
-            case SECOND:
-                return 1;
             default:
                 return 1;
         }
     }
 
-    public int secondsBetween(Step step, long startTimeBucket, long endTimeBucket) throws ParseException {
-        Date startDate = formatDate(step, startTimeBucket);
-        Date endDate = formatDate(step, endTimeBucket);
-
-        return Seconds.secondsBetween(new DateTime(startDate), new DateTime(endDate)).getSeconds();
-    }
-
-    public int secondsBetween(Step step, DateTime dateTime) {
-        switch (step) {
-            case MONTH:
+    public int secondsBetween(Downsampling downsampling, DateTime dateTime) {
+        switch (downsampling) {
+            case Month:
                 return dateTime.dayOfMonth().getMaximumValue() * 24 * 60 * 60;
-            case DAY:
+            case Day:
                 return 24 * 60 * 60;
-            case HOUR:
+            case Hour:
                 return 60 * 60;
-            case MINUTE:
+            case Minute:
                 return 60;
-            case SECOND:
-                return 1;
             default:
                 return 1;
         }
     }
 
-    public List<DurationPoint> getDurationPoints(Step step, long startTimeBucket,
+    public List<DurationPoint> getDurationPoints(Downsampling downsampling, long startTimeBucket,
         long endTimeBucket) throws ParseException {
-        DateTime dateTime = parseToDateTime(step, startTimeBucket);
+        DateTime dateTime = parseToDateTime(downsampling, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();
-        durations.add(new DurationPoint(startTimeBucket, secondsBetween(step, dateTime), minutesBetween(step, dateTime)));
+        durations.add(new DurationPoint(startTimeBucket, secondsBetween(downsampling, dateTime), minutesBetween(downsampling, dateTime)));
 
         int i = 0;
         do {
-            switch (step) {
-                case MONTH:
+            switch (downsampling) {
+                case Month:
                     dateTime = dateTime.plusMonths(1);
                     String timeBucket = new SimpleDateFormat("yyyyMM").format(dateTime.toDate());
-                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime), minutesBetween(step, dateTime)));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(downsampling, dateTime), minutesBetween(downsampling, dateTime)));
                     break;
-                case DAY:
+                case Day:
                     dateTime = dateTime.plusDays(1);
                     timeBucket = new SimpleDateFormat("yyyyMMdd").format(dateTime.toDate());
-                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime), minutesBetween(step, dateTime)));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(downsampling, dateTime), minutesBetween(downsampling, dateTime)));
                     break;
-                case HOUR:
+                case Hour:
                     dateTime = dateTime.plusHours(1);
                     timeBucket = new SimpleDateFormat("yyyyMMddHH").format(dateTime.toDate());
-                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime), minutesBetween(step, dateTime)));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(downsampling, dateTime), minutesBetween(downsampling, dateTime)));
                     break;
-                case MINUTE:
+                case Minute:
                     dateTime = dateTime.plusMinutes(1);
                     timeBucket = new SimpleDateFormat("yyyyMMddHHmm").format(dateTime.toDate());
-                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime), minutesBetween(step, dateTime)));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(downsampling, dateTime), minutesBetween(downsampling, dateTime)));
                     break;
-                case SECOND:
+                case Second:
                     dateTime = dateTime.plusSeconds(1);
                     timeBucket = new SimpleDateFormat("yyyyMMddHHmmss").format(dateTime.toDate());
-                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(step, dateTime), minutesBetween(step, dateTime)));
+                    durations.add(new DurationPoint(Long.valueOf(timeBucket), secondsBetween(downsampling, dateTime), minutesBetween(downsampling, dateTime)));
                     break;
             }
             i++;
             if (i > 500) {
-                throw new UnexpectedException("Duration data error, step: " + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
+                throw new UnexpectedException("Duration data error, step: " + downsampling.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
             }
         }
         while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
@@ -206,49 +187,27 @@ public enum DurationUtils {
         return durations;
     }
 
-    private Date formatDate(Step step, long timeBucket) throws ParseException {
-        Date date = null;
-        switch (step) {
-            case MONTH:
-                date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(timeBucket));
-                break;
-            case DAY:
-                date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(timeBucket));
-                break;
-            case HOUR:
-                date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(timeBucket));
-                break;
-            case MINUTE:
-                date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(timeBucket));
-                break;
-            case SECOND:
-                date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(timeBucket));
-                break;
-        }
-        return date;
-    }
-
-    private DateTime parseToDateTime(Step step, long time) throws ParseException {
+    private DateTime parseToDateTime(Downsampling downsampling, long time) throws ParseException {
         DateTime dateTime = null;
 
-        switch (step) {
-            case MONTH:
+        switch (downsampling) {
+            case Month:
                 Date date = new SimpleDateFormat("yyyyMM").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
-            case DAY:
+            case Day:
                 date = new SimpleDateFormat("yyyyMMdd").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
-            case HOUR:
+            case Hour:
                 date = new SimpleDateFormat("yyyyMMddHH").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
-            case MINUTE:
+            case Minute:
                 date = new SimpleDateFormat("yyyyMMddHHmm").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;
-            case SECOND:
+            case Second:
                 date = new SimpleDateFormat("yyyyMMddHHmmss").parse(String.valueOf(time));
                 dateTime = new DateTime(date);
                 break;

@@ -31,13 +31,13 @@ core:
     restHost: ${REST_HOST:0.0.0.0}
     restPort: ${REST_PORT:12800}
     restContextPath: ${REST_CONTEXT_PATH:/}
-    gRPCHost: grpc.skywalking.incubator.apache.org
+    gRPCHost: grpc.skywalking.apache.org
     gRPCPort: ${GRPC_PORT:11800}
     downsampling:
     - Hour
     - Day
     - Month
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     recordDataTTL: ${RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: ${HOUR_METRIC_DATA_TTL:36} # Unit is hour

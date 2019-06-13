@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.config;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
