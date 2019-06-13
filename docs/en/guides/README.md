@@ -24,11 +24,24 @@ All the following channels are open to the community, you could choose the way y
 * QQ Group: 392443393
 
 ## For code developer
-For developers, we have detailed guides to help you quickly get started.
+For developers, first step, read [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the environment.
 
-- [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the development environment.
-- Development Guide. For any specific topic, please refer the their own section below, such as agent, storage, ui, etc.
-- [Writing and Running Tests](How-to-build.md#write-necessary-tests-and-run-them). This chapter will explain how to verify your codes with UTs and ITs.
+After setting up the environment and writing your codes, in order to make it more easily accepted by SkyWalking project, you'll
+need to run the tests locally to verify that your codes don't break any existed features,
+and write some unit test (UT) codes to verify that the new codes work well, preventing them being broke by future contributors.
+If the new codes involve other components or libraries, you're also supposed to write integration tests (IT).
+
+SkyWalking leverages plugin `maven-surefire-plugin` to run the UTs while using `maven-failsafe-plugin`
+to run the ITs, `maven-surefire-plugin` will exclude ITs (whose class name starts with `IT`)
+and leave them for `maven-failsafe-plugin` to run, which is bound to the `verify` goal, `CI-with-IT` profile.
+Therefore, to run the UTs, try `./mvnw clean test`, this will only run the UTs, not including ITs.
+
+If you want to run the ITs please activate the `CI-with-IT` profile
+as well as the the profiles of the modules whose ITs you want to run.
+e.g. if you want to run the ITs in `oap-server`, try `./mvnw -Pbackend,CI-with-IT clean verify`,
+and if you'd like to run all the ITs, simple run `./mvnw -Pall,CI-with-IT clean verify`.
+
+Please be advised that if you're writing integration tests, name it with the pattern `IT*` to make them only run in `CI-with-IT` profile.
 
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
