@@ -90,7 +90,7 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceName(serviceName).host(selfAddress.getHost()).port(selfAddress.getPort()).build();
         try {
             client.putDir(serviceName).send();
-            String key = buildKey(serviceName, selfAddress);
+            String key = buildKey(serviceName, selfAddress, remoteInstance);
             String json = new Gson().toJson(endpoint);
             EtcdResponsePromise<EtcdKeysResponse> promise = client.put(key, json).ttl(KEY_TTL).send();
             //check register.
@@ -105,15 +105,15 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     private void renew(EtcdClient client, String key, String json) {
         service.scheduleAtFixedRate(() -> {
             try {
-                client.refresh(key, KEY_TTL);
+                client.refresh(key, KEY_TTL).send().get();
             } catch (Exception e) {
 
             }
-        }, 5 * 1000, 30 * 1000, TimeUnit.NANOSECONDS);
+        }, 5 * 1000, 30 * 1000, TimeUnit.MILLISECONDS);
     }
 
-    private String buildKey(String serviceName, Address address) {
-        return new StringBuilder(serviceName).append("/").append(address.getHost()).toString();
+    private String buildKey(String serviceName, Address address, RemoteInstance instance) {
+        return new StringBuilder(serviceName).append("/").append(address.getHost()).append("_").append(instance.hashCode()).toString();
     }
 
     private boolean needUsingInternalAddr() {
