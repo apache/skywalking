@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.seata.define;
 
-import io.seata.core.protocol.transaction.BranchCommitRequest;
-import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -50,8 +48,7 @@ public class AbstractRMHandlerInstrumentation extends ClassInstanceMethodsEnhanc
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("handle").and(takesArguments(BranchCommitRequest.class))
-                        .or(named("handle").and(takesArguments(BranchRollbackRequest.class)));
+                    return named("handle").and(takesArguments(1));
                 }
 
                 @Override

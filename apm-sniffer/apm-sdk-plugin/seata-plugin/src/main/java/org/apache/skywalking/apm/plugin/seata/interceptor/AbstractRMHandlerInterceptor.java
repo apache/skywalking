@@ -46,6 +46,9 @@ public class AbstractRMHandlerInterceptor implements InstanceMethodsAroundInterc
                              final Object[] allArguments,
                              final Class<?>[] argumentsTypes,
                              final MethodInterceptResult result) throws Throwable {
+        if (!(allArguments[0] instanceof EnhancedRequest)) {
+            return;
+        }
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         final EnhancedRequest enhancedRequest = (EnhancedRequest) allArguments[0];
@@ -74,6 +77,9 @@ public class AbstractRMHandlerInterceptor implements InstanceMethodsAroundInterc
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
+        if (!(allArguments[0] instanceof EnhancedRequest)) {
+            return ret;
+        }
         if (ContextManager.isActive()) {
             ContextManager.stopSpan();
         }
