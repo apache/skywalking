@@ -155,6 +155,28 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>CI-with-IT</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <properties>
@@ -186,6 +208,7 @@
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
         <jmh.version>1.21</jmh.version>
+        <gmaven-plugin.version>1.5</gmaven-plugin.version>
     </properties>
 
     <dependencies>
@@ -306,7 +329,7 @@
                             <rules>
                                 <requireJavaVersion>
                                     <!-- Build has not yet been updated for Java 9+ -->
-                                    <version>[1.8,9)</version>
+                                    <version>1.8</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
