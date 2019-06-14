@@ -60,16 +60,11 @@
                             <logDate>default</logDate>
                             <verbose>true</verbose>
                             <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                            <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
                             <images>
                                 <image>
                                     <name>mysql:5.7</name>
                                     <alias>nacos-dynamic-configuration-integration-test-mysql</alias>
                                     <run>
-                                        <network>
-                                            <name>test-network</name>
-                                            <alias>mysql</alias>
-                                        </network>
                                         <env>
                                             <MYSQL_MASTER_SERVICE_HOST>127.0.0.1</MYSQL_MASTER_SERVICE_HOST>
                                             <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
@@ -95,10 +90,6 @@
                                     <name>nacos/nacos-server:${nacos.version}</name>
                                     <alias>nacos-dynamic-configuration-integration-test-nacos</alias>
                                     <run>
-                                        <network>
-                                            <name>test-network</name>
-                                            <alias>nacos</alias>
-                                        </network>
                                         <env>
                                             <MODE>standalone</MODE>
                                             <MYSQL_MASTER_SERVICE_HOST>mysql</MYSQL_MASTER_SERVICE_HOST>
