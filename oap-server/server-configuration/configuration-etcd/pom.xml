@@ -39,14 +39,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mousio</groupId>
-            <artifactId>etcd4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>cluster-etcd-plugin</artifactId>
             <version>${project.version}</version>
