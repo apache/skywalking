@@ -67,34 +67,34 @@ public class ITClusterEtcdPluginTest {
 
     @Test
     public void registerRemote() throws Throwable {
-        clear();
         registerRemote(remoteAddress);
+        clear();
     }
 
     @Test
     public void registerSelfRemote() throws Throwable {
-        clear();
         registerRemote(selfRemoteAddress);
+        clear();
     }
 
     @Test
     public void registerRemoteUsingInternal() throws Throwable {
-        clear();
         etcdConfig.setInternalComHost(internalAddress.getHost());
         etcdConfig.setInternalComPort(internalAddress.getPort());
         etcdConfig.setServiceName(SERVICE_NAME);
         registerRemote(internalAddress);
+        clear();
     }
 
     @Test
     public void queryRemoteNodes() throws Throwable {
-        clear();
         registerRemote(selfRemoteAddress);
         List<RemoteInstance> remoteInstances = coordinator.queryRemoteNodes();
         assertEquals(1, remoteInstances.size());
 
         RemoteInstance selfInstance = remoteInstances.get(0);
         velidate(selfRemoteAddress, selfInstance);
+        clear();
     }
 
     private void velidate(Address originArress, RemoteInstance instance) {
@@ -103,13 +103,13 @@ public class ITClusterEtcdPluginTest {
         assertEquals(originArress.getPort(), instanceAddress.getPort());
     }
 
-    private void registerRemote(Address address) {
+    private void registerRemote(Address address) throws Throwable {
         coordinator.registerRemote(new RemoteInstance(address));
         EtcdEndpoint endpoint = afterRegister();
         verifyRegistration(address, endpoint);
     }
 
-    private EtcdEndpoint afterRegister() {
+    private EtcdEndpoint afterRegister() throws Throwable {
         List<RemoteInstance> list = coordinator.queryRemoteNodes();
         assertEquals(list.size(), 1L);
         return buildEndpoint(list.get(0));
