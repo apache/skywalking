@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.seata.define;
 
-import io.seata.core.protocol.transaction.AbstractTransactionRequest;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -50,7 +49,7 @@ public class TransactionManagerInstrumentation extends ClassInstanceMethodsEnhan
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("syncCall")
-                        .and(takesArguments(AbstractTransactionRequest.class));
+                        .and(takesArguments(1));
                 }
 
                 @Override

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.seata.define;
 
-import io.netty.channel.Channel;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -49,7 +48,7 @@ public class RpcServerInstrumentation extends ClassInstanceMethodsEnhancePluginD
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("sendAsyncRequestWithResponse")
-                        .and(takesArguments(String.class, Channel.class, Object.class, long.class));
+                        .and(takesArguments(4));
                 }
 
                 @Override
