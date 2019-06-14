@@ -73,7 +73,6 @@
         <module>dubbo-2.7.x-conflict-patch</module>
         <module>vertx-plugins</module>
         <module>resteasy-plugin</module>
-        <module>solrj-7.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
