@@ -47,13 +47,14 @@ public class AtomicRangeIntegerTest {
 
         int[] threadNums = {4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
-        System.out.println("======== AtomicRangeInteger.getAndIncrement() Performance test start ========");
-        for (int i = 0; i< threadNums.length; i++) {
-            System.out.println(threadNums[i] + "_threads"
-                    + "    new:" + getGetAndIncrementAvgCost(threadNums[i], false)
-                    + "    ori:" + getGetAndIncrementAvgCost(threadNums[i], true));
+        // uncomment to see test report
+        //Sy/**/stem.out.println("======== AtomicRangeInteger.getAndIncrement() Performance test start ========");
+        for (int i = 0; i < threadNums.length; i++) {
+            //Sy/**/stem.out.println(threadNums[i] + "_threads"
+            //        + "    new:" + getGetAndIncrementAvgCost(threadNums[i], false)
+            //        + "    ori:" + getGetAndIncrementAvgCost(threadNums[i], true));
         }
-        System.out.println("======== AtomicRangeInteger.getAndIncrement() Performance test end  ========");
+        //Sy/**/stem.out.println("======== AtomicRangeInteger.getAndIncrement() Performance test end  ========");
     }
 
     private long getGetAndIncrementAvgCost(int threadNum, final boolean isOriFun) {
