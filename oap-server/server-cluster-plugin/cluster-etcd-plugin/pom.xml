@@ -95,4 +95,59 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <sourceMode>all</sourceMode>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
+                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>quayio/coreos-etcd:${etcd.version}</name>
+                                    <alias>etcd-client-integration-test</alias>
+                                    <run>
+                                        <ports>
+                                            <port>2379:2379</port>
+                                        </ports>
+                                        <wait>
+                                            <time>30000</time>
+                                        </wait>
+                                        <entrypoint>
+                                            <!-- exec form  -->
+                                            <exec>
+                                                <arg>/usr/local/bin/etcd</arg>
+                                                <arg>--advertise-client-urls=http://0.0.0.0:2379</arg>
+                                                <arg>--listen-client-urls=http://0.0.0.0:2379</arg>
+                                            </exec>
+                                        </entrypoint>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>remove-it-etcd</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

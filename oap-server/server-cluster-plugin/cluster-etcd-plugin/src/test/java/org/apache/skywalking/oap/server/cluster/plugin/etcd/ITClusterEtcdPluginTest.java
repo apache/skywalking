@@ -16,16 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.etcd;
+package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
 import com.google.gson.Gson;
 import java.net.URI;
 import java.util.List;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdKeysResponse;
-import org.apache.skywalking.oap.server.cluster.plugin.etcd.ClusterModuleEtcdConfig;
-import org.apache.skywalking.oap.server.cluster.plugin.etcd.EtcdCoordinator;
-import org.apache.skywalking.oap.server.cluster.plugin.etcd.EtcdEndpoint;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.After;
