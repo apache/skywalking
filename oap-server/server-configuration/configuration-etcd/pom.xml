@@ -27,8 +27,6 @@
 
     <artifactId>configuration-etcd</artifactId>
 
-    <name>configuration-etcd</name>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -43,6 +41,10 @@
         <dependency>
             <groupId>org.mousio</groupId>
             <artifactId>etcd4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>

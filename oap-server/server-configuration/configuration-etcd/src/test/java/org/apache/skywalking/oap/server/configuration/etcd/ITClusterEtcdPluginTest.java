@@ -16,7 +16,7 @@
  *
  */
 
-package java.org.apache.skywalking.oap.server.configuration.etcd;
+package org.apache.skywalking.oap.server.configuration.etcd;
 
 import com.google.gson.Gson;
 import java.net.URI;
