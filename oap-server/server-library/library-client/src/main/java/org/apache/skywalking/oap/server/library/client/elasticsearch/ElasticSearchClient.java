@@ -98,6 +98,15 @@ public class ElasticSearchClient implements Client {
         return httpHosts;
     }
 
+    public boolean createIndex(String indexName) throws IOException {
+        indexName = formatIndexName(indexName);
+
+        CreateIndexRequest request = new CreateIndexRequest(indexName);
+        CreateIndexResponse response = client.indices().create(request);
+        logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        return response.isAcknowledged();
+    }
+
     public boolean createIndex(String indexName, JsonObject settings, JsonObject mapping) throws IOException {
         indexName = formatIndexName(indexName);
         CreateIndexRequest request = new CreateIndexRequest(indexName);
@@ -106,6 +115,22 @@ public class ElasticSearchClient implements Client {
         CreateIndexResponse response = client.indices().create(request);
         logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
+    }
+
+    public List<String> retrievalIndexByAliases(String aliases) throws IOException {
+        aliases = formatIndexName(aliases);
+
+        Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/_alias/" + aliases);
+
+        List<String> indexes = new ArrayList<>();
+        if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
+            Gson gson = new Gson();
+            InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
+            JsonObject responseJson = gson.fromJson(reader, JsonObject.class);
+            logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
+            indexes.addAll(responseJson.keySet());
+        }
+        return indexes;
     }
 
     public JsonObject getIndex(String indexName) throws IOException {
@@ -140,9 +165,9 @@ public class ElasticSearchClient implements Client {
         Response response = client.getLowLevelClient().performRequest(HttpHead.METHOD_NAME, "/_template/" + indexName);
 
         int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode == 200) {
+        if (statusCode == HttpStatus.SC_OK) {
             return true;
-        } else if (statusCode == 404) {
+        } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
             return false;
         } else {
             throw new IOException("The response status code of template exists request should be 200 or 404, but it is " + statusCode);
@@ -153,24 +178,28 @@ public class ElasticSearchClient implements Client {
         indexName = formatIndexName(indexName);
 
         JsonArray patterns = new JsonArray();
-        patterns.add(indexName + "_*");
+        patterns.add(indexName + "-*");
+
+        JsonObject aliases = new JsonObject();
+        aliases.add(indexName, new JsonObject());
 
         JsonObject template = new JsonObject();
         template.add("index_patterns", patterns);
+        template.add("aliases", aliases);
         template.add("settings", settings);
         template.add("mappings", mapping);
 
         HttpEntity entity = new NStringEntity(template.toString(), ContentType.APPLICATION_JSON);
 
         Response response = client.getLowLevelClient().performRequest(HttpPut.METHOD_NAME, "/_template/" + indexName, Collections.emptyMap(), entity);
-        return response.getStatusLine().getStatusCode() == 200;
+        return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
     public boolean deleteTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
         Response response = client.getLowLevelClient().performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
-        return response.getStatusLine().getStatusCode() == 200;
+        return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
     public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
@@ -185,13 +214,6 @@ public class ElasticSearchClient implements Client {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, TYPE, id);
         return client.get(request);
-    }
-
-    public MultiGetResponse multiGet(String indexName, List<String> ids) throws IOException {
-        final String newIndexName = formatIndexName(indexName);
-        MultiGetRequest request = new MultiGetRequest();
-        ids.forEach(id -> request.add(newIndexName, TYPE, id));
-        return client.multiGet(request);
     }
 
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {

@@ -33,10 +33,8 @@ public class ModelName {
                 return modelName + Const.ID_SPLIT + Downsampling.Day.getName();
             case Hour:
                 return modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
-            case Minute:
-                return modelName + Const.ID_SPLIT + Downsampling.Minute.getName();
-            case Second:
-                return modelName + Const.ID_SPLIT + Downsampling.Second.getName();
+//            case Second:
+//                return modelName + Const.ID_SPLIT + Downsampling.Second.getName();
             default:
                 return modelName;
         }

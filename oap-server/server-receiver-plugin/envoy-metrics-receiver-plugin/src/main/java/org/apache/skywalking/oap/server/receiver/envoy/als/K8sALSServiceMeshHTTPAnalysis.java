@@ -175,7 +175,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                 if (request != null) {
                     endpoint = request.getPath();
                     String schema = request.getScheme();
-                    if (schema.equals("http") || schema.equals("https")) {
+                    if ("http".equals(schema) || "https".equals(schema)) {
                         protocol = Protocol.HTTP;
                     } else {
                         protocol = Protocol.gRPC;
@@ -278,7 +278,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                 if (request != null) {
                     endpoint = request.getPath();
                     String schema = request.getScheme();
-                    if (schema.equals("http") || schema.equals("https")) {
+                    if ("http".equals(schema) || "https".equals(schema)) {
                         protocol = Protocol.HTTP;
                     } else {
                         protocol = Protocol.gRPC;

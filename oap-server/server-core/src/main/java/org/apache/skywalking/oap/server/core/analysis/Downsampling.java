@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis;
  * @author peng-yongsheng
  */
 public enum Downsampling {
-    Second(0, "second"), Minute(1, "minute"), Hour(2, "hour"), Day(3, "day"), Month(4, "month");
+    None(0, ""), Second(1, "second"), Minute(2, "minute"), Hour(3, "hour"), Day(4, "day"), Month(5, "month");
 
     private final int value;
     private final String name;

@@ -23,6 +23,7 @@ import java.sql.*;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.query.ID;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
@@ -33,6 +34,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
  * @author wusheng
  */
 public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO {
+
     private JDBCHikariCPClient h2Client;
 
     public H2MetricsQueryDAO(JDBCHikariCPClient h2Client) {
@@ -73,7 +75,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     ids.add(id);
                     valueCollection.append("'").append(id).append("'");
                 }
-                whereSql.append(keyValues.getKey()).append(" in (" + valueCollection + ")");
+                whereSql.append(keyValues.getKey()).append(" in (").append(valueCollection).append(")");
             }
             whereSql.append(") and ");
         }
@@ -99,8 +101,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return orderWithDefault0(intValues, ids);
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<ID> ids, String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -125,7 +126,12 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        return orderWithDefault0(intValues, ids);
+
+        List<String> idList = new ArrayList<>();
+        for (ID id : ids) {
+            idList.add(id.toString());
+        }
+        return orderWithDefault0(intValues, idList);
     }
 
     /**
@@ -148,8 +154,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return intValues;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<ID> ids, String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();

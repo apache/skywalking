@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
@@ -58,14 +59,14 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRecordDAO recordDAO;
         try {
-            recordDAO = storageDAO.newRecordDao(stream.storage().builder().newInstance());
+            recordDAO = storageDAO.newRecordDao(stream.builder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " record DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " record DAO failure.", e);
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        Model model = modelSetter.putIfAbsent(recordClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Second);
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model.getName(), 1000, recordDAO);
+        Model model = modelSetter.putIfAbsent(recordClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second));
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, 1000, recordDAO);
 
         persistentWorkers.add(persistentWorker);
         workers.put(recordClass, persistentWorker);

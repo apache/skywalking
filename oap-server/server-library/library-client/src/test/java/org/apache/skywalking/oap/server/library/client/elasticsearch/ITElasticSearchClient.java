@@ -19,18 +19,25 @@
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.*;
-import org.slf4j.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author peng-yongsheng
@@ -43,7 +50,8 @@ public class ITElasticSearchClient {
 
     @Before
     public void before() throws IOException {
-        client = new ElasticSearchClient("localhost:9200", "", "test", "test");
+        final String esAddress = System.getProperty("elastic.search.address");
+        client = new ElasticSearchClient(esAddress, "", "test", "test");
         client.connect();
     }
 
@@ -113,12 +121,6 @@ public class ITElasticSearchClient {
         Assert.assertEquals("pengys", response.getSource().get("user"));
         Assert.assertEquals("trying out Elasticsearch", response.getSource().get("message"));
 
-        List<String> ids = new ArrayList<>();
-        ids.add(id);
-        MultiGetResponse responses = client.multiGet(indexName, ids);
-        Assert.assertEquals(1, responses.getResponses().length);
-        Assert.assertEquals("pengys", responses.getResponses()[0].getResponse().getSource().get("user"));
-
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.termQuery("user", "pengys"));
         SearchResponse searchResponse = client.search(indexName, sourceBuilder);
@@ -153,12 +155,12 @@ public class ITElasticSearchClient {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
             .field("name", "pengys")
             .endObject();
-        client.forceInsert(indexName + "_2019", "testid", builder);
+        client.forceInsert(indexName + "-2019", "testid", builder);
 
-        JsonObject index = client.getIndex(indexName + "_2019");
+        JsonObject index = client.getIndex(indexName + "-2019");
         logger.info(index.toString());
-        Assert.assertEquals(1, index.getAsJsonObject(indexName + "_2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
-        Assert.assertEquals(0, index.getAsJsonObject(indexName + "_2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
+        Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
+        Assert.assertEquals(0, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
 
         client.deleteTemplate(indexName);
         Assert.assertFalse(client.isExistsTemplate(indexName));
