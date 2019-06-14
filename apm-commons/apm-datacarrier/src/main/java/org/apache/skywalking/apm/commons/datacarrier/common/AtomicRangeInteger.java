@@ -37,7 +37,7 @@ public class AtomicRangeInteger extends Number implements Serializable {
         this.endValue = maxValue - 1;
     }
 
-    public final int getAndIncrement() {
+    public final int oriGetAndIncrement() {
         int current;
         int next;
         do {
@@ -47,6 +47,18 @@ public class AtomicRangeInteger extends Number implements Serializable {
         while (!this.value.compareAndSet(current, next));
 
         return current;
+    }
+
+    public final int getAndIncrement() {
+        int next;
+        do {
+            next = this.value.incrementAndGet();
+            if (next > endValue && this.value.compareAndSet(next, startValue)) {
+                return endValue;
+            }
+        } while (next > endValue);
+
+        return next - 1;
     }
 
     public final int get() {
