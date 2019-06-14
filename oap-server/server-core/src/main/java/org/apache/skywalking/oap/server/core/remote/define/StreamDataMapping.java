@@ -25,12 +25,12 @@ import org.apache.skywalking.oap.server.core.remote.data.StreamData;
  * @author peng-yongsheng
  */
 public class StreamDataMapping implements StreamDataMappingGetter, StreamDataMappingSetter {
-
-    private int id = 0;
+    private List<Class<? extends StreamData>> streamClassList;
     private final Map<Class<? extends StreamData>, Integer> classMap;
     private final Map<Integer, Class<? extends StreamData>> idMap;
 
     public StreamDataMapping() {
+        streamClassList = new ArrayList<>();
         this.classMap = new HashMap<>();
         this.idMap = new HashMap<>();
     }
@@ -40,9 +40,26 @@ public class StreamDataMapping implements StreamDataMappingGetter, StreamDataMap
             return;
         }
 
-        id++;
-        classMap.put(streamDataClass, id);
-        idMap.put(id, streamDataClass);
+        streamClassList.add(streamDataClass);
+    }
+
+    public void init() {
+        /**
+         * The stream protocol use this list order to assign the ID,
+         * which is used in across node communication. This order must be certain.
+         */
+        Collections.sort(streamClassList, new Comparator<Class>() {
+            @Override public int compare(Class streamClass1, Class streamClass2) {
+                return streamClass1.getName().compareTo(streamClass2.getName());
+            }
+        });
+
+        for (int i = 0; i < streamClassList.size(); i++) {
+            Class<? extends StreamData> streamClass = streamClassList.get(i);
+            int streamId = i + 1;
+            classMap.put(streamClass, streamId);
+            idMap.put(streamId, streamClass);
+        }
     }
 
     @Override public int findIdByClass(Class<? extends StreamData> streamDataClass) {

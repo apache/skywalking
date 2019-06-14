@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
@@ -52,7 +51,6 @@ public class CoreModuleProvider extends ModuleProvider {
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
     private RemoteClientManager remoteClientManager;
-    private StreamAnnotationListener streamAnnotationListener;
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
     private final StreamDataMapping streamDataMapping;
@@ -145,8 +143,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
 
-        streamAnnotationListener = new StreamAnnotationListener(getManager());
-        annotationScan.registerListener(streamAnnotationListener);
+        annotationScan.registerListener(new StreamAnnotationListener(getManager()));
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
@@ -162,7 +159,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
             annotationScan.scan(() -> {
             });
-            streamAnnotationListener.init();
+            streamDataMapping.init();
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -192,6 +189,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, ConfigurationModule.NAME};
+        return new String[] {TelemetryModule.NAME};
     }
 }
