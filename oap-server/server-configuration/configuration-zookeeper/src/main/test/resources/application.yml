@@ -14,11 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+test-module:
+  default:
+    testKey: 300
+
 configuration:
   zookeeper:
     period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
     nameSpace: /default
-    hostPort: localhost:2181
-    #Retry Policy
+    hostPort: ${zookeeper.host}:${zookeeper.port}
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
     maxRetries: 3 # max number of times to retry
