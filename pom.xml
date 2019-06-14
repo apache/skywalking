@@ -313,6 +313,27 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin.version}</version>
                 </plugin>
+                <!--
+                    maven-surefire-plugin will exclude integration tests (ITs)
+                    and leave them for maven-failsafe-plugin to run, which is bound to the `verify` goal.
+                    If you want to run the ITs please activate the CI-with-IT profile
+                    as well as the the profiles of the modules whose ITs you want to run.
+                    e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend,CI-with-IT clean verify`
+                 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>IT*.class</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${maven-docker-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
