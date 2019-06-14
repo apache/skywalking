@@ -52,6 +52,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private GRPCServer grpcServer;
     private JettyServer jettyServer;
     private RemoteClientManager remoteClientManager;
+    private StreamAnnotationListener streamAnnotationListener;
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
     private final StreamDataMapping streamDataMapping;
@@ -144,7 +145,8 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
 
-        annotationScan.registerListener(new StreamAnnotationListener(getManager()));
+        streamAnnotationListener = new StreamAnnotationListener(getManager());
+        annotationScan.registerListener(streamAnnotationListener);
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
@@ -160,6 +162,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
             annotationScan.scan(() -> {
             });
+            streamAnnotationListener.init();
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
