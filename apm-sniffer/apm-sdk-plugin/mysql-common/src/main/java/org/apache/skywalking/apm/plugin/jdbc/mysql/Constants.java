@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
-import com.google.common.collect.Sets;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 
 import java.math.BigDecimal;
@@ -43,8 +42,8 @@ public class Constants {
     public static final String DRIVER_CONNECT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.DriverConnectInterceptor";
 
     public static final StringTag SQL_PARAMETERS = new StringTag("db.sql.parameters");
-    public static final String SQL_PARAMETER_PLACE_HOLDER = "?";
-    public static final Set<String> PS_SETTERS = Sets.newHashSet(
+    public static final String SQL_PARAMETER_PLACEHOLDER = "?";
+    public static final Set<String> PS_SETTERS = new HashSet<String>(Arrays.asList(
         "setArray",
         "setBigDecimal",
         "setBoolean",
@@ -63,7 +62,7 @@ public class Constants {
         "setTime",
         "setTimestamp",
         "setURL"
-    );
+    ));
     public static final Set<Class<?>> DISPLAYABLE_TYPES = new HashSet<Class<?>>(Arrays.asList(
         BigDecimal.class,
         Boolean.class,
@@ -86,7 +85,7 @@ public class Constants {
         Timestamp.class,
         URL.class
     ));
-    public static final Set<String> PS_IGNORED_SETTERS = Sets.newHashSet(
+    public static final Set<String> PS_IGNORED_SETTERS = new HashSet<String>(Arrays.asList(
         "setAsciiStream",
         "setBinaryStream",
         "setBlob",
@@ -98,5 +97,5 @@ public class Constants {
         "setRef",
         "setSQLXML",
         "setUnicodeStream"
-    );
+    ));
 }

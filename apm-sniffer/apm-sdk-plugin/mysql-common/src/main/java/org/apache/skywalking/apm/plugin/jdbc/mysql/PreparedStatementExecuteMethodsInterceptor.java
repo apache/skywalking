@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
-import com.google.common.base.Ascii;
-import com.google.gson.Gson;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -32,17 +30,15 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
+import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PARAMETER_PLACEHOLDER;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DISPLAYABLE_TYPES;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_IGNORED_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETERS;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACE_HOLDER;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACEHOLDER;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
-    private final Gson gson = new Gson();
-
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
@@ -51,9 +47,8 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
 
         final String methodName = method.getName();
-        final boolean traceSqlParameters = Config.Plugin.MySQL.TRACE_SQL_PARAMETERS;
 
-        if (traceSqlParameters && (PS_SETTERS.contains(methodName) || PS_IGNORED_SETTERS.contains(methodName))) {
+        if (PS_SETTERS.contains(methodName) || PS_IGNORED_SETTERS.contains(methodName)) {
             final int index = (Integer) allArguments[0];
             final Object parameter = getDisplayedParameter(method, argumentsTypes, allArguments);
             cacheObject.setParameter(index, parameter);
@@ -73,15 +68,15 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             Tags.DB_STATEMENT.set(span, cacheObject.getSql());
             span.setComponent(connectInfo.getComponent());
 
-            if (traceSqlParameters) {
-                final Map<Integer, Object> parametersKeyedByIndex = cacheObject.getParameters();
-                if (!parametersKeyedByIndex.isEmpty()) {
-                    String parameters = gson.toJson(parametersKeyedByIndex.values());
+            if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+                final Object[] parameters = cacheObject.getParameters();
+                if (parameters != null && parameters.length > 0) {
+                    String parameterString = buildParameterString(parameters);
                     int sqlParametersMaxLength = Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH;
-                    if (sqlParametersMaxLength > 0) {
-                        parameters = Ascii.truncate(parameters, sqlParametersMaxLength, "...");
+                    if (sqlParametersMaxLength > 0 && parameterString.length() > sqlParametersMaxLength) {
+                        parameterString = parameterString.substring(0, sqlParametersMaxLength) + "...";
                     }
-                    SQL_PARAMETERS.set(span, parameters);
+                    SQL_PARAMETERS.set(span, parameterString);
                 }
             }
 
@@ -126,10 +121,26 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             if (DISPLAYABLE_TYPES.contains(parameterType)) {
                 return parameter;
             }
-        }
-        if (PS_SETTERS.contains(methodName)) {
+        } else if (PS_SETTERS.contains(methodName)) {
             return allArguments[1];
         }
-        return SQL_PARAMETER_PLACE_HOLDER;
+        return SQL_PARAMETER_PLACEHOLDER;
+    }
+
+    private String buildParameterString(Object[] parameters) {
+        String parameterString = "[";
+        boolean first = true;
+        for (Object parameter : parameters) {
+            if (parameter == PARAMETER_PLACEHOLDER) {
+                break;
+            }
+            if (!first) {
+                parameterString += ",";
+            }
+            parameterString += parameter;
+            first = false;
+        }
+        parameterString += "]";
+        return parameterString;
     }
 }

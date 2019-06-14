@@ -97,15 +97,6 @@
             </modules>
         </profile>
         <profile>
-            <id>ui</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>apm-webapp</module>
-            </modules>
-        </profile>
-        <profile>
             <id>dist</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -302,10 +293,6 @@
                     <version>${maven-failsafe-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
                 </plugin>
@@ -323,6 +310,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                     <configuration>
                         <excludes>
                             <exclude>IT*.class</exclude>

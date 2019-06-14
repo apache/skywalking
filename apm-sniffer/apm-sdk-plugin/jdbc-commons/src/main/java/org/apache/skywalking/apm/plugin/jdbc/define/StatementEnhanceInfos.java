@@ -21,8 +21,9 @@ package org.apache.skywalking.apm.plugin.jdbc.define;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Arrays;
+
+import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PARAMETER_PLACEHOLDER;
 
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
@@ -34,13 +35,12 @@ public class StatementEnhanceInfos {
     private ConnectionInfo connectionInfo;
     private String statementName;
     private String sql;
-    private Map<Integer, Object> parametersKeyedByIndex;
+    private Object[] parameters;
 
     public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
         this.connectionInfo = connectionInfo;
         this.sql = sql;
         this.statementName = statementName;
-        this.parametersKeyedByIndex = new TreeMap<Integer, Object>();
     }
 
     public ConnectionInfo getConnectionInfo() {
@@ -55,11 +55,24 @@ public class StatementEnhanceInfos {
         return statementName;
     }
 
-    public void setParameter(final int index, final Object parameter) {
-        parametersKeyedByIndex.put(index, parameter);
+    public void setParameter(int index, final Object parameter) {
+        index--; // start from 1
+        if (parameters == null) {
+            parameters = new Object[20];
+            Arrays.fill(parameters, PARAMETER_PLACEHOLDER);
+        }
+        int length = parameters.length;
+        if (index >= length) {
+            int newSize = Math.max(index + 1, length * 2);
+            Object[] newParameters = new Object[newSize];
+            System.arraycopy(parameters, 0, newParameters, 0, length);
+            Arrays.fill(newParameters, length, newSize, PARAMETER_PLACEHOLDER);
+            parameters = newParameters;
+        }
+        parameters[index] = parameter;
     }
 
-    public Map<Integer, Object> getParameters() {
-        return parametersKeyedByIndex;
+    public Object[] getParameters() {
+        return parameters;
     }
 }
