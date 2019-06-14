@@ -43,8 +43,8 @@ import static org.junit.Assert.*;
 /**
  * @author zhaoyuguang
  */
-public class ZookeeperConfigurationTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperConfigurationTest.class);
+public class ITZookeeperConfigurationTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ITZookeeperConfigurationTest.class);
 
     private final Yaml yaml = new Yaml();
 
