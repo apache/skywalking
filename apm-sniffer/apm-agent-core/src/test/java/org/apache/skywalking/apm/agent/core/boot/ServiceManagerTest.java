@@ -20,26 +20,17 @@
 package org.apache.skywalking.apm.agent.core.boot;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
-import org.apache.skywalking.apm.agent.core.context.TracingContext;
-import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
+import java.util.*;
+import org.apache.skywalking.apm.agent.core.context.*;
 import org.apache.skywalking.apm.agent.core.jvm.JVMService;
-import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
-import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
-import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
+import org.apache.skywalking.apm.agent.core.remote.*;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
-import org.junit.AfterClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class ServiceManagerTest {
 
@@ -64,17 +55,11 @@ public class ServiceManagerTest {
         assertJVMService(ServiceManager.INSTANCE.findService(JVMService.class));
 
         assertTracingContextListener();
-        assertIgnoreTracingContextListener();
-    }
-
-    private void assertIgnoreTracingContextListener() throws Exception {
-        List<TracingContextListener> listeners = getFieldValue(IgnoredTracerContext.ListenerManager.class, "LISTENERS");
-        assertThat(listeners.size(), is(0));
     }
 
     private void assertTracingContextListener() throws Exception {
         List<TracingContextListener> listeners = getFieldValue(TracingContext.ListenerManager.class, "LISTENERS");
-        assertThat(listeners.size(), is(1));
+        Assert.assertTrue(listeners.size() > 0);
 
         assertThat(listeners.contains(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class)), is(true));
     }
