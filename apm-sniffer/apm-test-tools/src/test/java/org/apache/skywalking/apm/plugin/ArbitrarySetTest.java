@@ -91,8 +91,10 @@ public class ArbitrarySetTest {
         for (int i = 1; i <= 100; i++) {
             int length = array.length;
             if (i >= length) {
-                Object[] newArray = new Object[Math.max(i, length * 2)];
+                int newSize = Math.max(i, length * 2);
+                Object[] newArray = new Object[newSize];
                 System.arraycopy(array, 0, newArray, 0, length);
+                Arrays.fill(newArray, length, newSize, PLACEHOLDER);
                 array = newArray;
             }
             array[i] = i;
