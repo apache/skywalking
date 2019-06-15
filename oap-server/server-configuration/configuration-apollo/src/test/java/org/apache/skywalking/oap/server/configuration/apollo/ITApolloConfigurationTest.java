@@ -43,7 +43,10 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author kezhenxu94
@@ -83,76 +86,81 @@ public class ITApolloConfigurationTest {
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Test(timeout = 10000)
-    public void shouldReadUpdated() throws IOException {
-        assertNull(provider.watcher.value());
+    public void shouldReadUpdated() {
+        try {
+            assertNull(provider.watcher.value());
 
-        final HttpPost createConfigPost =
-            new HttpPost(
-                baseUrl +
-                    "/openapi/v1/envs/DEV" +
-                    "/apps/SampleApp" +
-                    "/clusters/default" +
-                    "/namespaces/application" +
-                    "/items");
-        createConfigPost.setHeader("Authorization", token);
-        createConfigPost.setHeader("Content-Type", "application/json;charset=UTF-8");
-        final StringEntity entity = new StringEntity("{\n" +
-            "    \"key\":\"test-module.default.testKey\",\n" +
-            "    \"value\":\"3000\",\n" +
-            "    \"comment\":\"test key\",\n" +
-            "    \"dataChangeCreatedBy\":\"apollo\"\n" +
-            "}");
-        createConfigPost.setEntity(entity);
-        final String createResponse = (String) httpClient.execute(createConfigPost, responseHandler);
-        LOGGER.info("createResponse: {}", createResponse);
+            final HttpPost createConfigPost =
+                new HttpPost(
+                    baseUrl +
+                        "/openapi/v1/envs/DEV" +
+                        "/apps/SampleApp" +
+                        "/clusters/default" +
+                        "/namespaces/application" +
+                        "/items");
+            createConfigPost.setHeader("Authorization", token);
+            createConfigPost.setHeader("Content-Type", "application/json;charset=UTF-8");
+            final StringEntity entity = new StringEntity("{\n" +
+                "    \"key\":\"test-module.default.testKey\",\n" +
+                "    \"value\":\"3000\",\n" +
+                "    \"comment\":\"test key\",\n" +
+                "    \"dataChangeCreatedBy\":\"apollo\"\n" +
+                "}");
+            createConfigPost.setEntity(entity);
+            final String createResponse = (String) httpClient.execute(createConfigPost, responseHandler);
+            LOGGER.info("createResponse: {}", createResponse);
 
-        final HttpPost releaseConfigRequest =
-            new HttpPost(
-                baseUrl +
-                    "/openapi/v1/envs/DEV" +
-                    "/apps/SampleApp" +
-                    "/clusters/default" +
-                    "/namespaces/application/releases"
+            final HttpPost releaseConfigRequest =
+                new HttpPost(
+                    baseUrl +
+                        "/openapi/v1/envs/DEV" +
+                        "/apps/SampleApp" +
+                        "/clusters/default" +
+                        "/namespaces/application/releases"
+                );
+            releaseConfigRequest.setEntity(
+                new StringEntity(
+                    "{\n" +
+                        "    \"releaseTitle\":\"2019-06-07\",\n" +
+                        "    \"releaseComment\":\"test\",\n" +
+                        "    \"releasedBy\":\"apollo\"\n" +
+                        "}"
+                )
             );
-        releaseConfigRequest.setEntity(
-            new StringEntity(
-                "{\n" +
-                    "    \"releaseTitle\":\"2019-06-07\",\n" +
-                    "    \"releaseComment\":\"test\",\n" +
-                    "    \"releasedBy\":\"apollo\"\n" +
-                    "}"
-            )
-        );
-        releaseConfigRequest.setHeader("Authorization", token);
-        releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-        final String releaseCreateResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
-        LOGGER.info("releaseCreateResponse: {}", releaseCreateResponse);
+            releaseConfigRequest.setHeader("Authorization", token);
+            releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
+            final String releaseCreateResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            LOGGER.info("releaseCreateResponse: {}", releaseCreateResponse);
 
-        for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
+            for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
+            }
+
+            assertEquals("3000", provider.watcher.value());
+
+            final HttpDelete deleteConfigRequest =
+                new HttpDelete(
+                    baseUrl +
+                        "/openapi/v1" +
+                        "/envs/DEV" +
+                        "/apps/SampleApp" +
+                        "/clusters/default" +
+                        "/namespaces/application" +
+                        "/items/test-module.default.testKey" +
+                        "?operator=apollo");
+            deleteConfigRequest.setHeader("Authorization", token);
+            deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
+            httpClient.execute(deleteConfigRequest);
+            final String releaseDeleteResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            LOGGER.info("releaseDeleteResponse: {}", releaseDeleteResponse);
+
+            for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
+            }
+
+            assertNull(provider.watcher.value());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            fail(e.getMessage());
         }
-
-        assertEquals("3000", provider.watcher.value());
-
-        final HttpDelete deleteConfigRequest =
-            new HttpDelete(
-                baseUrl +
-                    "/openapi/v1" +
-                    "/envs/DEV" +
-                    "/apps/SampleApp" +
-                    "/clusters/default" +
-                    "/namespaces/application" +
-                    "/items/test-module.default.testKey" +
-                    "?operator=apollo");
-        deleteConfigRequest.setHeader("Authorization", token);
-        deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-        httpClient.execute(deleteConfigRequest);
-        final String releaseDeleteResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
-        LOGGER.info("releaseDeleteResponse: {}", releaseDeleteResponse);
-
-        for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
-        }
-
-        assertNull(provider.watcher.value());
     }
 
     @SuppressWarnings("unchecked")
@@ -184,39 +192,43 @@ public class ITApolloConfigurationTest {
 
     @After
     public void cleanUp() throws IOException {
-        final HttpDelete deleteConfigRequest =
-            new HttpDelete(
-                baseUrl +
-                    "/openapi/v1" +
-                    "/envs/DEV" +
-                    "/apps/SampleApp" +
-                    "/clusters/default" +
-                    "/namespaces/application" +
-                    "/items/test-module.default.testKey" +
-                    "?operator=apollo");
-        deleteConfigRequest.setHeader("Authorization", token);
-        deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-        httpClient.execute(deleteConfigRequest);
+        try {
+            final HttpDelete deleteConfigRequest =
+                new HttpDelete(
+                    baseUrl +
+                        "/openapi/v1" +
+                        "/envs/DEV" +
+                        "/apps/SampleApp" +
+                        "/clusters/default" +
+                        "/namespaces/application" +
+                        "/items/test-module.default.testKey" +
+                        "?operator=apollo");
+            deleteConfigRequest.setHeader("Authorization", token);
+            deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
+            httpClient.execute(deleteConfigRequest);
 
-        final HttpPost releaseConfigRequest =
-            new HttpPost(
-                baseUrl +
-                    "/openapi/v1/envs/DEV" +
-                    "/apps/SampleApp" +
-                    "/clusters/default" +
-                    "/namespaces/application/releases"
+            final HttpPost releaseConfigRequest =
+                new HttpPost(
+                    baseUrl +
+                        "/openapi/v1/envs/DEV" +
+                        "/apps/SampleApp" +
+                        "/clusters/default" +
+                        "/namespaces/application/releases"
+                );
+            releaseConfigRequest.setEntity(
+                new StringEntity(
+                    "{\n" +
+                        "    \"releaseTitle\":\"2019-06-07\",\n" +
+                        "    \"releaseComment\":\"test\",\n" +
+                        "    \"releasedBy\":\"apollo\"\n" +
+                        "}"
+                )
             );
-        releaseConfigRequest.setEntity(
-            new StringEntity(
-                "{\n" +
-                    "    \"releaseTitle\":\"2019-06-07\",\n" +
-                    "    \"releaseComment\":\"test\",\n" +
-                    "    \"releasedBy\":\"apollo\"\n" +
-                    "}"
-            )
-        );
-        releaseConfigRequest.setHeader("Authorization", token);
-        releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-        httpClient.execute(releaseConfigRequest, responseHandler);
+            releaseConfigRequest.setHeader("Authorization", token);
+            releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
+            httpClient.execute(releaseConfigRequest, responseHandler);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 }
