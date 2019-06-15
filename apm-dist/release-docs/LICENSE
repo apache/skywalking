@@ -251,7 +251,7 @@ The text of each license is the standard Apache 2.0 license.
     Eclipse (Jetty) 3.3.6: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.9.9: http://www.joda.org/joda-time/ , Apache 2.0
-    Joda-Convert 1.2: https://www.joda.org/joda-convert/ , Apache 2.0
+    Joda-Convert 1.2: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
@@ -270,6 +270,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
+    Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
@@ -305,7 +306,7 @@ The text of each license is the standard Apache 2.0 license.
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 2.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 4.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
@@ -317,15 +318,8 @@ The text of each license is the standard Apache 2.0 license.
     proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
     proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
     proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
-    proto files from gogo/googleapis: https://github.com/gogo/googleapis, Apache 2.0
-    AOP Alliance: aopalliance-1.0.jar: http://aopalliance.sourceforge.net, Public
-    Ctripcorp: apollo-core 1.4.0: https://github.com/ctripcorp/apollo, Apache 2.0
-    Ctripcorp: apollo-client 1.4.0: https://github.com/ctripcorp/apollo, Apache 2.0
-    builder-annotations 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
-    resourcecify-annotations 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
-    sundr-codegen 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
-    sundr-core 0.9.2: https://github.com/sundrio/sundrio, Apache 2.0
-    javax-inject 1: https://github.com/javax-inject/javax-inject, Apache 2.0
+    proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
+    sundrio 0.9.2: https://github.com/sundrio/sundrio Apache 2.0
 
 ========================================================================
 MIT licenses
