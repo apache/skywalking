@@ -84,7 +84,7 @@
                                     </bind>
                                 </volumes>
                                 <ports>
-                                    <port>mysql.port:3306</port>
+                                    <port>13306:3306</port>
                                 </ports>
                                 <wait>
                                     <log>ready for connections</log>
@@ -104,7 +104,7 @@
                                 </ports>
                                 <wait>
                                     <log>Portal started. You can visit</log>
-                                    <time>1800000</time>
+                                    <time>2400000</time>
                                 </wait>
                                 <links>
                                     <link>apollo-db</link>
