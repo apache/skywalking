@@ -71,7 +71,7 @@
                             <showLogs>true</showLogs>
                             <logDate>default</logDate>
                             <verbose>true</verbose>
-                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                            <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
                                     <name>mysql:5.7</name>
@@ -96,7 +96,7 @@
                                     </run>
                                 </image>
                                 <image>
-                                    <name>kezhenxu94/apollo:1.0</name>
+                                    <name>kezhenxu94/apollo:1.1</name>
                                     <alias>apollo-config-and-portal</alias>
                                     <run>
                                         <namingStrategy>none</namingStrategy>
