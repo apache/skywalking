@@ -97,6 +97,15 @@
             </modules>
         </profile>
         <profile>
+            <id>ui</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>apm-webapp</module>
+            </modules>
+        </profile>
+        <profile>
             <id>dist</id>
             <activation>
                 <activeByDefault>true</activeByDefault>

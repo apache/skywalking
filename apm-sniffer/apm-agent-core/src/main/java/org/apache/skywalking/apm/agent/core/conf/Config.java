@@ -194,18 +194,6 @@ public class Config {
             public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
 
-        public static class SolrJ {
-            /**
-             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.
-             */
-            public static boolean TRACE_STATEMENT = false;
-
-            /**
-             * If true, trace all the operation parameters in Solr request, default is false.
-             */
-            public static boolean TRACE_OPS_PARAMS = false;
-        }
-
         public static class MySQL {
             /**
              * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement})
