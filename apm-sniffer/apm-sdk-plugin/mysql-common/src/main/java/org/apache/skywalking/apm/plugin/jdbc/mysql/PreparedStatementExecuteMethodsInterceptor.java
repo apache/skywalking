@@ -39,30 +39,22 @@ import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETE
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACEHOLDER;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
+
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
-
-        final String methodName = method.getName();
-
-        if (PS_SETTERS.contains(methodName) || PS_IGNORED_SETTERS.contains(methodName)) {
-            final int index = (Integer) allArguments[0];
-            final Object parameter = getDisplayedParameter(method, argumentsTypes, allArguments);
-            cacheObject.setParameter(index, parameter);
-        }
-
         /**
          * For avoid NPE. In this particular case, Execute sql inside the {@link com.mysql.jdbc.ConnectionImpl} constructor,
          * before the interceptor sets the connectionInfo.
          *
          * @see JDBCDriverInterceptor#afterMethod(EnhancedInstance, Method, Object[], Class[], Object)
          */
-        if (connectInfo != null && !PS_SETTERS.contains(methodName) && !PS_IGNORED_SETTERS.contains(methodName)) {
+        if (connectInfo != null) {
 
-            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, methodName, cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, cacheObject.getSql());
@@ -89,9 +81,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
-        ConnectionInfo connectionInfo = cacheObject.getConnectionInfo();
-        String methodName = method.getName();
-        if (connectionInfo != null && !PS_SETTERS.contains(methodName) && !PS_IGNORED_SETTERS.contains(methodName)) {
+        if (cacheObject.getConnectionInfo() != null) {
             ContextManager.stopSpan();
         }
         return ret;

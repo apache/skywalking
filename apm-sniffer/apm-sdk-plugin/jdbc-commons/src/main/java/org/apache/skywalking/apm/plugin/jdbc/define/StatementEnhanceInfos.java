@@ -36,6 +36,7 @@ public class StatementEnhanceInfos {
     private String statementName;
     private String sql;
     private Object[] parameters;
+    private int maxIndex = 0;
 
     public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
         this.connectionInfo = connectionInfo;
@@ -56,6 +57,7 @@ public class StatementEnhanceInfos {
     }
 
     public void setParameter(int index, final Object parameter) {
+        maxIndex = maxIndex > index ? maxIndex : index;
         index--; // start from 1
         if (parameters == null) {
             parameters = new Object[20];
@@ -74,5 +76,9 @@ public class StatementEnhanceInfos {
 
     public Object[] getParameters() {
         return parameters;
+    }
+
+    public int getMaxIndex() {
+        return maxIndex;
     }
 }

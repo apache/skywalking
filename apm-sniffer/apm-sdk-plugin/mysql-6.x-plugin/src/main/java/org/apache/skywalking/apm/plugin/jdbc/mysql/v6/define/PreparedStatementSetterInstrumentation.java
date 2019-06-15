@@ -21,56 +21,64 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.none;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_IGNORED_SETTERS;
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 
 /**
- * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
- * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and
- * com.mysql.cj.jdbc.PreparedStatement class:
- * 1. execute
- * 2. executeQuery
- * 3. executeUpdate
- * 4. executeLargeUpdate
- * 5. addBatch
- *
- * @author zhangxin
+ * @author kezhenxu94
  */
-public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentation {
+public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrumentation {
 
-    private static final String SERVICE_METHOD_INTERCEPTOR = org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
+    private static final String SERVICE_METHOD_INTERCEPTOR = Constants.PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR;
     public static final String MYSQL6_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.PreparedStatement";
 
-    @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute")
-                        .or(named("executeQuery"))
-                        .or(named("executeUpdate"))
-                        .or(named("executeLargeUpdate"));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    ElementMatcher.Junction<MethodDescription> matcher = none();
+                    if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+                        for (String setter : PS_SETTERS) {
+                            matcher = matcher.or(named(setter));
+                        }
+                        for (String setter : PS_IGNORED_SETTERS) {
+                            matcher = matcher.or(named(setter));
+                        }
+                    }
+                    return matcher;
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SERVICE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(MYSQL6_PREPARED_STATEMENT_CLASS_NAME);
     }
 
