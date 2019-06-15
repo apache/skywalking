@@ -42,5 +42,4 @@ public class Constants {
 
     public static final String RELEASE_SAVE_POINT_METHOD_NAME = "releaseSavepoint";
 
-    public static final Object PARAMETER_PLACEHOLDER = new Object();
 }
