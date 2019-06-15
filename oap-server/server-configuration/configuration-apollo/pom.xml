@@ -83,9 +83,6 @@
                                         <volume>src/test/docker/sql:/docker-entrypoint-initdb.d</volume>
                                     </bind>
                                 </volumes>
-                                <ports>
-                                    <port>13306:3306</port>
-                                </ports>
                                 <wait>
                                     <log>ready for connections</log>
                                     <time>600000</time>
