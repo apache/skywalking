@@ -56,48 +56,40 @@
                         <artifactId>docker-maven-plugin</artifactId>
                         <configuration>
                             <sourceMode>all</sourceMode>
-                            <showLogs>true</showLogs>
                             <logDate>default</logDate>
                             <verbose>true</verbose>
+                            <showLogs>true</showLogs>
                             <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                            <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
-                            <images>
-                                <image>
-                                    <name>zookeeper:3.4.14</name>
-                                    <alias>zookeeper-dynamic-configuration-integration-test-zookeeper</alias>
-                                    <run>
-                                        <network>
-                                            <name>test-network</name>
-                                            <alias>zookeeper</alias>
-                                        </network>
-                                        <env>
-                                        </env>
-                                        <namingStrategy>none</namingStrategy>
-                                        <dependsOn>
-                                        </dependsOn>
-                                        <links>
-                                        </links>
-                                        <ports>
-                                            <port>zookeeper.port:2181</port>
-                                        </ports>
-                                        <wait>
-                                            <log>Zookeeper started successfully</log>
-                                            <time>120000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>start</id>
+                                <id>prepare-zookeeper</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>start</goal>
                                 </goals>
+                                <configuration>
+                                    <images>
+                                        <image>
+                                            <name>zookeeper:3.4.14</name>
+                                            <alias>zookeeper-dynamic-configuration-integration-test-zookeeper</alias>
+                                            <run>
+                                                <ports>
+                                                    <port>zk-port:2181</port>
+                                                </ports>
+                                                <wait>
+                                                    <log>started</log>
+                                                    <time>120000</time>
+                                                </wait>
+                                                <env>
+                                                </env>
+                                            </run>
+                                        </image>
+                                    </images>
+                                </configuration>
                             </execution>
                             <execution>
-                                <id>stop</id>
+                                <id>prepare-zookeeper-start</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
@@ -120,8 +112,6 @@
                                     <providerSelection>2.0</providerSelection>
                                     <source>
                                         project.properties.setProperty('docker.hostname', 'localhost')
-
-                                        log.info("Docker hostname is " + project.properties['docker.hostname'])
                                     </source>
                                 </configuration>
                             </execution>
@@ -132,12 +122,9 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <zookeeper.host>
-                                    ${docker.hostname}
-                                </zookeeper.host>
-                                <zookeeper.port>
-                                    ${zookeeper.port}
-                                </zookeeper.port>
+                                <zk.address>
+                                    ${docker.hostname}:${zk-port}
+                                </zk.address>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>

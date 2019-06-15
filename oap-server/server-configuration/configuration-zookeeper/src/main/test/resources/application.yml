@@ -22,6 +22,6 @@ configuration:
   zookeeper:
     period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
     nameSpace: /default
-    hostPort: ${zookeeper.host}:${zookeeper.port}
+    hostPort: ${zk.address}
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
     maxRetries: 3 # max number of times to retry
