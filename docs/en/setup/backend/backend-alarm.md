@@ -1,8 +1,8 @@
 # Alarm
 Alarm core is driven a collection of rules, which are defined in `config/alarm-settings.yml`.
 There are two parts in alarm rule definition.
-1. Alarm rules. They define how metrics alarm should be triggered, what conditions should be considered.
-1. Webhooks. The list of web service endpoint, which should be called after the alarm is triggered.
+1. [Alarm rules](#rules). They define how metrics alarm should be triggered, what conditions should be considered.
+1. [Webhooks](#webhook). The list of web service endpoint, which should be called after the alarm is triggered.
 
 ## Rules
 Alarm rule is constituted by following keys
@@ -49,18 +49,44 @@ rules:
     count: 4
 ```
 
-## Default alarm rules
+### Default alarm rules
 We provided a default `alarm-setting.yml` in our distribution only for convenience, which including following rules
 1. Service average response time over 1s in last 3 minutes.
 1. Service success rate lower than 80% in last 2 minutes.
 1. Service 90% response time is lower than 1000ms in last 3 minutes
 1. Service Instance average response time over 1s in last 2 minutes.
 1. Endpoint average response time over 1s in last 2 minutes.
- 
 
-
-## List of all potential metrics name
+### List of all potential metrics name
 The metrics names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
 metrics from **Service**, **Service Instance**, **Endpoint** scopes could be used in Alarm, we will extend in further versions. 
 
 Submit issue or pull request if you want to support any other scope in alarm.
+
+## Webhook
+Webhook requires the peer is a web container. The alarm message will send through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage` with following key information.
+- **scopeId**. All scopes are defined in org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.
+- **name**. Target scope entity name.
+- **id0**. The ID of scope entity, matched the name.
+- **id1**. Not used today.
+- **alarmMessage**. Alarm text message.
+- **startTime**. Alarm time measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
+
+Example as following
+```json
+[{
+	"scopeId": 1, 
+        "name": "serviceA", 
+	"id0": 12,  
+	"id1": 0,  
+	"alarmMessage": "alarmMessage xxxx",
+	"startTime": 1560524171000
+}, {
+	"scopeId": 1,
+        "name": "serviceB",
+	"id0": 23,
+	"id1": 0,
+	"alarmMessage": "alarmMessage yyy",
+	"startTime": 1560524171000
+}]
+```
