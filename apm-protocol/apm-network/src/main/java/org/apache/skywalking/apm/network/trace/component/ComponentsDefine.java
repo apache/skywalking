@@ -121,8 +121,6 @@ public class ComponentsDefine {
     public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
 
     public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
-
-    public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
   
     public static final OfficialComponent SEATA =  new OfficialComponent(65, "Seata");
 
@@ -183,7 +181,6 @@ public class ComponentsDefine {
         addComponent(VERTX);
         addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
-        addComponent(SOLRJ);
         addComponent(SEATA);
     }
 

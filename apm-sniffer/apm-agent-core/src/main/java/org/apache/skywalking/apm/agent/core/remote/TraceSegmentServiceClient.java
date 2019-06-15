@@ -72,6 +72,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void shutdown() throws Throwable {
+        TracingContext.ListenerManager.remove(this);
         carrier.shutdownConsumers();
     }
 
