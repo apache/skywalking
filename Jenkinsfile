@@ -56,7 +56,15 @@ pipeline {
                                 sh 'ls'
                                 sh 'git status'
                             }
-                        }    
+                        }
+
+                        stage('Check 3rd-party classes imported') {
+                            steps {
+                                sh './PluginImportedCheck.sh apm-sdk-plugin'
+                                sh './PluginImportedCheck.sh apm-toolkit-activation'
+                                sh './PluginImportedCheck.sh optional-plugins'
+                            }
+                        }
 
                         stage('Test & Report') {
                             steps {
