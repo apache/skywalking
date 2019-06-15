@@ -71,7 +71,7 @@
                             <showLogs>true</showLogs>
                             <logDate>default</logDate>
                             <verbose>true</verbose>
-                            <imagePullPolicy>Always</imagePullPolicy>
+                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
                             <images>
                                 <image>
                                     <name>mysql:5.7</name>
