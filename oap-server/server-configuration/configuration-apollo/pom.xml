@@ -96,7 +96,7 @@
                                     </run>
                                 </image>
                                 <image>
-                                    <name>kezhenxu94/apollo:1.1</name>
+                                    <name>kezhenxu94/apollo:1.2</name>
                                     <alias>apollo-config-and-portal</alias>
                                     <run>
                                         <namingStrategy>none</namingStrategy>
