@@ -31,7 +31,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
-import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PARAMETER_PLACEHOLDER;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETERS;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
@@ -59,7 +58,8 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
                 final Object[] parameters = cacheObject.getParameters();
                 if (parameters != null && parameters.length > 0) {
-                    String parameterString = buildParameterString(parameters);
+                    int maxIndex = cacheObject.getMaxIndex();
+                    String parameterString = buildParameterString(parameters, maxIndex);
                     int sqlParametersMaxLength = Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH;
                     if (sqlParametersMaxLength > 0 && parameterString.length() > sqlParametersMaxLength) {
                         parameterString = parameterString.substring(0, sqlParametersMaxLength) + "...";
@@ -95,13 +95,11 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
     }
 
-    private String buildParameterString(Object[] parameters) {
+    private String buildParameterString(Object[] parameters, int maxIndex) {
         String parameterString = "[";
         boolean first = true;
-        for (Object parameter : parameters) {
-            if (parameter == PARAMETER_PLACEHOLDER) {
-                break;
-            }
+        for (int i = 0; i < maxIndex; i++) {
+            Object parameter = parameters[i];
             if (!first) {
                 parameterString += ",";
             }

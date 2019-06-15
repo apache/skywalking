@@ -23,8 +23,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.util.Arrays;
 
-import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PARAMETER_PLACEHOLDER;
-
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
  * <code>sql</code> for trace mysql.
@@ -61,14 +59,14 @@ public class StatementEnhanceInfos {
         index--; // start from 1
         if (parameters == null) {
             parameters = new Object[20];
-            Arrays.fill(parameters, PARAMETER_PLACEHOLDER);
+            Arrays.fill(parameters, null);
         }
         int length = parameters.length;
         if (index >= length) {
             int newSize = Math.max(index + 1, length * 2);
             Object[] newParameters = new Object[newSize];
             System.arraycopy(parameters, 0, newParameters, 0, length);
-            Arrays.fill(newParameters, length, newSize, PARAMETER_PLACEHOLDER);
+            Arrays.fill(newParameters, length, newSize, null);
             parameters = newParameters;
         }
         parameters[index] = parameter;

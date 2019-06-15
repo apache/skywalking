@@ -22,11 +22,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
-import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
-import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PARAMETER_PLACEHOLDER;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DISPLAYABLE_TYPES;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACEHOLDER;
@@ -78,23 +76,5 @@ public class PreparedStatementSetterMethodsInterceptor implements InstanceMethod
             return allArguments[1];
         }
         return SQL_PARAMETER_PLACEHOLDER;
-    }
-
-    private String buildParameterString(Object[] parameters, int maxIndex) {
-        String parameterString = "[";
-        boolean first = true;
-        for (int i = 0; i < maxIndex; i++) {
-            Object parameter = parameters[i];
-            if (parameter == PARAMETER_PLACEHOLDER) {
-                break;
-            }
-            if (!first) {
-                parameterString += ",";
-            }
-            parameterString += parameter;
-            first = false;
-        }
-        parameterString += "]";
-        return parameterString;
     }
 }
