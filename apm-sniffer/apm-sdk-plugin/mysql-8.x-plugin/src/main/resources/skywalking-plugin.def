@@ -19,3 +19,4 @@ mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.ConnectionInstru
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.CallableInstrumentation
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementInstrumentation
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.StatementInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementSetterInstrumentation

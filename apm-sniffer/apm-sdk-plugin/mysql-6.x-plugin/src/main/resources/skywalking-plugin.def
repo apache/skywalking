@@ -21,3 +21,4 @@ mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.PreparedStatemen
 mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.StatementInstrumentation
 mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.CacheIpsInstrumentation
 mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.ConnectionImplCreateInstrumentation
+mysql-6.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define.PreparedStatementSetterInstrumentation
