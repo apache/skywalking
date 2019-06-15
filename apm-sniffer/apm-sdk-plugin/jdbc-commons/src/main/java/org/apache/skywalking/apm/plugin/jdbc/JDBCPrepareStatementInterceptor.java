@@ -37,7 +37,7 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.SWPreparedStatement;
 public class JDBCPrepareStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
 
     }
 
