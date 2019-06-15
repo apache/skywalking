@@ -35,6 +35,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -197,10 +198,20 @@ public class ArbitrarySetTest {
             int oldSize = list.size();
             if (i >= oldSize) {
                 int newSize = Math.max(oldSize * 2, i);
-                ArrayList<Object> newList = new ArrayList<Object>(newSize);
-                newList.addAll(list);
-                newList.addAll(oldSize, Collections.nCopies(newSize - oldSize, PLACEHOLDER));
-                list = newList;
+                list.addAll(oldSize, Collections.nCopies(newSize - oldSize, PLACEHOLDER));
+            }
+            list.set(i, i);
+        }
+    }
+
+    @Benchmark
+    public void linkedList() {
+        LinkedList<Object> list = new LinkedList<Object>(Collections.nCopies(20, PLACEHOLDER));
+        for (int i = 0; i < 100; i++) {
+            int oldSize = list.size();
+            if (i >= oldSize) {
+                int newSize = Math.max(oldSize * 2, i);
+                list.addAll(oldSize, Collections.nCopies(newSize - oldSize, PLACEHOLDER));
             }
             list.set(i, i);
         }
