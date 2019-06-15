@@ -32,11 +32,7 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PARAMETER_PLACEHOLDER;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DISPLAYABLE_TYPES;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_IGNORED_SETTERS;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETERS;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACEHOLDER;
 
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -97,24 +93,6 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String buildOperationName(ConnectionInfo connectionInfo, String methodName, String statementName) {
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
-    }
-
-    private Object getDisplayedParameter(final Method method, final Class<?>[] argumentTypes, final Object[] allArguments) {
-        final String methodName = method.getName();
-        if ("setNull".equals(methodName)) {
-            return "null";
-        }
-        if ("setObject".equals(methodName)) {
-            final Object parameter = allArguments[0];
-            final Class<?> parameterType = argumentTypes[1];
-
-            if (DISPLAYABLE_TYPES.contains(parameterType)) {
-                return parameter;
-            }
-        } else if (PS_SETTERS.contains(methodName)) {
-            return allArguments[1];
-        }
-        return SQL_PARAMETER_PLACEHOLDER;
     }
 
     private String buildParameterString(Object[] parameters) {
