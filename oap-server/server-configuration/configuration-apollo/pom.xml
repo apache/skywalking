@@ -61,21 +61,44 @@
                     <imagePullPolicy>IfNotPresent</imagePullPolicy>
                     <images>
                         <image>
-                            <alias>apollo-quick-start</alias>
-                            <external>
-                                <type>compose</type>
-                                <basedir>src/test/docker</basedir>
-                                <composeFile>docker-compose.yml</composeFile>
-                            </external>
+                            <name>mysql:5.7</name>
+                            <alias>apollo-db</alias>
                             <run>
+                                <env>
+                                    <TZ>Asia/Shanghai</TZ>
+                                    <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
+                                </env>
+                                <volumes>
+                                    <bind>
+                                        <volume>src/test/docker/sql:/docker-entrypoint-initdb.d</volume>
+                                    </bind>
+                                </volumes>
+                                <ports>
+                                    <port>mysql.port:3306</port>
+                                </ports>
                                 <wait>
-                                    <http>
-                                        <url>http://localhost:8070</url>
-                                        <method>GET</method>
-                                        <status>200..399</status>
-                                    </http>
+                                    <log>ready for connections</log>
                                     <time>600000</time>
                                 </wait>
+                            </run>
+                        </image>
+                        <image>
+                            <name>nobodyiam/apollo-quick-start</name>
+                            <run>
+                                <dependsOn>
+                                    <container>apollo-db</container>
+                                </dependsOn>
+                                <ports>
+                                    <port>+apollo.portal.host:apollo.portal.port:8070</port>
+                                    <port>+apollo.meta.host:apollo.meta.port:8080</port>
+                                </ports>
+                                <wait>
+                                    <log>Portal started. You can visit</log>
+                                    <time>1800000</time>
+                                </wait>
+                                <links>
+                                    <link>apollo-db</link>
+                                </links>
                             </run>
                         </image>
                     </images>
@@ -93,6 +116,37 @@
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <apollo.portal.host>
+                            ${apollo.portal.host}
+                        </apollo.portal.host>
+                        <apollo.portal.port>
+                            ${apollo.portal.port}
+                        </apollo.portal.port>
+                        <apollo.meta.host>
+                            ${apollo.meta.host}
+                        </apollo.meta.host>
+                        <apollo.meta.port>
+                            ${apollo.meta.port}
+                        </apollo.meta.port>
+                        <apollo.configService>
+                            http://${apollo.meta.host}:${apollo.meta.port}
+                        </apollo.configService>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>

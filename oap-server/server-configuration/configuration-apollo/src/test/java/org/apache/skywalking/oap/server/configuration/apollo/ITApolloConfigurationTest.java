@@ -52,15 +52,21 @@ public class ITApolloConfigurationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ITApolloConfigurationTest.class);
 
     private final Yaml yaml = new Yaml();
-    private final String baseUrl = "http://localhost:8070";
     private final String token = "f71f002a4ff9845639ef655ee7019759e31449de";
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final ResponseHandler responseHandler = new BasicResponseHandler();
 
+    private String baseUrl;
     private ApolloConfigurationTestProvider provider;
 
     @Before
     public void setUp() throws Exception {
+        String host = System.getProperty("apollo.portal.host");
+        String port = System.getProperty("apollo.portal.port");
+
+        baseUrl = "http://" + host + ":" + port;
+        LOGGER.info("baseUrl: {}", baseUrl);
+
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 

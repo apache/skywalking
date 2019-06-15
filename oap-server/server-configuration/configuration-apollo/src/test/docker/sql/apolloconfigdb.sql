@@ -267,7 +267,7 @@ CREATE TABLE `Instance` (
 --
 
 /*!40000 ALTER TABLE `Instance` DISABLE KEYS */;
-INSERT INTO `Instance` VALUES (1,'SampleApp','default','','192.168.1.102','2019-06-07 03:09:46','2019-06-07 03:09:46');
+INSERT INTO `Instance` VALUES (1,'SampleApp','default','','localhost','2019-06-07 03:09:46','2019-06-07 03:09:46');
 /*!40000 ALTER TABLE `Instance` ENABLE KEYS */;
 
 --
