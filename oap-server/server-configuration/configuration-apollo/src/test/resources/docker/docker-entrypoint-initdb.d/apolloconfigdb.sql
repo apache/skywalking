@@ -71,7 +71,7 @@ CREATE TABLE `App` (
 --
 
 /*!40000 ALTER TABLE `App` DISABLE KEYS */;
-INSERT INTO `App` VALUES (1,'SampleApp','Sample App','TEST1','样例部门1','apollo','apollo@acme.com','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
+INSERT INTO `App` VALUES (1,'SampleApp','Sample App','TEST1','','apollo','apollo@acme.com','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `App` ENABLE KEYS */;
 
 --
@@ -524,7 +524,7 @@ CREATE TABLE `ServerConfig` (
 --
 
 /*!40000 ALTER TABLE `ServerConfig` DISABLE KEYS */;
-INSERT INTO `ServerConfig` VALUES (1,'eureka.service.url','default','http://localhost:8080/eureka/','Eureka服务Url，多个service以英文逗号分隔','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(2,'namespace.lock.switch','default','false','一次发布只能有一个人修改开关','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(3,'item.value.length.limit','default','20000','item value最大长度限制','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(4,'config-service.cache.enabled','default','false','ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(5,'item.key.length.limit','default','128','item key 最大长度限制','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
+INSERT INTO `ServerConfig` VALUES (1,'eureka.service.url','default','http://localhost:8080/eureka/','','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(2,'namespace.lock.switch','default','false','','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(3,'item.value.length.limit','default','20000','','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(4,'config-service.cache.enabled','default','false','','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00'),(5,'item.key.length.limit','default','128','','\0','default','2019-06-06 15:14:00','','2019-06-06 15:14:00');
 /*!40000 ALTER TABLE `ServerConfig` ENABLE KEYS */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
