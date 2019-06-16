@@ -84,7 +84,7 @@ public class ITZookeeperConfigurationTest {
 
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zookeeperHost + ":" + zookeeperPort, retryPolicy);
-
+        client.start();
         assertTrue(client.create().forPath(nameSpace + "/" + key, (value_ + 50).getBytes()) != null);
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
