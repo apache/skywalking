@@ -20,15 +20,6 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author: dingshaocheng
  */
