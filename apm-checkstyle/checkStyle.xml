@@ -19,7 +19,7 @@
 
 <!DOCTYPE module PUBLIC
     "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
-    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+    "http://checkstyle.org/dtds/configuration_1_3.dtd">
 <!--Refer http://checkstyle.sourceforge.net/reports/google-java-style.html#s2.2-file-encoding -->
 <module name="Checker">
 
@@ -104,5 +104,10 @@
         <module name="ParenPad"/>
         <module name="TypecastParenPad"/>
         <module name="TypecastParenPad"/>
+
+        <module name="ImportControl">
+            <property name="file" value="apm-checkstyle/importControl.xml" />
+            <property name="path" value="apm-sniffer/apm-sdk-plugin/.+/src/main/.+Instrumentation.java$" />
+        </module>
     </module>
 </module>
