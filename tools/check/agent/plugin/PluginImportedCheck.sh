@@ -23,7 +23,7 @@ for dir in `ls "./apm-sniffer/$plugin_dir/"`; do
 	echo "Scanning $dir"
 	for f in `find ./apm-sniffer/$plugin_dir/$dir -name *Instrumentation.java `; do
 		NUM=`head -400 $f | grep ^import |grep -Ev "^import\s+(static\s+)*net.bytebuddy\\." \
-			| grep -Ev "^import\s+(static\s+)*org.apache.skywalking\\." |grep -Ev "^import\s+(static\s+)*java(x)*\\." | wc -l`
+			| grep -Ev "^import\s+(static\s+)*org.apache.skywalking\\." |grep -Ev "^import\s+(static\s+)*java*\\." | wc -l`
 		if [ $NUM -gt 0 ] ; then
 			echo "Plugin: $dir($f),  only allow to import JDK and ByteBuddy classes in Instrumentation definition.";
 			exit 1;
