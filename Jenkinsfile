@@ -58,7 +58,7 @@ pipeline {
                             }
                         }
 
-                        stage('Check 3rd-party classes imported') {
+                        stage('Check agent plugin instrumentation imports') {
                             steps {
                                 sh './PluginImportedCheck.sh apm-sdk-plugin'
                                 sh './PluginImportedCheck.sh apm-toolkit-activation'
