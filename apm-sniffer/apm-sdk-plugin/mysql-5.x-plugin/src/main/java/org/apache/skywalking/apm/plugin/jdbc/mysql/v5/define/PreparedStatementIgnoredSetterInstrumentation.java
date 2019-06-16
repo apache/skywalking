@@ -29,7 +29,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 /**
  * @author kezhenxu94
  */
-public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrumentation {
+public class PreparedStatementIgnoredSetterInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
     private static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
@@ -42,7 +42,7 @@ public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrum
     @Override
     protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(false)
+            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(true)
         };
     }
 

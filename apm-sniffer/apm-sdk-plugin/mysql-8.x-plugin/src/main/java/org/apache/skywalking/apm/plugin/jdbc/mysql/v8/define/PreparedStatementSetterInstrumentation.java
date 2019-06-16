@@ -19,19 +19,12 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.mysql.Constants;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInstanceMethodsInterceptPoint;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.none;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_IGNORED_SETTERS;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
 
 /**
  * @author kezhenxu94
@@ -40,7 +33,6 @@ public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrum
 
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
     private static final String PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
-    private static final String SERVICE_METHOD_INTERCEPTOR = Constants.PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR;
 
     @Override
     protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -50,31 +42,7 @@ public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrum
     @Override
     protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    ElementMatcher.Junction<MethodDescription> matcher = none();
-                    if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
-                        for (String setter : PS_SETTERS) {
-                            matcher = matcher.or(named(setter));
-                        }
-                        for (String setter : PS_IGNORED_SETTERS) {
-                            matcher = matcher.or(named(setter));
-                        }
-                    }
-                    return matcher;
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return SERVICE_METHOD_INTERCEPTOR;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
+            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(false)
         };
     }
 

@@ -22,14 +22,14 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * @author kezhenxu94
  */
-public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrumentation {
+public class PreparedStatementNullSetterInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
     private static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
@@ -42,7 +42,7 @@ public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrum
     @Override
     protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(false)
+            new JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint()
         };
     }
 

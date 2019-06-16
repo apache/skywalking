@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -29,10 +29,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 /**
  * @author kezhenxu94
  */
-public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrumentation {
+public class PreparedStatementIgnoredSetterInstrumentation extends AbstractMysqlInstrumentation {
 
-    private static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
-    private static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
+    private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
+    private static final String PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
 
     @Override
     protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -42,13 +42,13 @@ public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrum
     @Override
     protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(false)
+            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(true)
         };
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(MYSQL_PREPARED_STATEMENT_CLASS_NAME, JDBC42_PREPARED_STATEMENT_CLASS_NAME);
+        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME, PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME);
     }
 
 }

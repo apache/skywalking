@@ -20,3 +20,5 @@ mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.CallableInstrume
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementInstrumentation
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.StatementInstrumentation
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementSetterInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementNullSetterInstrumentation
+mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementIgnoredSetterInstrumentation

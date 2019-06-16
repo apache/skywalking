@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql;
+package org.apache.skywalking.apm.plugin.jdbc;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -25,21 +25,17 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 
 import java.lang.reflect.Method;
 
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DISPLAYABLE_TYPES;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PS_SETTERS;
-import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETER_PLACEHOLDER;
-
 /**
  * @author kezhenxu94
  */
-public class PreparedStatementSetterMethodsInterceptor implements InstanceMethodsAroundInterceptor {
+public class JDBCPreparedStatementSetterInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                                    Class<?>[] argumentsTypes,
                                    MethodInterceptResult result) throws Throwable {
         final StatementEnhanceInfos statementEnhanceInfos = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         final int index = (Integer) allArguments[0];
-        final Object parameter = getDisplayedParameter(method, argumentsTypes, allArguments);
+        final Object parameter = allArguments[0];
         statementEnhanceInfos.setParameter(index, parameter);
     }
 
@@ -58,23 +54,5 @@ public class PreparedStatementSetterMethodsInterceptor implements InstanceMethod
                                             Object[] allArguments,
                                             Class<?>[] argumentsTypes,
                                             Throwable t) {
-    }
-
-    private Object getDisplayedParameter(final Method method, final Class<?>[] argumentTypes, final Object[] allArguments) {
-        final String methodName = method.getName();
-        if ("setNull".equals(methodName)) {
-            return "null";
-        }
-        if ("setObject".equals(methodName)) {
-            final Object parameter = allArguments[0];
-            final Class<?> parameterType = argumentTypes[1];
-
-            if (DISPLAYABLE_TYPES.contains(parameterType)) {
-                return parameter;
-            }
-        } else if (PS_SETTERS.contains(methodName)) {
-            return allArguments[1];
-        }
-        return SQL_PARAMETER_PLACEHOLDER;
     }
 }

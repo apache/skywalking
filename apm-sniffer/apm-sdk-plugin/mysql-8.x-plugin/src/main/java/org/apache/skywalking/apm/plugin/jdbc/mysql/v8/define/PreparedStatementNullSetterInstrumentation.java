@@ -17,22 +17,21 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * @author kezhenxu94
  */
-public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrumentation {
+public class PreparedStatementNullSetterInstrumentation extends AbstractMysqlInstrumentation {
 
-    private static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
-    private static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
+    public static final String MYSQL6_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.PreparedStatement";
 
     @Override
     protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -42,13 +41,13 @@ public class PreparedStatementSetterInstrumentation extends AbstractMysqlInstrum
     @Override
     protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(false)
+            new JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint()
         };
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(MYSQL_PREPARED_STATEMENT_CLASS_NAME, JDBC42_PREPARED_STATEMENT_CLASS_NAME);
+        return byName(MYSQL6_PREPARED_STATEMENT_CLASS_NAME);
     }
 
 }
