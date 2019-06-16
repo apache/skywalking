@@ -34,10 +34,10 @@ import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PS_SETTERS;
 /**
  * @author kezhenxu94
  */
-public class JDBCPreparedStatementSetterInstanceMethodsInterceptPoint implements InstanceMethodsInterceptPoint {
+public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsInterceptPoint {
     private final boolean ignorable;
 
-    public JDBCPreparedStatementSetterInstanceMethodsInterceptPoint(boolean ignorable) {
+    public PSSetterDefinitionOfJDBCInstrumentation(boolean ignorable) {
         this.ignorable = ignorable;
     }
 
