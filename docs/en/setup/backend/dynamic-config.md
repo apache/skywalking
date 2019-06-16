@@ -31,7 +31,7 @@ configuration:
     #clusterName: "default" # the name of current cluster, set the name if you want to upstream system known.  
 ```
 
-## Apollo DCS
+## Dynamic Configuration Apollo Implementation
 
 [Apollo](https://github.com/ctripcorp/apollo/) is also supported in DCS, to use it, just configured as follows:
 
@@ -45,7 +45,7 @@ configuration:
     period: 5
 ```
 
-## Nacos DCS
+## Dynamic Configuration Nacos Implementation
 
 [Nacos](https://github.com/alibaba/nacos) is also supported in DCS, to use it, please configure as follows:
 
