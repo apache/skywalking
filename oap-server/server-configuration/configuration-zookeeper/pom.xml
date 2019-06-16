@@ -71,18 +71,16 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>zookeeper:3.4.14</name>
+                                            <name>zookeeper:3.5</name>
                                             <alias>zookeeper-dynamic-configuration-integration-test-zookeeper</alias>
                                             <run>
                                                 <ports>
                                                     <port>zk-port:2181</port>
                                                 </ports>
                                                 <wait>
-                                                    <log>started</log>
-                                                    <time>120000</time>
+                                                    <log>binding to port</log>
+                                                    <time>30000</time>
                                                 </wait>
-                                                <env>
-                                                </env>
                                             </run>
                                         </image>
                                     </images>
