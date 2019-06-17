@@ -51,7 +51,7 @@ public class MockZookeeperConfigurationProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        watcher = new ConfigChangeWatcher(MockZookeeperConfigurationModule.NAME, this, "testKey") {
+        watcher = new ConfigChangeWatcher(MockZookeeperConfigurationModule.NAME, this, "receiver-trace.default.slowDBAccessThreshold") {
             private volatile String testValue;
 
             @Override
