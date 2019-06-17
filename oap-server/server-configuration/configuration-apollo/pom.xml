@@ -27,7 +27,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>configuration-nacos</artifactId>
+    <artifactId>configuration-apollo</artifactId>
 
     <dependencies>
         <dependency>
@@ -35,14 +35,26 @@
             <artifactId>configuration-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>com.alibaba.nacos</groupId>
-            <artifactId>nacos-client</artifactId>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-autoconfigure</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -63,16 +75,13 @@
                             <images>
                                 <image>
                                     <name>mysql:5.7</name>
-                                    <alias>nacos-dynamic-configuration-integration-test-mysql</alias>
+                                    <alias>apollo-db</alias>
                                     <run>
                                         <env>
-                                            <MYSQL_MASTER_SERVICE_HOST>127.0.0.1</MYSQL_MASTER_SERVICE_HOST>
+                                            <TZ>Asia/Shanghai</TZ>
                                             <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
                                         </env>
                                         <namingStrategy>none</namingStrategy>
-                                        <ports>
-                                            <port>mysql.port:3306</port>
-                                        </ports>
                                         <volumes>
                                             <bind>
                                                 <volume>
@@ -82,33 +91,28 @@
                                         </volumes>
                                         <wait>
                                             <log>ready for connections</log>
-                                            <time>60000</time>
+                                            <time>600000</time>
                                         </wait>
                                     </run>
                                 </image>
                                 <image>
-                                    <name>nacos/nacos-server:${nacos.version}</name>
-                                    <alias>nacos-dynamic-configuration-integration-test-nacos</alias>
+                                    <name>kezhenxu94/apollo:1.2</name>
+                                    <alias>apollo-config-and-portal</alias>
                                     <run>
-                                        <env>
-                                            <MODE>standalone</MODE>
-                                            <MYSQL_MASTER_SERVICE_HOST>mysql</MYSQL_MASTER_SERVICE_HOST>
-                                            <MYSQL_MASTER_SERVICE_DB_NAME>test</MYSQL_MASTER_SERVICE_DB_NAME>
-                                            <MYSQL_MASTER_SERVICE_PORT>${mysql.port}</MYSQL_MASTER_SERVICE_PORT>
-                                        </env>
                                         <namingStrategy>none</namingStrategy>
                                         <dependsOn>
-                                            <container>nacos-dynamic-configuration-integration-test-mysql</container>
+                                            <container>apollo-db</container>
                                         </dependsOn>
                                         <links>
-                                            <link>nacos-dynamic-configuration-integration-test-mysql</link>
+                                            <link>apollo-db</link>
                                         </links>
                                         <ports>
-                                            <port>nacos.port:8848</port>
+                                            <port>+apollo.portal.host:apollo.portal.port:8070</port>
+                                            <port>+apollo.meta.host:apollo.meta.port:8080</port>
                                         </ports>
                                         <wait>
-                                            <log>Nacos started successfully</log>
-                                            <time>120000</time>
+                                            <log>Portal started. You can visit</log>
+                                            <time>2400000</time>
                                         </wait>
                                     </run>
                                 </image>
@@ -132,38 +136,25 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.gmaven</groupId>
-                        <artifactId>gmaven-plugin</artifactId>
-                        <version>${gmaven-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>add-default-properties</id>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <providerSelection>2.0</providerSelection>
-                                    <source>
-                                        project.properties.setProperty('docker.hostname', 'localhost')
-
-                                        log.info("Docker hostname is " + project.properties['docker.hostname'])
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <nacos.host>
-                                    ${docker.hostname}
-                                </nacos.host>
-                                <nacos.port>
-                                    ${nacos.port}
-                                </nacos.port>
+                                <apollo.portal.host>
+                                    ${apollo.portal.host}
+                                </apollo.portal.host>
+                                <apollo.portal.port>
+                                    ${apollo.portal.port}
+                                </apollo.portal.port>
+                                <apollo.meta.host>
+                                    ${apollo.meta.host}
+                                </apollo.meta.host>
+                                <apollo.meta.port>
+                                    ${apollo.meta.port}
+                                </apollo.meta.port>
+                                <apollo.configService>
+                                    http://${apollo.meta.host}:${apollo.meta.port}
+                                </apollo.configService>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>

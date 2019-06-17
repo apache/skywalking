@@ -302,10 +302,6 @@
                     <version>${maven-failsafe-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
                 </plugin>
@@ -323,6 +319,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                     <configuration>
                         <excludes>
                             <exclude>IT*.class</exclude>
@@ -510,29 +507,29 @@
                         <version>6.0.0-GA</version>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <configLocation>skywalking/checkStyle.xml</configLocation>
+                    <headerLocation>skywalking/CHECKSTYLE_HEAD</headerLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failsOnError>true</failsOnError>
+                    <includes>org/apache/skywalking/**/*.java</includes>
+                    <excludes>
+                        org/apache/skywalking/apm/network/register/v2/**/*.java,
+                        org/apache/skywalking/apm/network/common/**/*.java,
+                        org/apache/skywalking/apm/network/servicemesh/**/*.java,
+                        org/apache/skywalking/apm/network/language/**/*.java,
+                        org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
+                        org/apache/skywalking/oal/tool/grammar/*.java,
+                        org/apache/skywalking/oap/server/exporter/grpc/*.java,
+                        org/apache/skywalking/oap/server/configuration/service/*.java
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>validate</id>
                         <phase>process-sources</phase>
-                        <configuration>
-                            <configLocation>skywalking/checkStyle.xml</configLocation>
-                            <headerLocation>skywalking/CHECKSTYLE_HEAD</headerLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            <failsOnError>true</failsOnError>
-                            <includes>org/apache/skywalking/**/*.java</includes>
-                            <excludes>
-                                org/apache/skywalking/apm/network/register/v2/**/*.java,
-                                org/apache/skywalking/apm/network/common/**/*.java,
-                                org/apache/skywalking/apm/network/servicemesh/**/*.java,
-                                org/apache/skywalking/apm/network/language/**/*.java,
-                                org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
-                                org/apache/skywalking/oal/tool/grammar/*.java,
-                                org/apache/skywalking/oap/server/exporter/grpc/*.java,
-                                org/apache/skywalking/oap/server/configuration/service/*.java
-                            </excludes>
-                        </configuration>
                         <goals>
                             <goal>check</goal>
                         </goals>

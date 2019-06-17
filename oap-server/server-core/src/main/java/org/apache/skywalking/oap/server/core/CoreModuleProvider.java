@@ -160,6 +160,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
             annotationScan.scan(() -> {
             });
+            streamDataMapping.init();
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

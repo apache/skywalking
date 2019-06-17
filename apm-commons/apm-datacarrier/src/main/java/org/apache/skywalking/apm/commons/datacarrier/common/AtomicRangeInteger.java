@@ -38,15 +38,15 @@ public class AtomicRangeInteger extends Number implements Serializable {
     }
 
     public final int getAndIncrement() {
-        int current;
         int next;
         do {
-            current = this.value.get();
-            next = current >= this.endValue ? this.startValue : current + 1;
-        }
-        while (!this.value.compareAndSet(current, next));
+            next = this.value.incrementAndGet();
+            if (next > endValue && this.value.compareAndSet(next, startValue)) {
+                return endValue;
+            }
+        } while (next > endValue);
 
-        return current;
+        return next - 1;
     }
 
     public final int get() {
