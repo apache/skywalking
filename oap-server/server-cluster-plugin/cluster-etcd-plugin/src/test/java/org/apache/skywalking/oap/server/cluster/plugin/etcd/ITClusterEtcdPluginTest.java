@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +38,8 @@ import static org.junit.Assert.assertNotNull;
  * @author Alan Lau
  */
 public class ITClusterEtcdPluginTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ITClusterEtcdPluginTest.class);
 
     private ClusterModuleEtcdConfig etcdConfig;
 
@@ -54,9 +58,13 @@ public class ITClusterEtcdPluginTest {
 
     @Before
     public void before() throws Exception {
+        String etcdHost = System.getProperty("etcd.host");
+        String port = System.getProperty("etcd.port");
+        String baseUrl = "http://" + etcdHost + ":" + port;
+        LOGGER.info("etcd baseURL: {}", baseUrl);
         etcdConfig = new ClusterModuleEtcdConfig();
         etcdConfig.setServiceName(SERVICE_NAME);
-        client = new EtcdClient(URI.create("http://127.0.0.1:2379"));
+        client = new EtcdClient(URI.create(baseUrl));
         coordinator = new EtcdCoordinator(etcdConfig, client);
     }
 

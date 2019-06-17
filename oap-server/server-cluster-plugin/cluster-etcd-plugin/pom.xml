@@ -123,7 +123,7 @@
                                             <alias>etcd-client-integration-test</alias>
                                             <run>
                                                 <ports>
-                                                    <port>2379:2379</port>
+                                                    <port>+etcd.host:etcd.port:2379</port>
                                                 </ports>
                                                 <wait>
                                                     <time>20000</time>
@@ -146,6 +146,29 @@
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <etcd.host>
+                                    ${etcd.host}
+                                </etcd.host>
+                                <etcd.port>
+                                    ${etcd.port}
+                                </etcd.port>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
                                 </goals>
                             </execution>
                         </executions>
