@@ -36,6 +36,7 @@
         <module>apm-commons</module>
         <module>apm-protocol</module>
         <module>apm-checkstyle</module>
+        <module>agent-testcase-projects</module>
     </modules>
     <packaging>pom</packaging>
 
