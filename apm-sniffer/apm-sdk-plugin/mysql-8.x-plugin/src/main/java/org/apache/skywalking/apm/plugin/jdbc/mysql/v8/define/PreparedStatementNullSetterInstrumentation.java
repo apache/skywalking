@@ -24,14 +24,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint;
 
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * @author kezhenxu94
  */
 public class PreparedStatementNullSetterInstrumentation extends AbstractMysqlInstrumentation {
 
-    public static final String MYSQL6_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.PreparedStatement";
+    private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
+    private static final String PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
 
     @Override
     protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -47,7 +48,7 @@ public class PreparedStatementNullSetterInstrumentation extends AbstractMysqlIns
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(MYSQL6_PREPARED_STATEMENT_CLASS_NAME);
+        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME, PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME);
     }
 
 }
