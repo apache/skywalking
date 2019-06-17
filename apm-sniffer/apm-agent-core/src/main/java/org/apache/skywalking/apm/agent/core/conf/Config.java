@@ -208,5 +208,18 @@ public class Config {
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
         }
+
+        public static class SolrJ {
+            /**
+             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.
+             */
+            public static boolean TRACE_STATEMENT = false;
+
+            /**
+             * If true, trace all the operation parameters in Solr request, default is false.
+             */
+            public static boolean TRACE_OPS_PARAMS = false;
+        }
+
     }
 }
