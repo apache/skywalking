@@ -59,7 +59,7 @@
     </dependencies>
 
     <properties>
-        <apollo.docker.name>kezhenxu94/apollo:1.3</apollo.docker.name>
+        <apollo.docker.name>kezhenxu94/apollo:latest</apollo.docker.name>
         <apollo.docker.env.MYSQL_HOST>${mysql.host}</apollo.docker.env.MYSQL_HOST>
         <apollo.docker.env.MYSQL_PORT>${mysql.port}</apollo.docker.env.MYSQL_PORT>
         <apollo.docker.wait.log>Portal started. You can visit</apollo.docker.wait.log>
