@@ -410,9 +410,9 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override public AbstractTracerContext awaitFinishAsync() {
-        if(!isRunningInAsyncMode){
-            synchronized (this){
-                if(!isRunningInAsyncMode){
+        if (!isRunningInAsyncMode) {
+            synchronized (this) {
+                if (!isRunningInAsyncMode) {
                     asyncFinishLock = new ReentrantLock();
                     asyncSpanCounter = new AtomicInteger(0);
                     isRunningInAsyncMode = true;
