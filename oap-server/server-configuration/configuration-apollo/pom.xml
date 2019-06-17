@@ -93,7 +93,6 @@
                                             <TZ>Asia/Shanghai</TZ>
                                             <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
                                         </env>
-                                        <namingStrategy>none</namingStrategy>
                                         <ports>
                                             <port>+mysql.host:mysql.port:3306</port>
                                         </ports>
