@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.oap.server.configuration.apollo;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Map;
+import java.util.Properties;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
@@ -36,12 +42,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -107,7 +107,7 @@ public class ITApolloConfigurationTest {
                 "    \"dataChangeCreatedBy\":\"apollo\"\n" +
                 "}");
             createConfigPost.setEntity(entity);
-            final String createResponse = (String) httpClient.execute(createConfigPost, responseHandler);
+            final String createResponse = (String)httpClient.execute(createConfigPost, responseHandler);
             LOGGER.info("createResponse: {}", createResponse);
 
             final HttpPost releaseConfigRequest =
@@ -129,7 +129,7 @@ public class ITApolloConfigurationTest {
             );
             releaseConfigRequest.setHeader("Authorization", token);
             releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-            final String releaseCreateResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            final String releaseCreateResponse = (String)httpClient.execute(releaseConfigRequest, responseHandler);
             LOGGER.info("releaseCreateResponse: {}", releaseCreateResponse);
 
             for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
@@ -150,13 +150,17 @@ public class ITApolloConfigurationTest {
             deleteConfigRequest.setHeader("Authorization", token);
             deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
             httpClient.execute(deleteConfigRequest);
-            final String releaseDeleteResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            final String releaseDeleteResponse = (String)httpClient.execute(releaseConfigRequest, responseHandler);
             LOGGER.info("releaseDeleteResponse: {}", releaseDeleteResponse);
 
             for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
             }
 
             assertNull(provider.watcher.value());
+        } catch (HttpResponseException e) {
+            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("status: {}", e.getStatusCode());
+            fail(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             fail(e.getMessage());
