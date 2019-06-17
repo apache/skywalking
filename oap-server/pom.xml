@@ -375,7 +375,6 @@
                 <version>${nacos.version}</version>
             </dependency>
             <dependency>
-<<<<<<< HEAD
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
@@ -389,11 +388,11 @@
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
-=======
+            </dependency>
+            <dependency>
                 <groupId>org.mousio</groupId>
                 <artifactId>etcd4j</artifactId>
                 <version>${etcd4j.version}</version>
->>>>>>> 6ff33d8816df314dde0ccf892c71321fad5013cc
             </dependency>
         </dependencies>
     </dependencyManagement>

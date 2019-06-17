@@ -28,6 +28,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>configuration-zookeeper</artifactId>
+    
+    <properties>
+        <zookeeper.image.version>3.5</zookeeper.image.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -71,7 +75,7 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>zookeeper:3.5</name>
+                                            <name>zookeeper:${zookeeper.image.version}</name>
                                             <alias>zookeeper-dynamic-configuration-integration-test-zookeeper</alias>
                                             <run>
                                                 <ports>
