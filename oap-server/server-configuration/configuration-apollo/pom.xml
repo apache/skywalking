@@ -65,6 +65,7 @@
         <apollo.docker.wait.log>Portal started. You can visit</apollo.docker.wait.log>
         <apollo.docker.wait.time>240000</apollo.docker.wait.time>
         <apollo.docker.dependsOn.container>apollo-db</apollo.docker.dependsOn.container>
+        <apollo.docker.links.1>apollo-db</apollo.docker.links.1>
         <apollo.docker.ports.1>+apollo.portal.host:apollo.portal.port:8070</apollo.docker.ports.1>
         <apollo.docker.ports.2>+apollo.meta.host:apollo.meta.port:8080</apollo.docker.ports.2>
     </properties>
