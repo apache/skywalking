@@ -56,7 +56,15 @@ pipeline {
                                 sh 'ls'
                                 sh 'git status'
                             }
-                        }    
+                        }
+
+                        stage('Check agent plugin instrumentation imports') {
+                            steps {
+                                sh './tools/check/agent/plugin/PluginImportedCheck.sh apm-sdk-plugin'
+                                sh './tools/check/agent/plugin/PluginImportedCheck.sh apm-toolkit-activation'
+                                sh './tools/check/agent/plugin/PluginImportedCheck.sh optional-plugins'
+                            }
+                        }
 
                         stage('Test & Report') {
                             steps {
