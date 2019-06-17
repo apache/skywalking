@@ -135,6 +135,12 @@ telemetry:
     port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 configuration:
   none:
+#  apollo:
+#    apolloMeta: http://106.12.25.204:8080
+#    apolloCluster: default
+#    # apolloEnv: # defaults to null
+#    appId: skywalking
+#    period: 5
 #  nacos:
 #    # Nacos Server Host
 #    serverAddr: 127.0.0.1
