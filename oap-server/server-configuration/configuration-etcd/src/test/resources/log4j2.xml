@@ -17,24 +17,15 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>oap-server</artifactId>
-        <groupId>org.apache.skywalking</groupId>
-        <version>6.2.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>server-configuration</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>configuration-api</module>
-        <module>grpc-configuration-sync</module>
-        <module>configuration-apollo</module>
-        <module>configuration-nacos</module>
-        <module>configuration-etcd</module>
-    </modules>
-
-</project>
+<Configuration status="info">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
