@@ -90,7 +90,7 @@
                                             </bind>
                                         </volumes>
                                         <wait>
-                                            <log>ready for connections</log>
+                                            <log>socket: '/var/run/mysqld/mysqld.sock'  port: 3306</log>
                                             <time>600000</time>
                                         </wait>
                                     </run>
@@ -111,7 +111,7 @@
                                             <port>+apollo.meta.host:apollo.meta.port:8080</port>
                                         </ports>
                                         <wait>
-                                            <log>socket: '/var/run/mysqld/mysqld.sock'  port: 3306</log>
+                                            <log>Portal started. You can visit</log>
                                             <time>2400000</time>
                                         </wait>
                                     </run>
