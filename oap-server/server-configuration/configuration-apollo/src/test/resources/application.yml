@@ -21,7 +21,7 @@ test-module:
 
 configuration:
   apollo:
-    apolloMeta: http://${apollo.meta.host}:${apollo.meta.port}
+    apolloMeta: http://127.0.0.1:8080 #${apollo.meta.host}:${apollo.meta.port}
     apolloCluster: default
     apolloEnv: DEV
     appId: SampleApp

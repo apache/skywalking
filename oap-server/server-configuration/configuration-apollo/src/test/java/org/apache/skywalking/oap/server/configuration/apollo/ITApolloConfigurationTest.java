@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -57,15 +58,14 @@ public class ITApolloConfigurationTest {
     private final Yaml yaml = new Yaml();
     private final String token = "f71f002a4ff9845639ef655ee7019759e31449de";
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
-    private final ResponseHandler responseHandler = new BasicResponseHandler();
 
     private String baseUrl;
     private ApolloConfigurationTestProvider provider;
 
     @Before
     public void setUp() throws Exception {
-        String host = System.getProperty("apollo.portal.host");
-        String port = System.getProperty("apollo.portal.port");
+        String host = "localhost"; // System.getProperty("apollo.portal.host");
+        String port = "8070"; //System.getProperty("apollo.portal.port");
 
         baseUrl = "http://" + host + ":" + port;
         LOGGER.info("baseUrl: {}", baseUrl);
@@ -107,7 +107,7 @@ public class ITApolloConfigurationTest {
                 "    \"dataChangeCreatedBy\":\"apollo\"\n" +
                 "}");
             createConfigPost.setEntity(entity);
-            final String createResponse = (String)httpClient.execute(createConfigPost, responseHandler);
+            final CloseableHttpResponse createResponse = httpClient.execute(createConfigPost);
             LOGGER.info("createResponse: {}", createResponse);
 
             final HttpPost releaseConfigRequest =
@@ -129,7 +129,7 @@ public class ITApolloConfigurationTest {
             );
             releaseConfigRequest.setHeader("Authorization", token);
             releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-            final String releaseCreateResponse = (String)httpClient.execute(releaseConfigRequest, responseHandler);
+            final CloseableHttpResponse releaseCreateResponse = httpClient.execute(releaseConfigRequest);
             LOGGER.info("releaseCreateResponse: {}", releaseCreateResponse);
 
             for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
@@ -150,7 +150,7 @@ public class ITApolloConfigurationTest {
             deleteConfigRequest.setHeader("Authorization", token);
             deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
             httpClient.execute(deleteConfigRequest);
-            final String releaseDeleteResponse = (String)httpClient.execute(releaseConfigRequest, responseHandler);
+            final CloseableHttpResponse releaseDeleteResponse = httpClient.execute(releaseConfigRequest);
             LOGGER.info("releaseDeleteResponse: {}", releaseDeleteResponse);
 
             for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
@@ -230,7 +230,7 @@ public class ITApolloConfigurationTest {
             );
             releaseConfigRequest.setHeader("Authorization", token);
             releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-            httpClient.execute(releaseConfigRequest, responseHandler);
+            httpClient.execute(releaseConfigRequest);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
