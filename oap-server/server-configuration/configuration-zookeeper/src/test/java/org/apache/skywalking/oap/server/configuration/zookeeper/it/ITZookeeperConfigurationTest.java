@@ -69,7 +69,6 @@ public class ITZookeeperConfigurationTest {
     @SuppressWarnings("StatementWithEmptyBody")
     @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
-        System.out.println("ITZookeeperConfigurationTest"+System.getProperty("zk.address"));
         String nameSpace = "/default";
         String key = "test-module.default.testKey";
         assertNull(provider.watcher.value());
@@ -83,14 +82,14 @@ public class ITZookeeperConfigurationTest {
 
         LOGGER.info("per path: " + nameSpace + "/" + key);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, ("500").getBytes()) != null);
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, "500".getBytes()) != null);
 
         LOGGER.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
 
-        assertTrue(client.delete().forPath(nameSpace + "/" + key)==null);
+        assertTrue(client.delete().forPath(nameSpace + "/" + key) == null);
 
         for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
         }
