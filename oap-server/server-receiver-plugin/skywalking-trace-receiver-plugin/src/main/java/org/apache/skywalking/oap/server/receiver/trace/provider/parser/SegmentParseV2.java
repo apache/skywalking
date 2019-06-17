@@ -85,7 +85,7 @@ public class SegmentParseV2 {
             if (bufferData.getV2Segment() == null) {
                 bufferData.setV2Segment(parseBinarySegment(upstreamSegment));
             }
-            SegmentObject segmentObject = parseBinarySegment(upstreamSegment);
+            SegmentObject segmentObject = bufferData.getV2Segment();
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
@@ -275,7 +275,7 @@ public class SegmentParseV2 {
             segmentParse.setStandardizationWorker(standardizationWorker);
             boolean parseResult = segmentParse.parse(bufferData, SegmentSource.Buffer);
             if (parseResult) {
-                segmentParse.TRACE_BUFFER_FILE_OUT.inc();
+                TRACE_BUFFER_FILE_OUT.inc();
             }
 
             return parseResult;
