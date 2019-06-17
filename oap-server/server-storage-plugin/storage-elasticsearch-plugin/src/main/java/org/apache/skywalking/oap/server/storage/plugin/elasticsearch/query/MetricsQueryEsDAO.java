@@ -22,14 +22,12 @@ import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.query.ID;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
-import org.elasticsearch.action.get.GetResponse;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.*;
@@ -101,19 +99,18 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<ID> ids, String valueCName) throws IOException {
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
-        IntValues intValues = new IntValues();
-        for (ID id : ids) {
-            String modelName = TimeSeriesUtils.timeSeries(indexName, id.getTimeBucket(), downsampling);
-            GetResponse response = getClient().get(modelName, id.toString());
+        Map<String, Map<String, Object>> response = getClient().ids(indexName, ids.toArray(new String[0]));
 
+        IntValues intValues = new IntValues();
+        for (String id : ids) {
             KVInt kvInt = new KVInt();
-            kvInt.setId(response.getId());
+            kvInt.setId(id);
             kvInt.setValue(0);
-            Map<String, Object> source = response.getSource();
-            if (source != null) {
+            if (response.containsKey(id)) {
+                Map<String, Object> source = response.get(id);
                 kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).longValue());
             }
             intValues.getValues().add(kvInt);
@@ -122,18 +119,17 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return intValues;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<ID> ids, String valueCName) throws IOException {
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         Thermodynamic thermodynamic = new Thermodynamic();
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
 
-        int numOfSteps = 0;
-        for (ID id : ids) {
-            String modelName = TimeSeriesUtils.timeSeries(indexName, id.getTimeBucket(), downsampling);
-            GetResponse response = getClient().get(modelName, id.toString());
+        Map<String, Map<String, Object>> response = getClient().ids(indexName, ids.toArray(new String[0]));
 
-            Map<String, Object> source = response.getSource();
+        int numOfSteps = 0;
+        for (String id : ids) {
+            Map<String, Object> source = response.get(id);
             if (source == null) {
                 // add empty list to represent no data exist for this time bucket
                 thermodynamicValueMatrix.add(new ArrayList<>());

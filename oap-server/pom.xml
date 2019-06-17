@@ -76,10 +76,12 @@
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <simpleclient.version>0.6.0</simpleclient.version>
-
+        <apollo.version>1.4.0</apollo.version>
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
         <nacos.version>1.0.0</nacos.version>
         <curator.version>4.0.1</curator.version>
+        <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd.version>v3.2.3</etcd.version>
     </properties>
 
     <dependencies>
@@ -361,12 +363,19 @@
                 <artifactId>simpleclient</artifactId>
                 <version>${simpleclient.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>apollo-client</artifactId>
+                <version>${apollo.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
             </dependency>
             <dependency>
+<<<<<<< HEAD
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
@@ -380,6 +389,11 @@
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
+=======
+                <groupId>org.mousio</groupId>
+                <artifactId>etcd4j</artifactId>
+                <version>${etcd4j.version}</version>
+>>>>>>> 6ff33d8816df314dde0ccf892c71321fad5013cc
             </dependency>
         </dependencies>
     </dependencyManagement>
