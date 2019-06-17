@@ -67,7 +67,7 @@ public class ITZookeeperConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Test(timeout = 50000)
+    @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
         System.out.println("ITZookeeperConfigurationTest"+System.getProperty("zk.address"));
         String nameSpace = "/default";
@@ -81,6 +81,8 @@ public class ITZookeeperConfigurationTest {
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
 
+        LOGGER.info("per path: " + nameSpace + "/" + key);
+
         assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, ("500").getBytes()) != null);
 
         LOGGER.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
@@ -88,7 +90,7 @@ public class ITZookeeperConfigurationTest {
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
 
-        assertTrue(client.delete().forPath(nameSpace + "/" + key)!=null);
+        assertTrue(client.delete().forPath(nameSpace + "/" + key)==null);
 
         for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
         }

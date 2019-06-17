@@ -20,7 +20,7 @@ test-module:
 
 configuration:
   zookeeper:
-    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    period : 1 # Unit seconds, sync period. Default fetch every 60 seconds.
     nameSpace: /default
     hostPort: ${zk.address}
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
