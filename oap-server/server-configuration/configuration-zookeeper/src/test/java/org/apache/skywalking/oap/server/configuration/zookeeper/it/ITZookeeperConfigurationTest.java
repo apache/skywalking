@@ -52,8 +52,6 @@ public class ITZookeeperConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        LOGGER.info("ITZookeeperConfigurationTest setUp2");
-        LOGGER.info(System.getProperty("zk.address"));
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
@@ -73,10 +71,8 @@ public class ITZookeeperConfigurationTest {
     public void shouldReadUpdated() throws Exception {
         System.out.println("ITZookeeperConfigurationTest"+System.getProperty("zk.address"));
         String nameSpace = "/default";
-        String key = "receiver-trace.default.slowDBAccessThreshold";
-        String valuePrefix = "default:100,mongodb:";
+        String key = "test-module.default.testKey";
         assertNull(provider.watcher.value());
-        System.out.println(provider.watcher.value());
 
         String zkAddress = System.getProperty("zk.address");
         LOGGER.info("zkAddress: " + zkAddress);
@@ -85,25 +81,19 @@ public class ITZookeeperConfigurationTest {
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
         client.start();
 
-        System.out.println(client.checkExists().forPath(nameSpace));
-        System.out.println(client.checkExists().forPath("/zookeeper"));
-        if(client.checkExists().forPath(nameSpace)==null){
-            client.create().creatingParentsIfNeeded().forPath(nameSpace, "".getBytes());
-        }
+        assertTrue(client.create().creatingParentsIfNeeded().forPath(nameSpace + "/" + key, ("500").getBytes()) != null);
 
-        assertTrue(client.create().forPath(nameSpace + "/" + key, (valuePrefix + 50).getBytes()) != null);
+        LOGGER.info("data: " + new String(client.getData().forPath(nameSpace + "/" + key)));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
-        System.out.println(provider.watcher.value()+" ::");
-        assertEquals(valuePrefix + 50, provider.watcher.value());
 
-        assertTrue(client.setData().forPath(nameSpace + "/" + key, (valuePrefix + 100).getBytes()) != null);
+        assertTrue(client.delete().forPath(nameSpace + "/" + key)!=null);
 
-//        for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
-//        }
-        assertEquals(valuePrefix + 100, provider.watcher.value());
+        for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
+        }
 
+        assertNull(provider.watcher.value());
     }
 
     @SuppressWarnings("unchecked")
