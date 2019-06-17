@@ -72,9 +72,9 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * The counter indicates
      */
-    private AtomicInteger asyncSpanCounter;
+    private volatile AtomicInteger asyncSpanCounter;
     private volatile boolean isRunningInAsyncMode;
-    private ReentrantLock asyncFinishLock;
+    private volatile ReentrantLock asyncFinishLock;
 
     /**
      * Initialize all fields with default value.
@@ -82,12 +82,8 @@ public class TracingContext implements AbstractTracerContext {
     TracingContext() {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
-        if (samplingService == null) {
-            samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-        }
-        asyncSpanCounter = new AtomicInteger(0);
+        samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
-        asyncFinishLock = new ReentrantLock();
     }
 
     /**
@@ -414,7 +410,15 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override public AbstractTracerContext awaitFinishAsync() {
-        isRunningInAsyncMode = true;
+        if(!isRunningInAsyncMode){
+            synchronized (this){
+                if(!isRunningInAsyncMode){
+                    asyncFinishLock = new ReentrantLock();
+                    asyncSpanCounter = new AtomicInteger(0);
+                    isRunningInAsyncMode = true;
+                }
+            }
+        }
         asyncSpanCounter.addAndGet(1);
         return this;
     }
@@ -432,7 +436,7 @@ public class TracingContext implements AbstractTracerContext {
             asyncFinishLock.lock();
         }
         try {
-            if (activeSpanStack.isEmpty() && asyncSpanCounter.get() == 0) {
+            if (activeSpanStack.isEmpty() && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
                 return true;
             }
         } finally {
