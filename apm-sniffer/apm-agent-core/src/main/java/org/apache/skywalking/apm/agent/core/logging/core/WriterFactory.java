@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -26,18 +27,36 @@ import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.util.StringUtil;
 
 public class WriterFactory {
+    private static IWriter WRITER = SystemOutWriter.INSTANCE;
+    @VisibleForTesting
+    public static volatile boolean IS_INITIALIZED = false;
+
     public static IWriter getLogWriter() {
-        if (SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound()) {
-            if (StringUtil.isEmpty(Config.Logging.DIR)) {
-                try {
-                    Config.Logging.DIR = AgentPackagePath.getPath() + "/logs";
-                } catch (AgentPackageNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            return FileWriter.get();
-        } else {
+        if (IS_INITIALIZED) {
+            return WRITER;
+        }
+        if (SnifferConfigInitializer.isInitCompleted()) {
             return SystemOutWriter.INSTANCE;
         }
+
+        if (AgentPackagePath.isPathFound()) {
+            String loggerDir = Config.Logging.DIR;
+            if (StringUtil.isEmpty(loggerDir)) {
+                WRITER = SystemOutWriter.INSTANCE;
+            }
+            else {
+                if (loggerDir.charAt(0) == '/') {
+                    try {
+                        Config.Logging.DIR = AgentPackagePath.getPath() + Config.Logging.DIR;
+                    } catch (AgentPackageNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+                WRITER = FileWriter.get();
+            }
+        }
+        IS_INITIALIZED = true;
+        return WRITER;
     }
+
 }
