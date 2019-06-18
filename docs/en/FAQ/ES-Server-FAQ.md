@@ -13,7 +13,7 @@ You could add following config to `elasticsearch.yml`, set the value based on yo
 ```yml
 # In tracing scenario, consider to set more than this at least.
 thread_pool.index.queue_size: 500
-thread_pool.write.queuq_size: 500
+thread_pool.write.queue_size: 500
 
 # When you face query error at trace page, remember to check this.
 index.max_result_window: 1000000
