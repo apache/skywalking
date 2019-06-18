@@ -21,13 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
+import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -48,8 +49,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Step step, long startTB, long endTB,
-        List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -58,13 +58,12 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
-        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideMetrics.INDEX_NAME);
+        String indexName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         return load(sourceBuilder, indexName, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Step step, long startTB, long endTB,
-        List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -73,12 +72,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
-        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideMetrics.INDEX_NAME);
+        String indexName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return load(sourceBuilder, indexName, DetectPoint.CLIENT);
     }
 
-    private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
-        List<Integer> serviceIds) {
+    private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, List<Integer> serviceIds) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
 
@@ -95,9 +93,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.query(boolQuery);
     }
 
-    @Override public List<Call.CallDetail> loadServerSideServiceRelations(Step step, long startTB,
-        long endTB) throws IOException {
-        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationServerSideMetrics.INDEX_NAME);
+    @Override public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
+        String indexName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
@@ -105,9 +102,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         return load(sourceBuilder, indexName, DetectPoint.SERVER);
     }
 
-    @Override public List<Call.CallDetail> loadClientSideServiceRelations(Step step, long startTB,
-        long endTB) throws IOException {
-        String indexName = DownSamplingModelNameBuilder.build(step, ServiceRelationClientSideMetrics.INDEX_NAME);
+    @Override public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
+        String indexName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
@@ -116,9 +112,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Step step, long startTB, long endTB,
-        int destEndpointId) throws IOException {
-        String indexName = DownSamplingModelNameBuilder.build(step, EndpointRelationServerSideMetrics.INDEX_NAME);
+    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException {
+        String indexName = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);

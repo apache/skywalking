@@ -20,11 +20,12 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 
 /**
  * @author peng-yongsheng
  */
 public interface IRecordDAO<INSERT> extends DAO {
 
-    INSERT prepareBatchInsert(String modelName, Record record) throws IOException;
+    INSERT prepareBatchInsert(Model model, Record record) throws IOException;
 }

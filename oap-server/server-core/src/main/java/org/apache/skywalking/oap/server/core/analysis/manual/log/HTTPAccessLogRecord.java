@@ -22,13 +22,12 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.HTTPAccessLogRecord.INDEX_NAME;
 
-@Stream(name = INDEX_NAME, scopeId = DefaultScopeDefine.HTTP_ACCESS_LOG, storage = @Storage(builder = HTTPAccessLogRecord.Builder.class), processor = RecordStreamProcessor.class)
+@Stream(name = INDEX_NAME, scopeId = DefaultScopeDefine.HTTP_ACCESS_LOG, builder = HTTPAccessLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class HTTPAccessLogRecord extends AbstractLogRecord {
-    
+
     public static final String INDEX_NAME = "http_access_log";
 
     public static class Builder extends AbstractLogRecord.Builder<HTTPAccessLogRecord> {

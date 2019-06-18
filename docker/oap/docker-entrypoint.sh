@@ -49,12 +49,22 @@ EOT
 }
 
 generateClusterConsul() {
-    cat <<EOT >> ${var_application_file}
+     cat <<EOT >> ${var_application_file}
 cluster:
   consul:
     serviceName: \${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
-     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+    # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: \${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+EOT
+}
+
+generateClusterEtcd() {
+    cat <<EOT >> ${var_application_file}
+cluster:
+  etcd:
+    serviceName: \${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    # Etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+    hostPort: \${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
 EOT
 }
 
@@ -68,6 +78,10 @@ storage:
     password: \${SW_ES_PASSWORD:""}
     indexShardsNumber: \${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: \${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
+    # Those data TTL settings will override the same settings in core module.
+    recordDataTTL: \${SW_STORAGE_ES_RECORD_DATA_TTL:7} # Unit is day
+    otherMetricsDataTTL: \${SW_STORAGE_ES_OTHER_METRIC_DATA_TTL:45} # Unit is day
+    monthMetricsDataTTL: \${SW_STORAGE_ES_MONTH_METRIC_DATA_TTL:18} # Unit is month
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: \${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
     bulkSize: \${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
@@ -116,7 +130,7 @@ generateApplicationYaml() {
     # validate
     [[ -z "$SW_CLUSTER" ]] && [[ -z "$SW_STORAGE" ]] && { echo "Error: please specify \"SW_CLUSTER\" \"SW_STORAGE\""; exit 1; }
 
-    validateVariables "SW_CLUSTER" "$SW_CLUSTER" "standalone zookeeper kubernetes consul"
+    validateVariables "SW_CLUSTER" "$SW_CLUSTER" "standalone zookeeper kubernetes consul etcd"
 
     validateVariables "SW_STORAGE" "$SW_STORAGE" "elasticsearch h2 mysql"
 
@@ -127,6 +141,7 @@ generateApplicationYaml() {
     zookeeper) generateClusterZookeeper;;
     kubernetes) generateClusterK8s;;
     consul) generateClusterConsul;;
+    etcd) generateClusterEtcd;;
     esac
 
     #generate core
@@ -147,6 +162,7 @@ core:
     - Day
     - Month
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
+    enableDataKeeperExecutor: \${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
     recordDataTTL: \${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: \${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: \${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
@@ -195,6 +211,8 @@ telemetry:
   prometheus:
     host: \${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: \${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+configuration:
+  none:
 envoy-metric:
   default:
 EOT

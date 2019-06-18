@@ -61,6 +61,7 @@ or providing commercial products including Apache SkyWalking.
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
+1. Sijibao.com 司机宝 https://www.sijibao.com/
 1. Sinolink Securities Co.,Ltd. 国金证券佣金宝 http://www.yongjinbao.com.cn/
 1. Source++ https://sourceplusplus.com
 1. StartDT 奇点云 https://www.startdt.com/
@@ -77,12 +78,12 @@ or providing commercial products including Apache SkyWalking.
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 1. Wochu. 我厨买菜. https://www.wochu.cn
 1. Xiaomi. 小米. https://www.mi.com/en/
+1. Xinyebang.com 重庆欣业邦网络技术有限公司 http://www.xinyebang.com
 1. xueqiu.com 雪球财经. https://xueqiu.com/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-
 
 # User Cases
 ## Alibaba Cloud
@@ -116,3 +117,9 @@ An open-source observant programming assistant which aims to bridge APM tools wi
 ## Tetrate
 Tetrate provides enterprise level service mesh. SkyWalking acts as the core observability platform for hybrid
 enterprise service mesh environment.
+
+## lagou.com
+Lagou.com use Skywalking for JVM-based applications, deployed in production. Custom and optimize muiti collector functions, such as alarm, sql metric, circle operation metric, thread monitor, detail mode. Support 200+ Instances, over 4500k Segments Per Minute.
+
+## Yonghui Superstores
+Yonghui Superstores Co., Ltd. use SkyWalking as primary APM system, to monitor 1k+ instances clusters, which supports 150k+ tps/qps payload. SkyWalking collect, analysis and save 10 billions trace segments(cost 3T disk) each day in 100% sampling strategy. SkyWalking backend cluster is built with 15 nodes OAP and 20 nodes ElasticSearch.

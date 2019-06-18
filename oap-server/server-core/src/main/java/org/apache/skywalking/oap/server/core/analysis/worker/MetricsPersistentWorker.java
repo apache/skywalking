@@ -24,7 +24,9 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
@@ -38,18 +40,18 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsPersistentWorker.class);
 
-    private final String modelName;
+    private final Model model;
     private final MergeDataCache<Metrics> mergeDataCache;
     private final IMetricsDAO metricsDAO;
     private final AbstractWorker<Metrics> nextAlarmWorker;
-    private final AbstractWorker<Metrics> nextExportWorker;
+    private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
 
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName, int batchSize,
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, int batchSize,
         IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
-        AbstractWorker<Metrics> nextExportWorker) {
+        AbstractWorker<ExportEvent> nextExportWorker) {
         super(moduleDefineHolder, batchSize);
-        this.modelName = modelName;
+        this.model = model;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = nextAlarmWorker;
@@ -67,7 +69,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             throw new UnexpectedException(e.getMessage(), e);
         }
 
-        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, name, 1, 2000);
+        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, 2000);
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
     }
 
@@ -99,9 +101,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     @Override public List<Object> prepareBatch(MergeDataCache<Metrics> cache) {
         List<Object> batchCollection = new LinkedList<>();
         cache.getLast().collection().forEach(data -> {
+            if (Objects.nonNull(nextExportWorker)) {
+                ExportEvent event = new ExportEvent(data, ExportEvent.EventType.INCREMENT);
+                nextExportWorker.in(event);
+            }
+
             Metrics dbData = null;
             try {
-                dbData = metricsDAO.get(modelName, data);
+                dbData = metricsDAO.get(model, data);
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }
@@ -110,16 +117,17 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                     data.combine(dbData);
                     data.calculate();
 
-                    batchCollection.add(metricsDAO.prepareBatchUpdate(modelName, data));
+                    batchCollection.add(metricsDAO.prepareBatchUpdate(model, data));
                 } else {
-                    batchCollection.add(metricsDAO.prepareBatchInsert(modelName, data));
+                    batchCollection.add(metricsDAO.prepareBatchInsert(model, data));
                 }
 
                 if (Objects.nonNull(nextAlarmWorker)) {
                     nextAlarmWorker.in(data);
                 }
                 if (Objects.nonNull(nextExportWorker)) {
-                    nextExportWorker.in(data);
+                    ExportEvent event = new ExportEvent(data, ExportEvent.EventType.TOTAL);
+                    nextExportWorker.in(event);
                 }
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);

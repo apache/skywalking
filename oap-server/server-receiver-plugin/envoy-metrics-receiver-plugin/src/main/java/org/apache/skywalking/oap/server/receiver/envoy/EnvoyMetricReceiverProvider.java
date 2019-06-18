@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 /**
@@ -50,7 +51,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
+        GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
         service.addHandler(new MetricServiceGRPCHandler(getManager()));
         service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
     }
@@ -60,6 +61,6 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME, SharingServerModule.NAME};
     }
 }
