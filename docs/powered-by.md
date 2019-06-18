@@ -84,6 +84,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
+1. Payeco.com 易联支付有限公司  https://www.payeco.com
 
 # User Cases
 ## Alibaba Cloud
@@ -107,6 +108,9 @@ Use multiple language agents from SkyWalking and its ecosystem, including SkyWal
 
 ## Primeton
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
+
+##  Payeco
+Use SkyWalking in a refactoring environment based on Kubernetes and Spring Boot.
 
 ## Qiniu Cloud
 Provide a customized version SkyWalking agent. It could provide distributed tracing and integrated in its intelligence log management platform.
