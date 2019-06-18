@@ -13,37 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.core.query;
+package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.Const;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * @author Alan Lau
  */
-@Getter
-public class ID {
+public class ClusterModuleEtcdConfig extends ModuleConfig {
 
-    private final long timeBucket;
-    private final String entityId;
-
-    public ID(long timeBucket, String entityId) {
-        this.timeBucket = timeBucket;
-        this.entityId = entityId;
-    }
-
-    public ID(long timeBucket) {
-        this.timeBucket = timeBucket;
-        this.entityId = Const.EMPTY_STRING;
-    }
-
-    @Override public String toString() {
-        if (entityId.length() > 0) {
-            return timeBucket + Const.ID_SPLIT + entityId;
-        } else {
-            return String.valueOf(timeBucket);
-        }
-    }
+    @Setter @Getter private String serviceName;
+    @Setter @Getter private String hostPort;
+    @Setter @Getter private boolean isSSL;
+    @Setter @Getter private String internalComHost;
+    @Setter @Getter private int internalComPort = -1;
 }
