@@ -91,6 +91,7 @@
                                     <run>
                                         <env>
                                             <TZ>Asia/Shanghai</TZ>
+                                            <MYSQL_MASTER_SERVICE_HOST>127.0.0.1</MYSQL_MASTER_SERVICE_HOST>
                                             <MYSQL_ALLOW_EMPTY_PASSWORD>yes</MYSQL_ALLOW_EMPTY_PASSWORD>
                                         </env>
                                         <ports>
