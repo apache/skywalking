@@ -80,6 +80,7 @@ or providing commercial products including Apache SkyWalking.
 1. Xiaomi. 小米. https://www.mi.com/en/
 1. Xinyebang.com 重庆欣业邦网络技术有限公司 http://www.xinyebang.com
 1. xueqiu.com 雪球财经. https://xueqiu.com/
+1. yibainetwork.com 深圳易佰网络有限公司 http://www.yibainetwork.com/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
