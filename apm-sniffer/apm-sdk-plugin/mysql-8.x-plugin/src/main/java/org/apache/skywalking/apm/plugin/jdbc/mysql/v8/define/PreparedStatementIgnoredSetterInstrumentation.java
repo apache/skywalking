@@ -19,36 +19,19 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
-
-import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * @author kezhenxu94
  */
-public class PreparedStatementIgnoredSetterInstrumentation extends AbstractMysqlInstrumentation {
-
-    private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
-    private static final String PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
-
-    @Override
-    protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
-    }
+public class PreparedStatementIgnoredSetterInstrumentation extends PreparedStatementInstrumentation {
 
     @Override
     protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new PSSetterDefinitionOfJDBCInstrumentation(true)
         };
-    }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME, PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME);
     }
 
 }

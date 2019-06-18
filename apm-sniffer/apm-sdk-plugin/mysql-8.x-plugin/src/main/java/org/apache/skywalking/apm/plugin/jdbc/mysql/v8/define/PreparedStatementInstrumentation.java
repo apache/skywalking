@@ -40,7 +40,7 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
