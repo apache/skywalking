@@ -29,11 +29,11 @@ import java.util.concurrent.Callable;
  */
 public class SWCallable<V> implements Callable<V> {
 
+    private static String OPERATION_NAME = "SpringAsync";
+
     private Callable<V> callable;
 
     private ContextSnapshot snapshot;
-
-    private String operationName = "SpringAsync";
 
     SWCallable(Callable<V> callable, ContextSnapshot snapshot) {
         this.callable = callable;
@@ -42,7 +42,7 @@ public class SWCallable<V> implements Callable<V> {
 
     @Override
     public V call() throws Exception {
-        AbstractSpan span = ContextManager.createLocalSpan(operationName);
+        AbstractSpan span = ContextManager.createLocalSpan(SWCallable.OPERATION_NAME);
         span.setComponent(ComponentsDefine.SPRING_ASYNC);
         try {
             ContextManager.continued(snapshot);
