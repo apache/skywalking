@@ -33,7 +33,7 @@ configuration:
 
 ## Dynamic Configuration Apollo Implementation
 
-[Apollo](https://github.com/ctripcorp/apollo/) is also supported in DCS, to use it, just configured as follows:
+[Apollo](https://github.com/ctripcorp/apollo/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
 
 ```yaml
 configuration:
@@ -47,7 +47,7 @@ configuration:
 
 ## Dynamic Configuration Nacos Implementation
 
-[Nacos](https://github.com/alibaba/nacos) is also supported in DCS, to use it, please configure as follows:
+[Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -64,8 +64,24 @@ configuration:
     clusterName: "default"
 ```
 
+
+## Dynamic Configuration Zookeeper Implementation
+
+[Zookeeper](https://github.com/apache/zookeeper) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+
+```yaml
+configuration:
+  zookeeper:
+    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    nameSpace: /default
+    hostPort: localhost:2181
+    #Retry Policy
+    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+    maxRetries: 3 # max number of times to retry
+```
+
 ## 3rd party Configuration Center
 We are welcome contributions to implement this module provider to support popular configuration center, 
-such as Zookeeper, etcd, Consul. Submit issue to discuss.
+such as Consul. Submit issue to discuss.
 
 
