@@ -64,6 +64,6 @@ public class AsyncExecutionInterceptorInstrumentation extends ClassInstanceMetho
 
     @Override
     public ClassMatch enhanceClass() {
-        return byName("org.springframework.scheduling.annotation.AnnotationAsyncExecutionInterceptor");
+        return byName("org.springframework.aop.interceptor.AsyncExecutionAspectSupport");
     }
 }
