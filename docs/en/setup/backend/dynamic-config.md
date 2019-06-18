@@ -33,7 +33,7 @@ configuration:
 
 ## Dynamic Configuration Apollo Implementation
 
-[Apollo](https://github.com/ctripcorp/apollo/) is also supported in DCS, to use it, just configured as follows:
+[Apollo](https://github.com/ctripcorp/apollo/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
 
 ```yaml
 configuration:
@@ -47,7 +47,7 @@ configuration:
 
 ## Dynamic Configuration Nacos Implementation
 
-[Nacos](https://github.com/alibaba/nacos) is also supported in DCS, to use it, please configure as follows:
+[Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
 
 ```yaml
 configuration:
@@ -67,7 +67,7 @@ configuration:
 
 ## Dynamic Configuration Zookeeper Implementation
 
-[Zookeeper](https://github.com/apache/zookeeper) is also supported in DCS, to use it, please configure as follows:
+[Zookeeper](https://github.com/apache/zookeeper) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
 
 ```yaml
 configuration:
