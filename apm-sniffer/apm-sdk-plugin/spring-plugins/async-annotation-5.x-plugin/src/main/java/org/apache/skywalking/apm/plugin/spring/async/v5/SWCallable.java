@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.util.concurrent.Callable;
 
 /**
- * @author carlvine500
+ * @author zhaoyuguang
  */
 public class SWCallable<V> implements Callable<V> {
 
@@ -33,12 +33,11 @@ public class SWCallable<V> implements Callable<V> {
 
     private ContextSnapshot snapshot;
 
-    private String operationName;
+    private String operationName = "SpringAsync";
 
-    SWCallable(Callable<V> callable, ContextSnapshot snapshot, String operationName) {
+    SWCallable(Callable<V> callable, ContextSnapshot snapshot) {
         this.callable = callable;
         this.snapshot = snapshot;
-        this.operationName = operationName;
     }
 
     @Override

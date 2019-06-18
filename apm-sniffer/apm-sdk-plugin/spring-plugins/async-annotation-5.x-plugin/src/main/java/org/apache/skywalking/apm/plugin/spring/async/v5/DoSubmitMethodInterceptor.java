@@ -36,7 +36,7 @@ public class DoSubmitMethodInterceptor implements InstanceMethodsAroundIntercept
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         if (ContextManager.isActive()) {
-            allArguments[0] = new SWCallable((Callable) allArguments[0], ContextManager.capture(), "SpringAsync");
+            allArguments[0] = new SWCallable((Callable) allArguments[0], ContextManager.capture());
         }
     }
 
