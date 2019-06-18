@@ -82,6 +82,6 @@ configuration:
 
 ## 3rd party Configuration Center
 We are welcome contributions to implement this module provider to support popular configuration center, 
-such as etcd, Consul. Submit issue to discuss.
+such as Consul. Submit issue to discuss.
 
 

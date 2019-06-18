@@ -80,6 +80,7 @@
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
         <nacos.version>1.0.0</nacos.version>
         <curator.version>4.0.1</curator.version>
+        <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
     </properties>
@@ -376,7 +377,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
-                <artifactId>curator-recipes</artifactId>
+                <artifactId>curator-x-discovery</artifactId>
                 <version>${curator.version}</version>
                 <exclusions>
                     <exclusion>
@@ -390,9 +391,16 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.mousio</groupId>
-                <artifactId>etcd4j</artifactId>
-                <version>${etcd4j.version}</version>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${curator-test.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
