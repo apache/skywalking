@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,7 @@ public class ITApolloConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
+    @Ignore // due to instability
     @Test(timeout = 10000)
     public void shouldReadUpdated() {
         try {
