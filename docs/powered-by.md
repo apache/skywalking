@@ -21,6 +21,7 @@ or providing commercial products including Apache SkyWalking.
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
+1. Chtwm.com. 恒天财富投资管理股份有限公司. https://www.chtwm.com/
 1. Cmft.com. 招商局金融科技. https://www.cmft.com/
 1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
 1. Dangdang.com. 当当网. http://www.dangdang.com/
@@ -81,6 +82,7 @@ or providing commercial products including Apache SkyWalking.
 1. Xiaomi. 小米. https://www.mi.com/en/
 1. Xinyebang.com 重庆欣业邦网络技术有限公司 http://www.xinyebang.com
 1. xueqiu.com 雪球财经. https://xueqiu.com/
+1. yibainetwork.com 深圳易佰网络有限公司 http://www.yibainetwork.com/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
