@@ -12,9 +12,6 @@ Some new user may face the following error in ElasticSearch storage. ERROR CODE 
 You could add following config to `elasticsearch.yml`, set the value based on your env.
 ```yml
 # In tracing scenario, consider to set more than this at least.
-thread_pool.bulk.queue_size: 1000
-
-thread_pool.bulk.size: 16
 thread_pool.index.queue_size: 500
 thread_pool.write.queuq_size: 500
 
