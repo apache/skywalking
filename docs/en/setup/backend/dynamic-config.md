@@ -65,7 +65,7 @@ configuration:
 ```
 
 
-## Zookeeper DCS
+## Dynamic Configuration Zookeeper Implementation
 
 [Zookeeper](https://github.com/apache/zookeeper) is also supported in DCS, to use it, please configure as follows:
 
