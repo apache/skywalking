@@ -54,6 +54,7 @@ or providing commercial products including Apache SkyWalking.
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
 1. Osacart in WeChat app 广州美克曼尼电子商务有限公司
+1. Payeco.com 易联支付有限公司  https://www.payeco.com
 1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com 
 1. qiniu.com 七牛云 http://qiniu.com 
 1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
@@ -84,7 +85,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-1. Payeco.com 易联支付有限公司  https://www.payeco.com
 
 # User Cases
 ## Alibaba Cloud
@@ -109,7 +109,7 @@ Use multiple language agents from SkyWalking and its ecosystem, including SkyWal
 ## Primeton
 Integrated in Primeton EOS PLATFORM 8, which is a commercial micro-service platform.
 
-##  Payeco
+## Payeco
 Use SkyWalking in a refactoring environment based on Kubernetes and Spring Boot.
 
 ## Qiniu Cloud
