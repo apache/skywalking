@@ -10,6 +10,7 @@ or providing commercial products including Apache SkyWalking.
 1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
 1. Alibaba Cloud, 阿里云, http://aliyun.com 
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
+1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
 1. Baixing.com 百姓网 http://www.baixing.com/
