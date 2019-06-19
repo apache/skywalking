@@ -58,14 +58,6 @@ pipeline {
                             }
                         }
 
-                        stage('Check agent plugin instrumentation imports') {
-                            steps {
-                                sh './tools/check/agent/plugin/PluginImportedCheck.sh apm-sdk-plugin'
-                                sh './tools/check/agent/plugin/PluginImportedCheck.sh apm-toolkit-activation'
-                                sh './tools/check/agent/plugin/PluginImportedCheck.sh optional-plugins'
-                            }
-                        }
-
                         stage('Test & Report') {
                             steps {
                                 sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
