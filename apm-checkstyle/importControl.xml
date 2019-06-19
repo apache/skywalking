@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -17,17 +17,12 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>org.apache</groupId>
-        <artifactId>apache</artifactId>
-        <version>19</version>
-        <relativePath />
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+<!DOCTYPE import-control PUBLIC
+        "-//Puppy Crawl//DTD Import Control 1.4//EN"
+        "https://checkstyle.org/dtds/import_control_1_4.dtd">
 
-    <groupId>org.apache.skywalking</groupId>
-    <artifactId>apm-checkstyle</artifactId>
-    <version>6.1.0</version>
-    <description>Module to hold Checkstyle for SkyWalking.</description>
-</project>
+<import-control pkg="org.apache.skywalking.apm.plugin">
+    <allow pkg="java"/>
+    <allow pkg="org.apache.skywalking"/>
+    <allow pkg="net.bytebuddy"/>
+</import-control>
