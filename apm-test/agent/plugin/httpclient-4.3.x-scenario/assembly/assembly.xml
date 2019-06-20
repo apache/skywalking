@@ -19,7 +19,8 @@
     xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-    <id></id>
+    <id>${test.framework.version}</id>
+    <baseDirectory>${finalName}-${test.framework.version}</baseDirectory>
     <formats>
         <format>tar.gz</format>
     </formats>
@@ -27,6 +28,30 @@
         <fileSet>
             <directory>${project.basedir}/config</directory>
             <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>docker-compose.yml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/config</directory>
+            <outputDirectory>/data</outputDirectory>
+            <includes>
+                <include>expectedData.yaml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>scenario.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>testcase.conf</include>
+            </includes>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>

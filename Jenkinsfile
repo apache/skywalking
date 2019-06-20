@@ -75,5 +75,42 @@ pipeline {
                 }
             }
         }
+
+        stage('Agent plugin scenario test') {
+            parallel {
+                stage('httpclient-4.3.x') {
+                    agent {
+                        label 'xenial'
+                    }
+
+                    tools {
+                        jdk 'JDK 1.8 (latest)'
+
+                    }
+                }
+
+                stages {
+                    stage('SCM Checkout') {
+                        steps {
+                            deleteDir()
+                            checkout scm
+                            sh 'git submodule update --init'
+                        }
+                    }
+
+                    stage('Build agent') {
+                        steps {
+                            sh './mvnw clean install -DskipTests -Pagent'
+                        }
+                    }
+
+                    stage('Running scenario') {
+                        steps {
+                            sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
+                        }
+                    }
+                }
+            }
+        }
     }
 }
