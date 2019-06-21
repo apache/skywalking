@@ -124,6 +124,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
 
+    public static final OfficialComponent HESSIAN = new OfficialComponent(65, "Hessian");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -182,6 +184,7 @@ public class ComponentsDefine {
         addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
         addComponent(SOLRJ);
+        addComponent(HESSIAN);
     }
 
     private void addComponent(OfficialComponent component) {
