@@ -88,6 +88,16 @@ public class Config {
          * The identify of the instance
          */
         public static String INSTANCE_UUID = "";
+
+        /**
+         *  The folder in which jar files of the injected classes are to be stored.
+         */
+        public static String BOOTSTRAP_CLASS_JAR_FOLDER = "";
+
+        /**
+         * How depth the agent goes, when log all cause exceptions.
+         */
+        public static int CAUSE_EXCEPTION_DEPTH = 5;
     }
 
     public static class Collector {
