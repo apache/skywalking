@@ -95,7 +95,7 @@ public class Config {
         public static String BOOTSTRAP_CLASS_JAR_FOLDER = "";
 
         /**
-         * How depth the agent goes, when log all cause exceptions.
+         * How depth the agent goes, when log cause exceptions.
          */
         public static int CAUSE_EXCEPTION_DEPTH = 5;
     }
