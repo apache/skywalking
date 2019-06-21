@@ -58,6 +58,9 @@ public enum ThrowableTransformer {
     }
 
     private boolean printStackElement(StackTraceElement[] stackTrace, AppendListener printListener) {
+        if(stackTrace.length == 0){
+            return true;
+        }
         for (StackTraceElement traceElement : stackTrace) {
             printListener.append("at " + traceElement + LINE_SEPARATOR);
             if (printListener.overMaxLength()) {
