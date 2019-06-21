@@ -60,7 +60,7 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
         span.start(System.currentTimeMillis());
         span.setOperationName(url.getPath());
 
-        Tags.URL.set(span, url.getPath());
+        span.tag(HessianTags.HESSIAN_RPC, url.getPath());
         SpanLayer.asRPCFramework(span);
     }
 
