@@ -87,26 +87,26 @@ pipeline {
                         jdk 'JDK 1.8 (latest)'
 
                     }
-                }
 
-                stages {
-                    stage('SCM Checkout') {
-                        steps {
-                            deleteDir()
-                            checkout scm
-                            sh 'git submodule update --init'
+                    stages {
+                        stage('SCM Checkout') {
+                            steps {
+                                deleteDir()
+                                checkout scm
+                                sh 'git submodule update --init'
+                            }
                         }
-                    }
 
-                    stage('Build agent') {
-                        steps {
-                            sh './mvnw clean install -DskipTests -Pagent'
+                        stage('Build agent') {
+                            steps {
+                                sh './mvnw clean install -DskipTests -Pagent'
+                            }
                         }
-                    }
 
-                    stage('Running scenario') {
-                        steps {
-                            sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
+                        stage('Running scenario') {
+                            steps {
+                                sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
+                            }
                         }
                     }
                 }
