@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hessian-4.0.x-plugin</artifactId>
+    <artifactId>apm-hessian-4.0.x-plugin</artifactId>
 
     <name>hessian-4.0.x-plugin</name>
     <!-- FIXME change it to the project's website -->
