@@ -81,8 +81,8 @@ public class AtomicRangeIntegerTest {
 
         new Runner(opt).run();
     }
-
-    /**
+  
+  /**
      * # JMH version: 1.21
      * # VM version: JDK 1.8.0_111, Java HotSpot(TM) 64-Bit Server VM, 25.111-b14
      * # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/jre/bin/java
