@@ -3,6 +3,9 @@ package org.apache.skywalking.apm.commons.datacarrier.common;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Created by wusheng on 2016/10/25.
+ */
 public class AtomicRangeIntegerV1 extends Number implements Serializable {
 
     private static final long serialVersionUID = -4099792402691141643L;
