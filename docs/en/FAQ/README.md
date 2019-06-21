@@ -11,3 +11,5 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [The trace doesn't continue in kafka consumer side](kafka-plugin.md)
 * [Agent or collector version upgrade](Upgrade.md)
 * [EnhanceRequireObjectCache class cast exception](EnhanceRequireObjectCache-Cast-Exception.md)
+* [ElasticSearch server performance FAQ, including ERROR CODE:429](ES-Server-FAQ.md)
+* [IllegalStateException when install Java agent on WebSphere 7](install_agent_on_websphere.md)

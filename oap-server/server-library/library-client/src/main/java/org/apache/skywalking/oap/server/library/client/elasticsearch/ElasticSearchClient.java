@@ -42,6 +42,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.*;
 import org.elasticsearch.common.unit.*;
 import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.*;
 
@@ -216,11 +218,20 @@ public class ElasticSearchClient implements Client {
         return client.get(request);
     }
 
-    public MultiGetResponse multiGet(String indexName, List<String> ids) throws IOException {
-        final String newIndexName = formatIndexName(indexName);
-        MultiGetRequest request = new MultiGetRequest();
-        ids.forEach(id -> request.add(newIndexName, TYPE, id));
-        return client.multiGet(request);
+    public Map<String, Map<String, Object>> ids(String indexName, String... ids) throws IOException {
+        indexName = formatIndexName(indexName);
+
+        SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.types(TYPE);
+        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids));
+        SearchResponse response = client.search(searchRequest);
+
+        Map<String, Map<String, Object>> result = new HashMap<>();
+        SearchHit[] hits = response.getHits().getHits();
+        for (SearchHit hit : hits) {
+            result.put(hit.getId(), hit.getSourceAsMap());
+        }
+        return result;
     }
 
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {

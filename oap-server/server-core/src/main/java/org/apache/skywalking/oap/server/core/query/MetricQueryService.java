@@ -87,7 +87,7 @@ public class MetricQueryService implements Service {
         List<String> ids = new ArrayList<>();
         durationPoints.forEach(durationPoint -> {
             if (id == null) {
-                ids.add(durationPoint.getPoint() + "");
+                ids.add(String.valueOf(durationPoint.getPoint()));
             } else {
                 ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id);
             }

@@ -24,6 +24,8 @@ import org.apache.skywalking.oap.server.configuration.api.AbstractConfigurationP
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Get configuration from Nacos.
@@ -31,6 +33,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  * @author kezhenxu94
  */
 public class NacosConfigurationProvider extends AbstractConfigurationProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurationProvider.class);
+
     private NacosServerSettings settings;
 
     public NacosConfigurationProvider() {
@@ -49,6 +53,7 @@ public class NacosConfigurationProvider extends AbstractConfigurationProvider {
 
     @Override
     protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
+        LOGGER.info("settings: {}", settings);
         if (Strings.isNullOrEmpty(settings.getServerAddr())) {
             throw new ModuleStartException("Nacos serverAddr cannot be null or empty.");
         }

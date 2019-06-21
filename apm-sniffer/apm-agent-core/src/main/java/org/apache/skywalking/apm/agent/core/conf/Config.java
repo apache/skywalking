@@ -194,6 +194,21 @@ public class Config {
             public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
 
+        public static class MySQL {
+            /**
+             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement})
+             * would be collected.
+             */
+            public static boolean TRACE_SQL_PARAMETERS = false;
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag,
+             * but only the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+        }
+
         public static class SolrJ {
             /**
              * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.
@@ -205,5 +220,6 @@ public class Config {
              */
             public static boolean TRACE_OPS_PARAMS = false;
         }
+
     }
 }
