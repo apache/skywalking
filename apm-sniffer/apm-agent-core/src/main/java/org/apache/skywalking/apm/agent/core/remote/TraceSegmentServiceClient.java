@@ -21,18 +21,24 @@ package org.apache.skywalking.apm.agent.core.remote;
 import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.boot.*;
-import org.apache.skywalking.apm.agent.core.context.*;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.logging.api.*;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.*;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.BUFFER_SIZE;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.CHANNEL_SIZE;
 import static org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
 
 /**
@@ -166,7 +172,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     public void statusChanged(GRPCChannelStatus status) {
         if (CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
-            serviceStub = TraceSegmentReportServiceGrpc.newStub(channel);
+            serviceStub = TraceSegmentReportServiceGrpc.newStub(channel).withDeadlineAfter(10, TimeUnit.SECONDS);
         }
         this.status = status;
     }
