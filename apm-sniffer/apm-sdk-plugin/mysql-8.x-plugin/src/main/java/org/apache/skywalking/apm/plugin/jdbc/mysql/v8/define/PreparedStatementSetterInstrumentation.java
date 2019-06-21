@@ -16,35 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.security;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.io.BufferedReader;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
+
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
 
 /**
- * A container of login information.
- * 
- * @author gaohongtao
+ * @author kezhenxu94
  */
-class ReaderAccount implements Account {
+public class PreparedStatementSetterInstrumentation extends PreparedStatementInstrumentation {
 
-    private final static Gson GSON = new GsonBuilder().disableHtmlEscaping()
-        .setLenient().create();
-    
-    private String userName;
-    
-    private String password;
-    
-    static ReaderAccount newReaderAccount(final BufferedReader accountReader) {
-        return GSON.fromJson(accountReader, ReaderAccount.class);
+    @Override
+    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new PSSetterDefinitionOfJDBCInstrumentation(false)
+        };
     }
-    
-    public String userName() {
-        return userName;
-    }
-    
-    public String password() {
-        return password;
-    }
+
 }

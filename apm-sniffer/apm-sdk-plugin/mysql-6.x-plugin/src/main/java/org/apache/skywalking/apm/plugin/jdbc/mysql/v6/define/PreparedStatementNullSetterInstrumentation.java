@@ -16,22 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.security;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-import org.junit.Test;
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint;
 
-public class ReaderAccountTest {
+/**
+ * @author kezhenxu94
+ */
+public class PreparedStatementNullSetterInstrumentation extends PreparedStatementInstrumentation {
 
-    @Test
-    public void assertNewReaderAccount() {
-        Account account = ReaderAccount.newReaderAccount(new BufferedReader(new StringReader("{\"userName\": \"admin\", \"password\":\"888888\"}")));
-        assertThat(account.userName(), is("admin"));
-        assertThat(account.password(), is("888888"));
+    @Override
+    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint()
+        };
     }
-    
+
 }

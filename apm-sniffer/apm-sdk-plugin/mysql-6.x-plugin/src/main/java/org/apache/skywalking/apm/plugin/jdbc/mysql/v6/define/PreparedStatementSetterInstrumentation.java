@@ -16,16 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.webapp.security;
+
+package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
+
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
 
 /**
- * Account of Login.
- * 
- * @author gaohongtao
+ * @author kezhenxu94
  */
-public interface Account {
+public class PreparedStatementSetterInstrumentation extends PreparedStatementInstrumentation {
 
-    String userName();
+    @Override
+    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new PSSetterDefinitionOfJDBCInstrumentation(false)
+        };
+    }
 
-    String password();
 }
