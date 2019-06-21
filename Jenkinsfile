@@ -73,12 +73,9 @@ pipeline {
                         }
                     }
                 }
-            }
-        }
 
-        stage('Agent plugin scenario test') {
-            parallel {
-                stage('httpclient-4.3.x') {
+
+                 stage('running scenarios') {
                     agent {
                         label 'xenial'
                     }
@@ -88,28 +85,40 @@ pipeline {
 
                     }
 
-                    stages {
-                        stage('SCM Checkout') {
-                            steps {
-                                deleteDir()
-                                checkout scm
-                                sh 'git submodule update --init'
-                            }
-                        }
-
-                        stage('Build agent') {
-                            steps {
-                                sh './mvnw clean install -DskipTests -Pagent'
-                            }
-                        }
-
-                        stage('Running scenario') {
-                            steps {
-                                sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
-                            }
+                    stage('SCM Checkout') {
+                        steps {
+                            deleteDir()
+                            checkout scm
+                            sh 'git submodule update --init'
                         }
                     }
-                }
+
+                    stage('Build agent') {
+                        steps {
+                            sh './mvnw clean package -DskipTests -Pagent'
+                         }
+                    }
+
+                    stages {
+                        stage('Running scenario [httpclient-4.3.x]') {
+                            steps {
+                                sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
+                             }
+                        }
+                    }
+
+                    post {
+                        always {
+                            deleteDir()
+                        }
+                    }
+                 }
+            }
+        }
+
+        stage('Agent plugin scenario test') {
+            parallel {
+
             }
         }
     }
