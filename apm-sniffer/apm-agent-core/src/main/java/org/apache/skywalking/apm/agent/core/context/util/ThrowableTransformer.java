@@ -58,7 +58,7 @@ public enum ThrowableTransformer {
     }
 
     private boolean printStackElement(StackTraceElement[] stackTrace, AppendListener printListener) {
-        if(stackTrace.length == 0){
+        if (stackTrace.length == 0) {
             return true;
         }
         for (StackTraceElement traceElement : stackTrace) {
