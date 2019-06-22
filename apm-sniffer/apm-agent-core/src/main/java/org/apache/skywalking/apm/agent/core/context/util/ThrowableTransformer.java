@@ -34,7 +34,7 @@ public enum ThrowableTransformer {
         Throwable causeException = throwable;
 
         int depth = CAUSE_EXCEPTION_DEPTH;
-        while (causeException != null || depth == 0) {
+        while (causeException != null && depth != 0) {
             stackMessage.append(printExceptionInfo(causeException));
 
             boolean isLookDeeper = printStackElement(causeException.getStackTrace(), new AppendListener() {
