@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent;
 
-import java.io.File;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
@@ -39,10 +38,8 @@ import org.apache.skywalking.apm.agent.core.plugin.*;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
-import org.apache.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
-import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.BOOTSTRAP_CLASS_JAR_FOLDER;
 
 /**
  * The main entrance of sky-walking agent, based on javaagent mechanism.
@@ -80,8 +77,7 @@ public class SkyWalkingAgent {
         final ByteBuddy byteBuddy = new ByteBuddy()
             .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
-        AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy);
-        agentBuilder = agentBuilder
+        new AgentBuilder.Default(byteBuddy)
             .ignore(
                 nameStartsWith("net.bytebuddy.")
                     .or(nameStartsWith("org.slf4j."))
@@ -91,18 +87,8 @@ public class SkyWalkingAgent {
                     .or(nameContains(".asm."))
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
-                    .or(ElementMatchers.<TypeDescription>isSynthetic()));
-
-        if (!StringUtil.isEmpty(BOOTSTRAP_CLASS_JAR_FOLDER)) {
-            File jarFolder = new File(BOOTSTRAP_CLASS_JAR_FOLDER);
-            if (jarFolder.exists() && jarFolder.isDirectory()) {
-                agentBuilder = agentBuilder.enableBootstrapInjection(instrumentation, jarFolder);
-            } else {
-                logger.warn("Bootstrap class jar folder [{}] can't be found.", BOOTSTRAP_CLASS_JAR_FOLDER);
-            }
-        }
-
-        agentBuilder.type(pluginFinder.buildMatch())
+                    .or(ElementMatchers.<TypeDescription>isSynthetic()))
+            .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
             .with(new Listener())
             .installOn(instrumentation);
