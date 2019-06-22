@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by lkxiaolou on 2016/10/25.
+ * Created by lkxiaolou
  */
 public class AtomicRangeIntegerV2 extends Number implements Serializable {
     private static final long serialVersionUID = -4099792402691141643L;

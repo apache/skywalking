@@ -18,66 +18,39 @@
 
 
 package org.apache.skywalking.apm.commons.datacarrier.common;
-import sun.misc.Unsafe;
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
+/**
+ * Created by lkxiaolou on 2019/06/22.
+ */
+public class AtomicRangeInteger extends Number implements Serializable {
+    private static final long serialVersionUID = -4099792402691141643L;
 
-public class AtomicRangeInteger extends Number implements java.io.Serializable {
+    /**
+     * please dont't change the left and right Placeholders
+     * to disable false-sharing for more performance
+     */
+    private int[] leftPlaceholders;
+    private AtomicInteger value;
+    private int[] rightPlaceholders;
 
-    private static final long serialVersionUID = 4099792402691141643L;
-
-    private static final Unsafe UNSAFE;
-    private static final int SHIFT;
-    private static final int BASE;
-    private static final int VALUES_LENGTH = 31;
-    private static final int VALUES_OFFSET = 15;
-
-    private final int[] values;
-    private final int startValue;
-    private final int endValue;
-
-    static {
-        try
-        {
-            final PrivilegedExceptionAction<Unsafe> action = new PrivilegedExceptionAction<Unsafe>() {
-                @Override
-                public Unsafe run() throws Exception {
-                    Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-                    theUnsafe.setAccessible(true);
-                    return (Unsafe) theUnsafe.get(null);
-                }
-            };
-
-            UNSAFE = AccessController.doPrivileged(action);
-
-            int scale = UNSAFE.arrayIndexScale(int[].class);
-            if ((scale & (scale - 1)) != 0) {
-                throw new Error("data type scale not a power of two");
-            }
-
-            SHIFT = 31 - Integer.numberOfLeadingZeros(scale);
-            BASE = UNSAFE.arrayBaseOffset(int[].class);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to load unsafe", e);
-        }
-    }
+    private int startValue;
+    private int endValue;
 
     public AtomicRangeInteger(int startValue, int maxValue) {
-
-        this.values = new int[VALUES_LENGTH];
-        this.values[VALUES_OFFSET] = startValue;
-
+        this.value = new AtomicInteger(startValue);
         this.startValue = startValue;
         this.endValue = maxValue - 1;
+        leftPlaceholders = new int[15];
+        rightPlaceholders = new int[15];
     }
 
     public final int getAndIncrement() {
         int next;
         do {
-            next = this.incrementAndGet(VALUES_OFFSET);
-            if (next > endValue && this.compareAndSet(VALUES_OFFSET, next, startValue)) {
+            next = this.value.incrementAndGet();
+            if (next > endValue && this.value.compareAndSet(next, startValue)) {
                 return endValue;
             }
         } while (next > endValue);
@@ -85,39 +58,23 @@ public class AtomicRangeInteger extends Number implements java.io.Serializable {
         return next - 1;
     }
 
-    private final boolean compareAndSet(int i, int expect, int update) {
-        return UNSAFE.compareAndSwapInt(values, getByteOffset(i), expect, update);
-    }
-
-    private final int incrementAndGet(int i) {
-        return UNSAFE.getAndAddInt(values, getByteOffset(i), 1) + 1;
-    }
-
-    private long getByteOffset(int i) {
-        return ((long) i << SHIFT) + BASE;
-    }
-
     public final int get() {
-        return this.values[VALUES_OFFSET];
+        return this.value.get();
     }
 
-    @Override
     public int intValue() {
-        return this.values[VALUES_OFFSET];
+        return this.value.intValue();
     }
 
-    @Override
     public long longValue() {
-        return this.values[VALUES_OFFSET];
+        return this.value.longValue();
     }
 
-    @Override
     public float floatValue() {
-        return this.values[VALUES_OFFSET];
+        return this.value.floatValue();
     }
 
-    @Override
     public double doubleValue() {
-        return this.values[VALUES_OFFSET];
+        return this.value.doubleValue();
     }
 }
