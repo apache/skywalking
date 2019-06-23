@@ -65,8 +65,8 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
     public void statusChanged(GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
-            registerBlockingStub = RegisterGrpc.newBlockingStub(channel).withDeadlineAfter(10, TimeUnit.SECONDS);
-            serviceInstancePingStub = ServiceInstancePingGrpc.newBlockingStub(channel).withDeadlineAfter(10, TimeUnit.SECONDS);
+            registerBlockingStub = RegisterGrpc.newBlockingStub(channel);
+            serviceInstancePingStub = ServiceInstancePingGrpc.newBlockingStub(channel);
         } else {
             registerBlockingStub = null;
             serviceInstancePingStub = null;
