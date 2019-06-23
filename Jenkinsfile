@@ -56,7 +56,7 @@ pipeline {
                                 sh 'ls'
                                 sh 'git status'
                             }
-                        }    
+                        }
 
                         stage('Test & Report') {
                             steps {

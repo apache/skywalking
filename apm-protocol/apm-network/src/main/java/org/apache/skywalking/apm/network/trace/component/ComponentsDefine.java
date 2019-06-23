@@ -124,6 +124,8 @@ public class ComponentsDefine {
   
     public static final OfficialComponent SEATA =  new OfficialComponent(65, "Seata");
 
+    public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -181,6 +183,7 @@ public class ComponentsDefine {
         addComponent(VERTX);
         addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
+        addComponent(SOLRJ);
         addComponent(SEATA);
     }
 
