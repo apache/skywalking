@@ -88,6 +88,11 @@ public class Config {
          * The identify of the instance
          */
         public static String INSTANCE_UUID = "";
+
+        /**
+         * How depth the agent goes, when log cause exceptions.
+         */
+        public static int CAUSE_EXCEPTION_DEPTH = 5;
     }
 
     public static class Collector {
