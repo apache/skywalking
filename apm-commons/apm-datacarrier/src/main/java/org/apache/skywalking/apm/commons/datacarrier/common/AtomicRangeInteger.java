@@ -18,63 +18,24 @@
 
 
 package org.apache.skywalking.apm.commons.datacarrier.common;
-import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
- * @author lkxiaolou 2019-06-22
+ * Created by lkxiaolou
  */
-public class AtomicRangeInteger extends Number implements java.io.Serializable {
+public class AtomicRangeInteger extends Number implements Serializable {
+    private static final long serialVersionUID = -4099792402691141643L;
+    private AtomicIntegerArray values;
 
-    private static final long serialVersionUID = 4099792402691141643L;
+    private static final int VALUE_OFFSET = 15;
 
-    private static final Unsafe UNSAFE;
-    private static final int SHIFT;
-    private static final int BASE;
-    private static final int VALUES_LENGTH = 31;
-    private static final int VALUES_OFFSET = 15;
-    private static final long VALUE_BYTE_OFFSET;
-
-    private volatile int[] values;
-    private final int startValue;
-    private final int endValue;
-
-    static {
-        try
-        {
-            final PrivilegedExceptionAction<Unsafe> action = new PrivilegedExceptionAction<Unsafe>() {
-                @Override
-                public Unsafe run() throws Exception {
-                    Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-                    theUnsafe.setAccessible(true);
-                    return (Unsafe) theUnsafe.get(null);
-                }
-            };
-
-            UNSAFE = AccessController.doPrivileged(action);
-            int scale = UNSAFE.arrayIndexScale(int[].class);
-            if ((scale & (scale - 1)) != 0) {
-                throw new Error("data type scale not a power of two");
-            }
-
-            SHIFT = 31 - Integer.numberOfLeadingZeros(scale);
-            BASE = UNSAFE.arrayBaseOffset(int[].class);
-
-            VALUE_BYTE_OFFSET = ((long) VALUES_OFFSET << SHIFT) + BASE;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to load unsafe", e);
-        }
-    }
+    private int startValue;
+    private int endValue;
 
     public AtomicRangeInteger(int startValue, int maxValue) {
-
-        this.values = new int[VALUES_LENGTH];
-        this.values[VALUES_OFFSET] = startValue;
-
+        this.values = new AtomicIntegerArray(31);
         this.startValue = startValue;
         this.endValue = maxValue - 1;
     }
@@ -82,8 +43,8 @@ public class AtomicRangeInteger extends Number implements java.io.Serializable {
     public final int getAndIncrement() {
         int next;
         do {
-            next = this.incrementAndGet();
-            if (next > endValue && this.compareAndSet(next, startValue)) {
+            next = this.values.incrementAndGet(VALUE_OFFSET);
+            if (next > endValue && this.values.compareAndSet(VALUE_OFFSET, next, startValue)) {
                 return endValue;
             }
         } while (next > endValue);
@@ -91,35 +52,23 @@ public class AtomicRangeInteger extends Number implements java.io.Serializable {
         return next - 1;
     }
 
-    private final boolean compareAndSet(int expect, int update) {
-        return UNSAFE.compareAndSwapInt(values, VALUE_BYTE_OFFSET, expect, update);
-    }
-
-    private final int incrementAndGet() {
-        return UNSAFE.getAndAddInt(values, VALUE_BYTE_OFFSET, 1) + 1;
-    }
-
     public final int get() {
-        return this.values[VALUES_OFFSET];
+        return this.values.get(VALUE_OFFSET);
     }
 
-    @Override
     public int intValue() {
-        return this.values[VALUES_OFFSET];
+        return this.values.get(VALUE_OFFSET);
     }
 
-    @Override
     public long longValue() {
-        return this.values[VALUES_OFFSET];
+        return this.values.get(VALUE_OFFSET);
     }
 
-    @Override
     public float floatValue() {
-        return this.values[VALUES_OFFSET];
+        return this.values.get(VALUE_OFFSET);
     }
 
-    @Override
     public double doubleValue() {
-        return this.values[VALUES_OFFSET];
+        return this.values.get(VALUE_OFFSET);
     }
 }
