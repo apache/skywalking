@@ -36,6 +36,7 @@ public class AtomicRangeInteger extends Number implements Serializable {
 
     public AtomicRangeInteger(int startValue, int maxValue) {
         this.values = new AtomicIntegerArray(31);
+        this.values.set(VALUE_OFFSET, startValue);
         this.startValue = startValue;
         this.endValue = maxValue - 1;
     }

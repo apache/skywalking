@@ -73,7 +73,7 @@ public class AtomicRangeIntegerTest {
                 .include(AtomicRangeIntegerTest.class.getSimpleName())
                 .forks(1)
                 .warmupIterations(3)
-                .threads(16)
+                .threads(128)
                 .syncIterations(false)
                 .output("/tmp/jmh.log")
                 .measurementIterations(5)
@@ -90,26 +90,26 @@ public class AtomicRangeIntegerTest {
      * # Warmup: 3 iterations, 10 s each
      * # Measurement: 5 iterations, 10 s each
      * # Timeout: 10 min per iteration
-     * # Threads: 16 threads, ***WARNING: Synchronize iterations are disabled!***
+     * # Threads: 128 threads, ***WARNING: Synchronize iterations are disabled!***
      * # Benchmark mode: Throughput, ops/time
      * # Benchmark: org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeIntegerTest.testGetAndIncrementV1Performance
      *
      * # Run progress: 0.00% complete, ETA 00:04:00
      * # Fork: 1 of 1
-     * # Warmup Iteration   1: 14704890.118 ops/s
-     * # Warmup Iteration   2: 14287641.619 ops/s
-     * # Warmup Iteration   3: 15458430.259 ops/s
-     * Iteration   1: 13431517.653 ops/s
-     * Iteration   2: 13149441.237 ops/s
-     * Iteration   3: 13053355.481 ops/s
-     * Iteration   4: 13765972.372 ops/s
-     * Iteration   5: 13960114.205 ops/s
+     * # Warmup Iteration   1: 14087955.036 ops/s
+     * # Warmup Iteration   2: 15853193.651 ops/s
+     * # Warmup Iteration   3: 14242562.576 ops/s
+     * Iteration   1: 13507077.199 ops/s
+     * Iteration   2: 13524108.304 ops/s
+     * Iteration   3: 13428875.424 ops/s
+     * Iteration   4: 13442334.399 ops/s
+     * Iteration   5: 13581207.442 ops/s
      *
      *
      * Result "org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeIntegerTest.testGetAndIncrementV1Performance":
-     *   13472080.189 ±(99.9%) 1498317.926 ops/s [Average]
-     *   (min, avg, max) = (13053355.481, 13472080.189, 13960114.205), stdev = 389108.407
-     *   CI (99.9%): [11973762.264, 14970398.115] (assumes normal distribution)
+     *   13496720.554 ±(99.9%) 240134.803 ops/s [Average]
+     *   (min, avg, max) = (13428875.424, 13496720.554, 13581207.442), stdev = 62362.246
+     *   CI (99.9%): [13256585.750, 13736855.357] (assumes normal distribution)
      *
      *
      * # JMH version: 1.21
@@ -119,26 +119,26 @@ public class AtomicRangeIntegerTest {
      * # Warmup: 3 iterations, 10 s each
      * # Measurement: 5 iterations, 10 s each
      * # Timeout: 10 min per iteration
-     * # Threads: 16 threads, ***WARNING: Synchronize iterations are disabled!***
+     * # Threads: 128 threads, ***WARNING: Synchronize iterations are disabled!***
      * # Benchmark mode: Throughput, ops/time
      * # Benchmark: org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeIntegerTest.testGetAndIncrementV2Performance
      *
-     * # Run progress: 33.33% complete, ETA 00:02:50
+     * # Run progress: 33.33% complete, ETA 00:02:52
      * # Fork: 1 of 1
-     * # Warmup Iteration   1: 35253519.221 ops/s
-     * # Warmup Iteration   2: 35240129.748 ops/s
-     * # Warmup Iteration   3: 35327459.365 ops/s
-     * Iteration   1: 35460249.746 ops/s
-     * Iteration   2: 35256890.174 ops/s
-     * Iteration   3: 35198403.751 ops/s
-     * Iteration   4: 35269646.854 ops/s
-     * Iteration   5: 35464672.745 ops/s
+     * # Warmup Iteration   1: 38963151.964 ops/s
+     * # Warmup Iteration   2: 38748023.773 ops/s
+     * # Warmup Iteration   3: 39049777.582 ops/s
+     * Iteration   1: 39534928.550 ops/s
+     * Iteration   2: 39020804.604 ops/s
+     * Iteration   3: 38991508.452 ops/s
+     * Iteration   4: 39025237.001 ops/s
+     * Iteration   5: 39433780.645 ops/s
      *
      *
      * Result "org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeIntegerTest.testGetAndIncrementV2Performance":
-     *   35329972.654 ±(99.9%) 477102.640 ops/s [Average]
-     *   (min, avg, max) = (35198403.751, 35329972.654, 35464672.745), stdev = 123902.041
-     *   CI (99.9%): [34852870.014, 35807075.294] (assumes normal distribution)
+     *   39201251.850 ±(99.9%) 1005866.969 ops/s [Average]
+     *   (min, avg, max) = (38991508.452, 39201251.850, 39534928.550), stdev = 261220.458
+     *   CI (99.9%): [38195384.881, 40207118.820] (assumes normal distribution)
      *
      *
      * # JMH version: 1.21
@@ -148,29 +148,29 @@ public class AtomicRangeIntegerTest {
      * # Warmup: 3 iterations, 10 s each
      * # Measurement: 5 iterations, 10 s each
      * # Timeout: 10 min per iteration
-     * # Threads: 16 threads, ***WARNING: Synchronize iterations are disabled!***
+     * # Threads: 128 threads, ***WARNING: Synchronize iterations are disabled!***
      * # Benchmark mode: Throughput, ops/time
      * # Benchmark: org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeIntegerTest.testGetAndIncrementV3Performance
      *
      * # Run progress: 66.67% complete, ETA 00:01:25
      * # Fork: 1 of 1
-     * # Warmup Iteration   1: 49325006.351 ops/s
-     * # Warmup Iteration   2: 49265786.388 ops/s
-     * # Warmup Iteration   3: 49060313.310 ops/s
-     * Iteration   1: 49272327.915 ops/s
-     * Iteration   2: 49395508.326 ops/s
-     * Iteration   3: 49150974.993 ops/s
-     * Iteration   4: 48919006.868 ops/s
-     * Iteration   5: 49280987.994 ops/s
+     * # Warmup Iteration   1: 45437159.014 ops/s
+     * # Warmup Iteration   2: 45253129.637 ops/s
+     * # Warmup Iteration   3: 45394394.135 ops/s
+     * Iteration   1: 45434263.958 ops/s
+     * Iteration   2: 45283522.683 ops/s
+     * Iteration   3: 47116623.190 ops/s
+     * Iteration   4: 46012311.703 ops/s
+     * Iteration   5: 45316353.774 ops/s
      *
      *
      * Result "org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeIntegerTest.testGetAndIncrementV3Performance":
-     *   49203761.219 ±(99.9%) 697656.947 ops/s [Average]
-     *   (min, avg, max) = (48919006.868, 49203761.219, 49395508.326), stdev = 181179.294
-     *   CI (99.9%): [48506104.272, 49901418.166] (assumes normal distribution)
+     *   45832615.061 ±(99.9%) 2987464.163 ops/s [Average]
+     *   (min, avg, max) = (45283522.683, 45832615.061, 47116623.190), stdev = 775834.956
+     *   CI (99.9%): [42845150.898, 48820079.225] (assumes normal distribution)
      *
      *
-     * # Run complete. Total time: 00:04:16
+     * # Run complete. Total time: 00:04:17
      *
      * REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
      * why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
@@ -179,8 +179,8 @@ public class AtomicRangeIntegerTest {
      * Do not assume the numbers tell you what you want them to tell.
      *
      * Benchmark                                                 Mode  Cnt         Score         Error  Units
-     * AtomicRangeIntegerTest.testGetAndIncrementV1Performance  thrpt    5  13472080.189 ± 1498317.926  ops/s
-     * AtomicRangeIntegerTest.testGetAndIncrementV2Performance  thrpt    5  35329972.654 ±  477102.640  ops/s
-     * AtomicRangeIntegerTest.testGetAndIncrementV3Performance  thrpt    5  49203761.219 ±  697656.947  ops/s
+     * AtomicRangeIntegerTest.testGetAndIncrementV1Performance  thrpt    5  13496720.554 ±  240134.803  ops/s
+     * AtomicRangeIntegerTest.testGetAndIncrementV2Performance  thrpt    5  39201251.850 ± 1005866.969  ops/s
+     * AtomicRangeIntegerTest.testGetAndIncrementV3Performance  thrpt    5  45832615.061 ± 2987464.163  ops/s
      */
 }
