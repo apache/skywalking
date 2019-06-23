@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -50,7 +49,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         GRPCClient client = new GRPCClient(setting.getTargetHost(), setting.getTargetPort());
         client.connect();
         ManagedChannel channel = client.getChannel();
-        exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel).withDeadlineAfter(10, TimeUnit.SECONDS);
+        exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel);
         blockingStub = MetricExportServiceGrpc.newBlockingStub(channel);
         exportBuffer = new DataCarrier<ExportData>(setting.getBufferChannelNum(), setting.getBufferChannelSize());
         exportBuffer.consume(this, 1, 200);
