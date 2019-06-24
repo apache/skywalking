@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4.define;
 
-import com.caucho.hessian.server.HessianSkeleton;
-import java.io.InputStream;
-import java.io.OutputStream;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -36,7 +33,7 @@ import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.SKELETON_CON
 import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.SKELETON_INTERCPTOR_CLASS;
 
 /**
- * enhance method {@link HessianSkeleton#invoke(InputStream, OutputStream)}
+ * enhance method invoke of HessianSkeleton
  *
  * @author Alan Lau
  */

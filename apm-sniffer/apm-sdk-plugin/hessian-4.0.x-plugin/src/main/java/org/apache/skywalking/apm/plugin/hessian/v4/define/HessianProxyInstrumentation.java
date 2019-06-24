@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4.define;
 
-import com.caucho.hessian.client.HessianConnection;
-import com.caucho.hessian.client.HessianProxy;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -36,7 +34,7 @@ import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.ENHANCE_CLAS
 import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.HESSIAN_SENDREQUEST_CLASS;
 
 /**
- * enhance method {@link HessianProxy#addRequestHeaders(HessianConnection)}
+ * enhance method addRequestHeaders
  *
  * @author Alan Lau
  */
