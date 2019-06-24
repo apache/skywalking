@@ -31,11 +31,10 @@ pipeline {
     stages {
         stage('Install & Test') {
             parallel {
-                "Build with JDK1.8": {
-                    stage('JDK 1.8 on Linux') {
-                        agent {
-                            label 'xenial'
-                        }
+                stage('JDK 1.8 on Linux') {
+                    agent {
+                        label 'xenial'
+                     }
 
                         tools {
                             jdk 'JDK 1.8 (latest)'
@@ -76,7 +75,6 @@ pipeline {
                     }
                 }
 
-                "running scenarios": {
                     stage('running scenarios') {
                         agent {
                             label 'xenial'
@@ -114,7 +112,6 @@ pipeline {
                             }
                         }
                     }
-                }
             }
         }
 
