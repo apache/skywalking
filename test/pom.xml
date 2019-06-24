@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-test</artifactId>
+    <artifactId>test</artifactId>
     <packaging>pom</packaging>
 
     <properties>

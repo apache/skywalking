@@ -182,7 +182,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
-                <module>apm-test</module>
+                <module>test</module>
             </modules>
         </profile>
     </profiles>

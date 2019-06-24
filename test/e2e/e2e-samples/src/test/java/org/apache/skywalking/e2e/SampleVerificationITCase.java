@@ -30,7 +30,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -40,14 +44,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SampleVerificationITCase {
     private RestTemplate restTemplate = new RestTemplate();
 
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
     @Test
     @DirtiesContext
     public void shouldGetCorrectTraces() {
-        final String webappHost = System.getProperty("sw.webapp.host");
-        final String webappPort = System.getProperty("sw.webapp.port");
+        final String webappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
+        final String webappPort = System.getProperty("sw.webapp.port", "32794");
         final String url = "http://" + webappHost + ":" + webappPort + "/graphql";
 
-        String q = "{\"query\":\"query queryTraces($condition: TraceQueryCondition) {\\n  traces: queryBasicTraces(condition: $condition) {\\n    data: traces {\\n      key: segmentId\\n      endpointNames\\n      duration\\n      start\\n      isError\\n      traceIds\\n    }\\n    total\\n  }}\",\"variables\":{\"condition\":{\"queryDuration\":{\"start\":\"2019-06-22 0901\",\"end\":\"2019-06-22 0916\",\"step\":\"MINUTE\"},\"traceState\":\"ALL\",\"paging\":{\"pageNum\":1,\"pageSize\":15,\"needTotal\":true},\"queryOrder\":\"BY_DURATION\"}}}";
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime minutesAgo = now.minusMinutes(15);
+        final String startTime = minutesAgo.format(TIME_FORMATTER);
+        final String endTime = now.format(TIME_FORMATTER);
+        String q = "{\"query\":\"query queryTraces($condition: TraceQueryCondition) {  traces: queryBasicTraces(condition: $condition) {    data: traces {      key: segmentId      endpointNames      duration      start      isError      traceIds    }    total  }}\",\"variables\":{\"condition\":{\"queryDuration\":{\"start\":\"" + startTime + "\",\"end\":\"" + endTime + "\",\"step\":\"MINUTE\"},\"traceState\":\"ALL\",\"paging\":{\"pageNum\":1,\"pageSize\":15,\"needTotal\":true},\"queryOrder\":\"BY_DURATION\"}}}";
 
         final ResponseEntity<GQLResponse<TracesData>> responseEntity =
             restTemplate.exchange(
@@ -62,6 +72,12 @@ public class SampleVerificationITCase {
 
         assertThat(body).isNotNull();
 
-        // TODO: more verifications
+        assertTrue(
+            body.getData()
+                .getTraces()
+                .getData()
+                .stream()
+                .anyMatch(trace -> trace.getEndpointNames().contains("/e2e/health-check"))
+        );
     }
 }

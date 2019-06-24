@@ -82,9 +82,12 @@
                             <name>kezhenxu94/skywalking-e2e-server:latest</name>
                             <alias>skywalking-e2e-server-${COMMIT_HASH}</alias>
                             <run>
+                                <env>
+                                    <OAP_LOG_DIR>/tmp/</OAP_LOG_DIR>
+                                    <WEBAPP_LOG_DIR>/tmp/</WEBAPP_LOG_DIR>
+                                </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
-                                    <port>+oap.host:oap.port:11800</port>
                                 </ports>
                                 <volumes>
                                     <bind>
@@ -111,13 +114,16 @@
                                     <container>skywalking-e2e-server-${COMMIT_HASH}</container>
                                 </dependsOn>
                                 <env>
-                                    <OAP_HOST>${oap.host}</OAP_HOST>
-                                    <OAP_PORT>${oap.port}</OAP_PORT>
+                                    <OAP_HOST>skywalking-e2e-server-${COMMIT_HASH}</OAP_HOST>
+                                    <OAP_PORT>11800</OAP_PORT>
                                     <CLIENT_JAR>${project.build.finalName}.jar</CLIENT_JAR>
                                 </env>
                                 <ports>
                                     <port>client.port:8080</port>
                                 </ports>
+                                <links>
+                                    <link>skywalking-e2e-server-${COMMIT_HASH}</link>
+                                </links>
                                 <volumes>
                                     <bind>
                                         <volume>/skywalking</volume>

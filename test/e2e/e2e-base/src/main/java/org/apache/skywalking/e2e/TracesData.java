@@ -47,4 +47,11 @@ public class TracesData {
     public void setTraces(final Traces traces) {
         this.traces = traces;
     }
+
+    @Override
+    public String toString() {
+        return "TracesData{" +
+            "traces=" + traces +
+            '}';
+    }
 }

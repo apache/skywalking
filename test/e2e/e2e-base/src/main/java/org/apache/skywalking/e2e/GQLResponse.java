@@ -33,4 +33,11 @@ public class GQLResponse<T> {
     public void setData(final T data) {
         this.data = data;
     }
+
+    @Override
+    public String toString() {
+        return "GQLResponse{" +
+            "data=" + data +
+            '}';
+    }
 }
