@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.async.v5.define;
+package org.apache.skywalking.apm.plugin.spring.async.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;

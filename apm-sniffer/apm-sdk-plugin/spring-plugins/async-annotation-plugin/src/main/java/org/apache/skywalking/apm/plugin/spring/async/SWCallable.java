@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.spring.async.v5;
+package org.apache.skywalking.apm.plugin.spring.async;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;

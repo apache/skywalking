@@ -25,10 +25,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-spring-async-annotation-5.x-plugin</artifactId>
+    <artifactId>apm-spring-async-annotation-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>async-annotation-5.x-plugin</name>
+    <name>async-annotation-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>

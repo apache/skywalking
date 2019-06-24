@@ -28,7 +28,7 @@
 
     <artifactId>spring-plugins</artifactId>
     <modules>
-        <module>async-annotation-5.x-plugin</module>
+        <module>async-annotation-plugin</module>
         <module>concurrent-util-4.x-plugin</module>
         <module>resttemplate-4.x-plugin</module>
         <module>mvc-annotation-4.x-plugin</module>
