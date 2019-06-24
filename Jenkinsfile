@@ -73,7 +73,6 @@ pipeline {
                             }
                         }
                     }
-                }
 
                     stage('running scenarios') {
                         agent {
@@ -112,6 +111,7 @@ pipeline {
                             }
                         }
                     }
+                }
             }
         }
 
