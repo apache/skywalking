@@ -31,16 +31,61 @@ pipeline {
     stages {
         stage('Install & Test') {
             parallel {
-                stage('JDK 1.8 on Linux') {
-                    agent {
-                        label 'xenial'
-                    }
+                "Build with JDK1.8" : {
+                    stage('JDK 1.8 on Linux') {
+                        agent {
+                            label 'xenial'
+                        }
 
-                    tools {
-                        jdk 'JDK 1.8 (latest)'
-                    }
+                        tools {
+                            jdk 'JDK 1.8 (latest)'
+                        }
 
-                    stages {
+                        stages {
+                            stage('SCM Checkout') {
+                                steps {
+                                    deleteDir()
+                                    checkout scm
+                                    sh 'git submodule update --init'
+                                }
+                            }
+
+                            stage('Check environment') {
+                                steps {
+                                    sh 'env'
+                                    sh 'pwd'
+                                    sh 'ls'
+                                    sh 'git status'
+                                }
+                            }
+
+                            stage('Test & Report') {
+                                steps {
+                                    sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                                    sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+                                }
+                            }
+                        }
+
+                        post {
+                            always {
+                                junit '**/target/surefire-reports/*.xml'
+                                deleteDir()
+                            }
+                        }
+                    }
+                }
+
+                "running scenarios": {
+                    stage('running scenarios') {
+                        agent {
+                            label 'xenial'
+                        }
+
+                        tools {
+                            jdk 'JDK 1.8 (latest)'
+                        }
+
                         stage('SCM Checkout') {
                             steps {
                                 deleteDir()
@@ -49,70 +94,27 @@ pipeline {
                             }
                         }
 
-                        stage('Check environment') {
+                        stage('Build agent') {
                             steps {
-                                sh 'env'
-                                sh 'pwd'
-                                sh 'ls'
-                                sh 'git status'
+                                sh './mvnw clean package -DskipTests -Pagent'
                             }
                         }
 
-                        stage('Test & Report') {
-                            steps {
-                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-                                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
+                        stages {
+                            stage('Running scenario [httpclient-4.3.x]') {
+                                steps {
+                                    sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
+                                }
                             }
                         }
-                    }
 
-                    post {
-                        always {
-                            junit '**/target/surefire-reports/*.xml'
-                            deleteDir()
+                        post {
+                            always {
+                                deleteDir()
+                            }
                         }
                     }
                 }
-
-
-                 stage('running scenarios') {
-                    agent {
-                        label 'xenial'
-                    }
-
-                    tools {
-                        jdk 'JDK 1.8 (latest)'
-
-                    }
-
-                    stage('SCM Checkout') {
-                        steps {
-                            deleteDir()
-                            checkout scm
-                            sh 'git submodule update --init'
-                        }
-                    }
-
-                    stage('Build agent') {
-                        steps {
-                            sh './mvnw clean package -DskipTests -Pagent'
-                         }
-                    }
-
-                    stages {
-                        stage('Running scenario [httpclient-4.3.x]') {
-                            steps {
-                                sh 'apm-test/agent/plugin/run-scenarios.sh httpclient-4.3.x'
-                             }
-                        }
-                    }
-
-                    post {
-                        always {
-                            deleteDir()
-                        }
-                    }
-                 }
             }
         }
 
