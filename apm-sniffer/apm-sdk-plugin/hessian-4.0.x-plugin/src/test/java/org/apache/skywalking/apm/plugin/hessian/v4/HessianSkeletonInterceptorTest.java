@@ -109,6 +109,7 @@ public class HessianSkeletonInterceptorTest {
         out = PowerMockito.mock(AbstractHessianOutput.class);
 
         service = PowerMockito.mock(Object.class);
+        enhancedInstance.setSkyWalkingDynamicField(service.getClass());
         allArguments = new Object[] {service, input, out};
         argumentTypes = new Class[] {Object.class, AbstractHessianInput.class, AbstractHessianOutput.class};
     }
