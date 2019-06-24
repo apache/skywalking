@@ -35,7 +35,6 @@
     <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
-        <module>apm-checkstyle</module>
     </modules>
     <packaging>pom</packaging>
 
