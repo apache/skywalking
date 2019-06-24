@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
-import com.caucho.hessian.client.HessianProxy;
 import java.lang.reflect.Method;
 import java.net.URL;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -32,7 +31,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.hessian.v4.define.HessianEnhanceCache;
 
 /**
- * intercept {@link HessianProxy#sendRequest(String, Object[])}
+ * intercept sendRequest of HessianProxy
  *
  * @author Alan Lau
  */

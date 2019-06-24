@@ -19,8 +19,6 @@
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
 import com.caucho.hessian.io.AbstractHessianInput;
-import com.caucho.hessian.io.AbstractHessianOutput;
-import com.caucho.hessian.server.HessianSkeleton;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -34,7 +32,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * intercept method {@link HessianSkeleton#invoke(Object service, AbstractHessianInput in, AbstractHessianOutput out)}
+ * intercept invoke of HessianSkeleton
  *
  * @author Alan Lau
  */

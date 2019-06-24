@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
-import com.caucho.hessian.client.HessianProxy;
 import java.net.URL;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.hessian.v4.define.HessianEnhanceCache;
 
 /**
- * intercept contructor {@link HessianProxy#HessianProxy}, save the url into the objInst
+ * intercept HessianProxy
  *
  * @author Alan Lau
  */
