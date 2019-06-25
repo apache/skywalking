@@ -232,7 +232,7 @@ public class ElasticSearchClient implements Client {
 
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(TYPE);
-        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids));
+        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).size(ids.length);
         SearchResponse response = client.search(searchRequest);
 
         Map<String, Map<String, Object>> result = new HashMap<>();
