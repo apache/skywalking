@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-async-annotation-5.x=org.apache.skywalking.apm.plugin.spring.async.v5.define.AsyncExecutionInterceptorInstrumentation
+spring-async-annotation-5.x=org.apache.skywalking.apm.plugin.spring.async.define.AsyncExecutionInterceptorInstrumentation
