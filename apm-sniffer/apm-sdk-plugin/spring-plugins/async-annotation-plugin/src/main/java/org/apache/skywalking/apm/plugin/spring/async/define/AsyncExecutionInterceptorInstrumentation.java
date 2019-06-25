@@ -51,7 +51,7 @@ public class AsyncExecutionInterceptorInstrumentation extends ClassInstanceMetho
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.async.v5.DoSubmitMethodInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.async.DoSubmitMethodInterceptor";
                 }
 
                 @Override
