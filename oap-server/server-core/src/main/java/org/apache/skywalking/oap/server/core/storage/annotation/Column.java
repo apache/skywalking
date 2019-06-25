@@ -34,4 +34,6 @@ public @interface Column {
     Function function() default Function.None;
 
     boolean matchQuery() default false;
+
+    boolean content() default false;
 }
