@@ -45,7 +45,7 @@ public @interface Column {
     boolean matchQuery() default false;
     
     /**
-     * Th column is just saved, never used in query.
+     * The column is just saved, never used in query.
      */
     boolean content() default false;
 }
