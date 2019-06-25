@@ -43,7 +43,7 @@ pipeline {
 
         stage('Run End-to-End Tests') {
             steps {
-                sh './mvnw -DCOMMIT_HASH=${GIT_COMMIT} -f test/pom.xml clean verify'
+                sh './mvnw -DCOMMIT_HASH=${GIT_COMMIT} -f test/e2e/pom.xml clean verify'
             }
         }
     }

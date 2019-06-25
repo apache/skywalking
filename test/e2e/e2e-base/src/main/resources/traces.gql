@@ -14,19 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring:
-  main:
-    banner-mode: 'off'
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    data-username: sa
-    password: sa
-    platform: org.hibernate.dialect.H2Dialect
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate.format_sql: true
-    show-sql: true
+{
+    "query": "query queryTraces($condition: TraceQueryCondition) {
+        traces: queryBasicTraces(condition: $condition) {
+            data: traces {
+                key: segmentId endpointNames duration start isError traceIds
+            }
+            total
+        }
+    }",
+    "variables": {
+        "condition": {
+            "queryDuration": {
+                "start": "{start}",
+                "end": "{end}",
+                "step": "{step}"
+            },
+            "traceState": "{traceState}",
+            "paging": {
+                "pageNum": {pageNum},
+                "pageSize": {pageSize},
+                "needTotal": {needTotal}
+            },
+            "queryOrder": "{queryOrder}"
+        }
+    }
+}

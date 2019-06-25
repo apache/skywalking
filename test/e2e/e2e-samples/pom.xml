@@ -23,18 +23,14 @@
     <parent>
         <artifactId>apache-skywalking-e2e</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>e2e-samples</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -83,8 +79,8 @@
                             <alias>skywalking-e2e-server-${COMMIT_HASH}</alias>
                             <run>
                                 <env>
-                                    <OAP_LOG_DIR>/tmp/</OAP_LOG_DIR>
-                                    <WEBAPP_LOG_DIR>/tmp/</WEBAPP_LOG_DIR>
+                                    <OAP_LOG_DIR>/tmp</OAP_LOG_DIR>
+                                    <WEBAPP_LOG_DIR>/tmp</WEBAPP_LOG_DIR>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
@@ -119,7 +115,7 @@
                                     <CLIENT_JAR>${project.build.finalName}.jar</CLIENT_JAR>
                                 </env>
                                 <ports>
-                                    <port>client.port:8080</port>
+                                    <port>+client.host:client.port:8080</port>
                                 </ports>
                                 <links>
                                     <link>skywalking-e2e-server-${COMMIT_HASH}</link>
@@ -161,6 +157,12 @@
                         <sw.webapp.port>
                             ${webapp.port}
                         </sw.webapp.port>
+                        <client.host>
+                            ${client.host}
+                        </client.host>
+                        <client.port>
+                            ${client.port}
+                        </client.port>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

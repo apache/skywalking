@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author kezhenxu94
  */
 @RestController
-@RequestMapping("e2e")
+@RequestMapping("/e2e")
 public class TestController {
     private final UserRepo userRepo;
 
@@ -36,7 +36,7 @@ public class TestController {
         this.userRepo = userRepo;
     }
 
-    @GetMapping("health-check")
+    @GetMapping("/health-check")
     public String hello() {
         return "healthy";
     }

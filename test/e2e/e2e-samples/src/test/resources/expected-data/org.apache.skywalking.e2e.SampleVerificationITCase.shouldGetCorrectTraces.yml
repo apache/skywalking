@@ -14,19 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring:
-  main:
-    banner-mode: 'off'
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    data-username: sa
-    password: sa
-    platform: org.hibernate.dialect.H2Dialect
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate.format_sql: true
-    show-sql: true
+# 1 health-check by docker-maven-plugin
+# 1 drop table if exists, because we have `ddl-auto: create-drop`
+# 1 drop sequence
+# 1 create sequence
+# 1 create table statement
+
+traces:
+  - key: not null
+    endpointNames:
+      - /e2e/users
+    duration: ge 0
+    start: gt 0
+    isError: false
+    traceIds:
+      - not null

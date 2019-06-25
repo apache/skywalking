@@ -28,6 +28,9 @@ import javax.persistence.Id;
  */
 @Entity
 public class User {
+    public User() {
+    }
+
     @Id
     @GeneratedValue
     private Long id;

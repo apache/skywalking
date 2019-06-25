@@ -36,8 +36,6 @@ public class GQLResponse<T> {
 
     @Override
     public String toString() {
-        return "GQLResponse{" +
-            "data=" + data +
-            '}';
+        return super.toString();
     }
 }
