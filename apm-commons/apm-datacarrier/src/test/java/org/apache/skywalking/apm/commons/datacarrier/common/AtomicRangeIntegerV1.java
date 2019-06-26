@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by wusheng on 2016/10/25.
+ * This is moved from SkyWalking 6.1
  */
 public class AtomicRangeIntegerV1 extends Number implements Serializable {
 

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by lkxiaolou
+ * This comes from PR#2874
  */
 public class AtomicRangeIntegerV2 extends Number implements Serializable {
     private static final long serialVersionUID = -4099792402691141643L;
