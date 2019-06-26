@@ -17,7 +17,7 @@
  */
 package org.apache.skywalking.apm.plugin.solrj;
 
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -32,15 +32,17 @@ public class SolrConnectorInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        HttpUriRequest request = (HttpUriRequest) allArguments[0];
+        if (ContextManager.isActive()) {
+            HttpRequestBase request = (HttpRequestBase) allArguments[0];
 
-        ContextCarrier carrier = new ContextCarrier();
-        ContextManager.inject(carrier);
+            ContextCarrier carrier = new ContextCarrier();
+            ContextManager.inject(carrier);
 
-        CarrierItem items = carrier.items();
-        while (items.hasNext()) {
-            items = items.next();
-            request.setHeader(items.getHeadKey(), items.getHeadValue());
+            CarrierItem items = carrier.items();
+            while (items.hasNext()) {
+                items = items.next();
+                request.setHeader(items.getHeadKey(), items.getHeadValue());
+            }
         }
     }
 

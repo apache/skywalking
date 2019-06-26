@@ -23,8 +23,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
@@ -41,9 +41,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, Upd
     }
 
     @Override public Metrics get(Model model, Metrics metrics) throws IOException {
-        GetResponse response = getClient().get(model.getName(), metrics.id());
-        if (response.isExists()) {
-            return storageBuilder.map2Data(response.getSource());
+        SearchResponse response = getClient().idQuery(model.getName(), metrics.id());
+        if (response.getHits().totalHits > 0) {
+            return storageBuilder.map2Data(response.getHits().getAt(0).getSourceAsMap());
         } else {
             return null;
         }

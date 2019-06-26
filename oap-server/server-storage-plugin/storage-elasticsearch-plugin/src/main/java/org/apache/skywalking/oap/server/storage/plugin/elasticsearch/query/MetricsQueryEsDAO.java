@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.*;
@@ -62,7 +61,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            long value = 0;
+            long value;
             switch (function) {
                 case Sum:
                     Sum sum = idBucket.getAggregations().get(valueCName);
@@ -103,34 +102,34 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
-        MultiGetResponse response = getClient().multiGet(indexName, ids);
+        Map<String, Map<String, Object>> response = getClient().ids(indexName, ids.toArray(new String[0]));
 
         IntValues intValues = new IntValues();
-        for (MultiGetItemResponse itemResponse : response.getResponses()) {
-
+        for (String id : ids) {
             KVInt kvInt = new KVInt();
-            kvInt.setId(itemResponse.getId());
+            kvInt.setId(id);
             kvInt.setValue(0);
-            Map<String, Object> source = itemResponse.getResponse().getSource();
-            if (source != null) {
+            if (response.containsKey(id)) {
+                Map<String, Object> source = response.get(id);
                 kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).longValue());
             }
             intValues.getValues().add(kvInt);
         }
+
         return intValues;
     }
 
     @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
-        MultiGetResponse response = getClient().multiGet(indexName, ids);
-
         Thermodynamic thermodynamic = new Thermodynamic();
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
 
+        Map<String, Map<String, Object>> response = getClient().ids(indexName, ids.toArray(new String[0]));
+
         int numOfSteps = 0;
-        for (MultiGetItemResponse itemResponse : response.getResponses()) {
-            Map<String, Object> source = itemResponse.getResponse().getSource();
+        for (String id : ids) {
+            Map<String, Object> source = response.get(id);
             if (source == null) {
                 // add empty list to represent no data exist for this time bucket
                 thermodynamicValueMatrix.add(new ArrayList<>());
