@@ -81,7 +81,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         if (LogState.ERROR.equals(state)) {
             sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
             parameters.add(BooleanUtils.booleanToValue(true));
-        } else {
+        } else if (!LogState.ERROR.equals(state)) {
             sql.append(" and ").append(AbstractLogRecord.IS_ERROR).append(" = ?");
             parameters.add(BooleanUtils.booleanToValue(false));
         }
