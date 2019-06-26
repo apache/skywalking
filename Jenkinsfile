@@ -67,8 +67,10 @@ pipeline {
                     }
 
                     post {
-                        always {
+                        success {
                             junit '**/target/surefire-reports/*.xml'
+                        }
+                        always {
                             deleteDir()
                         }
                     }
