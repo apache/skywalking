@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.e2e;
 
-import org.apache.skywalking.e2e.sample.client.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +50,7 @@ public class SampleVerificationITCase {
     @Before
     public void setUp() {
         final String webappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String webappPort = System.getProperty("sw.webapp.port", "32825");
+        final String webappPort = System.getProperty("sw.webapp.port", "32829");
         final String url = "http://" + webappHost + ":" + webappPort + "/graphql";
         client = new SimpleQueryClient(url);
     }
@@ -61,7 +60,7 @@ public class SampleVerificationITCase {
     public void shouldGetCorrectTraces() throws Exception {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
 
-        final String clientUrl = "http://" + System.getProperty("client.host", "127.0.0.1") + ":" + System.getProperty("client.port", "32826");
+        final String clientUrl = "http://" + System.getProperty("client.host", "127.0.0.1") + ":" + System.getProperty("client.port", "32830");
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
@@ -71,7 +70,7 @@ public class SampleVerificationITCase {
         );
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(3000);
+        Thread.sleep(5000);
 
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
