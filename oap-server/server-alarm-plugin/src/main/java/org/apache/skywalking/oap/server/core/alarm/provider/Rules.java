@@ -24,6 +24,8 @@ import lombok.*;
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
 public class Rules {
+    public static final Rules EMPTY = new Rules();
+
     private List<AlarmRule> rules;
     private List<String> webhooks;
 
