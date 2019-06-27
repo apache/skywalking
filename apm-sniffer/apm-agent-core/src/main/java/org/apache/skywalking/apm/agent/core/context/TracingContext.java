@@ -540,7 +540,7 @@ public class TracingContext implements AbstractTracerContext {
         if (spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT) {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastWarningTimestamp > 30 * 1000) {
-                logger.warn("Shadow tracing context. Thread dump, More than {} spans required to create",
+                logger.warn(new RuntimeException("Shadow tracing context. Thread dump"), "More than {} spans required to create",
                     Config.Agent.SPAN_LIMIT_PER_SEGMENT);
                 lastWarningTimestamp = currentTimeMillis;
             }
