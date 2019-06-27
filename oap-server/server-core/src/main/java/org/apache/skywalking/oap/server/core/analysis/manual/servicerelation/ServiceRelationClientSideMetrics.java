@@ -21,17 +21,16 @@ package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
-@MetricsType
-@StreamData
-@StorageEntity(name = ServiceRelationClientSideMetrics.INDEX_NAME, builder = ServiceRelationClientSideMetrics.Builder.class, sourceScopeId = DefaultScopeDefine.SERVICE_RELATION)
+@Stream(name = ServiceRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION, builder = ServiceRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class ServiceRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_relation_client_side";
@@ -42,14 +41,20 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Setter @Getter @Column(columnName = SOURCE_SERVICE_ID) @IDColumn private int sourceServiceId;
     @Setter @Getter @Column(columnName = DEST_SERVICE_ID) @IDColumn private int destServiceId;
     @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
-    @Setter @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
+    @Setter(AccessLevel.PRIVATE) @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(sourceServiceId);
+        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
+            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
+        return splitJointId;
+    }
+
+    public void buildEntityId() {
+        String splitJointId = String.valueOf(sourceServiceId);
         splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
         splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
-        return splitJointId;
+        entityId = splitJointId;
     }
 
     @Override public void combine(Metrics metrics) {

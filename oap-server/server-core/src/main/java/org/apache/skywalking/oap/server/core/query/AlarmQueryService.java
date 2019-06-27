@@ -22,16 +22,13 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
-import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
  */
 public class AlarmQueryService implements Service {
-
-    private static final Logger logger = LoggerFactory.getLogger(AlarmQueryService.class);
 
     private final ModuleManager moduleManager;
     private IAlarmQueryDAO alarmQueryDAO;

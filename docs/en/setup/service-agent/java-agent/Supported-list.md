@@ -11,6 +11,7 @@
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
   * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
+  * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
@@ -19,11 +20,14 @@
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
+* HTTP Gateway
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.1.x.RELEASE (Optional²)
 * JDBC
-  * Mysql Driver 5.x, 6.x
+  * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
   * H2 Driver 1.3.x -> 1.4.x
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
+  * [ShardingSphere](https://github.com/apache/incubator-shardingsphere) 3.0.0, 4.0.0-RC1
   * PostgreSQL Driver 8.x, 9.x, 42.x
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
@@ -49,6 +53,9 @@
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
+  * [Solr](https://github.com/apache/lucene-solr/)
+    * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
+
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination

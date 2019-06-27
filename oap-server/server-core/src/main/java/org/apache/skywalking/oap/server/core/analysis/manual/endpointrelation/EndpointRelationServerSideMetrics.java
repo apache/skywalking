@@ -21,17 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.*;
 
-@MetricsType
-@StreamData
-@StorageEntity(name = EndpointRelationServerSideMetrics.INDEX_NAME, builder = EndpointRelationServerSideMetrics.Builder.class, sourceScopeId = DefaultScopeDefine.ENDPOINT_RELATION)
+@Stream(name = EndpointRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_RELATION, builder = EndpointRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class EndpointRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_relation_server_side";
@@ -42,14 +40,21 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     @Setter @Getter @Column(columnName = SOURCE_ENDPOINT_ID) @IDColumn private int sourceEndpointId;
     @Setter @Getter @Column(columnName = DEST_ENDPOINT_ID) @IDColumn private int destEndpointId;
     @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
-    @Setter @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
+    @Setter(AccessLevel.PRIVATE) @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
 
     @Override public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + String.valueOf(sourceEndpointId);
+        splitJointId += Const.ID_SPLIT + sourceEndpointId;
+        splitJointId += Const.ID_SPLIT + destEndpointId;
+        splitJointId += Const.ID_SPLIT + componentId;
+        return splitJointId;
+    }
+
+    public void buildEntityId() {
+        String splitJointId = String.valueOf(sourceEndpointId);
         splitJointId += Const.ID_SPLIT + String.valueOf(destEndpointId);
         splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
-        return splitJointId;
+        entityId = splitJointId;
     }
 
     @Override public void combine(Metrics metrics) {

@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.slf4j.*;
 
 /**
@@ -89,7 +89,7 @@ public class TelemetryDataDispatcher {
      */
     static void doDispatch(ServiceMeshMetricDataDecorator decorator) {
         ServiceMeshMetric metrics = decorator.getMetric();
-        long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metrics.getStartTime());
+        long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getStartTime());
 
         heartbeat(decorator, minuteTimeBucket);
         if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metrics.getDetectPoint())) {
@@ -98,8 +98,13 @@ public class TelemetryDataDispatcher {
             toServiceInstance(decorator, minuteTimeBucket);
             toEndpoint(decorator, minuteTimeBucket);
         }
-        toServiceRelation(decorator, minuteTimeBucket);
-        toServiceInstanceRelation(decorator, minuteTimeBucket);
+
+        int sourceServiceId = metrics.getSourceServiceId();
+        // Don't generate relation, if no source.
+        if (sourceServiceId != Const.NONE) {
+            toServiceRelation(decorator, minuteTimeBucket);
+            toServiceInstanceRelation(decorator, minuteTimeBucket);
+        }
     }
 
     private static void heartbeat(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
@@ -108,20 +113,23 @@ public class TelemetryDataDispatcher {
         int heartbeatCycle = 10000;
         // source
         int instanceId = metrics.getSourceServiceInstanceId();
-        ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
-        if (Objects.nonNull(serviceInstanceInventory)) {
-            if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
-                // trigger heartbeat every 10s.
-                SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metrics.getSourceServiceInstanceId(), metrics.getEndTime());
-                SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metrics.getEndTime());
+        // Don't generate source heartbeat, if no source.
+        if (instanceId != Const.NONE) {
+            ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
+            if (Objects.nonNull(serviceInstanceInventory)) {
+                if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
+                    // trigger heartbeat every 10s.
+                    SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metrics.getSourceServiceInstanceId(), metrics.getEndTime());
+                    SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metrics.getEndTime());
+                }
+            } else {
+                logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
             }
-        } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
         }
 
         // dest
         instanceId = metrics.getDestServiceInstanceId();
-        serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
+        ServiceInstanceInventory serviceInstanceInventory = SERVICE_INSTANCE_CACHE.get(instanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
             if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
                 // trigger heartbeat every 10s.
@@ -142,6 +150,7 @@ public class TelemetryDataDispatcher {
         all.setEndpointName(metrics.getEndpoint());
         all.setLatency(metrics.getLatency());
         all.setStatus(metrics.getStatus());
+        all.setResponseCode(metrics.getResponseCode());
         all.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(all);
@@ -157,6 +166,7 @@ public class TelemetryDataDispatcher {
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());
         service.setStatus(metrics.getStatus());
+        service.setResponseCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(service);
@@ -196,6 +206,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setEndpointName(metrics.getEndpoint());
         serviceInstance.setLatency(metrics.getLatency());
         serviceInstance.setStatus(metrics.getStatus());
+        serviceInstance.setResponseCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(serviceInstance);
@@ -239,6 +250,7 @@ public class TelemetryDataDispatcher {
 
         endpoint.setLatency(metrics.getLatency());
         endpoint.setStatus(metrics.getStatus());
+        endpoint.setResponseCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
 
         SOURCE_RECEIVER.receive(endpoint);

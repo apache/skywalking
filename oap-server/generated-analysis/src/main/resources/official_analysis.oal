@@ -41,6 +41,16 @@ service_relation_client_call_sla = from(ServiceRelation.*).filter(detectPoint ==
 service_relation_server_call_sla = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).percent(status == true);
 service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();
 service_relation_server_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_relation_client_p99 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).p99(10);
+service_relation_server_p99 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).p99(10);
+service_relation_client_p95 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).p95(10);
+service_relation_server_p95 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).p95(10);
+service_relation_client_p90 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).p90(10);
+service_relation_server_p90 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).p90(10);
+service_relation_client_p75 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).p75(10);
+service_relation_server_p75 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).p75(10);
+service_relation_client_p50 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).p50(10);
+service_relation_server_p50 = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).p50(10);
 
 // Service Instance Scope metrics
 service_instance_sla = from(ServiceInstance.*).percent(status == true);

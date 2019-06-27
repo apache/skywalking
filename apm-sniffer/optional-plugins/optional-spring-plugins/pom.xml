@@ -30,6 +30,7 @@
 
     <modules>
         <module>spring-annotation-plugin</module>
+        <module>optional-spring-cloud</module>
     </modules>
 
     <properties>

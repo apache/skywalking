@@ -21,9 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
@@ -39,22 +40,24 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, Upd
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Metrics get(String modelName, Metrics metrics) throws IOException {
-        GetResponse response = getClient().get(modelName, metrics.id());
-        if (response.isExists()) {
-            return storageBuilder.map2Data(response.getSource());
+    @Override public Metrics get(Model model, Metrics metrics) throws IOException {
+        SearchResponse response = getClient().idQuery(model.getName(), metrics.id());
+        if (response.getHits().totalHits > 0) {
+            return storageBuilder.map2Data(response.getHits().getAt(0).getSourceAsMap());
         } else {
             return null;
         }
     }
 
-    @Override public IndexRequest prepareBatchInsert(String modelName, Metrics metrics) throws IOException {
+    @Override public IndexRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
+        String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareInsert(modelName, metrics.id(), builder);
     }
 
-    @Override public UpdateRequest prepareBatchUpdate(String modelName, Metrics metrics) throws IOException {
+    @Override public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
+        String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareUpdate(modelName, metrics.id(), builder);
     }
 }
