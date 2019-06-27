@@ -45,13 +45,13 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
-        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, true);
+        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, false);
     }
 
     @Override public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
         List<Integer> serviceIds) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, false);
+        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, true);
     }
 
     @Override public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
