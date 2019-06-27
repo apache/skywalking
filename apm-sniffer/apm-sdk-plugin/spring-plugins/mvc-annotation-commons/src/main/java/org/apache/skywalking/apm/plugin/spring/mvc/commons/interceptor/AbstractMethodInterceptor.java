@@ -158,6 +158,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
                 ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
                 ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
             }
 
             ContextManager.stopSpan();
