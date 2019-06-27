@@ -70,7 +70,8 @@ pipeline {
                         success {
                             junit '**/target/surefire-reports/*.xml'
                         }
-                        always {
+
+                        cleanup {
                             deleteDir()
                         }
                     }
