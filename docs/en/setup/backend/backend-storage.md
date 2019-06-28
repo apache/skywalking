@@ -53,6 +53,9 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
 
+### Data TTL
+TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
+
 ### ElasticSearch 6 with Zipkin trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
