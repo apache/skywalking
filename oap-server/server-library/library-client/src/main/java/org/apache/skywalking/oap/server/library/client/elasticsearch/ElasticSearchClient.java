@@ -246,20 +246,35 @@ public class ElasticSearchClient implements Client {
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
         IndexRequest request = prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.index(request);
+        try {
+            client.index(request);
+        } catch (IOException e) {
+            logger.error("Failed to forceInsert: indexName={}, id={}", indexName, id);
+            throw e;
+        }
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source, long version) throws IOException {
         UpdateRequest request = prepareUpdate(indexName, id, source);
         request.version(version);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.update(request);
+        try {
+            client.update(request);
+        } catch (IOException e) {
+            logger.error("Failed to forceUpdate: indexName={}, id={}", indexName, id);
+            throw e;
+        }
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
         UpdateRequest request = prepareUpdate(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.update(request);
+        try {
+            client.update(request);
+        } catch (IOException e) {
+            logger.error("Failed to forceUpdate: indexName={}, id={}", indexName, id);
+            throw e;
+        }
     }
 
     public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source) {
