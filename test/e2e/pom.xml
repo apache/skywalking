@@ -120,13 +120,13 @@
                                 <goal>start</goal>
                             </goals>
                         </execution>
-                        <execution>
-                            <id>stop</id>
-                            <phase>post-integration-test</phase>
-                            <goals>
-                                <goal>stop</goal>
-                            </goals>
-                        </execution>
+<!--                        <execution>-->
+<!--                            <id>stop</id>-->
+<!--                            <phase>post-integration-test</phase>-->
+<!--                            <goals>-->
+<!--                                <goal>stop</goal>-->
+<!--                            </goals>-->
+<!--                        </execution>-->
                     </executions>
                 </plugin>
             </plugins>
@@ -150,6 +150,7 @@
                 <executions>
                     <execution>
                         <goals>
+                            <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
                     </execution>

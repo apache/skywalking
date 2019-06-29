@@ -20,12 +20,6 @@
 # 1 create sequence
 # 1 create table statement
 
-traces:
-  - key: abc
-    endpointNames:
-      - /e2e/users
-    duration: ge 0
-    start: gt 0
-    isError: false
-    traceIds:
-      - not null
+services:
+  - key: 2
+    label: "Your_ApplicationName"

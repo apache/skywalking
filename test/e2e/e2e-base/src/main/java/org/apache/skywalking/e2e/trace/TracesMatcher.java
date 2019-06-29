@@ -16,34 +16,38 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package org.apache.skywalking.e2e.trace;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kezhenxu94
  */
-public class TracesData {
-  public static class Traces {
-    private List<Trace> data;
+public class TracesMatcher {
+    private List<TraceMatcher> traces;
 
-    public List<Trace> getData() {
-      return data;
+    public TracesMatcher() {
+        this.traces = new LinkedList<>();
     }
 
-    public Traces setData(List<Trace> data) {
-      this.data = data;
-      return this;
+    public List<TraceMatcher> getTraces() {
+        return traces;
     }
-  }
 
-  private Traces traces;
+    public void setTraces(List<TraceMatcher> traces) {
+        this.traces = traces;
+    }
 
-  public Traces getTraces() {
-    return traces;
-  }
+    public void verify(final List<Trace> traces) {
+        assertThat(traces).hasSize(this.traces.size());
 
-  public void setTraces(final Traces traces) {
-    this.traces = traces;
-  }
+        int size = this.traces.size();
+
+        for (int i = 0; i < size; i++) {
+            this.traces.get(i).verify(traces.get(i));
+        }
+    }
 }

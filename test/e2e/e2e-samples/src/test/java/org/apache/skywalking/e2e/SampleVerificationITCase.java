@@ -18,6 +18,15 @@
 
 package org.apache.skywalking.e2e;
 
+import org.apache.skywalking.e2e.service.Service;
+import org.apache.skywalking.e2e.service.ServicesMatcher;
+import org.apache.skywalking.e2e.service.ServicesQuery;
+import org.apache.skywalking.e2e.topo.TopoData;
+import org.apache.skywalking.e2e.topo.TopoMatcher;
+import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.trace.Trace;
+import org.apache.skywalking.e2e.trace.TracesMatcher;
+import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,17 +59,17 @@ public class SampleVerificationITCase {
     @Before
     public void setUp() {
         final String webappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String webappPort = System.getProperty("sw.webapp.port", "32829");
+        final String webappPort = System.getProperty("sw.webapp.port", "32771");
         final String url = "http://" + webappHost + ":" + webappPort + "/graphql";
         client = new SimpleQueryClient(url);
     }
 
     @Test
     @DirtiesContext
-    public void shouldGetCorrectTraces() throws Exception {
+    public void verify() throws Exception {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
 
-        final String clientUrl = "http://" + System.getProperty("client.host", "127.0.0.1") + ":" + System.getProperty("client.port", "32830");
+        final String clientUrl = "http://" + System.getProperty("client.host", "127.0.0.1") + ":" + System.getProperty("client.port", "32770");
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
@@ -81,10 +90,35 @@ public class SampleVerificationITCase {
                 .orderByDuration()
         );
 
-        final InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.shouldGetCorrectTraces.yml").getInputStream();
+        InputStream expectedInputStream =
+            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verify(traces);
+
+        final List<Service> services = client.services(
+            new ServicesQuery()
+                .start(minutesAgo)
+                .end(now)
+        );
+
+        expectedInputStream =
+            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.services.yml").getInputStream();
+
+        final ServicesMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ServicesMatcher.class);
+        servicesMatcher.verify(services);
+
+        final TopoData topoData = client.topo(
+            new TopoQuery()
+                .step("MINUTE")
+                .start(minutesAgo.minusDays(1))
+                .end(now)
+        );
+
+        expectedInputStream =
+            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml").getInputStream();
+
+        final TopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, TopoMatcher.class);
+        topoMatcher.verify(topoData);
     }
 }

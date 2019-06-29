@@ -19,6 +19,15 @@
 package org.apache.skywalking.e2e;
 
 import com.google.common.io.Resources;
+import org.apache.skywalking.e2e.service.Service;
+import org.apache.skywalking.e2e.service.ServicesData;
+import org.apache.skywalking.e2e.service.ServicesQuery;
+import org.apache.skywalking.e2e.topo.TopoData;
+import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.TopoResponse;
+import org.apache.skywalking.e2e.trace.Trace;
+import org.apache.skywalking.e2e.trace.TracesData;
+import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -70,6 +79,51 @@ public class SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTraces().getData();
+    }
+
+    public List<Service> services(final ServicesQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("services.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{step}", query.step());
+        final ResponseEntity<GQLResponse<ServicesData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<ServicesData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getServices();
+    }
+
+
+    public TopoData topo(final TopoQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("topo.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{step}", query.step())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end());
+        final ResponseEntity<GQLResponse<TopoResponse>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<TopoResponse>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
     }
 
 }

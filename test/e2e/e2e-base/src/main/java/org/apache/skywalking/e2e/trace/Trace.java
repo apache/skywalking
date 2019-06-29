@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package org.apache.skywalking.e2e.trace;
 
 import java.util.ArrayList;
 import java.util.List;

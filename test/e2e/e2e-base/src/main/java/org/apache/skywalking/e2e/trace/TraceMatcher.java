@@ -16,13 +16,14 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package org.apache.skywalking.e2e.trace;
 
 import com.google.common.base.Strings;
+import org.apache.skywalking.e2e.AbstractMatcher;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,12 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author kezhenxu94
  */
-public class TraceMatcher {
-    private static final Pattern NE_MATCHER = Pattern.compile("ne\\s+(?<val>.+)");
-    private static final Pattern GT_MATCHER = Pattern.compile("gt\\s+(?<val>.+)");
-    private static final Pattern GE_MATCHER = Pattern.compile("ge\\s+(?<val>.+)");
-    private static final Pattern NN_MATCHER = Pattern.compile("^not null$");
-
+public class TraceMatcher extends AbstractMatcher {
     private String key;
     private List<String> endpointNames;
     private String duration;
@@ -45,22 +41,34 @@ public class TraceMatcher {
     private List<String> traceIds;
 
     public void verify(final Trace trace) {
-        verifyKey(trace);
+        if (Objects.nonNull(getKey())) {
+            verifyKey(trace);
+        }
 
-        verifyEndpointName(trace);
+        if (Objects.nonNull(getEndpointNames())) {
+            verifyEndpointName(trace);
+        }
 
-        verifyDuration(trace);
+        if (Objects.nonNull(getDuration())) {
+            verifyDuration(trace);
+        }
 
-        verifyStart(trace);
+        if (Objects.nonNull(getStart())) {
+            verifyStart(trace);
+        }
 
-        verifyIsError(trace);
+        if (Objects.nonNull(getIsError())) {
+            verifyIsError(trace);
+        }
 
-        verifyTraceIds(trace);
+        if (Objects.nonNull(getTraceIds())) {
+            verifyTraceIds(trace);
+        }
     }
 
     private void verifyKey(Trace trace) {
         final String expected = this.getKey();
-        final String actual = Strings.nullToEmpty(trace.getKey());
+        final String actual = trace.getKey();
 
         doVerify(expected, actual);
     }
@@ -80,14 +88,14 @@ public class TraceMatcher {
 
     private void verifyDuration(Trace trace) {
         final String expected = this.getDuration();
-        final String actual = Strings.nullToEmpty(String.valueOf(trace.getDuration()));
+        final String actual = String.valueOf(trace.getDuration());
 
         doVerify(expected, actual);
     }
 
     private void verifyStart(Trace trace) {
         final String expected = this.getStart();
-        final String actual = Strings.nullToEmpty(String.valueOf(trace.getStart()));
+        final String actual = trace.getStart();
 
         doVerify(expected, actual);
     }
@@ -106,33 +114,9 @@ public class TraceMatcher {
 
         for (int i = 0; i < size; i++) {
             final String expected = getTraceIds().get(i);
-            final String actual = Strings.nullToEmpty(trace.getTraceIds().get(i));
+            final String actual = trace.getTraceIds().get(i);
 
             doVerify(expected, actual);
-        }
-    }
-
-    private void doVerify(String expected, String actual) {
-        Matcher matcher = NN_MATCHER.matcher(expected);
-        if (matcher.find()) {
-            assertThat(actual).isNotNull();
-        } else {
-            matcher = NE_MATCHER.matcher(expected);
-            if (matcher.find()) {
-                assertThat(actual).isNotEqualTo(matcher.group("val"));
-            } else {
-                matcher = GT_MATCHER.matcher(expected);
-                if (matcher.find()) {
-                    assertThat(Double.parseDouble(actual)).isGreaterThan(Double.parseDouble(matcher.group("val")));
-                } else {
-                    matcher = GE_MATCHER.matcher(expected);
-                    if (matcher.find()) {
-                        assertThat(Double.parseDouble(actual)).isGreaterThanOrEqualTo(Double.parseDouble(matcher.group("val")));
-                    } else {
-                        assertThat(actual).isEqualTo(expected);
-                    }
-                }
-            }
         }
     }
 
@@ -149,7 +133,7 @@ public class TraceMatcher {
     }
 
     public List<String> getEndpointNames() {
-        return endpointNames;
+        return endpointNames != null ? endpointNames : new ArrayList<>();
     }
 
     public String getDuration() {
@@ -181,6 +165,6 @@ public class TraceMatcher {
     }
 
     public List<String> getTraceIds() {
-        return traceIds;
+        return traceIds != null ? traceIds : new ArrayList<>();
     }
 }

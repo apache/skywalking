@@ -16,38 +16,19 @@
  *
  */
 
-package org.apache.skywalking.e2e;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package org.apache.skywalking.e2e.topo;
 
 /**
  * @author kezhenxu94
  */
-public class TracesMatcher {
-    private List<TraceMatcher> traces;
+public class TopoResponse {
+    private TopoData topo;
 
-    public TracesMatcher() {
-        this.traces = new LinkedList<>();
+    public TopoData getTopo() {
+        return topo;
     }
 
-    public List<TraceMatcher> getTraces() {
-        return traces;
-    }
-
-    public void setTraces(List<TraceMatcher> traces) {
-        this.traces = traces;
-    }
-
-    public void verify(final List<Trace> traces) {
-        assertThat(traces).hasSize(this.traces.size());
-
-        int size = this.traces.size();
-
-        for (int i = 0; i < size; i++) {
-            this.traces.get(i).verify(traces.get(i));
-        }
+    public void setTopo(TopoData topo) {
+        this.topo = topo;
     }
 }
