@@ -43,7 +43,7 @@ pipeline {
 
         stage('Run End-to-End Tests') {
             steps {
-                sh './mvnw -DCOMMIT_HASH=${GIT_COMMIT} -f test/e2e/pom.xml clean verify'
+                sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml clean verify'
             }
         }
     }
@@ -53,7 +53,7 @@ pipeline {
             // "Abort old build on update" will interrupt the job completely,
             // we need to clean up when there are containers started by the e2e tests
             sh 'docker ps'
-            sh 'docker ps | grep -e "skywalking-e2e-client-${GIT_COMMIT}" -e "skywalking-e2e-server-${GIT_COMMIT}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
+            sh 'docker ps | grep -e "skywalking-e2e-client-${BUILD_ID}" -e "skywalking-e2e-server-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
             deleteDir()
         }
     }

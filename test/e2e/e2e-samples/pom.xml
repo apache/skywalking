@@ -75,59 +75,25 @@
                     <containerNamePattern>%a</containerNamePattern>
                     <images>
                         <image>
-                            <name>kezhenxu94/skywalking-e2e-server:latest</name>
-                            <alias>skywalking-e2e-server-${COMMIT_HASH}</alias>
+                            <name>skyapm/e2e-container:1.0.0</name>
+                            <alias>skywalking-e2e-container-${build.id}</alias>
                             <run>
                                 <env>
-                                    <OAP_LOG_DIR>/tmp</OAP_LOG_DIR>
-                                    <WEBAPP_LOG_DIR>/tmp</WEBAPP_LOG_DIR>
+                                    <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
+                                    <port>+client.host:client.port:9090</port>
                                 </ports>
                                 <volumes>
                                     <bind>
                                         <volume>
                                             ${project.basedir}/../../../dist/apache-skywalking-apm-bin:/skywalking
                                         </volume>
+                                        <volume>
+                                            ${project.build.directory}:/home
+                                        </volume>
                                     </bind>
-                                </volumes>
-                                <wait>
-                                    <http>
-                                        <url>http://${docker.host.address}:${webapp.port}</url>
-                                        <method>GET</method>
-                                        <status>200..399</status>
-                                    </http>
-                                    <time>120000</time>
-                                </wait>
-                            </run>
-                        </image>
-                        <image>
-                            <name>kezhenxu94/skywalking-e2e-client:latest</name>
-                            <alias>skywalking-e2e-client-${COMMIT_HASH}</alias>
-                            <run>
-                                <dependsOn>
-                                    <container>skywalking-e2e-server-${COMMIT_HASH}</container>
-                                </dependsOn>
-                                <env>
-                                    <OAP_HOST>skywalking-e2e-server-${COMMIT_HASH}</OAP_HOST>
-                                    <OAP_PORT>11800</OAP_PORT>
-                                    <CLIENT_JAR>${project.build.finalName}.jar</CLIENT_JAR>
-                                </env>
-                                <ports>
-                                    <port>+client.host:client.port:8080</port>
-                                </ports>
-                                <links>
-                                    <link>skywalking-e2e-server-${COMMIT_HASH}</link>
-                                </links>
-                                <volumes>
-                                    <bind>
-                                        <volume>/skywalking</volume>
-                                        <volume>${project.build.directory}:/home</volume>
-                                    </bind>
-                                    <from>
-                                        <image>skywalking-e2e-server-${COMMIT_HASH}</image>
-                                    </from>
                                 </volumes>
                                 <wait>
                                     <http>
@@ -135,9 +101,9 @@
                                             http://${docker.host.address}:${client.port}/e2e/health-check
                                         </url>
                                         <method>GET</method>
-                                        <status>200..399</status>
+                                        <status>200</status>
                                     </http>
-                                    <time>240000</time>
+                                    <time>300000</time>
                                 </wait>
                             </run>
                         </image>
@@ -145,7 +111,7 @@
                 </configuration>
             </plugin>
 
-            <!-- set the system properties that can be used in IT's -->
+            <!-- set the system properties that can be used in test codes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -168,7 +134,6 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
                     </execution>
