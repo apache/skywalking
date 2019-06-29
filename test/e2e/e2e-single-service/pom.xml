@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>e2e-samples</artifactId>
+    <artifactId>e2e-single-service</artifactId>
 
     <dependencies>
         <dependency>
