@@ -75,7 +75,7 @@
                     <containerNamePattern>%a-%t</containerNamePattern>
                     <images>
                         <image>
-                            <name>skyapm/e2e-container:1.0.0</name>
+                            <name>skyapm/e2e-container:${e2e.container.version}</name>
                             <alias>skywalking-e2e-container-${build.id}</alias>
                             <run>
                                 <env>
