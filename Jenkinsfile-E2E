@@ -17,7 +17,9 @@
  */
 
 pipeline {
-    agent 'H16'
+    agent {
+        label 'H16'
+    }
 
     tools {
         jdk 'JDK 1.8 (latest)'
