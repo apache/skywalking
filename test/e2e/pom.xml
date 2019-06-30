@@ -55,8 +55,6 @@
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
-
-        <build.id>latest</build.id>
     </properties>
 
     <dependencies>
