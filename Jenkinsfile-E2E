@@ -17,9 +17,7 @@
  */
 
 pipeline {
-    agent {
-        label 'xenial'
-    }
+    agent 'H16'
 
     tools {
         jdk 'JDK 1.8 (latest)'
@@ -53,7 +51,7 @@ pipeline {
             // "Abort old build on update" will interrupt the job completely,
             // we need to clean up when there are containers started by the e2e tests
             sh 'docker ps -a'
-            sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
+            sh 'docker ps | grep -e "-e2e-" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
             deleteDir()
         }
     }
