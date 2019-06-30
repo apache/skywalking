@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 public class AlarmModuleProvider extends ModuleProvider {
 
     private NotifyHandler notifyHandler;
+
     private AlarmRulesWatcher alarmRulesWatcher;
 
     @Override public String name() {
