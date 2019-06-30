@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package org.apache.skywalking.e2e.verification;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,11 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author kezhenxu94
  */
-public class AbstractMatcher {
+public abstract class AbstractMatcher<T> {
     private static final Pattern NE_MATCHER = Pattern.compile("ne\\s+(?<val>.+)");
     private static final Pattern GT_MATCHER = Pattern.compile("gt\\s+(?<val>.+)");
     private static final Pattern GE_MATCHER = Pattern.compile("ge\\s+(?<val>.+)");
     private static final Pattern NN_MATCHER = Pattern.compile("^not null$");
+
+    public abstract void verify(T t);
 
     protected void doVerify(String expected, String actual) {
         Matcher matcher = NN_MATCHER.matcher(expected);
@@ -44,8 +46,8 @@ public class AbstractMatcher {
             assertThat(actual).isNotEqualTo(matcher.group("val"));
             return;
         }
-        matcher = GT_MATCHER.matcher(expected);
 
+        matcher = GT_MATCHER.matcher(expected);
         if (matcher.find()) {
             String val = matcher.group("val");
 

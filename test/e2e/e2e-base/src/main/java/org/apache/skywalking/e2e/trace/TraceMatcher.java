@@ -19,7 +19,7 @@
 package org.apache.skywalking.e2e.trace;
 
 import com.google.common.base.Strings;
-import org.apache.skywalking.e2e.AbstractMatcher;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author kezhenxu94
  */
-public class TraceMatcher extends AbstractMatcher {
+public class TraceMatcher extends AbstractMatcher<Trace> {
     private String key;
     private List<String> endpointNames;
     private String duration;
@@ -40,6 +40,7 @@ public class TraceMatcher extends AbstractMatcher {
     private String isError;
     private List<String> traceIds;
 
+    @Override
     public void verify(final Trace trace) {
         if (Objects.nonNull(getKey())) {
             verifyKey(trace);
@@ -74,7 +75,7 @@ public class TraceMatcher extends AbstractMatcher {
     }
 
     private void verifyEndpointName(Trace trace) {
-        assertThat(trace.getEndpointNames()).hasSize(getEndpointNames().size());
+        assertThat(trace.getEndpointNames()).hasSameSizeAs(getEndpointNames());
 
         int size = getEndpointNames().size();
 
@@ -108,7 +109,7 @@ public class TraceMatcher extends AbstractMatcher {
     }
 
     private void verifyTraceIds(Trace trace) {
-        assertThat(trace.getTraceIds()).hasSize(getTraceIds().size());
+        assertThat(trace.getTraceIds()).hasSameSizeAs(getTraceIds());
 
         int size = getTraceIds().size();
 

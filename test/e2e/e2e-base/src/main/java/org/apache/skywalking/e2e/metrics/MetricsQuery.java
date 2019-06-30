@@ -16,38 +16,44 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.metrics;
+
+import org.apache.skywalking.e2e.AbstractQuery;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class MetricsQuery extends AbstractQuery<MetricsQuery> {
+    public static String SERVICE_INSTANCE_RESP_TIME = "service_instance_resp_time";
+    public static String SERVICE_INSTANCE_CPM = "service_instance_cpm";
+    public static String SERVICE_INSTANCE_SLA = "service_instance_sla";
 
-    public String getKey() {
-        return key;
+    private String id;
+    private String metricsName;
+
+    public String id() {
+        return id;
     }
 
-    public Service setKey(String key) {
-        this.key = key;
+    public MetricsQuery id(String id) {
+        this.id = id;
         return this;
     }
 
-    public String getLabel() {
-        return label;
+    public String metricsName() {
+        return metricsName;
     }
 
-    public Service setLabel(String label) {
-        this.label = label;
+    public MetricsQuery metricsName(String metricsName) {
+        this.metricsName = metricsName;
         return this;
     }
 
     @Override
     public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
+        return "MetricsQuery{" +
+            "id='" + id + '\'' +
+            ", metricsName='" + metricsName + '\'' +
             '}';
     }
 }

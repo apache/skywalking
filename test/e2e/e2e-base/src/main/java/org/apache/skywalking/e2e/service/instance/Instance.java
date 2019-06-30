@@ -16,60 +16,50 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.service.instance;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
-import java.util.Objects;
+import java.util.List;
 
 /**
- * A simple matcher to verify the given {@code Service} is expected
- *
  * @author kezhenxu94
  */
-public class ServiceMatcher extends AbstractMatcher<Service> {
-
+public class Instance {
     private String key;
     private String label;
-
-    @Override
-    public void verify(final Service service) {
-        if (Objects.nonNull(getKey())) {
-            verifyKey(service);
-        }
-
-        if (Objects.nonNull(getLabel())) {
-            verifyLabel(service);
-        }
-    }
-
-    private void verifyKey(Service service) {
-        final String expected = this.getKey();
-        final String actual = service.getKey();
-
-        doVerify(expected, actual);
-    }
-
-    private void verifyLabel(Service service) {
-        final String expected = this.getLabel();
-        final String actual = String.valueOf(service.getLabel());
-
-        doVerify(expected, actual);
-    }
+    private List<Attribute> attributes;
 
     public String getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public Instance setKey(String key) {
         this.key = key;
+        return this;
     }
 
     public String getLabel() {
         return label;
     }
 
-    public void setLabel(String label) {
+    public Instance setLabel(String label) {
         this.label = label;
+        return this;
+    }
+
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String toString() {
+        return "Instance{" +
+            "key='" + key + '\'' +
+            ", label='" + label + '\'' +
+            ", attributes=" + attributes +
+            '}';
     }
 }

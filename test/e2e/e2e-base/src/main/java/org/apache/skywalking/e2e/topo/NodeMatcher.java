@@ -18,19 +18,20 @@
 
 package org.apache.skywalking.e2e.topo;
 
-import org.apache.skywalking.e2e.AbstractMatcher;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.Objects;
 
 /**
  * @author kezhenxu94
  */
-public class NodeMatcher extends AbstractMatcher {
+public class NodeMatcher extends AbstractMatcher<Node> {
     private String id;
     private String name;
     private String type;
     private String isReal;
 
+    @Override
     public void verify(final Node node) {
         if (Objects.nonNull(getId())) {
             final String expected = this.getId();

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.e2e.topo;
 
-import org.apache.skywalking.e2e.AbstractMatcher;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,12 +28,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author kezhenxu94
  */
-public class CallMatcher extends AbstractMatcher {
+public class CallMatcher extends AbstractMatcher<Call> {
     private String id;
     private String source;
     private List<String> detectPoints;
     private String target;
 
+    @Override
     public void verify(final Call call) {
         if (Objects.nonNull(getId())) {
             final String expected = this.getId();
@@ -50,7 +51,7 @@ public class CallMatcher extends AbstractMatcher {
         }
 
         if (Objects.nonNull(getDetectPoints())) {
-            assertThat(getDetectPoints()).hasSize(call.getDetectPoints().size());
+            assertThat(getDetectPoints()).hasSameSizeAs(call.getDetectPoints());
             int size = getDetectPoints().size();
 
             for (int i = 0; i < size; i++) {

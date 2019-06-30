@@ -42,7 +42,7 @@ public class TracesMatcher {
     }
 
     public void verify(final List<Trace> traces) {
-        assertThat(traces).hasSize(this.traces.size());
+        assertThat(traces).hasSameSizeAs(this.traces);
 
         int size = this.traces.size();
 

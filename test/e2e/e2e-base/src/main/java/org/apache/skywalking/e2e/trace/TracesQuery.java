@@ -18,61 +18,17 @@
 
 package org.apache.skywalking.e2e.trace;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import org.apache.skywalking.e2e.AbstractQuery;
 
 /**
  * @author kezhenxu94
  */
-public class TracesQuery {
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss");
-
-    private String start = LocalDateTime.now(ZoneOffset.UTC).format(TIME_FORMATTER);
-    private String end = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(TIME_FORMATTER);
-    private String step = "SECOND";
+public class TracesQuery extends AbstractQuery<TracesQuery> {
     private String traceState = "ALL";
     private String pageNum = "1";
     private String pageSize = "15";
     private String needTotal = "true";
     private String queryOrder = "BY_DURATION";
-
-    public String start() {
-        return start;
-    }
-
-    public TracesQuery start(String start) {
-        this.start = start;
-        return this;
-    }
-
-    public TracesQuery start(LocalDateTime start) {
-        this.start = start.format(TIME_FORMATTER);
-        return this;
-    }
-
-    public String end() {
-        return end;
-    }
-
-    public TracesQuery end(String end) {
-        this.end = end;
-        return this;
-    }
-
-    public TracesQuery end(LocalDateTime end) {
-        this.end = end.format(TIME_FORMATTER);
-        return this;
-    }
-
-    public String step() {
-        return step;
-    }
-
-    public TracesQuery step(String step) {
-        this.step = step;
-        return this;
-    }
 
     public String traceState() {
         return traceState;

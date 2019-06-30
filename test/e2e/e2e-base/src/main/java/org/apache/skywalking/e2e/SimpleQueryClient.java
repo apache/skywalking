@@ -19,9 +19,15 @@
 package org.apache.skywalking.e2e;
 
 import com.google.common.io.Resources;
+import org.apache.skywalking.e2e.metrics.Metrics;
+import org.apache.skywalking.e2e.metrics.MetricsData;
+import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesData;
 import org.apache.skywalking.e2e.service.ServicesQuery;
+import org.apache.skywalking.e2e.service.instance.Instance;
+import org.apache.skywalking.e2e.service.instance.InstancesData;
+import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.apache.skywalking.e2e.topo.TopoData;
 import org.apache.skywalking.e2e.topo.TopoQuery;
 import org.apache.skywalking.e2e.topo.TopoResponse;
@@ -103,6 +109,28 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getServices();
     }
 
+    public List<Instance> instances(final InstancesQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("instances.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{serviceId}", query.serviceId())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{step}", query.step());
+        final ResponseEntity<GQLResponse<InstancesData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<InstancesData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getServiceInstances();
+    }
 
     public TopoData topo(final TopoQuery query) throws Exception {
         final URL queryFileUrl = Resources.getResource("topo.gql");
@@ -124,6 +152,30 @@ public class SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+    }
+
+    public Metrics metrics(final MetricsQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("metrics.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{step}", query.step())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{metricsName}", query.metricsName())
+            .replace("{id}", query.id());
+        final ResponseEntity<GQLResponse<MetricsData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<MetricsData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getMetrics();
     }
 
 }

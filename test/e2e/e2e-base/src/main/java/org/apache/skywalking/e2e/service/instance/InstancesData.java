@@ -16,38 +16,21 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.service.instance;
+
+import java.util.List;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class InstancesData {
+    private List<Instance> serviceInstances;
 
-    public String getKey() {
-        return key;
+    public List<Instance> getServiceInstances() {
+        return serviceInstances;
     }
 
-    public Service setKey(String key) {
-        this.key = key;
-        return this;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public Service setLabel(String label) {
-        this.label = label;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            '}';
+    public void setServiceInstances(List<Instance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
     }
 }

@@ -16,38 +16,27 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.metrics;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class MetricsValue {
+    private String value;
 
-    public String getKey() {
-        return key;
+    public String getValue() {
+        return value;
     }
 
-    public Service setKey(String key) {
-        this.key = key;
-        return this;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public Service setLabel(String label) {
-        this.label = label;
+    public MetricsValue setValue(String value) {
+        this.value = value;
         return this;
     }
 
     @Override
     public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
+        return "MetricsValue{" +
+            "value='" + value + '\'' +
             '}';
     }
 }

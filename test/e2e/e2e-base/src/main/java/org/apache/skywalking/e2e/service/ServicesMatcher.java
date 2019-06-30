@@ -42,7 +42,7 @@ public class ServicesMatcher {
     }
 
     public void verify(final List<Service> services) {
-        assertThat(services).hasSize(this.getServices().size());
+        assertThat(services).hasSameSizeAs(this.getServices());
 
         int size = this.getServices().size();
 

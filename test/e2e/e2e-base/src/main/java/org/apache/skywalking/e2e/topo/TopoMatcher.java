@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.e2e.topo;
 
-import org.apache.skywalking.e2e.AbstractMatcher;
-import org.apache.skywalking.e2e.service.Service;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,11 +30,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author kezhenxu94
  */
-public class TopoMatcher extends AbstractMatcher {
+public class TopoMatcher extends AbstractMatcher<TopoData> {
 
     private List<NodeMatcher> nodes;
     private List<CallMatcher> calls;
 
+    @Override
     public void verify(final TopoData topoData) {
         if (Objects.nonNull(getNodes())) {
             verifyNodes(topoData);
@@ -47,7 +47,7 @@ public class TopoMatcher extends AbstractMatcher {
     }
 
     private void verifyNodes(TopoData topoData) {
-        assertThat(topoData.getNodes()).hasSize(getNodes().size());
+        assertThat(topoData.getNodes()).hasSameSizeAs(getNodes());
 
         int size = getNodes().size();
 
@@ -57,7 +57,7 @@ public class TopoMatcher extends AbstractMatcher {
     }
 
     private void verifyCalls(TopoData topoData) {
-        assertThat(topoData.getCalls()).hasSize(getCalls().size());
+        assertThat(topoData.getCalls()).hasSameSizeAs(getCalls());
 
         int size = getCalls().size();
 

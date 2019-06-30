@@ -16,38 +16,40 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.service.instance;
+
+import org.assertj.core.api.Assertions;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class InstancesMatcher {
+    private List<InstanceMatcher> instances;
 
-    public String getKey() {
-        return key;
+    public InstancesMatcher() {
+        this.instances = new LinkedList<>();
     }
 
-    public Service setKey(String key) {
-        this.key = key;
-        return this;
+    public List<InstanceMatcher> getInstances() {
+        return instances;
     }
 
-    public String getLabel() {
-        return label;
+    public void setInstances(List<InstanceMatcher> instances) {
+        this.instances = instances;
     }
 
-    public Service setLabel(String label) {
-        this.label = label;
-        return this;
-    }
+    public void verify(final List<Instance> instances) {
+        Assertions.assertThat(instances).hasSameSizeAs(this.getInstances());
 
-    @Override
-    public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            '}';
+        int size = this.getInstances().size();
+
+        for (int i = 0; i < size; i++) {
+            this.getInstances().get(i).verify(instances.get(i));
+        }
     }
 }

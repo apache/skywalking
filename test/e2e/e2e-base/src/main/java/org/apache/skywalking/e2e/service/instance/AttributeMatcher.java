@@ -16,38 +16,48 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.service.instance;
+
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
+
+import java.util.Objects;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class AttributeMatcher extends AbstractMatcher<Attribute> {
+    private String name;
+    private String value;
 
-    public String getKey() {
-        return key;
+    @Override
+    public void verify(final Attribute attribute) {
+        if (Objects.nonNull(attribute.getName())) {
+            doVerify(getName(), attribute.getName());
+            doVerify(getValue(), attribute.getValue());
+        }
     }
 
-    public Service setKey(String key) {
-        this.key = key;
-        return this;
+    public String getName() {
+        return name;
     }
 
-    public String getLabel() {
-        return label;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Service setLabel(String label) {
-        this.label = label;
-        return this;
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
+        return "Attribute{" +
+            "name='" + name + '\'' +
+            ", value='" + value + '\'' +
             '}';
     }
 }

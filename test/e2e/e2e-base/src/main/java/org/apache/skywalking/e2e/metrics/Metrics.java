@@ -16,38 +16,29 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.metrics;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class Metrics {
+    private List<MetricsValue> values = new ArrayList<>();
 
-    public String getKey() {
-        return key;
+    public List<MetricsValue> getValues() {
+        return values;
     }
 
-    public Service setKey(String key) {
-        this.key = key;
-        return this;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public Service setLabel(String label) {
-        this.label = label;
-        return this;
+    public void setValues(List<MetricsValue> values) {
+        this.values = values;
     }
 
     @Override
     public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
+        return "Metrics{" +
+            "values=" + values +
             '}';
     }
 }

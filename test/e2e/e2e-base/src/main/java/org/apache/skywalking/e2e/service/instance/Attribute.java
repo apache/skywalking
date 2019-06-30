@@ -16,38 +16,36 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.service.instance;
 
 /**
  * @author kezhenxu94
  */
-public class Service {
-    private String key;
-    private String label;
+public class Attribute {
+    private String name;
+    private String value;
 
-    public String getKey() {
-        return key;
+    public String getName() {
+        return name;
     }
 
-    public Service setKey(String key) {
-        this.key = key;
-        return this;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getLabel() {
-        return label;
+    public String getValue() {
+        return value;
     }
 
-    public Service setLabel(String label) {
-        this.label = label;
-        return this;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
+        return "Attribute{" +
+            "name='" + name + '\'' +
+            ", value='" + value + '\'' +
             '}';
     }
 }

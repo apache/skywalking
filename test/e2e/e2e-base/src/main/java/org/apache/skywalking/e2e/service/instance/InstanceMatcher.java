@@ -16,45 +16,66 @@
  *
  */
 
-package org.apache.skywalking.e2e.service;
+package org.apache.skywalking.e2e.service.instance;
 
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
+import java.util.List;
 import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A simple matcher to verify the given {@code Service} is expected
  *
  * @author kezhenxu94
  */
-public class ServiceMatcher extends AbstractMatcher<Service> {
+public class InstanceMatcher extends AbstractMatcher<Instance> {
 
     private String key;
     private String label;
+    private List<AttributeMatcher> attributes;
 
     @Override
-    public void verify(final Service service) {
+    public void verify(final Instance instance) {
         if (Objects.nonNull(getKey())) {
-            verifyKey(service);
+            verifyKey(instance);
         }
 
         if (Objects.nonNull(getLabel())) {
-            verifyLabel(service);
+            verifyLabel(instance);
+        }
+
+        if (Objects.nonNull(getAttributes())) {
+            verifyAttributes(instance);
         }
     }
 
-    private void verifyKey(Service service) {
+    private void verifyKey(Instance instance) {
         final String expected = this.getKey();
-        final String actual = service.getKey();
+        final String actual = instance.getKey();
 
         doVerify(expected, actual);
     }
 
-    private void verifyLabel(Service service) {
+    private void verifyLabel(Instance instance) {
         final String expected = this.getLabel();
-        final String actual = String.valueOf(service.getLabel());
+        final String actual = String.valueOf(instance.getLabel());
 
         doVerify(expected, actual);
+    }
+
+    private void verifyAttributes(Instance instance) {
+        final List<AttributeMatcher> expected = this.getAttributes();
+        final List<Attribute> actual = instance.getAttributes();
+
+        assertThat(actual).hasSameSizeAs(expected);
+
+        int size = expected.size();
+
+        for (int i = 0; i < size; i++) {
+            expected.get(i).verify(actual.get(i));
+        }
     }
 
     public String getKey() {
@@ -71,5 +92,22 @@ public class ServiceMatcher extends AbstractMatcher<Service> {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public List<AttributeMatcher> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<AttributeMatcher> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String toString() {
+        return "InstanceMatcher{" +
+            "key='" + key + '\'' +
+            ", label='" + label + '\'' +
+            ", attributes=" + attributes +
+            '}';
     }
 }
