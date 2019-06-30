@@ -16,40 +16,28 @@
  *
  */
 
-package org.apache.skywalking.e2e.service.instance;
+package org.apache.skywalking.e2e.service.endpoint;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-import org.assertj.core.api.Assertions;
-
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author kezhenxu94
  */
-public class InstancesMatcher extends AbstractMatcher<Instances> {
-    private List<InstanceMatcher> instances;
+public class Endpoints {
+    private List<Endpoint> endpoints;
 
-    public InstancesMatcher() {
-        this.instances = new LinkedList<>();
+    public List<Endpoint> getEndpoints() {
+        return endpoints;
     }
 
-    public List<InstanceMatcher> getInstances() {
-        return instances;
-    }
-
-    public void setInstances(List<InstanceMatcher> instances) {
-        this.instances = instances;
+    public void setEndpoints(List<Endpoint> endpoints) {
+        this.endpoints = endpoints;
     }
 
     @Override
-    public void verify(final Instances instances) {
-        Assertions.assertThat(instances.getInstances()).hasSameSizeAs(this.getInstances());
-
-        int size = this.getInstances().size();
-
-        for (int i = 0; i < size; i++) {
-            this.getInstances().get(i).verify(instances.getInstances().get(i));
-        }
+    public String toString() {
+        return "Endpoints{" +
+            "endpoints=" + endpoints +
+            '}';
     }
 }

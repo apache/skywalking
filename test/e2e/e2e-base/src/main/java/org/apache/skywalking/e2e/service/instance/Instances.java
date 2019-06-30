@@ -23,14 +23,14 @@ import java.util.List;
 /**
  * @author kezhenxu94
  */
-public class InstancesData {
-    private List<Instance> serviceInstances;
+public class Instances {
+    private List<Instance> instances;
 
-    public List<Instance> getServiceInstances() {
-        return serviceInstances;
+    public List<Instance> getInstances() {
+        return instances;
     }
 
-    public void setServiceInstances(List<Instance> serviceInstances) {
-        this.serviceInstances = serviceInstances;
+    public void setInstances(List<Instance> instances) {
+        this.instances = instances;
     }
 }

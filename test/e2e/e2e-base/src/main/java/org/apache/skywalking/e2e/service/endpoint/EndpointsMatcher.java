@@ -16,40 +16,46 @@
  *
  */
 
-package org.apache.skywalking.e2e.service.instance;
+package org.apache.skywalking.e2e.service.endpoint;
 
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
-import org.assertj.core.api.Assertions;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author kezhenxu94
  */
-public class InstancesMatcher extends AbstractMatcher<Instances> {
-    private List<InstanceMatcher> instances;
+public class EndpointsMatcher extends AbstractMatcher<Endpoints> {
+    private List<EndpointMatcher> endpoints;
 
-    public InstancesMatcher() {
-        this.instances = new LinkedList<>();
+    public List<EndpointMatcher> getEndpoints() {
+        return endpoints;
     }
 
-    public List<InstanceMatcher> getInstances() {
-        return instances;
-    }
-
-    public void setInstances(List<InstanceMatcher> instances) {
-        this.instances = instances;
+    public void setEndpoints(List<EndpointMatcher> endpoints) {
+        this.endpoints = endpoints;
     }
 
     @Override
-    public void verify(final Instances instances) {
-        Assertions.assertThat(instances.getInstances()).hasSameSizeAs(this.getInstances());
+    public void verify(Endpoints endpoints) {
+        if (Objects.nonNull(getEndpoints())) {
+            assertThat(endpoints.getEndpoints()).hasSameSizeAs(getEndpoints());
 
-        int size = this.getInstances().size();
+            int size = getEndpoints().size();
 
-        for (int i = 0; i < size; i++) {
-            this.getInstances().get(i).verify(instances.getInstances().get(i));
+            for (int i = 0; i < size; i++) {
+                getEndpoints().get(i).verify(endpoints.getEndpoints().get(i));
+            }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "EndpointsMatcher{" +
+            "endpoints=" + endpoints +
+            '}';
     }
 }

@@ -18,14 +18,19 @@
 
 package org.apache.skywalking.e2e;
 
+import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
-import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
+import org.apache.skywalking.e2e.service.endpoint.Endpoint;
+import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
+import org.apache.skywalking.e2e.service.endpoint.Endpoints;
+import org.apache.skywalking.e2e.service.endpoint.EndpointsMatcher;
 import org.apache.skywalking.e2e.service.instance.Instance;
+import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.apache.skywalking.e2e.topo.TopoData;
@@ -54,7 +59,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P50;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P75;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P90;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P95;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P99;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_INSTANCE_CPM;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_INSTANCE_RESP_TIME;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_INSTANCE_SLA;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P50;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P75;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P90;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P95;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P99;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -72,9 +89,9 @@ public class SampleVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32781");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String instrumentedServiceHost0 = System.getProperty("client.host", "127.0.0.1");
-        final String instrumentedServicePort0 = System.getProperty("client.port", "32780");
+        final String instrumentedServicePort0 = System.getProperty("client.port", "32782");
         final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
         queryClient = new SimpleQueryClient(queryClientUrl);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost0 + ":" + instrumentedServicePort0;
@@ -137,23 +154,58 @@ public class SampleVerificationITCase {
 
         for (Service service : services) {
             LOGGER.info("verifying service instances: {}", service);
-            List<Instance> instances = queryClient.instances(
-                new InstancesQuery()
-                    .serviceId(service.getKey())
-                    .start(minutesAgo)
-                    .end(now)
-            );
-            expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml").getInputStream();
-            final InstancesMatcher instancesMatcher = new Yaml().loadAs(expectedInputStream, InstancesMatcher.class);
-            instancesMatcher.verify(instances);
 
-            for (Instance instance : instances) {
+            verifyServiceMetrics(service);
+
+            Instances instances = verifyServiceInstances(minutesAgo, now, service);
+
+            verifyInstancesMetrics(instances);
+
+            Endpoints endpoints = verifyServiceEndpoints(minutesAgo, now, service);
+
+            verifyEndpointsMetrics(endpoints);
+        }
+    }
+
+    private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+        InputStream expectedInputStream;
+        Instances instances = queryClient.instances(
+            new InstancesQuery()
+                .serviceId(service.getKey())
+                .start(minutesAgo)
+                .end(now)
+        );
+        expectedInputStream =
+            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml").getInputStream();
+        final InstancesMatcher instancesMatcher = new Yaml().loadAs(expectedInputStream, InstancesMatcher.class);
+        instancesMatcher.verify(instances);
+        return instances;
+    }
+
+    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+        Endpoints instances = queryClient.endpoints(
+            new EndpointQuery().serviceId(service.getKey())
+        );
+        InputStream expectedInputStream =
+            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.endpoints.yml").getInputStream();
+        final EndpointsMatcher endpointsMatcher = new Yaml().loadAs(expectedInputStream, EndpointsMatcher.class);
+        endpointsMatcher.verify(instances);
+        return instances;
+    }
+
+    private void verifyInstancesMetrics(Instances instances) throws Exception {
+        final String[] instanceMetricsNames = new String[] {
+            SERVICE_INSTANCE_RESP_TIME,
+            SERVICE_INSTANCE_CPM,
+            SERVICE_INSTANCE_SLA
+        };
+        for (Instance instance : instances.getInstances()) {
+            for (String metricsName : instanceMetricsNames) {
                 LOGGER.info("verifying service instance response time: {}", instance);
                 final Metrics instanceRespTime = queryClient.metrics(
                     new MetricsQuery()
                         .step("MINUTE")
-                        .metricsName(SERVICE_INSTANCE_RESP_TIME)
+                        .metricsName(metricsName)
                         .id(instance.getKey())
                 );
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
@@ -161,8 +213,63 @@ public class SampleVerificationITCase {
                 greaterThanZero.setValue("gt 0");
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 instanceRespTimeMatcher.verify(instanceRespTime);
-                LOGGER.info("instanceRespTime: {}", instanceRespTime);
+                LOGGER.info("{}: {}", metricsName, instanceRespTime);
             }
+        }
+    }
+
+    private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
+        final String[] endpointMetricsNames = {
+            ENDPOINT_P99,
+            ENDPOINT_P95,
+            ENDPOINT_P90,
+            ENDPOINT_P75,
+            ENDPOINT_P50
+        };
+        for (Endpoint endpoint : endpoints.getEndpoints()) {
+            if (!endpoint.getLabel().equals("/e2e/users")) {
+                continue;
+            }
+            for (String metricName : endpointMetricsNames) {
+                LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
+                final Metrics metrics = queryClient.metrics(
+                    new MetricsQuery()
+                        .step("MINUTE")
+                        .metricsName(metricName)
+                        .id(endpoint.getKey())
+                );
+                AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                greaterThanZero.setValue("gt 0");
+                instanceRespTimeMatcher.setValue(greaterThanZero);
+                instanceRespTimeMatcher.verify(metrics);
+                LOGGER.info("metrics: {}", metrics);
+            }
+        }
+    }
+
+    private void verifyServiceMetrics(Service service) throws Exception {
+        final String[] serviceMetrics = {
+            SERVICE_P99,
+            SERVICE_P95,
+            SERVICE_P90,
+            SERVICE_P75,
+            SERVICE_P50
+        };
+        for (String metricName : serviceMetrics) {
+            LOGGER.info("verifying service {}, metrics: {}", service, metricName);
+            final Metrics instanceRespTime = queryClient.metrics(
+                new MetricsQuery()
+                    .step("MINUTE")
+                    .metricsName(metricName)
+                    .id(service.getKey())
+            );
+            AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+            MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+            greaterThanZero.setValue("gt 0");
+            instanceRespTimeMatcher.setValue(greaterThanZero);
+            instanceRespTimeMatcher.verify(instanceRespTime);
+            LOGGER.info("instanceRespTime: {}", instanceRespTime);
         }
     }
 

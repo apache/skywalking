@@ -16,40 +16,42 @@
  *
  */
 
-package org.apache.skywalking.e2e.service.instance;
+package org.apache.skywalking.e2e.service.endpoint;
 
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
-import org.assertj.core.api.Assertions;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * @author kezhenxu94
  */
-public class InstancesMatcher extends AbstractMatcher<Instances> {
-    private List<InstanceMatcher> instances;
+public class EndpointMatcher extends AbstractMatcher<Endpoint> {
+    private String key;
+    private String label;
 
-    public InstancesMatcher() {
-        this.instances = new LinkedList<>();
+    public String getKey() {
+        return key;
     }
 
-    public List<InstanceMatcher> getInstances() {
-        return instances;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public void setInstances(List<InstanceMatcher> instances) {
-        this.instances = instances;
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     @Override
-    public void verify(final Instances instances) {
-        Assertions.assertThat(instances.getInstances()).hasSameSizeAs(this.getInstances());
-
-        int size = this.getInstances().size();
-
-        for (int i = 0; i < size; i++) {
-            this.getInstances().get(i).verify(instances.getInstances().get(i));
+    public void verify(final Endpoint endpoint) {
+        if (Objects.nonNull(getKey())) {
+            doVerify(getKey(), endpoint.getKey());
+        }
+        if (Objects.nonNull(getLabel())) {
+            doVerify(getLabel(), endpoint.getLabel());
         }
     }
 }

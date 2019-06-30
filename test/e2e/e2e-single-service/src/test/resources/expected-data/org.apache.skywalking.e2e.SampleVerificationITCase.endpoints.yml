@@ -14,23 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-  "query":"query queryInstances($serviceId: ID!, $duration: Duration!) {
-    instances: getServiceInstances(duration: $duration, serviceId: $serviceId) {
-      key: id
-      label: name
-      attributes {
-        name
-        value
-      }
-    }
-  }",
-  "variables": {
-    "serviceId": "{serviceId}",
-    "duration": {
-      "start": "{start}",
-      "end": "{end}",
-      "step": "{step}"
-    }
-  }
-}
+# 1 health-check by docker-maven-plugin
+# 1 drop table if exists, because we have `ddl-auto: create-drop`
+# 1 drop sequence
+# 1 create sequence
+# 1 create table statement
+
+endpoints:
+  - key: not null
+    label: /e2e/health-check
+  - key: not null
+    label: /e2e/users

@@ -15,22 +15,14 @@
 # limitations under the License.
 
 {
-  "query":"query queryInstances($serviceId: ID!, $duration: Duration!) {
-    instances: getServiceInstances(duration: $duration, serviceId: $serviceId) {
+  "query":"query queryEndpoints($serviceId: ID!, $keyword: String!) {
+    endpoints: searchEndpoint(serviceId: $serviceId, keyword: $keyword, limit: 100) {
       key: id
       label: name
-      attributes {
-        name
-        value
-      }
     }
   }",
   "variables": {
     "serviceId": "{serviceId}",
-    "duration": {
-      "start": "{start}",
-      "end": "{end}",
-      "step": "{step}"
-    }
+    "keyword": ""
   }
 }

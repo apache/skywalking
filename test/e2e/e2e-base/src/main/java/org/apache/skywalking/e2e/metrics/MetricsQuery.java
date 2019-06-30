@@ -24,6 +24,18 @@ import org.apache.skywalking.e2e.AbstractQuery;
  * @author kezhenxu94
  */
 public class MetricsQuery extends AbstractQuery<MetricsQuery> {
+    public static String SERVICE_P99 = "service_p99";
+    public static String SERVICE_P95 = "service_p95";
+    public static String SERVICE_P90 = "service_p90";
+    public static String SERVICE_P75 = "service_p75";
+    public static String SERVICE_P50 = "service_p50";
+
+    public static String ENDPOINT_P99 = "endpoint_p99";
+    public static String ENDPOINT_P95 = "endpoint_p95";
+    public static String ENDPOINT_P90 = "endpoint_p90";
+    public static String ENDPOINT_P75 = "endpoint_p75";
+    public static String ENDPOINT_P50 = "endpoint_p50";
+
     public static String SERVICE_INSTANCE_RESP_TIME = "service_instance_resp_time";
     public static String SERVICE_INSTANCE_CPM = "service_instance_cpm";
     public static String SERVICE_INSTANCE_SLA = "service_instance_sla";
