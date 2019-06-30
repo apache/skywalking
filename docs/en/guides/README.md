@@ -26,6 +26,7 @@ All the following channels are open to the community, you could choose the way y
 ## For code developer
 For developers, first step, read [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the environment.
 
+### Integration Tests
 After setting up the environment and writing your codes, in order to make it more easily accepted by SkyWalking project, you'll
 need to run the tests locally to verify that your codes don't break any existed features,
 and write some unit test (UT) codes to verify that the new codes work well, preventing them being broke by future contributors.
@@ -39,9 +40,39 @@ Therefore, to run the UTs, try `./mvnw clean test`, this will only run the UTs, 
 If you want to run the ITs please activate the `CI-with-IT` profile
 as well as the the profiles of the modules whose ITs you want to run.
 e.g. if you want to run the ITs in `oap-server`, try `./mvnw -Pbackend,CI-with-IT clean verify`,
-and if you'd like to run all the ITs, simple run `./mvnw -Pall,CI-with-IT clean verify`.
+and if you'd like to run all the ITs, simply run `./mvnw -Pall,CI-with-IT clean verify`.
 
 Please be advised that if you're writing integration tests, name it with the pattern `IT*` to make them only run in `CI-with-IT` profile.
+
+### End to End Tests (E2E for short)
+Since version 6.3.0, we have introduced more automatic tests to perform software quality assurance, E2E is one of the most important parts.
+
+> End-to-end testing is a methodology used to test whether the flow of an application is performing as designed from start to finish.
+ The purpose of carrying out end-to-end tests is to identify system dependencies and to ensure that the right information is passed between various system components and systems.
+
+The e2e tests involves the OAP server, Web App, and the instrumented services, all of them run in a designed Docker container, connecting to each other; 
+in addition, there is a test controller running outside of the container that sends requests to the instrumented service,
+and then verify the corresponding results after those requests, by GraphQL API of the SkyWalking Web App.
+
+Run the command `./mvnw -f test/e2e/pom.xml clean verify` under the root directory to get an intuition on how they work together.
+
+#### Writing E2E Cases
+
+- Set up environment in Intellij IDEA
+The e2e test is an individual project under the SkyWalking root directory and the IDEA cannot recognize it by default, right click
+on the file `test/e2e/pom.xml` and click `Add as Maven Project`, things should be ready now.
+
+- Design instrumented service
+Writing instrumented service is as similar as what you'll do in daily work, write the codes, package them into a executable jar,
+one thing different is that they're well-designed, "well-designed" means that the instrumented service will involve the
+components/libraries that are to be verified in the e2e case.
+
+For example, if you want to verify that all of the agents of the Spring framework, MySQL, and Dubbo work well together with the whole SkyWalking backend, webapp, and storage,
+you'll probably **design** an instrumented service that uses MySQL as storage, Dubbo as RPC framework and Spring to manage the beans.
+
+- Write test controller
+To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
+They send **designed** (again) requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
 
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
