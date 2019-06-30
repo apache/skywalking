@@ -18,7 +18,7 @@
 
 pipeline {
     agent {
-        label 'H16'
+        label 'xenial'
     }
 
     tools {
@@ -52,9 +52,8 @@ pipeline {
         always {
             // "Abort old build on update" will interrupt the job completely,
             // we need to clean up when there are containers started by the e2e tests
-            sh 'sudo chown "$USER" /home/jenkins/jenkins-slave/workspace/skywalking-e2e/test/e2e/e2e-samples/target/logs/e2e-samples-1.0.0.jar.log'
-            sh 'docker ps -a'
-            sh 'docker ps | grep -e "-sample-" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
+            sh 'docker ps'
+            sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
             deleteDir()
         }
     }
