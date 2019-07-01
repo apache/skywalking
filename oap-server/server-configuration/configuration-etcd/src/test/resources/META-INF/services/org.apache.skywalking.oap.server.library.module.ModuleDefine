@@ -16,4 +16,5 @@
 #
 #
 
-org.apache.skywalking.oap.server.configuration.etcd.EtcdConfigurationProvider
+org.apache.skywalking.oap.server.configuration.api.ConfigurationModule
+org.apache.skywalking.oap.server.configuration.etcd.EtcdConfigurationTestModule
