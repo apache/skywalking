@@ -57,8 +57,6 @@ Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines
 
 # Live Demo
 Host in Beijing. Go to [demo](http://106.75.237.45:8080/).
-- Username: admin
-- Password: admin
 
 **Video on youtube.com**
 

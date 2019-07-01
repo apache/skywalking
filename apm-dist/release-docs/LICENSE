@@ -338,7 +338,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
     bcpkix-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
-    minimao-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
+    minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
 
 ========================================================================
 BSD licenses
