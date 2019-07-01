@@ -33,11 +33,6 @@ collector:
     # Point to all backend's restHost:restPort, split by ,
     listOfServers: 127.0.0.1:12800
 
-security:
-  user:
-    admin:
-      password: admin
-
 spring:
   resources:
     add-mappings: false

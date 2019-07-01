@@ -10,6 +10,7 @@ or providing commercial products including Apache SkyWalking.
 1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
 1. Alibaba Cloud, 阿里云, http://aliyun.com 
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
+1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
 1. Baixing.com 百姓网 http://www.baixing.com/
@@ -21,6 +22,7 @@ or providing commercial products including Apache SkyWalking.
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
+1. Chtwm.com. 恒天财富投资管理股份有限公司. https://www.chtwm.com/
 1. Cmft.com. 招商局金融科技. https://www.cmft.com/
 1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
 1. Dangdang.com. 当当网. http://www.dangdang.com/
@@ -61,6 +63,7 @@ or providing commercial products including Apache SkyWalking.
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
+1. shuaibaoshop.com 宁波鲸灵网络科技有限公司 http://www.shuaibaoshop.com/
 1. Sijibao.com 司机宝 https://www.sijibao.com/
 1. Sinolink Securities Co.,Ltd. 国金证券佣金宝 http://www.yongjinbao.com.cn/
 1. Source++ https://sourceplusplus.com
@@ -80,6 +83,7 @@ or providing commercial products including Apache SkyWalking.
 1. Xiaomi. 小米. https://www.mi.com/en/
 1. Xinyebang.com 重庆欣业邦网络技术有限公司 http://www.xinyebang.com
 1. xueqiu.com 雪球财经. https://xueqiu.com/
+1. yibainetwork.com 深圳易佰网络有限公司 http://www.yibainetwork.com/
 1. Yiguo. 易果生鲜. http://www.yiguo.com/
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn

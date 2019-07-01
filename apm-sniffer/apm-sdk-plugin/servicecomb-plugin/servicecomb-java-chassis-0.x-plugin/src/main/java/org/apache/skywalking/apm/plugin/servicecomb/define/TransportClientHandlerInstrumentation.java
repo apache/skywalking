@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.servicecomb.define;
 
-import io.servicecomb.core.handler.impl.TransportClientHandler;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -30,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept {@link TransportClientHandler} by
+ * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept {@link io.servicecomb.core.handler.impl.TransportClientHandler} by
  * using linkTransportClientHandlerInterceptor
  *
  * @author lytscu

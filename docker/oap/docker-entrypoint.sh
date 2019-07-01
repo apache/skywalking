@@ -49,12 +49,22 @@ EOT
 }
 
 generateClusterConsul() {
-    cat <<EOT >> ${var_application_file}
+     cat <<EOT >> ${var_application_file}
 cluster:
   consul:
     serviceName: \${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: \${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+EOT
+}
+
+generateClusterEtcd() {
+    cat <<EOT >> ${var_application_file}
+cluster:
+  etcd:
+    serviceName: \${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    # Etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+    hostPort: \${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
 EOT
 }
 
@@ -120,7 +130,7 @@ generateApplicationYaml() {
     # validate
     [[ -z "$SW_CLUSTER" ]] && [[ -z "$SW_STORAGE" ]] && { echo "Error: please specify \"SW_CLUSTER\" \"SW_STORAGE\""; exit 1; }
 
-    validateVariables "SW_CLUSTER" "$SW_CLUSTER" "standalone zookeeper kubernetes consul"
+    validateVariables "SW_CLUSTER" "$SW_CLUSTER" "standalone zookeeper kubernetes consul etcd"
 
     validateVariables "SW_STORAGE" "$SW_STORAGE" "elasticsearch h2 mysql"
 
@@ -131,6 +141,7 @@ generateApplicationYaml() {
     zookeeper) generateClusterZookeeper;;
     kubernetes) generateClusterK8s;;
     consul) generateClusterConsul;;
+    etcd) generateClusterEtcd;;
     esac
 
     #generate core
