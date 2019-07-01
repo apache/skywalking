@@ -75,8 +75,8 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
                     loadedProvider.setManager(moduleManager);
                     loadedProvider.setModuleDefine(this);
                 } else {
-                    throw new DuplicateProviderException(this.name() + " module has one " + loadedProvider.getClass().getName() + " provider already,"
-                        + provider.getClass().getName() + " is defined as 2nd provider.");
+                    throw new DuplicateProviderException(this.name() + " module has one " + loadedProvider.name() + "[" + loadedProvider.getClass().getName() + "] provider already, "
+                        + provider.name() + "[" + provider.getClass().getName() + "] is defined as 2nd provider.");
                 }
             }
 
