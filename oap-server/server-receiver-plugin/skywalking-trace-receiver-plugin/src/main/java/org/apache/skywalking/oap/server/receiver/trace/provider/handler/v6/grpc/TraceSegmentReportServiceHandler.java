@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentReportServiceHandler.class);
 
     private final SegmentParseV2.Producer segmentProducer;
     private HistogramMetrics histogram;
