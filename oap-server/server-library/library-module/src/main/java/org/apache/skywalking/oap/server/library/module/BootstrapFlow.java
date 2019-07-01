@@ -66,7 +66,7 @@ class BootstrapFlow {
 
     private void makeSequence() throws CycleDependencyException {
         List<ModuleProvider> allProviders = new ArrayList<>();
-        loadedModules.forEach((moduleName, module) -> allProviders.addAll(module.providers()));
+        loadedModules.forEach((moduleName, module) -> allProviders.add(module.provider()));
 
         do {
             int numOfToBeSequenced = allProviders.size();
