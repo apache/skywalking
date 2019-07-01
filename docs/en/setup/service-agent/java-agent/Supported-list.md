@@ -73,7 +73,7 @@
 * Vert.x Ecosystem
   * Vert.x Eventbus 3.2+
   * Vert.x Web 3.x
-* Multi-threaded Framework
+* Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 5.x
 
 
