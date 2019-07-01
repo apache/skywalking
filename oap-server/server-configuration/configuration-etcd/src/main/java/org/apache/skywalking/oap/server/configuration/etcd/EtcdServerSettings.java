@@ -19,26 +19,21 @@
 package org.apache.skywalking.oap.server.configuration.etcd;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * @author Alan Lau
  */
+@ToString
+@Getter
+@Setter
 public class EtcdServerSettings extends ModuleConfig {
 
-    @Getter private String clusterName = "default";
-    @Getter private String serverAddr;
-    @Getter private int port = 2379;
-    @Getter private String group;
-    @Getter private int period = 5;
+    private String clusterName = "default";
+    private String serverAddr;
+    private String group;
+    private int period = 5;
 
-    @Override public String toString() {
-        return "EtcdServerSettings{" +
-            "clusterName='" + clusterName + '\'' +
-            ", serverAddr='" + serverAddr + '\'' +
-            ", port=" + port +
-            ", group='" + group + '\'' +
-            ", period=" + period +
-            '}';
-    }
 }

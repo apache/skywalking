@@ -159,6 +159,11 @@ configuration:
 #    #Retry Policy
 #    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
 #    maxRetries: 3 # max number of times to retry
+#  etcd:
+#    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+#    group :  'skywalking'
+#    serverAddr: localhost:2379
+#    clusterName: "default"
 
 #exporter:
 #  grpc:

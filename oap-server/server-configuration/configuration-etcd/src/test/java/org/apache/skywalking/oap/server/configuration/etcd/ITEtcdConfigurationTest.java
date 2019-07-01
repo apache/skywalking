@@ -83,7 +83,7 @@ public class ITEtcdConfigurationTest {
         assertNotNull(provider);
     }
 
-    @Test(timeout = 2000000)
+    @Test(timeout = 20000)
     public void shouldReadUpdated() throws Exception {
         assertNull(provider.watcher.value());
 

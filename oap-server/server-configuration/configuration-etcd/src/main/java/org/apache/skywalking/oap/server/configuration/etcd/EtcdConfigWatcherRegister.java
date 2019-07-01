@@ -51,7 +51,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
                 logger.error(e.getMessage(), e);
             }
 
-            EtcdResponsePromise promise;
+            EtcdResponsePromise<EtcdKeysResponse> promise;
             try {
                 promise = client.get(settings.getClusterName()).waitForChange().send();
                 promise.addListener(responsePromise -> {

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.Address;
-import org.apache.skywalking.oap.server.library.util.ConnectStringParseException;
 import org.apache.skywalking.oap.server.library.util.ConnectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +44,14 @@ public class EtcdUtils {
             logger.info("etcd settings is {}", settings);
             List<Address> addressList = ConnectUtils.parse(settings.getServerAddr());
             for (Address address : addressList) {
-                uris.add(URI.create(new StringBuilder("http://").append(address.getHost()).append(":").append(address.getPort()).toString()));
+                uris.add(new URI("http", null, address.getHost(), address.getPort(), null, null, null));
             }
-        } catch (ConnectStringParseException e) {
+        } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
         return uris;
     }
-
 
     public static List<URI> parseProp(Properties properties) throws ModuleStartException {
         List<URI> uris = new ArrayList<>();
@@ -61,14 +59,13 @@ public class EtcdUtils {
             logger.info("etcd server addr is {}", properties);
             List<Address> addressList = ConnectUtils.parse(properties.getProperty("serverAddr"));
             for (Address address : addressList) {
-                uris.add(URI.create(new StringBuilder("http://").append(address.getHost()).append(":").append(address.getPort()).toString()));
+                uris.add(new URI("http", null, address.getHost(), address.getPort(), null, null, null));
             }
-        } catch (ConnectStringParseException e) {
+        } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
         return uris;
     }
-
 
 }
