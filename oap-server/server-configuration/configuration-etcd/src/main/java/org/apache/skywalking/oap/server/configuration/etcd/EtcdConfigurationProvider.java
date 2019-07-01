@@ -44,9 +44,6 @@ public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
         if (Strings.isNullOrEmpty(settings.getServerAddr())) {
             throw new ModuleStartException("Etcd serverAddr cannot be null or empty.");
         }
-        if (settings.getPort() <= 0) {
-            throw new ModuleStartException("Etcd port must be positive integer.");
-        }
         if (Strings.isNullOrEmpty(settings.getGroup())) {
             throw new ModuleStartException("Etcd group cannot be null or empty.");
         }
