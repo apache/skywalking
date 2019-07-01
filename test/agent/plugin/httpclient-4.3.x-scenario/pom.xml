@@ -37,7 +37,7 @@
 
         <test.framework>Httpclient</test.framework>
         <test.framework.version>4.3</test.framework.version>
-        <scenario.entry_service>http://localhost:8080/httpclient-case/case/httpclient</scenario.entry_service>
+        <scenario.entry_service>http://localhost:8080/httpclient-4.3.x-scenario/case/httpclient</scenario.entry_service>
     </properties>
 
     <name>skywalking-httpclient-4.3.x-scenario</name>

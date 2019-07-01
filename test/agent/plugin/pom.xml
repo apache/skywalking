@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
-        <module>agent/plugin/httpclient-4.3.x-scenario</module>
+        <module>httpclient-4.3.x-scenario</module>
     </modules>
 
 

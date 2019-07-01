@@ -27,6 +27,16 @@
         <servlet-class>test.apache.skywalking.apm.testcase.httpclient.CaseServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>healthCheck</servlet-name>
+        <servlet-class>test.apache.skywalking.apm.testcase.httpclient.HealthCheckServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>healthCheck</servlet-name>
+        <url-pattern>/healthCheck</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>caseServlet</servlet-name>
         <url-pattern>/case/httpclient</url-pattern>

@@ -31,7 +31,7 @@ do
   SCENARIO_HOME=${AGENT_TEST_PLUGIN_HOME}/${SCENARIO}
   #
   SUPPORT_VERSION_FILE=${SCENARIO_HOME}/support-version.list
-  SUPPORT_VERSIONS=($(cat $SUPPORT_VERSION_FILE))
+  SUPPORT_VERSIONS=($(grep -v -e "^$" $SUPPORT_VERSION_FILE | grep -v "#"))
   # echo "Support version: ${SUPPORT_VERSIONS[@]}"
 
   MVN_PROFILES=""
