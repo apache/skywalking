@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
  */
 public class SWCallable<V> implements Callable<V> {
 
-    private static String OPERATION_NAME = "SpringAsync";
+    private static final String OPERATION_NAME = "SpringAsync";
 
     private Callable<V> callable;
 
