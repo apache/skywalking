@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc;
+package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,29 +26,29 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 /**
- * @author zhangkewei
+ * @author zhaoyuguang
  */
-public class PrintMDCTraceIdInterceptor implements InstanceMethodsAroundInterceptor {
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
-    }
+public class AsyncAppenderBaseMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (!ContextManager.isActive()) {
-            if (allArguments[0] instanceof EnhancedInstance) {
-                String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-                if (tid != null) {
-                    return "TID:" + tid;
-                }
-            }
+
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
+        if (allArguments[0] instanceof EnhancedInstance) {
+            EnhancedInstance instances = (EnhancedInstance) allArguments[0];
+            instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
         }
-        return "TID:" + ContextManager.getGlobalTraceId();
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        return ret;
+    }
 
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
     }
 }
