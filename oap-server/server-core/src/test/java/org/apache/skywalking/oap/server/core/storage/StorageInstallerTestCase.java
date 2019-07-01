@@ -40,8 +40,7 @@ public class StorageInstallerTestCase {
         CoreModule moduleDefine = Mockito.spy(CoreModule.class);
         ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
 
-        LinkedList<ModuleProvider> moduleProviders = Whitebox.getInternalState(moduleDefine, "loadedProviders");
-        moduleProviders.add(moduleProvider);
+        Whitebox.setInternalState(moduleDefine, "loadedProvider", moduleProvider);
 
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleDefine);
         Mockito.when(moduleProvider.getService(StreamDataMapping.class)).thenReturn(streamDataMapping);
