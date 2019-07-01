@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.library.module;
 
 import java.lang.reflect.Field;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import org.slf4j.Logger;
