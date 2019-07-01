@@ -18,7 +18,7 @@
 
 pipeline {
     agent {
-        label 'xenial'
+        label 'H16'
     }
 
     tools {
@@ -28,6 +28,7 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
+				sh 'docker rmi skyapm/e2e-container:1.0.0'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
