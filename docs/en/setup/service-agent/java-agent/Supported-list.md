@@ -74,7 +74,7 @@
   * Vert.x Eventbus 3.2+
   * Vert.x Web 3.x
 * Thread Schedule Framework
-  * [Spring @Async](https://github.com/spring-projects/spring-framework) 5.x
+  * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
 
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
