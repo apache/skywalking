@@ -53,6 +53,9 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
 
+### Data TTL
+TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
+
 ### ElasticSearch 6 with Zipkin trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
@@ -75,6 +78,8 @@ storage:
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
+
+Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. And recommend read more about these configuration from ElasticSearch official document. This effects the performance of ElasticSearch very much.
 
 ### ElasticSearch 6 with Jaeger trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.

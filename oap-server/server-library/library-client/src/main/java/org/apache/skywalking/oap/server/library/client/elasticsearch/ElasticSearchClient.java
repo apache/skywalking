@@ -218,12 +218,21 @@ public class ElasticSearchClient implements Client {
         return client.get(request);
     }
 
+    public SearchResponse idQuery(String indexName, String id) throws IOException {
+        indexName = formatIndexName(indexName);
+
+        SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.types(TYPE);
+        searchRequest.source().query(QueryBuilders.idsQuery().addIds(id));
+        return client.search(searchRequest);
+    }
+
     public Map<String, Map<String, Object>> ids(String indexName, String... ids) throws IOException {
         indexName = formatIndexName(indexName);
 
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(TYPE);
-        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids));
+        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).size(ids.length);
         SearchResponse response = client.search(searchRequest);
 
         Map<String, Map<String, Object>> result = new HashMap<>();
