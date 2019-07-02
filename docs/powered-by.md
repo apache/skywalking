@@ -63,6 +63,7 @@ or providing commercial products including Apache SkyWalking.
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
+1. shuaibaoshop.com 宁波鲸灵网络科技有限公司 http://www.shuaibaoshop.com/
 1. Sijibao.com 司机宝 https://www.sijibao.com/
 1. Sinolink Securities Co.,Ltd. 国金证券佣金宝 http://www.yongjinbao.com.cn/
 1. Source++ https://sourceplusplus.com

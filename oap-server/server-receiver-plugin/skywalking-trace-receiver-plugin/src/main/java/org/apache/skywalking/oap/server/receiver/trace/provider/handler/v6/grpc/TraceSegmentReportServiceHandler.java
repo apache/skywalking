@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentSource;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentReportServiceHandler.class);
 
     private final SegmentParseV2.Producer segmentProducer;
     private HistogramMetrics histogram;

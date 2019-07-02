@@ -124,7 +124,10 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
 
-    public static final OfficialComponent HESSIAN = new OfficialComponent(65, "Hessian");
+    public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
+  
+    public static final OfficialComponent HESSIAN = new OfficialComponent(66, "Hessian");
+
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 

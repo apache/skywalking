@@ -222,8 +222,11 @@ SolrJ:
 Solr:
   id: 64
   languages: Java
-Hessian:
+SpringAsync:
   id: 65
+  languages: Java
+Hessian:
+  id: 66
   languages: Java
 
 # .NET/.NET Core components
