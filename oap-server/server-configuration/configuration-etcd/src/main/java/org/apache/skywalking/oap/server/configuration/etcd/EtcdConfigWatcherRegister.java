@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.Set;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
+import mousio.etcd4j.responses.EtcdErrorCode;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
@@ -71,7 +72,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
                 EtcdKeysResponse response = promise.get();
                 table.add(new ConfigTable.ConfigItem(getRealKey(key, settings.getGroup()), response.getNode().getValue()));
             } catch (EtcdException e) {
-                if (e.getErrorCode() == 100) {
+                if (e.getErrorCode() == EtcdErrorCode.KeyNotFound) {
                     table.add(new ConfigTable.ConfigItem(getRealKey(key, settings.getGroup()), null));
                 } else {
                     logger.error(e.getMessage(), e);
