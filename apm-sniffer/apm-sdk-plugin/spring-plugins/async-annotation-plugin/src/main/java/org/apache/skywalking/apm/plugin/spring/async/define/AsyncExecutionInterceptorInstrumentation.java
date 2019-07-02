@@ -16,15 +16,13 @@
  *
  */
 
-
-package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x;
+package org.apache.skywalking.apm.plugin.spring.async.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -32,57 +30,40 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Active the toolkit class "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter".
- * Should not dependency or import any class in "skywalking-toolkit-logback-1.x" module.
- * Activation's classloader is diff from "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter",
- * using direct will trigger classloader issue.
- * <p>
- * Created by wusheng on 2016/12/7.
+ * @author zhaoyuguang
  */
-public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.PrintTraceIdInterceptor";
-    public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter";
-    public static final String ENHANCE_METHOD = "convert";
+public class AsyncExecutionInterceptorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    /**
-     * @return the target class, which needs active.
-     */
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
-    }
-
-    /**
-     * @return null, no need to intercept constructor of enhance class.
-     */
     @Override
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return null;
+        return new ConstructorInterceptPoint[0];
     }
 
-    /**
-     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their
-     * interceptors.
-     */
     @Override
     protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0,"ch.qos.logback.classic.spi.ILoggingEvent"));
+                    return named("doSubmit").and(takesArgumentWithType(0, "java.util.concurrent.Callable"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return "org.apache.skywalking.apm.plugin.spring.async.DoSubmitMethodInterceptor";
                 }
 
-                @Override public boolean isOverrideArgs() {
-                    return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return true;
                 }
             }
         };
+    }
+
+    @Override
+    public ClassMatch enhanceClass() {
+        return byName("org.springframework.aop.interceptor.AsyncExecutionAspectSupport");
     }
 }
