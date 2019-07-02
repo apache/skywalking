@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.remote.client;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
@@ -183,7 +184,7 @@ public class GRPCRemoteClient implements RemoteClient {
             }
         }
 
-        return getStub().call(new StreamObserver<Empty>() {
+        return getStub().withDeadlineAfter(10, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
 
