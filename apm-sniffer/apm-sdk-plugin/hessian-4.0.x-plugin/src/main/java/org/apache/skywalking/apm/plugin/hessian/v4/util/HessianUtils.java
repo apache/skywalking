@@ -16,27 +16,28 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.hessian.v4;
+package org.apache.skywalking.apm.plugin.hessian.v4.util;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.plugin.hessian.v4.util.HessianUtils;
+import org.apache.skywalking.apm.util.StringUtil;
+
+import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.URI_AS_OPERATE_NAME;
 
 /**
  * @author Alan Lau
  */
-public class HessianSkeletonConstructorInterceptor implements InstanceConstructorInterceptor {
+public class HessianUtils {
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-
-        if (allArguments[0] == null) {
-            return;
+    /**
+     * which kind format of the format the server side used.
+     *
+     * @return true: the interface class used, false uri used.  default false.
+     */
+    public static boolean getOperationNameLike() {
+        String format = System.getProperty(URI_AS_OPERATE_NAME);
+        if (StringUtil.isEmpty(format)) {
+            return false;
         }
 
-        if (HessianUtils.getOperationNameLike()) {
-            Object service = allArguments[1];
-            objInst.setSkyWalkingDynamicField(service);
-        }
-
+        return Boolean.valueOf(format);
     }
 }

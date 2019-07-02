@@ -27,6 +27,8 @@ public class Constants {
 
     public static final String ENHANCE_CLASS = "com.caucho.hessian.client.HessianProxy";
 
+    public static final String HESSIAN_SERVICE_EXPORTER_CLASS = "org.springframework.remoting.caucho.HessianServiceExporter";
+
     public static final String ADDHEADER_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.hessian.v4.HessianAddHeaderInterceptor";
 
     public static final String HESSIAN_SENDREQUEST_CLASS = "org.apache.skywalking.apm.plugin.hessian.v4.HessianProxySendRequestInterceptor";
@@ -39,4 +41,7 @@ public class Constants {
 
     public static final String SKELETON_CONSTRUCT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.hessian.v4.HessianSkeletonConstructorInterceptor";
 
+    public static final String URI_AS_OPERATE_NAME = "plugin.hessian.use_uri_name_as_operate_name";
+
+    public static final String HESSIAN_SERVICE_EXPORTER_INTERCEOTPOR = "org.apache.skywalking.apm.plugin.hessian.v4.HessianServiceExporterInterceptor";
 }

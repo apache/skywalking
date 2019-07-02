@@ -15,13 +15,11 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
-import com.caucho.hessian.io.AbstractHessianInput;
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -33,54 +31,40 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.hessian.v4.util.HessianUtils;
 
 /**
- * intercept invoke of HessianSkeleton
- *
  * @author Alan Lau
  */
-public class HessianSkeletonInterceptor implements InstanceMethodsAroundInterceptor {
+public class HessianServiceExporterInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
 
-        Object service = allArguments[0];
-
-        if (service == null) {
+        if (argumentsTypes.length != 2) {
             return;
         }
 
-        if (argumentsTypes.length < 3) {
+        if (!argumentsTypes[0].isAssignableFrom(HttpServletRequest.class)) {
             return;
         }
 
-        if (!argumentsTypes[1].isAssignableFrom(AbstractHessianInput.class)) {
+        if (!argumentsTypes[1].isAssignableFrom(HttpServletResponse.class)) {
             return;
         }
 
-        AbstractHessianInput in = (AbstractHessianInput)allArguments[1];
+        HttpServletRequest request = (HttpServletRequest)allArguments[0];
 
-        final ContextCarrier contextCarrier = new ContextCarrier();
-
-        String operationName = null;
-        if (HessianUtils.getOperationNameLike()) {
-            Object realService = objInst.getSkyWalkingDynamicField();
-            operationName = ((Class<?>)realService).getName();
-        } else {
-            operationName = ContextManager.activeSpan().getOperationName();
+        if (!HessianUtils.getOperationNameLike()) {
+            objInst.setSkyWalkingDynamicField(request.getRequestURI());
         }
 
-        AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
+        String operateName = request.getRequestURI();
+        AbstractSpan span = ContextManager.createLocalSpan(operateName);
 
-        span.start(System.currentTimeMillis());
         span.setComponent(ComponentsDefine.HESSIAN);
-        Tags.URL.set(span, operationName);
+        span.start(System.currentTimeMillis());
+        span.setOperationName(operateName);
+        Tags.URL.set(span, operateName);
         SpanLayer.asRPCFramework(span);
-
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext() && in.readHeader() != null) {
-            next = next.next();
-            next.setHeadValue((String)in.readObject());
-        }
     }
 
     @Override
@@ -105,5 +89,4 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
         span.errorOccurred();
         span.log(throwable);
     }
-
 }

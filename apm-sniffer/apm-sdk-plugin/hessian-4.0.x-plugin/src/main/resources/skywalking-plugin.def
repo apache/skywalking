@@ -17,3 +17,4 @@
 
 hessian-4.0.x=org.apache.skywalking.apm.plugin.hessian.v4.define.HessianProxyInstrumentation
 hessian-4.0.x=org.apache.skywalking.apm.plugin.hessian.v4.define.HessianSkeletonInstrumentation
+hessian-4.0.x=org.apache.skywalking.apm.plugin.hessian.v4.define.HessianServiceExporterInstrumentation
