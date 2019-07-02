@@ -113,6 +113,13 @@ AGENT_TEST_PLUGIN_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || die "C
 SCENARIO_PACKAGES_TARGET_DIRECTORY=${AGENT_TEST_PLUGIN_HOME}/dist
 SCENARIO_CASES_HOME=${AGENT_TEST_PLUGIN_HOME}/testcase && mkdir -p ${SCENARIO_CASES_HOME}
 MVN_EXEC=${AGENT_TEST_PLUGIN_HOME}/../../../mvnw
+AGENT_HOME=${AGENT_TEST_PLUGIN_HOME}/../../../skywalking-agent
+
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+function clearResources(){
+    docker ps -a | grep skywalking-agent-test | awk '{print $1}' | xargs docker rm -f
+    rm -rf $SCENARIO_CASES_HOME
+}
 
 UNPACKED_VERSION=()
 for SCENARIO in ${_arg_scenario[@]}
@@ -122,24 +129,37 @@ do
   #
   SUPPORT_VERSION_FILE=${SCENARIO_HOME}/support-version.list
   SUPPORT_VERSIONS=($(grep -v -e "^$" $SUPPORT_VERSION_FILE | grep -v "#"))
-  # echo "Support version: ${SUPPORT_VERSIONS[@]}"
+  echo "Support version: ${SUPPORT_VERSIONS[@]}"
 
   MVN_PROFILES=""
   for SCENARIO_VERSION in ${SUPPORT_VERSIONS[@]}
   do
-    MVN_PROFILES="$MVN_PROFILES,${SCENARIO}-${SCENARIO_VERSION}"
+     cd ${SCENARIO_HOME} && ${MVN_EXEC} clean write-text-files:write-text-files package -P ${SCENARIO}-${SCENARIO_VERSION}
   done
-  cd ${SCENARIO_HOME} && ${MVN_EXEC} clean write-text-files:write-text-files package -P ${MVN_PROFILES}
 
   for SCENARIO_VERSION in ${SUPPORT_VERSIONS[@]}
   do
     # check if the scenario package is exist. if not. record it and then throw an exception
 
     tar -zxvf ${SCENARIO_PACKAGES_TARGET_DIRECTORY}/${SCENARIO}-${SCENARIO_VERSION}.tar.gz -C ${SCENARIO_CASES_HOME} > /dev/null 2>&1
-    bash ${SCENARIO_CASES_HOME}/${SCENARIO}-${SCENARIO_VERSION}/scenario.sh
+    bash ${SCENARIO_CASES_HOME}/${SCENARIO}-${SCENARIO_VERSION}/scenario.sh ${SCENARIO_VERSION} ${AGENT_HOME}
   done
 done
 
-
+TESTCASE_COUNT=$(find $SCENARIO_PACKAGES_TARGET_DIRECTORY -name *.tar.gz | wc -l | tr -s [:space:])
+for ((i=1;i<=1000;i++));
+do
+    FINISHED_COUNT=$(find $SCENARIO_CASES_HOME -name actualData.yaml | wc -l | tr -s [:space:])
+    if [[ "$TESTCASE_COUNT" == "$FINISHED_COUNT" ]]; then
+        ## RUNNING validate
+        echo "START TIME: $START_TIME, END TIME: $(date +"%Y-%m-%d %H:%M:%S")"
+        clearResources
+        exit 0
+    fi
+    sleep 10
+done
+echo `date +"%Y-%m-%d %H:%M:%S"`
+# clear resource
+clearResources
 #
 # ] <-- needed because of Argbash
