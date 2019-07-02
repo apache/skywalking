@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -17,22 +16,30 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-configuration</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>configuration-api</module>
-        <module>grpc-configuration-sync</module>
-        <module>configuration-apollo</module>
-        <module>configuration-nacos</module>
-        <module>configuration-zookeeper</module>
-    </modules>
+    <artifactId>apm-spring-async-annotation-plugin</artifactId>
+    <packaging>jar</packaging>
 
+    <name>async-annotation-plugin</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <spring-aop.version>5.1.4.RELEASE</spring-aop.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring-aop.version}</version>
+        </dependency>
+    </dependencies>
 </project>

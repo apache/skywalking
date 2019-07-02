@@ -14,7 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.LogbackPatternConverterActivation
-toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.mdc.MDCConverterActivation
-toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async.AsyncAppenderBaseInstrumentation
-toolkit-logback=org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.async.LoggingEventInstrumentation
+spring-async-annotation-5.x=org.apache.skywalking.apm.plugin.spring.async.define.AsyncExecutionInterceptorInstrumentation
