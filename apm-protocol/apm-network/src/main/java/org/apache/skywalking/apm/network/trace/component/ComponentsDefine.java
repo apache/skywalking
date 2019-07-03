@@ -124,6 +124,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
 
+    public static final OfficialComponent SOLR =  new OfficialComponent(64, "solr");
+
     public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
 
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
@@ -184,6 +186,7 @@ public class ComponentsDefine {
         addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
         addComponent(SOLRJ);
+        addComponent(SOLR);
     }
 
     private void addComponent(OfficialComponent component) {
