@@ -138,7 +138,7 @@ public class JVMService implements BootService, Runnable {
                         if (buffer.size() > 0) {
                             builder.addAllMetrics(buffer);
                             builder.setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
-                            stub.collect(builder.build());
+                            stub.withDeadlineAfter(10, TimeUnit.SECONDS).collect(builder.build());
                         }
                     } catch (Throwable t) {
                         logger.error(t, "send JVM metrics to Collector fail.");
