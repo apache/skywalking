@@ -53,10 +53,6 @@ public class HessianServiceExporterInterceptor implements InstanceMethodsAroundI
 
         HttpServletRequest request = (HttpServletRequest)allArguments[0];
 
-        if (!HessianUtils.getOperationNameLike()) {
-            objInst.setSkyWalkingDynamicField(request.getRequestURI());
-        }
-
         String operateName = request.getRequestURI();
         AbstractSpan span = ContextManager.createLocalSpan(operateName);
 
