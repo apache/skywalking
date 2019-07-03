@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.configuration.etcd;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 import mousio.etcd4j.EtcdClient;
@@ -51,22 +50,11 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             } catch (ModuleStartException e) {
                 logger.error(e.getMessage(), e);
             }
-
-            EtcdResponsePromise<EtcdKeysResponse> promise;
-            try {
-                promise = client.get(settings.getClusterName()).waitForChange().send();
-                promise.addListener(responsePromise -> {
-                    onDataValueChanged();
-                });
-
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
         }
 
         final ConfigTable table = new ConfigTable();
         keys.forEach(registryKey -> {
-            String key = new StringBuilder("/").append(settings.getGroup()).append("/").append(registryKey).toString();
+            String key = "/" + settings.getGroup() + "/" + registryKey;
             try {
                 EtcdResponsePromise<EtcdKeysResponse> promise = client.get(key).send();
                 EtcdKeysResponse response = promise.get();
@@ -87,10 +75,6 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     public EtcdConfigWatcherRegister(EtcdServerSettings settings) {
         this.settings = settings;
-    }
-
-    private void onDataValueChanged() {
-
     }
 
     private String getRealKey(String key, String group) {
