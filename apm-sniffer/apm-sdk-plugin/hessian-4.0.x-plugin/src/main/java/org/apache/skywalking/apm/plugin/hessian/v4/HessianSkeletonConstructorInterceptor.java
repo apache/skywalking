@@ -33,7 +33,7 @@ public class HessianSkeletonConstructorInterceptor implements InstanceConstructo
             return;
         }
 
-        if (HessianUtils.getOperationNameLike()) {
+        if (!HessianUtils.getOperationNameLike()) {
             Object service = allArguments[1];
             objInst.setSkyWalkingDynamicField(service);
         }
