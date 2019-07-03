@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8u181-jdk-stretch
+FROM openjdk:8u181-jre-alpine AS builder
 
 ENV DIST_NAME=apache-skywalking-apm-bin \
     JAVA_OPTS=" -Xms256M " \
@@ -29,6 +29,10 @@ RUN set -ex; \
     rm -rf "$DIST_NAME/config"; \
     rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/oap-libs"; rm -rf "$DIST_NAME/agent"; \
     mv "$DIST_NAME" skywalking;
+
+FROM openjdk:8u181-jre-alpine
+
+COPY --from=builder /skywalking /skywalking
 
 WORKDIR skywalking
 
