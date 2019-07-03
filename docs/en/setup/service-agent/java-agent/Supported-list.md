@@ -37,7 +37,7 @@
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
   * [Apache ServiceComb Java Chassis](https://github.com/apache/servicecomb-java-chassis) 0.1 -> 0.5,1.0.x
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
-  * [Hessian](http://http://hessian.caucho.com) 4.0.x
+  * [Hessian](http://hessian.caucho.com) 4.0.x
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
