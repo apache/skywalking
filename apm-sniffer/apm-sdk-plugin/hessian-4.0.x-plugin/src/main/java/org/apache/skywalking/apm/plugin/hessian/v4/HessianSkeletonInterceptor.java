@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.hessian.v4;
 
 import com.caucho.hessian.io.AbstractHessianInput;
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -30,7 +31,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.hessian.v4.util.HessianUtils;
 
 /**
  * intercept invoke of HessianSkeleton
@@ -62,7 +62,7 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         String operationName = null;
-        if (!HessianUtils.getOperationNameLike()) {
+        if (!Config.Plugin.Hessian.USE_URI_NAME_AS_OPERATE_NAME) {
             Object realService = objInst.getSkyWalkingDynamicField();
             operationName = ((Class<?>)realService).getName();
         } else {

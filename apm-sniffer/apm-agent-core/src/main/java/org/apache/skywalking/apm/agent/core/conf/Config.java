@@ -226,5 +226,12 @@ public class Config {
             public static boolean TRACE_OPS_PARAMS = false;
         }
 
+        public static class Hessian {
+            /**
+             * If true, the request uri name will be used as the operation name instead of the interface class name, default is false.
+             */
+            public static boolean USE_URI_NAME_AS_OPERATE_NAME = false;
+        }
+
     }
 }

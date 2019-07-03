@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.plugin.hessian.v4.util.HessianUtils;
 
 /**
  * @author Alan Lau
@@ -33,7 +33,7 @@ public class HessianSkeletonConstructorInterceptor implements InstanceConstructo
             return;
         }
 
-        if (!HessianUtils.getOperationNameLike()) {
+        if (!Config.Plugin.Hessian.USE_URI_NAME_AS_OPERATE_NAME) {
             Object service = allArguments[1];
             objInst.setSkyWalkingDynamicField(service);
         }
