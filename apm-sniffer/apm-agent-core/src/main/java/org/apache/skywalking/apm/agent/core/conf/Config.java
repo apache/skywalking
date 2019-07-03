@@ -230,7 +230,7 @@ public class Config {
             /**
              * If true, the request uri name will be used as the operation name instead of the interface class name, default is false.
              */
-            public static boolean USE_URI_NAME_AS_OPERATE_NAME = false;
+            public static boolean USE_URL_AS_OPERATION_NAME = false;
         }
 
     }

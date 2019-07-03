@@ -62,7 +62,7 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         String operationName = null;
-        if (!Config.Plugin.Hessian.USE_URI_NAME_AS_OPERATE_NAME) {
+        if (!Config.Plugin.Hessian.USE_URL_AS_OPERATION_NAME) {
             Object realService = objInst.getSkyWalkingDynamicField();
             operationName = ((Class<?>)realService).getName();
         } else {
