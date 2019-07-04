@@ -33,6 +33,13 @@ cluster:
 #    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
 #     Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
 #    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+#  nacos:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
+#  etcd:
+#    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+#     etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+#    hostPort: ${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
 core:
   default:
     # Mixed: Receive agent data, Level 1 aggregate, Level 2 aggregate
@@ -48,11 +55,12 @@ core:
       - Hour
       - Day
       - Month
-    # Set a timeout on metric data. After the timeout has expired, the metric data will automatically be deleted.
+    # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
+    enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
-    dayMetricsDataTTL: ${SW_CORE_DAY_METRIC_DATA_TTL:45} # Unit is day
+    otherMetricsDataTTL: ${SW_CORE_DAY_METRIC_DATA_TTL:45} # Unit is day
     monthMetricsDataTTL: ${SW_CORE_MONTH_METRIC_DATA_TTL:18} # Unit is month
 storage:
   elasticsearch:
@@ -62,16 +70,24 @@ storage:
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
+    # Those data TTL settings will override the same settings in core module.
+    recordDataTTL: ${SW_STORAGE_ES_RECORD_DATA_TTL:7} # Unit is day
+    otherMetricsDataTTL: ${SW_STORAGE_ES_OTHER_METRIC_DATA_TTL:45} # Unit is day
+    monthMetricsDataTTL: ${SW_STORAGE_ES_MONTH_METRIC_DATA_TTL:18} # Unit is month
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
+    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
 #  h2:
 #    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
 #    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
 #    user: ${SW_STORAGE_H2_USER:sa}
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 #  mysql:
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
 receiver-register:
@@ -98,6 +114,7 @@ istio-telemetry:
   default:
 envoy-metric:
   default:
+#    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
 #receiver_zipkin:
 #  default:
 #    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
@@ -114,7 +131,36 @@ alarm:
   default:
 telemetry:
   prometheus:
+    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+configuration:
+  none:
+#  apollo:
+#    apolloMeta: http://106.12.25.204:8080
+#    apolloCluster: default
+#    # apolloEnv: # defaults to null
+#    appId: skywalking
+#    period: 5
+#  nacos:
+#    # Nacos Server Host
+#    serverAddr: 127.0.0.1
+#    # Nacos Server Port
+#    port: 8848
+#    # Nacos Configuration Group
+#    group: 'skywalking'
+#    # Unit seconds, sync period. Default fetch every 60 seconds.
+#    period : 5
+#    # the name of current cluster, set the name if you want to upstream system known.
+#    clusterName: "default"
+#  zookeeper:
+#    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+#    nameSpace: /default
+#    hostPort: localhost:2181
+#    #Retry Policy
+#    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
+#    maxRetries: 3 # max number of times to retry
+
 #exporter:
 #  grpc:
-#    targetHost: 127.0.0.1
-#    targetPort: 9870
+#    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+#    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,6 +42,7 @@
         <module>server-telemetry</module>
         <module>generate-tool-grammar</module>
         <module>exporter</module>
+        <module>server-configuration</module>
     </modules>
 
     <properties>
@@ -64,11 +65,24 @@
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <joda-time.version>2.9.9</joda-time.version>
-        <kubernetes.version>2.0.0</kubernetes.version>
+        <kubernetes.version>4.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
         <caffeine.version>2.6.2</caffeine.version>
         <okhttp.version>3.9.0</okhttp.version>
+        <jackson-core.version>2.9.5</jackson-core.version>
+        <jackson-annotations.version>2.9.5</jackson-annotations.version>
+        <jackson-databind.version>2.9.5</jackson-databind.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <commons-lang3.version>3.7</commons-lang3.version>
+        <simpleclient.version>0.6.0</simpleclient.version>
+        <apollo.version>1.4.0</apollo.version>
+        <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
+        <nacos.version>1.0.0</nacos.version>
+        <curator.version>4.0.1</curator.version>
+        <curator-test.version>2.12.0</curator-test.version>
+        <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd.version>v3.2.3</etcd.version>
     </properties>
 
     <dependencies>
@@ -320,6 +334,79 @@
                 <version>${caffeine.version}</version>
             </dependency>
             <!-- -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${simpleclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>apollo-client</artifactId>
+                <version>${apollo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mousio</groupId>
+                <artifactId>etcd4j</artifactId>
+                <version>${etcd4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-x-discovery</artifactId>
+                <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${curator-test.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

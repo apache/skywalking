@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.1.0-SNAPSHOT</version>
+        <version>6.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,6 +32,8 @@
         <module>cluster-standalone-plugin</module>
         <module>cluster-kubernetes-plugin</module>
         <module>cluster-consul-plugin</module>
+        <module>cluster-nacos-plugin</module>
+        <module>cluster-etcd-plugin</module>
     </modules>
 
     <dependencies>

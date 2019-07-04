@@ -19,13 +19,15 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntity;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.HTTPAccessLogRecord.INDEX_NAME;
 
-@StorageEntity(name = INDEX_NAME, builder = HTTPAccessLogRecord.Builder.class, sourceScopeId = DefaultScopeDefine.HTTP_ACCESS_LOG)
+@Stream(name = INDEX_NAME, scopeId = DefaultScopeDefine.HTTP_ACCESS_LOG, builder = HTTPAccessLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class HTTPAccessLogRecord extends AbstractLogRecord {
+
     public static final String INDEX_NAME = "http_access_log";
 
     public static class Builder extends AbstractLogRecord.Builder<HTTPAccessLogRecord> {

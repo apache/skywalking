@@ -21,7 +21,10 @@ zuul:
   ignoredServices: '*'
   routes:
     api:
-      path: /api/**
+      path: /graphql
+      serviceId: collector
+    login:
+      path: /login/account
       serviceId: collector
 
 collector:
@@ -30,8 +33,12 @@ collector:
     # Point to all backend's restHost:restPort, split by ,
     listOfServers: 127.0.0.1:12800
 
-security:
-  user:
-    admin:
-      password: admin
+spring:
+  resources:
+    add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
       
+management:
+  # Customizing the management endpoint paths
+  context-path: /manage

@@ -9,7 +9,7 @@ of [v1(a.k.a. sw3)](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md)
 The major differences of v2 and v1, comes from SkyWalking's evolution, including
 1. Mesh and languages are not same always, some info in headers should be optional.
 1. BASE64 encoding required.
-1. Sampling flag is including.
+1. Sampling flag is included.
 
 ## Header Item
 * Header Name: `sw6`

@@ -18,28 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 
 /**
  * @author peng-yongsheng
  */
-public class MergeDataCache<INDICATOR extends Indicator> extends Window<INDICATOR> implements DataCache {
+public class MergeDataCache<METRICS extends Metrics> extends Window<METRICS> implements DataCache {
 
-    private SWCollection<INDICATOR> lockedMergeDataCollection;
+    private SWCollection<METRICS> lockedMergeDataCollection;
 
-    @Override public SWCollection<INDICATOR> collectionInstance() {
+    @Override public SWCollection<METRICS> collectionInstance() {
         return new MergeDataCollection<>();
     }
 
-    public boolean containsKey(INDICATOR key) {
+    public boolean containsKey(METRICS key) {
         return lockedMergeDataCollection.containsKey(key);
     }
 
-    public Indicator get(INDICATOR key) {
+    public Metrics get(METRICS key) {
         return lockedMergeDataCollection.get(key);
     }
 
-    public void put(INDICATOR data) {
+    public void put(METRICS data) {
         lockedMergeDataCollection.put(data);
     }
 

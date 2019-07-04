@@ -24,134 +24,33 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 /**
  * @author peng-yongsheng
  */
+@Getter
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
+    @Setter private String nameSpace;
+    @Setter private String clusterNodes;
+    @Setter private int indexShardsNumber;
+    @Setter private int indexReplicasNumber;
+    @Setter private boolean highPerformanceMode;
+    @Setter private int bulkActions = 2000;
+    @Setter private int bulkSize = 20;
+    @Setter private int flushInterval = 10;
+    @Setter private int concurrentRequests = 2;
+    @Setter private String user;
+    @Setter private String password;
+    @Setter private int metadataQueryMaxSize = 5000;
+    @Setter private int segmentQueryMaxSize = 200;
+    @Setter private int recordDataTTL = 7;
+    @Setter private int minuteMetricsDataTTL = 2;
+    @Setter private int hourMetricsDataTTL = 2;
+    @Setter private int dayMetricsDataTTL = 2;
+    private int otherMetricsDataTTL = 0;
+    @Setter private int monthMetricsDataTTL = 18;
 
-    @Setter @Getter private String nameSpace;
-    @Setter @Getter private String clusterNodes;
-    private int indexShardsNumber;
-    private int indexReplicasNumber;
-    private boolean highPerformanceMode;
-    private int traceDataTTL = 90;
-    private int minuteMetricDataTTL = 90;
-    private int hourMetricDataTTL = 36;
-    private int dayMetricDataTTL = 45;
-    private int monthMetricDataTTL = 18;
-    private int bulkActions = 2000;
-    private int bulkSize = 20;
-    private int flushInterval = 10;
-    private int concurrentRequests = 2;
-    private String user;
-    private String password;
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getIndexShardsNumber() {
-        return indexShardsNumber;
-    }
-
-    void setIndexShardsNumber(int indexShardsNumber) {
-        this.indexShardsNumber = indexShardsNumber;
-    }
-
-    public int getIndexReplicasNumber() {
-        return indexReplicasNumber;
-    }
-
-    void setIndexReplicasNumber(int indexReplicasNumber) {
-        this.indexReplicasNumber = indexReplicasNumber;
-    }
-
-    boolean isHighPerformanceMode() {
-        return highPerformanceMode;
-    }
-
-    void setHighPerformanceMode(boolean highPerformanceMode) {
-        this.highPerformanceMode = highPerformanceMode;
-    }
-
-    public int getTraceDataTTL() {
-        return traceDataTTL;
-    }
-
-    void setTraceDataTTL(int traceDataTTL) {
-        this.traceDataTTL = traceDataTTL == 0 ? 90 : traceDataTTL;
-    }
-
-    public int getMinuteMetricDataTTL() {
-        return minuteMetricDataTTL;
-    }
-
-    void setMinuteMetricDataTTL(int minuteMetricDataTTL) {
-        this.minuteMetricDataTTL = minuteMetricDataTTL == 0 ? 90 : minuteMetricDataTTL;
-    }
-
-    public int getHourMetricDataTTL() {
-        return hourMetricDataTTL;
-    }
-
-    void setHourMetricDataTTL(int hourMetricDataTTL) {
-        this.hourMetricDataTTL = hourMetricDataTTL == 0 ? 36 : hourMetricDataTTL;
-    }
-
-    public int getDayMetricDataTTL() {
-        return dayMetricDataTTL;
-    }
-
-    void setDayMetricDataTTL(int dayMetricDataTTL) {
-        this.dayMetricDataTTL = dayMetricDataTTL == 0 ? 45 : dayMetricDataTTL;
-    }
-
-    public int getMonthMetricDataTTL() {
-        return monthMetricDataTTL;
-    }
-
-    void setMonthMetricDataTTL(int monthMetricDataTTL) {
-        this.monthMetricDataTTL = monthMetricDataTTL == 0 ? 18 : monthMetricDataTTL;
-    }
-
-    public int getBulkActions() {
-        return bulkActions;
-    }
-
-    public void setBulkActions(int bulkActions) {
-        this.bulkActions = bulkActions == 0 ? 2000 : bulkActions;
-    }
-
-    public int getBulkSize() {
-        return bulkSize;
-    }
-
-    public void setBulkSize(int bulkSize) {
-        this.bulkSize = bulkSize == 0 ? 20 : bulkSize;
-    }
-
-    public int getFlushInterval() {
-        return flushInterval;
-    }
-
-    public void setFlushInterval(int flushInterval) {
-        this.flushInterval = flushInterval == 0 ? 10 : flushInterval;
-    }
-
-    public int getConcurrentRequests() {
-        return concurrentRequests;
-    }
-
-    public void setConcurrentRequests(int concurrentRequests) {
-        this.concurrentRequests = concurrentRequests == 0 ? 2 : concurrentRequests;
+    public void setOtherMetricsDataTTL(int otherMetricsDataTTL) {
+        if (otherMetricsDataTTL > 0) {
+            minuteMetricsDataTTL = otherMetricsDataTTL;
+            hourMetricsDataTTL = otherMetricsDataTTL;
+            dayMetricsDataTTL = otherMetricsDataTTL;
+        }
     }
 }

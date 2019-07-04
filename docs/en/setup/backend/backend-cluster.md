@@ -9,7 +9,7 @@ with each other.
 - [Kubernetes](#kubernetes). When backend cluster are deployed inside kubernetes, you could choose this
 by using k8s native APIs to manage cluster.
 - [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
-
+- [Nacos](#nacos). Use Nacos to coordinate backend instances.
 
 ## Zookeeper coordinator
 Zookeeper is a very common and wide used cluster coordinator. Set the **cluster** module's implementor
@@ -78,3 +78,16 @@ in some cases, oap default gRPC host and port in core are not suitable for inter
 The following setting are provided to set the hot and port manually, based on your own LAN env.
 - internalComHost, the host registered and other oap node use this to communicate with current node.
 - internalComPort, the port registered and other oap node use this to communicate with current node.
+
+
+## Nacos
+Set the **cluster** module's implementor to **nacos** in 
+the yml to active. 
+
+```yaml
+cluster:
+  nacos:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    # Nacos cluster nodes, example: 10.0.0.1:8848,10.0.0.2:8848,10.0.0.3:8848
+    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
+```

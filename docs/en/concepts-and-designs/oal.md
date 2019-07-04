@@ -1,7 +1,7 @@
 # Observability Analysis Language
 Provide OAL(Observability Analysis Language) to analysis incoming data in streaming mode. 
 
-OAL focuses on metric in Service, Service Instance and Endpoint. Because of that, the language is easy to 
+OAL focuses on metrics in Service, Service Instance and Endpoint. Because of that, the language is easy to 
 learn and use.
 
 Considering performance, reading and debugging, OAL is defined as a compile language. 
@@ -10,13 +10,13 @@ The OAL scripts will be compiled to normal Java codes in package stage.
 ## Grammar
 Scripts should be named as `*.oal`
 ```
-// Declare the metric.
-METRIC_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
+// Declare the metrics.
+METRICS_NAME = from(SCOPE.(* | [FIELD][,FIELD ...]))
 [.filter(FIELD OP [INT | STRING])]
 .FUNCTION([PARAM][, PARAM ...])
 
 // Disable hard code 
-disable(METRIC_NAME);
+disable(METRICS_NAME);
 ```
 
 ## Scope
@@ -62,17 +62,17 @@ In this case, p99 value of all incoming requests.
 
 In this case, thermodynamic heatmap of all incoming requests.
 
-## Metric name
-The metric name for storage implementor, alarm and query modules. The type inference supported by core.
+## Metrics name
+The metrics name for storage implementor, alarm and query modules. The type inference supported by core.
 
 ## Group
-All metric data will be grouped by Scope.ID and min-level TimeBucket. 
+All metrics data will be grouped by Scope.ID and min-level TimeBucket. 
 
 - In `Endpoint` scope, the Scope.ID = Endpoint id (the unique id based on service and its Endpoint)
 
 ## Disable
 `Disable` is an advanced statement in OAL, which is only used in certain case.
-Some of the aggregation and metric are defined through core hard codes,
+Some of the aggregation and metrics are defined through core hard codes,
 this `disable` statement is designed for make them de-active,
 such as `segment`, `top_n_database_statement`.
 In default, no one is being disable.
@@ -89,7 +89,7 @@ serv_Endpoint_p99 = from(Endpoint.latency).filter(name like ("serv%")).summary(0
 Endpoint_avg = from(Endpoint.latency).avg()
 
 // Caculate the histogram of each Endpoint by 50 ms steps.
-// Always thermodynamic diagram in UI matches this metric. 
+// Always thermodynamic diagram in UI matches this metrics. 
 Endpoint_histogram = from(Endpoint.latency).histogram(50)
 
 // Caculate the percent of response status is true, for each service.

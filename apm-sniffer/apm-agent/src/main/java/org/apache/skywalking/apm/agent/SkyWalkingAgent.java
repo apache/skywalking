@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.agent;
 
+import java.lang.instrument.Instrumentation;
+import java.util.List;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
@@ -27,20 +29,25 @@ import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.*;
+import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
+import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
+import org.apache.skywalking.apm.agent.core.plugin.PluginException;
+import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.nameContains;
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The main entrance of sky-waking agent, based on javaagent mechanism.
+ * The main entrance of sky-walking agent, based on javaagent mechanism.
  *
  * @author wusheng
  */
@@ -61,6 +68,12 @@ public class SkyWalkingAgent {
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
+        } catch (ConfigNotFoundException ce) {
+            logger.error(ce, "Skywalking agent could not find config. Shutting down.");
+            return;
+        } catch (AgentPackageNotFoundException ape) {
+            logger.error(ape, "Locate agent.jar failure. Shutting down.");
+            return;
         } catch (Exception e) {
             logger.error(e, "Skywalking agent initialized failure. Shutting down.");
             return;
@@ -72,14 +85,14 @@ public class SkyWalkingAgent {
         new AgentBuilder.Default(byteBuddy)
             .ignore(
                 nameStartsWith("net.bytebuddy.")
-                .or(nameStartsWith("org.slf4j."))
-                .or(nameStartsWith("org.apache.logging."))
-                .or(nameStartsWith("org.groovy."))
-                .or(nameContains("javassist"))
-                .or(nameContains(".asm."))
-                .or(nameStartsWith("sun.reflect"))
-                .or(allSkyWalkingAgentExcludeToolkit())
-                .or(ElementMatchers.<TypeDescription>isSynthetic()))
+                    .or(nameStartsWith("org.slf4j."))
+                    .or(nameStartsWith("org.apache.logging."))
+                    .or(nameStartsWith("org.groovy."))
+                    .or(nameContains("javassist"))
+                    .or(nameContains(".asm."))
+                    .or(nameStartsWith("sun.reflect"))
+                    .or(allSkyWalkingAgentExcludeToolkit())
+                    .or(ElementMatchers.<TypeDescription>isSynthetic()))
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
             .with(new Listener())
@@ -108,7 +121,7 @@ public class SkyWalkingAgent {
         @Override
         public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription,
             ClassLoader classLoader, JavaModule module) {
-            List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription, classLoader);
+            List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
                 EnhanceContext context = new EnhanceContext();

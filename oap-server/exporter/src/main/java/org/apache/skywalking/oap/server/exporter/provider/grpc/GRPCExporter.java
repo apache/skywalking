@@ -21,12 +21,13 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.indicator.*;
-import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
+import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.exporter.*;
 import org.apache.skywalking.oap.server.exporter.grpc.*;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
@@ -56,14 +57,20 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         subscriptionSet = new HashSet<>();
     }
 
-    @Override public void export(IndicatorMetaInfo meta, Indicator indicator) {
-        if (subscriptionSet.size() == 0 || subscriptionSet.contains(meta.getIndicatorName())) {
-            exportBuffer.produce(new ExportData(meta, indicator));
+    @Override public void export(ExportEvent event) {
+        if (ExportEvent.EventType.TOTAL == event.getType()) {
+            Metrics metrics = event.getMetrics();
+            if (metrics instanceof WithMetadata) {
+                MetricsMetaInfo meta = ((WithMetadata)metrics).getMeta();
+                if (subscriptionSet.size() == 0 || subscriptionSet.contains(meta.getMetricsName())) {
+                    exportBuffer.produce(new ExportData(meta, metrics));
+                }
+            }
         }
     }
 
     public void initSubscriptionList() {
-        SubscriptionsResp subscription = blockingStub.subscription(SubscriptionReq.newBuilder().build());
+        SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).subscription(SubscriptionReq.newBuilder().build());
         subscription.getMetricNamesList().forEach(subscriptionSet::add);
         logger.debug("Get exporter subscription list, {}", subscriptionSet);
     }
@@ -78,7 +85,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         }
 
         ExportStatus status = new ExportStatus();
-        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.export(
+        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS).export(
             new StreamObserver<ExportResponse>() {
                 @Override public void onNext(ExportResponse response) {
 
@@ -97,25 +104,25 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         data.forEach(row -> {
             ExportMetricValue.Builder builder = ExportMetricValue.newBuilder();
 
-            Indicator indicator = row.getIndicator();
-            if (indicator instanceof LongValueHolder) {
-                long value = ((LongValueHolder)indicator).getValue();
+            Metrics metrics = row.getMetrics();
+            if (metrics instanceof LongValueHolder) {
+                long value = ((LongValueHolder)metrics).getValue();
                 builder.setLongValue(value);
                 builder.setType(ValueType.LONG);
-            } else if (indicator instanceof IntValueHolder) {
-                long value = ((IntValueHolder)indicator).getValue();
+            } else if (metrics instanceof IntValueHolder) {
+                long value = ((IntValueHolder)metrics).getValue();
                 builder.setLongValue(value);
                 builder.setType(ValueType.LONG);
-            } else if (indicator instanceof DoubleValueHolder) {
-                double value = ((DoubleValueHolder)indicator).getValue();
+            } else if (metrics instanceof DoubleValueHolder) {
+                double value = ((DoubleValueHolder)metrics).getValue();
                 builder.setDoubleValue(value);
                 builder.setType(ValueType.DOUBLE);
             } else {
                 return;
             }
 
-            IndicatorMetaInfo meta = row.getMeta();
-            builder.setMetricName(meta.getIndicatorName());
+            MetricsMetaInfo meta = row.getMeta();
+            builder.setMetricName(meta.getMetricsName());
             String entityName = getEntityName(meta);
             if (entityName == null) {
                 return;
@@ -123,7 +130,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             builder.setEntityName(entityName);
             builder.setEntityId(meta.getId());
 
-            builder.setTimeBucket(indicator.getTimeBucket());
+            builder.setTimeBucket(metrics.getTimeBucket());
 
             streamObserver.onNext(builder.build());
             exportNum.getAndIncrement();
@@ -144,13 +151,13 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             }
 
             if (sleepTime > 2000L) {
-                logger.warn("Export {} metric(s) to {}:{}, wait {} milliseconds.",
+                logger.warn("Export {} metrics to {}:{}, wait {} milliseconds.",
                     exportNum.get(), setting.getTargetHost(), setting.getTargetPort(), sleepTime);
                 cycle = 2000L;
             }
         }
 
-        logger.debug("Exported {} metric(s) to {}:{} in {} milliseconds.",
+        logger.debug("Exported {} metrics to {}:{} in {} milliseconds.",
             exportNum.get(), setting.getTargetHost(), setting.getTargetPort(), sleepTime);
     }
 
@@ -164,12 +171,12 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
     @Getter(AccessLevel.PRIVATE)
     public class ExportData {
-        private IndicatorMetaInfo meta;
-        private Indicator indicator;
+        private MetricsMetaInfo meta;
+        private Metrics metrics;
 
-        public ExportData(IndicatorMetaInfo meta, Indicator indicator) {
+        public ExportData(MetricsMetaInfo meta, Metrics metrics) {
             this.meta = meta;
-            this.indicator = indicator;
+            this.metrics = metrics;
         }
     }
 

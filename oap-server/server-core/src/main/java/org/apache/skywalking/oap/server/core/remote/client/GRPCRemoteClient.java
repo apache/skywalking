@@ -21,11 +21,12 @@ package org.apache.skywalking.oap.server.core.remote.client;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
@@ -47,28 +48,28 @@ public class GRPCRemoteClient implements RemoteClient {
     private final int channelSize;
     private final int bufferSize;
     private final Address address;
-    private final StreamDataClassGetter streamDataClassGetter;
+    private final StreamDataMappingGetter streamDataMappingGetter;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
     private GRPCClient client;
     private DataCarrier<RemoteMessage> carrier;
     private boolean isConnect;
-    private CounterMetric remoteOutCounter;
-    private CounterMetric remoteOutErrorCounter;
+    private CounterMetrics remoteOutCounter;
+    private CounterMetrics remoteOutErrorCounter;
 
 
-    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, StreamDataClassGetter streamDataClassGetter, Address address, int channelSize,
+    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, StreamDataMappingGetter streamDataMappingGetter, Address address, int channelSize,
         int bufferSize) {
-        this.streamDataClassGetter = streamDataClassGetter;
+        this.streamDataMappingGetter = streamDataMappingGetter;
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
 
-        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "N"));
-        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+                new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address.toString(), "N"));
+        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_error_count", "The error number(client side) of inside remote inside aggregate rpc.",
-                new MetricTag.Keys("dest", "self"), new MetricTag.Values(address.toString(), "N"));
+                new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address.toString(), "N"));
     }
 
     @Override public void connect() {
@@ -122,7 +123,7 @@ public class GRPCRemoteClient implements RemoteClient {
      * @param streamData the entity contains the values.
      */
     @Override public void push(int nextWorkerId, StreamData streamData) {
-        int streamDataId = streamDataClassGetter.findIdByClass(streamData.getClass());
+        int streamDataId = streamDataMappingGetter.findIdByClass(streamData.getClass());
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
         builder.setNextWorkerId(nextWorkerId);
         builder.setStreamDataId(streamDataId);
@@ -183,7 +184,7 @@ public class GRPCRemoteClient implements RemoteClient {
             }
         }
 
-        return getStub().call(new StreamObserver<Empty>() {
+        return getStub().withDeadlineAfter(10, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
 

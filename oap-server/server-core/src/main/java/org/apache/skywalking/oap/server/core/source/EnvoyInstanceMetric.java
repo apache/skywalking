@@ -24,9 +24,9 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
 /**
- * The envoy metrics. This group of metrics are in Prometheus metric format family.
+ * The envoy metrics. This group of metrics are in Prometheus metrics format family.
  *
- * This metric source supports Counter and Gauge types.
+ * This metrics source supports Counter and Gauge types.
  *
  * @author wusheng
  */

@@ -69,7 +69,9 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                     properties.put(key, value);
                                     final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE
                                         .replacePlaceholders(value + "", properties));
-                                    properties.replace(key, replaceValue);
+                                    if (replaceValue != null) {
+                                        properties.replace(key, replaceValue);
+                                    }
                                     logger.info("The property with key: {}, value: {}, in {} provider", key, replaceValue.toString(), name);
                                 });
                             }

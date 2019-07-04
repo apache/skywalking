@@ -18,21 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import com.google.gson.JsonObject;
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -43,111 +36,109 @@ public class StorageEsInstaller extends ModelInstaller {
 
     private final int indexShardsNumber;
     private final int indexReplicasNumber;
-    private final ColumnTypeEsMapping mapping;
+    private final ColumnTypeEsMapping columnTypeEsMapping;
 
     public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber) {
         super(moduleManager);
         this.indexShardsNumber = indexShardsNumber;
         this.indexReplicasNumber = indexReplicasNumber;
-        this.mapping = new ColumnTypeEsMapping();
+        this.columnTypeEsMapping = new ColumnTypeEsMapping();
     }
 
-    @Override protected boolean isExists(Client client, Model tableDefine) throws StorageException {
+    @Override protected boolean isExists(Client client, Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
         try {
-            return esClient.isExistsIndex(tableDefine.getName());
-        } catch (IOException e) {
-            throw new StorageException(e.getMessage());
-        }
-    }
-
-    @Override protected void columnCheck(Client client, Model tableDefine) {
-
-    }
-
-    @Override protected void deleteTable(Client client, Model tableDefine) throws StorageException {
-        ElasticSearchClient esClient = (ElasticSearchClient)client;
-
-        try {
-            if (!esClient.deleteIndex(tableDefine.getName())) {
-                throw new StorageException(tableDefine.getName() + " index delete failure.");
+            if (model.isCapableOfTimeSeries()) {
+                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(model.getName());
+            } else {
+                return esClient.isExistsIndex(model.getName());
             }
         } catch (IOException e) {
-            throw new StorageException(tableDefine.getName() + " index delete failure.");
+            throw new StorageException(e.getMessage());
         }
     }
 
-    @Override protected void createTable(Client client, Model tableDefine) throws StorageException {
+    @Override protected void createTable(Client client, Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient)client;
 
-        // mapping
-        XContentBuilder mappingBuilder = null;
+        JsonObject settings = createSetting();
+        JsonObject mapping = createMapping(model);
+        logger.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping.toString());
 
-        Settings settings = createSettingBuilder();
         try {
-            mappingBuilder = createMappingBuilder(tableDefine);
-            logger.info("index {}'s mapping builder str: {}", esClient.formatIndexName(tableDefine.getName()), Strings.toString(mappingBuilder.prettyPrint()));
-        } catch (Exception e) {
-            logger.error("create {} index mapping builder error, error message: {}", esClient.formatIndexName(tableDefine.getName()), e.getMessage());
-        }
-
-        boolean isAcknowledged;
-        try {
-            isAcknowledged = esClient.createIndex(tableDefine.getName(), settings, mappingBuilder);
+            if (model.isCapableOfTimeSeries()) {
+                if (!esClient.isExistsTemplate(model.getName())) {
+                    boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
+                    logger.info("create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                    if (!isAcknowledged) {
+                        throw new StorageException("create " + model.getName() + " index template failure, ");
+                    }
+                }
+                if (!esClient.isExistsIndex(model.getName())) {
+                    String timeSeriesIndexName = TimeSeriesUtils.timeSeries(model);
+                    boolean isAcknowledged = esClient.createIndex(timeSeriesIndexName);
+                    logger.info("create {} index finished, isAcknowledged: {}", timeSeriesIndexName, isAcknowledged);
+                    if (!isAcknowledged) {
+                        throw new StorageException("create " + timeSeriesIndexName + " time series index failure, ");
+                    }
+                }
+            } else {
+                boolean isAcknowledged = esClient.createIndex(model.getName(), settings, mapping);
+                logger.info("create {} index finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                if (!isAcknowledged) {
+                    throw new StorageException("create " + model.getName() + " index failure, ");
+                }
+            }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
-        logger.info("create {} index finished, isAcknowledged: {}", esClient.formatIndexName(tableDefine.getName()), isAcknowledged);
-
-        if (!isAcknowledged) {
-            throw new StorageException("create " + esClient.formatIndexName(tableDefine.getName()) + " index failure, ");
-        }
     }
 
-    private Settings createSettingBuilder() {
-        return Settings.builder()
-            .put("index.number_of_shards", indexShardsNumber)
-            .put("index.number_of_replicas", indexReplicasNumber)
-            .put("index.refresh_interval", "3s")
-            .put("analysis.analyzer.oap_analyzer.type", "stop")
-            .build();
+    private JsonObject createSetting() {
+        JsonObject setting = new JsonObject();
+        setting.addProperty("index.number_of_shards", indexShardsNumber);
+        setting.addProperty("index.number_of_replicas", indexReplicasNumber);
+        setting.addProperty("index.refresh_interval", "3s");
+        setting.addProperty("analysis.analyzer.oap_analyzer.type", "stop");
+        return setting;
     }
 
-    private XContentBuilder createMappingBuilder(Model tableDefine) throws IOException {
-        XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()
-            .startObject()
-            .startObject("_all")
-            .field("enabled", false)
-            .endObject()
-            .startObject("properties");
+    private JsonObject createMapping(Model model) {
+        JsonObject mapping = new JsonObject();
+        mapping.add(ElasticSearchClient.TYPE, new JsonObject());
 
-        for (ModelColumn columnDefine : tableDefine.getColumns()) {
+        JsonObject type = mapping.get(ElasticSearchClient.TYPE).getAsJsonObject();
+
+        JsonObject properties = new JsonObject();
+        type.add("properties", properties);
+
+        for (ModelColumn columnDefine : model.getColumns()) {
             if (columnDefine.isMatchQuery()) {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnDefine.getColumnName().getName());
 
-                mappingBuilder
-                    .startObject(columnDefine.getColumnName().getName())
-                    .field("type", mapping.transform(columnDefine.getType()))
-                    .field("copy_to", matchCName)
-                    .endObject()
-                    .startObject(matchCName)
-                    .field("type", "text")
-                    .field("analyzer", "oap_analyzer")
-                    .endObject();
+                JsonObject originalColumn = new JsonObject();
+                originalColumn.addProperty("type", columnTypeEsMapping.transform(columnDefine.getType()));
+                originalColumn.addProperty("copy_to", matchCName);
+                properties.add(columnDefine.getColumnName().getName(), originalColumn);
+
+                JsonObject matchColumn = new JsonObject();
+                matchColumn.addProperty("type", "text");
+                matchColumn.addProperty("analyzer", "oap_analyzer");
+                properties.add(matchCName, matchColumn);
+            } else if (columnDefine.isContent()) {
+                JsonObject column = new JsonObject();
+                column.addProperty("type", "text");
+                column.addProperty("index", false);
+                properties.add(columnDefine.getColumnName().getName(), column);
             } else {
-                mappingBuilder
-                    .startObject(columnDefine.getColumnName().getName())
-                    .field("type", mapping.transform(columnDefine.getType()))
-                    .endObject();
+                JsonObject column = new JsonObject();
+                column.addProperty("type", columnTypeEsMapping.transform(columnDefine.getType()));
+                properties.add(columnDefine.getColumnName().getName(), column);
             }
         }
 
-        mappingBuilder
-            .endObject()
-            .endObject();
+        logger.debug("elasticsearch index template setting: {}", mapping.toString());
 
-        logger.debug("create elasticsearch index: {}", mappingBuilder.prettyPrint());
-
-        return mappingBuilder;
+        return mapping;
     }
 }

@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * Envoy metric receiver module
+ * Envoy metrics receiver module
  *
  * @author wusheng
  */
