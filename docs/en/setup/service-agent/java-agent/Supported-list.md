@@ -53,7 +53,8 @@
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
-  * [Solr](https://github.com/apache/lucene-solr/)
+  * Solr
+    * [Solr](https://github.com/apache/lucene-solr/) 7.x
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
 
 * Service Discovery
