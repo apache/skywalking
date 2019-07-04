@@ -89,6 +89,8 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 
+1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
+
 # User Cases
 ## Alibaba Cloud
 Support SkyWalking agents and formats in Tracing Analysis cloud service.
