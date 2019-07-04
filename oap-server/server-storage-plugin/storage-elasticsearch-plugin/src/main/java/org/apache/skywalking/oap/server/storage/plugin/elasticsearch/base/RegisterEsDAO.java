@@ -19,16 +19,22 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.Map;
+
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
+public class RegisterEsDAO extends EsDAO implements IRegisterDAO<IndexRequest,UpdateRequest> {
 
     private final StorageBuilder<RegisterSource> storageBuilder;
 
@@ -54,5 +60,27 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
     @Override public void forceUpdate(String modelName, RegisterSource source) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceUpdate(modelName, source.id(), builder);
+    }
+    @Override public IndexRequest prepareBatchInsert(String modelName, RegisterSource source) throws IOException {
+
+        XContentBuilder builder = build(source);
+        return getClient().prepareInsert(modelName, source.id(), builder);
+    }
+
+    @Override public UpdateRequest prepareBatchUpdate(String modelName, RegisterSource source) throws IOException {
+
+        XContentBuilder builder = build(source);
+        return getClient().prepareUpdate(modelName, source.id(), builder);
+    }
+    private XContentBuilder build(RegisterSource source) throws IOException {
+        Map<String, Object> objectMap = storageBuilder.data2Map(source);
+
+        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+        for (String key : objectMap.keySet()) {
+            builder.field(key, objectMap.get(key));
+        }
+        builder.endObject();
+        
+        return builder;
     }
 }

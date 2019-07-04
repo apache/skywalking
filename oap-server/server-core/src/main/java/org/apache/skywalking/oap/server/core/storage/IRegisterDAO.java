@@ -24,11 +24,15 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
 /**
  * @author peng-yongsheng
  */
-public interface IRegisterDAO extends DAO {
+public interface IRegisterDAO<INSERT, UPDATE> extends DAO {
     
     RegisterSource get(String modelName, String id) throws IOException;
 
     void forceInsert(String modelName, RegisterSource source) throws IOException;
 
     void forceUpdate(String modelName, RegisterSource source) throws IOException;
+
+    INSERT prepareBatchInsert(String modelName, RegisterSource source) throws IOException;
+
+    UPDATE prepareBatchUpdate(String modelName, RegisterSource source) throws IOException;
 }

@@ -26,4 +26,6 @@ import java.util.List;
 public interface IBatchDAO extends DAO {
 
     void batchPersistence(List<?> batchCollection);
+
+    void immediateBatchPersistence(List<?> batchCollection);
 }

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.List;
+
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -35,6 +36,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     private static final Logger logger = LoggerFactory.getLogger(BatchProcessEsDAO.class);
 
     private BulkProcessor bulkProcessor;
+    private BulkProcessor blockBulkProcessor;
     private final int bulkActions;
     private final int bulkSize;
     private final int flushInterval;
@@ -71,4 +73,27 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
         this.bulkProcessor.flush();
     }
+    @Override public void immediateBatchPersistence(List<?> batchCollection) {
+
+        if (blockBulkProcessor == null) {
+            this.blockBulkProcessor = getClient().createImmediateRefreshBulkProcessor(bulkActions, bulkSize, flushInterval, concurrentRequests);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("bulk data size: {}", batchCollection.size());
+        }
+
+        if (CollectionUtils.isNotEmpty(batchCollection)) {
+            batchCollection.forEach(builder -> {
+                if (builder instanceof IndexRequest) {
+                    this.blockBulkProcessor.add((IndexRequest)builder);
+                }
+                if (builder instanceof UpdateRequest) {
+                    this.blockBulkProcessor.add((UpdateRequest)builder);
+                }
+            });
+        }
+
+        this.blockBulkProcessor.flush();
+    }
+
 }

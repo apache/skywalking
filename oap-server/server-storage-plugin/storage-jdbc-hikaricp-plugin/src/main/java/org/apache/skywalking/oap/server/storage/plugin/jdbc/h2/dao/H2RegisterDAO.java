@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
 import java.sql.*;
+
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.slf4j.*;
 
 /**
@@ -59,5 +61,12 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
         } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
+    }
+    @Override public SQLExecutor prepareBatchInsert(String modelName, RegisterSource source) throws IOException {
+        return getInsertExecutor(modelName, source, storageBuilder);
+    }
+
+    @Override public SQLExecutor prepareBatchUpdate(String modelName, RegisterSource source) throws IOException {
+        return getUpdateExecutor(modelName, source, storageBuilder);
     }
 }

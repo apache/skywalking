@@ -60,4 +60,7 @@ public class H2BatchDAO implements IBatchDAO {
             logger.error(e.getMessage(), e);
         }
     }
+    @Override public void immediateBatchPersistence(List<?> batchCollection) {
+        batchPersistence(batchCollection);
+    }
 }

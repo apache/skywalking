@@ -328,4 +328,37 @@ public class ElasticSearchClient implements Client {
             .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
             .build();
     }
+
+    public BulkProcessor createImmediateRefreshBulkProcessor(int bulkActions, int bulkSize, int flushInterval, int concurrentRequests) {
+        BulkProcessor.Listener listener = new BulkProcessor.Listener() {
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) {
+                request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+                int numberOfActions = request.numberOfActions();
+                logger.debug("Executing bulk [{}] with {} requests", executionId, numberOfActions);
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                if (response.hasFailures()) {
+                    logger.warn("Bulk [{}] executed with failures", executionId);
+                } else {
+                    logger.info("Bulk [{}] completed in {} milliseconds", executionId, response.getTook().getMillis());
+                }
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                logger.error("Failed to execute bulk", failure);
+            }
+        };
+
+        return BulkProcessor.builder(client::bulkAsync, listener)
+                .setBulkActions(bulkActions)
+                .setBulkSize(new ByteSizeValue(bulkSize, ByteSizeUnit.MB))
+                .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
+                .setConcurrentRequests(concurrentRequests)
+                .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
+                .build();
+    }
 }
