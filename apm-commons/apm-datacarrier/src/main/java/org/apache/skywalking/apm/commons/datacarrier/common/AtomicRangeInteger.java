@@ -20,52 +20,56 @@
 package org.apache.skywalking.apm.commons.datacarrier.common;
 
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
- * Created by wusheng on 2016/10/25.
+ * Created by lkxiaolou
  */
 public class AtomicRangeInteger extends Number implements Serializable {
     private static final long serialVersionUID = -4099792402691141643L;
-    private AtomicInteger value;
+    private AtomicIntegerArray values;
+
+    private static final int VALUE_OFFSET = 15;
+
     private int startValue;
     private int endValue;
 
     public AtomicRangeInteger(int startValue, int maxValue) {
-        this.value = new AtomicInteger(startValue);
+        this.values = new AtomicIntegerArray(31);
+        this.values.set(VALUE_OFFSET, startValue);
         this.startValue = startValue;
         this.endValue = maxValue - 1;
     }
 
     public final int getAndIncrement() {
-        int current;
         int next;
         do {
-            current = this.value.get();
-            next = current >= this.endValue ? this.startValue : current + 1;
-        }
-        while (!this.value.compareAndSet(current, next));
+            next = this.values.incrementAndGet(VALUE_OFFSET);
+            if (next > endValue && this.values.compareAndSet(VALUE_OFFSET, next, startValue)) {
+                return endValue;
+            }
+        } while (next > endValue);
 
-        return current;
+        return next - 1;
     }
 
     public final int get() {
-        return this.value.get();
+        return this.values.get(VALUE_OFFSET);
     }
 
     public int intValue() {
-        return this.value.intValue();
+        return this.values.get(VALUE_OFFSET);
     }
 
     public long longValue() {
-        return this.value.longValue();
+        return this.values.get(VALUE_OFFSET);
     }
 
     public float floatValue() {
-        return this.value.floatValue();
+        return this.values.get(VALUE_OFFSET);
     }
 
     public double doubleValue() {
-        return this.value.doubleValue();
+        return this.values.get(VALUE_OFFSET);
     }
 }

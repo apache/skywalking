@@ -126,6 +126,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SOLR =  new OfficialComponent(64, "solr");
 
+    public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;

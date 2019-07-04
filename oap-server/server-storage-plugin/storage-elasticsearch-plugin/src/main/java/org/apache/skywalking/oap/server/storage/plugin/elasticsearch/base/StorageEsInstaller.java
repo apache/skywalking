@@ -125,6 +125,11 @@ public class StorageEsInstaller extends ModelInstaller {
                 matchColumn.addProperty("type", "text");
                 matchColumn.addProperty("analyzer", "oap_analyzer");
                 properties.add(matchCName, matchColumn);
+            } else if (columnDefine.isContent()) {
+                JsonObject column = new JsonObject();
+                column.addProperty("type", "text");
+                column.addProperty("index", false);
+                properties.add(columnDefine.getColumnName().getName(), column);
             } else {
                 JsonObject column = new JsonObject();
                 column.addProperty("type", columnTypeEsMapping.transform(columnDefine.getType()));

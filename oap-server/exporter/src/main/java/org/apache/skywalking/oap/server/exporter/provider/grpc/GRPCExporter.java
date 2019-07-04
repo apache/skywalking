@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -69,7 +70,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     }
 
     public void initSubscriptionList() {
-        SubscriptionsResp subscription = blockingStub.subscription(SubscriptionReq.newBuilder().build());
+        SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).subscription(SubscriptionReq.newBuilder().build());
         subscription.getMetricNamesList().forEach(subscriptionSet::add);
         logger.debug("Get exporter subscription list, {}", subscriptionSet);
     }
@@ -84,7 +85,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         }
 
         ExportStatus status = new ExportStatus();
-        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.export(
+        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS).export(
             new StreamObserver<ExportResponse>() {
                 @Override public void onNext(ExportResponse response) {
 

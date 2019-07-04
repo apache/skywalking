@@ -64,6 +64,22 @@ public class SolrClientInstrumentation extends ClassInstanceMethodsEnhancePlugin
                 public String getMethodsInterceptor() {
                     return "org.apache.skywalking.apm.plugin.solrj.SolrClientInterceptor";
                 }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return ElementMatchers.named("executeMethod");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.solrj.SolrConnectorInterceptor";
+                }
             }
         };
     }

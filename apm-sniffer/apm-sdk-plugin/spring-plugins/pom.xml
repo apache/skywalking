@@ -23,11 +23,12 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>6.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-plugins</artifactId>
     <modules>
+        <module>async-annotation-plugin</module>
         <module>concurrent-util-4.x-plugin</module>
         <module>resttemplate-4.x-plugin</module>
         <module>mvc-annotation-4.x-plugin</module>

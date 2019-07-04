@@ -56,7 +56,7 @@ pipeline {
                                 sh 'ls'
                                 sh 'git status'
                             }
-                        }    
+                        }
 
                         stage('Test & Report') {
                             steps {
@@ -67,8 +67,11 @@ pipeline {
                     }
 
                     post {
-                        always {
+                        success {
                             junit '**/target/surefire-reports/*.xml'
+                        }
+
+                        cleanup {
                             deleteDir()
                         }
                     }
