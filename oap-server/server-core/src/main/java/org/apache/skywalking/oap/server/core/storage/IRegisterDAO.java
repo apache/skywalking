@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
+import java.util.Map;
+
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 
 /**
@@ -27,6 +29,8 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
 public interface IRegisterDAO<INSERT, UPDATE> extends DAO {
     
     RegisterSource get(String modelName, String id) throws IOException;
+
+    Map<String, RegisterSource> batchGet(String modelName, String... ids) throws IOException;
 
     void forceInsert(String modelName, RegisterSource source) throws IOException;
 

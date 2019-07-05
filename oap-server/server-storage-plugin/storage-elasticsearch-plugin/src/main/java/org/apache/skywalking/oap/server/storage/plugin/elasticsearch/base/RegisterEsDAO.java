@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
@@ -51,6 +52,13 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO<IndexRequest,Up
             return null;
         }
     }
+    @Override public Map<String, RegisterSource> batchGet(String modelName, String... ids) throws IOException {
+        Map<String, RegisterSource> resultMap = new HashMap<>(ids.length);
+        Map<String, Map<String, Object>> map = getClient().ids(modelName, ids);
+        map.forEach((key, value) -> resultMap.put(key, storageBuilder.map2Data(value)));
+        return resultMap;
+    }
+
 
     @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(source));

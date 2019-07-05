@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
@@ -45,6 +47,18 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
 
     @Override public RegisterSource get(String modelName, String id) throws IOException {
         return (RegisterSource)getByID(h2Client, modelName, id, storageBuilder);
+    }
+
+    @Override
+    public Map<String, RegisterSource> batchGet(String modelName, String... ids) throws IOException {
+        Map<String, RegisterSource> map = new HashMap<>(ids.length);
+        for (String id : ids) {
+            RegisterSource registerSource = this.get(modelName, id);
+            if (registerSource != null) {
+                map.put(id, registerSource);
+            }
+        }
+        return map;
     }
 
     @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {

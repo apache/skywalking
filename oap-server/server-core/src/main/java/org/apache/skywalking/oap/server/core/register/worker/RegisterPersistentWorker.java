@@ -18,24 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author peng-yongsheng
@@ -43,7 +45,6 @@ import static java.util.Objects.nonNull;
 public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterPersistentWorker.class);
-    private final Cache<String, RegisterSource> registerSourceCache;
 
     private final int scopeId;
     private final String modelName;
@@ -52,10 +53,9 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterDAO registerDAO;
     private final IBatchDAO batchDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
-    private final List batchPersistenList;
 
     RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
-                             IRegisterDAO registerDAO, int scopeId) {
+                                 IRegisterDAO registerDAO, int scopeId) {
         super(moduleDefineHolder);
         this.modelName = modelName;
         this.sources = new HashMap<>();
@@ -64,8 +64,6 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.batchDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
         this.scopeId = scopeId;
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
-        this.batchPersistenList = new ArrayList<>();
-        this.registerSourceCache = CacheBuilder.newBuilder().concurrencyLevel(1).initialCapacity(1000).maximumSize(1000).build();
         String name = "REGISTER_L2";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
         if (size == 0) {
@@ -93,78 +91,49 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
         if (sources.size() > 1000 || registerSource.getEndOfBatchContext().isEndOfBatch()) {
-            sources.values().forEach(source -> {
-                RegisterSource cacheSource = null;
-                try {
-                    RegisterSource dbSource = this.getRegisterSourceCache(source.id());
-                    if (Objects.nonNull(dbSource)) {
-                        if (dbSource.combine(source)) {
-                            batchPersistenList.add(registerDAO.prepareBatchUpdate(modelName, dbSource));
-                            cacheSource = dbSource;
-                        }
-                    } else {
-                        int sequence;
-                        if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
-                            try {
-                                dbSource = this.getRegisterSourceCache(source.id());
-                                if (Objects.nonNull(dbSource)) {
-                                    if (dbSource.combine(source)) {
-                                        batchPersistenList.add(registerDAO.prepareBatchUpdate(modelName, dbSource));
-                                        cacheSource = dbSource;
-                                    }
-                                } else {
-                                    source.setSequence(sequence);
-                                    batchPersistenList.add(registerDAO.prepareBatchInsert(modelName, source));
-                                    cacheSource = source;
-                                }
-                            } catch (Throwable t) {
-                                logger.error(t.getMessage(), t);
-                                cacheSource = null;
+            try {
+                List<String> ids = sources.values().stream().map(value -> value.id()).collect(Collectors.toList());
+                final Map<String, RegisterSource> map = registerDAO.batchGet(modelName, ids.toArray(new String[0]));
+                final List batchPersistenList = new ArrayList(sources.size());
+                sources.values().forEach(source -> {
+                    try {
+                        RegisterSource dbSource = map.get(source.id());
+                        if (Objects.nonNull(dbSource)) {
+                            if (dbSource.combine(source)) {
+                                batchPersistenList.add(registerDAO.prepareBatchUpdate(modelName, dbSource));
                             }
                         } else {
-                            logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
-                            cacheSource = null;
+                            int sequence;
+                            if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
+                                try {
+                                    dbSource = registerDAO.get(modelName, source.id());
+                                    if (Objects.nonNull(dbSource)) {
+                                        if (dbSource.combine(source)) {
+                                            batchPersistenList.add(registerDAO.prepareBatchUpdate(modelName, dbSource));
+                                        }
+                                    } else {
+                                        source.setSequence(sequence);
+                                        batchPersistenList.add(registerDAO.prepareBatchInsert(modelName, source));
+                                    }
+                                } catch (Throwable t) {
+                                    logger.error(t.getMessage(), t);
+                                }
+                            } else {
+                                logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
+                            }
                         }
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
                     }
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
-                    cacheSource = null;
-                }
-                if (nonNull(cacheSource)) {
-                    registerSourceCache.put(source.id(), cacheSource);
-                } else {
-                    registerSourceCache.invalidate(source.id());
-                }
-            });
-            try {
+                });
                 batchDAO.immediateBatchPersistence(batchPersistenList);
-            } catch (Exception e) {
-                logger.error("batch persistence error", e);
-                this.invalidateCache(sources);
+            } catch (Throwable t) {
+                logger.error(t.getMessage(), t);
             }
-            batchPersistenList.clear();
             sources.clear();
         }
     }
 
-    private RegisterSource getRegisterSourceCache(String sourceId) throws IOException {
-        RegisterSource registerSource = registerSourceCache.getIfPresent(sourceId);
-        if (isNull(registerSource)) {
-            registerSource = registerDAO.get(modelName, sourceId);
-            if (nonNull(registerSource)) {
-                registerSourceCache.put(sourceId, registerSource);
-            }
-        }
-        return registerSource;
-    }
-
-    private void invalidateCache(Map<RegisterSource, RegisterSource> sources) {
-        List invalidateKeys = new ArrayList<>(sources.size());
-        sources.values().forEach(source -> {
-            invalidateKeys.add(source.id());
-        });
-        registerSourceCache.invalidateAll(invalidateKeys);
-    }
 
     private class PersistentConsumer implements IConsumer<RegisterSource> {
 
