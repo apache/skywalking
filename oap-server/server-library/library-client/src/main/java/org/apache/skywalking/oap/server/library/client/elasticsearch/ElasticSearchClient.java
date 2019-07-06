@@ -146,7 +146,13 @@ public class ElasticSearchClient implements Client {
     }
 
     public boolean deleteIndex(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
+        return deleteIndex(indexName, true);
+    }
+
+    public boolean deleteIndex(String indexName, boolean formatIndexName) throws IOException {
+        if (formatIndexName) {
+            indexName = formatIndexName(indexName);
+        }
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         DeleteIndexResponse response;
         response = client.indices().delete(request);
