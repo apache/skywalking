@@ -34,6 +34,7 @@
     <modules>
         <module>e2e-base</module>
         <module>e2e-single-service</module>
+        <module>e2e-cluster</module>
     </modules>
 
     <properties>
@@ -127,13 +128,13 @@
                                 <goal>start</goal>
                             </goals>
                         </execution>
-                        <execution>
-                            <id>stop</id>
-                            <phase>post-integration-test</phase>
-                            <goals>
-                                <goal>stop</goal>
-                            </goals>
-                        </execution>
+<!--                        <execution>-->
+<!--                            <id>stop</id>-->
+<!--                            <phase>post-integration-test</phase>-->
+<!--                            <goals>-->
+<!--                                <goal>stop</goal>-->
+<!--                            </goals>-->
+<!--                        </execution>-->
                     </executions>
                 </plugin>
             </plugins>
