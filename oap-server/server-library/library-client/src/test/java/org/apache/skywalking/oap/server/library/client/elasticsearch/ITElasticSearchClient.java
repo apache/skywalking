@@ -193,45 +193,31 @@ public class ITElasticSearchClient {
         String indexName = "test_time_series_operate";
         String timeSeriesIndexName = indexName + "-2019";
 
-        try {
-            if (client.isExistsTemplate(indexName)) {
-                client.deleteTemplate(indexName);
-            }
+        JsonObject mapping = new JsonObject();
+        mapping.add("type", new JsonObject());
+        JsonObject doc = mapping.getAsJsonObject("type");
 
-            JsonObject mapping = new JsonObject();
-            mapping.add("type", new JsonObject());
-            JsonObject doc = mapping.getAsJsonObject("type");
+        JsonObject properties = new JsonObject();
+        doc.add("properties", properties);
 
-            JsonObject properties = new JsonObject();
-            doc.add("properties", properties);
+        JsonObject column = new JsonObject();
+        column.addProperty("type", "text");
+        properties.add("name", column);
 
-            JsonObject column = new JsonObject();
-            column.addProperty("type", "text");
-            properties.add("name", column);
+        client.createTemplate(indexName, new JsonObject(), mapping);
 
-            client.createTemplate(indexName, new JsonObject(), mapping);
+        XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
+            .field("name", "pengys")
+            .endObject();
+        client.forceInsert(timeSeriesIndexName, "testid", builder);
 
-            XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
-                .field("name", "pengys")
-                .endObject();
-            client.forceInsert(timeSeriesIndexName, "testid", builder);
-
-            List<ElasticSearchTimeSeriesIndex> indexes = client.retrievalIndexByAliases(indexName);
-            Assert.assertEquals(1, indexes.size());
-            ElasticSearchTimeSeriesIndex index = indexes.get(0);
-            Assert.assertEquals(index.getNamespace(), System.getProperty("elastic.search.namespace", ""));
-            Assert.assertEquals(index.getIndex(), timeSeriesIndexName);
-            Assert.assertTrue(client.deleteTimeSeriesIndex(index));
-            Assert.assertFalse(client.isExistsIndex(index.getIndex()));
-
-        } finally {
-            if (client.isExistsTemplate(indexName)) {
-                client.deleteTemplate(indexName);
-            }
-            if (client.isExistsIndex(timeSeriesIndexName)) {
-                client.deleteIndex(timeSeriesIndexName);
-            }
-        }
+        List<ElasticSearchTimeSeriesIndex> indexes = client.retrievalIndexByAliases(indexName);
+        Assert.assertEquals(1, indexes.size());
+        ElasticSearchTimeSeriesIndex index = indexes.get(0);
+        Assert.assertEquals(index.getNamespace(), System.getProperty("elastic.search.namespace", ""));
+        Assert.assertEquals(index.getIndex(), timeSeriesIndexName);
+        Assert.assertTrue(client.deleteTimeSeriesIndex(index));
+        Assert.assertFalse(client.isExistsIndex(index.getIndex()));
     }
 
 }

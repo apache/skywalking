@@ -146,7 +146,7 @@ public class ElasticSearchClient implements Client {
         Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         Gson gson = new Gson();
-        return gson.fromJson(reader, JsonObject.class);
+        return undoFormatIndexName(gson.fromJson(reader, JsonObject.class));
     }
 
     public boolean deleteTimeSeriesIndex(ElasticSearchTimeSeriesIndex index) throws IOException {
@@ -303,6 +303,22 @@ public class ElasticSearchClient implements Client {
             return namespacePrefix + indexName;
         }
         return indexName;
+    }
+
+    private JsonObject undoFormatIndexName(JsonObject index) {
+        if (StringUtils.isNotEmpty(namespace) && index != null && index.size() > 0) {
+            Set<Map.Entry<String, JsonElement>> entrySet = index.entrySet();
+            for (Map.Entry<String, JsonElement> entry : entrySet) {
+                String oldIndexName = entry.getKey();
+                if (oldIndexName.startsWith(namespacePrefix)) {
+                    index.add(oldIndexName.substring(namespacePrefix.length()), entry.getValue());
+                    index.remove(oldIndexName);
+                } else {
+                    throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + entry.getKey());
+                }
+            }
+        }
+        return index;
     }
 
     private String undoFormatIndexName(String indexName) {
