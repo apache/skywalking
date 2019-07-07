@@ -133,8 +133,7 @@ public class ElasticSearchClient implements Client {
             logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
             Set<String> keySet = responseJson.keySet();
             if (!keySet.isEmpty()) {
-
-              return keySet.stream().map(this::redoIndexName).map((index) -> new ElasticSearchTimeSeriesIndex(namespace, index)).collect(Collectors.toList());
+                return keySet.stream().map(this::undoFormatIndexName).map(index -> new ElasticSearchTimeSeriesIndex(namespace, index)).collect(Collectors.toList());
             }
         }
         return Collections.EMPTY_LIST;
@@ -306,7 +305,7 @@ public class ElasticSearchClient implements Client {
         return indexName;
     }
 
-    public String redoIndexName(String indexName) {
+    public String undoFormatIndexName(String indexName) {
         if (StringUtils.isNotEmpty(namespace) && indexName.startsWith(namespacePrefix)) {
             return indexName.substring(namespacePrefix.length());
         }

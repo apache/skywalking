@@ -185,12 +185,12 @@ public class ITElasticSearchClient {
     }
 
     @Test
-    public void redoIndexName() {
+    public void undoFormatIndexName() {
         ElasticSearchClient client = new ElasticSearchClient("", "test", "", "");
         String indexName = "test-201907";
         indexName = client.formatIndexName(indexName);
         Assert.assertEquals("test_test-201907", indexName);
-        indexName = client.redoIndexName(indexName);
+        indexName = client.undoFormatIndexName(indexName);
         Assert.assertEquals("test-201907", indexName);
     }
 }
