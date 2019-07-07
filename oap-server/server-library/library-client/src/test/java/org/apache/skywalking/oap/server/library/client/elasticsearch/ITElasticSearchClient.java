@@ -220,9 +220,9 @@ public class ITElasticSearchClient {
             Assert.assertEquals(1, indexes.size());
             ElasticSearchTimeSeriesIndex index = indexes.get(0);
             Assert.assertEquals(index.getNamespace(), System.getProperty("elastic.search.namespace", ""));
-            Assert.assertTrue(index.getIndex().startsWith(indexName));
+            Assert.assertEquals(index.getIndex(), timeSeriesIndexName);
             Assert.assertTrue(client.deleteTimeSeriesIndex(index));
-            Assert.assertFalse(client.isExistsIndex(indexName));
+            Assert.assertFalse(client.isExistsIndex(index.getIndex()));
 
         } finally {
             if (client.isExistsTemplate(indexName)) {
