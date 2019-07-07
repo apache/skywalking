@@ -189,7 +189,7 @@ public class ITElasticSearchClient {
     }
 
     @Test
-    public void retrievalIndexByAliasesOperate() throws IOException {
+    public void timeSeriesOperate() throws IOException {
         String indexName = "test_time_series_operate";
         String timeSeriesIndexName = indexName + "-2019";
 
