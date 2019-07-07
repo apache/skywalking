@@ -183,4 +183,14 @@ public class ITElasticSearchClient {
         bulkProcessor.flush();
         bulkProcessor.awaitClose(2, TimeUnit.SECONDS);
     }
+
+    @Test
+    public void redoIndexName() {
+        ElasticSearchClient client = new ElasticSearchClient("", "test", "", "");
+        String indexName = "test-201907";
+        indexName = client.formatIndexName(indexName);
+        Assert.assertEquals("test_test-201907", indexName);
+        indexName = client.redoIndexName(indexName);
+        Assert.assertEquals("test-201907", indexName);
+    }
 }

@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 import com.google.gson.*;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -57,6 +59,7 @@ public class ElasticSearchClient implements Client {
     public static final String TYPE = "type";
     private final String clusterNodes;
     private final String namespace;
+    private final String namespacePrefix;
     private final String user;
     private final String password;
     private RestHighLevelClient client;
@@ -64,6 +67,7 @@ public class ElasticSearchClient implements Client {
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
         this.namespace = namespace;
+        this.namespacePrefix = namespace + "_";
         this.user = user;
         this.password = password;
     }
@@ -119,20 +123,21 @@ public class ElasticSearchClient implements Client {
         return response.isAcknowledged();
     }
 
-    public List<String> retrievalIndexByAliases(String aliases) throws IOException {
+    public List<ElasticSearchTimeSeriesIndex> retrievalIndexByAliases(String aliases) throws IOException {
         aliases = formatIndexName(aliases);
-
         Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/_alias/" + aliases);
-
-        List<String> indexes = new ArrayList<>();
         if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
             Gson gson = new Gson();
             InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
             JsonObject responseJson = gson.fromJson(reader, JsonObject.class);
             logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
-            indexes.addAll(responseJson.keySet());
+            Set<String> keySet = responseJson.keySet();
+            if (!keySet.isEmpty()) {
+
+              return keySet.stream().map(this::redoIndexName).map((index) -> new ElasticSearchTimeSeriesIndex(namespace, index)).collect(Collectors.toList());
+            }
         }
-        return indexes;
+        return Collections.EMPTY_LIST;
     }
 
     public JsonObject getIndex(String indexName) throws IOException {
@@ -145,14 +150,12 @@ public class ElasticSearchClient implements Client {
         return gson.fromJson(reader, JsonObject.class);
     }
 
-    public boolean deleteIndex(String indexName) throws IOException {
-        return deleteIndex(indexName, true);
+    public boolean deleteTimeSeriesIndex(ElasticSearchTimeSeriesIndex index) throws IOException {
+        return deleteIndex(index.getIndex());
     }
 
-    public boolean deleteIndex(String indexName, boolean formatIndexName) throws IOException {
-        if (formatIndexName) {
-            indexName = formatIndexName(indexName);
-        }
+    public boolean deleteIndex(String indexName) throws IOException {
+        indexName = formatIndexName(indexName);
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         DeleteIndexResponse response;
         response = client.indices().delete(request);
@@ -298,7 +301,14 @@ public class ElasticSearchClient implements Client {
 
     public String formatIndexName(String indexName) {
         if (StringUtils.isNotEmpty(namespace)) {
-            return namespace + "_" + indexName;
+            return namespacePrefix + indexName;
+        }
+        return indexName;
+    }
+
+    public String redoIndexName(String indexName) {
+        if (StringUtils.isNotEmpty(namespace) && indexName.startsWith(namespacePrefix)) {
+            return indexName.substring(namespacePrefix.length());
         }
         return indexName;
     }
