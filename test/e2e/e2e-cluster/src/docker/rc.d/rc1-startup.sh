@@ -16,13 +16,6 @@
 
 #!/usr/bin/env bash
 
-if test "${MODE}" = "cluster"; then
-    echo 'starting zookeeper' && start_zk
-
-    echo 'starting elasticsearch' \
-        && ES_JAVA_OPTS="-Xms512m -Xmx512m" start_es
-fi
-
 echo 'starting OAP server...' && start_oap 'init'
 
 echo 'starting Web app...' && start_webapp '0.0.0.0' 8081

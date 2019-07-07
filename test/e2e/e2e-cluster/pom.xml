@@ -74,12 +74,51 @@
                     <containerNamePattern>%a-%t</containerNamePattern>
                     <images>
                         <image>
+                            <name>elastic/elasticsearch:${elasticsearch.version}</name>
+                            <alias>skywalking-e2e-container-elasticsearch-${build.id}</alias>
+                            <run>
+                                <ports>
+                                    <port>es.port:9200</port>
+                                </ports>
+                                <wait>
+                                    <http>
+                                        <url>http://localhost:${es.port}</url>
+                                        <method>GET</method>
+                                        <status>200</status>
+                                    </http>
+                                    <time>120000</time>
+                                </wait>
+                                <env>
+                                    <discovery.type>single-node</discovery.type>
+                                </env>
+                            </run>
+                        </image>
+                        <image>
+                            <name>zookeeper:${zookeeper.image.version}</name>
+                            <alias>skywalking-e2e-container-zookeeper-${build.id}</alias>
+                            <run>
+                                <ports>
+                                    <port>zk.port:2181</port>
+                                </ports>
+                                <wait>
+                                    <log>binding to port</log>
+                                    <time>30000</time>
+                                </wait>
+                            </run>
+                        </image>
+                        <image>
                             <!-- TODO: use skyapm -->
                             <name>kezhenxu94/e2e-container:${e2e.container.version}</name>
                             <alias>skywalking-e2e-container-${build.id}</alias>
                             <run>
                                 <env>
                                     <MODE>cluster</MODE>
+                                    <SW_STORAGE_ES_CLUSTER_NODES>
+                                        skywalking-e2e-container-elasticsearch-${build.id}:9200
+                                    </SW_STORAGE_ES_CLUSTER_NODES>
+                                    <SW_CLUSTER_ZK_HOST_PORT>
+                                        skywalking-e2e-container-zookeeper-${build.id}:2181
+                                    </SW_CLUSTER_ZK_HOST_PORT>
 
                                     <INSTRUMENTED_SERVICE_1>
                                         ${project.build.finalName}.jar
@@ -101,12 +140,20 @@
                                         --server.port=9091
                                     </INSTRUMENTED_SERVICE_2_ARGS>
                                 </env>
+                                <dependsOn>
+                                    <container>skywalking-e2e-container-elasticsearch-${build.id}</container>
+                                    <container>skywalking-e2e-container-zookeeper-${build.id}</container>
+                                </dependsOn>
                                 <ports>
                                     <port>+webapp1.host:webapp1.port:8081</port>
                                     <port>+webapp2.host:webapp2.port:8082</port>
                                     <port>+service1.host:service1.port:9090</port>
                                     <port>+service2.host:service2.port:9091</port>
                                 </ports>
+                                <links>
+                                    <link>skywalking-e2e-container-elasticsearch-${build.id}</link>
+                                    <link>skywalking-e2e-container-zookeeper-${build.id}</link>
+                                </links>
                                 <volumes>
                                     <bind>
                                         <volume>

@@ -90,11 +90,11 @@ public class ClusterVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp1.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp1.port", "32900");
+        final String swWebappPort = System.getProperty("sw.webapp1.port", "32791");
         final String instrumentedServiceHost0 = System.getProperty("service1.host", "127.0.0.1");
-        final String instrumentedServicePort0 = System.getProperty("service1.port", "32898");
+        final String instrumentedServicePort0 = System.getProperty("service1.port", "32789");
         final String instrumentedServiceHost1 = System.getProperty("service2.host", "127.0.0.1");
-        final String instrumentedServicePort1 = System.getProperty("service2.port", "32897");
+        final String instrumentedServicePort1 = System.getProperty("service2.port", "32788");
         final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
         queryClient = new SimpleQueryClient(queryClientUrl);
         instrumentedServiceUrl0 = "http://" + instrumentedServiceHost0 + ":" + instrumentedServicePort0;

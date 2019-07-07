@@ -19,20 +19,6 @@
 if test "${MODE}" = "cluster"; then
     original_wd=$(pwd)
 
-    zk_version=3.5.5
-    export ZK_HOME=/zk
-    wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-${zk_version}/apache-zookeeper-${zk_version}-bin.tar.gz -P /tmp/ \
-        && tar -zxf /tmp/apache-zookeeper-${zk_version}-bin.tar.gz -C /tmp \
-        && mv /tmp/apache-zookeeper-${zk_version}-bin/* ${ZK_HOME} \
-        && cp ${ZK_HOME}/conf/zoo_sample.cfg ${ZK_HOME}/conf/zoo.cfg \
-        && echo 'export JVMFLAGS="-Xmx256m"' > ${ZK_HOME}/conf/java.env \
-
-    es_version=6.3.2
-    export ES_HOME=/es
-    wget http://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${es_version}.tar.gz -P /tmp/ \
-        && tar -zxf /tmp/elasticsearch-oss-${es_version}.tar.gz -C /tmp \
-        && mv /tmp/elasticsearch-${es_version}/* ${ES_HOME}
-
     # substitute application.yml to be capable of cluster mode
     cd ${SW_HOME}/config \
         && awk -f /clusterize.awk application.yml > clusterized_app.yml \
