@@ -65,6 +65,9 @@
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
+        <surefire.version>2.12.4</surefire.version>
+
+        <skipSurefire>true</skipSurefire>
     </properties>
 
     <dependencies>
@@ -149,6 +152,14 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <skip>${skipSurefire}</skip>
                 </configuration>
             </plugin>
             <plugin>

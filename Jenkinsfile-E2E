@@ -45,7 +45,7 @@ pipeline {
             parallel {
                 stage('Run Single Node Tests') {
                     steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
+                        sh './mvnw -DskipSurefire=false -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
                     }
                 }
 
