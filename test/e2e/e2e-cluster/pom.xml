@@ -74,7 +74,8 @@
                     <containerNamePattern>%a-%t</containerNamePattern>
                     <images>
                         <image>
-                            <name>skyapm/e2e-container:${e2e.container.version}</name>
+                            <!-- TODO: use skyapm -->
+                            <name>kezhenxu94/e2e-container:${e2e.container.version}</name>
                             <alias>skywalking-e2e-container-${build.id}</alias>
                             <run>
                                 <env>
@@ -109,10 +110,16 @@
                                 <volumes>
                                     <bind>
                                         <volume>
-                                            ${project.basedir}/../../../dist/apache-skywalking-apm-bin:/skywalking
+                                            ${project.basedir}/../../../dist/apache-skywalking-apm-bin:/sw
                                         </volume>
                                         <volume>
                                             ${project.build.directory}:/home
+                                        </volume>
+                                        <volume>
+                                            ${project.basedir}/src/docker/rc.d:/rc.d
+                                        </volume>
+                                        <volume>
+                                            ${project.basedir}/src/docker/clusterize.awk:/clusterize.awk
                                         </volume>
                                     </bind>
                                 </volumes>

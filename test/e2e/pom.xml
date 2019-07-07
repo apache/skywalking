@@ -60,7 +60,7 @@
          -->
         <build.id>local</build.id>
 
-        <e2e.container.version>1.0.0</e2e.container.version>
+        <e2e.container.version>1.0.1</e2e.container.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>

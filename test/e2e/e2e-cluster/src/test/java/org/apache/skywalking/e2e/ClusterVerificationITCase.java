@@ -90,11 +90,11 @@ public class ClusterVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp1.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp1.port", "32783");
+        final String swWebappPort = System.getProperty("sw.webapp1.port", "32900");
         final String instrumentedServiceHost0 = System.getProperty("service1.host", "127.0.0.1");
-        final String instrumentedServicePort0 = System.getProperty("service1.port", "32780");
+        final String instrumentedServicePort0 = System.getProperty("service1.port", "32898");
         final String instrumentedServiceHost1 = System.getProperty("service2.host", "127.0.0.1");
-        final String instrumentedServicePort1 = System.getProperty("service2.port", "32781");
+        final String instrumentedServicePort1 = System.getProperty("service2.port", "32897");
         final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
         queryClient = new SimpleQueryClient(queryClientUrl);
         instrumentedServiceUrl0 = "http://" + instrumentedServiceHost0 + ":" + instrumentedServicePort0;
@@ -114,6 +114,8 @@ public class ClusterVerificationITCase {
             String.class
         );
         assertThat(responseEntity0.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        Thread.sleep(3001);
 
         final ResponseEntity<String> responseEntity1 = restTemplate.postForEntity(
             instrumentedServiceUrl1 + "/e2e/users",
