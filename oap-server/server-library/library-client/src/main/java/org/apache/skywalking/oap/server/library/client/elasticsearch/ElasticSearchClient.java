@@ -305,9 +305,13 @@ public class ElasticSearchClient implements Client {
         return indexName;
     }
 
-    public String undoFormatIndexName(String indexName) {
-        if (StringUtils.isNotEmpty(namespace) && indexName.startsWith(namespacePrefix)) {
-            return indexName.substring(namespacePrefix.length());
+    private String undoFormatIndexName(String indexName) {
+        if (StringUtils.isNotEmpty(namespace)) {
+            if (indexName.startsWith(namespacePrefix)) {
+                return indexName.substring(namespacePrefix.length());
+            } else {
+                throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + indexName);
+            }
         }
         return indexName;
     }

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +52,10 @@ public class ITElasticSearchClient {
     @Before
     public void before() throws IOException {
         final String esAddress = System.getProperty("elastic.search.address");
-        client = new ElasticSearchClient(esAddress, "", "test", "test");
+        final String esNamespace = System.getProperty("elastic.search.namespace", "");
+        final String esUser = System.getProperty("elastic.search.user", "test");
+        final String esPassword = System.getProperty("elastic.search.password", "test");
+        client = new ElasticSearchClient(esAddress, esNamespace, esUser, esPassword);
         client.connect();
     }
 
@@ -185,12 +189,49 @@ public class ITElasticSearchClient {
     }
 
     @Test
-    public void undoFormatIndexName() {
-        ElasticSearchClient client = new ElasticSearchClient("", "test", "", "");
-        String indexName = "test-201907";
-        indexName = client.formatIndexName(indexName);
-        Assert.assertEquals("test_test-201907", indexName);
-        indexName = client.undoFormatIndexName(indexName);
-        Assert.assertEquals("test-201907", indexName);
+    public void retrievalIndexByAliasesOperate() throws IOException {
+        String indexName = "test_time_series_operate";
+        String timeSeriesIndexName = indexName + "-2019";
+
+        try {
+            if (client.isExistsTemplate(indexName)) {
+                client.deleteTemplate(indexName);
+            }
+
+            JsonObject mapping = new JsonObject();
+            mapping.add("type", new JsonObject());
+            JsonObject doc = mapping.getAsJsonObject("type");
+
+            JsonObject properties = new JsonObject();
+            doc.add("properties", properties);
+
+            JsonObject column = new JsonObject();
+            column.addProperty("type", "text");
+            properties.add("name", column);
+
+            client.createTemplate(indexName, new JsonObject(), mapping);
+
+            XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
+                .field("name", "pengys")
+                .endObject();
+            client.forceInsert(timeSeriesIndexName, "testid", builder);
+
+            List<ElasticSearchTimeSeriesIndex> indexes = client.retrievalIndexByAliases(indexName);
+            Assert.assertEquals(1, indexes.size());
+            ElasticSearchTimeSeriesIndex index = indexes.get(0);
+            Assert.assertEquals(index.getNamespace(), System.getProperty("elastic.search.namespace", ""));
+            Assert.assertTrue(index.getIndex().startsWith(indexName));
+            Assert.assertTrue(client.deleteTimeSeriesIndex(index));
+            Assert.assertFalse(client.isExistsIndex(indexName));
+
+        } finally {
+            if (client.isExistsTemplate(indexName)) {
+                client.deleteTemplate(indexName);
+            }
+            if (client.isExistsIndex(timeSeriesIndexName)) {
+                client.deleteIndex(timeSeriesIndexName);
+            }
+        }
     }
+
 }
