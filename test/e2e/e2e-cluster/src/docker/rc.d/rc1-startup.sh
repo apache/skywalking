@@ -17,13 +17,10 @@
 #!/usr/bin/env bash
 
 if test "${MODE}" = "cluster"; then
-    echo 'starting zookeeper' \
-        && echo 'export JVMFLAGS="-Xmx256m"' > conf/java.env \
-        && start_zk
+    echo 'starting zookeeper' && start_zk
 
     echo 'starting elasticsearch' \
-        && ES_JAVA_OPTS="-Xms512m -Xmx512m" \
-        && start_es
+        && ES_JAVA_OPTS="-Xms512m -Xmx512m" start_es
 fi
 
 echo 'starting OAP server...' && start_oap 'init'

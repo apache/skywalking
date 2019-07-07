@@ -24,7 +24,8 @@ if test "${MODE}" = "cluster"; then
     wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-${zk_version}/apache-zookeeper-${zk_version}-bin.tar.gz -P /tmp/ \
         && tar -zxf /tmp/apache-zookeeper-${zk_version}-bin.tar.gz -C /tmp \
         && mv /tmp/apache-zookeeper-${zk_version}-bin/* ${ZK_HOME} \
-        && cp ${ZK_HOME}/conf/zoo_sample.cfg ${ZK_HOME}/conf/zoo.cfg
+        && cp ${ZK_HOME}/conf/zoo_sample.cfg ${ZK_HOME}/conf/zoo.cfg \
+        && echo 'export JVMFLAGS="-Xmx256m"' > ${ZK_HOME}/conf/java.env \
 
     es_version=6.3.2
     export ES_HOME=/es
