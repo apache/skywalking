@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.*;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MultipleChannelsConsumer represent a single consumer thread, but support multiple channels with their {@link
@@ -43,10 +46,11 @@ public class MultipleChannelsConsumer extends Thread {
     public void run() {
         running = true;
 
+        final List consumeList = new ArrayList();
         while (running) {
             boolean hasData = false;
             for (Group target : consumeTargets) {
-                hasData = hasData || consume(target);
+                hasData = hasData || consume(target, consumeList);
             }
 
             if (!hasData) {
@@ -61,18 +65,17 @@ public class MultipleChannelsConsumer extends Thread {
         // consumer thread is going to stop
         // consume the last time
         for (Group target : consumeTargets) {
-            consume(target);
+            consume(target, consumeList);
 
             target.consumer.onExit();
         }
     }
 
-    private boolean consume(Group target) {
+    private boolean consume(Group target, List consumeList) {
         boolean hasData;
-        LinkedList consumeList = new LinkedList();
         for (int i = 0; i < target.channels.getChannelSize(); i++) {
             Buffer buffer = target.channels.getBuffer(i);
-            consumeList.addAll(buffer.obtain());
+            buffer.obtain(consumeList);
         }
 
         if (hasData = consumeList.size() > 0) {
