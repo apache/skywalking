@@ -49,13 +49,20 @@ public class ITElasticSearchClient {
 
     private ElasticSearchClient client;
 
+    private final String namespace;
+
+    public ITElasticSearchClient(){
+        namespace = "";
+    }
+
+    protected ITElasticSearchClient(String namespace){
+        this.namespace = namespace;
+    }
+
     @Before
     public void before() throws IOException {
         final String esAddress = System.getProperty("elastic.search.address");
-        final String esNamespace = System.getProperty("elastic.search.namespace", "");
-        final String esUser = System.getProperty("elastic.search.user", "test");
-        final String esPassword = System.getProperty("elastic.search.password", "test");
-        client = new ElasticSearchClient(esAddress, esNamespace, esUser, esPassword);
+        client = new ElasticSearchClient(esAddress, namespace, "test", "test");
         client.connect();
     }
 
@@ -214,10 +221,9 @@ public class ITElasticSearchClient {
         List<ElasticSearchTimeSeriesIndex> indexes = client.retrievalIndexByAliases(indexName);
         Assert.assertEquals(1, indexes.size());
         ElasticSearchTimeSeriesIndex index = indexes.get(0);
-        Assert.assertEquals(index.getNamespace(), System.getProperty("elastic.search.namespace", ""));
+        Assert.assertEquals(index.getNamespace(), namespace);
         Assert.assertEquals(index.getIndex(), timeSeriesIndexName);
         Assert.assertTrue(client.deleteTimeSeriesIndex(index));
         Assert.assertFalse(client.isExistsIndex(index.getIndex()));
     }
-
 }
