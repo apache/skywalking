@@ -51,7 +51,7 @@ pipeline {
 
                 stage('Run Cluster Tests (ES/ZK)') {
                     steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster -am verify'
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner -am clean verify'
                     }
                 }
             }
