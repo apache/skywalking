@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -95,6 +96,7 @@ public class ITElasticSearchClient {
 
         JsonObject index = client.getIndex(indexName);
         logger.info(index.toString());
+        index = undoFormatIndexName(index);
 
         Assert.assertEquals(2, index.getAsJsonObject(indexName).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
         Assert.assertEquals(2, index.getAsJsonObject(indexName).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
@@ -170,6 +172,8 @@ public class ITElasticSearchClient {
 
         JsonObject index = client.getIndex(indexName + "-2019");
         logger.info(index.toString());
+        index = undoFormatIndexName(index);
+
         Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
         Assert.assertEquals(0, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
 
@@ -225,5 +229,24 @@ public class ITElasticSearchClient {
         Assert.assertEquals(index.getIndex(), timeSeriesIndexName);
         Assert.assertTrue(client.deleteTimeSeriesIndex(index));
         Assert.assertFalse(client.isExistsIndex(index.getIndex()));
+    }
+
+
+    private JsonObject undoFormatIndexName(JsonObject index) {
+        if (StringUtils.isNotEmpty(namespace) && index != null && index.size() > 0) {
+            logger.info("UndoFormatIndexName before " + index.toString());
+            String namespacePrefix = namespace + "_";
+            index.entrySet().forEach(entry -> {
+                String oldIndexName = entry.getKey();
+                if (oldIndexName.startsWith(namespacePrefix)) {
+                    index.add(oldIndexName.substring(namespacePrefix.length()), entry.getValue());
+                    index.remove(oldIndexName);
+                } else {
+                    throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + entry.getKey());
+                }
+            });
+            logger.info("UndoFormatIndexName after " + index.toString());
+        }
+        return index;
     }
 }
