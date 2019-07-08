@@ -59,6 +59,32 @@ public class H2SQLExecutor {
         }
     }
 
+    protected Map<String,StorageData> getByIDS(JDBCHikariCPClient h2Client, String modelName,
+                                  StorageBuilder storageBuilder, String... ids) throws IOException {
+        if (ids.length == 0) {
+            return new HashMap<>(0);
+        }
+        StringBuilder sqlBuilder = new StringBuilder().append("SELECT * FROM ")
+                .append(modelName)
+                .append(" WHERE id IN (");
+        for (int i = 0; i < ids.length; i++) {
+            sqlBuilder.append("?");
+            if (i != ids.length - 1) {
+                sqlBuilder.append(",");
+            }
+        }
+        sqlBuilder.append(")");
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet rs = h2Client.executeQuery(connection, sqlBuilder.toString(), ids)) {
+                return toStorageDataMap(rs, modelName, storageBuilder);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e.getMessage(), e);
+        } catch (JDBCClientException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+
     protected StorageData getByColumn(JDBCHikariCPClient h2Client, String modelName, String columnName, Object value,
         StorageBuilder storageBuilder) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
@@ -83,6 +109,21 @@ public class H2SQLExecutor {
             return storageBuilder.map2Data(data);
         }
         return null;
+    }
+
+    protected Map<String,StorageData> toStorageDataMap(ResultSet rs, String modelName,
+                                        StorageBuilder storageBuilder) throws SQLException {
+        Map<String,StorageData> result = new HashMap<>();
+        while (rs.next()) {
+            Map data = new HashMap();
+            List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
+            for (ModelColumn column : columns) {
+                data.put(column.getColumnName().getName(), rs.getObject(column.getColumnName().getStorageName()));
+            }
+            StorageData storageData = storageBuilder.map2Data(data);
+            result.put(storageData.id(), storageData);
+        }
+        return result;
     }
 
     protected int getEntityIDByID(JDBCHikariCPClient h2Client, String entityColumnName, String modelName, String id) {

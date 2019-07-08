@@ -51,14 +51,10 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
 
     @Override
     public Map<String, RegisterSource> batchGet(String modelName, String... ids) throws IOException {
-        Map<String, RegisterSource> map = new HashMap<>(ids.length);
-        for (String id : ids) {
-            RegisterSource registerSource = this.get(modelName, id);
-            if (registerSource != null) {
-                map.put(id, registerSource);
-            }
-        }
-        return map;
+        Map<String, StorageData> map = getByIDS(h2Client, modelName, storageBuilder, ids);
+        Map<String, RegisterSource> result = new HashMap<>(map.size());
+        map.entrySet().stream().forEach(entry -> result.put(entry.getKey(), (RegisterSource)entry.getValue()));
+        return result;
     }
 
     @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {

@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author peng-yongsheng
@@ -92,8 +91,8 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         }
         if (sources.size() > 1000 || registerSource.getEndOfBatchContext().isEndOfBatch()) {
             try {
-                List<String> ids = sources.values().stream().map(value -> value.id()).collect(Collectors.toList());
-                final Map<String, RegisterSource> map = registerDAO.batchGet(modelName, ids.toArray(new String[0]));
+                String[] ids = sources.values().stream().map(value -> value.id()).toArray(String[]::new);
+                final Map<String, RegisterSource> map = registerDAO.batchGet(modelName, ids);
                 final List batchPersistenList = new ArrayList(sources.size());
                 sources.values().forEach(source -> {
                     try {
