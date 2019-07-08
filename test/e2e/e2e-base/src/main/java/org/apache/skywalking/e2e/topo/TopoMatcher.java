@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * A simple matcher to verify the given {@code Service} is expected
@@ -57,12 +58,18 @@ public class TopoMatcher extends AbstractMatcher<TopoData> {
     }
 
     private void verifyCalls(TopoData topoData) {
-        assertThat(topoData.getCalls()).hasSameSizeAs(getCalls());
-
-        int size = getCalls().size();
-
-        for (int i = 0; i < size; i++) {
-            getCalls().get(i).verify(topoData.getCalls().get(i));
+        for (int i = 0; i < getCalls().size(); i++) {
+            boolean matched = true;
+            for (int j = 0; j < topoData.getCalls().size(); j++) {
+                try {
+                    getCalls().get(i).verify(topoData.getCalls().get(i));
+                } catch (Throwable ignored) {
+                    matched = false;
+                }
+            }
+            if (!matched) {
+                fail("Expected: {}\nActual: {}", getCalls(), topoData.getCalls());
+            }
         }
     }
 

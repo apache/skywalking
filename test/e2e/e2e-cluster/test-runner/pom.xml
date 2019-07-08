@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>e2e-cluster</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>test-runner</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>e2e-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>instrumented-service0</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>instrumented-service1</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <properties>
+        <service0.name>instrumented-service0</service0.name>
+        <service1.name>instrumented-service1</service1.name>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <containerNamePattern>%a-%t</containerNamePattern>
+                    <images>
+                        <image>
+                            <name>elastic/elasticsearch:${elasticsearch.version}</name>
+                            <alias>skywalking-e2e-container-elasticsearch-${build.id}</alias>
+                            <run>
+                                <ports>
+                                    <port>es.port:9200</port>
+                                </ports>
+                                <wait>
+                                    <http>
+                                        <url>http://localhost:${es.port}</url>
+                                        <method>GET</method>
+                                        <status>200</status>
+                                    </http>
+                                    <time>120000</time>
+                                </wait>
+                                <env>
+                                    <discovery.type>single-node</discovery.type>
+                                </env>
+                            </run>
+                        </image>
+                        <image>
+                            <name>zookeeper:${zookeeper.image.version}</name>
+                            <alias>skywalking-e2e-container-zookeeper-${build.id}</alias>
+                            <run>
+                                <ports>
+                                    <port>zk.port:2181</port>
+                                </ports>
+                                <wait>
+                                    <log>binding to port</log>
+                                    <time>30000</time>
+                                </wait>
+                            </run>
+                        </image>
+                        <image>
+                            <!-- TODO: use skyapm -->
+                            <name>kezhenxu94/e2e-container:${e2e.container.version}</name>
+                            <alias>skywalking-e2e-container-${build.id}</alias>
+                            <run>
+                                <env>
+                                    <MODE>cluster</MODE>
+                                    <SW_STORAGE_ES_CLUSTER_NODES>
+                                        skywalking-e2e-container-elasticsearch-${build.id}:9200
+                                    </SW_STORAGE_ES_CLUSTER_NODES>
+                                    <SW_CLUSTER_ZK_HOST_PORT>
+                                        skywalking-e2e-container-zookeeper-${build.id}:2181
+                                    </SW_CLUSTER_ZK_HOST_PORT>
+
+                                    <INSTRUMENTED_SERVICE_1>
+                                        ${service0.name}-${project.version}.jar
+                                    </INSTRUMENTED_SERVICE_1>
+                                    <INSTRUMENTED_SERVICE_1_OPTS>
+                                        -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
+                                    </INSTRUMENTED_SERVICE_1_OPTS>
+                                    <INSTRUMENTED_SERVICE_1_ARGS>
+                                        --server.port=9090
+                                    </INSTRUMENTED_SERVICE_1_ARGS>
+
+                                    <INSTRUMENTED_SERVICE_2>
+                                        ${service1.name}-${project.version}.jar
+                                    </INSTRUMENTED_SERVICE_2>
+                                    <INSTRUMENTED_SERVICE_2_OPTS>
+                                        -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11801
+                                    </INSTRUMENTED_SERVICE_2_OPTS>
+                                    <INSTRUMENTED_SERVICE_2_ARGS>
+                                        --server.port=9091
+                                    </INSTRUMENTED_SERVICE_2_ARGS>
+                                </env>
+                                <dependsOn>
+                                    <container>skywalking-e2e-container-elasticsearch-${build.id}</container>
+                                    <container>skywalking-e2e-container-zookeeper-${build.id}</container>
+                                </dependsOn>
+                                <ports>
+                                    <port>+webapp.host:webapp.port:8081</port>
+                                    <port>+service.host:service.port:9091</port>
+                                </ports>
+                                <links>
+                                    <link>skywalking-e2e-container-elasticsearch-${build.id}</link>
+                                    <link>skywalking-e2e-container-zookeeper-${build.id}</link>
+                                </links>
+                                <volumes>
+                                    <bind>
+                                        <volume>
+                                            ../../../../dist/apache-skywalking-apm-bin:/sw
+                                        </volume>
+                                        <volume>
+                                            ../${service0.name}/target/${service0.name}-${project.version}.jar:/home/${service0.name}-${project.version}.jar
+                                        </volume>
+                                        <volume>
+                                            ../${service1.name}/target/${service1.name}-${project.version}.jar:/home/${service1.name}-${project.version}.jar
+                                        </volume>
+                                        <volume>
+                                            ${project.basedir}/src/docker/rc.d:/rc.d
+                                        </volume>
+                                        <volume>
+                                            ${project.basedir}/src/docker/clusterize.awk:/clusterize.awk
+                                        </volume>
+                                    </bind>
+                                </volumes>
+                                <wait>
+                                    <log>SkyWalking e2e container is ready for tests</log>
+                                    <time>2400000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+
+            <!-- set the system properties that can be used in test codes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <sw.webapp.host>${webapp.host}</sw.webapp.host>
+                        <sw.webapp.port>${webapp.port}</sw.webapp.port>
+                        <service.host>${service.host}</service.host>
+                        <service.port>${service.port}</service.port>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

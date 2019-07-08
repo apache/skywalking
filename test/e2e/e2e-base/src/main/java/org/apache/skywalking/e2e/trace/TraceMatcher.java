@@ -39,6 +39,7 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
     private String start;
     private String isError;
     private List<String> traceIds;
+    private List<SpanMatcher> spans;
 
     @Override
     public void verify(final Trace trace) {
@@ -64,6 +65,10 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
 
         if (Objects.nonNull(getTraceIds())) {
             verifyTraceIds(trace);
+        }
+
+        if (Objects.nonNull(getSpans())) {
+            verifySpans(trace);
         }
     }
 
@@ -121,6 +126,16 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
         }
     }
 
+    private void verifySpans(Trace trace) {
+        assertThat(trace.getSpans()).hasSameSizeAs(getSpans());
+
+        int size = getSpans().size();
+
+        for (int i = 0; i < size; i++) {
+            getSpans().get(i).verify(trace.getSpans().get(i));
+        }
+    }
+
     public String getKey() {
         return key;
     }
@@ -167,5 +182,13 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
 
     public List<String> getTraceIds() {
         return traceIds != null ? traceIds : new ArrayList<>();
+    }
+
+    public List<SpanMatcher> getSpans() {
+        return spans;
+    }
+
+    public void setSpans(final List<SpanMatcher> spans) {
+        this.spans = spans;
     }
 }
