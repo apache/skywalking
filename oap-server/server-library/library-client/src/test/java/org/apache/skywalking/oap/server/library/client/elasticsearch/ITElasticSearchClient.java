@@ -51,11 +51,11 @@ public class ITElasticSearchClient {
 
     private final String namespace;
 
-    public ITElasticSearchClient(){
+    public ITElasticSearchClient() {
         namespace = "";
     }
 
-    protected ITElasticSearchClient(String namespace){
+    protected ITElasticSearchClient(String namespace) {
         this.namespace = namespace;
     }
 

@@ -24,7 +24,7 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 public class ITElasticSearchNamespaceClient extends ITElasticSearchClient {
 
 
-    public ITElasticSearchNamespaceClient(){
+    public ITElasticSearchNamespaceClient() {
         super("test");
     }
 }
