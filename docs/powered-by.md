@@ -31,6 +31,7 @@ or providing commercial products including Apache SkyWalking.
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
+1. fullgoal.com.cn 富国基金管理有限公司 https://www.fullgoal.com.cn/
 1. GTrace System. (No company provided) 
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
 1. Guazi.com 瓜子二手车直卖网. https://www.guazi.com/
@@ -89,7 +90,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. https://www.fullgoal.com.cn/ 富国基金管理有限公司
 
 # User Cases
 ## Alibaba Cloud
