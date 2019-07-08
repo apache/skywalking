@@ -30,9 +30,10 @@
 
     <modules>
         <module>apm-agent</module>
-        <module>apm-agent-core</module>
+        <module>apm-sdk-plugin</module>
         <module>apm-toolkit-activation</module>
         <module>apm-test-tools</module>
+        <module>optional-plugins</module>
     </modules>
 
     <properties>
