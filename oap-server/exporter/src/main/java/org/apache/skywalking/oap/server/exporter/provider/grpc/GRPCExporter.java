@@ -21,12 +21,13 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
+import org.apache.skywalking.oap.server.core.exporter.*;
 import org.apache.skywalking.oap.server.exporter.grpc.*;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
@@ -56,14 +57,20 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         subscriptionSet = new HashSet<>();
     }
 
-    @Override public void export(MetricsMetaInfo meta, Metrics metrics) {
-        if (subscriptionSet.size() == 0 || subscriptionSet.contains(meta.getMetricsName())) {
-            exportBuffer.produce(new ExportData(meta, metrics));
+    @Override public void export(ExportEvent event) {
+        if (ExportEvent.EventType.TOTAL == event.getType()) {
+            Metrics metrics = event.getMetrics();
+            if (metrics instanceof WithMetadata) {
+                MetricsMetaInfo meta = ((WithMetadata)metrics).getMeta();
+                if (subscriptionSet.size() == 0 || subscriptionSet.contains(meta.getMetricsName())) {
+                    exportBuffer.produce(new ExportData(meta, metrics));
+                }
+            }
         }
     }
 
     public void initSubscriptionList() {
-        SubscriptionsResp subscription = blockingStub.subscription(SubscriptionReq.newBuilder().build());
+        SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).subscription(SubscriptionReq.newBuilder().build());
         subscription.getMetricNamesList().forEach(subscriptionSet::add);
         logger.debug("Get exporter subscription list, {}", subscriptionSet);
     }
@@ -78,7 +85,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         }
 
         ExportStatus status = new ExportStatus();
-        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.export(
+        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS).export(
             new StreamObserver<ExportResponse>() {
                 @Override public void onNext(ExportResponse response) {
 

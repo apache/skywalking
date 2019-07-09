@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -38,17 +39,17 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
 
     private final LimitedSizeDataCache<TopN> limitedSizeDataCache;
     private final IRecordDAO recordDAO;
-    private final String modelName;
+    private final Model model;
     private final DataCarrier<TopN> dataCarrier;
     private long reportCycle;
     private volatile long lastReportTimestamp;
 
-    public TopNWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
+    public TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model,
         int topNSize, IRecordDAO recordDAO) {
         super(moduleDefineHolder, -1);
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
-        this.modelName = modelName;
+        this.model = model;
         this.dataCarrier = new DataCarrier<>("TopNWorker", 1, 1000);
         this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
         this.lastReportTimestamp = System.currentTimeMillis();
@@ -99,7 +100,7 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         List<Object> batchCollection = new LinkedList<>();
         cache.getLast().collection().forEach(record -> {
             try {
-                batchCollection.add(recordDAO.prepareBatchInsert(modelName, record));
+                batchCollection.add(recordDAO.prepareBatchInsert(model, record));
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }

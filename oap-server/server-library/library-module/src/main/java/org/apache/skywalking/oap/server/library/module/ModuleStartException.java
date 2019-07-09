@@ -22,6 +22,9 @@ package org.apache.skywalking.oap.server.library.module;
  * @author peng-yongsheng
  */
 public class ModuleStartException extends Exception {
+    public ModuleStartException(String message) {
+        super(message);
+    }
 
     public ModuleStartException(String message, Throwable cause) {
         super(message, cause);

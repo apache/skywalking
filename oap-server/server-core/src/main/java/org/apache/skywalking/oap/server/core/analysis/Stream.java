@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * @author peng-yongsheng
@@ -32,7 +32,7 @@ public @interface Stream {
 
     int scopeId();
 
-    Storage storage();
+    Class<? extends StorageBuilder> builder();
 
     Class<? extends StreamProcessor> processor();
 }

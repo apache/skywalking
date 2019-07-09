@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -37,8 +38,9 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO<IndexRequest> {
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public IndexRequest prepareBatchInsert(String modelName, Record record) throws IOException {
+    @Override public IndexRequest prepareBatchInsert(Model model, Record record) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(record));
+        String modelName = TimeSeriesUtils.timeSeries(model, record.getTimeBucket());
         return getClient().prepareInsert(modelName, record.id(), builder);
     }
 }
