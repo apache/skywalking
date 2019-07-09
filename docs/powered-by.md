@@ -50,6 +50,7 @@ or providing commercial products including Apache SkyWalking.
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. lizhi.fm 荔枝FM https://www.lizhi.fm/
+1. Lixiang.com 理想汽车 https://www.lixiang.com/
 1. Madecare. 北京美德远健科技有限公司. http://www.madecare.com/
 1. Maodou.com 毛豆新车网. https://www.maodou.com/
 1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
