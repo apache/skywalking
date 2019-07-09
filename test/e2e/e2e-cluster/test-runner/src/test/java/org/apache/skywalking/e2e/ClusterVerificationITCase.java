@@ -95,6 +95,17 @@ public class ClusterVerificationITCase {
         final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
         queryClient = new SimpleQueryClient(queryClientUrl);
         instrumentedServiceUrl0 = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
+
+        final int warmUpThreshold = 5;
+        final Map<String, String> user = new HashMap<>();
+        user.put("name", "SkyWalking");
+        for (int i = 0; i < warmUpThreshold; i++) {
+          restTemplate.postForEntity(
+              instrumentedServiceUrl0 + "/e2e/users",
+              user,
+              String.class
+          );
+        }
     }
 
     @Test
