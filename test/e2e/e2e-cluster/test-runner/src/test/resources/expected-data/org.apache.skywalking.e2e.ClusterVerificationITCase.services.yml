@@ -21,5 +21,8 @@
 # 1 create table statement
 
 services:
-  - key: 2
-    label: "Your_ApplicationName"
+  - key: not null
+    label: service1
+
+  - key: not null
+    label: service2

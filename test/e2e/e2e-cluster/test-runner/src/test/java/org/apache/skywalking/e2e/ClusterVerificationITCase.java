@@ -55,6 +55,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,34 +90,42 @@ public class ClusterVerificationITCase {
     @Before
     public void setUp() throws InterruptedException {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32817");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32775");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32816");
+        final String instrumentedServicePort = System.getProperty("service.port", "32774");
         final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
         queryClient = new SimpleQueryClient(queryClientUrl);
         instrumentedServiceUrl0 = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
-
-        final int warmUpThreshold = 5;
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
-        for (int i = 0; i < warmUpThreshold; i++) {
-          restTemplate.postForEntity(
-              instrumentedServiceUrl0 + "/e2e/users",
-              user,
-              String.class
-          );
-        }
-
-        Thread.sleep(3000L);
     }
 
-    @Test
+    @Test(timeout = 60000)
     @DirtiesContext
     public void verify() throws Exception {
-        final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
+        // warm up to ensure the service is registered
+
+        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
 
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
+        List<Trace> traces = Collections.emptyList();
+        while (traces.isEmpty()) {
+            restTemplate.postForEntity(
+                instrumentedServiceUrl0 + "/e2e/users",
+                user,
+                String.class
+            );
+            Thread.sleep(500);
+            traces = queryClient.traces(
+                new TracesQuery()
+                    .start(startTime)
+                    .end(LocalDateTime.now(ZoneOffset.UTC))
+                    .orderByDuration()
+            );
+            Thread.sleep(500);
+        }
+
+        startTime = LocalDateTime.now(ZoneOffset.UTC);
+
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
             instrumentedServiceUrl0 + "/e2e/users",
             user,
@@ -127,11 +136,11 @@ public class ClusterVerificationITCase {
 
         Thread.sleep(10000);
 
-        verifyTraces(minutesAgo);
+        verifyTraces(startTime);
 
-        verifyServices(minutesAgo);
+        verifyServices(startTime);
 
-        verifyTopo(minutesAgo);
+        verifyTopo(startTime);
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
@@ -169,11 +178,11 @@ public class ClusterVerificationITCase {
         for (Service service : services) {
             LOGGER.info("verifying service instances: {}", service);
 
-            verifyServiceMetrics(service);
+            verifyServiceMetrics(service, minutesAgo);
 
             Instances instances = verifyServiceInstances(minutesAgo, now, service);
 
-            verifyInstancesMetrics(instances);
+            verifyInstancesMetrics(instances, minutesAgo);
 
             Endpoints endpoints = verifyServiceEndpoints(minutesAgo, now, service);
 
@@ -207,7 +216,7 @@ public class ClusterVerificationITCase {
         return instances;
     }
 
-    private void verifyInstancesMetrics(Instances instances) throws Exception {
+    private void verifyInstancesMetrics(Instances instances, final LocalDateTime minutesAgo) throws Exception {
         final String[] instanceMetricsNames = new String[] {
             SERVICE_INSTANCE_RESP_TIME,
             SERVICE_INSTANCE_CPM,
@@ -262,7 +271,7 @@ public class ClusterVerificationITCase {
         }
     }
 
-    private void verifyServiceMetrics(Service service) throws Exception {
+    private void verifyServiceMetrics(Service service, final LocalDateTime minutesAgo) throws Exception {
         final String[] serviceMetrics = {
             SERVICE_P99,
             SERVICE_P95,

@@ -15,29 +15,25 @@
 # limitations under the License.
 
 nodes:
-  - id: 1
+  - id: not null
     name: User
     type: USER
-    isReal: false
-  - id: 2
-    name: Your_ApplicationName
+  - id: not null
+    name: service1
     type: Tomcat
-    isReal: true
-  - id: 3
+  - id: not null
+    name: service2
+    type: Tomcat
+  - id: not null
     name: "localhost:-1"
     type: H2
-    isReal: false
 calls:
-  - id: 2_3
-    source: 2
-    detectPoints:
-      - CLIENT
-    target: 3
-  - id: 2_2
-    source: 2
-    target: 2
-  - id: 1_2
-    source: 1
-    detectPoints:
-      - SERVER
-    target: 2
+  - id: not null
+    source: not null
+    target: not null
+  - id: not null
+    source: not null
+    target: not null
+  - id: not null
+    source: not null
+    target: not null

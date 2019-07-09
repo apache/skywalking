@@ -32,15 +32,3 @@ instances:
         value: gt 0
       - name: ipv4s
         value: not null
-
-  - key: gt 0
-    label: not null
-    attributes:
-      - name: os_name
-        value: not null
-      - name: host_name
-        value: not null
-      - name: process_no
-        value: gt 0
-      - name: ipv4s
-        value: not null

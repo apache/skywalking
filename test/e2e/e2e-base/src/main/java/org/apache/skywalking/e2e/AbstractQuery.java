@@ -38,8 +38,8 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
             return start;
         }
         return "SECOND".equals(step())
-            ? LocalDateTime.now(ZoneOffset.UTC).minusMinutes(5).format(TIME_FORMATTER)
-            : LocalDateTime.now(ZoneOffset.UTC).minusMinutes(5).format(MINUTE_TIME_FORMATTER);
+            ? LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(TIME_FORMATTER)
+            : LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(MINUTE_TIME_FORMATTER);
     }
 
     public T start(String start) {

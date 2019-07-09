@@ -40,7 +40,8 @@ public class TestController {
   }
 
   @PostMapping("/users")
-  public User createAuthor(@RequestBody final User user) {
+  public User createAuthor(@RequestBody final User user) throws InterruptedException {
+    Thread.sleep(1000L);
     final ResponseEntity<User> response = restTemplate.postForEntity(
         "http://localhost:9090/e2e/users", user, User.class
     );

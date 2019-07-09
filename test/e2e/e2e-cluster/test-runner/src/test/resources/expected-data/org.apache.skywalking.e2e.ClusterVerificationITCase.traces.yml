@@ -23,12 +23,3 @@ traces:
     isError: false
     traceIds:
       - not null
-
-  - key: not null
-    endpointNames:
-      - /e2e/users
-    duration: ge 0
-    start: gt 0
-    isError: false
-    traceIds:
-      - not null

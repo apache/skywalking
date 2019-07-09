@@ -64,4 +64,14 @@ public class Call {
         this.target = target;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Call{" +
+            "id='" + id + '\'' +
+            ", source='" + source + '\'' +
+            ", detectPoints=" + detectPoints +
+            ", target='" + target + '\'' +
+            '}';
+    }
 }
