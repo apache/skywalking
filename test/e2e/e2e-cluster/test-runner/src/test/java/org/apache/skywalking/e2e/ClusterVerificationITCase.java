@@ -87,7 +87,7 @@ public class ClusterVerificationITCase {
     private String instrumentedServiceUrl0;
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
         final String swWebappPort = System.getProperty("sw.webapp.port", "32817");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
@@ -106,6 +106,8 @@ public class ClusterVerificationITCase {
               String.class
           );
         }
+
+        Thread.sleep(3000L);
     }
 
     @Test
