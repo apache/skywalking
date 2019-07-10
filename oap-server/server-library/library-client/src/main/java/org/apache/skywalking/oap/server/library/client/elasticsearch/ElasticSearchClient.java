@@ -22,6 +22,8 @@ import com.google.gson.*;
 import java.io.*;
 import java.util.*;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -61,7 +63,7 @@ public class ElasticSearchClient implements Client {
     private final String namespacePrefix;
     private final String user;
     private final String password;
-    private RestHighLevelClient client;
+    @Getter(value = AccessLevel.PACKAGE) private RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
@@ -133,16 +135,6 @@ public class ElasticSearchClient implements Client {
             return new ArrayList<>(responseJson.keySet());
         }
         return Collections.EMPTY_LIST;
-    }
-
-    public JsonObject getIndex(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
-        GetIndexRequest request = new GetIndexRequest();
-        request.indices(indexName);
-        Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
-        InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
-        Gson gson = new Gson();
-        return gson.fromJson(reader, JsonObject.class);
     }
 
     /**
