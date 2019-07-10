@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTL;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchTimeSeriesIndex;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.joda.time.DateTime;
 import org.slf4j.*;
@@ -55,11 +54,11 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         long timeBefore = storageTTL.calculator(model.getDownsampling()).timeBefore(new DateTime(), configService.getDataTTLConfig());
 
         if (model.isCapableOfTimeSeries()) {
-            List<ElasticSearchTimeSeriesIndex> indexes = client.retrievalIndexByAliases(model.getName());
+            List<String> indexes = client.retrievalIndexByAliases(model.getName());
 
-            List<ElasticSearchTimeSeriesIndex> prepareDeleteIndexes = new ArrayList<>();
-            for (ElasticSearchTimeSeriesIndex index : indexes) {
-                long timeSeries = TimeSeriesUtils.indexTimeSeries(index.getIndex());
+            List<String> prepareDeleteIndexes = new ArrayList<>();
+            for (String index : indexes) {
+                long timeSeries = TimeSeriesUtils.indexTimeSeries(index);
                 if (timeBefore >= timeSeries) {
                     prepareDeleteIndexes.add(index);
                 }
@@ -69,8 +68,8 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                 client.createIndex(TimeSeriesUtils.timeSeries(model));
             }
 
-            for (ElasticSearchTimeSeriesIndex prepareDeleteIndex : prepareDeleteIndexes) {
-                client.deleteTimeSeriesIndex(prepareDeleteIndex);
+            for (String prepareDeleteIndex : prepareDeleteIndexes) {
+                client.deleteByIndexName(prepareDeleteIndex);
             }
         } else {
             int statusCode = client.delete(model.getName(), timeBucketColumnName, timeBefore);
