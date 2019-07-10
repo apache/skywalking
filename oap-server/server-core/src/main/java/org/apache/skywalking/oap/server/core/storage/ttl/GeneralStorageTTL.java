@@ -32,6 +32,8 @@ public class GeneralStorageTTL implements StorageTTL {
                 return new DayTTLCalculator();
             case Month:
                 return new MonthTTLCalculator();
+            case Second:
+                return new SecondTTLCalculator();
             default:
                 return new MinuteTTLCalculator();
         }
