@@ -22,8 +22,6 @@ import com.google.gson.*;
 import java.io.*;
 import java.util.*;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -63,7 +61,7 @@ public class ElasticSearchClient implements Client {
     private final String namespacePrefix;
     private final String user;
     private final String password;
-    @Getter(value = AccessLevel.PACKAGE) private RestHighLevelClient client;
+    private RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;

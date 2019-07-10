@@ -28,6 +28,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -36,6 +37,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,10 +238,15 @@ public class ITElasticSearchClient {
         indexName = client.formatIndexName(indexName);
         GetIndexRequest request = new GetIndexRequest();
         request.indices(indexName);
-        Response response = client.getClient().getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
+
+        Response response = getRestHighLevelClient().getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         Gson gson = new Gson();
         return undoFormatIndexName(gson.fromJson(reader, JsonObject.class));
+    }
+
+    private RestHighLevelClient getRestHighLevelClient() {
+        return (RestHighLevelClient) Whitebox.getInternalState(client, "client");
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {
