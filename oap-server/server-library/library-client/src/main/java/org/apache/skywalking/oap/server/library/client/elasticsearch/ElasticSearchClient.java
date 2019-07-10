@@ -58,7 +58,6 @@ public class ElasticSearchClient implements Client {
     public static final String TYPE = "type";
     private final String clusterNodes;
     private final String namespace;
-    private final String namespacePrefix;
     private final String user;
     private final String password;
     private RestHighLevelClient client;
@@ -66,7 +65,6 @@ public class ElasticSearchClient implements Client {
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
         this.namespace = namespace;
-        this.namespacePrefix = namespace + "_";
         this.user = user;
         this.password = password;
     }
@@ -306,7 +304,7 @@ public class ElasticSearchClient implements Client {
 
     public String formatIndexName(String indexName) {
         if (StringUtils.isNotEmpty(namespace)) {
-            return namespacePrefix + indexName;
+            return namespace + "_" + indexName;
         }
         return indexName;
     }
