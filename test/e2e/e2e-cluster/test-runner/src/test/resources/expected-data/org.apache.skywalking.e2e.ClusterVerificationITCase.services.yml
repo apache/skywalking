@@ -22,7 +22,7 @@
 
 services:
   - key: not null
-    label: service1
+    label: provider
 
   - key: not null
-    label: service2
+    label: consumer

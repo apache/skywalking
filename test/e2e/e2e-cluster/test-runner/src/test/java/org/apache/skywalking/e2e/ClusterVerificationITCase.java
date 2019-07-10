@@ -60,19 +60,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P50;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P75;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P90;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P95;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ENDPOINT_P99;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_INSTANCE_CPM;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_INSTANCE_RESP_TIME;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_INSTANCE_SLA;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P50;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P75;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P90;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P95;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_P99;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -88,17 +78,16 @@ public class ClusterVerificationITCase {
     private String instrumentedServiceUrl0;
 
     @Before
-    public void setUp() throws InterruptedException {
+    public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32775");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32771");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32774");
-        final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
-        queryClient = new SimpleQueryClient(queryClientUrl);
+        final String instrumentedServicePort = System.getProperty("service.port", "32770");
+        queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl0 = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 60000)
+    @Test(timeout = 240000)
     @DirtiesContext
     public void verify() throws Exception {
         // warm up to ensure the service is registered
@@ -114,14 +103,14 @@ public class ClusterVerificationITCase {
                 user,
                 String.class
             );
-            Thread.sleep(500);
+            Thread.sleep(5000);
             traces = queryClient.traces(
                 new TracesQuery()
+                    .stepBySecond()
                     .start(startTime)
                     .end(LocalDateTime.now(ZoneOffset.UTC))
                     .orderByDuration()
             );
-            Thread.sleep(500);
         }
 
         startTime = LocalDateTime.now(ZoneOffset.UTC);
@@ -134,7 +123,7 @@ public class ClusterVerificationITCase {
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(10000);
+        Thread.sleep(20000);
 
         verifyTraces(startTime);
 
@@ -148,7 +137,7 @@ public class ClusterVerificationITCase {
 
         final TopoData topoData = queryClient.topo(
             new TopoQuery()
-                .step("MINUTE")
+                .stepByMinute()
                 .start(minutesAgo.minusDays(1))
                 .end(now)
         );
@@ -217,17 +206,12 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyInstancesMetrics(Instances instances, final LocalDateTime minutesAgo) throws Exception {
-        final String[] instanceMetricsNames = new String[] {
-            SERVICE_INSTANCE_RESP_TIME,
-            SERVICE_INSTANCE_CPM,
-            SERVICE_INSTANCE_SLA
-        };
         for (Instance instance : instances.getInstances()) {
-            for (String metricsName : instanceMetricsNames) {
+            for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
                 final Metrics instanceRespTime = queryClient.metrics(
                     new MetricsQuery()
-                        .step("MINUTE")
+                        .stepByMinute()
                         .metricsName(metricsName)
                         .id(instance.getKey())
                 );
@@ -242,22 +226,15 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
-        final String[] endpointMetricsNames = {
-            ENDPOINT_P99,
-            ENDPOINT_P95,
-            ENDPOINT_P90,
-            ENDPOINT_P75,
-            ENDPOINT_P50
-        };
         for (Endpoint endpoint : endpoints.getEndpoints()) {
             if (!endpoint.getLabel().equals("/e2e/users")) {
                 continue;
             }
-            for (String metricName : endpointMetricsNames) {
+            for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
                 final Metrics metrics = queryClient.metrics(
                     new MetricsQuery()
-                        .step("MINUTE")
+                        .stepByMinute()
                         .metricsName(metricName)
                         .id(endpoint.getKey())
                 );
@@ -272,18 +249,11 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyServiceMetrics(Service service, final LocalDateTime minutesAgo) throws Exception {
-        final String[] serviceMetrics = {
-            SERVICE_P99,
-            SERVICE_P95,
-            SERVICE_P90,
-            SERVICE_P75,
-            SERVICE_P50
-        };
-        for (String metricName : serviceMetrics) {
+        for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
             final Metrics instanceRespTime = queryClient.metrics(
                 new MetricsQuery()
-                    .step("MINUTE")
+                    .stepByMinute()
                     .metricsName(metricName)
                     .id(service.getKey())
             );
@@ -301,6 +271,7 @@ public class ClusterVerificationITCase {
 
         final List<Trace> traces = queryClient.traces(
             new TracesQuery()
+                .stepBySecond()
                 .start(minutesAgo)
                 .end(now)
                 .orderByDuration()

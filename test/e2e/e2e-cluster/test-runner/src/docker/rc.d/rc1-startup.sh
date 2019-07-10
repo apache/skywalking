@@ -36,7 +36,7 @@ echo 'starting instrumented services...' && start_instrumented_services
 
 check_tcp 127.0.0.1 \
           9090 \
-          24 \
+          30 \
           10 \
           "waiting for the instrumented service 0 to be ready"
 
@@ -48,7 +48,7 @@ fi
 
 check_tcp 127.0.0.1 \
           9091 \
-          24 \
+          30 \
           10 \
           "waiting for the instrumented service 1 to be ready"
 

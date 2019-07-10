@@ -87,4 +87,14 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
         this.step = step;
         return (T) this;
     }
+
+    public T stepByMinute() {
+        this.step = "MINUTE";
+        return (T) this;
+    }
+
+    public T stepBySecond() {
+        this.step = "SECOND";
+        return (T) this;
+    }
 }

@@ -40,21 +40,21 @@
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>instrumented-service0</artifactId>
+            <artifactId>provider</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>instrumented-service1</artifactId>
+            <artifactId>consumer</artifactId>
             <version>${project.version}</version>
         </dependency>
 
     </dependencies>
 
     <properties>
-        <service0.name>instrumented-service0</service0.name>
-        <service1.name>instrumented-service1</service1.name>
+        <service0.name>provider</service0.name>
+        <service1.name>consumer</service1.name>
     </properties>
 
     <build>
@@ -117,7 +117,7 @@
                                     </INSTRUMENTED_SERVICE_1>
                                     <INSTRUMENTED_SERVICE_1_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
-                                        -DSW_AGENT_NAME=service1
+                                        -DSW_AGENT_NAME=${service0.name}
                                     </INSTRUMENTED_SERVICE_1_OPTS>
                                     <INSTRUMENTED_SERVICE_1_ARGS>
                                         --server.port=9090
@@ -128,7 +128,7 @@
                                     </INSTRUMENTED_SERVICE_2>
                                     <INSTRUMENTED_SERVICE_2_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11801
-                                        -DSW_AGENT_NAME=service2
+                                        -DSW_AGENT_NAME=${service1.name}
                                     </INSTRUMENTED_SERVICE_2_OPTS>
                                     <INSTRUMENTED_SERVICE_2_ARGS>
                                         --server.port=9091
@@ -158,7 +158,7 @@
                                             ../${service1.name}/target/${service1.name}-${project.version}.jar:/home/${service1.name}-${project.version}.jar
                                         </volume>
                                         <volume>
-                                            ${project.basedir}/src/docker/rc.d:/rc.d
+                                            ${project.basedir}/src/docker/rc.d:/rc.d:ro
                                         </volume>
                                         <volume>
                                             ${project.basedir}/src/docker/clusterize.awk:/clusterize.awk

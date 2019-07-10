@@ -31,8 +31,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>instrumented-service0</module>
-        <module>instrumented-service1</module>
+        <module>provider</module>
+        <module>consumer</module>
         <module>test-runner</module>
     </modules>
 </project>

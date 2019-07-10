@@ -19,10 +19,10 @@ nodes:
     name: User
     type: USER
   - id: not null
-    name: service1
+    name: provider
     type: Tomcat
   - id: not null
-    name: service2
+    name: consumer
     type: Tomcat
   - id: not null
     name: "localhost:-1"
