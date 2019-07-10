@@ -87,7 +87,7 @@ public class SampleVerificationITCase {
     private String instrumentedServiceUrl;
 
     @Before
-    public void setUp() throws InterruptedException {
+    public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
         final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String instrumentedServiceHost0 = System.getProperty("client.host", "127.0.0.1");
@@ -95,17 +95,6 @@ public class SampleVerificationITCase {
         final String queryClientUrl = "http://" + swWebappHost + ":" + swWebappPort + "/graphql";
         queryClient = new SimpleQueryClient(queryClientUrl);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost0 + ":" + instrumentedServicePort0;
-
-        final int warmUpThreshold = 5;
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
-        for (int i = 0; i < warmUpThreshold; i++) {
-            restTemplate.postForEntity(
-                instrumentedServiceUrl + "/e2e/users",
-                user,
-                String.class
-            );
-        }
     }
 
     @Test
