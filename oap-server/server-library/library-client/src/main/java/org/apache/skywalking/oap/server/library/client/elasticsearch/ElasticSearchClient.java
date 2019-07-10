@@ -21,10 +21,7 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 import com.google.gson.*;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -64,7 +61,7 @@ public class ElasticSearchClient implements Client {
     private final String namespacePrefix;
     private final String user;
     private final String password;
-    @Getter(value = AccessLevel.PACKAGE) private RestHighLevelClient client;
+    private RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
@@ -125,7 +122,7 @@ public class ElasticSearchClient implements Client {
         return response.isAcknowledged();
     }
 
-    public List<ElasticSearchTimeSeriesIndex> retrievalIndexByAliases(String aliases) throws IOException {
+    public List<String> retrievalIndexByAliases(String aliases) throws IOException {
         aliases = formatIndexName(aliases);
         Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/_alias/" + aliases);
         if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
@@ -133,20 +130,47 @@ public class ElasticSearchClient implements Client {
             InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
             JsonObject responseJson = gson.fromJson(reader, JsonObject.class);
             logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
-            Set<String> keySet = responseJson.keySet();
-            if (!keySet.isEmpty()) {
-                return keySet.stream().map(this::undoFormatIndexName).map(index -> new ElasticSearchTimeSeriesIndex(namespace, index)).collect(Collectors.toList());
-            }
+            return new ArrayList<>(responseJson.keySet());
         }
         return Collections.EMPTY_LIST;
     }
 
-    public boolean deleteTimeSeriesIndex(ElasticSearchTimeSeriesIndex index) throws IOException {
-        return deleteIndex(index.getIndex());
+    public JsonObject getIndex(String indexName) throws IOException {
+        indexName = formatIndexName(indexName);
+        GetIndexRequest request = new GetIndexRequest();
+        request.indices(indexName);
+        Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
+        InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
+        Gson gson = new Gson();
+        return gson.fromJson(reader, JsonObject.class);
     }
 
-    public boolean deleteIndex(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
+    /**
+     *  If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
+     *  Then you should delete the index by this method, this method will no longer concatenate namespace.
+     *
+     * https://github.com/apache/skywalking/pull/3017
+     *
+     */
+    public boolean deleteByIndexName(String indexName) throws IOException {
+        return deleteIndex(indexName, false);
+    }
+
+    /**
+     *  If your indexName is obtained from metadata or configuration and without namespace.
+     *  Then you should delete the index by this method, this method automatically concatenates namespace.
+     *
+     *  https://github.com/apache/skywalking/pull/3017
+     *
+     */
+    public boolean deleteByModelName(String modelName) throws IOException {
+        return deleteIndex(modelName, true);
+    }
+
+    private boolean deleteIndex(String indexName, boolean formatIndexName) throws IOException {
+        if (formatIndexName) {
+            indexName = formatIndexName(indexName);
+        }
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         DeleteIndexResponse response;
         response = client.indices().delete(request);
@@ -293,17 +317,6 @@ public class ElasticSearchClient implements Client {
     public String formatIndexName(String indexName) {
         if (StringUtils.isNotEmpty(namespace)) {
             return namespacePrefix + indexName;
-        }
-        return indexName;
-    }
-
-    private String undoFormatIndexName(String indexName) {
-        if (StringUtils.isNotEmpty(namespace)) {
-            if (indexName.startsWith(namespacePrefix)) {
-                return indexName.substring(namespacePrefix.length());
-            } else {
-                throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + indexName);
-            }
         }
         return indexName;
     }

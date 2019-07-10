@@ -18,16 +18,11 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.HttpGet;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -40,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,15 +93,15 @@ public class ITElasticSearchClient {
         client.createIndex(indexName, settings, doc);
         Assert.assertTrue(client.isExistsIndex(indexName));
 
-        JsonObject index = getIndex(indexName);
+        JsonObject index = client.getIndex(indexName);
         logger.info(index.toString());
 
-        Assert.assertEquals(2, index.getAsJsonObject(indexName).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
-        Assert.assertEquals(2, index.getAsJsonObject(indexName).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
+        Assert.assertEquals(2, index.getAsJsonObject(client.formatIndexName(indexName)).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
+        Assert.assertEquals(2, index.getAsJsonObject(client.formatIndexName(indexName)).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
 
-        Assert.assertEquals("text", index.getAsJsonObject(indexName).getAsJsonObject("mappings").getAsJsonObject("type").getAsJsonObject("properties").getAsJsonObject("column1").get("type").getAsString());
+        Assert.assertEquals("text", index.getAsJsonObject(client.formatIndexName(indexName)).getAsJsonObject("mappings").getAsJsonObject("type").getAsJsonObject("properties").getAsJsonObject("column1").get("type").getAsString());
 
-        Assert.assertTrue(client.deleteIndex(indexName));
+        Assert.assertTrue(client.deleteByModelName(indexName));
     }
 
     @Test
@@ -174,11 +168,11 @@ public class ITElasticSearchClient {
             .endObject();
         client.forceInsert(indexName + "-2019", "testid", builder);
 
-        JsonObject index = getIndex(indexName + "-2019");
+        JsonObject index = client.getIndex(indexName + "-2019");
         logger.info(index.toString());
 
-        Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
-        Assert.assertEquals(0, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
+        Assert.assertEquals(1, index.getAsJsonObject(client.formatIndexName(indexName) + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
+        Assert.assertEquals(0, index.getAsJsonObject(client.formatIndexName(indexName) + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
 
         client.deleteTemplate(indexName);
         Assert.assertFalse(client.isExistsTemplate(indexName));
@@ -225,40 +219,10 @@ public class ITElasticSearchClient {
             .endObject();
         client.forceInsert(timeSeriesIndexName, "testid", builder);
 
-        List<ElasticSearchTimeSeriesIndex> indexes = client.retrievalIndexByAliases(indexName);
+        List<String> indexes = client.retrievalIndexByAliases(indexName);
         Assert.assertEquals(1, indexes.size());
-        ElasticSearchTimeSeriesIndex index = indexes.get(0);
-        Assert.assertEquals(index.getNamespace(), namespace);
-        Assert.assertEquals(index.getIndex(), timeSeriesIndexName);
-        Assert.assertTrue(client.deleteTimeSeriesIndex(index));
-        Assert.assertFalse(client.isExistsIndex(index.getIndex()));
-    }
-
-    private JsonObject getIndex(String indexName) throws IOException {
-        indexName = client.formatIndexName(indexName);
-        GetIndexRequest request = new GetIndexRequest();
-        request.indices(indexName);
-        Response response = client.getClient().getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
-        InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
-        Gson gson = new Gson();
-        return undoFormatIndexName(gson.fromJson(reader, JsonObject.class));
-    }
-
-    private JsonObject undoFormatIndexName(JsonObject index) {
-        if (StringUtils.isNotEmpty(namespace) && index != null && index.size() > 0) {
-            logger.info("UndoFormatIndexName before " + index.toString());
-            String namespacePrefix = namespace + "_";
-            index.entrySet().forEach(entry -> {
-                String oldIndexName = entry.getKey();
-                if (oldIndexName.startsWith(namespacePrefix)) {
-                    index.add(oldIndexName.substring(namespacePrefix.length()), entry.getValue());
-                    index.remove(oldIndexName);
-                } else {
-                    throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + entry.getKey());
-                }
-            });
-            logger.info("UndoFormatIndexName after " + index.toString());
-        }
-        return index;
+        String index = indexes.get(0);
+        Assert.assertTrue(client.deleteByIndexName(index));
+        Assert.assertFalse(client.isExistsIndex(timeSeriesIndexName));
     }
 }
