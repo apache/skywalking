@@ -19,8 +19,12 @@
 package org.apache.skywalking.oap.server.configuration.etcd;
 
 import com.google.common.collect.Sets;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import mousio.client.promises.ResponsePromise;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
@@ -36,15 +40,18 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * @author Alan Lau
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(EtcdKeysResponse.class)
+@PrepareForTest({EtcdKeysResponse.class, EtcdUtils.class, EtcdClient.class, URI.class})
 @PowerMockIgnore({"javax.management.*"})
 public class EtcdConfigWatcherRegisterTest {
 
@@ -59,10 +66,24 @@ public class EtcdConfigWatcherRegisterTest {
 
         final EtcdServerSettings mockSettings = mock(EtcdServerSettings.class);
         when(mockSettings.getGroup()).thenReturn(group);
+        mockStatic(EtcdUtils.class);
 
-        final EtcdConfigWatcherRegister mockRegister = spy(new EtcdConfigWatcherRegister(mockSettings));
+        List<URI> uris = mock(List.class);
+        when(EtcdUtils.parse(any())).thenReturn(uris);
 
         final EtcdClient client = PowerMockito.mock(EtcdClient.class);
+        whenNew(EtcdClient.class).withAnyArguments().thenReturn(client);
+
+
+
+        URI uri = new URI("http://localhost:2379");
+        List<URI> urisArray = spy(ArrayList.class);
+        urisArray.add(uri);
+        URI [] array = urisArray.toArray(new URI[] {});
+        when(uris.toArray(new URI[] {})).thenReturn(array);
+
+
+        final EtcdConfigWatcherRegister mockRegister = spy(new EtcdConfigWatcherRegister(mockSettings));
 
         Whitebox.setInternalState(mockRegister, "client", client);
         Whitebox.setInternalState(mockRegister, "settings", mockSettings);
@@ -73,9 +94,13 @@ public class EtcdConfigWatcherRegisterTest {
         final EtcdKeyGetRequest request = PowerMockito.mock(EtcdKeyGetRequest.class);
 
         when(client.get("/skywalking/receiver-trace.default.slowDBAccessThreshold")).thenReturn(request);
+        when(request.waitForChange()).thenReturn(request);
+
         final EtcdResponsePromise<EtcdKeysResponse> promise = mock(EtcdResponsePromise.class);
+        final ResponsePromise<EtcdKeysResponse> responseResponsePromise = mock(ResponsePromise.class);
         when(request.send()).thenReturn(promise);
         when(promise.get()).thenReturn(response);
+        when(responseResponsePromise.get()).thenReturn(response);
 
         final EtcdKeysResponse.EtcdNode node = mock(EtcdKeysResponse.EtcdNode.class);
         when(response.getNode()).thenReturn(node);
@@ -84,9 +109,12 @@ public class EtcdConfigWatcherRegisterTest {
 
         final EtcdKeyGetRequest request1 = mock(EtcdKeyGetRequest.class);
         when(client.get("/skywalking/testKey")).thenReturn(request1);
+        when(request1.waitForChange()).thenReturn(request1);
         final EtcdResponsePromise<EtcdKeysResponse> promise1 = mock(EtcdResponsePromise.class);
+        final ResponsePromise<EtcdKeysResponse> responseResponsePromise1 = mock(ResponsePromise.class);
         when(request1.send()).thenReturn(promise1);
         when(promise1.get()).thenReturn(response1);
+        when(responseResponsePromise1.get()).thenReturn(response1);
 
         final EtcdKeysResponse.EtcdNode node1 = mock(EtcdKeysResponse.EtcdNode.class);
         when(response1.getNode()).thenReturn(node1);

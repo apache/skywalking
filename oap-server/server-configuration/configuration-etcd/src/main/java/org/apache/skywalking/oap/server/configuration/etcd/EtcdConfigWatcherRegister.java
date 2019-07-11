@@ -19,15 +19,17 @@
 package org.apache.skywalking.oap.server.configuration.etcd;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import mousio.client.promises.ResponsePromise;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
-import mousio.etcd4j.responses.EtcdErrorCode;
-import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,41 +42,91 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     private EtcdServerSettings settings;
 
-    private EtcdClient client;
+    private final EtcdClient client;
+
+    private final Map<String, ResponsePromise.IsSimplePromiseResponseHandler> listenersByKey;
+
+    private final Map<String, Optional<String>> configItemKeyedByName;
+
+    private final Map<String, EtcdResponsePromise<EtcdKeysResponse>> responsePromiseByKey;
+
+    public EtcdConfigWatcherRegister(EtcdServerSettings settings) {
+        this.settings = settings;
+        this.configItemKeyedByName = new ConcurrentHashMap<>();
+        this.client = new EtcdClient(EtcdUtils.parse(settings).toArray(new URI[] {}));
+        this.listenersByKey = new ConcurrentHashMap<>();
+        responsePromiseByKey = new ConcurrentHashMap<>();
+    }
 
     @Override public ConfigTable readConfig(Set<String> keys) {
+        removeUninterestedKeys(keys);
+        registerKeyListeners(keys);
+        final ConfigTable table = new ConfigTable();
 
-        if (client == null) {
-            try {
-                client = new EtcdClient(EtcdUtils.parse(settings).toArray(new URI[] {}));
-            } catch (ModuleStartException e) {
-                logger.error(e.getMessage(), e);
+        for (Map.Entry<String, Optional<String>> entry : configItemKeyedByName.entrySet()) {
+            final String key = entry.getKey();
+            final Optional<String> value = entry.getValue();
+
+            if (value.isPresent()) {
+                table.add(new ConfigTable.ConfigItem(key, value.get()));
+            } else {
+                table.add(new ConfigTable.ConfigItem(key, null));
             }
         }
-
-        final ConfigTable table = new ConfigTable();
-        keys.forEach(registryKey -> {
-            String key = "/" + settings.getGroup() + "/" + registryKey;
-            try {
-                EtcdResponsePromise<EtcdKeysResponse> promise = client.get(key).send();
-                EtcdKeysResponse response = promise.get();
-                table.add(new ConfigTable.ConfigItem(getRealKey(key, settings.getGroup()), response.getNode().getValue()));
-            } catch (EtcdException e) {
-                if (e.getErrorCode() == EtcdErrorCode.KeyNotFound) {
-                    table.add(new ConfigTable.ConfigItem(getRealKey(key, settings.getGroup()), null));
-                } else {
-                    logger.error(e.getMessage(), e);
-                }
-            } catch (Exception e1) {
-                logger.error(e1.getMessage(), e1);
-            }
-        });
 
         return table;
     }
 
-    public EtcdConfigWatcherRegister(EtcdServerSettings settings) {
-        this.settings = settings;
+    private void registerKeyListeners(final Set<String> keys) {
+        for (final String key : keys) {
+            String dataId = "/" + settings.getGroup() + "/" + key;
+            if (listenersByKey.containsKey(dataId)) {
+                continue;
+            }
+
+            listenersByKey.putIfAbsent(dataId, p -> {
+                onDataValueChanged(p);
+            });
+
+            try {
+                EtcdResponsePromise<EtcdKeysResponse> responsePromise = client.get(dataId).waitForChange().send();
+                responsePromise.addListener(listenersByKey.get(dataId));
+                responsePromiseByKey.putIfAbsent(dataId, responsePromise);
+
+                // the key is newly added, read the config for the first time
+                EtcdResponsePromise<EtcdKeysResponse> promise = client.get(dataId).send();
+                onDataValueChanged(promise);
+            } catch (Exception e) {
+                throw new EtcdConfigException("wait for etcd value change fail", e);
+            }
+        }
+    }
+
+    private void removeUninterestedKeys(final Set<String> interestedKeys) {
+        final Set<String> uninterestedKeys = new HashSet<>(listenersByKey.keySet());
+        uninterestedKeys.removeAll(interestedKeys);
+
+        uninterestedKeys.forEach(k -> {
+            final ResponsePromise.IsSimplePromiseResponseHandler listener = listenersByKey.remove(k);
+            if (listener != null) {
+                responsePromiseByKey.remove(k).removeListener(listener);
+            }
+        });
+    }
+
+    private void onDataValueChanged(ResponsePromise<EtcdKeysResponse> promise) {
+        try {
+            EtcdKeysResponse.EtcdNode node = promise.get().getNode();
+            String dataId = getRealKey(node.getKey(), settings.getGroup());
+            String value = node.getValue();
+            if (logger.isInfoEnabled()) {
+                logger.info("Nacos config changed: {}: {}", dataId, node.getValue());
+            }
+
+            configItemKeyedByName.put(dataId, Optional.ofNullable(value));
+        } catch (Exception e) {
+            throw new EtcdConfigException("wait for value chanaged fail", e);
+        }
     }
 
     private String getRealKey(String key, String group) {

@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.Address;
 import org.apache.skywalking.oap.server.library.util.ConnectUtils;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ public class EtcdUtils {
     public EtcdUtils() {
     }
 
-    public static List<URI> parse(EtcdServerSettings settings) throws ModuleStartException {
+    public static List<URI> parse(EtcdServerSettings settings) {
         List<URI> uris = new ArrayList<>();
         try {
             logger.info("etcd settings is {}", settings);
@@ -47,13 +46,13 @@ public class EtcdUtils {
                 uris.add(new URI("http", null, address.getHost(), address.getPort(), null, null, null));
             }
         } catch (Exception e) {
-            throw new ModuleStartException(e.getMessage(), e);
+            throw new EtcdConfigException(e.getMessage(), e);
         }
 
         return uris;
     }
 
-    public static List<URI> parseProp(Properties properties) throws ModuleStartException {
+    public static List<URI> parseProp(Properties properties) {
         List<URI> uris = new ArrayList<>();
         try {
             logger.info("etcd server addr is {}", properties);
@@ -62,7 +61,7 @@ public class EtcdUtils {
                 uris.add(new URI("http", null, address.getHost(), address.getPort(), null, null, null));
             }
         } catch (Exception e) {
-            throw new ModuleStartException(e.getMessage(), e);
+            throw new EtcdConfigException(e.getMessage(), e);
         }
 
         return uris;

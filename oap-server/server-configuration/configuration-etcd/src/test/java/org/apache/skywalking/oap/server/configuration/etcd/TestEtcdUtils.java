@@ -43,7 +43,7 @@ public class TestEtcdUtils {
     }
 
     @Test
-    public void testParse() throws Exception {
+    public void testParse() {
         List<URI> list = EtcdUtils.parse(settings);
         Assert.assertEquals(1, list.size());
         URI uri = list.get(0);
@@ -53,7 +53,7 @@ public class TestEtcdUtils {
     }
 
     @Test
-    public void testProp() throws  Exception {
+    public void testProp() {
         List<URI> list = EtcdUtils.parseProp(properties);
         Assert.assertEquals(1, list.size());
         URI uri = list.get(0);
