@@ -69,7 +69,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
             }
 
             for (String prepareDeleteIndex : prepareDeleteIndexes) {
-                client.deleteIndex(prepareDeleteIndex);
+                client.deleteByIndexName(prepareDeleteIndex);
             }
         } else {
             int statusCode = client.delete(model.getName(), timeBucketColumnName, timeBefore);
