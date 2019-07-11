@@ -68,7 +68,11 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             if (nodes != null) {
                 nodes.forEach(node -> {
                     EtcdEndpoint endpoint = gson.fromJson(node.getValue(), EtcdEndpoint.class);
-                    res.add(new RemoteInstance(new Address(endpoint.getHost(), endpoint.getPort(), true)));
+                    Address address = new Address(endpoint.getHost(), endpoint.getPort(), true);
+                    if (!address.equals(selfAddress)) {
+                        address.setSelf(false);
+                    }
+                    res.add(new RemoteInstance(address));
                 });
             }
 
