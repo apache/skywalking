@@ -210,7 +210,7 @@ public class ElasticSearchClient implements Client {
         return BulkProcessor.builder(client::bulkAsync, listener)
             .setBulkActions(bulkActions)
             .setBulkSize(new ByteSizeValue(bulkSize, ByteSizeUnit.MB))
-            // modified by zhaoze, if set auto flush, there will cause deadlock with bulk commit.
+            // if set auto flush, there will cause deadlock with bulk commit.
             .setFlushInterval(null)
             .setConcurrentRequests(concurrentRequests)
             .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
