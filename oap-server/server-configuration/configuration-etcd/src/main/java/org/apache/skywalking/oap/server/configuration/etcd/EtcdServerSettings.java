@@ -34,6 +34,6 @@ public class EtcdServerSettings extends ModuleConfig {
     private String clusterName = "default";
     private String serverAddr;
     private String group;
-    private int period = 30;
+    private int period = 60;
 
 }

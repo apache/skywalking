@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import mousio.client.promises.ResponsePromise;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
+import mousio.etcd4j.responses.EtcdErrorCode;
+import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
@@ -51,6 +53,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
     private final Map<String, EtcdResponsePromise<EtcdKeysResponse>> responsePromiseByKey;
 
     public EtcdConfigWatcherRegister(EtcdServerSettings settings) {
+        super(settings.getPeriod());
         this.settings = settings;
         this.configItemKeyedByName = new ConcurrentHashMap<>();
         this.client = new EtcdClient(EtcdUtils.parse(settings).toArray(new URI[] {}));
@@ -125,6 +128,11 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
             configItemKeyedByName.put(dataId, Optional.ofNullable(value));
         } catch (Exception e) {
+            if (e instanceof EtcdException) {
+                if (EtcdErrorCode.KeyNotFound == ((EtcdException)e).errorCode) {
+                    return;
+                }
+            }
             throw new EtcdConfigException("wait for value chanaged fail", e);
         }
     }
