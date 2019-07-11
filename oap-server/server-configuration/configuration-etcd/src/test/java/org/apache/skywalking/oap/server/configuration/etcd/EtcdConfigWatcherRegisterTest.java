@@ -74,14 +74,11 @@ public class EtcdConfigWatcherRegisterTest {
         final EtcdClient client = PowerMockito.mock(EtcdClient.class);
         whenNew(EtcdClient.class).withAnyArguments().thenReturn(client);
 
-
-
         URI uri = new URI("http://localhost:2379");
         List<URI> urisArray = spy(ArrayList.class);
         urisArray.add(uri);
-        URI [] array = urisArray.toArray(new URI[] {});
+        URI[] array = urisArray.toArray(new URI[] {});
         when(uris.toArray(new URI[] {})).thenReturn(array);
-
 
         final EtcdConfigWatcherRegister mockRegister = spy(new EtcdConfigWatcherRegister(mockSettings));
 
