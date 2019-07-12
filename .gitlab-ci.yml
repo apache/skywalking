@@ -1,0 +1,59 @@
+# This file is a template, and might need editing before it works on your project.
+# This file is a template, and might need editing before it works on your project.
+
+# Build JAVA applications using Apache Maven (http://maven.apache.org)
+# For docker image tags see https://hub.docker.com/_/maven/
+#
+# For general lifecycle information see https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+
+# This template will build and test your projects
+# * Caches downloaded dependencies and plugins between invocation.
+# * Verify but don't deploy merge requests.
+# * Deploy built artifacts from master branch only.
+
+variables:
+  # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
+  # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  # As of Maven 3.3.0 instead of this you may define these options in `.mvn/maven.config` so the same config is used
+  # when running from the command line.
+  # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+
+# This template uses jdk8 for verifying and deploying images
+image: maven:3.3.9-jdk-8
+
+# Cache downloaded dependencies and plugins between builds.
+# To keep cache across branches add 'key: "$CI_JOB_NAME"'
+cache:
+  paths:
+    - .m2/repository
+
+# For merge requests do not `deploy` but only run `verify`.
+# See https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+.verify: &verify
+  stage: test
+  script:
+    - 'git submodule update --init'
+    - 'mvn $MAVEN_CLI_OPTS verify'
+  except:
+    - master
+
+# Verify merge requests using JDK8
+verify:jdk8:
+  <<: *verify
+
+# To deploy packages from CI, create a ci_settings.xml file
+# For deploying packages to GitLab's Maven Repository: See https://docs.gitlab.com/ee/user/project/packages/maven_repository.html#creating-maven-packages-with-gitlab-cicd for more details.
+# Please note: The GitLab Maven Repository is currently only available in GitLab Premium / Ultimate.
+# For `master` branch run `mvn deploy` automatically.
+package:jdk8:
+  stage: deploy
+  script:
+#   - if [ ! -f ci_settings.xml ];
+#        then echo "CI settings missing\! If deploying to GitLab Maven Repository, please see https://docs.gitlab.com/ee/user/project/packages/maven_repository.html#creating-maven-packages-with-gitlab-cicd for instructions.";
+#      fi
+    - 'git submodule update --init'
+    - 'mvn $MAVEN_CLI_OPTS -DskipTests clean install -Drat.skip=true' # -s ci_settings.xml
+#  only:
+#    - master
