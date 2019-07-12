@@ -316,7 +316,7 @@ Use the core APIs in before, after and exception handle stages.
 We are welcome everyone to contribute plugins.
 
 Please follow there steps:
-1. Submit an issue about which plugins are you going to contribute, including supported version.
+1. Submit an issue about which plugins you are going to contribute, including supported version.
 1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
 1. Follow this guide to develop. Make sure comments and test cases are provided.
 1. Develop and test.

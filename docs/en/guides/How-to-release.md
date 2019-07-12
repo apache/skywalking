@@ -269,9 +269,9 @@ SkyWalking Resources:
 - Documents: https://github.com/apache/skywalking/blob/x.y.z/docs/README.md
 
 
-- Apache SkyWalking  Team
+- Apache SkyWalking Team
 ```
 
 7. Update website download page. http://skywalking.apache.org/downloads/ . Include new download source, distribution, sha512, asc and document
 links. Links could be found by following above rules(3)-(6).
-8. Add an release event on website homepage and even page. Announce the public release with changelog or key features.
+8. Add a release event on website homepage and even page. Announce the public release with changelog or key features.
