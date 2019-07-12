@@ -120,7 +120,7 @@ public class NoopSpan implements AbstractSpan {
         return this;
     }
 
-    @Override public AbstractSpan asyncFinish() {
-        return this;
+    @Override public boolean asyncFinish() {
+        return true;
     }
 }

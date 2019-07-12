@@ -97,8 +97,8 @@ public class IgnoredTracerContext implements AbstractTracerContext {
         return this;
     }
 
-    @Override public void asyncStop(AsyncSpan span) {
-
+    @Override public boolean asyncStop(AsyncSpan span) {
+        return stackDepth == 0;
     }
 
     public static class ListenerManager {

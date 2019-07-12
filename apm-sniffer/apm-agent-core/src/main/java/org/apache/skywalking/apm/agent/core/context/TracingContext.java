@@ -423,12 +423,14 @@ public class TracingContext implements AbstractTracerContext {
         return this;
     }
 
-    @Override public void asyncStop(AsyncSpan span) {
+    @Override public boolean asyncStop(AsyncSpan span) {
         asyncSpanCounter.addAndGet(-1);
 
         if (checkFinishConditions()) {
             finish();
+            return true;
         }
+        return false;
     }
 
     private boolean checkFinishConditions() {

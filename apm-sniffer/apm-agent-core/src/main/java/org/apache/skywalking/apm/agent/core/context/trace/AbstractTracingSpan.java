@@ -327,13 +327,12 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    @Override public AbstractSpan asyncFinish() {
+    @Override public boolean asyncFinish() {
         if (!isInAsyncMode) {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
 
         this.endTime = System.currentTimeMillis();
-        context.asyncStop(this);
-        return this;
+        return context.asyncStop(this);
     }
 }

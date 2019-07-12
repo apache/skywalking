@@ -50,7 +50,7 @@ public interface AsyncSpan {
      *
      * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
      *
-     * @return the current span
+     * @return true when the current span is finished
      */
-    AbstractSpan asyncFinish();
+    boolean asyncFinish();
 }

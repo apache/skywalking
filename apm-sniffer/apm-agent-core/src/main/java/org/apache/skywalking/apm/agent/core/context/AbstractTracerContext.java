@@ -113,6 +113,7 @@ public interface AbstractTracerContext {
      * The given span could be stopped officially.
      *
      * @param span to be stopped.
+     * @return true when finished 
      */
-    void asyncStop(AsyncSpan span);
+    boolean asyncStop(AsyncSpan span);
 }
