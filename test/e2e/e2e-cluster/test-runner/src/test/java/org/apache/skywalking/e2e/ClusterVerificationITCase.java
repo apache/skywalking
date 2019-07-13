@@ -104,7 +104,7 @@ public class ClusterVerificationITCase {
                     user,
                     String.class
                 );
-                Thread.sleep(10000);
+                Thread.sleep(20000);
                 traces = queryClient.traces(
                     new TracesQuery()
                         .stepByMinute()
@@ -126,7 +126,7 @@ public class ClusterVerificationITCase {
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(10000);
+        Thread.sleep(20000);
 
         verifyTraces(startTime);
 
