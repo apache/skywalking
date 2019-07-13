@@ -87,7 +87,7 @@ public class ClusterVerificationITCase {
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 300000)
+    @Test(timeout = 600000)
     @DirtiesContext
     public void verify() throws Exception {
         // warm up to ensure the service is registered
@@ -104,10 +104,10 @@ public class ClusterVerificationITCase {
                     user,
                     String.class
                 );
-                Thread.sleep(3000);
+                Thread.sleep(10000);
                 traces = queryClient.traces(
                     new TracesQuery()
-                        .stepBySecond()
+                        .stepByMinute()
                         .start(startTime)
                         .end(LocalDateTime.now(ZoneOffset.UTC))
                         .orderByStartTime()
@@ -126,7 +126,7 @@ public class ClusterVerificationITCase {
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         verifyTraces(startTime);
 
@@ -274,7 +274,7 @@ public class ClusterVerificationITCase {
 
         final List<Trace> traces = queryClient.traces(
             new TracesQuery()
-                .stepBySecond()
+                .stepByMinute()
                 .start(minutesAgo)
                 .end(now)
                 .orderByStartTime()

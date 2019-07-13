@@ -191,4 +191,17 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
     public void setSpans(final List<SpanMatcher> spans) {
         this.spans = spans;
     }
+
+    @Override
+    public String toString() {
+        return "TraceMatcher{" +
+            "key='" + key + '\'' +
+            ", endpointNames=" + endpointNames +
+            ", duration='" + duration + '\'' +
+            ", start='" + start + '\'' +
+            ", isError='" + isError + '\'' +
+            ", traceIds=" + traceIds +
+            ", spans=" + spans +
+            '}';
+    }
 }

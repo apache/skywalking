@@ -72,5 +72,11 @@ public class TracesMatcher {
             }
         }
     }
-    
+
+    @Override
+    public String toString() {
+        return "TracesMatcher{" +
+            "traces=" + traces +
+            '}';
+    }
 }
