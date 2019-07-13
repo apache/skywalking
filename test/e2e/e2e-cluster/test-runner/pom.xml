@@ -63,7 +63,7 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <containerNamePattern>%a-%t</containerNamePattern>
+                    <containerNamePattern>%a-%t-%i</containerNamePattern>
                     <images>
                         <image>
                             <name>elastic/elasticsearch:${elasticsearch.version}</name>
