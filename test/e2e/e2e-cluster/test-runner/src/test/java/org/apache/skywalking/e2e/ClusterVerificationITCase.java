@@ -55,7 +55,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +72,7 @@ public class ClusterVerificationITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterVerificationITCase.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final Yaml yaml = new Yaml();
 
     private SimpleQueryClient queryClient;
     private String instrumentedServiceUrl;
@@ -80,40 +80,20 @@ public class ClusterVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32775");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32782");
+        final String instrumentedServicePort = System.getProperty("service.port", "32774");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 600000)
+    @Test(timeout = 300000)
     @DirtiesContext
     public void verify() throws Exception {
-        // warm up to ensure the service is registered
-
-        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(10);
 
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
-        List<Trace> traces = Collections.emptyList();
-        while (traces.isEmpty()) {
-            try {
-                restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
-                Thread.sleep(10000);
-                traces = queryClient.traces(
-                    new TracesQuery()
-                        .start(startTime)
-                        .end(LocalDateTime.now(ZoneOffset.UTC))
-                        .orderByStartTime()
-                );
-            } catch (Throwable ignored) {
-            }
-        }
 
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
             instrumentedServiceUrl + "/e2e/users",
@@ -123,7 +103,7 @@ public class ClusterVerificationITCase {
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(30000);
+        Thread.sleep(1000);
 
         verifyTraces(startTime);
 
@@ -145,7 +125,7 @@ public class ClusterVerificationITCase {
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
 
-        final TopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, TopoMatcher.class);
+        final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
         topoMatcher.verify(topoData);
     }
 
@@ -161,7 +141,7 @@ public class ClusterVerificationITCase {
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.services.yml").getInputStream();
 
-        final ServicesMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ServicesMatcher.class);
+        final ServicesMatcher servicesMatcher = yaml.loadAs(expectedInputStream, ServicesMatcher.class);
         servicesMatcher.verify(services);
 
         for (Service service : services) {
@@ -180,29 +160,28 @@ public class ClusterVerificationITCase {
     }
 
     private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
-        InputStream expectedInputStream;
         Instances instances = queryClient.instances(
             new InstancesQuery()
                 .serviceId(service.getKey())
                 .start(minutesAgo)
                 .end(now)
         );
-        expectedInputStream =
+        InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
-        final InstancesMatcher instancesMatcher = new Yaml().loadAs(expectedInputStream, InstancesMatcher.class);
+        final InstancesMatcher instancesMatcher = yaml.loadAs(expectedInputStream, InstancesMatcher.class);
         instancesMatcher.verify(instances);
         return instances;
     }
 
     private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
-        Endpoints instances = queryClient.endpoints(
+        Endpoints endpoints = queryClient.endpoints(
             new EndpointQuery().serviceId(service.getKey())
         );
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.endpoints.yml").getInputStream();
-        final EndpointsMatcher endpointsMatcher = new Yaml().loadAs(expectedInputStream, EndpointsMatcher.class);
-        endpointsMatcher.verify(instances);
-        return instances;
+        final EndpointsMatcher endpointsMatcher = yaml.loadAs(expectedInputStream, EndpointsMatcher.class);
+        endpointsMatcher.verify(endpoints);
+        return endpoints;
     }
 
     private void verifyInstancesMetrics(Instances instances, final LocalDateTime minutesAgo) throws Exception {
@@ -275,6 +254,7 @@ public class ClusterVerificationITCase {
 
         final List<Trace> traces = queryClient.traces(
             new TracesQuery()
+                .stepBySecond()
                 .start(minutesAgo)
                 .end(now)
                 .orderByStartTime()
@@ -283,7 +263,7 @@ public class ClusterVerificationITCase {
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.traces.yml").getInputStream();
 
-        final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
+        final TracesMatcher tracesMatcher = yaml.loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verifyLoosely(traces);
     }
 }

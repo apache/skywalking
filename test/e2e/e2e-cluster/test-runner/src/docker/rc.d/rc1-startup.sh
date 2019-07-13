@@ -24,6 +24,7 @@ if test "${MODE}" = "cluster"; then
     # start another OAP server in a different port
     SW_CORE_GRPC_PORT=11801 \
         && SW_CORE_REST_PORT=12801 \
+        && ES_BULK_ACTIONS=1 \
         && echo 'starting OAP server...' \
         && start_oap 'no-init'
 
