@@ -64,6 +64,7 @@ pipeline {
             // we need to clean up when there are containers started by the e2e tests
             sh 'docker ps'
             sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
+            sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker rm'
             deleteDir()
         }
     }
