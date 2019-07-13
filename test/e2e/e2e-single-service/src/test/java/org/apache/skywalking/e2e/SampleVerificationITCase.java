@@ -100,7 +100,7 @@ public class SampleVerificationITCase {
         );
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(5000);
+        Thread.sleep(20000);
 
         verifyTraces(minutesAgo);
 
