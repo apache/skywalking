@@ -192,6 +192,7 @@ needs to set in another thread, you should use these APIs.
     AbstractSpan asyncFinish();
 ```
 1. Call `#prepareForAsync` in original context.
+1. Do `ContextManager#stopSpan` in original context when your job in current thread is done.
 1. Propagate the span to any other thread.
 1. After all set, call `#asyncFinish` in any thread.
 1. Tracing context will be finished and report to backend when all spans's `#prepareForAsync` finished(Judged by count of API execution).
