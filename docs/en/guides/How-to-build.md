@@ -79,7 +79,7 @@ a oap image with name `bar/oap:foo`, run the following command
     * `oal` folder in **oap-server/generated-analysis/target/generated-sources**
     
 ## Setup your Eclipse IDE
-**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**.
+**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
 
 1. Import the project as a maven project
 2. For supporting multiple source directories, you need to add the following configuration in `skywalking/pom.xml` file:
