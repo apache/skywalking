@@ -115,8 +115,6 @@ public class ClusterVerificationITCase {
             }
         }
 
-        startTime = LocalDateTime.now(ZoneOffset.UTC);
-
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
             instrumentedServiceUrl + "/e2e/users",
             user,
@@ -125,7 +123,7 @@ public class ClusterVerificationITCase {
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(10000);
+        Thread.sleep(30000);
 
         verifyTraces(startTime);
 
@@ -177,7 +175,7 @@ public class ClusterVerificationITCase {
 
             Endpoints endpoints = verifyServiceEndpoints(minutesAgo, now, service);
 
-            verifyEndpointsMetrics(endpoints);
+            verifyEndpointsMetrics(endpoints, minutesAgo);
         }
     }
 
@@ -227,7 +225,7 @@ public class ClusterVerificationITCase {
         }
     }
 
-    private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
+    private void verifyEndpointsMetrics(Endpoints endpoints, final LocalDateTime minutesAgo) throws Exception {
         for (Endpoint endpoint : endpoints.getEndpoints()) {
             if (!endpoint.getLabel().equals("/e2e/users")) {
                 continue;
@@ -238,6 +236,8 @@ public class ClusterVerificationITCase {
                     new MetricsQuery()
                         .stepByMinute()
                         .metricsName(metricName)
+                        .start(minutesAgo)
+                        .end(LocalDateTime.now(ZoneOffset.UTC))
                         .id(endpoint.getKey())
                 );
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
@@ -257,6 +257,8 @@ public class ClusterVerificationITCase {
                 new MetricsQuery()
                     .stepByMinute()
                     .metricsName(metricName)
+                    .start(minutesAgo)
+                    .end(LocalDateTime.now(ZoneOffset.UTC))
                     .id(service.getKey())
             );
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
