@@ -55,6 +55,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,23 @@ public class ClusterVerificationITCase {
             user,
             String.class
         );
+        List<Service> services = Collections.emptyList();
+        while (services.size() < 2) {
+            try {
+                restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+                );
+                services = queryClient.services(
+                    new ServicesQuery()
+                        .start(startTime)
+                        .end(LocalDateTime.now(ZoneOffset.UTC))
+                );
+            } catch (Throwable ignored) {
+            }
+        }
+
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
