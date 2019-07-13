@@ -20,6 +20,7 @@ package org.apache.skywalking.e2e.trace;
 
 import com.google.common.base.Strings;
 import lombok.Data;
+import lombok.ToString;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Objects;
  * @author kezhenxu94
  */
 @Data
+@ToString(callSuper = true)
 public class SpanMatcher extends AbstractMatcher<Span> {
   private String traceId;
   private String segmentId;

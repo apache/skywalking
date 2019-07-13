@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author kezhenxu94
@@ -50,4 +51,26 @@ public class TracesMatcher {
             this.traces.get(i).verify(traces.get(i));
         }
     }
+
+    /**
+     * Verify the traces in a loose manner
+     *
+     * @param traces
+     */
+    public void verifyLoosely(final List<Trace> traces) {
+        for (int i = 0; i < getTraces().size(); i++) {
+            boolean matched = false;
+            for (int j = 0; j < traces.size(); j++) {
+                try {
+                    getTraces().get(i).verify(traces.get(j));
+                    matched = true;
+                } catch (Throwable ignored) {
+                }
+            }
+            if (!matched) {
+                fail("Expected: %s\n Actual: %s", getTraces(), traces);
+            }
+        }
+    }
+    
 }

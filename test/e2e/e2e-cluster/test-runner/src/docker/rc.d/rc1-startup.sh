@@ -36,19 +36,19 @@ echo 'starting instrumented services...' && start_instrumented_services
 
 check_tcp 127.0.0.1 \
           9090 \
-          30 \
+          60 \
           10 \
           "waiting for the instrumented service 0 to be ready"
 
 if [[ $? -ne 0 ]]; then
-    echo "instrumented service 0 failed to start in 24 * 10 seconds: "
+    echo "instrumented service 0 failed to start in 30 * 10 seconds: "
     cat ${SERVICE_LOG}/*
     exit 1
 fi
 
 check_tcp 127.0.0.1 \
           9091 \
-          30 \
+          60 \
           10 \
           "waiting for the instrumented service 1 to be ready"
 

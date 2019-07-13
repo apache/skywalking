@@ -80,10 +80,10 @@ public class SampleVerificationITCase {
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
         final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
-        final String instrumentedServiceHost0 = System.getProperty("client.host", "127.0.0.1");
-        final String instrumentedServicePort0 = System.getProperty("client.port", "32782");
+        final String instrumentedServiceHost = System.getProperty("client.host", "127.0.0.1");
+        final String instrumentedServicePort = System.getProperty("client.port", "32782");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
-        instrumentedServiceUrl = "http://" + instrumentedServiceHost0 + ":" + instrumentedServicePort0;
+        instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
     @Test

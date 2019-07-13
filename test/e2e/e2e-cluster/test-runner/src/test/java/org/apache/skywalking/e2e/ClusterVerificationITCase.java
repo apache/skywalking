@@ -75,19 +75,19 @@ public class ClusterVerificationITCase {
     private final RestTemplate restTemplate = new RestTemplate();
 
     private SimpleQueryClient queryClient;
-    private String instrumentedServiceUrl0;
+    private String instrumentedServiceUrl;
 
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32771");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32770");
+        final String instrumentedServicePort = System.getProperty("service.port", "32782");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
-        instrumentedServiceUrl0 = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
+        instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 240000)
+    @Test(timeout = 300000)
     @DirtiesContext
     public void verify() throws Exception {
         // warm up to ensure the service is registered
@@ -98,25 +98,28 @@ public class ClusterVerificationITCase {
         user.put("name", "SkyWalking");
         List<Trace> traces = Collections.emptyList();
         while (traces.isEmpty()) {
-            restTemplate.postForEntity(
-                instrumentedServiceUrl0 + "/e2e/users",
-                user,
-                String.class
-            );
-            Thread.sleep(5000);
-            traces = queryClient.traces(
-                new TracesQuery()
-                    .stepBySecond()
-                    .start(startTime)
-                    .end(LocalDateTime.now(ZoneOffset.UTC))
-                    .orderByDuration()
-            );
+            try {
+                restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+                );
+                Thread.sleep(3000);
+                traces = queryClient.traces(
+                    new TracesQuery()
+                        .stepBySecond()
+                        .start(startTime)
+                        .end(LocalDateTime.now(ZoneOffset.UTC))
+                        .orderByStartTime()
+                );
+            } catch (Throwable ignored) {
+            }
         }
 
         startTime = LocalDateTime.now(ZoneOffset.UTC);
 
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl0 + "/e2e/users",
+            instrumentedServiceUrl + "/e2e/users",
             user,
             String.class
         );
@@ -274,13 +277,13 @@ public class ClusterVerificationITCase {
                 .stepBySecond()
                 .start(minutesAgo)
                 .end(now)
-                .orderByDuration()
+                .orderByStartTime()
         );
 
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.traces.yml").getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
-        tracesMatcher.verify(traces);
+        tracesMatcher.verifyLoosely(traces);
     }
 }
