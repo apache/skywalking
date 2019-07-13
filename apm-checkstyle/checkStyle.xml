@@ -107,7 +107,7 @@
 
         <module name="ImportControl">
             <property name="file" value="apm-checkstyle/importControl.xml" />
-            <property name="path" value="apm-sniffer/apm-sdk-plugin/.+/src/main/.+Instrumentation.java$" />
+            <property name="path" value="apm-sniffer/(apm-sdk-plugin|optional-plugins)/.+/src/main/.+Instrumentation.java$" />
         </module>
     </module>
 </module>
