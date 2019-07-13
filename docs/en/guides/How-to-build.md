@@ -65,7 +65,7 @@ a oap image with name `bar/oap:foo`, run the following command
 > HUB=bar TAG=foo make docker.oap
 
 ## Setup your IntelliJ IDEA
-**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**.
+**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
 
 1. Import the project as a maven project
 1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.
