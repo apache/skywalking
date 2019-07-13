@@ -150,11 +150,12 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractTracerContext awaitFinishAsync(AbstractSpan span) {
-        AbstractSpan activeSpan = activeSpan();
+        final AbstractTracerContext context = get();
+        AbstractSpan activeSpan = context.activeSpan();
         if (span != activeSpan) {
             throw new RuntimeException("Span is not the active in current context.");
         }
-        return get().awaitFinishAsync();
+        return context.awaitFinishAsync();
     }
 
     /**
@@ -165,12 +166,20 @@ public class ContextManager implements BootService {
         return get().activeSpan();
     }
 
+    /**
+    * Plese use `ContextManager.stopSpan(span)` if could, it's can "fail-fast"
+    */
     public static void stopSpan() {
-        stopSpan(activeSpan());
+        final AbstractTracerContext context = get();
+        stopSpan(context.activeSpan(),context);
     }
 
     public static void stopSpan(AbstractSpan span) {
-        if (get().stopSpan(span)) {
+        stopSpan(span,get());
+    }
+
+    private static void stopSpan(AbstractSpan span,final AbstractTracerContext context) {
+        if (context.stopSpan(span)) {
             CONTEXT.remove();
             RUNTIME_CONTEXT.remove();
         }
