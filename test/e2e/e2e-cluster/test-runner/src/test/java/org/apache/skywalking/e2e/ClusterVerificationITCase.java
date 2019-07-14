@@ -145,7 +145,11 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
-        List<Service> services = Collections.emptyList();
+        List<Service> services = queryClient.services(
+            new ServicesQuery()
+                .start(minutesAgo)
+                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+        );
         while (services.isEmpty()) {
             LOGGER.warn("services is null, will retry to query");
             services = queryClient.services(
@@ -178,7 +182,12 @@ public class ClusterVerificationITCase {
     }
 
     private Instances verifyServiceInstances(LocalDateTime minutesAgo, Service service) throws Exception {
-        Instances instances = null;
+        Instances instances = queryClient.instances(
+            new InstancesQuery()
+                .serviceId(service.getKey())
+                .start(minutesAgo)
+                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+        );
         while (instances == null) {
             LOGGER.warn("instances is null, will retry to query");
             instances = queryClient.instances(
@@ -197,7 +206,9 @@ public class ClusterVerificationITCase {
     }
 
     private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, Service service) throws Exception {
-        Endpoints endpoints = null;
+        Endpoints endpoints = queryClient.endpoints(
+            new EndpointQuery().serviceId(service.getKey())
+        );
         while (endpoints == null) {
             LOGGER.warn("endpoints is null, will retry to query");
             endpoints = queryClient.endpoints(
@@ -309,7 +320,13 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
-        List<Trace> traces = Collections.emptyList();
+        List<Trace> traces = queryClient.traces(
+            new TracesQuery()
+                .stepBySecond()
+                .start(minutesAgo)
+                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                .orderByStartTime()
+        );
         while (traces.isEmpty()) {
             LOGGER.warn("traces is empty, will retry to query");
             traces = queryClient.traces(
