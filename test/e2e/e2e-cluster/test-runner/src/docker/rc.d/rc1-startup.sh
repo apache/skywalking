@@ -17,7 +17,8 @@
 #!/usr/bin/env bash
 
 echo 'starting OAP server...' \
-    && ES_BULK_ACTIONS=1 \
+    && SW_STORAGE_ES_BULK_ACTIONS=1 \
+    && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
     && start_oap 'init'
 
 echo 'starting Web app...' \
@@ -28,7 +29,8 @@ if test "${MODE}" = "cluster"; then
     echo 'starting OAP server...' \
         && SW_CORE_GRPC_PORT=11801 \
         && SW_CORE_REST_PORT=12801 \
-        && ES_BULK_ACTIONS=1 \
+        && SW_STORAGE_ES_BULK_ACTIONS=1 \
+        && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
         && start_oap 'no-init'
 
     # start another WebApp server in a different port

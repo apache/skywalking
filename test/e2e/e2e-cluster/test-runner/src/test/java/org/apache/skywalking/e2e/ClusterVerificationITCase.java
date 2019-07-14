@@ -81,9 +81,9 @@ public class ClusterVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32775");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32779");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32774");
+        final String instrumentedServicePort = System.getProperty("service.port", "32778");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
@@ -95,24 +95,6 @@ public class ClusterVerificationITCase {
 
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
-
-        List<Service> services = Collections.emptyList();
-        while (services.size() < 2) {
-            try {
-                restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
-                services = queryClient.services(
-                    new ServicesQuery()
-                        .start(startTime)
-                        .end(LocalDateTime.now(ZoneOffset.UTC))
-                );
-            } catch (Throwable ignored) {
-            }
-        }
-
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
             instrumentedServiceUrl + "/e2e/users",
             user,
@@ -148,11 +130,16 @@ public class ClusterVerificationITCase {
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Service> services = queryClient.services(
-            new ServicesQuery()
-                .start(minutesAgo)
-                .end(now)
-        );
+        List<Service> services = Collections.emptyList();
+        while (services.isEmpty()) {
+            LOGGER.warn("services is null, will retry to query");
+            services = queryClient.services(
+                new ServicesQuery()
+                    .start(minutesAgo)
+                    .end(now)
+            );
+            Thread.sleep(500);
+        }
 
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.services.yml").getInputStream();
@@ -176,12 +163,17 @@ public class ClusterVerificationITCase {
     }
 
     private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
-        Instances instances = queryClient.instances(
-            new InstancesQuery()
-                .serviceId(service.getKey())
-                .start(minutesAgo)
-                .end(now)
-        );
+        Instances instances = null;
+        while (instances == null) {
+            LOGGER.warn("instances is null, will retry to query");
+            instances = queryClient.instances(
+                new InstancesQuery()
+                    .serviceId(service.getKey())
+                    .start(minutesAgo)
+                    .end(now)
+            );
+            Thread.sleep(500);
+        }
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
         final InstancesMatcher instancesMatcher = yaml.loadAs(expectedInputStream, InstancesMatcher.class);
@@ -190,9 +182,14 @@ public class ClusterVerificationITCase {
     }
 
     private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
-        Endpoints endpoints = queryClient.endpoints(
-            new EndpointQuery().serviceId(service.getKey())
-        );
+        Endpoints endpoints = null;
+        while (endpoints == null) {
+            LOGGER.warn("endpoints is null, will retry to query");
+            endpoints = queryClient.endpoints(
+                new EndpointQuery().serviceId(service.getKey())
+            );
+            Thread.sleep(500);
+        }
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.endpoints.yml").getInputStream();
         final EndpointsMatcher endpointsMatcher = yaml.loadAs(expectedInputStream, EndpointsMatcher.class);
@@ -204,12 +201,17 @@ public class ClusterVerificationITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
-                final Metrics instanceRespTime = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricsName)
-                        .id(instance.getKey())
-                );
+                Metrics instanceRespTime = null;
+                while (instanceRespTime == null) {
+                    LOGGER.warn("instanceRespTime is null, will retry to query");
+                    instanceRespTime = queryClient.metrics(
+                        new MetricsQuery()
+                            .stepByMinute()
+                            .metricsName(metricsName)
+                            .id(instance.getKey())
+                    );
+                    Thread.sleep(500);
+                }
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -227,14 +229,19 @@ public class ClusterVerificationITCase {
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
-                final Metrics metrics = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricName)
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.UTC))
-                        .id(endpoint.getKey())
-                );
+                Metrics metrics = null;
+                while (metrics == null) {
+                    LOGGER.warn("serviceMetrics is null, will retry to query");
+                    metrics = queryClient.metrics(
+                        new MetricsQuery()
+                            .stepByMinute()
+                            .metricsName(metricName)
+                            .start(minutesAgo)
+                            .end(LocalDateTime.now(ZoneOffset.UTC))
+                            .id(endpoint.getKey())
+                    );
+                    Thread.sleep(500);
+                }
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -248,33 +255,44 @@ public class ClusterVerificationITCase {
     private void verifyServiceMetrics(Service service, final LocalDateTime minutesAgo) throws Exception {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
-            final Metrics instanceRespTime = queryClient.metrics(
-                new MetricsQuery()
-                    .stepByMinute()
-                    .metricsName(metricName)
-                    .start(minutesAgo)
-                    .end(LocalDateTime.now(ZoneOffset.UTC))
-                    .id(service.getKey())
-            );
+
+            Metrics serviceMetrics = null;
+            while (serviceMetrics == null) {
+                LOGGER.warn("serviceMetrics is null, will retry to query");
+                serviceMetrics = queryClient.metrics(
+                    new MetricsQuery()
+                        .stepByMinute()
+                        .metricsName(metricName)
+                        .start(minutesAgo)
+                        .end(LocalDateTime.now(ZoneOffset.UTC))
+                        .id(service.getKey())
+                );
+                Thread.sleep(500);
+            }
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
             instanceRespTimeMatcher.setValue(greaterThanZero);
-            instanceRespTimeMatcher.verify(instanceRespTime);
-            LOGGER.info("instanceRespTime: {}", instanceRespTime);
+            instanceRespTimeMatcher.verify(serviceMetrics);
+            LOGGER.info("serviceMetrics: {}", serviceMetrics);
         }
     }
 
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Trace> traces = queryClient.traces(
-            new TracesQuery()
-                .stepBySecond()
-                .start(minutesAgo)
-                .end(now)
-                .orderByStartTime()
-        );
+        List<Trace> traces = Collections.emptyList();
+        while (traces.isEmpty()) {
+            LOGGER.warn("traces is empty, will retry to query");
+            traces = queryClient.traces(
+                new TracesQuery()
+                    .stepBySecond()
+                    .start(minutesAgo)
+                    .end(now)
+                    .orderByStartTime()
+            );
+            Thread.sleep(500);
+        }
 
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.traces.yml").getInputStream();
