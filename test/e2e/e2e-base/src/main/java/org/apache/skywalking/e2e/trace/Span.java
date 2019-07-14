@@ -27,18 +27,18 @@ import java.util.List;
  */
 @Data
 public class Span {
-  private String traceId;
-  private String segmentId;
-  private int spanId;
-  private int parentSpanId;
-  private String serviceCode;
-  private long startTime;
-  private long endTime;
-  private String endpointName;
-  private String type;
-  private String peer;
-  private String component;
-  private boolean isError;
-  private String layer;
-  private List<String> tags;
+    private String traceId;
+    private String segmentId;
+    private int spanId;
+    private int parentSpanId;
+    private String serviceCode;
+    private long startTime;
+    private long endTime;
+    private String endpointName;
+    private String type;
+    private String peer;
+    private String component;
+    private boolean isError;
+    private String layer;
+    private List<String> tags;
 }

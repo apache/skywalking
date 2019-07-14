@@ -32,19 +32,19 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 @RequestMapping("/e2e")
 public class TestController {
-  private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-  @GetMapping("/health-check")
-  public String hello() {
-    return "healthy";
-  }
+    @GetMapping("/health-check")
+    public String hello() {
+        return "healthy";
+    }
 
-  @PostMapping("/users")
-  public User createAuthor(@RequestBody final User user) throws InterruptedException {
-    Thread.sleep(1000L);
-    final ResponseEntity<User> response = restTemplate.postForEntity(
-        "http://localhost:9090/e2e/users", user, User.class
-    );
-    return response.getBody();
-  }
+    @PostMapping("/users")
+    public User createAuthor(@RequestBody final User user) throws InterruptedException {
+        Thread.sleep(1000L);
+        final ResponseEntity<User> response = restTemplate.postForEntity(
+            "http://localhost:9090/e2e/users", user, User.class
+        );
+        return response.getBody();
+    }
 }
