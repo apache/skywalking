@@ -44,15 +44,15 @@ public class ServiceMatcher extends AbstractMatcher<Service> {
     }
 
     private void verifyKey(Service service) {
-        final String expected = this.getKey();
+        final String expected = getKey();
         final String actual = service.getKey();
 
         doVerify(expected, actual);
     }
 
     private void verifyLabel(Service service) {
-        final String expected = this.getLabel();
-        final String actual = String.valueOf(service.getLabel());
+        final String expected = getLabel();
+        final String actual = service.getLabel();
 
         doVerify(expected, actual);
     }
@@ -71,5 +71,13 @@ public class ServiceMatcher extends AbstractMatcher<Service> {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceMatcher{" +
+            "key='" + key + '\'' +
+            ", label='" + label + '\'' +
+            '}';
     }
 }

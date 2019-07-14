@@ -85,6 +85,11 @@ public class TracesQuery extends AbstractQuery<TracesQuery> {
         return this;
     }
 
+    public TracesQuery orderByStartTime() {
+        this.queryOrder = "BY_START_TIME";
+        return this;
+    }
+
     public TracesQuery pageSize(int pageSize) {
         this.pageSize = String.valueOf(pageSize);
         return this;
