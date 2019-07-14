@@ -23,7 +23,7 @@ import org.apache.skywalking.e2e.verification.AbstractMatcher;
 import java.util.List;
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * A simple matcher to verify the given {@code Service} is expected
@@ -47,22 +47,34 @@ public class TopoMatcher extends AbstractMatcher<TopoData> {
     }
 
     private void verifyNodes(TopoData topoData) {
-        assertThat(topoData.getNodes()).hasSameSizeAs(getNodes());
-
-        int size = getNodes().size();
-
-        for (int i = 0; i < size; i++) {
-            getNodes().get(i).verify(topoData.getNodes().get(i));
+        for (int i = 0; i < getNodes().size(); i++) {
+            boolean matched = false;
+            for (int j = 0; j < topoData.getNodes().size(); j++) {
+                try {
+                    getNodes().get(i).verify(topoData.getNodes().get(j));
+                    matched = true;
+                } catch (Throwable ignored) {
+                }
+            }
+            if (!matched) {
+                fail("Expected: %s\nActual: %s", getNodes(), topoData.getNodes());
+            }
         }
     }
 
     private void verifyCalls(TopoData topoData) {
-        assertThat(topoData.getCalls()).hasSameSizeAs(getCalls());
-
-        int size = getCalls().size();
-
-        for (int i = 0; i < size; i++) {
-            getCalls().get(i).verify(topoData.getCalls().get(i));
+        for (int i = 0; i < getCalls().size(); i++) {
+            boolean matched = false;
+            for (int j = 0; j < topoData.getCalls().size(); j++) {
+                try {
+                    getCalls().get(i).verify(topoData.getCalls().get(j));
+                    matched = true;
+                } catch (Throwable ignored) {
+                }
+            }
+            if (!matched) {
+                fail("Expected: %s\nActual: %s", getCalls(), topoData.getCalls());
+            }
         }
     }
 
@@ -80,5 +92,13 @@ public class TopoMatcher extends AbstractMatcher<TopoData> {
 
     public void setCalls(List<CallMatcher> calls) {
         this.calls = calls;
+    }
+
+    @Override
+    public String toString() {
+        return "TopoMatcher{" +
+            "nodes=" + nodes +
+            ", calls=" + calls +
+            '}';
     }
 }
