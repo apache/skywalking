@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
@@ -77,6 +78,7 @@ public class ClusterVerificationITCase {
 
     private SimpleQueryClient queryClient;
     private String instrumentedServiceUrl;
+    private long retryInterval = TimeUnit.MINUTES.toMillis(1);
 
     @Before
     public void setUp() {
@@ -88,7 +90,7 @@ public class ClusterVerificationITCase {
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 180000)
+    @Test(timeout = 600000)
     @DirtiesContext
     public void verify() throws Exception {
         LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
@@ -151,7 +153,7 @@ public class ClusterVerificationITCase {
                     .start(minutesAgo)
                     .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
-            Thread.sleep(500);
+            Thread.sleep(retryInterval);
         }
 
         InputStream expectedInputStream =
@@ -185,7 +187,7 @@ public class ClusterVerificationITCase {
                     .start(minutesAgo)
                     .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
-            Thread.sleep(500);
+            Thread.sleep(retryInterval);
         }
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
@@ -201,7 +203,7 @@ public class ClusterVerificationITCase {
             endpoints = queryClient.endpoints(
                 new EndpointQuery().serviceId(service.getKey())
             );
-            Thread.sleep(500);
+            Thread.sleep(retryInterval);
         }
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.endpoints.yml").getInputStream();
@@ -226,7 +228,7 @@ public class ClusterVerificationITCase {
                                 .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                                 .id(instance.getKey())
                         );
-                    Thread.sleep(500);
+                    Thread.sleep(retryInterval);
                     AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                     MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                     greaterThanZero.setValue("gt 0");
@@ -261,7 +263,7 @@ public class ClusterVerificationITCase {
                             .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                             .id(endpoint.getKey())
                     );
-                    Thread.sleep(500);
+                    Thread.sleep(retryInterval);
                     AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                     MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                     greaterThanZero.setValue("gt 0");
@@ -291,7 +293,7 @@ public class ClusterVerificationITCase {
                         .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                         .id(service.getKey())
                 );
-                Thread.sleep(500);
+                Thread.sleep(retryInterval);
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -317,7 +319,7 @@ public class ClusterVerificationITCase {
                     .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                     .orderByStartTime()
             );
-            Thread.sleep(500);
+            Thread.sleep(retryInterval);
         }
 
         InputStream expectedInputStream =
