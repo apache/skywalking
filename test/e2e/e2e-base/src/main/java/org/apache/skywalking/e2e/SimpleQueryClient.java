@@ -57,6 +57,10 @@ public class SimpleQueryClient {
 
     private final String endpointUrl;
 
+    public SimpleQueryClient(String host, String port) {
+        this("http://" + host + ":" + port + "/graphql");
+    }
+
     public SimpleQueryClient(String endpointUrl) {
         this.endpointUrl = endpointUrl;
     }
