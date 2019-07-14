@@ -95,6 +95,23 @@ public class ClusterVerificationITCase {
 
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
+        List<Service> services = Collections.emptyList();
+        while (services.size() < 2) {
+            try {
+                restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+                );
+                services = queryClient.services(
+                    new ServicesQuery()
+                        .start(startTime)
+                        .end(LocalDateTime.now(ZoneOffset.UTC))
+                );
+            } catch (Throwable ignored) {
+            }
+        }
+
         final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
             instrumentedServiceUrl + "/e2e/users",
             user,
