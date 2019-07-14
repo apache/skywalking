@@ -96,11 +96,6 @@ public class ClusterVerificationITCase {
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
 
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl + "/e2e/users",
-            user,
-            String.class
-        );
         List<Service> services = Collections.emptyList();
         while (services.size() < 2) {
             try {
@@ -118,10 +113,13 @@ public class ClusterVerificationITCase {
             }
         }
 
+        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+            instrumentedServiceUrl + "/e2e/users",
+            user,
+            String.class
+        );
         LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        Thread.sleep(1000);
 
         verifyTraces(startTime);
 

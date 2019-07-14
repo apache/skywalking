@@ -16,16 +16,19 @@
 
 #!/usr/bin/env bash
 
-echo 'starting OAP server...' && start_oap 'init'
+echo 'starting OAP server...' \
+    && ES_BULK_ACTIONS=1 \
+    && start_oap 'init'
 
-echo 'starting Web app...' && start_webapp '0.0.0.0' 8081
+echo 'starting Web app...' \
+    && start_webapp '0.0.0.0' 8081
 
 if test "${MODE}" = "cluster"; then
     # start another OAP server in a different port
-    SW_CORE_GRPC_PORT=11801 \
+    echo 'starting OAP server...' \
+        && SW_CORE_GRPC_PORT=11801 \
         && SW_CORE_REST_PORT=12801 \
         && ES_BULK_ACTIONS=1 \
-        && echo 'starting OAP server...' \
         && start_oap 'no-init'
 
     # start another WebApp server in a different port
