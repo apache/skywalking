@@ -106,7 +106,7 @@ public class ClusterVerificationITCase {
                 services = queryClient.services(
                     new ServicesQuery()
                         .start(startTime)
-                        .end(LocalDateTime.now(ZoneOffset.UTC))
+                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                 );
             } catch (Throwable ignored) {
             }
@@ -128,13 +128,11 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
-        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-
         final TopoData topoData = queryClient.topo(
             new TopoQuery()
                 .stepByMinute()
                 .start(minutesAgo)
-                .end(now)
+                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
         );
 
         InputStream expectedInputStream =
@@ -145,7 +143,7 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
-        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1);
 
         List<Service> services = Collections.emptyList();
         while (services.isEmpty()) {
@@ -169,17 +167,17 @@ public class ClusterVerificationITCase {
 
             verifyServiceMetrics(service, minutesAgo);
 
-            Instances instances = verifyServiceInstances(minutesAgo, now, service);
+            Instances instances = verifyServiceInstances(minutesAgo, service);
 
             verifyInstancesMetrics(instances, minutesAgo);
 
-            Endpoints endpoints = verifyServiceEndpoints(minutesAgo, now, service);
+            Endpoints endpoints = verifyServiceEndpoints(minutesAgo, service);
 
             verifyEndpointsMetrics(endpoints, minutesAgo);
         }
     }
 
-    private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+    private Instances verifyServiceInstances(LocalDateTime minutesAgo, Service service) throws Exception {
         Instances instances = null;
         while (instances == null) {
             LOGGER.warn("instances is null, will retry to query");
@@ -187,7 +185,7 @@ public class ClusterVerificationITCase {
                 new InstancesQuery()
                     .serviceId(service.getKey())
                     .start(minutesAgo)
-                    .end(now)
+                    .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
             Thread.sleep(500);
         }
@@ -198,7 +196,7 @@ public class ClusterVerificationITCase {
         return instances;
     }
 
-    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, Service service) throws Exception {
         Endpoints endpoints = null;
         while (endpoints == null) {
             LOGGER.warn("endpoints is null, will retry to query");
@@ -298,8 +296,6 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
-        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-
         List<Trace> traces = Collections.emptyList();
         while (traces.isEmpty()) {
             LOGGER.warn("traces is empty, will retry to query");
@@ -307,7 +303,7 @@ public class ClusterVerificationITCase {
                 new TracesQuery()
                     .stepBySecond()
                     .start(minutesAgo)
-                    .end(now)
+                    .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                     .orderByStartTime()
             );
             Thread.sleep(500);
