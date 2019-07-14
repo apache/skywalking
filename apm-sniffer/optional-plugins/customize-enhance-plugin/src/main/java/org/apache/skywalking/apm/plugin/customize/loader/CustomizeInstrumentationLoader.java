@@ -41,7 +41,7 @@ import java.util.Set;
 
 public class CustomizeInstrumentationLoader implements InstrumentationLoader {
 
-    private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
+    private static final ILog logger = LogManager.getLogger(CustomizeInstrumentationLoader.class);
 
     @Override
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
