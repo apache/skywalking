@@ -133,7 +133,7 @@ public class ClusterVerificationITCase {
         final TopoData topoData = queryClient.topo(
             new TopoQuery()
                 .stepByMinute()
-                .start(minutesAgo.minusDays(1))
+                .start(minutesAgo)
                 .end(now)
         );
 
@@ -225,6 +225,8 @@ public class ClusterVerificationITCase {
                         new MetricsQuery()
                             .stepByMinute()
                             .metricsName(metricsName)
+                            .start(minutesAgo)
+                            .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                             .id(instance.getKey())
                     );
                     Thread.sleep(500);
@@ -254,7 +256,7 @@ public class ClusterVerificationITCase {
                             .stepByMinute()
                             .metricsName(metricName)
                             .start(minutesAgo)
-                            .end(LocalDateTime.now(ZoneOffset.UTC))
+                            .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                             .id(endpoint.getKey())
                     );
                     Thread.sleep(500);
@@ -281,7 +283,7 @@ public class ClusterVerificationITCase {
                         .stepByMinute()
                         .metricsName(metricName)
                         .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.UTC))
+                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                         .id(service.getKey())
                 );
                 Thread.sleep(500);
