@@ -88,10 +88,10 @@ public class ClusterVerificationITCase {
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 300000)
+    @Test(timeout = 180000)
     @DirtiesContext
     public void verify() throws Exception {
-        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1);
 
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
@@ -143,15 +143,13 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
-        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1);
-
         List<Service> services = Collections.emptyList();
         while (services.isEmpty()) {
             LOGGER.warn("services is null, will retry to query");
             services = queryClient.services(
                 new ServicesQuery()
                     .start(minutesAgo)
-                    .end(now)
+                    .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
             Thread.sleep(500);
         }
