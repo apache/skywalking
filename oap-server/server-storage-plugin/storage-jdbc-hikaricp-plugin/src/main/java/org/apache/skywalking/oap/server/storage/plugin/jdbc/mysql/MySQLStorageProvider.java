@@ -44,7 +44,7 @@ import org.slf4j.*;
  */
 public class MySQLStorageProvider extends ModuleProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(H2StorageProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(MySQLStorageProvider.class);
 
     private H2StorageConfig config;
     private JDBCHikariCPClient mysqlClient;
