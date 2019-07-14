@@ -38,6 +38,11 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int maxConcurrentCallsPerConnection;
     @Setter private int maxMessageSize;
     private final List<String> downsampling;
+    /**
+     * The period of doing data persistence.
+     * Unit is second.
+     */
+    @Setter private long persistentPeriod = 3;
     @Setter private boolean enableDataKeeperExecutor = true;
     @Setter private int recordDataTTL;
     @Setter private int minuteMetricsDataTTL;
