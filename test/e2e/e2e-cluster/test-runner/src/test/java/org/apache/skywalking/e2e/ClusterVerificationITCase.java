@@ -90,7 +90,7 @@ public class ClusterVerificationITCase {
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 600000)
+    @Test(timeout = 1200000)
     @DirtiesContext
     public void verify() throws Exception {
         LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
