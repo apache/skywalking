@@ -402,9 +402,7 @@ public class TracingContext implements AbstractTracerContext {
             throw new IllegalStateException("Stopping the unexpected span = " + span);
         }
 
-        if (checkFinishConditions()) {
-            finish();
-        }
+        finishIf();
 
         return activeSpanStack.isEmpty();
     }
@@ -426,17 +424,16 @@ public class TracingContext implements AbstractTracerContext {
     @Override public void asyncStop(AsyncSpan span) {
         asyncSpanCounter.addAndGet(-1);
 
-        if (checkFinishConditions()) {
-            finish();
-        }
+        finishIf();
     }
 
-    private boolean checkFinishConditions() {
+    private boolean finishIf() {
         if (isRunningInAsyncMode) {
             asyncFinishLock.lock();
         }
         try {
             if (activeSpanStack.isEmpty() && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
+                finish();
                 return true;
             }
         } finally {
