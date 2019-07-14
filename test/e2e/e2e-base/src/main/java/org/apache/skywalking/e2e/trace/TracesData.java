@@ -24,26 +24,26 @@ import java.util.List;
  * @author kezhenxu94
  */
 public class TracesData {
-  public static class Traces {
-    private List<Trace> data;
+    public static class Traces {
+        private List<Trace> data;
 
-    public List<Trace> getData() {
-      return data;
+        public List<Trace> getData() {
+            return data;
+        }
+
+        public Traces setData(List<Trace> data) {
+            this.data = data;
+            return this;
+        }
     }
 
-    public Traces setData(List<Trace> data) {
-      this.data = data;
-      return this;
+    private Traces traces;
+
+    public Traces getTraces() {
+        return traces;
     }
-  }
 
-  private Traces traces;
-
-  public Traces getTraces() {
-    return traces;
-  }
-
-  public void setTraces(final Traces traces) {
-    this.traces = traces;
-  }
+    public void setTraces(final Traces traces) {
+        this.traces = traces;
+    }
 }
