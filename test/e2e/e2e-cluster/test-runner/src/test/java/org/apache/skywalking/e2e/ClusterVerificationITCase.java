@@ -239,7 +239,6 @@ public class ClusterVerificationITCase {
                                 .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                                 .id(instance.getKey())
                         );
-                    Thread.sleep(retryInterval);
                     AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                     MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                     greaterThanZero.setValue("gt 0");
@@ -248,6 +247,7 @@ public class ClusterVerificationITCase {
                         instanceRespTimeMatcher.verify(instanceRespTime);
                         matched = true;
                     } catch (Throwable ignored) {
+                        Thread.sleep(retryInterval);
                     }
                     LOGGER.info("{}: {}", metricsName, instanceRespTime);
                 }
@@ -274,7 +274,6 @@ public class ClusterVerificationITCase {
                             .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                             .id(endpoint.getKey())
                     );
-                    Thread.sleep(retryInterval);
                     AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                     MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                     greaterThanZero.setValue("gt 0");
@@ -283,6 +282,7 @@ public class ClusterVerificationITCase {
                         instanceRespTimeMatcher.verify(metrics);
                         matched = true;
                     } catch (Throwable ignored) {
+                        Thread.sleep(retryInterval);
                     }
                     LOGGER.info("metrics: {}", metrics);
                 }
@@ -304,7 +304,6 @@ public class ClusterVerificationITCase {
                         .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                         .id(service.getKey())
                 );
-                Thread.sleep(retryInterval);
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -313,6 +312,7 @@ public class ClusterVerificationITCase {
                     instanceRespTimeMatcher.verify(serviceMetrics);
                     matched = true;
                 } catch (Throwable ignored) {
+                    Thread.sleep(retryInterval);
                 }
                 LOGGER.info("serviceMetrics: {}", serviceMetrics);
             }
