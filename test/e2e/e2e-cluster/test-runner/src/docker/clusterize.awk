@@ -17,47 +17,47 @@
 #!/usr/bin/awk -f
 
 BEGIN {
-	in_cluster_section=0;
-	in_cluster_zk_section=0;
+    in_cluster_section=0;
+    in_cluster_zk_section=0;
 
-	in_storage_section=0;
-	in_storage_es_section=0;
-	in_storage_h2_section=0;
+    in_storage_section=0;
+    in_storage_es_section=0;
+    in_storage_h2_section=0;
 }
 
 {
-	if (in_cluster_section == 0) {
-		in_cluster_section=$0 ~ /^cluster:$/
-	} else {
-		in_cluster_section=$0 ~ /^(#|\s{2})/
-	}
-	if (in_storage_section == 0) {
-		in_storage_section=$0 ~ /^storage:$/
-	} else {
-		in_storage_section=$0 ~ /^(#|\s{2})/
-	}
+    if (in_cluster_section == 0) {
+        in_cluster_section=$0 ~ /^cluster:$/
+    } else {
+        in_cluster_section=$0 ~ /^(#|\s{2})/
+    }
+    if (in_storage_section == 0) {
+        in_storage_section=$0 ~ /^storage:$/
+    } else {
+        in_storage_section=$0 ~ /^(#|\s{2})/
+    }
 
-	if (in_cluster_section == 1) {
-		# in the cluster: section now
-		# disable standalone module
-		if ($0 ~ /^  standalone:$/) {
-			print "#" $0
-		} else {
-			if (in_cluster_zk_section == 0) {
-				in_cluster_zk_section=$0 ~ /^#?\s+zookeeper:$/
-			} else {
-				in_cluster_zk_section=$0 ~ /^(#\s{4}|\s{2})/
-			}
-			if (in_cluster_zk_section == 1) {
-				# in the cluster.zookeeper section now
-				# uncomment zk config
-				gsub("^#", "", $0)
-				print
-			} else {
-				print
-			}
-		}
-	} else if (in_storage_section == 1) {
+    if (in_cluster_section == 1) {
+        # in the cluster: section now
+        # disable standalone module
+        if ($0 ~ /^  standalone:$/) {
+            print "#" $0
+        } else {
+            if (in_cluster_zk_section == 0) {
+                in_cluster_zk_section=$0 ~ /^#?\s+zookeeper:$/
+            } else {
+                in_cluster_zk_section=$0 ~ /^(#\s{4}|\s{2})/
+            }
+            if (in_cluster_zk_section == 1) {
+                # in the cluster.zookeeper section now
+                # uncomment zk config
+                gsub("^#", "", $0)
+                print
+            } else {
+                print
+            }
+        }
+    } else if (in_storage_section == 1) {
         # in the storage: section now
         # disable h2 module
         if (in_storage_es_section == 0) {
@@ -86,7 +86,7 @@ BEGIN {
             print
         }
     } else {
-		print
-	}
+        print
+    }
 }
 

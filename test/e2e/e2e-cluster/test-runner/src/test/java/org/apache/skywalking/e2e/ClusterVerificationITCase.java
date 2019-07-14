@@ -91,7 +91,7 @@ public class ClusterVerificationITCase {
     @Test(timeout = 180000)
     @DirtiesContext
     public void verify() throws Exception {
-        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1);
+        LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
 
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");

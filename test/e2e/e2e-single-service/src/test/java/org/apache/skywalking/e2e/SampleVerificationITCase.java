@@ -72,6 +72,8 @@ public class SampleVerificationITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleVerificationITCase.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final int retryTimes = 5;
+    private final int retryInterval = 30;
 
     private SimpleQueryClient queryClient;
     private String instrumentedServiceUrl;
@@ -100,13 +102,29 @@ public class SampleVerificationITCase {
         );
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Thread.sleep(20000);
+        doRetryableVerification(() -> {
+            try {
+                verifyTraces(minutesAgo);
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        });
 
-        verifyTraces(minutesAgo);
+        doRetryableVerification(() -> {
+            try {
+                verifyServices(minutesAgo);
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        });
 
-        verifyServices(minutesAgo);
-
-        verifyTopo(minutesAgo);
+        doRetryableVerification(() -> {
+            try {
+                verifyTopo(minutesAgo);
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        });
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
@@ -258,5 +276,16 @@ public class SampleVerificationITCase {
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verify(traces);
+    }
+
+    private void doRetryableVerification(Runnable runnable) throws InterruptedException {
+        for (int i = 0; i < retryTimes; i++) {
+            try {
+                runnable.run();
+                break;
+            } catch (Throwable ignored) {
+                Thread.sleep(retryInterval);
+            }
+        }
     }
 }
