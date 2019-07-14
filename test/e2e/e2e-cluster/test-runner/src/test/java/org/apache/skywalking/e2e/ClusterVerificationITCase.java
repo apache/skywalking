@@ -81,9 +81,9 @@ public class ClusterVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32779");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32791");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32778");
+        final String instrumentedServicePort = System.getProperty("service.port", "32790");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
@@ -216,25 +216,30 @@ public class ClusterVerificationITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
-                Metrics instanceRespTime = null;
-                while (instanceRespTime == null) {
+
+                boolean matched = false;
+                while (!matched) {
                     LOGGER.warn("instanceRespTime is null, will retry to query");
-                    instanceRespTime = queryClient.metrics(
-                        new MetricsQuery()
-                            .stepByMinute()
-                            .metricsName(metricsName)
-                            .start(minutesAgo)
-                            .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                            .id(instance.getKey())
-                    );
+                    Metrics instanceRespTime = queryClient.metrics(
+                            new MetricsQuery()
+                                .stepByMinute()
+                                .metricsName(metricsName)
+                                .start(minutesAgo)
+                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                                .id(instance.getKey())
+                        );
                     Thread.sleep(500);
+                    AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    try {
+                        instanceRespTimeMatcher.verify(instanceRespTime);
+                        matched = true;
+                    } catch (Throwable ignored) {
+                    }
+                    LOGGER.info("{}: {}", metricsName, instanceRespTime);
                 }
-                AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-                MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-                greaterThanZero.setValue("gt 0");
-                instanceRespTimeMatcher.setValue(greaterThanZero);
-                instanceRespTimeMatcher.verify(instanceRespTime);
-                LOGGER.info("{}: {}", metricsName, instanceRespTime);
             }
         }
     }
@@ -246,10 +251,11 @@ public class ClusterVerificationITCase {
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
-                Metrics metrics = null;
-                while (metrics == null) {
+
+                boolean matched = false;
+                while (!matched) {
                     LOGGER.warn("serviceMetrics is null, will retry to query");
-                    metrics = queryClient.metrics(
+                    Metrics metrics = queryClient.metrics(
                         new MetricsQuery()
                             .stepByMinute()
                             .metricsName(metricName)
@@ -258,13 +264,17 @@ public class ClusterVerificationITCase {
                             .id(endpoint.getKey())
                     );
                     Thread.sleep(500);
+                    AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    try {
+                        instanceRespTimeMatcher.verify(metrics);
+                        matched = true;
+                    } catch (Throwable ignored) {
+                    }
+                    LOGGER.info("metrics: {}", metrics);
                 }
-                AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-                MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-                greaterThanZero.setValue("gt 0");
-                instanceRespTimeMatcher.setValue(greaterThanZero);
-                instanceRespTimeMatcher.verify(metrics);
-                LOGGER.info("metrics: {}", metrics);
             }
         }
     }
@@ -273,10 +283,9 @@ public class ClusterVerificationITCase {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
 
-            Metrics serviceMetrics = null;
-            while (serviceMetrics == null) {
-                LOGGER.warn("serviceMetrics is null, will retry to query");
-                serviceMetrics = queryClient.metrics(
+            boolean matched = false;
+            while (!matched) {
+                Metrics serviceMetrics = queryClient.metrics(
                     new MetricsQuery()
                         .stepByMinute()
                         .metricsName(metricName)
@@ -285,13 +294,17 @@ public class ClusterVerificationITCase {
                         .id(service.getKey())
                 );
                 Thread.sleep(500);
+                AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                greaterThanZero.setValue("gt 0");
+                instanceRespTimeMatcher.setValue(greaterThanZero);
+                try {
+                    instanceRespTimeMatcher.verify(serviceMetrics);
+                    matched = true;
+                } catch (Throwable ignored) {
+                }
+                LOGGER.info("serviceMetrics: {}", serviceMetrics);
             }
-            AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-            MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-            greaterThanZero.setValue("gt 0");
-            instanceRespTimeMatcher.setValue(greaterThanZero);
-            instanceRespTimeMatcher.verify(serviceMetrics);
-            LOGGER.info("serviceMetrics: {}", serviceMetrics);
         }
     }
 
