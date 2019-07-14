@@ -78,7 +78,7 @@ public class ClusterVerificationITCase {
 
     private SimpleQueryClient queryClient;
     private String instrumentedServiceUrl;
-    private long retryInterval = TimeUnit.MINUTES.toMillis(1);
+    private long retryInterval = TimeUnit.SECONDS.toMillis(30);
 
     @Before
     public void setUp() {
