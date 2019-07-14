@@ -65,6 +65,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
                     <containerNamePattern>%a-%t-%i</containerNamePattern>
+                    <imagePullPolicy>Always</imagePullPolicy>
                     <images>
                         <image>
                             <name>elastic/elasticsearch:${elasticsearch.version}</name>
