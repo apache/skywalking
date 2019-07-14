@@ -55,6 +55,7 @@
     <properties>
         <service0.name>provider</service0.name>
         <service1.name>consumer</service1.name>
+        <e2e.container.version>1.1</e2e.container.version>
     </properties>
 
     <build>
@@ -99,8 +100,7 @@
                             </run>
                         </image>
                         <image>
-                            <!-- TODO: use skyapm -->
-                            <name>kezhenxu94/e2e-container:${e2e.container.version}</name>
+                            <name>skyapm/e2e-container:${e2e.container.version}</name>
                             <alias>skywalking-e2e-container-${build.id}</alias>
                             <run>
                                 <env>
