@@ -32,8 +32,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class EtcdServerSettings extends ModuleConfig {
 
     private String clusterName = "default";
+    /**
+     * etcd cluster address, like "10.10.10.1:2379, 10.10.10.2:2379,10.10.10.3.2379".
+     */
     private String serverAddr;
+
+    /**
+     * directory for configuration
+     */
     private String group;
+
     private int period = 60;
 
 }

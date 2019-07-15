@@ -42,8 +42,14 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     private final static Logger logger = LoggerFactory.getLogger(EtcdConfigWatcherRegister.class);
 
+    /**
+     * server settings for Etcd configuration
+     */
     private EtcdServerSettings settings;
 
+    /**
+     * etcd client.
+     */
     private final EtcdClient client;
 
     private final Map<String, ResponsePromise.IsSimplePromiseResponseHandler> listenersByKey;
@@ -123,7 +129,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             String dataId = getRealKey(node.getKey(), settings.getGroup());
             String value = node.getValue();
             if (logger.isInfoEnabled()) {
-                logger.info("Nacos config changed: {}: {}", dataId, node.getValue());
+                logger.info("Etcd config changed: {}: {}", dataId, node.getValue());
             }
 
             configItemKeyedByName.put(dataId, Optional.ofNullable(value));
@@ -133,10 +139,16 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
                     return;
                 }
             }
-            throw new EtcdConfigException("wait for value chanaged fail", e);
+            throw new EtcdConfigException("wait for value changed fail", e);
         }
     }
 
+    /**
+     * get real key in etcd cluster which is removed "/${group}" from the key retrived from etcd.
+     * @param key
+     * @param group
+     * @return
+     */
     private String getRealKey(String key, String group) {
         int index = key.indexOf(group);
         if (index <= 0) {

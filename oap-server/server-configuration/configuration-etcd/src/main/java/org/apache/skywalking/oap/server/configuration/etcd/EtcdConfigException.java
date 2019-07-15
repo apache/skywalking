@@ -19,28 +19,15 @@
 package org.apache.skywalking.oap.server.configuration.etcd;
 
 /**
+ * exception type throw by Etcd Configuration.
+ *
  * @author Alan Lau
  */
 public class EtcdConfigException extends RuntimeException {
 
-    public EtcdConfigException() {
-        super();
-    }
-
-    public EtcdConfigException(String message) {
-        super(message);
-    }
 
     public EtcdConfigException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public EtcdConfigException(Throwable cause) {
-        super(cause);
-    }
-
-    protected EtcdConfigException(String message, Throwable cause, boolean enableSuppression,
-        boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

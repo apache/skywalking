@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Get Configuration from etcd.
+ *
  * @author Alan Lau
  */
 public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
