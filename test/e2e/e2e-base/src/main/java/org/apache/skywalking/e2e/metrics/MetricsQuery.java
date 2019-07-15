@@ -29,16 +29,35 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_P90 = "service_p90";
     public static String SERVICE_P75 = "service_p75";
     public static String SERVICE_P50 = "service_p50";
+    public static String[] ALL_SERVICE_METRICS = {
+        SERVICE_P99,
+        SERVICE_P95,
+        SERVICE_P90,
+        SERVICE_P75,
+        SERVICE_P50
+    };
 
     public static String ENDPOINT_P99 = "endpoint_p99";
     public static String ENDPOINT_P95 = "endpoint_p95";
     public static String ENDPOINT_P90 = "endpoint_p90";
     public static String ENDPOINT_P75 = "endpoint_p75";
     public static String ENDPOINT_P50 = "endpoint_p50";
+    public static String[] ALL_ENDPOINT_METRICS = {
+        ENDPOINT_P99,
+        ENDPOINT_P95,
+        ENDPOINT_P90,
+        ENDPOINT_P75,
+        ENDPOINT_P50
+    };
 
     public static String SERVICE_INSTANCE_RESP_TIME = "service_instance_resp_time";
     public static String SERVICE_INSTANCE_CPM = "service_instance_cpm";
     public static String SERVICE_INSTANCE_SLA = "service_instance_sla";
+    public static String[] ALL_INSTANCE_METRICS = {
+        SERVICE_INSTANCE_RESP_TIME,
+        SERVICE_INSTANCE_CPM,
+        SERVICE_INSTANCE_SLA
+    };
 
     private String id;
     private String metricsName;

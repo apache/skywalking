@@ -31,10 +31,12 @@ public class Trace {
     private String start;
     private boolean isError;
     private final List<String> traceIds;
+    private final List<Span> spans;
 
     public Trace() {
         this.endpointNames = new ArrayList<>();
         this.traceIds = new ArrayList<>();
+        this.spans = new ArrayList<>();
     }
 
     public String getKey() {
@@ -79,6 +81,10 @@ public class Trace {
 
     public List<String> getTraceIds() {
         return traceIds;
+    }
+
+    public List<Span> getSpans() {
+        return spans;
     }
 
     @Override
