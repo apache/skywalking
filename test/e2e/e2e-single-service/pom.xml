@@ -72,7 +72,7 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <containerNamePattern>%a-%t</containerNamePattern>
+                    <containerNamePattern>%a-%t-%i</containerNamePattern>
                     <images>
                         <image>
                             <name>skyapm/e2e-container:${e2e.container.version}</name>

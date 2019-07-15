@@ -101,4 +101,14 @@ public class CallMatcher extends AbstractMatcher<Call> {
     public void setTarget(String target) {
         this.target = target;
     }
+
+    @Override
+    public String toString() {
+        return "CallMatcher{" +
+            "id='" + id + '\'' +
+            ", source='" + source + '\'' +
+            ", detectPoints=" + detectPoints +
+            ", target='" + target + '\'' +
+            '}';
+    }
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage;
 import java.util.*;
 import java.util.concurrent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -45,11 +46,8 @@ public enum PersistenceTimer {
         this.debug = System.getProperty("debug") != null;
     }
 
-    public void start(ModuleManager moduleManager) {
+    public void start(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         logger.info("persistence timer start");
-        //TODO timer value config
-//        final long timeInterval = EsConfig.Es.Persistence.Timer.VALUE * 1000;
-        final long timeInterval = 3;
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -63,7 +61,7 @@ public enum PersistenceTimer {
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO),
-                    t -> logger.error("Extract data and save failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+                    t -> logger.error("Extract data and save failure.", t)), 1, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
 
             this.isStarted = true;
         }
