@@ -36,7 +36,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
 
     private final ClusterModuleZookeeperConfig config;
     private final ServiceDiscovery<RemoteInstance> serviceDiscovery;
-    private volatile ServiceCache<RemoteInstance> serviceCache;
+    private final ServiceCache<RemoteInstance> serviceCache;
     private volatile Address selfAddress;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config, ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {

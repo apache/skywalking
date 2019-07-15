@@ -18,17 +18,17 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
-import org.apache.curator.test.TestingServer;
+import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.junit.After;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,30 +39,26 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author: zhangwei
  */
-public class ClusterModuleZookeeperProviderFunctionalTest {
+public class ITClusterModuleZookeeperProviderFunctionalTest {
 
-    private TestingServer server;
+    private String zkAddress;
 
     @Before
-    public void before() throws Exception {
-        server = new TestingServer(12181, true);
-        server.start();
-    }
-
-    @After
-    public void after() throws IOException {
-        server.stop();
+    public void before() {
+        zkAddress = System.getProperty("zk.address");
+        assertFalse(StringUtil.isEmpty(zkAddress));
     }
 
     @Test
     public void registerRemote() throws Exception {
-        ClusterModuleZookeeperProvider provider = createProvider("register_remote");
+        final String namespace = "register_remote";
+        ModuleProvider provider = createProvider(namespace);
 
         Address selfAddress = new Address("127.0.0.1", 1000, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
         getClusterRegister(provider).registerRemote(instance);
 
-        List<RemoteInstance> remoteInstances = queryRemoteNodes(getClusterNodesQuery(provider), 1);
+        List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(selfAddress, queryAddress);
@@ -71,14 +67,15 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
 
     @Test
     public void registerRemoteOfInternal() throws Exception {
-        ClusterModuleZookeeperProvider provider =
-            createProvider("register_remote_internal", "127.0.1.2", 1000);
+        final String namespace = "register_remote_internal";
+        ModuleProvider provider =
+            createProvider(namespace, "127.0.1.2", 1000);
 
         Address selfAddress = new Address("127.0.0.2", 1000, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
         getClusterRegister(provider).registerRemote(instance);
 
-        List<RemoteInstance> remoteInstances = queryRemoteNodes(getClusterNodesQuery(provider), 1);
+        List<RemoteInstance> remoteInstances = queryRemoteNodes(provider, 1);
 
         ClusterModuleZookeeperConfig config = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
         assertEquals(1, remoteInstances.size());
@@ -90,8 +87,9 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
 
     @Test
     public void registerRemoteOfReceiver() throws Exception {
-        ClusterModuleZookeeperProvider providerA = createProvider("register_remote_receiver");
-        ClusterModuleZookeeperProvider providerB = createProvider("register_remote_receiver");
+        final String namespace = "register_remote_receiver";
+        ModuleProvider providerA = createProvider(namespace);
+        ModuleProvider providerB = createProvider(namespace);
 
         // Mixed or Aggregator
         Address selfAddress = new Address("127.0.0.3", 1000, true);
@@ -99,7 +97,7 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
         getClusterRegister(providerA).registerRemote(instance);
 
         // Receiver
-        List<RemoteInstance> remoteInstances = queryRemoteNodes(getClusterNodesQuery(providerB), 1);
+        List<RemoteInstance> remoteInstances = queryRemoteNodes(providerB, 1);
         assertEquals(1, remoteInstances.size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(selfAddress, queryAddress);
@@ -108,8 +106,9 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
 
     @Test
     public void registerRemoteOfCluster() throws Exception {
-        ClusterModuleZookeeperProvider providerA = createProvider("register_remote_cluster");
-        ClusterModuleZookeeperProvider providerB = createProvider("register_remote_cluster");
+        final String namespace = "register_remote_cluster";
+        ModuleProvider providerA = createProvider(namespace);
+        ModuleProvider providerB = createProvider(namespace);
 
         Address addressA = new Address("127.0.0.4", 1000, true);
         Address addressB = new Address("127.0.0.5", 1000, true);
@@ -120,11 +119,45 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
         getClusterRegister(providerA).registerRemote(instanceA);
         getClusterRegister(providerB).registerRemote(instanceB);
 
-        List<RemoteInstance> remoteInstancesOfA = queryRemoteNodes(getClusterNodesQuery(providerA), 2);
+        List<RemoteInstance> remoteInstancesOfA = queryRemoteNodes(providerA, 2);
         validateServiceInstance(addressA, addressB, remoteInstancesOfA);
 
-        List<RemoteInstance> remoteInstancesOfB = queryRemoteNodes(getClusterNodesQuery(providerB), 2);
+        List<RemoteInstance> remoteInstancesOfB = queryRemoteNodes(providerB, 2);
         validateServiceInstance(addressB, addressA, remoteInstancesOfB);
+    }
+
+    @Test
+    public void unregisterRemoteOfCluster() throws Exception {
+        final String namespace = "unregister_remote_cluster";
+        ModuleProvider providerA = createProvider(namespace);
+        ModuleProvider providerB = createProvider(namespace);
+
+        Address addressA = new Address("127.0.0.4", 1000, true);
+        Address addressB = new Address("127.0.0.5", 1000, true);
+
+        RemoteInstance instanceA = new RemoteInstance(addressA);
+        RemoteInstance instanceB = new RemoteInstance(addressB);
+
+        getClusterRegister(providerA).registerRemote(instanceA);
+        getClusterRegister(providerB).registerRemote(instanceB);
+
+        List<RemoteInstance> remoteInstancesOfA = queryRemoteNodes(providerA, 2);
+        validateServiceInstance(addressA, addressB, remoteInstancesOfA);
+
+        List<RemoteInstance> remoteInstancesOfB = queryRemoteNodes(providerB, 2);
+        validateServiceInstance(addressB, addressA, remoteInstancesOfB);
+
+        // unregister A
+        ClusterRegister register = getClusterRegister(providerA);
+        ServiceDiscovery<RemoteInstance> discoveryA = Whitebox.getInternalState(register, "serviceDiscovery");
+        discoveryA.close();
+
+        // only B
+        remoteInstancesOfB = queryRemoteNodes(providerB, 1, 120);
+        assertEquals(1, remoteInstancesOfB.size());
+        Address address = remoteInstancesOfB.get(0).getAddress();
+        assertEquals(address, addressB);
+        assertTrue(addressB.isSelf());
     }
 
     private ClusterModuleZookeeperProvider createProvider(String namespace) throws Exception {
@@ -135,7 +168,7 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
 
         ClusterModuleZookeeperConfig moduleConfig = (ClusterModuleZookeeperConfig) provider.createConfigBeanIfAbsent();
-        moduleConfig.setHostPort(server.getConnectString());
+        moduleConfig.setHostPort(zkAddress);
         moduleConfig.setBaseSleepTimeMs(3000);
         moduleConfig.setMaxRetries(3);
 
@@ -158,24 +191,27 @@ public class ClusterModuleZookeeperProviderFunctionalTest {
         return provider;
     }
 
-    private ClusterRegister getClusterRegister(ClusterModuleZookeeperProvider provider) {
+    private ClusterRegister getClusterRegister(ModuleProvider provider) {
         return provider.getService(ClusterRegister.class);
     }
 
-    private ClusterNodesQuery getClusterNodesQuery(ClusterModuleZookeeperProvider provider) {
+    private ClusterNodesQuery getClusterNodesQuery(ModuleProvider provider) {
         return provider.getService(ClusterNodesQuery.class);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ClusterNodesQuery clusterNodesQuery, int goals) throws InterruptedException {
-        int i = 20;
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals) throws InterruptedException {
+        return queryRemoteNodes(provider, goals, 20);
+    }
+
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals, int cyclic) throws InterruptedException {
         do {
-            List<RemoteInstance> instances = clusterNodesQuery.queryRemoteNodes();
+            List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
             if (instances.size() == goals) {
                 return instances;
             } else {
                 Thread.sleep(1000);
             }
-        } while (--i > 0);
+        } while (--cyclic > 0);
         return Collections.EMPTY_LIST;
     }
 
