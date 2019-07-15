@@ -18,23 +18,28 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import org.apache.curator.test.TestingServer;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.apache.curator.test.TestingServer;
-import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.junit.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author peng-yongsheng zhang-wei
+ * @author: zhangwei
  */
-public class ClusterModuleZookeeperProviderTestCase {
+public class ClusterModelZookeeperProviderFunctionalTest {
 
     private TestingServer server;
 
@@ -43,7 +48,6 @@ public class ClusterModuleZookeeperProviderTestCase {
         server = new TestingServer(12181, true);
         server.start();
     }
-
 
     @After
     public void after() throws IOException {
@@ -149,6 +153,7 @@ public class ClusterModuleZookeeperProviderTestCase {
 
         provider.prepare();
         provider.start();
+        provider.notifyAfterCompleted();
 
         return provider;
     }
