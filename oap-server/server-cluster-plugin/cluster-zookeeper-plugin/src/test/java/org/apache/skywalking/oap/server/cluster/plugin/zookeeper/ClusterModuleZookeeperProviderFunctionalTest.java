@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author: zhangwei
  */
-public class ClusterModelZookeeperProviderFunctionalTest {
+public class ClusterModuleZookeeperProviderFunctionalTest {
 
     private TestingServer server;
 

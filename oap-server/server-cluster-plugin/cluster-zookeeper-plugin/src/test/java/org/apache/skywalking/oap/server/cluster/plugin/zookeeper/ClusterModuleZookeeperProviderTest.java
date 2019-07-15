@@ -34,7 +34,7 @@ public class ClusterModuleZookeeperProviderTest {
 
     @Test
     public void name() {
-        assertEquals("zookeeper", provider);
+        assertEquals("zookeeper", provider.name());
     }
 
     @Test
@@ -51,6 +51,6 @@ public class ClusterModuleZookeeperProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = provider.requiredModules();
-        assertEquals(1, modules.length);
+        assertEquals(0, modules.length);
     }
 }
