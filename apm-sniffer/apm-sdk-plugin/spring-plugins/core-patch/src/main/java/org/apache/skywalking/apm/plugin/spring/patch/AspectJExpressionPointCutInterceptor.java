@@ -18,28 +18,29 @@
 package org.apache.skywalking.apm.plugin.spring.patch;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
 
 /**
- * {@link AopExpressionMatchInterceptor} check if the method is match the enhanced method
+ * {@link AspectJExpressionPointCutInterceptor} check if the method is match the enhanced method
  * if yes,return false else return true;
  *
  * @author lican
  */
-public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterceptor {
+public class AspectJExpressionPointCutInterceptor implements InstanceMethodsAroundInterceptor {
+
 
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
 
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
-        Method targetAopMethod = (Method) allArguments[1];
-        Class<?> targetAopClass = (Class<?>) allArguments[2];
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        Method targetAopMethod = (Method) allArguments[0];
+        Class<?> targetAopClass = (Class<?>) allArguments[1];
         if (targetAopClass != null && EnhancedInstance.class.isAssignableFrom(targetAopClass) && MatchUtil.isEnhancedMethod(targetAopMethod)) {
             return false;
         }
@@ -47,9 +48,7 @@ public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterce
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                                      Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
 
     }
-
 }
