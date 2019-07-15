@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author kezhenxu94
@@ -44,10 +45,25 @@ public class ServicesMatcher {
     public void verify(final List<Service> services) {
         assertThat(services).hasSameSizeAs(this.getServices());
 
-        int size = this.getServices().size();
-
-        for (int i = 0; i < size; i++) {
-            this.getServices().get(i).verify(services.get(i));
+        for (int i = 0; i < getServices().size(); i++) {
+            boolean matched = false;
+            for (Service service : services) {
+                try {
+                    this.getServices().get(i).verify(service);
+                    matched = true;
+                } catch (Throwable ignored) {
+                }
+            }
+            if (!matched) {
+                fail("Expected: %s\nActual: %s", getServices(), services);
+            }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ServicesMatcher{" +
+            "services=" + services +
+            '}';
     }
 }
