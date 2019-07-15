@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author kezhenxu94
  */
 public class NacosConfigurationTestProvider extends ModuleProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurationProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurationTestProvider.class);
 
     ConfigChangeWatcher watcher;
 
