@@ -93,4 +93,14 @@ public class NodeMatcher extends AbstractMatcher<Node> {
     public void setIsReal(String isReal) {
         this.isReal = isReal;
     }
+
+    @Override
+    public String toString() {
+        return "NodeMatcher{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", type='" + type + '\'' +
+            ", isReal='" + isReal + '\'' +
+            '}';
+    }
 }

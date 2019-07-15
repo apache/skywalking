@@ -62,4 +62,14 @@ public class Node {
         isReal = real;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", type='" + type + '\'' +
+            ", isReal='" + isReal + '\'' +
+            '}';
+    }
 }
