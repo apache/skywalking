@@ -67,7 +67,7 @@ public class ConsumerThread<T> extends Thread {
 
         final List<T> consumeList = new ArrayList<T>(1500);
         while (running) {
-            if (consume(consumeList)) {
+            if (!consume(consumeList)) {
                 try {
                     Thread.sleep(consumeCycle);
                 } catch (InterruptedException e) {
@@ -87,7 +87,7 @@ public class ConsumerThread<T> extends Thread {
             dataSource.obtain(consumeList);
         }
 
-        if (consumeList.size() > 0) {
+        if (!consumeList.isEmpty()) {
             try {
                 consumer.consume(consumeList);
             } catch (Throwable t) {
