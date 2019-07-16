@@ -29,7 +29,7 @@ import org.slf4j.*;
 import zipkin2.codec.SpanBytesDecoder;
 
 public class SpanV1JettyHandler extends JettyHandler {
-    private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpanV1JettyHandler.class);
 
     private ZipkinReceiverConfig config;
     private SourceReceiver sourceReceiver;

@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.InstanceDiscoveryServiceHandler;
 import org.slf4j.*;
 
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
@@ -41,7 +40,7 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
  */
 public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implements GRPCHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RegisterServiceHandler.class);
 
     private final ServiceInventoryCache serviceInventoryCache;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
@@ -131,7 +130,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         responseObserver.onCompleted();
     }
 
-    @Override public void doEndpointRegister(Enpoints request, StreamObserver<EndpointMapping> responseObserver) {
+    @Override public void doEndpointRegister(Endpoints request, StreamObserver<EndpointMapping> responseObserver) {
         EndpointMapping.Builder builder = EndpointMapping.newBuilder();
 
         request.getEndpointsList().forEach(endpoint -> {

@@ -64,7 +64,7 @@ public class RegisterLockInstaller {
     }
 
     private void deleteIndex() throws IOException {
-        client.deleteIndex(RegisterLockIndex.NAME);
+        client.deleteByModelName(RegisterLockIndex.NAME);
     }
 
     private void createIndex() throws IOException {

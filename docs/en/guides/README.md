@@ -1,7 +1,7 @@
 # Guides
 There are many ways that you can help the SkyWalking community.
 
-- Go through our documents, point out or fixed unclear things. Translate the documents to other languages.
+- Go through our documents, point out or fix unclear things. Translate the documents to other languages.
 - Download our [releases](http://skywalking.apache.org/downloads/), try to monitor your applications, and feedback to us about 
 what you think.
 - Read our source codes, Ask questions for details.
