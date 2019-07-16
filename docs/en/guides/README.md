@@ -52,27 +52,39 @@ Since version 6.3.0, we have introduced more automatic tests to perform software
 
 The e2e tests involves the OAP server, Web App, and the instrumented services, all of them run in a designed Docker container, connecting to each other; 
 in addition, there is a test controller running outside of the container that sends requests to the instrumented service,
-and then verify the corresponding results after those requests, by GraphQL API of the SkyWalking Web App.
+and then verifies the corresponding results after those requests, by GraphQL API of the SkyWalking Web App.
 
-Run the command `./mvnw -f test/e2e/pom.xml clean verify` under the root directory to get an intuition on how they work together.
+Run the command `./mvnw -f test/e2e/pom.xml clean verify` under the root directory to get an intuition on how they work together(note that it may take a long time).
 
 #### Writing E2E Cases
 
 - Set up environment in Intellij IDEA
+
 The e2e test is an individual project under the SkyWalking root directory and the IDEA cannot recognize it by default, right click
 on the file `test/e2e/pom.xml` and click `Add as Maven Project`, things should be ready now.
 
-- Design instrumented service
-Writing instrumented service is as similar as what you'll do in daily work, write the codes, package them into a executable jar,
-one thing different is that they're well-designed, "well-designed" means that the instrumented service will involve the
-components/libraries that are to be verified in the e2e case.
+- Orchestrate the components
 
-For example, if you want to verify that all of the agents of the Spring framework, MySQL, and Dubbo work well together with the whole SkyWalking backend, webapp, and storage,
-you'll probably **design** an instrumented service that uses MySQL as storage, Dubbo as RPC framework and Spring to manage the beans.
+Our goal of E2E tests is to test the SkyWalking project in a whole, including the OAP server, Web App, and even the frontend UI(not now),
+in single node mode as well as cluster mode, therefore the first step is to determine what case we are going to verify and orchestrate the 
+components.
+ 
+In order to make it more easily to orchestrate, we've provided a [Docker e2e-container](https://github.com/SkyAPMTest/e2e-container) that can run
+OAP server in both standalone and cluster mode, it can also run the given instrumented services. Refer to the repository for more details;
+
+Basically you will need:
+1. (if in cluster mode) start up the third-party service containers that SkyWalking depends on, such as ZooKeeper as coordinator, ElasticSearch as storage, etc. in the docker-maven-plugin;
+1. (if in cluster mode) carefully map the addresses/ports into the e2e-container that can be used by the OAP server to connect to;
+1. start the OAP server, Web App, and instrumented services in the e2e-container, mount your customized startup script to `/rc.d/` in e2e-container and it gets run when the container starts up;
+1. use the utilities provided in e2e-container to check the healthiness of the components;
+1. design the test controller and verify expected result;
+
+We've given a simple example that verifies SkyWalking should work as expected in cluster mode, refer to [the codes](../../../test/e2e/e2e-cluster) for detail.
 
 - Write test controller
+
 To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
-They send **designed** (again) requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
+They send **designed** requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
 
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
