@@ -24,6 +24,8 @@ import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
+ * entity wrapps the etcd cluster configuration.
+ *
  * @author Alan Lau
  */
 @ToString
@@ -42,6 +44,9 @@ public class EtcdServerSettings extends ModuleConfig {
      */
     private String group;
 
+    /**
+     * sec for interval refresh config data.
+     */
     private int period = 60;
 
 }
