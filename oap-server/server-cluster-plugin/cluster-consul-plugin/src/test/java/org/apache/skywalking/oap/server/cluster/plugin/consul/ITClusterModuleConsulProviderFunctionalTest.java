@@ -191,6 +191,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
 
         ConsulCoordinator consulCoordinator = (ConsulCoordinator) provider.getService(ClusterRegister.class);
 
+        // ignore health check
         ClusterRegister register = remoteInstance -> {
             if (needUsingInternalAddr(config)) {
                 remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
