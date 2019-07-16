@@ -130,7 +130,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         responseObserver.onCompleted();
     }
 
-    @Override public void doEndpointRegister(Enpoints request, StreamObserver<EndpointMapping> responseObserver) {
+    @Override public void doEndpointRegister(Endpoints request, StreamObserver<EndpointMapping> responseObserver) {
         EndpointMapping.Builder builder = EndpointMapping.newBuilder();
 
         request.getEndpointsList().forEach(endpoint -> {
