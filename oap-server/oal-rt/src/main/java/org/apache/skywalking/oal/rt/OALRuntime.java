@@ -18,24 +18,75 @@
 
 package org.apache.skywalking.oal.rt;
 
+import freemarker.template.Configuration;
+import freemarker.template.Version;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Locale;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.ClassFilePrinter;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.ClassMemberValue;
+import javassist.bytecode.annotation.IntegerMemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
 import org.apache.skywalking.oal.rt.meta.MetaReader;
 import org.apache.skywalking.oal.rt.meta.MetaSettings;
+import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
+import org.apache.skywalking.oal.rt.output.DispatcherContext;
+import org.apache.skywalking.oal.rt.output.FileGenerator;
+import org.apache.skywalking.oal.rt.parser.AnalysisResult;
+import org.apache.skywalking.oal.rt.parser.MetricsHolder;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
+import org.apache.skywalking.oal.rt.parser.SourceColumn;
 import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions.
+ * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
+ * is loaded dynamically.
  *
  * @author wusheng
  */
 public class OALRuntime implements OALEngine {
+    private static final Logger logger = LoggerFactory.getLogger(OALRuntime.class);
+
+    private static final Charset CLASS_FILE_CHARSET = Charset.forName("UTF-8");
+    private static final String METRICS_FUNCTION_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.metrics.";
+    private static final String DYNAMIC_METRICS_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.";
+    private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
+    private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
+    private static final String[] METRICS_CLASS_METHODS = {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta"};
+    private final ClassPool classPool;
+    private Configuration configuration;
+    private AllDispatcherContext allDispatcherContext;
+
+    public OALRuntime() {
+        classPool = ClassPool.getDefault();
+        configuration = new Configuration(new Version("2.3.28"));
+        configuration.setEncoding(Locale.ENGLISH, "UTF-8");
+        configuration.setClassLoaderForTemplateLoading(FileGenerator.class.getClassLoader(), "/code-templates");
+        allDispatcherContext = new AllDispatcherContext();
+    }
+
     @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException {
         Reader read;
         try {
@@ -49,18 +100,153 @@ public class OALRuntime implements OALEngine {
         SourceColumnsFactory.setSettings(metaSettings);
 
         try {
+            MetricsHolder.init();
+        } catch (IOException e) {
+            throw new ModuleStartException("load metrics functions error.", e);
+        }
+
+        try {
             read = ResourceUtils.read("official_analysis.oal");
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Can't locate official_analysis.oal", e);
         }
 
-        ScriptParser scriptParser = null;
+        OALScripts oalScripts;
         try {
-            scriptParser = ScriptParser.createFromFile(read);
-            OALScripts oalScripts = scriptParser.parse();
+            ScriptParser scriptParser = ScriptParser.createFromFile(read);
+            oalScripts = scriptParser.parse();
         } catch (IOException e) {
             throw new ModuleStartException("OAL script parse analysis failure.", e);
         }
 
+        this.generateClassAtRuntime(oalScripts);
+    }
+
+    private void generateClassAtRuntime(OALScripts oalScripts) {
+        List<AnalysisResult> metricsStmts = oalScripts.getMetricsStmts();
+        metricsStmts.forEach(this::buildDispatcherContext);
+
+        metricsStmts.forEach(this::generateMetricsClass);
+
+    }
+
+    private void generateMetricsClass(AnalysisResult metricsStmt) {
+        CtClass parentMetricsClass = null;
+        try {
+            parentMetricsClass = classPool.get(METRICS_FUNCTION_PACKAGE + metricsStmt.getMetricsClassName());
+        } catch (NotFoundException e) {
+            logger.error("Can't find parent class for " + metricsStmt.getMetricsName() + ".", e);
+            return;
+        }
+        CtClass metricsClass = classPool.makeClass(metricsClassName(metricsStmt), parentMetricsClass);
+        try {
+            metricsClass.addInterface(classPool.get(WITH_METADATA_INTERFACE));
+        } catch (NotFoundException e) {
+            logger.error("Can't find WithMetadata interface for " + metricsStmt.getMetricsName() + ".", e);
+            return;
+        }
+
+        ClassFile metricsClassClassFile = metricsClass.getClassFile();
+        ConstPool constPool = metricsClassClassFile.getConstPool();
+
+        /**
+         * Add fields with annotations.
+         *
+         * private ${sourceField.typeName} ${sourceField.fieldName};
+         */
+        for (SourceColumn field : metricsStmt.getFieldsFromSource()) {
+            try {
+                CtField newField = CtField.make("private " + field.getType().getName() + " " + field.getFieldName() + ";", metricsClass);
+
+                metricsClass.addField(newField);
+
+                metricsClass.addMethod(CtNewMethod.getter(field.getFieldGetter(), newField));
+                metricsClass.addMethod(CtNewMethod.setter(field.getFieldSetter(), newField));
+
+                AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+                /**
+                 * Add @Column(columnName = "${sourceField.columnName}")
+                 */
+                Annotation columnAnnotation = new Annotation(Column.class.getName(), constPool);
+                columnAnnotation.addMemberValue("columnName", new StringMemberValue(field.getColumnName(), constPool));
+                annotationsAttribute.addAnnotation(columnAnnotation);
+
+                if (field.isID()) {
+                    /**
+                     * Add @IDColumn
+                     */
+                    Annotation idAnnotation = new Annotation(Column.class.getName(), constPool);
+                    annotationsAttribute.addAnnotation(idAnnotation);
+                }
+
+                newField.getFieldInfo().addAttribute(annotationsAttribute);
+
+            } catch (CannotCompileException e) {
+                logger.error("Can't add field(including set/get) " + field.getFieldName() + " in " + metricsStmt.getMetricsName() + ".", e);
+                return;
+            }
+        }
+
+        /**
+         * Generate methods
+         */
+        for (String method : METRICS_CLASS_METHODS) {
+            StringWriter methodEntity = new StringWriter();
+            try {
+                configuration.getTemplate("metrics/" + method + ".ftl").process(metricsStmt, methodEntity);
+                metricsClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsClass));
+            } catch (Exception e) {
+                logger.error("Can't generate method " + method + " for " + metricsStmt.getMetricsName() + ".", e);
+                return;
+            }
+        }
+
+
+        /**
+         * Add following annotation to the metrics class
+         *
+         * at Stream(name = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
+         */
+        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+        Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);
+        streamAnnotation.addMemberValue("name", new StringMemberValue(metricsStmt.getTableName(), constPool));
+        streamAnnotation.addMemberValue("scopeId", new IntegerMemberValue(constPool, metricsStmt.getSourceScopeId()));
+        streamAnnotation.addMemberValue("builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt), constPool));
+        streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
+
+        annotationsAttribute.addAnnotation(streamAnnotation);
+        metricsClassClassFile.addAttribute(annotationsAttribute);
+
+        try {
+            metricsClass.toClass();
+            Class.forName(metricsClass.getName());
+        } catch (CannotCompileException e) {
+            logger.error("Can't compile " + metricsStmt.getMetricsName() + ".", e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        ClassFilePrinter.print(metricsClassClassFile);
+    }
+
+    private String metricsClassName(AnalysisResult metricsStmt) {
+        return DYNAMIC_METRICS_CLASS_PACKAGE + metricsStmt.getMetricsName() + "Metrics";
+    }
+
+    private String metricsBuilderClassName(AnalysisResult metricsStmt) {
+        return metricsStmt.getMetricsName() + "Metrics.Builder";
+    }
+
+    private void buildDispatcherContext(AnalysisResult metricsStmt) {
+        String sourceName = metricsStmt.getSourceName();
+
+        DispatcherContext context = allDispatcherContext.getAllContext().get(sourceName);
+        if (context == null) {
+            context = new DispatcherContext();
+            context.setSource(sourceName);
+            context.setPackageName(sourceName.toLowerCase());
+            allDispatcherContext.getAllContext().put(sourceName, context);
+        }
+        context.getMetrics().add(metricsStmt);
     }
 }

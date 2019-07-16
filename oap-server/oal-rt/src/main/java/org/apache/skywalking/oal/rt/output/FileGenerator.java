@@ -80,7 +80,7 @@ public class FileGenerator {
             + result.getMetricsName() + suffix;
     }
 
-    void generateMetricsImplementor(AnalysisResult result, Writer output) throws IOException, TemplateException {
+    public void generateMetricsImplementor(AnalysisResult result, Writer output) throws IOException, TemplateException {
         configuration.getTemplate("MetricsImplementor.ftl").process(result, output);
     }
 

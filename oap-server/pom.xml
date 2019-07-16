@@ -84,6 +84,7 @@
         <etcd.version>v3.2.3</etcd.version>
         <antlr.version>4.7.1</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
+        <javaassist.version>3.25.0-GA</javaassist.version>
     </properties>
 
     <dependencies>
@@ -418,6 +419,11 @@
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
                 <version>${freemarker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javaassist.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

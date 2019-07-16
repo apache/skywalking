@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oal.rt.meta;
 
+import java.io.InputStream;
 import java.io.Reader;
 import org.yaml.snakeyaml.Yaml;
 
@@ -26,6 +27,13 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class MetaReader {
     public MetaSettings read(Reader reader) {
+        Yaml yaml = new Yaml();
+        MetaSettings settings = yaml.loadAs(reader, MetaSettings.class);
+
+        return settings;
+    }
+
+    public MetaSettings read(InputStream reader) {
         Yaml yaml = new Yaml();
         MetaSettings settings = yaml.loadAs(reader, MetaSettings.class);
 

@@ -82,17 +82,18 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
-
         try {
+            scopeScan.scan();
             OALEngineLoader.get().start(getClass().getClassLoader());
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        scopeScan.registerListener(DisableRegister.INSTANCE);
-        scopeScan.registerListener(new DisableRegister.SingleDisableScanListener());
+        AnnotationScan oalDisable = new AnnotationScan();
+        oalDisable.registerListener(DisableRegister.INSTANCE);
+        oalDisable.registerListener(new DisableRegister.SingleDisableScanListener());
         try {
-            scopeScan.scan();
+            oalDisable.scan();
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
