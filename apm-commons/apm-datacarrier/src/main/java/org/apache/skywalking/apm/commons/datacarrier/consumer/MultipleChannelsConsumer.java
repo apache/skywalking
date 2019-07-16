@@ -58,7 +58,6 @@ public class MultipleChannelsConsumer extends Thread {
                 } catch (InterruptedException e) {
                 }
             }
-
         }
 
         // consumer thread is going to stop
@@ -71,21 +70,21 @@ public class MultipleChannelsConsumer extends Thread {
     }
 
     private boolean consume(Group target, List consumeList) {
-        boolean hasData;
         for (int i = 0; i < target.channels.getChannelSize(); i++) {
             Buffer buffer = target.channels.getBuffer(i);
             buffer.obtain(consumeList);
         }
 
-        if (hasData = consumeList.size() > 0) {
+        if (!consumeList.isEmpty()) {
             try {
                 target.consumer.consume(consumeList);
             } catch (Throwable t) {
                 target.consumer.onError(consumeList, t);
             }
+            consumeList.clear();
+            return true;
         }
-        consumeList.clear();
-        return hasData;
+        return false;
     }
 
     /**

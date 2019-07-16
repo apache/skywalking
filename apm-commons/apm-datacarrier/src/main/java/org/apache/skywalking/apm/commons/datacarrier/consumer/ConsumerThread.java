@@ -67,15 +67,11 @@ public class ConsumerThread<T> extends Thread {
 
         final List<T> consumeList = new ArrayList<T>(1500);
         while (running) {
-            boolean hasData = consume(consumeList);
-
-            if (!hasData) {
+            if (consume(consumeList)) {
                 try {
                     Thread.sleep(consumeCycle);
                 } catch (InterruptedException e) {
                 }
-            } else {
-                consumeList.clear();
             }
         }
 
@@ -97,8 +93,10 @@ public class ConsumerThread<T> extends Thread {
             } catch (Throwable t) {
                 consumer.onError(consumeList, t);
             }
+            consumeList.clear();
+            return true;
         }
-        return !consumeList.isEmpty();
+        return false;
     }
 
     void shutdown() {
