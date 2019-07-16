@@ -48,12 +48,11 @@ public class MultipleChannelsConsumer extends Thread {
 
         final List consumeList = new ArrayList(2000);
         while (running) {
-            boolean hasData = false;
             for (Group target : consumeTargets) {
-                hasData = hasData || consume(target, consumeList);
+                consume(target, consumeList);
             }
 
-            if (!hasData) {
+            if (consumeList.isEmpty()) {
                 try {
                     Thread.sleep(consumeCycle);
                 } catch (InterruptedException e) {
@@ -85,6 +84,7 @@ public class MultipleChannelsConsumer extends Thread {
                 target.consumer.onError(consumeList, t);
             }
         }
+        consumeList.clear();
         return hasData;
     }
 
