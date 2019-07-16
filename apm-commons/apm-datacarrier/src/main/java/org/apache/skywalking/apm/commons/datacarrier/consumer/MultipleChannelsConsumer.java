@@ -81,8 +81,9 @@ public class MultipleChannelsConsumer extends Thread {
                 target.consumer.consume(consumeList);
             } catch (Throwable t) {
                 target.consumer.onError(consumeList, t);
+            } finally {
+                consumeList.clear();
             }
-            consumeList.clear();
             return true;
         }
         return false;

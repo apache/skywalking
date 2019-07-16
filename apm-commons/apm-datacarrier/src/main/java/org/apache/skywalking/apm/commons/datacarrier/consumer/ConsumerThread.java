@@ -92,8 +92,9 @@ public class ConsumerThread<T> extends Thread {
                 consumer.consume(consumeList);
             } catch (Throwable t) {
                 consumer.onError(consumeList, t);
+            } finally {
+                consumeList.clear();
             }
-            consumeList.clear();
             return true;
         }
         return false;
