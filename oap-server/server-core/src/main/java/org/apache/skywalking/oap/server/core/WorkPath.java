@@ -16,38 +16,34 @@
  *
  */
 
-
-package org.apache.skywalking.apm.agent.core.boot;
-
-import java.net.URISyntaxException;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+package org.apache.skywalking.oap.server.core;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * Locate the base work path of OAP backend.
+ *
  * @author wusheng
  */
-public class AgentPackagePath {
-    private static final ILog logger = LogManager.getLogger(AgentPackagePath.class);
+public class WorkPath {
+    private static final Logger logger = LoggerFactory.getLogger(WorkPath.class);
 
-    private static File AGENT_PACKAGE_PATH;
+    private static File PATH;
 
-    public static File getPath() throws AgentPackageNotFoundException {
-        if (AGENT_PACKAGE_PATH == null) {
-            AGENT_PACKAGE_PATH = findPath();
+    public static File getPath() {
+        if (PATH == null) {
+            PATH = findPath();
         }
-        return AGENT_PACKAGE_PATH;
+        return PATH;
     }
 
-    public static boolean isPathFound() {
-        return AGENT_PACKAGE_PATH != null;
-    }
-
-    private static File findPath() throws AgentPackageNotFoundException {
-        String classResourcePath = AgentPackagePath.class.getName().replaceAll("\\.", "/") + ".class";
+    private static File findPath() {
+        String classResourcePath = WorkPath.class.getName().replaceAll("\\.", "/") + ".class";
 
         URL resource = ClassLoader.getSystemClassLoader().getResource(classResourcePath);
         if (resource != null) {
@@ -64,9 +60,9 @@ public class AgentPackagePath {
                 try {
                     agentJarFile = new File(new URL(urlString).toURI());
                 } catch (MalformedURLException e) {
-                    logger.error(e, "Can not locate agent jar file by url:" + urlString);
+                    throw new UnexpectedException("Can not locate oap core jar file by url:" + urlString, e);
                 } catch (URISyntaxException e) {
-                    logger.error(e, "Can not locate agent jar file by url:" + urlString);
+                    throw new UnexpectedException("Can not locate oap core jar file by url:" + urlString, e);
                 }
                 if (agentJarFile.exists()) {
                     return agentJarFile.getParentFile();
@@ -78,8 +74,6 @@ public class AgentPackagePath {
             }
         }
 
-        logger.error("Can not locate agent jar file.");
-        throw new AgentPackageNotFoundException("Can not locate agent jar file.");
+        throw new UnexpectedException("Can not locate oap core jar file by path:" + classResourcePath);
     }
-
 }

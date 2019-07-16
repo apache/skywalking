@@ -20,11 +20,14 @@ package org.apache.skywalking.oal.rt;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javassist.CannotCompileException;
@@ -54,7 +57,9 @@ import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
 import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
+import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -81,8 +86,11 @@ public class OALRuntime implements OALEngine {
     private static final String[] METRICS_CLASS_METHODS =
         {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toDay"};
     private final ClassPool classPool;
+    private ClassLoader currentClassLoader;
     private Configuration configuration;
     private AllDispatcherContext allDispatcherContext;
+    private StreamAnnotationListener streamAnnotationListener;
+    private final List<Class> metricsClasses;
 
     public OALRuntime() {
         classPool = ClassPool.getDefault();
@@ -90,9 +98,15 @@ public class OALRuntime implements OALEngine {
         configuration.setEncoding(Locale.ENGLISH, "UTF-8");
         configuration.setClassLoaderForTemplateLoading(FileGenerator.class.getClassLoader(), "/code-templates");
         allDispatcherContext = new AllDispatcherContext();
+        metricsClasses = new ArrayList<>();
+    }
+
+    @Override public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
+        this.streamAnnotationListener = listener;
     }
 
     @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
+        this.currentClassLoader = currentClassLoader;
         Reader read;
         try {
             read = ResourceUtils.read("scope-meta.yml");
@@ -127,17 +141,22 @@ public class OALRuntime implements OALEngine {
         this.generateClassAtRuntime(oalScripts);
     }
 
+    @Override public void notifyAllListeners() throws ModuleStartException {
+        metricsClasses.forEach(streamAnnotationListener::notify);
+    }
+
     private void generateClassAtRuntime(OALScripts oalScripts) throws OALCompileException {
         List<AnalysisResult> metricsStmts = oalScripts.getMetricsStmts();
         metricsStmts.forEach(this::buildDispatcherContext);
 
         for (AnalysisResult metricsStmt : metricsStmts) {
-            generateMetricsClass(metricsStmt);
+            metricsClasses.add(generateMetricsClass(metricsStmt));
+            generateMetricsBuilderClass(metricsStmt);
         }
 
     }
 
-    private void generateMetricsClass(AnalysisResult metricsStmt) throws OALCompileException {
+    private Class generateMetricsClass(AnalysisResult metricsStmt) throws OALCompileException {
         CtClass parentMetricsClass = null;
         try {
             parentMetricsClass = classPool.get(METRICS_FUNCTION_PACKAGE + metricsStmt.getMetricsClassName());
@@ -219,7 +238,6 @@ public class OALRuntime implements OALEngine {
             }
         }
 
-
         /**
          * Add following annotation to the metrics class
          *
@@ -235,14 +253,22 @@ public class OALRuntime implements OALEngine {
         annotationsAttribute.addAnnotation(streamAnnotation);
         metricsClassClassFile.addAttribute(annotationsAttribute);
 
+        Class targetClass;
         try {
-            metricsClass.toClass();
+            targetClass = metricsClass.toClass(currentClassLoader, null);
         } catch (CannotCompileException e) {
-            logger.error("Can't compile " + metricsStmt.getMetricsName() + ".", e);
+            logger.error("Can't compile/load " + metricsStmt.getMetricsName() + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        ClassFilePrinter.print(metricsClassClassFile);
+        logger.debug("Generate metrics class, " + metricsClass.getName());
+        writeGeneratedFile(metricsClassClassFile, metricsClass.getSimpleName());
+
+        return targetClass;
+    }
+
+    private void generateMetricsBuilderClass(AnalysisResult metricsStmt) throws OALCompileException {
+
     }
 
     private String metricsClassName(AnalysisResult metricsStmt) {
@@ -264,5 +290,32 @@ public class OALRuntime implements OALEngine {
             allDispatcherContext.getAllContext().put(sourceName, context);
         }
         context.getMetrics().add(metricsStmt);
+    }
+
+    private void writeGeneratedFile(ClassFile metricsClassClassFile, String className) throws OALCompileException {
+        PrintWriter printWriter = null;
+        try {
+            File workPath = WorkPath.getPath();
+            File folder = new File(workPath.getParentFile(), "oal-rt");
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            File file = new File(folder, className + ".txt");
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+            printWriter = new PrintWriter(file);
+            ClassFilePrinter.print(metricsClassClassFile, printWriter);
+            printWriter.flush();
+        } catch (IOException e) {
+            logger.warn("Can't create " + className + ".txt, ignore.", e);
+            return;
+        } finally {
+            if (printWriter != null) {
+                printWriter.close();
+            }
+        }
+
     }
 }

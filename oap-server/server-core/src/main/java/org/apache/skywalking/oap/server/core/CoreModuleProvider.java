@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.config.*;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoader;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
@@ -57,6 +58,8 @@ public class CoreModuleProvider extends ModuleProvider {
     private final StorageModels storageModels;
     private final StreamDataMapping streamDataMapping;
     private final SourceReceiverImpl receiver;
+    private StreamAnnotationListener streamAnnotationListener;
+    private OALEngine oalEngine;
 
     public CoreModuleProvider() {
         super();
@@ -80,11 +83,16 @@ public class CoreModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        streamAnnotationListener = new StreamAnnotationListener(getManager());
+
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         try {
             scopeScan.scan();
-            OALEngineLoader.get().start(getClass().getClassLoader());
+
+            oalEngine = OALEngineLoader.get();
+            oalEngine.setStreamListener(streamAnnotationListener);
+            oalEngine.start(getClass().getClassLoader());
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -153,7 +161,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
 
-        annotationScan.registerListener(new StreamAnnotationListener(getManager()));
+        annotationScan.registerListener(streamAnnotationListener);
 
         this.remoteClientManager = new RemoteClientManager(getManager());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
@@ -166,8 +174,10 @@ public class CoreModuleProvider extends ModuleProvider {
 
         try {
             receiver.scan();
-
             annotationScan.scan();
+
+            oalEngine.notifyAllListeners();
+
             streamDataMapping.init();
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
