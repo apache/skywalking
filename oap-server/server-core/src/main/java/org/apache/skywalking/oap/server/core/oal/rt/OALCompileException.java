@@ -18,13 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.oal.rt;
 
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-
 /**
- * OALEngine defines the main entrance of the oal script engine runtime.
- *
  * @author wusheng
  */
-public interface OALEngine {
-    void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException;
+public class OALCompileException extends Exception {
+    public OALCompileException(String message) {
+        super(message);
+    }
+
+    public OALCompileException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

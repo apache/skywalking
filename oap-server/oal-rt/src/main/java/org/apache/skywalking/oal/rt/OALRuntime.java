@@ -30,7 +30,9 @@ import java.util.Locale;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtField;
+import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
@@ -53,6 +55,7 @@ import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
 import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -72,9 +75,11 @@ public class OALRuntime implements OALEngine {
     private static final Charset CLASS_FILE_CHARSET = Charset.forName("UTF-8");
     private static final String METRICS_FUNCTION_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.metrics.";
     private static final String DYNAMIC_METRICS_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.";
+    private static final String DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.builder";
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
-    private static final String[] METRICS_CLASS_METHODS = {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta"};
+    private static final String[] METRICS_CLASS_METHODS =
+        {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toDay"};
     private final ClassPool classPool;
     private Configuration configuration;
     private AllDispatcherContext allDispatcherContext;
@@ -87,7 +92,7 @@ public class OALRuntime implements OALEngine {
         allDispatcherContext = new AllDispatcherContext();
     }
 
-    @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException {
+    @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
         Reader read;
         try {
             read = ResourceUtils.read("scope-meta.yml");
@@ -122,32 +127,45 @@ public class OALRuntime implements OALEngine {
         this.generateClassAtRuntime(oalScripts);
     }
 
-    private void generateClassAtRuntime(OALScripts oalScripts) {
+    private void generateClassAtRuntime(OALScripts oalScripts) throws OALCompileException {
         List<AnalysisResult> metricsStmts = oalScripts.getMetricsStmts();
         metricsStmts.forEach(this::buildDispatcherContext);
 
-        metricsStmts.forEach(this::generateMetricsClass);
+        for (AnalysisResult metricsStmt : metricsStmts) {
+            generateMetricsClass(metricsStmt);
+        }
 
     }
 
-    private void generateMetricsClass(AnalysisResult metricsStmt) {
+    private void generateMetricsClass(AnalysisResult metricsStmt) throws OALCompileException {
         CtClass parentMetricsClass = null;
         try {
             parentMetricsClass = classPool.get(METRICS_FUNCTION_PACKAGE + metricsStmt.getMetricsClassName());
         } catch (NotFoundException e) {
             logger.error("Can't find parent class for " + metricsStmt.getMetricsName() + ".", e);
-            return;
+            throw new OALCompileException(e.getMessage(), e);
         }
         CtClass metricsClass = classPool.makeClass(metricsClassName(metricsStmt), parentMetricsClass);
         try {
             metricsClass.addInterface(classPool.get(WITH_METADATA_INTERFACE));
         } catch (NotFoundException e) {
             logger.error("Can't find WithMetadata interface for " + metricsStmt.getMetricsName() + ".", e);
-            return;
+            throw new OALCompileException(e.getMessage(), e);
         }
 
         ClassFile metricsClassClassFile = metricsClass.getClassFile();
         ConstPool constPool = metricsClassClassFile.getConstPool();
+
+        /**
+         * Create empty construct
+         */
+        try {
+            CtConstructor defaultConstructor = CtNewConstructor.make("public " + metricsStmt.getMetricsName() + "Metrics() {}", metricsClass);
+            metricsClass.addConstructor(defaultConstructor);
+        } catch (CannotCompileException e) {
+            logger.error("Can't add empty constructor in " + metricsStmt.getMetricsName() + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
 
         /**
          * Add fields with annotations.
@@ -183,7 +201,7 @@ public class OALRuntime implements OALEngine {
 
             } catch (CannotCompileException e) {
                 logger.error("Can't add field(including set/get) " + field.getFieldName() + " in " + metricsStmt.getMetricsName() + ".", e);
-                return;
+                throw new OALCompileException(e.getMessage(), e);
             }
         }
 
@@ -197,7 +215,7 @@ public class OALRuntime implements OALEngine {
                 metricsClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsClass));
             } catch (Exception e) {
                 logger.error("Can't generate method " + method + " for " + metricsStmt.getMetricsName() + ".", e);
-                return;
+                throw new OALCompileException(e.getMessage(), e);
             }
         }
 
@@ -219,11 +237,9 @@ public class OALRuntime implements OALEngine {
 
         try {
             metricsClass.toClass();
-            Class.forName(metricsClass.getName());
         } catch (CannotCompileException e) {
             logger.error("Can't compile " + metricsStmt.getMetricsName() + ".", e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new OALCompileException(e.getMessage(), e);
         }
 
         ClassFilePrinter.print(metricsClassClassFile);
@@ -234,7 +250,7 @@ public class OALRuntime implements OALEngine {
     }
 
     private String metricsBuilderClassName(AnalysisResult metricsStmt) {
-        return metricsStmt.getMetricsName() + "Metrics.Builder";
+        return DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE + metricsStmt.getMetricsName() + "MetricsBuilder";
     }
 
     private void buildDispatcherContext(AnalysisResult metricsStmt) {

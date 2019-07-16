@@ -18,10 +18,10 @@ public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.
     <#list serializeFields.intLongValuePairListFields as field>
         setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray(30));
 
-        Iterator<rg.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair> iterator = remoteData.getDataIntLongPairListList().iterator();
+        java.util.Iterator iterator = remoteData.getDataIntLongPairListList().iterator();
         while (iterator.hasNext()) {
-            IntKeyLongValuePair element = iterator.next();
-            getDetailGroup().add(new IntKeyLongValue(element.getKey(), element.getValue()));
+            org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair element = (org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair)(iterator.next());
+            super.getDetailGroup().add(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue(element.getKey(), element.getValue()));
         }
     </#list>
 }
