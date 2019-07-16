@@ -38,7 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author: zhangwei
+ * @author zhangwei
  */
 public class ITClusterModuleEtcdProviderFunctionalTest {
 

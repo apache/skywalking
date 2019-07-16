@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
@@ -43,7 +42,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author: zhangwei
+ * @author zhangwei
  */
 public class ITClusterModuleConsulProviderFunctionalTest {
 
@@ -191,27 +190,24 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         provider.notifyAfterCompleted();
 
         ConsulCoordinator consulCoordinator = (ConsulCoordinator) provider.getService(ClusterRegister.class);
-        // ignore health check
-        ClusterRegister register = new ClusterRegister() {
-            @Override
-            public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
-                if (needUsingInternalAddr(config)) {
-                    remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
-                }
 
-                Consul client = Whitebox.getInternalState(consulCoordinator, "client");
-                AgentClient agentClient = client.agentClient();
-                Whitebox.setInternalState(consulCoordinator, "selfAddress", remoteInstance.getAddress());
-                TelemetryRelatedContext.INSTANCE.setId(remoteInstance.getAddress().toString());
-                Registration registration = ImmutableRegistration.builder()
-                    .id(remoteInstance.getAddress().toString())
-                    .name(serviceName)
-                    .address(remoteInstance.getAddress().getHost())
-                    .port(remoteInstance.getAddress().getPort())
-                    .build();
-
-                agentClient.register(registration);
+        ClusterRegister register = remoteInstance -> {
+            if (needUsingInternalAddr(config)) {
+                remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
             }
+
+            Consul client = Whitebox.getInternalState(consulCoordinator, "client");
+            AgentClient agentClient = client.agentClient();
+            Whitebox.setInternalState(consulCoordinator, "selfAddress", remoteInstance.getAddress());
+            TelemetryRelatedContext.INSTANCE.setId(remoteInstance.getAddress().toString());
+            Registration registration = ImmutableRegistration.builder()
+                .id(remoteInstance.getAddress().toString())
+                .name(serviceName)
+                .address(remoteInstance.getAddress().getHost())
+                .port(remoteInstance.getAddress().getPort())
+                .build();
+
+            agentClient.register(registration);
         };
 
         provider.registerServiceImplementation(ClusterRegister.class, register);
