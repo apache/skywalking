@@ -94,7 +94,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             }
 
             listenersByKey.putIfAbsent(dataId, p -> {
-                onDataValueChanged(p);
+                onDataValueChanged(p, dataId);
             });
 
             try {
@@ -104,7 +104,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
                 // the key is newly added, read the config for the first time
                 EtcdResponsePromise<EtcdKeysResponse> promise = client.get(dataId).send();
-                onDataValueChanged(promise);
+                onDataValueChanged(promise, dataId);
             } catch (Exception e) {
                 throw new EtcdConfigException("wait for etcd value change fail", e);
             }
@@ -123,19 +123,20 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
         });
     }
 
-    private void onDataValueChanged(ResponsePromise<EtcdKeysResponse> promise) {
+    private void onDataValueChanged(ResponsePromise<EtcdKeysResponse> promise, String dataId) {
+        String key = getRealKey(dataId, settings.getGroup());
         try {
             EtcdKeysResponse.EtcdNode node = promise.get().getNode();
-            String dataId = getRealKey(node.getKey(), settings.getGroup());
             String value = node.getValue();
             if (logger.isInfoEnabled()) {
-                logger.info("Etcd config changed: {}: {}", dataId, node.getValue());
+                logger.info("Etcd config changed: {}: {}", key, node.getValue());
             }
 
-            configItemKeyedByName.put(dataId, Optional.ofNullable(value));
+            configItemKeyedByName.put(key, Optional.ofNullable(value));
         } catch (Exception e) {
             if (e instanceof EtcdException) {
                 if (EtcdErrorCode.KeyNotFound == ((EtcdException)e).errorCode) {
+                    configItemKeyedByName.put(key, Optional.empty());
                     return;
                 }
             }
@@ -145,6 +146,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     /**
      * get real key in etcd cluster which is removed "/${group}" from the key retrived from etcd.
+     *
      * @param key
      * @param group
      * @return
