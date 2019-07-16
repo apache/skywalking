@@ -46,6 +46,7 @@
             <directory>src/main/resources</directory>
             <includes>
                 <include>component-libraries.yml</include>
+                <include>official_analysis.oal</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>

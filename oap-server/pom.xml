@@ -37,10 +37,9 @@
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
         <module>server-testing</module>
-        <module>generated-analysis</module>
-        <module>generate-tool</module>
+        <module>oal-rt</module>
         <module>server-telemetry</module>
-        <module>generate-tool-grammar</module>
+        <module>oal-grammar</module>
         <module>exporter</module>
         <module>server-configuration</module>
     </modules>
@@ -83,6 +82,8 @@
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
+        <antlr.version>4.7.1</antlr.version>
+        <freemarker.version>2.3.28</freemarker.version>
     </properties>
 
     <dependencies>
@@ -406,6 +407,17 @@
                     </exclusion>
                 </exclusions>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

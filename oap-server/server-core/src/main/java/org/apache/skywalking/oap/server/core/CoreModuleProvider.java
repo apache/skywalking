@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.config.*;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoader;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.*;
@@ -81,10 +82,17 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
+
+        try {
+            OALEngineLoader.get().start(getClass().getClassLoader());
+        } catch (Exception e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+
         scopeScan.registerListener(DisableRegister.INSTANCE);
         scopeScan.registerListener(new DisableRegister.SingleDisableScanListener());
         try {
-            scopeScan.scan(null);
+            scopeScan.scan();
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -158,8 +166,7 @@ public class CoreModuleProvider extends ModuleProvider {
         try {
             receiver.scan();
 
-            annotationScan.scan(() -> {
-            });
+            annotationScan.scan();
             streamDataMapping.init();
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
