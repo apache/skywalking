@@ -18,14 +18,18 @@
 
 package org.apache.skywalking.apm.commons.datacarrier;
 
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * ISSUE-3064
@@ -36,7 +40,7 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testArrayCap1000() {
         ArrayList<SampleData> list = new ArrayList<SampleData>();
-        for (int i=0; i<1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             list.add(new SampleData());
         }
     }
@@ -44,7 +48,7 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testLinkedCap1000() {
         LinkedList<SampleData> list = new LinkedList<SampleData>();
-        for (int i=0; i<1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             list.add(new SampleData());
         }
     }
@@ -52,7 +56,7 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testArrayCap40000() {
         ArrayList<SampleData> list = new ArrayList<SampleData>();
-        for (int i=0; i<40000; i++) {
+        for (int i = 0; i < 40000; i++) {
             list.add(new SampleData());
         }
     }
@@ -60,7 +64,7 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testLinkedCap40000() {
         LinkedList<SampleData> list = new LinkedList<SampleData>();
-        for (int i=0; i<40000; i++) {
+        for (int i = 0; i < 40000; i++) {
             list.add(new SampleData());
         }
     }
@@ -80,6 +84,7 @@ public class LinkedArrayBenchmark {
             consumerList.add(new SampleData());
         }
     }
+
     @Benchmark
     public void testArrayStart8000() {
         List<SampleData> consumerList = new ArrayList<SampleData>(8000);
@@ -99,7 +104,7 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testReusedArray() {
         List<SampleData> consumerList = new ArrayList<SampleData>();
-        for (int times=0; times<1000; times++) {
+        for (int times = 0; times < 1000; times++) {
             for (int pos = 0; pos < 40000; pos++) {
                 consumerList.add(new SampleData());
             }
@@ -109,7 +114,7 @@ public class LinkedArrayBenchmark {
 
     @Benchmark
     public void testLinked() {
-        for (int times=0; times<1000; times++) {
+        for (int times = 0; times < 1000; times++) {
             List<SampleData> consumerList = new LinkedList<SampleData>();
 
             for (int pos = 0; pos < 40000; pos++) {
@@ -121,7 +126,7 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testReusedLinked() {
         List<SampleData> consumerList = new LinkedList<SampleData>();
-        for (int times=0; times<1000; times++) {
+        for (int times = 0; times < 1000; times++) {
 
             for (int pos = 0; pos < 40000; pos++) {
                 consumerList.add(new SampleData());
@@ -133,8 +138,8 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testArrayList200K() {
         ArrayList<SampleData> list = new ArrayList<SampleData>(4000);
-        for (int times=0; times<1000; times++) {
-            for (int pos=0; pos<200000; pos++) {
+        for (int times = 0; times < 1000; times++) {
+            for (int pos = 0; pos < 200000; pos++) {
                 list.add(new SampleData());
             }
             list.clear();
@@ -144,8 +149,8 @@ public class LinkedArrayBenchmark {
     @Benchmark
     public void testReusedLinked200K() {
         LinkedList<SampleData> list = new LinkedList<SampleData>();
-        for (int times=0; times<1000; times++) {
-            for (int pos=0; pos<200000; pos++) {
+        for (int times = 0; times < 1000; times++) {
+            for (int pos = 0; pos < 200000; pos++) {
                 list.add(new SampleData());
             }
             list.clear();
@@ -154,9 +159,9 @@ public class LinkedArrayBenchmark {
 
     @Benchmark
     public void testLinked200K() {
-        for (int times=0; times<1000; times++) {
+        for (int times = 0; times < 1000; times++) {
             LinkedList<SampleData> list = new LinkedList<SampleData>();
-            for (int pos=0; pos<200000; pos++) {
+            for (int pos = 0; pos < 200000; pos++) {
                 list.add(new SampleData());
             }
         }
