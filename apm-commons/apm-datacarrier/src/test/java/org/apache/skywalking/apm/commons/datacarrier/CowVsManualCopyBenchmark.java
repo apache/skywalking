@@ -70,3 +70,12 @@ public class CowVsManualCopyBenchmark {
         new Runner(opt).run();
     }
 }
+/*
+ * Benchmark                                   (n)   Mode  Cnt        Score        Error  Units
+ * CowVsManualCopyBenchmark.testCow             10  thrpt    4  2133748.077 ± 129244.049  ops/s
+ * CowVsManualCopyBenchmark.testCow            100  thrpt    4   147487.152 ± 216138.079  ops/s
+ * CowVsManualCopyBenchmark.testCow           1000  thrpt    4     2800.961 ±   3252.492  ops/s
+ * CowVsManualCopyBenchmark.testManuallyCopy    10  thrpt    4  1590487.819 ± 832615.119  ops/s
+ * CowVsManualCopyBenchmark.testManuallyCopy   100  thrpt    4   106537.480 ±   8958.785  ops/s
+ * CowVsManualCopyBenchmark.testManuallyCopy  1000  thrpt    4     1422.433 ±    124.016  ops/s
+ */
