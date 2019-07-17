@@ -167,7 +167,9 @@ public class ContextManager implements BootService {
     }
 
     /**
-    * Plese use `ContextManager.stopSpan(span)` if could, it's can "fail-fast"
+    * Recommend use ContextManager::stopSpan(AbstractSpan span), because in that way, 
+    * the TracingContext core could verify this span is the active one, in order to avoid stop unexpected span.
+    * If the current span is hard to get or only could get by low-performance way, this stop way is still acceptable.
     */
     public static void stopSpan() {
         final AbstractTracerContext context = get();
