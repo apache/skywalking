@@ -83,6 +83,7 @@
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
+        <zookeeper.image.version>3.5</zookeeper.image.version>
     </properties>
 
     <dependencies>
