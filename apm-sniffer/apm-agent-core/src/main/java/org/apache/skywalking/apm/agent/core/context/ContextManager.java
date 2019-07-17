@@ -175,7 +175,7 @@ public class ContextManager implements BootService {
     }
 
     public static void stopSpan(AbstractSpan span) {
-        stopSpan(span,get());
+        stopSpan(span, get());
     }
 
     private static void stopSpan(AbstractSpan span, final AbstractTracerContext context) {
