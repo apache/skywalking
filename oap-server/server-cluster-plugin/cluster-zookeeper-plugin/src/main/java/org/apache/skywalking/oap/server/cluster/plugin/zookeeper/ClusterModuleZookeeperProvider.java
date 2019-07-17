@@ -70,16 +70,17 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             .watchInstances(true)
             .serializer(new SWInstanceSerializer()).build();
 
+        ZookeeperCoordinator coordinator;
         try {
             client.start();
             client.blockUntilConnected();
             serviceDiscovery.start();
+            coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        ZookeeperCoordinator coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
