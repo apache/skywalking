@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, wusheng
  */
-public class DispatcherManager implements DispatcherDetectorListener{
+public class DispatcherManager implements DispatcherDetectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(DispatcherManager.class);
 
