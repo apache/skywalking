@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.oal.rt;
 
+import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
@@ -28,6 +29,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  */
 public interface OALEngine {
     void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException;
+
+    void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException;
 
     void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException;
 

@@ -92,6 +92,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
             oalEngine = OALEngineLoader.get();
             oalEngine.setStreamListener(streamAnnotationListener);
+            oalEngine.setDispatcherListener(receiver.getDispatcherManager());
             oalEngine.start(getClass().getClassLoader());
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);

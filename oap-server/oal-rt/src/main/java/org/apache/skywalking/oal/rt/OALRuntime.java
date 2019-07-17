@@ -31,6 +31,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -42,6 +43,7 @@ import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
+import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
@@ -59,11 +61,14 @@ import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
 import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
 import org.apache.skywalking.oap.server.core.WorkPath;
+import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
@@ -81,10 +86,12 @@ public class OALRuntime implements OALEngine {
     private static final Charset CLASS_FILE_CHARSET = Charset.forName("UTF-8");
     private static final String METRICS_FUNCTION_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.metrics.";
     private static final String DYNAMIC_METRICS_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.";
-    private static final String DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.builder";
+    private static final String DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.builder.";
+    private static final String DYNAMIC_DISPATCHER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.dispatcher.";
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
     private static final String STORAGE_BUILDER_INTERFACE = "org.apache.skywalking.oap.server.core.storage.StorageBuilder";
-    private static final String SOURCE_DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
+    private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
+    private static final String SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.source.";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
     private static final String[] METRICS_CLASS_METHODS =
         {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toDay"};
@@ -95,7 +102,9 @@ public class OALRuntime implements OALEngine {
     private Configuration configuration;
     private AllDispatcherContext allDispatcherContext;
     private StreamAnnotationListener streamAnnotationListener;
+    private DispatcherDetectorListener dispatcherDetectorListener;
     private final List<Class> metricsClasses;
+    private final List<Class> dispatcherClasses;
 
     public OALRuntime() {
         classPool = ClassPool.getDefault();
@@ -104,10 +113,15 @@ public class OALRuntime implements OALEngine {
         configuration.setClassLoaderForTemplateLoading(FileGenerator.class.getClassLoader(), "/code-templates");
         allDispatcherContext = new AllDispatcherContext();
         metricsClasses = new ArrayList<>();
+        dispatcherClasses = new ArrayList<>();
     }
 
     @Override public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
         this.streamAnnotationListener = listener;
+    }
+
+    @Override public void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException {
+        dispatcherDetectorListener = listener;
     }
 
     @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
@@ -150,6 +164,13 @@ public class OALRuntime implements OALEngine {
 
     @Override public void notifyAllListeners() throws ModuleStartException {
         metricsClasses.forEach(streamAnnotationListener::notify);
+        for (Class dispatcherClass : dispatcherClasses) {
+            try {
+                dispatcherDetectorListener.addIfAsSourceDispatcher(dispatcherClass);
+            } catch (Exception e) {
+                throw new ModuleStartException(e.getMessage(), e);
+            }
+        }
     }
 
     private void generateClassAtRuntime(OALScripts oalScripts) throws OALCompileException {
@@ -161,6 +182,9 @@ public class OALRuntime implements OALEngine {
             generateMetricsBuilderClass(metricsStmt);
         }
 
+        for (Map.Entry<String, DispatcherContext> entry : allDispatcherContext.getAllContext().entrySet()) {
+            dispatcherClasses.add(generateDispatcherClass(entry.getKey(), entry.getValue()));
+        }
     }
 
     /**
@@ -227,7 +251,7 @@ public class OALRuntime implements OALEngine {
                     /**
                      * Add @IDColumn
                      */
-                    Annotation idAnnotation = new Annotation(Column.class.getName(), constPool);
+                    Annotation idAnnotation = new Annotation(IDColumn.class.getName(), constPool);
                     annotationsAttribute.addAnnotation(idAnnotation);
                 }
 
@@ -336,12 +360,63 @@ public class OALRuntime implements OALEngine {
         writeGeneratedFile(metricsBuilderClass, className, "metrics/builder");
     }
 
+    /**
+     * Generate SourceDispatcher class and inject it to classloader
+     *
+     * @throws OALCompileException
+     */
+    private Class generateDispatcherClass(String scopeName,
+        DispatcherContext dispatcherContext) throws OALCompileException {
+
+        String className = dispatcherClassName(scopeName, false);
+        CtClass dispatcherClass = classPool.makeClass(dispatcherClassName(scopeName, true));
+        try {
+            CtClass dispatcherInterface = classPool.get(DISPATCHER_INTERFACE);
+
+            dispatcherClass.addInterface(dispatcherInterface);
+
+            /**
+             * Set generic signature
+             */
+            String sourceClassName = SOURCE_PACKAGE + dispatcherContext.getSource();
+            SignatureAttribute.ClassSignature dispatcherSignature = new SignatureAttribute.ClassSignature(null, null,
+                // Set interface and its generic params
+                new SignatureAttribute.ClassType[] {
+                    new SignatureAttribute.ClassType(SourceDispatcher.class.getCanonicalName(),
+                        new SignatureAttribute.TypeArgument[] {new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(sourceClassName))}
+                    )});
+
+            dispatcherClass.setGenericSignature(dispatcherSignature.encode());
+        } catch (NotFoundException e) {
+            logger.error("Can't find Dispatcher interface for " + className + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
+
+        /**
+         * Generate methods
+         */
+        Class targetClass;
+        try {
+            targetClass = dispatcherClass.toClass(currentClassLoader, null);
+        } catch (CannotCompileException e) {
+            logger.error("Can't compile/load " + className + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
+
+        writeGeneratedFile(dispatcherClass, className, "dispatcher");
+        return targetClass;
+    }
+
     private String metricsClassName(AnalysisResult metricsStmt, boolean fullName) {
         return (fullName ? DYNAMIC_METRICS_CLASS_PACKAGE : "") + metricsStmt.getMetricsName() + "Metrics";
     }
 
     private String metricsBuilderClassName(AnalysisResult metricsStmt, boolean fullName) {
         return (fullName ? DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE : "") + metricsStmt.getMetricsName() + "MetricsBuilder";
+    }
+
+    private String dispatcherClassName(String scopeName, boolean fullName) {
+        return (fullName ? DYNAMIC_DISPATCHER_CLASS_PACKAGE : "") + scopeName + "Dispatcher";
     }
 
     private void buildDispatcherContext(AnalysisResult metricsStmt) {

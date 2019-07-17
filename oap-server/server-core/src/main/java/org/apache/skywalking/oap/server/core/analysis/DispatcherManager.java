@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author peng-yongsheng, wusheng
  */
-public class DispatcherManager {
+public class DispatcherManager implements DispatcherDetectorListener{
 
     private static final Logger logger = LoggerFactory.getLogger(DispatcherManager.class);
 
@@ -84,6 +84,7 @@ public class DispatcherManager {
         }
     }
 
+    @Override
     public void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException {
         if (!aClass.isInterface() && SourceDispatcher.class.isAssignableFrom(aClass)) {
             Type[] genericInterfaces = aClass.getGenericInterfaces();
