@@ -56,6 +56,7 @@
         <service0.name>provider</service0.name>
         <service1.name>consumer</service1.name>
         <e2e.container.version>1.1</e2e.container.version>
+        <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-cluster</e2e.container.name.prefix>
     </properties>
 
     <build>
@@ -69,7 +70,7 @@
                     <images>
                         <image>
                             <name>elastic/elasticsearch:${elasticsearch.version}</name>
-                            <alias>skywalking-e2e-container-${build.id}-elasticsearch</alias>
+                            <alias>${e2e.container.name.prefix}-elasticsearch</alias>
                             <run>
                                 <ports>
                                     <port>es.port:9200</port>
@@ -89,7 +90,7 @@
                         </image>
                         <image>
                             <name>zookeeper:${zookeeper.image.version}</name>
-                            <alias>skywalking-e2e-container-${build.id}-zookeeper</alias>
+                            <alias>${e2e.container.name.prefix}-zookeeper</alias>
                             <run>
                                 <ports>
                                     <port>zk.port:2181</port>
@@ -102,15 +103,15 @@
                         </image>
                         <image>
                             <name>skyapm/e2e-container:${e2e.container.version}</name>
-                            <alias>skywalking-e2e-container-${build.id}</alias>
+                            <alias>${e2e.container.name.prefix}</alias>
                             <run>
                                 <env>
                                     <MODE>cluster</MODE>
                                     <SW_STORAGE_ES_CLUSTER_NODES>
-                                        skywalking-e2e-container-${build.id}-elasticsearch:9200
+                                        ${e2e.container.name.prefix}-elasticsearch:9200
                                     </SW_STORAGE_ES_CLUSTER_NODES>
                                     <SW_CLUSTER_ZK_HOST_PORT>
-                                        skywalking-e2e-container-${build.id}-zookeeper:2181
+                                        ${e2e.container.name.prefix}-zookeeper:2181
                                     </SW_CLUSTER_ZK_HOST_PORT>
 
                                     <INSTRUMENTED_SERVICE_1>
@@ -136,16 +137,16 @@
                                     </INSTRUMENTED_SERVICE_2_ARGS>
                                 </env>
                                 <dependsOn>
-                                    <container>skywalking-e2e-container-${build.id}-elasticsearch</container>
-                                    <container>skywalking-e2e-container-${build.id}-zookeeper</container>
+                                    <container>${e2e.container.name.prefix}-elasticsearch</container>
+                                    <container>${e2e.container.name.prefix}-zookeeper</container>
                                 </dependsOn>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8081</port>
                                     <port>+service.host:service.port:9091</port>
                                 </ports>
                                 <links>
-                                    <link>skywalking-e2e-container-${build.id}-elasticsearch</link>
-                                    <link>skywalking-e2e-container-${build.id}-zookeeper</link>
+                                    <link>${e2e.container.name.prefix}-elasticsearch</link>
+                                    <link>${e2e.container.name.prefix}-zookeeper</link>
                                 </links>
                                 <volumes>
                                     <bind>
