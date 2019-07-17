@@ -20,10 +20,11 @@ package org.apache.skywalking.oal.rt;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -40,12 +41,12 @@ import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
-import javassist.bytecode.ClassFilePrinter;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
+import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.oal.rt.meta.MetaReader;
 import org.apache.skywalking.oal.rt.meta.MetaSettings;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
@@ -82,9 +83,13 @@ public class OALRuntime implements OALEngine {
     private static final String DYNAMIC_METRICS_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.";
     private static final String DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.builder";
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
+    private static final String STORAGE_BUILDER_INTERFACE = "org.apache.skywalking.oap.server.core.storage.StorageBuilder";
+    private static final String SOURCE_DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
     private static final String[] METRICS_CLASS_METHODS =
         {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toDay"};
+    private static final String[] METRICS_BUILDER_CLASS_METHODS =
+        {"data2Map", "map2Data"};
     private final ClassPool classPool;
     private ClassLoader currentClassLoader;
     private Configuration configuration;
@@ -106,6 +111,8 @@ public class OALRuntime implements OALEngine {
     }
 
     @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
+        prepareRTTempFoler();
+
         this.currentClassLoader = currentClassLoader;
         Reader read;
         try {
@@ -156,19 +163,27 @@ public class OALRuntime implements OALEngine {
 
     }
 
+    /**
+     * Generate metrics class, and inject it to classloader
+     *
+     * @param metricsStmt
+     * @return
+     * @throws OALCompileException
+     */
     private Class generateMetricsClass(AnalysisResult metricsStmt) throws OALCompileException {
+        String className = metricsClassName(metricsStmt, false);
         CtClass parentMetricsClass = null;
         try {
             parentMetricsClass = classPool.get(METRICS_FUNCTION_PACKAGE + metricsStmt.getMetricsClassName());
         } catch (NotFoundException e) {
-            logger.error("Can't find parent class for " + metricsStmt.getMetricsName() + ".", e);
+            logger.error("Can't find parent class for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
-        CtClass metricsClass = classPool.makeClass(metricsClassName(metricsStmt), parentMetricsClass);
+        CtClass metricsClass = classPool.makeClass(metricsClassName(metricsStmt, true), parentMetricsClass);
         try {
             metricsClass.addInterface(classPool.get(WITH_METADATA_INTERFACE));
         } catch (NotFoundException e) {
-            logger.error("Can't find WithMetadata interface for " + metricsStmt.getMetricsName() + ".", e);
+            logger.error("Can't find WithMetadata interface for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -179,10 +194,10 @@ public class OALRuntime implements OALEngine {
          * Create empty construct
          */
         try {
-            CtConstructor defaultConstructor = CtNewConstructor.make("public " + metricsStmt.getMetricsName() + "Metrics() {}", metricsClass);
+            CtConstructor defaultConstructor = CtNewConstructor.make("public " + className + "() {}", metricsClass);
             metricsClass.addConstructor(defaultConstructor);
         } catch (CannotCompileException e) {
-            logger.error("Can't add empty constructor in " + metricsStmt.getMetricsName() + ".", e);
+            logger.error("Can't add empty constructor in " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -219,7 +234,7 @@ public class OALRuntime implements OALEngine {
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
 
             } catch (CannotCompileException e) {
-                logger.error("Can't add field(including set/get) " + field.getFieldName() + " in " + metricsStmt.getMetricsName() + ".", e);
+                logger.error("Can't add field(including set/get) " + field.getFieldName() + " in " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
@@ -233,7 +248,7 @@ public class OALRuntime implements OALEngine {
                 configuration.getTemplate("metrics/" + method + ".ftl").process(metricsStmt, methodEntity);
                 metricsClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsClass));
             } catch (Exception e) {
-                logger.error("Can't generate method " + method + " for " + metricsStmt.getMetricsName() + ".", e);
+                logger.error("Can't generate method " + method + " for " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
@@ -247,7 +262,7 @@ public class OALRuntime implements OALEngine {
         Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);
         streamAnnotation.addMemberValue("name", new StringMemberValue(metricsStmt.getTableName(), constPool));
         streamAnnotation.addMemberValue("scopeId", new IntegerMemberValue(constPool, metricsStmt.getSourceScopeId()));
-        streamAnnotation.addMemberValue("builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt), constPool));
+        streamAnnotation.addMemberValue("builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt, true), constPool));
         streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
 
         annotationsAttribute.addAnnotation(streamAnnotation);
@@ -257,26 +272,76 @@ public class OALRuntime implements OALEngine {
         try {
             targetClass = metricsClass.toClass(currentClassLoader, null);
         } catch (CannotCompileException e) {
-            logger.error("Can't compile/load " + metricsStmt.getMetricsName() + ".", e);
+            logger.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
         logger.debug("Generate metrics class, " + metricsClass.getName());
-        writeGeneratedFile(metricsClassClassFile, metricsClass.getSimpleName());
+        writeGeneratedFile(metricsClass, metricsClass.getSimpleName(), "metrics");
 
         return targetClass;
     }
 
+    /**
+     * Generate metrics class builder and inject it to classloader
+     *
+     * @param metricsStmt
+     * @throws OALCompileException
+     */
     private void generateMetricsBuilderClass(AnalysisResult metricsStmt) throws OALCompileException {
+        String className = metricsBuilderClassName(metricsStmt, false);
+        CtClass metricsBuilderClass = classPool.makeClass(metricsBuilderClassName(metricsStmt, true));
+        try {
+            metricsBuilderClass.addInterface(classPool.get(STORAGE_BUILDER_INTERFACE));
+        } catch (NotFoundException e) {
+            logger.error("Can't find StorageBuilder interface for " + className + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
 
+        ClassFile metricsClassClassFile = metricsBuilderClass.getClassFile();
+        ConstPool constPool = metricsClassClassFile.getConstPool();
+
+        /**
+         * Create empty construct
+         */
+        try {
+            CtConstructor defaultConstructor = CtNewConstructor.make("public " + className + "() {}", metricsBuilderClass);
+            metricsBuilderClass.addConstructor(defaultConstructor);
+        } catch (CannotCompileException e) {
+            logger.error("Can't add empty constructor in " + className + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
+
+        /**
+         * Generate methods
+         */
+        for (String method : METRICS_BUILDER_CLASS_METHODS) {
+            StringWriter methodEntity = new StringWriter();
+            try {
+                configuration.getTemplate("metrics-builder/" + method + ".ftl").process(metricsStmt, methodEntity);
+                metricsBuilderClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsBuilderClass));
+            } catch (Exception e) {
+                logger.error("Can't generate method " + method + " for " + className + ".", e);
+                throw new OALCompileException(e.getMessage(), e);
+            }
+        }
+
+        try {
+            metricsBuilderClass.toClass(currentClassLoader, null);
+        } catch (CannotCompileException e) {
+            logger.error("Can't compile/load " + className + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
+
+        writeGeneratedFile(metricsBuilderClass, className, "metrics/builder");
     }
 
-    private String metricsClassName(AnalysisResult metricsStmt) {
-        return DYNAMIC_METRICS_CLASS_PACKAGE + metricsStmt.getMetricsName() + "Metrics";
+    private String metricsClassName(AnalysisResult metricsStmt, boolean fullName) {
+        return (fullName ? DYNAMIC_METRICS_CLASS_PACKAGE : "") + metricsStmt.getMetricsName() + "Metrics";
     }
 
-    private String metricsBuilderClassName(AnalysisResult metricsStmt) {
-        return DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE + metricsStmt.getMetricsName() + "MetricsBuilder";
+    private String metricsBuilderClassName(AnalysisResult metricsStmt, boolean fullName) {
+        return (fullName ? DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE : "") + metricsStmt.getMetricsName() + "MetricsBuilder";
     }
 
     private void buildDispatcherContext(AnalysisResult metricsStmt) {
@@ -292,28 +357,49 @@ public class OALRuntime implements OALEngine {
         context.getMetrics().add(metricsStmt);
     }
 
-    private void writeGeneratedFile(ClassFile metricsClassClassFile, String className) throws OALCompileException {
-        PrintWriter printWriter = null;
+    private void prepareRTTempFoler() {
+        File workPath = WorkPath.getPath();
+        File folder = new File(workPath.getParentFile(), "oal-rt/");
+        if (folder.exists()) {
+            try {
+                FileUtils.deleteDirectory(folder);
+            } catch (IOException e) {
+                logger.warn("Can't delete " + folder.getAbsolutePath() + " temp folder.", e);
+            }
+        }
+        folder.mkdirs();
+    }
+
+    private void writeGeneratedFile(CtClass metricsClass, String className, String type) throws OALCompileException {
+        DataOutputStream printWriter = null;
         try {
             File workPath = WorkPath.getPath();
-            File folder = new File(workPath.getParentFile(), "oal-rt");
+            File folder = new File(workPath.getParentFile(), "oal-rt/" + type);
             if (!folder.exists()) {
                 folder.mkdirs();
             }
-            File file = new File(folder, className + ".txt");
+            File file = new File(folder, className + ".class");
             if (file.exists()) {
                 file.delete();
             }
             file.createNewFile();
-            printWriter = new PrintWriter(file);
-            ClassFilePrinter.print(metricsClassClassFile, printWriter);
+
+            printWriter = new DataOutputStream(new FileOutputStream(file));
+            metricsClass.toBytecode(printWriter);
             printWriter.flush();
         } catch (IOException e) {
             logger.warn("Can't create " + className + ".txt, ignore.", e);
             return;
+        } catch (CannotCompileException e) {
+            logger.warn("Can't compile " + className + ".class(should not happen), ignore.", e);
+            return;
         } finally {
             if (printWriter != null) {
-                printWriter.close();
+                try {
+                    printWriter.close();
+                } catch (IOException e) {
+
+                }
             }
         }
 
