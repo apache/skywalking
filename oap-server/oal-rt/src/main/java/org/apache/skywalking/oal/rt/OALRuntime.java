@@ -45,6 +45,7 @@ import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
@@ -55,13 +56,17 @@ import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.output.FileGenerator;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
+import org.apache.skywalking.oal.rt.parser.DisableCollection;
 import org.apache.skywalking.oal.rt.parser.MetricsHolder;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
 import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
 import org.apache.skywalking.oap.server.core.WorkPath;
+import org.apache.skywalking.oap.server.core.analysis.Disable;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
+import org.apache.skywalking.oap.server.core.analysis.MultipleDisable;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
@@ -88,6 +93,7 @@ public class OALRuntime implements OALEngine {
     private static final String DYNAMIC_METRICS_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.";
     private static final String DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.builder.";
     private static final String DYNAMIC_DISPATCHER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.dispatcher.";
+    private static final String DYNAMIC_DISABLE_CLASS_NAME = "org.apache.skywalking.oal.rt.DisableSourceDefinition";
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
     private static final String STORAGE_BUILDER_INTERFACE = "org.apache.skywalking.oap.server.core.storage.StorageBuilder";
     private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
@@ -185,6 +191,10 @@ public class OALRuntime implements OALEngine {
         for (Map.Entry<String, DispatcherContext> entry : allDispatcherContext.getAllContext().entrySet()) {
             dispatcherClasses.add(generateDispatcherClass(entry.getKey(), entry.getValue()));
         }
+
+        oalScripts.getDisableCollection().getAllDisableSources().forEach(disable -> {
+            DisableRegister.INSTANCE.add(disable);
+        });
     }
 
     /**

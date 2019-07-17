@@ -3,15 +3,9 @@ private void do${metricsName}(org.apache.skywalking.oap.server.core.source.${sou
 
     <#if filterExpressions??>
         <#list filterExpressions as filterExpression>
-            <#if filterExpression.expressionObject == "GreaterMatch" || filterExpression.expressionObject == "LessMatch" || filterExpression.expressionObject == "GreaterEqualMatch" || filterExpression.expressionObject == "LessEqualMatch">
-                if (!new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${filterExpression.expressionObject}().match(${filterExpression.left}, ${filterExpression.right})) {
-                    return;
-                }
-            <#else>
-                if (!new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${filterExpression.expressionObject}().setLeft(${filterExpression.left}).setRight(${filterExpression.right}).match()) {
-                    return;
-                }
-            </#if>
+            if (!new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${filterExpression.expressionObject}().match(${filterExpression.left}, ${filterExpression.right})) {
+                return;
+            }
         </#list>
     </#if>
 
@@ -24,11 +18,7 @@ private void do${metricsName}(org.apache.skywalking.oap.server.core.source.${sou
             <#if entryMethod.argTypes[arg_index] == 1>
                 ${arg}
             <#else>
-                <#if arg.expressionObject == "GreaterMatch" || arg.expressionObject == "LessMatch" || arg.expressionObject == "GreaterEqualMatch" || arg.expressionObject == "LessEqualMatch">
-                    new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${arg.expressionObject}().match(${arg.left}, ${arg.right})
-                <#else>
-                    new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${arg.expressionObject}().setLeft(${arg.left}).setRight(${arg.right}).match()
-                </#if>
+                 new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${arg.expressionObject}().match(${arg.left}, ${arg.right})
             </#if><#if arg_has_next>, </#if>
         </#list>);
 
