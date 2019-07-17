@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.commons.datacarrier;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
@@ -65,13 +66,15 @@ public class DataCarrierTest {
 
         Channels<SampleData> channels = (Channels<SampleData>)(MemberModifier.field(DataCarrier.class, "channels").get(carrier));
         Buffer<SampleData> buffer1 = channels.getBuffer(0);
-        List result1 = buffer1.obtain(0, 100);
+
+        List result = new ArrayList();
+        buffer1.obtain(result, 0, 100);
+        Assert.assertEquals(2, result.size());
 
         Buffer<SampleData> buffer2 = channels.getBuffer(1);
-        List result2 = buffer2.obtain(0, 100);
+        buffer2.obtain(result, 0, 100);
 
-        Assert.assertEquals(2, result1.size());
-        Assert.assertEquals(4, result1.size() + result2.size());
+        Assert.assertEquals(4, result.size());
 
     }
 
@@ -86,11 +89,12 @@ public class DataCarrierTest {
 
         Channels<SampleData> channels = (Channels<SampleData>)(MemberModifier.field(DataCarrier.class, "channels").get(carrier));
         Buffer<SampleData> buffer1 = channels.getBuffer(0);
-        List result1 = buffer1.obtain(0, 100);
+        List result = new ArrayList();
+        buffer1.obtain(result, 0, 100);
 
         Buffer<SampleData> buffer2 = channels.getBuffer(1);
-        List result2 = buffer2.obtain(0, 100);
-        Assert.assertEquals(200, result1.size() + result2.size());
+        buffer2.obtain(result, 0, 100);
+        Assert.assertEquals(200, result.size());
     }
 
     @Test
@@ -108,11 +112,12 @@ public class DataCarrierTest {
 
         Channels<SampleData> channels = (Channels<SampleData>)(MemberModifier.field(DataCarrier.class, "channels").get(carrier));
         Buffer<SampleData> buffer1 = channels.getBuffer(0);
-        List result1 = buffer1.obtain(0, 100);
+        List result = new ArrayList();
+        buffer1.obtain(result, 0, 100);
 
         Buffer<SampleData> buffer2 = channels.getBuffer(1);
-        List result2 = buffer2.obtain(0, 100);
-        Assert.assertEquals(200, result1.size() + result2.size());
+        buffer2.obtain(result, 0, 100);
+        Assert.assertEquals(200, result.size());
     }
 
     @Test
