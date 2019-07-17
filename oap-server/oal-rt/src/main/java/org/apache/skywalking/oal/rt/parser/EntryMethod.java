@@ -24,14 +24,29 @@ import lombok.*;
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
 public class EntryMethod {
+    private static final int LITERAL_TYPE = 1;
+    private static final int EXPRESSION_TYPE = 2;
+
     private String methodName;
+    private List<Integer> argTypes = new ArrayList<>();
+    private List<Object> argsExpressions = new ArrayList<>();
 
-    private List<String> argsExpressions;
-
-    public void addArg(String expression) {
-        if (argsExpressions == null) {
-            argsExpressions = new LinkedList<>();
+    public void addArg(Class<?> parameterType, String expression) {
+        if (parameterType.equals(int.class)) {
+            expression = "(int)(" + expression + ")";
+        } else if (parameterType.equals(long.class)) {
+            expression = "(long)(" + expression + ")";
+        } else if (parameterType.equals(double.class)) {
+            expression = "(double)(" + expression + ")";
+        } else if (parameterType.equals(float.class)) {
+            expression = "(float)(" + expression + ")";
         }
+        argTypes.add(LITERAL_TYPE);
+        argsExpressions.add(expression);
+    }
+
+    public void addArg(Expression expression) {
+        argTypes.add(EXPRESSION_TYPE);
         argsExpressions.add(expression);
     }
 }

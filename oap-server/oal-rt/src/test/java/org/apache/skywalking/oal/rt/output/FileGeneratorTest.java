@@ -46,13 +46,13 @@ public class FileGeneratorTest {
         result.setAggregationFunctionName("avg");
         result.setMetricsClassName("LongAvgMetrics");
 
-        FilterExpression equalExpression = new FilterExpression();
+        Expression equalExpression = new Expression();
         equalExpression.setExpressionObject("EqualMatch");
         equalExpression.setLeft("source.getName()");
         equalExpression.setRight("\"/service/prod/save\"");
         result.addFilterExpressions(equalExpression);
 
-        FilterExpression greaterExpression = new FilterExpression();
+        Expression greaterExpression = new Expression();
         greaterExpression.setExpressionObject("GreaterMatch");
         greaterExpression.setLeft("source.getLatency()");
         greaterExpression.setRight("1000");

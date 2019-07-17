@@ -120,19 +120,27 @@ public class OALListener extends OALParserBaseListener {
     }
 
     @Override public void enterBooleanConditionValue(OALParser.BooleanConditionValueContext ctx) {
-        conditionExpression.setValue(ctx.getText());
+        enterConditionValue(ctx.getText());
     }
 
     @Override public void enterStringConditionValue(OALParser.StringConditionValueContext ctx) {
-        conditionExpression.setValue(ctx.getText());
+        enterConditionValue(ctx.getText());
     }
 
     @Override public void enterEnumConditionValue(OALParser.EnumConditionValueContext ctx) {
-        conditionExpression.setValue(ctx.getText());
+        enterConditionValue(ctx.getText());
     }
 
     @Override public void enterNumberConditionValue(OALParser.NumberConditionValueContext ctx) {
-        conditionExpression.setValue(ctx.getText());
+        enterConditionValue(ctx.getText());
+    }
+
+    private void enterConditionValue(String value) {
+        if (value.split("\\.").length == 2 && !value.startsWith("\"")) {
+            // Value is an enum.
+            value = "org.apache.skywalking.oap.server.core.source." + value;
+        }
+        conditionExpression.setValue(value);
     }
 
     /////////////

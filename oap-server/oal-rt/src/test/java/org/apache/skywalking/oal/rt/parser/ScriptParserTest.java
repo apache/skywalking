@@ -80,7 +80,7 @@ public class ScriptParserTest {
         Assert.assertEquals("*", endpointPercent.getSourceAttribute());
         Assert.assertEquals("percent", endpointPercent.getAggregationFunctionName());
         EntryMethod entryMethod = endpointPercent.getEntryMethod();
-        List<String> methodArgsExpressions = entryMethod.getArgsExpressions();
+        List<Object> methodArgsExpressions = entryMethod.getArgsExpressions();
         Assert.assertEquals(3, methodArgsExpressions.size());
         Assert.assertEquals("source.isStatus()", methodArgsExpressions.get(1));
         Assert.assertEquals("true", methodArgsExpressions.get(2));

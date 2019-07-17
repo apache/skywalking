@@ -33,9 +33,41 @@ public abstract class BinaryMatchExpression {
         return this;
     }
 
+    public BinaryMatchExpression setLeft(boolean left) {
+        return setLeft(left);
+    }
+
+    public BinaryMatchExpression setLeft(int left) {
+        return setLeft(left);
+    }
+
+    public BinaryMatchExpression setLeft(long left) {
+        return setLeft(left);
+    }
+
+    public BinaryMatchExpression setLeft(double left) {
+        return setLeft(left);
+    }
+
     public BinaryMatchExpression setRight(Object right) {
         this.right = right;
         return this;
+    }
+
+    public BinaryMatchExpression setRight(boolean left) {
+        return setLeft(left);
+    }
+
+    public BinaryMatchExpression setRight(int left) {
+        return setLeft(left);
+    }
+
+    public BinaryMatchExpression setRight(long left) {
+        return setLeft(left);
+    }
+
+    public BinaryMatchExpression setRight(double left) {
+        return setLeft(left);
     }
 
     public abstract boolean match();

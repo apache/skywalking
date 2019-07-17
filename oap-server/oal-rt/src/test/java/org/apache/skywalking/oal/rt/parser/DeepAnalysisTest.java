@@ -109,9 +109,9 @@ public class DeepAnalysisTest {
         List<DataColumn> persistentFields = result.getPersistentFields();
         Assert.assertEquals(4, persistentFields.size());
 
-        List<FilterExpression> filterExpressions = result.getFilterExpressions();
+        List<Expression> filterExpressions = result.getFilterExpressions();
         Assert.assertEquals(1, filterExpressions.size());
-        FilterExpression filterExpression = filterExpressions.get(0);
+        Expression filterExpression = filterExpressions.get(0);
         Assert.assertEquals("EqualMatch", filterExpression.getExpressionObject());
         Assert.assertEquals("source.getName()", filterExpression.getLeft());
         Assert.assertEquals("\"/service/prod/save\"", filterExpression.getRight());

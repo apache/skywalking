@@ -44,7 +44,7 @@ public class AnalysisResult {
 
     private EntryMethod entryMethod;
 
-    private List<FilterExpression> filterExpressions;
+    private List<Expression> filterExpressions;
 
     private List<ConditionExpression> filterExpressionsParserResult;
 
@@ -74,7 +74,7 @@ public class AnalysisResult {
         funcConditionExpressions.add(conditionExpression);
     }
 
-    public void addFilterExpressions(FilterExpression filterExpression) {
+    public void addFilterExpressions(Expression filterExpression) {
         if (filterExpressions == null) {
             filterExpressions = new LinkedList<>();
         }

@@ -39,7 +39,7 @@ public class DeepAnalysis {
         List<ConditionExpression> expressions = result.getFilterExpressionsParserResult();
         if (expressions != null && expressions.size() > 0) {
             for (ConditionExpression expression : expressions) {
-                FilterExpression filterExpression = new FilterExpression();
+                Expression filterExpression = new Expression();
                 if ("booleanMatch".equals(expression.getExpressionType())) {
                     filterExpression.setExpressionObject("EqualMatch");
                     filterExpression.setLeft("source." + ClassMethodUtil.toIsMethod(expression.getAttribute()) + "()");
@@ -99,39 +99,55 @@ public class DeepAnalysis {
 
         // 4. Use parameter's annotation of entrance method to generate aggregation entrance.
         for (Parameter parameter : entranceMethod.getParameters()) {
+            Class<?> parameterType = parameter.getType();
             Annotation[] parameterAnnotations = parameter.getAnnotations();
             if (parameterAnnotations == null || parameterAnnotations.length == 0) {
                 throw new IllegalArgumentException("Entrance method:" + entranceMethod + " doesn't include the annotation.");
             }
             Annotation annotation = parameterAnnotations[0];
             if (annotation instanceof SourceFrom) {
-                entryMethod.addArg("source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
+                entryMethod.addArg(parameterType, "source." + ClassMethodUtil.toGetMethod(result.getSourceAttribute()) + "()");
             } else if (annotation instanceof ConstOne) {
-                entryMethod.addArg("1");
-            } else if (annotation instanceof Expression) {
-                entryMethod.addArg("new " + parameter.getType().getName() + "()");
-            } else if (annotation instanceof ExpressionArg0) {
+                entryMethod.addArg(parameterType, "1");
+            } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
                 if (result.getFuncConditionExpressions().size() == 1) {
-                    ConditionExpression conditionExpression = result.getFuncConditionExpressions().get(0);
-                    if ("booleanMatch".equals(conditionExpression.getExpressionType())) {
-                        entryMethod.addArg("source." + ClassMethodUtil.toIsMethod(conditionExpression.getAttribute()) + "()");
-                    } else if ("stringMatch".equals(conditionExpression.getExpressionType())) {
-                        entryMethod.addArg("source." + ClassMethodUtil.toGetMethod(conditionExpression.getAttribute()) + "()");
+                    ConditionExpression expression = result.getFuncConditionExpressions().get(0);
+
+                    Expression argExpression = new Expression();
+                    if ("booleanMatch".equals(expression.getExpressionType())) {
+                        argExpression.setExpressionObject("EqualMatch");
+                        argExpression.setLeft("source." + ClassMethodUtil.toIsMethod(expression.getAttribute()) + "()");
+                        argExpression.setRight(expression.getValue());
+                    } else if ("stringMatch".equals(expression.getExpressionType())) {
+                        argExpression.setExpressionObject("EqualMatch");
+                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                        argExpression.setRight(expression.getValue());
+                    } else if ("greaterMatch".equals(expression.getExpressionType())) {
+                        argExpression.setExpressionObject("GreaterMatch");
+                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                        argExpression.setRight(expression.getValue());
+                    } else if ("lessMatch".equals(expression.getExpressionType())) {
+                        argExpression.setExpressionObject("LessMatch");
+                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                        argExpression.setRight(expression.getValue());
+                    } else if ("greaterEqualMatch".equals(expression.getExpressionType())) {
+                        argExpression.setExpressionObject("GreaterEqualMatch");
+                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                        argExpression.setRight(expression.getValue());
+                    } else if ("lessEqualMatch".equals(expression.getExpressionType())) {
+                        argExpression.setExpressionObject("LessEqualMatch");
+                        argExpression.setLeft("source." + ClassMethodUtil.toGetMethod(expression.getAttribute()) + "()");
+                        argExpression.setRight(expression.getValue());
                     } else {
-                        throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument has @ExpressionArg0, but expression type is not supported");
+                        throw new IllegalArgumentException("filter expression [" + expression.getExpressionType() + "] not found");
                     }
+
+                    entryMethod.addArg(argExpression);
                 } else {
-                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument has @ExpressionArg0, but can't find funcParamExpression.");
-                }
-            } else if (annotation instanceof ExpressionArg1) {
-                if (result.getFuncConditionExpressions().size() == 1) {
-                    ConditionExpression conditionExpression = result.getFuncConditionExpressions().get(0);
-                    entryMethod.addArg(conditionExpression.getValue());
-                } else {
-                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument has @ExpressionArg0, but can't find funcParamExpression.");
+                    throw new IllegalArgumentException("Entrance method:" + entranceMethod + " argument can't find funcParamExpression.");
                 }
             } else if (annotation instanceof Arg) {
-                entryMethod.addArg(result.getNextFuncArg());
+                entryMethod.addArg(parameterType, result.getNextFuncArg());
             } else {
                 throw new IllegalArgumentException("Entrance method:" + entranceMethod + " doesn't the expected annotation.");
             }

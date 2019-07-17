@@ -16,17 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics.annotation;
+package org.apache.skywalking.oal.rt.parser;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author wusheng
- */
-@Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ExpressionArg0 {
+@Getter(AccessLevel.PUBLIC)
+@Setter(AccessLevel.PUBLIC)
+public class Expression {
+    private String expressionObject;
+    private String left;
+    private String right;
+
+    public void setLeft(String left) {
+        this.left = left;
+    }
+
+    public void setRight(String right) {
+        this.right = right;
+    }
 }

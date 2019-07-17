@@ -395,6 +395,27 @@ public class OALRuntime implements OALEngine {
         /**
          * Generate methods
          */
+        for (AnalysisResult dispatcherContextMetric : dispatcherContext.getMetrics()) {
+            StringWriter methodEntity = new StringWriter();
+            try {
+                configuration.getTemplate("dispatcher/doMetrics.ftl").process(dispatcherContextMetric, methodEntity);
+                dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
+            } catch (Exception e) {
+                logger.error("Can't generate method do" + dispatcherContextMetric.getMetricsName() + " for " + className + ".", e);
+                logger.error("Method body as following" + System.lineSeparator() + "{}", methodEntity);
+                throw new OALCompileException(e.getMessage(), e);
+            }
+        }
+
+        try {
+            StringWriter methodEntity = new StringWriter();
+            configuration.getTemplate("dispatcher/dispatch.ftl").process(dispatcherContext, methodEntity);
+            dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
+        } catch (Exception e) {
+            logger.error("Can't generate method dispatch for " + className + ".", e);
+            throw new OALCompileException(e.getMessage(), e);
+        }
+
         Class targetClass;
         try {
             targetClass = dispatcherClass.toClass(currentClassLoader, null);
