@@ -16,26 +16,29 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
 
-package org.apache.skywalking.apm.plugin.jedis.v2;
-
+import io.lettuce.core.RedisURI;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.util.PeerUtil;
-import redis.clients.jedis.HostAndPort;
 
-import java.util.Set;
+/**
+ * @author zhaoyuguang
+ */
 
-public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements InstanceConstructorInterceptor {
+public class MockRedisClusterClientConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        StringBuilder redisConnInfo = new StringBuilder();
-        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>)allArguments[0];
-        for (HostAndPort hostAndPort : hostAndPorts) {
-            redisConnInfo.append(hostAndPort.toString()).append(";");
+        @SuppressWarnings("unchecked")
+        Iterable<RedisURI> redisURIs = (Iterable<RedisURI>) allArguments[1];
+        MockRedisClusterClient redisClusterClient = (MockRedisClusterClient) objInst;
+        StringBuilder peer = new StringBuilder();
+        for (RedisURI redisURI : redisURIs) {
+            peer.append(redisURI.getHost()).append(":").append(redisURI.getPort()).append(";");
         }
-
-        objInst.setSkyWalkingDynamicField(PeerUtil.Shorten(redisConnInfo.toString()));
+        EnhancedInstance optionsInst = (EnhancedInstance) redisClusterClient.getOptions();
+        optionsInst.setSkyWalkingDynamicField(PeerUtil.Shorten(peer.toString()));
     }
 }

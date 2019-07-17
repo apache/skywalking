@@ -16,26 +16,47 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.jedis.v2;
+package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.util.PeerUtil;
-import redis.clients.jedis.HostAndPort;
 
-import java.util.Set;
+/**
+ * @author zhaoyuguang
+ */
 
-public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements InstanceConstructorInterceptor {
+public class MockRedisClusterClient implements EnhancedInstance {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        StringBuilder redisConnInfo = new StringBuilder();
-        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>)allArguments[0];
-        for (HostAndPort hostAndPort : hostAndPorts) {
-            redisConnInfo.append(hostAndPort.toString()).append(";");
+    private Object ms;
+
+    private EnhancedInstance options = new EnhancedInstance() {
+        private Object os;
+
+        @Override
+        public Object getSkyWalkingDynamicField() {
+            return os;
         }
 
-        objInst.setSkyWalkingDynamicField(PeerUtil.Shorten(redisConnInfo.toString()));
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            this.os = value;
+        }
+    };
+
+    public EnhancedInstance getOptions() {
+        return options;
+    }
+
+    public void setOptions(EnhancedInstance options) {
+        this.options = options;
+    }
+
+    @Override
+    public Object getSkyWalkingDynamicField() {
+        return ms;
+    }
+
+    @Override
+    public void setSkyWalkingDynamicField(Object value) {
+        this.ms = value;
     }
 }

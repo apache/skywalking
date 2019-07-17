@@ -93,6 +93,11 @@ public class Config {
          * How depth the agent goes, when log cause exceptions.
          */
         public static int CAUSE_EXCEPTION_DEPTH = 5;
+
+        /**
+         * Peer max length, Used in the interception of Jedis, Redission, and Lettuce cluster configuration.
+         */
+        public static int PEER_MAX_LENGTH = 200;
     }
 
     public static class Collector {
