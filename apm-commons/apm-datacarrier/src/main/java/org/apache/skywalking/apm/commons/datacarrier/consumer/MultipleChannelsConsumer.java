@@ -50,7 +50,8 @@ public class MultipleChannelsConsumer extends Thread {
         while (running) {
             boolean hasData = false;
             for (Group target : consumeTargets) {
-                hasData = hasData || consume(target, consumeList);
+                boolean consume = consume(target, consumeList);
+                hasData = hasData || consume;
             }
 
             if (!hasData) {
