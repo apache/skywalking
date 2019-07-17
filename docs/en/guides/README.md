@@ -69,15 +69,15 @@ Our goal of E2E tests is to test the SkyWalking project in a whole, including th
 in single node mode as well as cluster mode, therefore the first step is to determine what case we are going to verify and orchestrate the 
 components.
  
-In order to make it more easily to orchestrate, we've provided a [Docker e2e-container](https://github.com/SkyAPMTest/e2e-container) that can run
+In order to make it more easily to orchestrate, we're using a [Docker e2e-container](https://github.com/SkyAPMTest/e2e-container) that can run
 OAP server in both standalone and cluster mode, it can also run the given instrumented services. Refer to the repository for more details;
 
 Basically you will need:
-1. (if in cluster mode) start up the third-party service containers that SkyWalking depends on, such as ZooKeeper as coordinator, ElasticSearch as storage, etc. in the docker-maven-plugin;
-1. (if in cluster mode) carefully map the addresses/ports into the e2e-container that can be used by the OAP server to connect to;
-1. start the OAP server, Web App, and instrumented services in the e2e-container, mount your customized startup script to `/rc.d/` in e2e-container and it gets run when the container starts up;
-1. use the utilities provided in e2e-container to check the healthiness of the components;
-1. design the test controller and verify expected result;
+1. (If in cluster mode) start up the third-party service containers that SkyWalking depends on, such as ZooKeeper as coordinator, ElasticSearch as storage, etc. in the docker-maven-plugin;
+1. (If in cluster mode) carefully map the addresses/ports into the e2e-container that can be used by the OAP server to connect to;
+1. Start the OAP server, Web App, and instrumented services in the e2e-container, mount your customized startup script to `/rc.d/` in e2e-container and it gets run when the container starts up;
+1. Use the utilities provided in e2e-container to check the healthiness of the components;
+1. Design the test controller and verify expected result;
 
 We've given a simple example that verifies SkyWalking should work as expected in cluster mode, refer to [the codes](../../../test/e2e/e2e-cluster) for detail.
 
