@@ -65,6 +65,13 @@ pipeline {
             sh 'docker ps'
             sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
             sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker rm'
+
+            // Files created by docker container in the directories that are mounted from the host to
+            // the container can not be deleted by `deleteDir()`, we need to mount it again and delete them
+            // inside the container
+            //
+            // Delete `/dist` folder
+            sh 'docker run -v $(pwd)/dist:/sw alpine sleep 10 && rm -rf /sw/*'
             deleteDir()
         }
     }
