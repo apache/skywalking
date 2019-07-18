@@ -22,6 +22,21 @@ package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
  * @author peng-yongsheng
  */
 public class GreaterMatch {
+    public boolean match(int left, int right) {
+        return left > right;
+    }
+
+    public boolean match(long left, long right) {
+        return left > right;
+    }
+
+    public boolean match(float left, float right) {
+        return left > right;
+    }
+
+    public boolean match(double left, double right) {
+        return left > right;
+    }
 
     public boolean match(Integer left, Integer right) {
         return left > right;

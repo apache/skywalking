@@ -64,7 +64,7 @@ public class DefaultScopeDefine {
     public static final int HTTP_ACCESS_LOG = 25;
 
     /**
-     * Catalog of scope, the metrics processor could use this to group all generated metrics by oal tool.
+     * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
     public static final String SERVICE_CATALOG_NAME = "SERVICE";
     public static final String SERVICE_INSTANCE_CATALOG_NAME = "SERVICE_INSTANCE";
