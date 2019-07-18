@@ -40,6 +40,8 @@
                 <include>alarm-settings.yml</include>
                 <include>alarm-settings-sample.yml</include>
                 <include>datasource-settings.properties</include>
+                <include>official_analysis.oal</include>
+                <include>scope-meta.yml</include>
             </includes>
         </fileSet>
         <fileSet>

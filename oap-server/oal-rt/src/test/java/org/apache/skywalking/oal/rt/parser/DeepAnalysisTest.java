@@ -47,8 +47,8 @@ public class DeepAnalysisTest {
 
         EntryMethod method = result.getEntryMethod();
         Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("source.getLatency()", method.getArgsExpressions().get(0));
-        Assert.assertEquals("1", method.getArgsExpressions().get(1));
+        Assert.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
+        Assert.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
         Assert.assertEquals(1, source.size());
@@ -71,8 +71,8 @@ public class DeepAnalysisTest {
 
         EntryMethod method = result.getEntryMethod();
         Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("source.getLatency()", method.getArgsExpressions().get(0));
-        Assert.assertEquals("1", method.getArgsExpressions().get(1));
+        Assert.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
+        Assert.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
         Assert.assertEquals(3, source.size());
@@ -100,8 +100,8 @@ public class DeepAnalysisTest {
 
         EntryMethod method = result.getEntryMethod();
         Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("source.getLatency()", method.getArgsExpressions().get(0));
-        Assert.assertEquals("1", method.getArgsExpressions().get(1));
+        Assert.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
+        Assert.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
         Assert.assertEquals(3, source.size());
