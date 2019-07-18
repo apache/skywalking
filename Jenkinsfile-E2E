@@ -60,6 +60,11 @@ pipeline {
 
     post {
         always {
+            // Files created by docker container in the directories that are mounted from the host to
+            // the container can not be deleted by `deleteDir()`, we need to mount it again and delete them
+            // inside the container
+            sh 'docker run -v $(pwd)/dist:/sw alpine rm -rf /sw'
+
             // "Abort old build on update" will interrupt the job completely,
             // we need to clean up when there are containers started by the e2e tests
             sh 'docker ps'
