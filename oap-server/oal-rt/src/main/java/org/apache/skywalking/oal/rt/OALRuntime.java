@@ -48,6 +48,7 @@ import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import org.apache.commons.io.FileUtils;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.rt.meta.MetaReader;
 import org.apache.skywalking.oal.rt.meta.MetaSettings;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
@@ -104,6 +105,7 @@ public class OALRuntime implements OALEngine {
     private DispatcherDetectorListener dispatcherDetectorListener;
     private final List<Class> metricsClasses;
     private final List<Class> dispatcherClasses;
+    private final boolean openEngineDebug;
 
     public OALRuntime() {
         classPool = ClassPool.getDefault();
@@ -113,6 +115,7 @@ public class OALRuntime implements OALEngine {
         allDispatcherContext = new AllDispatcherContext();
         metricsClasses = new ArrayList<>();
         dispatcherClasses = new ArrayList<>();
+        openEngineDebug = !StringUtil.isEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
     }
 
     @Override public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
@@ -124,7 +127,7 @@ public class OALRuntime implements OALEngine {
     }
 
     @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
-        prepareRTTempFoler();
+        prepareRTTempFolder();
 
         this.currentClassLoader = currentClassLoader;
         Reader read;
@@ -456,48 +459,52 @@ public class OALRuntime implements OALEngine {
         context.getMetrics().add(metricsStmt);
     }
 
-    private void prepareRTTempFoler() {
-        File workPath = WorkPath.getPath();
-        File folder = new File(workPath.getParentFile(), "oal-rt/");
-        if (folder.exists()) {
-            try {
-                FileUtils.deleteDirectory(folder);
-            } catch (IOException e) {
-                logger.warn("Can't delete " + folder.getAbsolutePath() + " temp folder.", e);
+    private void prepareRTTempFolder() {
+        if (openEngineDebug) {
+            File workPath = WorkPath.getPath();
+            File folder = new File(workPath.getParentFile(), "oal-rt/");
+            if (folder.exists()) {
+                try {
+                    FileUtils.deleteDirectory(folder);
+                } catch (IOException e) {
+                    logger.warn("Can't delete " + folder.getAbsolutePath() + " temp folder.", e);
+                }
             }
+            folder.mkdirs();
         }
-        folder.mkdirs();
     }
 
     private void writeGeneratedFile(CtClass metricsClass, String className, String type) throws OALCompileException {
-        DataOutputStream printWriter = null;
-        try {
-            File workPath = WorkPath.getPath();
-            File folder = new File(workPath.getParentFile(), "oal-rt/" + type);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            File file = new File(folder, className + ".class");
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
+        if (openEngineDebug) {
+            DataOutputStream printWriter = null;
+            try {
+                File workPath = WorkPath.getPath();
+                File folder = new File(workPath.getParentFile(), "oal-rt/" + type);
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                }
+                File file = new File(folder, className + ".class");
+                if (file.exists()) {
+                    file.delete();
+                }
+                file.createNewFile();
 
-            printWriter = new DataOutputStream(new FileOutputStream(file));
-            metricsClass.toBytecode(printWriter);
-            printWriter.flush();
-        } catch (IOException e) {
-            logger.warn("Can't create " + className + ".txt, ignore.", e);
-            return;
-        } catch (CannotCompileException e) {
-            logger.warn("Can't compile " + className + ".class(should not happen), ignore.", e);
-            return;
-        } finally {
-            if (printWriter != null) {
-                try {
-                    printWriter.close();
-                } catch (IOException e) {
+                printWriter = new DataOutputStream(new FileOutputStream(file));
+                metricsClass.toBytecode(printWriter);
+                printWriter.flush();
+            } catch (IOException e) {
+                logger.warn("Can't create " + className + ".txt, ignore.", e);
+                return;
+            } catch (CannotCompileException e) {
+                logger.warn("Can't compile " + className + ".class(should not happen), ignore.", e);
+                return;
+            } finally {
+                if (printWriter != null) {
+                    try {
+                        printWriter.close();
+                    } catch (IOException e) {
 
+                    }
                 }
             }
         }

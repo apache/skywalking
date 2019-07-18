@@ -9,6 +9,8 @@ Since 6.3, the OAL engine is embedded in OAP server runtime, as `oal-rt`(OAL Run
 OAL scripts now locate in `/config` folder, user could simply change and reboot the server to make it effective.
 But still, OAL script is compile language, OAL Runtime generates java codes dynamically.
 
+You could open set `SW_OAL_ENGINE_DEBUG=Y` at system env, to see which classes generated.
+
 ## Grammar
 Scripts should be named as `*.oal`
 ```
