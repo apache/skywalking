@@ -39,11 +39,7 @@ public class NoneConfigurationProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        this.registerServiceImplementation(DynamicConfigurationService.class, new DynamicConfigurationService() {
-            @Override public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
-
-            }
-        });
+        this.registerServiceImplementation(DynamicConfigurationService.class, (DynamicConfigurationService)watcher -> {});
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
