@@ -89,7 +89,7 @@ public class TracingContext implements AbstractTracerContext {
     private volatile boolean isRunningInAsyncMode;
     private volatile ReentrantLock asyncFinishLock;
 
-    private volatile boolean running = false;
+    private volatile boolean running;
 
     /**
      * Initialize all fields with default value.
@@ -99,6 +99,7 @@ public class TracingContext implements AbstractTracerContext {
         this.spanIdGenerator = 0;
         samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
+        running = true;
     }
 
     /**
