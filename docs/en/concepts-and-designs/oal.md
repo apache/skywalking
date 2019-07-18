@@ -4,8 +4,10 @@ Provide OAL(Observability Analysis Language) to analysis incoming data in stream
 OAL focuses on metrics in Service, Service Instance and Endpoint. Because of that, the language is easy to 
 learn and use.
 
-Considering performance, reading and debugging, OAL is defined as a compile language. 
-The OAL scripts will be compiled to normal Java codes in package stage.
+
+Since 6.3, the OAL engine is embedded in OAP server runtime, as `oal-rt`(OAL Runtime).
+OAL scripts now locate in `/config` folder, user could simply change and reboot the server to make it effective.
+But still, OAL script is compile language, OAL Runtime generates java codes dynamically.
 
 ## Grammar
 Scripts should be named as `*.oal`
