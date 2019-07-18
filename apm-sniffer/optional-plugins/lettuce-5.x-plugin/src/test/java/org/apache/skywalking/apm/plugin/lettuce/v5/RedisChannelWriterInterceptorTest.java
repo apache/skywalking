@@ -115,7 +115,6 @@ public class RedisChannelWriterInterceptorTest {
     }
 
 
-
     @Test
     public void testOnHugeClusterConsumerConfig() {
         List<RedisURI> redisURIs = new ArrayList<>(100);
@@ -125,7 +124,6 @@ public class RedisChannelWriterInterceptorTest {
         MockRedisClusterClient mockRedisClusterClient = new MockRedisClusterClient();
         MockRedisClusterClientConstructorInterceptor constructorInterceptor = new MockRedisClusterClientConstructorInterceptor();
         constructorInterceptor.onConstruct(mockRedisClusterClient, new Object[]{null, redisURIs});
-        System.out.println(mockRedisClusterClient.getOptions().getSkyWalkingDynamicField());
         assertThat(mockRedisClusterClient.getOptions().getSkyWalkingDynamicField().toString().length(), Is.is(200));
     }
 }
