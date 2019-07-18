@@ -85,6 +85,7 @@
         <antlr.version>4.7.1</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
+        <zookeeper.image.version>3.5</zookeeper.image.version>
     </properties>
 
     <dependencies>

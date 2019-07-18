@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.*;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MultipleChannelsConsumer represent a single consumer thread, but support multiple channels with their {@link
@@ -43,10 +46,12 @@ public class MultipleChannelsConsumer extends Thread {
     public void run() {
         running = true;
 
+        final List consumeList = new ArrayList(2000);
         while (running) {
             boolean hasData = false;
             for (Group target : consumeTargets) {
-                hasData = hasData || consume(target);
+                boolean consume = consume(target, consumeList);
+                hasData = hasData || consume;
             }
 
             if (!hasData) {
@@ -55,34 +60,34 @@ public class MultipleChannelsConsumer extends Thread {
                 } catch (InterruptedException e) {
                 }
             }
-
         }
 
         // consumer thread is going to stop
         // consume the last time
         for (Group target : consumeTargets) {
-            consume(target);
+            consume(target, consumeList);
 
             target.consumer.onExit();
         }
     }
 
-    private boolean consume(Group target) {
-        boolean hasData;
-        LinkedList consumeList = new LinkedList();
+    private boolean consume(Group target, List consumeList) {
         for (int i = 0; i < target.channels.getChannelSize(); i++) {
             Buffer buffer = target.channels.getBuffer(i);
-            consumeList.addAll(buffer.obtain());
+            buffer.obtain(consumeList);
         }
 
-        if (hasData = consumeList.size() > 0) {
+        if (!consumeList.isEmpty()) {
             try {
                 target.consumer.consume(consumeList);
             } catch (Throwable t) {
                 target.consumer.onError(consumeList, t);
+            } finally {
+                consumeList.clear();
             }
+            return true;
         }
-        return hasData;
+        return false;
     }
 
     /**
