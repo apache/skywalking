@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 import com.google.gson.*;
 import java.io.*;
 import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -38,7 +37,7 @@ import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.*;
-import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.action.support.*;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.*;
 import org.elasticsearch.common.unit.*;
@@ -60,7 +59,7 @@ public class ElasticSearchClient implements Client {
     private final String namespace;
     private final String user;
     private final String password;
-    private RestHighLevelClient client;
+    protected RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
@@ -130,26 +129,24 @@ public class ElasticSearchClient implements Client {
             logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
             return new ArrayList<>(responseJson.keySet());
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
-     *  If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
-     *  Then you should delete the index by this method, this method will no longer concatenate namespace.
+     * If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
+     * Then you should delete the index by this method, this method will no longer concatenate namespace.
      *
      * https://github.com/apache/skywalking/pull/3017
-     *
      */
     public boolean deleteByIndexName(String indexName) throws IOException {
         return deleteIndex(indexName, false);
     }
 
     /**
-     *  If your indexName is obtained from metadata or configuration and without namespace.
-     *  Then you should delete the index by this method, this method automatically concatenates namespace.
+     * If your indexName is obtained from metadata or configuration and without namespace.
+     * Then you should delete the index by this method, this method automatically concatenates namespace.
      *
-     *  https://github.com/apache/skywalking/pull/3017
-     *
+     * https://github.com/apache/skywalking/pull/3017
      */
     public boolean deleteByModelName(String modelName) throws IOException {
         return deleteIndex(modelName, true);
@@ -302,11 +299,17 @@ public class ElasticSearchClient implements Client {
         return response.getStatusLine().getStatusCode();
     }
 
-    public String formatIndexName(String indexName) {
-        if (StringUtils.isNotEmpty(namespace)) {
-            return namespace + "_" + indexName;
+    public void synchronousBulk(BulkRequest request) {
+        request.timeout(TimeValue.timeValueMinutes(2));
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
+        request.waitForActiveShards(ActiveShardCount.ONE);
+        try {
+            int size = request.requests().size();
+            BulkResponse responses = client.bulk(request);
+            logger.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
-        return indexName;
     }
 
     public BulkProcessor createBulkProcessor(int bulkActions, int bulkSize, int flushInterval, int concurrentRequests) {
@@ -339,5 +342,12 @@ public class ElasticSearchClient implements Client {
             .setConcurrentRequests(concurrentRequests)
             .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
             .build();
+    }
+
+    public String formatIndexName(String indexName) {
+        if (StringUtils.isNotEmpty(namespace)) {
+            return namespace + "_" + indexName;
+        }
+        return indexName;
     }
 }

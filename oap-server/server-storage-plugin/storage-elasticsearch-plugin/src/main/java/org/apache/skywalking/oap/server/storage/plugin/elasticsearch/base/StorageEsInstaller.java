@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.*;
 
 /**
@@ -36,12 +37,14 @@ public class StorageEsInstaller extends ModelInstaller {
 
     private final int indexShardsNumber;
     private final int indexReplicasNumber;
+    private final int indexRefreshInterval;
     private final ColumnTypeEsMapping columnTypeEsMapping;
 
-    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber) {
+    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber, int indexRefreshInterval) {
         super(moduleManager);
         this.indexShardsNumber = indexShardsNumber;
         this.indexReplicasNumber = indexReplicasNumber;
+        this.indexRefreshInterval = indexRefreshInterval;
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
     }
 
@@ -98,8 +101,9 @@ public class StorageEsInstaller extends ModelInstaller {
         JsonObject setting = new JsonObject();
         setting.addProperty("index.number_of_shards", indexShardsNumber);
         setting.addProperty("index.number_of_replicas", indexReplicasNumber);
-        setting.addProperty("index.refresh_interval", "3s");
+        setting.addProperty("index.refresh_interval", TimeValue.timeValueSeconds(3).toString());
         setting.addProperty("analysis.analyzer.oap_analyzer.type", "stop");
+        TimeValue.timeValueSeconds(3);
         return setting;
     }
 
