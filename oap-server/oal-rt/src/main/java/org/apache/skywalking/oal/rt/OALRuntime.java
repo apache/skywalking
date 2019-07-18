@@ -93,7 +93,7 @@ public class OALRuntime implements OALEngine {
     private static final String SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.source.";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
     private static final String[] METRICS_CLASS_METHODS =
-        {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toDay"};
+        {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toHour", "toDay", "toMonth"};
     private static final String[] METRICS_BUILDER_CLASS_METHODS =
         {"data2Map", "map2Data"};
     private final ClassPool classPool;

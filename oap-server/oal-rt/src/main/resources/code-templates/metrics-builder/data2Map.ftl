@@ -1,4 +1,5 @@
-public java.util.Map data2Map(org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics storageData) {
+public java.util.Map data2Map(org.apache.skywalking.oap.server.core.storage.StorageData input) {
+    org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics storageData = (org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics)input;
     java.util.Map map = new java.util.HashMap();
     <#list fieldsFromSource as field>
         <#if field.typeName == "long">
