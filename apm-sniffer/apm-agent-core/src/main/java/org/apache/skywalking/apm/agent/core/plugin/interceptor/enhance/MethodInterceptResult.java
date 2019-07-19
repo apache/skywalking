@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
  *
  * @author wusheng
  */
-public class MethodInterceptResult {
+public class MethodInterceptResult extends MethodAroundContext {
     private boolean isContinue = true;
 
     private Object ret = null;
@@ -45,7 +45,7 @@ public class MethodInterceptResult {
     }
 
     /**
-     * @return true, will trigger method interceptor({@link InstMethodsInter} and {@link StaticMethodsInter}) to invoke
+     * @return true, will trigger method interceptor({@link InstMethodsInterNew} and {@link StaticMethodsInter}) to invoke
      * the origin method. Otherwise, not.
      */
     public boolean isContinue() {

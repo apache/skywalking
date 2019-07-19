@@ -19,6 +19,22 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
+import static net.bytebuddy.jar.asm.Opcodes.ACC_VOLATILE;
+import static net.bytebuddy.matcher.ElementMatchers.isStatic;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
+import org.apache.skywalking.apm.agent.core.plugin.PluginException;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.EnhanceException;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoader;
+import org.apache.skywalking.apm.util.StringUtil;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
@@ -28,18 +44,6 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.Morph;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
-import org.apache.skywalking.apm.agent.core.plugin.PluginException;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.*;
-import org.apache.skywalking.apm.util.StringUtil;
-
-import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
-import static net.bytebuddy.jar.asm.Opcodes.ACC_VOLATILE;
-import static net.bytebuddy.matcher.ElementMatchers.isStatic;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * This class controls all enhance operations, including enhance constructors, instance methods and static methods. All
@@ -164,7 +168,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                         newClassBuilder.method(junction)
                             .intercept(
                                 MethodDelegation.withDefaultConfiguration()
-                                    .to(new InstMethodsInter(interceptor, classLoader))
+                                    .to(createInstMethodsInter(interceptor, classLoader))
                             );
                 }
             }
@@ -172,7 +176,17 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
         return newClassBuilder;
     }
-
+    
+    private static Object createInstMethodsInter(final String  interceptorCls, final ClassLoader classLoader) {
+        try {
+            InstanceMethodsAroundInterceptor  interceptor = InterceptorInstanceLoader.load(interceptorCls, classLoader);
+            return interceptor instanceof AbstractInstanceMethodsAroundInterceptor ? 
+                    new InstMethodsInterNew((AbstractInstanceMethodsAroundInterceptor)interceptor)
+                    :  new InstMethodsInter(interceptor);
+        } catch (Throwable t) {
+            throw new PluginException("Can't create InstanceMethodsAroundInterceptor.", t);
+        }
+    }
     /**
      * Constructor methods intercept point. See {@link ConstructorInterceptPoint}
      *

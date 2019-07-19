@@ -21,15 +21,13 @@ package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.PluginException;
-import org.apache.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoader;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 
 /**
  * The actual byte-buddy's interceptor to intercept class instance methods.
@@ -37,32 +35,21 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
  *
  * @author wusheng
  */
-public class InstMethodsInter {
-    private static final ILog logger = LogManager.getLogger(InstMethodsInter.class);
+public class InstMethodsInterNew {
+    private static final ILog logger = LogManager.getLogger(InstMethodsInterNew.class);
 
     /**
      * An {@link InstanceMethodsAroundInterceptor}
      * This name should only stay in {@link String}, the real {@link Class} type will trigger classloader failure.
      * If you want to know more, please check on books about Classloader or Classloader appointment mechanism.
      */
-    private InstanceMethodsAroundInterceptor interceptor;
+    private final AbstractInstanceMethodsAroundInterceptor interceptor;
 
     /**
      * @param instanceMethodsAroundInterceptorClassName class full name.
      */
-    public InstMethodsInter(String instanceMethodsAroundInterceptorClassName, ClassLoader classLoader) {
-        try {
-            interceptor = InterceptorInstanceLoader.load(instanceMethodsAroundInterceptorClassName, classLoader);
-        } catch (Throwable t) {
-            throw new PluginException("Can't create InstanceMethodsAroundInterceptor.", t);
-        }
-    }
-
-    /**
-     * @param interceptor -   the interceptor
-     */
-    InstMethodsInter(InstanceMethodsAroundInterceptor interceptor) {
-        this.interceptor = interceptor;
+    InstMethodsInterNew(AbstractInstanceMethodsAroundInterceptor interceptor) {
+        this.interceptor =  interceptor;
     }
 
     /**
@@ -84,25 +71,25 @@ public class InstMethodsInter {
     ) throws Throwable {
         EnhancedInstance targetObject = (EnhancedInstance)obj;
 
-        MethodInterceptResult result = new MethodInterceptResult();
+        MethodInterceptResult context = new MethodInterceptResult();
         try {
             interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                result);
+                context);
         } catch (Throwable t) {
             logger.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
         }
 
         Object ret = null;
         try {
-            if (!result.isContinue()) {
-                ret = result._ret();
+            if (!context.isContinue()) {
+                ret = context._ret();
             } else {
                 ret = zuper.call();
             }
         } catch (Throwable t) {
             try {
                 interceptor.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(),
-                    t);
+                    t, context);
             } catch (Throwable t2) {
                 logger.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
             }
@@ -110,7 +97,7 @@ public class InstMethodsInter {
         } finally {
             try {
                 ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                    ret);
+                    ret, context);
             } catch (Throwable t) {
                 logger.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
             }

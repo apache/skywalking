@@ -23,9 +23,11 @@ import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.AbstractInstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodAroundContext;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 
 /**
@@ -35,7 +37,7 @@ import org.apache.skywalking.apm.agent.core.util.MethodUtil;
  *
  * @author zhangxin
  */
-public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class TraceAnnotationMethodInterceptor extends AbstractInstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -45,18 +47,16 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
             operationName = MethodUtil.generateOperationName(method);
         }
 
-        ContextManager.createLocalSpan(operationName);
+        result.setCurrentSpan(ContextManager.createLocalSpan(operationName));
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        Object ret, MethodAroundContext context) throws Throwable {
+        final AbstractSpan span = context.getCurrentSpan();
+        if (span != null) {
+            ContextManager.stopSpan(span);
+        }
         return ret;
-    }
-
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }
