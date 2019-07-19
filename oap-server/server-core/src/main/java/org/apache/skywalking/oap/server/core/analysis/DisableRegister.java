@@ -43,9 +43,13 @@ public class DisableRegister implements AnnotationListener {
         Disable[] valueList = annotation.value();
         if (valueList != null) {
             for (Disable disable : valueList) {
-                disableEntitySet.add(disable.value());
+                add(disable.value());
             }
         }
+    }
+
+    public void add(String name) {
+        disableEntitySet.add(name);
     }
 
     public boolean include(String name) {
