@@ -46,7 +46,7 @@ public class RemoteServiceHandlerTestCase {
     @Test
     public void callTest() throws DuplicateProviderException, ProviderNotFoundException, IOException {
         final int streamDataClassId = 1;
-        final int testWorkerId = 1;
+        final String testWorkerId = "mock-worker";
 
         ModuleManagerTesting moduleManager = new ModuleManagerTesting();
         ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
@@ -102,7 +102,7 @@ public class RemoteServiceHandlerTestCase {
 
         RemoteMessage.Builder remoteMessage = RemoteMessage.newBuilder();
         remoteMessage.setStreamDataId(streamDataClassId);
-        remoteMessage.setNextWorkerId(testWorkerId);
+        remoteMessage.setNextWorkName(testWorkerId);
 
         RemoteData.Builder remoteData = RemoteData.newBuilder();
         remoteData.addDataStrings("test1");

@@ -57,7 +57,7 @@ public class GRPCRemoteClientRealClient {
         remoteClient.connect();
 
         for (int i = 0; i < 10000; i++) {
-            remoteClient.push(1, new TestStreamData());
+            remoteClient.push("mock_remote", new TestStreamData());
             TimeUnit.SECONDS.sleep(1);
         }
 

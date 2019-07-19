@@ -18,28 +18,33 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
+    private static final Logger logger = LoggerFactory.getLogger(WorkerInstancesService.class);
 
-    private final AtomicInteger generator = new AtomicInteger(1);
-    private final Map<Integer, AbstractWorker> instances;
+    private final Map<String, AbstractWorker> instances;
 
     public WorkerInstancesService() {
         this.instances = new HashMap<>();
     }
 
-    @Override public AbstractWorker get(int workerId) {
-        return instances.get(workerId);
+    @Override public AbstractWorker get(String nextWorkerName) {
+        return instances.get(nextWorkerName);
     }
 
-    @Override public int put(AbstractWorker instance) {
-        int workerId = generator.getAndIncrement();
-        instances.put(workerId, instance);
-        return workerId;
+    @Override public void put(String remoteReceiverWorkName, AbstractWorker instance) {
+        if (instances.containsKey(remoteReceiverWorkName)) {
+            throw new UnexpectedException("Duplicate worker name:" + remoteReceiverWorkName);
+        }
+        instances.put(remoteReceiverWorkName, instance);
+        logger.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
     }
 }

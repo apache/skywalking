@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -47,6 +48,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     private IWorkerInstanceGetter workerInstanceGetter;
     private CounterMetrics remoteInCounter;
     private CounterMetrics remoteInErrorCounter;
+    private CounterMetrics remoteInTargetNotFoundCounter;
     private HistogramMetrics remoteInHistogram;
 
     public RemoteServiceHandler(ModuleDefineHolder moduleDefineHolder) {
@@ -57,6 +59,9 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_in_error_count", "The error number(server side) of inside remote inside aggregate rpc.",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        remoteInTargetNotFoundCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
+            .createCounter("remote_in_target_not_found_count", "The error number(server side) of inside remote handler target worker not found. May be caused by unmatched OAL scrips.",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createHistogramMetric("remote_in_latency", "The latency(server side) of inside remote inside aggregate rpc.",
@@ -86,14 +91,20 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                 HistogramMetrics.Timer timer = remoteInHistogram.createTimer();
                 try {
                     int streamDataId = message.getStreamDataId();
-                    int nextWorkerId = message.getNextWorkerId();
+                    String nextWorkerName = message.getNextWorkName();
                     RemoteData remoteData = message.getRemoteData();
 
                     Class<? extends StreamData> streamDataClass = streamDataMappingGetter.findClassById(streamDataId);
                     try {
                         StreamData streamData = streamDataClass.newInstance();
                         streamData.deserialize(remoteData);
-                        workerInstanceGetter.get(nextWorkerId).in(streamData);
+                        AbstractWorker nextWorker = workerInstanceGetter.get(nextWorkerName);
+                        if (nextWorker != null) {
+                            nextWorker.in(streamData);
+                        } else {
+                            remoteInTargetNotFoundCounter.inc();
+                            logger.warn("Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.", nextWorkerName);
+                        }
                     } catch (Throwable t) {
                         remoteInErrorCounter.inc();
                         logger.error(t.getMessage(), t);

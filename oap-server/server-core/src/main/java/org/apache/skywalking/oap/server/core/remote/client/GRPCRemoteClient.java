@@ -119,13 +119,13 @@ public class GRPCRemoteClient implements RemoteClient {
     /**
      * Push stream data which need to send to another OAP server.
      *
-     * @param nextWorkerId the id of a worker which will process this stream data.
+     * @param nextWorkerName the name of a worker which will process this stream data.
      * @param streamData the entity contains the values.
      */
-    @Override public void push(int nextWorkerId, StreamData streamData) {
+    @Override public void push(String nextWorkerName, StreamData streamData) {
         int streamDataId = streamDataMappingGetter.findIdByClass(streamData.getClass());
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
-        builder.setNextWorkerId(nextWorkerId);
+        builder.setNextWorkName(nextWorkerName);
         builder.setStreamDataId(streamDataId);
         builder.setRemoteData(streamData.serialize());
 

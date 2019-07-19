@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
  */
 public class GRPCRemoteClientTestCase {
 
-    private final int nextWorkerId = 1;
+    private final String nextWorkerId = "mock-worker";
     private ModuleManagerTesting moduleManager;
     private StreamDataMappingGetter classGetter;
     @Rule public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();

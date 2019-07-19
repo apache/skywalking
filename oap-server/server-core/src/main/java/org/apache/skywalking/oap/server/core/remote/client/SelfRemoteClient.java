@@ -53,8 +53,8 @@ public class SelfRemoteClient implements RemoteClient {
         throw new UnexpectedException("Self remote client invoked to close.");
     }
 
-    @Override public void push(int nextWorkerId, StreamData streamData) {
-        workerInstanceGetter.get(nextWorkerId).in(streamData);
+    @Override public void push(String nextWorkerName, StreamData streamData) {
+        workerInstanceGetter.get(nextWorkerName).in(streamData);
     }
 
     @Override public int compareTo(RemoteClient o) {

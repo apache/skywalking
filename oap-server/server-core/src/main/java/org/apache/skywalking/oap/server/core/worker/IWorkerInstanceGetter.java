@@ -25,5 +25,5 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface IWorkerInstanceGetter extends Service {
 
-    AbstractWorker get(int workerId);
+    AbstractWorker get(String nextWorkerName);
 }
