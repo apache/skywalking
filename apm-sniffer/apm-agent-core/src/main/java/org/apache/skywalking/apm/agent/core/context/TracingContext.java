@@ -18,14 +18,27 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
-import org.apache.skywalking.apm.agent.core.dictionary.*;
-import org.apache.skywalking.apm.agent.core.logging.api.*;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.LocalSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.NoopExitSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.apache.skywalking.apm.agent.core.context.trace.WithPeerInfo;
+import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
+import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -76,6 +89,8 @@ public class TracingContext implements AbstractTracerContext {
     private volatile boolean isRunningInAsyncMode;
     private volatile ReentrantLock asyncFinishLock;
 
+    private volatile boolean running;
+
     /**
      * Initialize all fields with default value.
      */
@@ -84,6 +99,7 @@ public class TracingContext implements AbstractTracerContext {
         this.spanIdGenerator = 0;
         samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
+        running = true;
     }
 
     /**
@@ -402,9 +418,7 @@ public class TracingContext implements AbstractTracerContext {
             throw new IllegalStateException("Stopping the unexpected span = " + span);
         }
 
-        if (checkFinishConditions()) {
-            finish();
-        }
+        finish();
 
         return activeSpanStack.isEmpty();
     }
@@ -425,26 +439,7 @@ public class TracingContext implements AbstractTracerContext {
 
     @Override public void asyncStop(AsyncSpan span) {
         asyncSpanCounter.addAndGet(-1);
-
-        if (checkFinishConditions()) {
-            finish();
-        }
-    }
-
-    private boolean checkFinishConditions() {
-        if (isRunningInAsyncMode) {
-            asyncFinishLock.lock();
-        }
-        try {
-            if (activeSpanStack.isEmpty() && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
-                return true;
-            }
-        } finally {
-            if (isRunningInAsyncMode) {
-                asyncFinishLock.unlock();
-            }
-        }
-        return false;
+        finish();
     }
 
     /**
@@ -452,19 +447,32 @@ public class TracingContext implements AbstractTracerContext {
      * TracingContext.ListenerManager}
      */
     private void finish() {
-        TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
-        /**
-         * Recheck the segment if the segment contains only one span.
-         * Because in the runtime, can't sure this segment is part of distributed trace.
-         *
-         * @see {@link #createSpan(String, long, boolean)}
-         */
-        if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-            if (!samplingService.trySampling()) {
-                finishedSegment.setIgnore(true);
+        if (isRunningInAsyncMode) {
+            asyncFinishLock.lock();
+        }
+        try {
+            if (activeSpanStack.isEmpty() && running && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
+                TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
+                /**
+                 * Recheck the segment if the segment contains only one span.
+                 * Because in the runtime, can't sure this segment is part of distributed trace.
+                 *
+                 * @see {@link #createSpan(String, long, boolean)}
+                 */
+                if (!segment.hasRef() && segment.isSingleSpanSegment()) {
+                    if (!samplingService.trySampling()) {
+                        finishedSegment.setIgnore(true);
+                    }
+                }
+                TracingContext.ListenerManager.notifyFinish(finishedSegment);
+
+                running = false;
+            }
+        } finally {
+            if (isRunningInAsyncMode) {
+                asyncFinishLock.unlock();
             }
         }
-        TracingContext.ListenerManager.notifyFinish(finishedSegment);
     }
 
     /**

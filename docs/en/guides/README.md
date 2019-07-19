@@ -96,7 +96,8 @@ and private plugin developer should read this.
 - If you want to build a new probe or plugin in any language, please read [Component library definition and extension](Component-library-settings.md) document.
 - [Storage extension development guide](storage-extention.md). Help potential contributors to build a new 
 storage implementor besides the official.
-- [Customize analysis by oal script](write-oal.md). Guide you to use oal script to make your own metrics available.
+- Customize analysis by oal script. OAL scripts locate in `config/official_analysis.oal`. You could change it and reboot the OAP server. Read 
+[Observability Analysis Language Introduction](../concepts-and-designs/oal.md) if you need to learn about OAL script.
 - [Source and scope extension for new metrics](source-extension.md). If you want to analysis a new metrics, which SkyWalking
 haven't provide. You need to 
 add a new receiver rather than choosing [existed receiver](../setup/backend/backend-receivers.md).

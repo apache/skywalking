@@ -271,6 +271,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
     Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
+    Apache: freemaker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
@@ -323,6 +324,7 @@ The text of each license is the standard Apache 2.0 license.
     sundrio 0.9.2: https://github.com/sundrio/sundrio Apache 2.0
     Ctripcorp: apollo 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
     etcd4j 2.17.0: https://github.com/jurmous/etcd4j Apache 2.0
+    javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
 
 ========================================================================
 MIT licenses

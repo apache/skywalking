@@ -35,19 +35,13 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- generated analysis core -->
+        <!-- OAL runtime core -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>generated-analysis</artifactId>
+            <artifactId>oal-rt</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>generate-tool</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        <!-- generated analysis core -->
+        <!-- OAL runtime core -->
 
         <!-- cluster module -->
         <dependency>
@@ -235,6 +229,8 @@
                         <exclude>component-libraries.yml</exclude>
                         <exclude>datasource-settings.properties</exclude>
                         <exclude>endpoint_naming_rules.properties</exclude>
+                        <exclude>official_analysis.oal</exclude>
+                        <exclude>scope-meta.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
