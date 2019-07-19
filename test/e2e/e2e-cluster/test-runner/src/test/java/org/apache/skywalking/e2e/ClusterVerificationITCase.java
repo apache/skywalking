@@ -261,13 +261,14 @@ public class ClusterVerificationITCase {
                     greaterThanZero.setValue("gt 0");
                     instanceRespTimeMatcher.setValue(greaterThanZero);
                     try {
+                        LOGGER.info("{}: {}", metricsName, instanceRespTime);
                         instanceRespTimeMatcher.verify(instanceRespTime);
                         matched = true;
                     } catch (Throwable ignored) {
                         generateTraffic();
                         Thread.sleep(retryInterval);
                     }
-                    LOGGER.info("{}: {}", metricsName, instanceRespTime);
+
                 }
             }
         }
@@ -297,13 +298,13 @@ public class ClusterVerificationITCase {
                     greaterThanZero.setValue("gt 0");
                     instanceRespTimeMatcher.setValue(greaterThanZero);
                     try {
+                        LOGGER.info("metrics: {}", metrics);
                         instanceRespTimeMatcher.verify(metrics);
                         matched = true;
                     } catch (Throwable ignored) {
                         generateTraffic();
                         Thread.sleep(retryInterval);
                     }
-                    LOGGER.info("metrics: {}", metrics);
                 }
             }
         }
@@ -328,13 +329,13 @@ public class ClusterVerificationITCase {
                 greaterThanZero.setValue("gt 0");
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 try {
+                    LOGGER.info("serviceMetrics: {}", serviceMetrics);
                     instanceRespTimeMatcher.verify(serviceMetrics);
                     matched = true;
                 } catch (Throwable ignored) {
                     generateTraffic();
                     Thread.sleep(retryInterval);
                 }
-                LOGGER.info("serviceMetrics: {}", serviceMetrics);
             }
         }
     }
