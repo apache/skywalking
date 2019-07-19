@@ -416,8 +416,9 @@
                         <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
                         <exclude>**/src/main/proto/validate/validate.proto</exclude>
 
-                        <!-- generated file from antlr -->
-                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/tool/grammar/OALLexer.tokens</exclude>
+                        <!-- generated file from oal grammar and rt template -->
+                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/OALLexer.tokens</exclude>
+                        <exclude>**/src/main/resources/code-templates/*/*.ftl</exclude>
 
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
@@ -510,7 +511,7 @@
                         org/apache/skywalking/apm/network/servicemesh/**/*.java,
                         org/apache/skywalking/apm/network/language/**/*.java,
                         org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
-                        org/apache/skywalking/oal/tool/grammar/*.java,
+                        org/apache/skywalking/oal/rt/grammar/*.java,
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java
                     </excludes>

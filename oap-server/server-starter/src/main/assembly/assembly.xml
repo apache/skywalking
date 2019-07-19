@@ -46,15 +46,10 @@
             <directory>src/main/resources</directory>
             <includes>
                 <include>component-libraries.yml</include>
+                <include>official_analysis.oal</include>
+                <include>scope-meta.yml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/../apm-collector-instrument/target</directory>
-            <includes>
-                <include>collector-instrument-agent.jar</include>
-            </includes>
-            <outputDirectory>/agent</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>

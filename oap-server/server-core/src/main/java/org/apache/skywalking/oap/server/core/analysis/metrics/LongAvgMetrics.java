@@ -34,11 +34,11 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     protected static final String VALUE = "value";
 
     @Getter @Setter @Column(columnName = SUMMATION) private long summation;
-    @Getter @Setter @Column(columnName = COUNT) private int count;
+    @Getter @Setter @Column(columnName = COUNT) private long count;
     @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private long value;
 
     @Entrance
-    public final void combine(@SourceFrom long summation, @ConstOne int count) {
+    public final void combine(@SourceFrom long summation, @ConstOne long count) {
         this.summation += summation;
         this.count += count;
     }
