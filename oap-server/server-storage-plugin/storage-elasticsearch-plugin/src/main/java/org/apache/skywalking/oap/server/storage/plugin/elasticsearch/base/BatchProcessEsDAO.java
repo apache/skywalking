@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.*;
@@ -49,17 +49,17 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         this.concurrentRequests = concurrentRequests;
     }
 
-    @Override public void batchPersistence(List<?> batchCollection) {
+    @Override public void asynchronous(List<?> collection) {
         if (bulkProcessor == null) {
             this.bulkProcessor = getClient().createBulkProcessor(bulkActions, bulkSize, flushInterval, concurrentRequests);
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("bulk data size: {}", batchCollection.size());
+            logger.debug("Asynchronous batch persistent data collection size: {}", collection.size());
         }
 
-        if (CollectionUtils.isNotEmpty(batchCollection)) {
-            batchCollection.forEach(builder -> {
+        if (CollectionUtils.isNotEmpty(collection)) {
+            collection.forEach(builder -> {
                 if (builder instanceof IndexRequest) {
                     this.bulkProcessor.add((IndexRequest)builder);
                 }
@@ -67,8 +67,23 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
                     this.bulkProcessor.add((UpdateRequest)builder);
                 }
             });
+            this.bulkProcessor.flush();
         }
+    }
 
-        this.bulkProcessor.flush();
+    @Override public void synchronous(List<?> collection) {
+        if (CollectionUtils.isNotEmpty(collection)) {
+            BulkRequest request = new BulkRequest();
+
+            for (Object builder : collection) {
+                if (builder instanceof IndexRequest) {
+                    request.add((IndexRequest)builder);
+                }
+                if (builder instanceof UpdateRequest) {
+                    request.add((UpdateRequest)builder);
+                }
+            }
+            getClient().synchronousBulk(request);
+        }
     }
 }
