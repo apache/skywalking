@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 
 public class MethodUtil {
 
+
     public static String generateOperationName(Method method) {
         StringBuilder operationName = new StringBuilder(method.getDeclaringClass().getName() + "." + method.getName() + "(");
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -41,5 +42,17 @@ public class MethodUtil {
         }
         operationName.append(")");
         return operationName.toString();
+    }
+
+
+    public static boolean isGetStatusExist(ClassLoader classLoader) {
+        try {
+            Class<?> httpServletResponse = Class.forName("javax.servlet.http.HttpServletResponse", true, classLoader);
+            httpServletResponse.getDeclaredMethod("getStatus");
+            return true;
+        } catch (Exception e) {
+            //ignore
+        }
+        return false;
     }
 }

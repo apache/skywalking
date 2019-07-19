@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
@@ -40,6 +41,12 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * trace segment id of the previous level if the serialized context is not null.
  */
 public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
+
+    static {
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isGetStatusExist(TomcatInvokeInterceptor.class.getClassLoader());
+    }
 
     /**
      * * The {@link TraceSegment#refs} of current trace segment will reference to the
@@ -76,7 +83,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         HttpServletResponse response = (HttpServletResponse)allArguments[1];
 
         AbstractSpan span = ContextManager.activeSpan();
-        if (response.getStatus() >= 400) {
+        if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }

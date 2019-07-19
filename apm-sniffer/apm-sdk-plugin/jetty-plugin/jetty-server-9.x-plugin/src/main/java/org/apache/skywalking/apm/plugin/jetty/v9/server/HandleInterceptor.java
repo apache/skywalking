@@ -31,10 +31,18 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.eclipse.jetty.server.HttpChannel;
 
 public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
+
+    static {
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isGetStatusExist(HandleInterceptor.class.getClassLoader());
+    }
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -62,7 +70,7 @@ public class HandleInterceptor implements InstanceMethodsAroundInterceptor {
         HttpChannel httpChannel = (HttpChannel)objInst;
         HttpServletResponse servletResponse = httpChannel.getResponse();
         AbstractSpan span = ContextManager.activeSpan();
-        if (servletResponse.getStatus() >= 400) {
+        if (IS_SERVLET_GET_STATUS_METHOD_EXIST && servletResponse.getStatus() >= 400) {
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(servletResponse.getStatus()));
         }
