@@ -72,7 +72,8 @@ public class AgentPackagePath {
                     return agentJarFile.getParentFile();
                 }
             } else {
-                String classLocation = urlString.substring(urlString.indexOf("file:"), urlString.length() - classResourcePath.length());
+                int prefixLength = "file:".length();
+                String classLocation = urlString.substring(prefixLength, urlString.length() - classResourcePath.length());
                 return new File(classLocation);
             }
         }
