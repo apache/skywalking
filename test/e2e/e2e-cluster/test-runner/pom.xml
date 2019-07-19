@@ -120,6 +120,8 @@
                                     <INSTRUMENTED_SERVICE_1_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
                                         -DSW_AGENT_NAME=${service0.name}
+                                        -Dskywalking.jvm.collect_period=40
+                                        -Dskywalking.jvm.report_period=40
                                     </INSTRUMENTED_SERVICE_1_OPTS>
                                     <INSTRUMENTED_SERVICE_1_ARGS>
                                         --server.port=9090
@@ -131,6 +133,8 @@
                                     <INSTRUMENTED_SERVICE_2_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11801
                                         -DSW_AGENT_NAME=${service1.name}
+                                        -Dskywalking.jvm.collect_period=40
+                                        -Dskywalking.jvm.report_period=40
                                     </INSTRUMENTED_SERVICE_2_OPTS>
                                     <INSTRUMENTED_SERVICE_2_ARGS>
                                         --server.port=9091

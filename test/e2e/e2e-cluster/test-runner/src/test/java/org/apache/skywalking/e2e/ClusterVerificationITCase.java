@@ -119,7 +119,6 @@ public class ClusterVerificationITCase {
                     user,
                     String.class
                 );
-                Thread.sleep(1000L);
             } catch (Throwable ignored) {
             }
         }
@@ -133,6 +132,17 @@ public class ClusterVerificationITCase {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         verifyTraces(startTime);
+
+        for (int i = 0; i < 20; i++) {
+            try {
+                restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+                );
+            } catch (Throwable ignored) {
+            }
+        }
 
         verifyServices(startTime);
 
