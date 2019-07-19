@@ -101,7 +101,7 @@ public class StorageEsInstaller extends ModelInstaller {
         JsonObject setting = new JsonObject();
         setting.addProperty("index.number_of_shards", indexShardsNumber);
         setting.addProperty("index.number_of_replicas", indexReplicasNumber);
-        setting.addProperty("index.refresh_interval", TimeValue.timeValueSeconds(3).toString());
+        setting.addProperty("index.refresh_interval", TimeValue.timeValueSeconds(indexRefreshInterval).toString());
         setting.addProperty("analysis.analyzer.oap_analyzer.type", "stop");
         TimeValue.timeValueSeconds(3);
         return setting;
