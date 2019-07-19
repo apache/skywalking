@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.util.PeerUtil;
+import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 import redis.clients.jedis.HostAndPort;
 
 import java.util.Set;
@@ -36,6 +36,6 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements
             redisConnInfo.append(hostAndPort.toString()).append(";");
         }
 
-        objInst.setSkyWalkingDynamicField(PeerUtil.Shorten(redisConnInfo.toString()));
+        objInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(redisConnInfo.toString()));
     }
 }

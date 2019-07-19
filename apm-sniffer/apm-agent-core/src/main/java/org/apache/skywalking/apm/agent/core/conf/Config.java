@@ -93,11 +93,6 @@ public class Config {
          * How depth the agent goes, when log cause exceptions.
          */
         public static int CAUSE_EXCEPTION_DEPTH = 5;
-
-        /**
-         * Peer max length, Used in the interception of Jedis, Redission, and Lettuce cluster configuration.
-         */
-        public static int PEER_MAX_LENGTH = 200;
     }
 
     public static class Collector {
@@ -163,6 +158,12 @@ public class Config {
     }
 
     public static class Plugin {
+
+        /**
+         * Control the length of the peer field.
+         */
+        public static int PEER_MAX_LENGTH = 200;
+
         public static class MongoDB {
             /**
              * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.

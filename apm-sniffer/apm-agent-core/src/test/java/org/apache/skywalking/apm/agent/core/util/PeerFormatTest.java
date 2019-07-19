@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.util;
 
+import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ import org.junit.Test;
  * @author zhaoyuguang
  */
 
-public class PeerUtilTest {
+public class PeerFormatTest {
 
     @Test
     public void testShorten() {
@@ -33,6 +34,6 @@ public class PeerUtilTest {
         for (int i = 0; i < 100; i++) {
             sb.append("localhost:" + i + ";");
         }
-        Assert.assertTrue(PeerUtil.Shorten(sb.toString()).length() == 200);
+        Assert.assertTrue(PeerFormat.INSTANCE.Shorten(sb.toString()).length() == 200);
     }
 }

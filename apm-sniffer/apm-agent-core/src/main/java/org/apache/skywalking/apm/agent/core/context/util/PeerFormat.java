@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.util;
+package org.apache.skywalking.apm.agent.core.context.util;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -25,13 +25,15 @@ import org.apache.skywalking.apm.util.StringUtil;
  * @author zhaoyuguang
  */
 
-public class PeerUtil {
+public enum PeerFormat {
+
+    INSTANCE;
 
     private static final String ABBR = "...";
 
-    public static String Shorten(String original) {
-        if (!StringUtil.isEmpty(original) && original.length() > Config.Agent.PEER_MAX_LENGTH) {
-            return original.substring(0, Config.Agent.PEER_MAX_LENGTH - 3) + ABBR;
+    public String Shorten(String original) {
+        if (!StringUtil.isEmpty(original) && original.length() > Config.Plugin.PEER_MAX_LENGTH) {
+            return original.substring(0, Config.Plugin.PEER_MAX_LENGTH - 3) + ABBR;
         }
         return original;
     }

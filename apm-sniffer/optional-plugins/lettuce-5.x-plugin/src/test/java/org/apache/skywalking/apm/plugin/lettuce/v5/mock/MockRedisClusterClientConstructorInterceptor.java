@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
 import io.lettuce.core.RedisURI;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.util.PeerUtil;
+import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 
 /**
  * @author zhaoyuguang
@@ -39,6 +39,6 @@ public class MockRedisClusterClientConstructorInterceptor implements InstanceCon
             peer.append(redisURI.getHost()).append(":").append(redisURI.getPort()).append(";");
         }
         EnhancedInstance optionsInst = (EnhancedInstance) redisClusterClient.getOptions();
-        optionsInst.setSkyWalkingDynamicField(PeerUtil.Shorten(peer.toString()));
+        optionsInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
     }
 }
