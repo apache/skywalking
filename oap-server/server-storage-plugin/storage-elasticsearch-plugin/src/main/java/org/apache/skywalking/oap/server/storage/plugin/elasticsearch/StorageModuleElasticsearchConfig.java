@@ -28,13 +28,14 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private String nameSpace;
     @Setter private String clusterNodes;
-    @Setter private int indexShardsNumber;
-    @Setter private int indexReplicasNumber;
-    @Setter private boolean highPerformanceMode;
+    @Setter private int indexShardsNumber = 2;
+    @Setter private int indexReplicasNumber = 0;
+    @Setter private int indexRefreshInterval = 2;
     @Setter private int bulkActions = 2000;
     @Setter private int bulkSize = 20;
     @Setter private int flushInterval = 10;
     @Setter private int concurrentRequests = 2;
+    @Setter private int syncBulkActions = 3;
     @Setter private String user;
     @Setter private String password;
     @Setter private int metadataQueryMaxSize = 5000;

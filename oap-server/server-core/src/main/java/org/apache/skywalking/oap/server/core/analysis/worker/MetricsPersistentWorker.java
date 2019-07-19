@@ -74,7 +74,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     }
 
     @Override void onWork(Metrics metrics) {
-        super.onWork(metrics);
+        cacheData(metrics);
     }
 
     @Override public void in(Metrics metrics) {
