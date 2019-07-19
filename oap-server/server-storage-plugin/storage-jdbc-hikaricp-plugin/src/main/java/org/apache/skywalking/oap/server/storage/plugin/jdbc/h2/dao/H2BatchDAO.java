@@ -18,20 +18,20 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2BatchDAO implements IBatchDAO {
+
     private static final Logger logger = LoggerFactory.getLogger(H2BatchDAO.class);
 
     private JDBCHikariCPClient h2Client;
@@ -40,24 +40,26 @@ public class H2BatchDAO implements IBatchDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public void batchPersistence(List<?> batchCollection) {
-        if (batchCollection.size() == 0) {
+    @Override public void synchronous(List<?> collection) {
+        if (CollectionUtils.isEmpty(collection)) {
             return;
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("batch sql statements execute, data size: {}", batchCollection.size());
+            logger.debug("batch sql statements execute, data size: {}", collection.size());
         }
 
         try (Connection connection = h2Client.getConnection()) {
-            for (Object exe : batchCollection) {
+            for (Object exe : collection) {
                 SQLExecutor sqlExecutor = (SQLExecutor)exe;
                 sqlExecutor.invoke(connection);
             }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    @Override public void asynchronous(List<?> collection) {
+        synchronous(collection);
     }
 }

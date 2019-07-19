@@ -48,7 +48,7 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
                     getCache().switchPointer();
 
                     List<?> collection = buildBatchCollection();
-                    batchDAO.batchPersistence(collection);
+                    batchDAO.asynchronous(collection);
                 }
             } finally {
                 getCache().trySwitchPointerFinally();
