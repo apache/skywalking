@@ -80,6 +80,8 @@ public interface AbstractTracerContext {
      */
     AbstractSpan createLocalSpan(String operationName);
 
+    AbstractSpan createLocalSpan(String operationName, AbstractSpan parentSpan);
+
     /**
      * Create an exit span
      *
@@ -88,6 +90,8 @@ public interface AbstractTracerContext {
      * @return the span represent an exit point of this segment.
      */
     AbstractSpan createExitSpan(String operationName, String remotePeer);
+
+    AbstractSpan createExitSpan(String operationName, String remotePeer, AbstractSpan parentSpan);
 
     /**
      * @return the active span of current tracing context(stack)

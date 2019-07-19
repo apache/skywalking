@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
@@ -37,20 +38,20 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  */
 public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
 
-    public ExitSpan(int spanId, int parentSpanId, String operationName, String peer) {
-        super(spanId, parentSpanId, operationName, peer);
+    public ExitSpan(int spanId, int parentSpanId, String operationName, String peer, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName, peer,context);
     }
 
-    public ExitSpan(int spanId, int parentSpanId, int operationId, int peerId) {
-        super(spanId, parentSpanId, operationId, peerId);
+    public ExitSpan(int spanId, int parentSpanId, int operationId, int peerId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId, peerId,context);
     }
 
-    public ExitSpan(int spanId, int parentSpanId, int operationId, String peer) {
-        super(spanId, parentSpanId, operationId, peer);
+    public ExitSpan(int spanId, int parentSpanId, int operationId, String peer, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId, peer,context);
     }
 
-    public ExitSpan(int spanId, int parentSpanId, String operationName, int peerId) {
-        super(spanId, parentSpanId, operationName, peerId);
+    public ExitSpan(int spanId, int parentSpanId, String operationName, int peerId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName, peerId, context);
     }
 
     /**

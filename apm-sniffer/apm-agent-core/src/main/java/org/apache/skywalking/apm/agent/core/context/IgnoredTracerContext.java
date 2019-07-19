@@ -74,7 +74,19 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
+    public AbstractSpan createLocalSpan(String operationName, AbstractSpan parentSpan) {
+        stackDepth++;
+        return NOOP_SPAN;
+    }
+
+    @Override
     public AbstractSpan createExitSpan(String operationName, String remotePeer) {
+        stackDepth++;
+        return NOOP_SPAN;
+    }
+
+    @Override
+    public AbstractSpan createExitSpan(String operationName, String remotePeer, AbstractSpan parentSpan) {
         stackDepth++;
         return NOOP_SPAN;
     }

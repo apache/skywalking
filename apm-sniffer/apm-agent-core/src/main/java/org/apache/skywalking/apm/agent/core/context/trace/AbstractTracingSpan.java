@@ -72,18 +72,20 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      */
     protected List<TraceSegmentRef> refs;
 
-    protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName) {
+    protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName, AbstractTracerContext context) {
         this.operationName = operationName;
         this.operationId = DictionaryUtil.nullValue();
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
+        this.context = context;
     }
 
-    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId) {
+    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId, AbstractTracerContext context) {
         this.operationName = null;
         this.operationId = operationId;
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
+        this.context = context;
     }
 
     /**
@@ -322,7 +324,11 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override public AbstractSpan prepareForAsync() {
-        context = ContextManager.awaitFinishAsync(this);
+        AbstractSpan activeSpan = context.activeSpan();
+        if (this != activeSpan) {
+            throw new RuntimeException("Span is not the active in current context.");
+        }
+        context = context.awaitFinishAsync();
         isInAsyncMode = true;
         return this;
     }
@@ -335,5 +341,20 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         this.endTime = System.currentTimeMillis();
         context.asyncStop(this);
         return this;
+    }
+
+    @Override
+    public boolean stop(ContextManager contextMgr) {
+        if (contextMgr == null) {
+            throw new IllegalAccessError("This method should call inside ContextManager");
+        }
+        return context.stopSpan(this);
+    }
+
+    public final AbstractTracerContext getContext(ContextManager contextMgr) {
+        if (contextMgr == null) {
+            throw new IllegalAccessError("This method should call inside ContextManager");
+        }
+        return context;
     }
 }

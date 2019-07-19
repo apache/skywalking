@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
@@ -37,13 +38,13 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     private int currentMaxDepth;
 
-    public EntrySpan(int spanId, int parentSpanId, String operationName) {
-        super(spanId, parentSpanId, operationName);
+    public EntrySpan(int spanId, int parentSpanId, String operationName, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName, context);
         this.currentMaxDepth = 0;
     }
 
-    public EntrySpan(int spanId, int parentSpanId, int operationId) {
-        super(spanId, parentSpanId, operationId);
+    public EntrySpan(int spanId, int parentSpanId, int operationId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId, context);
         this.currentMaxDepth = 0;
     }
 

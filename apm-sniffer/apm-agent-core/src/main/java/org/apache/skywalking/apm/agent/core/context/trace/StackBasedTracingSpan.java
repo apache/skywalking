@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
@@ -35,40 +36,40 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
     protected String peer;
     protected int peerId;
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName) {
-        super(spanId, parentSpanId, operationName);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName, context);
         this.stackDepth = 0;
         this.peer = null;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, int operationId) {
-        super(spanId, parentSpanId, operationId);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId, context);
         this.stackDepth = 0;
         this.peer = null;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, int peerId) {
-        super(spanId, parentSpanId, operationId);
+    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, int peerId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId, context);
         this.peer = null;
         this.peerId = peerId;
     }
 
-    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, String peer) {
-        super(spanId, parentSpanId, operationId);
+    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, String peer, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId, context);
         this.peer = peer;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, String peer) {
-        super(spanId, parentSpanId, operationName);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, String peer, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName, context);
         this.peer = peer;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, int peerId) {
-        super(spanId, parentSpanId, operationName);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, int peerId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName, context);
         this.peer = null;
         this.peerId = peerId;
     }

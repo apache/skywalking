@@ -20,6 +20,8 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
@@ -123,4 +125,15 @@ public class NoopSpan implements AbstractSpan {
     @Override public AbstractSpan asyncFinish() {
         return this;
     }
+
+    @Override
+    public boolean stop(ContextManager contextMgr) {
+        return true;
+    }
+
+    @Override
+    public AbstractTracerContext getContext(ContextManager contextMgr) {
+        return null;
+    }
+    
 }

@@ -279,11 +279,11 @@ public class TracingContext implements AbstractTracerContext {
                 .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId, TracingContext.this);
                     }
                 }, new PossibleFound.NotFoundAndObtain() {
                     @Override public Object doProcess() {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName, TracingContext.this);
                     }
                 });
             entrySpan.start();
@@ -303,13 +303,27 @@ public class TracingContext implements AbstractTracerContext {
             NoopSpan span = new NoopSpan();
             return push(span);
         }
-        AbstractSpan parentSpan = peek();
+        return createLocalSpanByParent(operationName, null);
+    }
+
+    public AbstractSpan createLocalSpan(final String operationName, AbstractSpan parentSpan) {
+        if (isLimitMechanismWorking()) {
+            NoopSpan span = new NoopSpan();
+            return push(span);
+        }
+        return createLocalSpanByParent(operationName, parentSpan);
+    }
+
+    private AbstractSpan createLocalSpanByParent(final String operationName, AbstractSpan parentSpan) {
+        if (parentSpan == null) {
+            parentSpan  = peek();
+        }
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         /**
          * From v6.0.0-beta, local span doesn't do op name register.
          * All op name register is related to entry and exit spans only.
          */
-        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
+        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName, TracingContext.this);
         span.start();
         return push(span);
     }
@@ -324,8 +338,14 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
+        return createExitSpan(operationName, remotePeer,null);
+    }
+    
+    public AbstractSpan createExitSpan(final String operationName, final String remotePeer, AbstractSpan parentSpan) {
         AbstractSpan exitSpan;
-        AbstractSpan parentSpan = peek();
+        if (null == parentSpan) {
+            parentSpan = peek();
+        }
         if (parentSpan != null && parentSpan.isExit()) {
             exitSpan = parentSpan;
         } else {
@@ -345,12 +365,12 @@ public class TracingContext implements AbstractTracerContext {
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
                                         public Object doProcess(int operationId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, peerId);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, peerId, TracingContext.this);
                                         }
                                     }, new PossibleFound.NotFoundAndObtain() {
                                         @Override
                                         public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId, TracingContext.this);
                                         }
                                     });
                         }
@@ -368,12 +388,12 @@ public class TracingContext implements AbstractTracerContext {
                                     new PossibleFound.FoundAndObtain() {
                                         @Override
                                         public Object doProcess(int operationId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, remotePeer);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, remotePeer, TracingContext.this);
                                         }
                                     }, new PossibleFound.NotFoundAndObtain() {
                                         @Override
                                         public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer, TracingContext.this);
                                         }
                                     });
                         }

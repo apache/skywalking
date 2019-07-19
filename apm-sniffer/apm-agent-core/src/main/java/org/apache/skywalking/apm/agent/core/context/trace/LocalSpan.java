@@ -19,6 +19,8 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
+
 /**
  * The <code>LocalSpan</code> represents a normal tracing point, such as a local method.
  *
@@ -26,12 +28,12 @@ package org.apache.skywalking.apm.agent.core.context.trace;
  */
 public class LocalSpan extends AbstractTracingSpan {
 
-    public LocalSpan(int spanId, int parentSpanId, int operationId) {
-        super(spanId, parentSpanId, operationId);
+    public LocalSpan(int spanId, int parentSpanId, int operationId, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationId,context);
     }
 
-    public LocalSpan(int spanId, int parentSpanId, String operationName) {
-        super(spanId, parentSpanId, operationName);
+    public LocalSpan(int spanId, int parentSpanId, String operationName, AbstractTracerContext context) {
+        super(spanId, parentSpanId, operationName,context);
     }
 
     @Override

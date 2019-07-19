@@ -41,6 +41,8 @@ public class ContextManager implements BootService {
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
     private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
     private static ContextManagerExtendService EXTEND_SERVICE;
+    
+    final static ContextManager MGR = new ContextManager();
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
         AbstractTracerContext context = CONTEXT.get();
@@ -70,7 +72,7 @@ public class ContextManager implements BootService {
         return context;
     }
 
-    private static AbstractTracerContext get() {
+    static AbstractTracerContext get() {
         return CONTEXT.get();
     }
 
@@ -87,10 +89,10 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
-        SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         AbstractSpan span;
         AbstractTracerContext context;
         if (carrier != null && carrier.isValid()) {
+            SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             samplingService.forceSampled();
             context = getOrCreate(operationName, true);
             span = context.createEntrySpan(operationName);
@@ -107,19 +109,38 @@ public class ContextManager implements BootService {
         return context.createLocalSpan(operationName);
     }
 
+    public static AbstractSpan createLocalSpan(final String operationName, final AbstractSpan span) {
+        final AbstractTracerContext context = getTraceContext(operationName, span);
+        return context.createLocalSpan(operationName,span);
+    }
+
+    protected static AbstractTracerContext getTraceContext(
+        final String operationName, final AbstractSpan span) {
+        final AbstractTracerContext context = span == null ? getOrCreate(operationName, false) : span.getContext(MGR);
+        return context;
+    }
+    
     public static AbstractSpan createExitSpan(String operationName, ContextCarrier carrier, String remotePeer) {
+        return createExitSpan(operationName,carrier,remotePeer,null);
+    }
+
+    public static AbstractSpan createExitSpan(String operationName, ContextCarrier carrier, String remotePeer, final AbstractSpan parentSpan) {
         if (carrier == null) {
             throw new IllegalArgumentException("ContextCarrier can't be null.");
         }
-        AbstractTracerContext context = getOrCreate(operationName, false);
-        AbstractSpan span = context.createExitSpan(operationName, remotePeer);
+        final AbstractTracerContext context = getTraceContext(operationName, parentSpan);
+        AbstractSpan span = context.createExitSpan(operationName, remotePeer, parentSpan);
         context.inject(carrier);
         return span;
     }
+    
+    public static AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
+        return createExitSpan(operationName,remotePeer,null);
+    }
 
-    public static AbstractSpan createExitSpan(String operationName, String remotePeer) {
-        AbstractTracerContext context = getOrCreate(operationName, false);
-        AbstractSpan span = context.createExitSpan(operationName, remotePeer);
+    public static AbstractSpan createExitSpan(final String operationName, final String remotePeer,final AbstractSpan parentSpan) {
+        final AbstractTracerContext context = getTraceContext(operationName, parentSpan);
+        final AbstractSpan span = context.createExitSpan(operationName, remotePeer, parentSpan);
         return span;
     }
 
@@ -149,8 +170,9 @@ public class ContextManager implements BootService {
         }
     }
 
+    @Deprecated
     public static AbstractTracerContext awaitFinishAsync(AbstractSpan span) {
-        final AbstractTracerContext context = get();
+        final AbstractTracerContext context = span.getContext(MGR);
         AbstractSpan activeSpan = context.activeSpan();
         if (span != activeSpan) {
             throw new RuntimeException("Span is not the active in current context.");
@@ -173,15 +195,11 @@ public class ContextManager implements BootService {
     */
     public static void stopSpan() {
         final AbstractTracerContext context = get();
-        stopSpan(context.activeSpan(),context);
+        stopSpan(context.activeSpan());
     }
 
     public static void stopSpan(AbstractSpan span) {
-        stopSpan(span, get());
-    }
-
-    private static void stopSpan(AbstractSpan span, final AbstractTracerContext context) {
-        if (context.stopSpan(span)) {
+        if (span.stop(MGR)) {
             CONTEXT.remove();
             RUNTIME_CONTEXT.remove();
         }

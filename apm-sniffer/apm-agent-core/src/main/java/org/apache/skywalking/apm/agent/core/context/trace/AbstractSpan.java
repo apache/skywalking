@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.context.AsyncSpan;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -130,4 +132,8 @@ public interface AbstractSpan extends AsyncSpan {
     AbstractSpan start(long startTime);
 
     AbstractSpan setPeer(String remotePeer);
+
+    boolean stop(ContextManager contextMgr);
+    
+    AbstractTracerContext getContext(ContextManager contextMgr);
 }
