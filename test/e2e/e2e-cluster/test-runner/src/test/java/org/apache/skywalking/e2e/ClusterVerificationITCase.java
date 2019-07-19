@@ -95,17 +95,11 @@ public class ClusterVerificationITCase {
     public void verify() throws Exception {
         LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
 
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
         List<Service> services = Collections.emptyList();
 
         while (services.size() < 2) {
             try {
-                services = queryClient.services(
-                    new ServicesQuery()
-                        .start(startTime)
-                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                );
+                generateTraffic();
 
                 Thread.sleep(2000L);
             } catch (Throwable ignored) {
@@ -113,37 +107,18 @@ public class ClusterVerificationITCase {
         }
 
         for (int i = 0; i < 20; i++) {
-            try {
-                restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
-            } catch (Throwable ignored) {
-            }
+            generateTraffic();
         }
 
         Thread.sleep(10000L);
 
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl + "/e2e/users",
-            user,
-            String.class
-        );
-        LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        generateTraffic();
+
 
         verifyTraces(startTime);
 
         for (int i = 0; i < 20; i++) {
-            try {
-                restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
-            } catch (Throwable ignored) {
-            }
+            generateTraffic();
         }
 
         Thread.sleep(10000L);
@@ -151,6 +126,22 @@ public class ClusterVerificationITCase {
         verifyServices(startTime);
 
         verifyTopo(startTime);
+    }
+
+    private void generateTraffic() {
+        try {
+            final Map<String, String> user = new HashMap<>();
+            user.put("name", "SkyWalking");
+            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+                instrumentedServiceUrl + "/e2e/users",
+                user,
+                String.class
+            );
+
+            LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        } catch (Throwable ignored) {
+        }
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
@@ -181,6 +172,8 @@ public class ClusterVerificationITCase {
                     .start(minutesAgo)
                     .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
+
+            generateTraffic();
             Thread.sleep(retryInterval);
         }
 
@@ -271,6 +264,7 @@ public class ClusterVerificationITCase {
                         instanceRespTimeMatcher.verify(instanceRespTime);
                         matched = true;
                     } catch (Throwable ignored) {
+                        generateTraffic();
                         Thread.sleep(retryInterval);
                     }
                     LOGGER.info("{}: {}", metricsName, instanceRespTime);
@@ -306,6 +300,7 @@ public class ClusterVerificationITCase {
                         instanceRespTimeMatcher.verify(metrics);
                         matched = true;
                     } catch (Throwable ignored) {
+                        generateTraffic();
                         Thread.sleep(retryInterval);
                     }
                     LOGGER.info("metrics: {}", metrics);
@@ -336,6 +331,7 @@ public class ClusterVerificationITCase {
                     instanceRespTimeMatcher.verify(serviceMetrics);
                     matched = true;
                 } catch (Throwable ignored) {
+                    generateTraffic();
                     Thread.sleep(retryInterval);
                 }
                 LOGGER.info("serviceMetrics: {}", serviceMetrics);
