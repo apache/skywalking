@@ -98,18 +98,28 @@ public class ClusterVerificationITCase {
         final Map<String, String> user = new HashMap<>();
         user.put("name", "SkyWalking");
         List<Service> services = Collections.emptyList();
+
         while (services.size() < 2) {
+            try {
+                services = queryClient.services(
+                    new ServicesQuery()
+                        .start(startTime)
+                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                );
+
+                Thread.sleep(2000L);
+            } catch (Throwable ignored) {
+            }
+        }
+
+        for (int i = 0; i < 20; i++) {
             try {
                 restTemplate.postForEntity(
                     instrumentedServiceUrl + "/e2e/users",
                     user,
                     String.class
                 );
-                services = queryClient.services(
-                    new ServicesQuery()
-                        .start(startTime)
-                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                );
+                Thread.sleep(1000L);
             } catch (Throwable ignored) {
             }
         }
@@ -232,13 +242,13 @@ public class ClusterVerificationITCase {
                 while (!matched) {
                     LOGGER.warn("instanceRespTime is null, will retry to query");
                     Metrics instanceRespTime = queryClient.metrics(
-                            new MetricsQuery()
-                                .stepByMinute()
-                                .metricsName(metricsName)
-                                .start(minutesAgo)
-                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                                .id(instance.getKey())
-                        );
+                        new MetricsQuery()
+                            .stepByMinute()
+                            .metricsName(metricsName)
+                            .start(minutesAgo)
+                            .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                            .id(instance.getKey())
+                    );
                     AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                     MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                     greaterThanZero.setValue("gt 0");
