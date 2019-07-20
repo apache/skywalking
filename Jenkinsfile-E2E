@@ -36,11 +36,7 @@ pipeline {
 
         stage('Prepare Distribution Package') {
             steps {
-                // although these checks are done in ci-it, since they are lightweight/cheap
-                // we're using them as a barrier here to filter out some invalid PRs
-                // thus save unnecessary E2E builds(which is expensive)
-                sh './mvnw checkstyle:check apache-rat:check'
-                sh './mvnw -Dcheckstyle.skip -Drat.skip -T 2C -Dmaven.compile.fork -DskipTests clean package'
+                sh './mvnw -DskipTests clean package'
                 sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
             }
         }
