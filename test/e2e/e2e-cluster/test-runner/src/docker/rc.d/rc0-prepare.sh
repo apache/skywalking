@@ -25,7 +25,7 @@ if test "${MODE}" = "cluster"; then
         && mv clusterized_app.yml application.yml
 
     cd ${SW_HOME}/webapp \
-        && awk '/^\s+listOfServers/ {gsub("127.0.0.1:12800", "127.0.0.1:12800,127.0.0.1:12801", $0)} {print}' webapp.yml > clusterized_webapp.yml \
+        && awk '/^\s+listOfServers:/ {gsub("listOfServers:.*", "listOfServers: 127.0.0.1:12800,127.0.0.1:12801", $0)} {print}' webapp.yml > clusterized_webapp.yml \
         && mv clusterized_webapp.yml webapp.yml
 
     cd ${original_wd}
