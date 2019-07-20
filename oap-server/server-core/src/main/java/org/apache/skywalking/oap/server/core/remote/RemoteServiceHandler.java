@@ -21,13 +21,14 @@ package org.apache.skywalking.oap.server.core.remote;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.core.worker.IRemoteHandleWorker;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
+import org.apache.skywalking.oap.server.core.worker.RemoteHandleWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -91,10 +92,12 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                     RemoteData remoteData = message.getRemoteData();
 
                     try {
-                        AbstractWorker nextWorker = workerInstanceGetter.get(nextWorkerName);
-                        IRemoteHandleWorker handleWorker = (IRemoteHandleWorker)nextWorker;
+                        RemoteHandleWorker handleWorker = workerInstanceGetter.get(nextWorkerName);
+                        AbstractWorker nextWorker = handleWorker.getWorker();
+                        StreamData streamData = handleWorker.getStreamDataClass().newInstance();
+                        streamData.deserialize(remoteData);
                         if (nextWorker != null) {
-                            nextWorker.in(handleWorker.deserialize(remoteData));
+                            nextWorker.in(streamData);
                         } else {
                             remoteInTargetNotFoundCounter.inc();
                             logger.warn("Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.", nextWorkerName);

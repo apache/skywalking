@@ -18,25 +18,32 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.core.worker.IRemoteHandleWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> implements IRemoteHandleWorker<RegisterSource> {
+public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterPersistentWorker.class);
 
@@ -46,15 +53,13 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> imp
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
-    private final Class<? extends RegisterSource> inventoryClass;
 
     RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
-        IRegisterDAO registerDAO, int scopeId, Class<? extends RegisterSource> inventoryClass) {
+        IRegisterDAO registerDAO, int scopeId) {
         super(moduleDefineHolder);
         this.modelName = modelName;
         this.sources = new HashMap<>();
         this.registerDAO = registerDAO;
-        this.inventoryClass = inventoryClass;
         this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scopeId = scopeId;
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
@@ -72,18 +77,6 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> imp
         }
 
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new RegisterPersistentWorker.PersistentConsumer(this));
-    }
-
-    @Override public RegisterSource deserialize(RemoteData remoteData) {
-        try {
-            StreamData streamData = inventoryClass.newInstance();
-            RegisterSource registerSource = (RegisterSource)streamData;
-            registerSource.deserialize(remoteData);
-            return registerSource;
-        } catch (Exception e) {
-            logger.error("Inventory Class " + inventoryClass.getName() + " can't be instantiation.", e);
-            throw new IllegalStateException("Inventory Class " + inventoryClass.getName() + " can't be instantiation.");
-        }
     }
 
     @Override public final void in(RegisterSource registerSource) {

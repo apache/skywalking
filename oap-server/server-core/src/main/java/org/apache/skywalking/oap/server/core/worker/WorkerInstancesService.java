@@ -21,37 +21,34 @@ package org.apache.skywalking.oap.server.core.worker;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Worker Instance Service hosts all remote handler workers, including metrics and register.
- * All this kind of works should implemenet {@link IRemoteHandleWorker} to adapt {@link RemoteServiceGrpc}
+ * Worker Instance Service hosts all remote handler workers with the stream data type.
  *
  * @author peng-yongsheng, wusheng
  */
 public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
     private static final Logger logger = LoggerFactory.getLogger(WorkerInstancesService.class);
 
-    private final Map<String, AbstractWorker> instances;
+    private final Map<String, RemoteHandleWorker> instances;
 
     public WorkerInstancesService() {
         this.instances = new HashMap<>();
     }
 
-    @Override public AbstractWorker get(String nextWorkerName) {
+    @Override public RemoteHandleWorker get(String nextWorkerName) {
         return instances.get(nextWorkerName);
     }
 
-    @Override public void put(String remoteReceiverWorkName, AbstractWorker instance) {
+    @Override public void put(String remoteReceiverWorkName, AbstractWorker instance,
+        Class<? extends StreamData> streamDataClass) {
         if (instances.containsKey(remoteReceiverWorkName)) {
             throw new UnexpectedException("Duplicate worker name:" + remoteReceiverWorkName);
         }
-        if (!(instance instanceof IRemoteHandleWorker)) {
-            throw new IllegalStateException("Worker " + instance.getClass().getName() + " must implement IRemoteHandleWorker.");
-        }
-        instances.put(remoteReceiverWorkName, instance);
+        instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, streamDataClass));
         logger.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
     }
 }

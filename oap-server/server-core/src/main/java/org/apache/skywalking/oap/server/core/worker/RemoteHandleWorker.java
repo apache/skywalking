@@ -18,22 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
 /**
- * The interface implementation could support deserialize.
- *
- * @param <INPUT> class with deserialize supported in OAP inside remote rpc.
- *
  * @author wusheng
  */
-public interface IRemoteHandleWorker<INPUT> {
-    /**
-     * Do deserialize
-     *
-     * @param remoteData hosts data from gRPC
-     *
-     * @return instance brings data in remote data.
-     */
-    INPUT deserialize(RemoteData remoteData);
+@AllArgsConstructor
+@Getter
+public class RemoteHandleWorker {
+    private AbstractWorker worker;
+    private Class<? extends StreamData> streamDataClass;
 }

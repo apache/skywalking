@@ -68,11 +68,11 @@ public class InventoryStreamProcessor implements StreamProcessor<RegisterSource>
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
         Model model = modelSetter.putIfAbsent(inventoryClass, stream.scopeId(), new Storage(stream.name(), false, false, Downsampling.None));
 
-        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(moduleDefineHolder, model.getName(), registerDAO, stream.scopeId(), inventoryClass);
+        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(moduleDefineHolder, model.getName(), registerDAO, stream.scopeId());
 
         String remoteReceiverWorkerName = stream.name() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceSetter.class);
-        workerInstanceSetter.put(remoteReceiverWorkerName, persistentWorker);
+        workerInstanceSetter.put(remoteReceiverWorkerName, persistentWorker, inventoryClass);
 
         RegisterRemoteWorker remoteWorker = new RegisterRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
 

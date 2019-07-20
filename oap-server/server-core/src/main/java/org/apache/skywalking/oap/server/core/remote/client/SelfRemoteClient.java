@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * @author peng-yongsheng
@@ -54,7 +57,7 @@ public class SelfRemoteClient implements RemoteClient {
     }
 
     @Override public void push(String nextWorkerName, StreamData streamData) {
-        workerInstanceGetter.get(nextWorkerName).in(streamData);
+        workerInstanceGetter.get(nextWorkerName).getWorker().in(streamData);
     }
 
     @Override public int compareTo(RemoteClient o) {
