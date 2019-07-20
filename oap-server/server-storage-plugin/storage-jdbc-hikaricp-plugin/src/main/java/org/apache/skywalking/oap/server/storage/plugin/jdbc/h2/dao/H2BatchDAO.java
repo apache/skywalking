@@ -40,10 +40,6 @@ public class H2BatchDAO implements IBatchDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public void asynchronous(Object builder) {
-
-    }
-
     @Override public void synchronous(List<?> collection) {
         if (CollectionUtils.isEmpty(collection)) {
             return;
