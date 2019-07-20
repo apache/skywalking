@@ -87,7 +87,6 @@
                                     <discovery.type>single-node</discovery.type>
                                     <thread_pool.index.queue_size>500</thread_pool.index.queue_size>
                                     <thread_pool.write.queue_size>500</thread_pool.write.queue_size>
-                                    <index.max_result_window>1000000</index.max_result_window>
                                 </env>
                             </run>
                         </image>
