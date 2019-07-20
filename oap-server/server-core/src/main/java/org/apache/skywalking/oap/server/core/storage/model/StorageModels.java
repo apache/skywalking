@@ -37,7 +37,7 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         this.models = new LinkedList<>();
     }
 
-    @Override public Model putIfAbsent(Class aClass, int scopeId, Storage storage) {
+    @Override public Model putIfAbsent(Class aClass, int scopeId, Storage storage, boolean record) {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
@@ -50,7 +50,7 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, storage.getModelName(), modelColumns);
 
-        Model model = new Model(storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId, storage.getDownsampling());
+        Model model = new Model(storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId, storage.getDownsampling(), record);
         models.add(model);
 
         return model;

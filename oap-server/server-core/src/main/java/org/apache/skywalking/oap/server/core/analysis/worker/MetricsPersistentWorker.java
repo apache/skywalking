@@ -31,8 +31,6 @@ import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
-import static java.util.Objects.nonNull;
-
 /**
  * @author peng-yongsheng
  */
@@ -42,7 +40,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
 
     private final Model model;
     private final MergeDataCache<Metrics> mergeDataCache;
-    private final IMetricsDAO metricsDAO;
+    private final IMetricsDAO<?, ?> metricsDAO;
     private final AbstractWorker<Metrics> nextAlarmWorker;
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
@@ -99,40 +97,64 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     }
 
     @Override public List<Object> prepareBatch(MergeDataCache<Metrics> cache) {
+        long start = System.currentTimeMillis();
+
         List<Object> batchCollection = new LinkedList<>();
-        cache.getLast().collection().forEach(data -> {
+
+        Collection<Metrics> collection = cache.getLast().collection();
+
+        int i = 0;
+        Metrics[] metrics = null;
+        for (Metrics data : collection) {
             if (Objects.nonNull(nextExportWorker)) {
                 ExportEvent event = new ExportEvent(data, ExportEvent.EventType.INCREMENT);
                 nextExportWorker.in(event);
             }
 
-            Metrics dbData = null;
-            try {
-                dbData = metricsDAO.get(model, data);
-            } catch (Throwable t) {
-                logger.error(t.getMessage(), t);
-            }
-            try {
-                if (nonNull(dbData)) {
-                    data.combine(dbData);
-                    data.calculate();
-
-                    batchCollection.add(metricsDAO.prepareBatchUpdate(model, data));
+            int batchGetSize = 2000;
+            int mod = i % batchGetSize;
+            if (mod == 0) {
+                int residual = collection.size() - i;
+                if (residual >= batchGetSize) {
+                    metrics = new Metrics[batchGetSize];
                 } else {
-                    batchCollection.add(metricsDAO.prepareBatchInsert(model, data));
+                    metrics = new Metrics[residual];
                 }
-
-                if (Objects.nonNull(nextAlarmWorker)) {
-                    nextAlarmWorker.in(data);
-                }
-                if (Objects.nonNull(nextExportWorker)) {
-                    ExportEvent event = new ExportEvent(data, ExportEvent.EventType.TOTAL);
-                    nextExportWorker.in(event);
-                }
-            } catch (Throwable t) {
-                logger.error(t.getMessage(), t);
             }
-        });
+            metrics[mod] = data;
+
+            if (mod == metrics.length - 1) {
+                try {
+                    Map<String, Metrics> dbMetricsMap = metricsDAO.get(model, metrics);
+
+                    for (Metrics metric : metrics) {
+                        if (dbMetricsMap.containsKey(metric.id())) {
+                            metric.combine(dbMetricsMap.get(metric.id()));
+                            metric.calculate();
+                            batchCollection.add(metricsDAO.prepareBatchUpdate(model, metric));
+                        } else {
+                            batchCollection.add(metricsDAO.prepareBatchInsert(model, metric));
+                        }
+
+                        if (Objects.nonNull(nextAlarmWorker)) {
+                            nextAlarmWorker.in(metric);
+                        }
+                        if (Objects.nonNull(nextExportWorker)) {
+                            ExportEvent event = new ExportEvent(metric, ExportEvent.EventType.TOTAL);
+                            nextExportWorker.in(event);
+                        }
+                    }
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
+                }
+            }
+
+            i++;
+        }
+
+        if (batchCollection.size() > 0) {
+            logger.debug("prepareBatch model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
+        }
 
         return batchCollection;
     }
