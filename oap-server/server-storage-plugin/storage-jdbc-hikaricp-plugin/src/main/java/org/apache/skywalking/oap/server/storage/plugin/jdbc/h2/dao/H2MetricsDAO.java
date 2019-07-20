@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -29,6 +30,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
  * @author wusheng
  */
 public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO<SQLExecutor, SQLExecutor> {
+
     private JDBCHikariCPClient h2Client;
     private StorageBuilder<Metrics> storageBuilder;
 
@@ -37,8 +39,9 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO<SQLExecut
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Metrics get(Model model, Metrics metrics) throws IOException {
-        return (Metrics)getByID(h2Client, model.getName(), metrics.id(), storageBuilder);
+    @Override public Map<String, Metrics> get(Model model, Metrics[] metrics) throws IOException {
+        //        return (Metrics)getByID(h2Client, model.getName(), metrics.id(), storageBuilder);
+        return null;
     }
 
     @Override public SQLExecutor prepareBatchInsert(Model model, Metrics metrics) throws IOException {
