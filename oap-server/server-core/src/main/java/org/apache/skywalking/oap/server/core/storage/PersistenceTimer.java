@@ -84,7 +84,7 @@ public enum PersistenceTimer {
             List records = new LinkedList();
             try {
                 List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
-                persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
+                persistenceWorkers.addAll(RecordStreamProcessor.getInstance().getPersistentWorkers());
                 persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
 
                 buildBatchCollection(persistenceWorkers, records);
