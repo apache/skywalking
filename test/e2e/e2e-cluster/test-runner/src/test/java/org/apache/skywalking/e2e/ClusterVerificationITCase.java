@@ -95,32 +95,20 @@ public class ClusterVerificationITCase {
     public void verify() throws Exception {
         LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
 
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
+        // minimum guarantee that the instrumented services registered
+        // which is the prerequisite of following verifications(service instance, service metrics, etc.)
         List<Service> services = Collections.emptyList();
         while (services.size() < 2) {
             try {
-                restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
                 services = queryClient.services(
                     new ServicesQuery()
                         .start(startTime)
                         .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                 );
+                Thread.sleep(500); // take a nap to avoid high payload
             } catch (Throwable ignored) {
             }
         }
-
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl + "/e2e/users",
-            user,
-            String.class
-        );
-        LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         verifyTraces(startTime);
 
@@ -155,7 +143,7 @@ public class ClusterVerificationITCase {
             services = queryClient.services(
                 new ServicesQuery()
                     .start(minutesAgo)
-                    .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                    .end(LocalDateTime.now(ZoneOffset.UTC))
             );
             Thread.sleep(retryInterval);
         }
@@ -189,14 +177,15 @@ public class ClusterVerificationITCase {
                 .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
         );
         while (instances == null) {
-            LOGGER.warn("instances is null, will retry to query");
+            LOGGER.warn("instances is null, will send traffic data and retry to query");
+            generateTraffic();
+            Thread.sleep(retryInterval);
             instances = queryClient.instances(
                 new InstancesQuery()
                     .serviceId(service.getKey())
                     .start(minutesAgo)
                     .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
-            Thread.sleep(retryInterval);
         }
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
@@ -210,11 +199,12 @@ public class ClusterVerificationITCase {
             new EndpointQuery().serviceId(service.getKey())
         );
         while (endpoints == null) {
-            LOGGER.warn("endpoints is null, will retry to query");
+            LOGGER.warn("endpoints is null, will send traffic data and retry to query");
+            generateTraffic();
+            Thread.sleep(retryInterval);
             endpoints = queryClient.endpoints(
                 new EndpointQuery().serviceId(service.getKey())
             );
-            Thread.sleep(retryInterval);
         }
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.endpoints.yml").getInputStream();
@@ -228,8 +218,8 @@ public class ClusterVerificationITCase {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
 
-                boolean matched = false;
-                while (!matched) {
+                boolean valid = false;
+                while (!valid) {
                     LOGGER.warn("instanceRespTime is null, will retry to query");
                     Metrics instanceRespTime = queryClient.metrics(
                             new MetricsQuery()
@@ -245,8 +235,9 @@ public class ClusterVerificationITCase {
                     instanceRespTimeMatcher.setValue(greaterThanZero);
                     try {
                         instanceRespTimeMatcher.verify(instanceRespTime);
-                        matched = true;
+                        valid = true;
                     } catch (Throwable ignored) {
+                        generateTraffic();
                         Thread.sleep(retryInterval);
                     }
                     LOGGER.info("{}: {}", metricsName, instanceRespTime);
@@ -263,15 +254,14 @@ public class ClusterVerificationITCase {
             for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
 
-                boolean matched = false;
-                while (!matched) {
-                    LOGGER.warn("serviceMetrics is null, will retry to query");
-                    Metrics metrics = queryClient.metrics(
+                boolean valid = false;
+                while (!valid) {
+                    Metrics endpointMetrics = queryClient.metrics(
                         new MetricsQuery()
                             .stepByMinute()
                             .metricsName(metricName)
                             .start(minutesAgo)
-                            .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                            .end(LocalDateTime.now(ZoneOffset.UTC))
                             .id(endpoint.getKey())
                     );
                     AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
@@ -279,12 +269,13 @@ public class ClusterVerificationITCase {
                     greaterThanZero.setValue("gt 0");
                     instanceRespTimeMatcher.setValue(greaterThanZero);
                     try {
-                        instanceRespTimeMatcher.verify(metrics);
-                        matched = true;
+                        instanceRespTimeMatcher.verify(endpointMetrics);
+                        valid = true;
                     } catch (Throwable ignored) {
+                        generateTraffic();
                         Thread.sleep(retryInterval);
                     }
-                    LOGGER.info("metrics: {}", metrics);
+                    LOGGER.info("{}: {}", metricName, endpointMetrics);
                 }
             }
         }
@@ -294,14 +285,14 @@ public class ClusterVerificationITCase {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
 
-            boolean matched = false;
-            while (!matched) {
+            boolean valid = false;
+            while (!valid) {
                 Metrics serviceMetrics = queryClient.metrics(
                     new MetricsQuery()
                         .stepByMinute()
                         .metricsName(metricName)
                         .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                        .end(LocalDateTime.now(ZoneOffset.UTC))
                         .id(service.getKey())
                 );
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
@@ -310,33 +301,28 @@ public class ClusterVerificationITCase {
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 try {
                     instanceRespTimeMatcher.verify(serviceMetrics);
-                    matched = true;
+                    valid = true;
                 } catch (Throwable ignored) {
+                    generateTraffic();
                     Thread.sleep(retryInterval);
                 }
-                LOGGER.info("serviceMetrics: {}", serviceMetrics);
+                LOGGER.info("{}: {}", metricName, serviceMetrics);
             }
         }
     }
 
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
-        List<Trace> traces = queryClient.traces(
-            new TracesQuery()
-                .stepBySecond()
-                .start(minutesAgo)
-                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                .orderByStartTime()
-        );
+        final TracesQuery query = new TracesQuery()
+            .stepBySecond()
+            .start(minutesAgo)
+            .orderByStartTime();
+
+        List<Trace> traces = queryClient.traces(query.end(LocalDateTime.now(ZoneOffset.UTC)));
         while (traces.isEmpty()) {
-            LOGGER.warn("traces is empty, will retry to query");
-            traces = queryClient.traces(
-                new TracesQuery()
-                    .stepBySecond()
-                    .start(minutesAgo)
-                    .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                    .orderByStartTime()
-            );
+            LOGGER.warn("traces is empty, will generate traffic data and retry");
+            generateTraffic();
             Thread.sleep(retryInterval);
+            traces = queryClient.traces(query.end(LocalDateTime.now(ZoneOffset.UTC)));
         }
 
         InputStream expectedInputStream =
@@ -344,5 +330,17 @@ public class ClusterVerificationITCase {
 
         final TracesMatcher tracesMatcher = yaml.loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verifyLoosely(traces);
+    }
+
+    private void generateTraffic() {
+        final Map<String, String> user = new HashMap<>();
+        user.put("name", "SkyWalking");
+        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+            instrumentedServiceUrl + "/e2e/users",
+            user,
+            String.class
+        );
+        LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
