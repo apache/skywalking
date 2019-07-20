@@ -18,15 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import java.util.*;
-import java.util.concurrent.*;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
-import org.apache.skywalking.oap.server.library.module.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
@@ -39,7 +52,6 @@ public class RemoteClientManager implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
-    private StreamDataMappingGetter streamDataMappingGetter;
     private ClusterNodesQuery clusterNodesQuery;
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
@@ -72,14 +84,6 @@ public class RemoteClientManager implements Service {
                 synchronized (RemoteClientManager.class) {
                     if (Objects.isNull(clusterNodesQuery)) {
                         this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
-                    }
-                }
-            }
-
-            if (Objects.isNull(streamDataMappingGetter)) {
-                synchronized (RemoteClientManager.class) {
-                    if (Objects.isNull(streamDataMappingGetter)) {
-                        this.streamDataMappingGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataMappingGetter.class);
                     }
                 }
             }
@@ -199,7 +203,7 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         getFreeClients().add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, streamDataMappingGetter, address, 1, 3000);
+                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000);
                         client.connect();
                         getFreeClients().add(client);
                     }

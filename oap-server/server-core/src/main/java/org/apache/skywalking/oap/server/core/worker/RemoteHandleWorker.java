@@ -16,14 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.define;
+package org.apache.skywalking.oap.server.core.worker;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public interface StreamDataMappingSetter extends Service {
-    void putIfAbsent(Class<? extends StreamData> streamDataClass);
+@AllArgsConstructor
+@Getter
+public class RemoteHandleWorker {
+    private AbstractWorker worker;
+    private Class<? extends StreamData> streamDataClass;
 }
