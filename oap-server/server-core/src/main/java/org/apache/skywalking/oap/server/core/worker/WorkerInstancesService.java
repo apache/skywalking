@@ -21,11 +21,15 @@ package org.apache.skywalking.oap.server.core.worker;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * Worker Instance Service hosts all remote handler workers, including metrics and register.
+ * All this kind of works should implemenet {@link IRemoteHandleWorker} to adapt {@link RemoteServiceGrpc}
+ *
+ * @author peng-yongsheng, wusheng
  */
 public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
     private static final Logger logger = LoggerFactory.getLogger(WorkerInstancesService.class);
@@ -43,6 +47,9 @@ public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerIns
     @Override public void put(String remoteReceiverWorkName, AbstractWorker instance) {
         if (instances.containsKey(remoteReceiverWorkName)) {
             throw new UnexpectedException("Duplicate worker name:" + remoteReceiverWorkName);
+        }
+        if (!(instance instanceof IRemoteHandleWorker)) {
+            throw new IllegalStateException("Worker " + instance.getClass().getName() + " must implement IRemoteHandleWorker.");
         }
         instances.put(remoteReceiverWorkName, instance);
         logger.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);

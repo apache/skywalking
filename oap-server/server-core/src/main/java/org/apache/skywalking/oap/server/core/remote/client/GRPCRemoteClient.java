@@ -20,24 +20,29 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This is a wrapper of the gRPC client for sending message to each other OAP server.
- * It contains a block queue to buffering the message and sending the message by batch.
+ * This is a wrapper of the gRPC client for sending message to each other OAP server. It contains a block queue to
+ * buffering the message and sending the message by batch.
  *
  * @author peng-yongsheng
  */
@@ -48,7 +53,6 @@ public class GRPCRemoteClient implements RemoteClient {
     private final int channelSize;
     private final int bufferSize;
     private final Address address;
-    private final StreamDataMappingGetter streamDataMappingGetter;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
     private GRPCClient client;
     private DataCarrier<RemoteMessage> carrier;
@@ -56,10 +60,8 @@ public class GRPCRemoteClient implements RemoteClient {
     private CounterMetrics remoteOutCounter;
     private CounterMetrics remoteOutErrorCounter;
 
-
-    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, StreamDataMappingGetter streamDataMappingGetter, Address address, int channelSize,
+    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address, int channelSize,
         int bufferSize) {
-        this.streamDataMappingGetter = streamDataMappingGetter;
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
@@ -123,10 +125,8 @@ public class GRPCRemoteClient implements RemoteClient {
      * @param streamData the entity contains the values.
      */
     @Override public void push(String nextWorkerName, StreamData streamData) {
-        int streamDataId = streamDataMappingGetter.findIdByClass(streamData.getClass());
         RemoteMessage.Builder builder = RemoteMessage.newBuilder();
-        builder.setNextWorkName(nextWorkerName);
-        builder.setStreamDataId(streamDataId);
+        builder.setNextWorkerName(nextWorkerName);
         builder.setRemoteData(streamData.serialize());
 
         this.getDataCarrier().produce(builder.build());
@@ -159,9 +159,8 @@ public class GRPCRemoteClient implements RemoteClient {
     }
 
     /**
-     * Create a gRPC stream observer to sending stream data, one stream observer
-     * could send multiple stream data by a single consume.
-     * The max number of concurrency allowed at the same time is 10.
+     * Create a gRPC stream observer to sending stream data, one stream observer could send multiple stream data by a
+     * single consume. The max number of concurrency allowed at the same time is 10.
      *
      * @return stream observer
      */

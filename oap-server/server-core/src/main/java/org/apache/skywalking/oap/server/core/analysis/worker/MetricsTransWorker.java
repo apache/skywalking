@@ -20,7 +20,10 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.core.worker.IRemoteHandleWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.*;
@@ -29,7 +32,7 @@ import org.slf4j.*;
 /**
  * @author peng-yongsheng
  */
-public class MetricsTransWorker extends AbstractWorker<Metrics> {
+public class MetricsTransWorker extends AbstractWorker<Metrics> implements IRemoteHandleWorker<Metrics> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsTransWorker.class);
 
@@ -37,22 +40,25 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
     private final MetricsPersistentWorker hourPersistenceWorker;
     private final MetricsPersistentWorker dayPersistenceWorker;
     private final MetricsPersistentWorker monthPersistenceWorker;
+    private final Class<? extends Metrics> metricsClass;
 
-    private CounterMetrics aggregationMinCounter;
-    private CounterMetrics aggregationHourCounter;
-    private CounterMetrics aggregationDayCounter;
-    private CounterMetrics aggregationMonthCounter;
+    private final CounterMetrics aggregationMinCounter;
+    private final CounterMetrics aggregationHourCounter;
+    private final CounterMetrics aggregationDayCounter;
+    private final CounterMetrics aggregationMonthCounter;
 
     public MetricsTransWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
         MetricsPersistentWorker minutePersistenceWorker,
         MetricsPersistentWorker hourPersistenceWorker,
         MetricsPersistentWorker dayPersistenceWorker,
-        MetricsPersistentWorker monthPersistenceWorker) {
+        MetricsPersistentWorker monthPersistenceWorker,
+        Class<? extends Metrics> metricsClass) {
         super(moduleDefineHolder);
         this.minutePersistenceWorker = minutePersistenceWorker;
         this.hourPersistenceWorker = hourPersistenceWorker;
         this.dayPersistenceWorker = dayPersistenceWorker;
         this.monthPersistenceWorker = monthPersistenceWorker;
+        this.metricsClass = metricsClass;
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         aggregationMinCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
@@ -63,6 +69,18 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
             new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "day"));
         aggregationMonthCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
             new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "month"));
+    }
+
+    @Override public Metrics deserialize(RemoteData remoteData) {
+        try {
+            StreamData streamData = metricsClass.newInstance();
+            Metrics metrics = (Metrics)streamData;
+            streamData.deserialize(remoteData);
+            return metrics;
+        } catch (Exception e) {
+            logger.error("Metrics Class " + metricsClass.getName() + " can't be instantiation.", e);
+            throw new IllegalStateException("Metrics Class " + metricsClass.getName() + " can't be instantiation.");
+        }
     }
 
     @Override public void in(Metrics metrics) {

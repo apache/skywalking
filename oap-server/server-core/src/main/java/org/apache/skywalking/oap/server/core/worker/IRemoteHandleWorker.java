@@ -16,14 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.define;
+package org.apache.skywalking.oap.server.core.worker;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
 /**
- * @author peng-yongsheng
+ * The interface implementation could support deserialize.
+ *
+ * @param <INPUT> class with deserialize supported in OAP inside remote rpc.
+ *
+ * @author wusheng
  */
-public interface StreamDataMappingSetter extends Service {
-    void putIfAbsent(Class<? extends StreamData> streamDataClass);
+public interface IRemoteHandleWorker<INPUT> {
+    /**
+     * Do deserialize
+     *
+     * @param remoteData hosts data from gRPC
+     *
+     * @return instance brings data in remote data.
+     */
+    INPUT deserialize(RemoteData remoteData);
 }
