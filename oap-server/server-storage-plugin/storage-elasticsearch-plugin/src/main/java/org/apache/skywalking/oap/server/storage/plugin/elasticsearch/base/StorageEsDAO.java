@@ -23,17 +23,19 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 
 /**
  * @author peng-yongsheng
  */
-public class StorageEsDAO extends EsDAO implements StorageDAO {
+public class StorageEsDAO extends EsDAO implements StorageDAO<IndexRequest, UpdateRequest> {
 
     public StorageEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
+    @Override public IMetricsDAO<IndexRequest, UpdateRequest> newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
         return new MetricsEsDAO(getClient(), storageBuilder);
     }
 

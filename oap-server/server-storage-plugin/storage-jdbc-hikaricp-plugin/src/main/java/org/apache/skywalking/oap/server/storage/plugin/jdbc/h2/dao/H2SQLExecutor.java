@@ -19,26 +19,17 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.*;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -52,9 +43,7 @@ public class H2SQLExecutor {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
                 return toStorageData(rs, modelName, storageBuilder);
             }
-        } catch (SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
     }
@@ -65,9 +54,7 @@ public class H2SQLExecutor {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", value)) {
                 return toStorageData(rs, modelName, storageBuilder);
             }
-        } catch (SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
     }
@@ -92,9 +79,7 @@ public class H2SQLExecutor {
                     return rs.getInt(ServiceInstanceInventory.SEQUENCE);
                 }
             }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             logger.error(e.getMessage(), e);
         }
         return Const.NONE;
