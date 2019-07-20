@@ -18,27 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -80,7 +69,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     }
 
     @Override public final void in(RegisterSource registerSource) {
-        registerSource.setEndOfBatchContext(new EndOfBatchContext(false));
+        registerSource.resetEndOfBatch();
         dataCarrier.produce(registerSource);
     }
 
@@ -91,7 +80,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
 
-        if (sources.size() > 1000 || registerSource.getEndOfBatchContext().isEndOfBatch()) {
+        if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
             sources.values().forEach(source -> {
                 try {
                     RegisterSource dbSource = registerDAO.get(modelName, source.id());
@@ -147,7 +136,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                 RegisterSource registerSource = sourceIterator.next();
                 i++;
                 if (i == data.size()) {
-                    registerSource.getEndOfBatchContext().setEndOfBatch(true);
+                    registerSource.asEndOfBatch();
                 }
                 persistent.onWork(registerSource);
             }
