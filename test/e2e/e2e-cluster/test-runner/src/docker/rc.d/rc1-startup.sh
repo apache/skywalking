@@ -19,6 +19,8 @@
 echo 'starting OAP server...' \
     && SW_STORAGE_ES_BULK_ACTIONS=1 \
     && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
+    && SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer1 \
+    && SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer1 \
     && start_oap 'init'
 
 echo 'starting Web app...' \
@@ -31,11 +33,9 @@ if test "${MODE}" = "cluster"; then
         && SW_CORE_REST_PORT=12801 \
         && SW_STORAGE_ES_BULK_ACTIONS=1 \
         && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
+        && SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer2 \
+        && SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer2 \
         && start_oap 'no-init'
-
-    # start another WebApp server in a different port
-    echo 'starting Web app...' \
-        && start_webapp '0.0.0.0' 8082
 fi
 
 echo 'starting instrumented services...' && start_instrumented_services
