@@ -16,26 +16,24 @@
  *
  */
 
+package org.apache.skywalking.apm.agent.core.util;
 
-package org.apache.skywalking.apm.plugin.jedis.v2;
-
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
-import redis.clients.jedis.HostAndPort;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.Set;
+/**
+ * @author zhaoyuguang
+ */
 
-public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements InstanceConstructorInterceptor {
+public class PeerFormatTest {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        StringBuilder redisConnInfo = new StringBuilder();
-        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>)allArguments[0];
-        for (HostAndPort hostAndPort : hostAndPorts) {
-            redisConnInfo.append(hostAndPort.toString()).append(";");
+    @Test
+    public void testShorten() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < 100; i++) {
+            sb.append("localhost:" + i + ";");
         }
-
-        objInst.setSkyWalkingDynamicField(PeerFormat.shorten(redisConnInfo.toString()));
+        Assert.assertTrue(PeerFormat.shorten(sb.toString()).length() == 200);
     }
 }
