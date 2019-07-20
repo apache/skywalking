@@ -34,6 +34,6 @@ public class PeerFormatTest {
         for (int i = 0; i < 100; i++) {
             sb.append("localhost:" + i + ";");
         }
-        Assert.assertTrue(PeerFormat.INSTANCE.Shorten(sb.toString()).length() == 200);
+        Assert.assertTrue(PeerFormat.shorten(sb.toString()).length() == 200);
     }
 }

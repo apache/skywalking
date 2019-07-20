@@ -61,24 +61,24 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
 
             if (sentinelServersConfig != null) {
                 appendAddresses(peer, sentinelServersConfig.getSentinelAddresses());
-                retInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
+                retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
             if (masterSlaveServersConfig != null) {
                 URI masterAddress = masterSlaveServersConfig.getMasterAddress();
                 peer.append(masterAddress.getHost()).append(":").append(masterAddress.getPort());
                 appendAddresses(peer, masterSlaveServersConfig.getSlaveAddresses());
-                retInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
+                retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
             if (clusterServersConfig != null) {
                 appendAddresses(peer, clusterServersConfig.getNodeAddresses());
-                retInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
+                retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
             if (replicatedServersConfig != null) {
                 appendAddresses(peer, replicatedServersConfig.getNodeAddresses());
-                retInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
+                retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
         } catch (Exception e) {

@@ -25,13 +25,11 @@ import org.apache.skywalking.apm.util.StringUtil;
  * @author zhaoyuguang
  */
 
-public enum PeerFormat {
-
-    INSTANCE;
+public class PeerFormat {
 
     private static final String ABBR = "...";
 
-    public String Shorten(String original) {
+    public static String shorten(String original) {
         if (!StringUtil.isEmpty(original) && original.length() > Config.Plugin.PEER_MAX_LENGTH) {
             return original.substring(0, Config.Plugin.PEER_MAX_LENGTH - 3) + ABBR;
         }

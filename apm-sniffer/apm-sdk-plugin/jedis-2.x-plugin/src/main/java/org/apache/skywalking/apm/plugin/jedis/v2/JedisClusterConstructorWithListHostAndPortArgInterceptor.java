@@ -36,6 +36,6 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements
             redisConnInfo.append(hostAndPort.toString()).append(";");
         }
 
-        objInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(redisConnInfo.toString()));
+        objInst.setSkyWalkingDynamicField(PeerFormat.shorten(redisConnInfo.toString()));
     }
 }

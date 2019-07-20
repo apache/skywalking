@@ -38,7 +38,7 @@ public class MockRedisClusterClientConstructorInterceptor implements InstanceCon
         for (RedisURI redisURI : redisURIs) {
             peer.append(redisURI.getHost()).append(":").append(redisURI.getPort()).append(";");
         }
-        EnhancedInstance optionsInst = (EnhancedInstance) redisClusterClient.getOptions();
-        optionsInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
+        EnhancedInstance optionsInst = redisClusterClient.getOptions();
+        optionsInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
     }
 }

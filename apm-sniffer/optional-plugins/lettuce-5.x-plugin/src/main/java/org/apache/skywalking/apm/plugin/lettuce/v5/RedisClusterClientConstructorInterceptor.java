@@ -40,6 +40,6 @@ public class RedisClusterClientConstructorInterceptor implements InstanceConstru
             peer.append(redisURI.getHost()).append(":").append(redisURI.getPort()).append(";");
         }
         EnhancedInstance optionsInst = (EnhancedInstance) redisClusterClient.getOptions();
-        optionsInst.setSkyWalkingDynamicField(PeerFormat.INSTANCE.Shorten(peer.toString()));
+        optionsInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
     }
 }
