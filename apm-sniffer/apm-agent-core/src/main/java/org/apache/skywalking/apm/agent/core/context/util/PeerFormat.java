@@ -16,21 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.apm.agent.core.context.util;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * @author peng-yongsheng
+ * @author zhaoyuguang
  */
-public interface StorageDAO<INSERT, UPDATE> extends Service {
 
-    IMetricsDAO<INSERT, UPDATE> newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+public class PeerFormat {
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
+    private static final String ABBR = "...";
 
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
+    public static String shorten(String original) {
+        if (!StringUtil.isEmpty(original) && original.length() > Config.Plugin.PEER_MAX_LENGTH) {
+            return original.substring(0, Config.Plugin.PEER_MAX_LENGTH - 3) + ABBR;
+        }
+        return original;
+    }
 }

@@ -16,21 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.apm.agent.core.util;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * @author peng-yongsheng
+ * @author zhaoyuguang
  */
-public interface StorageDAO<INSERT, UPDATE> extends Service {
 
-    IMetricsDAO<INSERT, UPDATE> newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+public class PeerFormatTest {
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
-
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
+    @Test
+    public void testShorten() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < 100; i++) {
+            sb.append("localhost:" + i + ";");
+        }
+        Assert.assertTrue(PeerFormat.shorten(sb.toString()).length() == 200);
+    }
 }
