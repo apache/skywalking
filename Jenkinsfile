@@ -28,6 +28,10 @@ pipeline {
         timeout time: 60, unit: 'MINUTES'
     }
 
+    environment {
+        MAVEN_OPTS = '-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmx2g'
+    }
+
     stages {
         stage('Install & Test') {
             parallel {

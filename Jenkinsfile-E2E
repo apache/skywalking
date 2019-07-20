@@ -25,6 +25,10 @@ pipeline {
         jdk 'JDK 1.8 (latest)'
     }
 
+    environment {
+        MAVEN_OPTS = '-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xmx2g'
+    }
+
     stages {
         stage('Checkout Source Code') {
             steps {
