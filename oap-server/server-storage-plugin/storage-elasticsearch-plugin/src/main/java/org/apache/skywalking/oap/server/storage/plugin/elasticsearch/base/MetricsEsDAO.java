@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -40,13 +41,20 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, Upd
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Metrics get(Model model, Metrics metrics) throws IOException {
-        SearchResponse response = getClient().idQuery(model.getName(), metrics.id());
-        if (response.getHits().totalHits > 0) {
-            return storageBuilder.map2Data(response.getHits().getAt(0).getSourceAsMap());
-        } else {
-            return null;
+    @Override public Map<String, Metrics> get(Model model, Metrics[] metrics) throws IOException {
+        Map<String, Metrics> result = new HashMap<>();
+
+        String[] ids = new String[metrics.length];
+        for (int i = 0; i < metrics.length; i++) {
+            ids[i] = metrics[i].id();
         }
+
+        SearchResponse response = getClient().ids(model.getName(), ids);
+        for (int i = 0; i < response.getHits().totalHits; i++) {
+            Metrics source = storageBuilder.map2Data(response.getHits().getAt(i).getSourceAsMap());
+            result.put(source.id(), source);
+        }
+        return result;
     }
 
     @Override public IndexRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {

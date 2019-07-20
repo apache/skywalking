@@ -34,13 +34,15 @@ public class Model {
     private final boolean deleteHistory;
     private final List<ModelColumn> columns;
     private final int scopeId;
+    private final boolean record;
 
-    public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory, int scopeId, Downsampling downsampling) {
+    public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory, int scopeId, Downsampling downsampling, boolean record) {
         this.columns = columns;
         this.capableOfTimeSeries = capableOfTimeSeries;
         this.downsampling = downsampling;
         this.deleteHistory = deleteHistory;
         this.scopeId = scopeId;
         this.name = ModelName.build(downsampling, name);
+        this.record = record;
     }
 }

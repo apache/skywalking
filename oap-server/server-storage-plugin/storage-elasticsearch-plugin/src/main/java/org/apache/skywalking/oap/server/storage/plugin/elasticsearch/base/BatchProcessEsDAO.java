@@ -36,22 +36,20 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
     private BulkProcessor bulkProcessor;
     private final int bulkActions;
-    private final int bulkSize;
     private final int flushInterval;
     private final int concurrentRequests;
 
-    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int bulkSize, int flushInterval,
+    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int flushInterval,
         int concurrentRequests) {
         super(client);
         this.bulkActions = bulkActions;
-        this.bulkSize = bulkSize;
         this.flushInterval = flushInterval;
         this.concurrentRequests = concurrentRequests;
     }
 
     @Override public void asynchronous(List<?> collection) {
         if (bulkProcessor == null) {
-            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, bulkSize, flushInterval, concurrentRequests);
+            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
         }
 
         if (logger.isDebugEnabled()) {
