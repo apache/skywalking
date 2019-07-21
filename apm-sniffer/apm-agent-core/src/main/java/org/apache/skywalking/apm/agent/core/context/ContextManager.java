@@ -87,10 +87,10 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
-        SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         AbstractSpan span;
         AbstractTracerContext context;
         if (carrier != null && carrier.isValid()) {
+            SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             samplingService.forceSampled();
             context = getOrCreate(operationName, true);
             span = context.createEntrySpan(operationName);
