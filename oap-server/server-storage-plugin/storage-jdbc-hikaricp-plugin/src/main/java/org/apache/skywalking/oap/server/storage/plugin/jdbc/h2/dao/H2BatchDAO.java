@@ -67,8 +67,13 @@ public class H2BatchDAO implements IBatchDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             for (PrepareRequest prepareRequest : prepareRequests) {
-                SQLExecutor sqlExecutor = (SQLExecutor)prepareRequest;
-                sqlExecutor.invoke(connection);
+                try {
+                    SQLExecutor sqlExecutor = (SQLExecutor)prepareRequest;
+                    sqlExecutor.invoke(connection);
+                } catch (SQLException e) {
+                    // Just avoid one execution failure makes the rest of batch failure.
+                    logger.error(e.getMessage(), e);
+                }
             }
         } catch (SQLException | JDBCClientException e) {
             logger.error(e.getMessage(), e);

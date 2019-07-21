@@ -35,6 +35,7 @@ import org.slf4j.*;
  * @author wusheng, peng-yongsheng
  */
 public class H2SQLExecutor {
+    
     private static final Logger logger = LoggerFactory.getLogger(H2SQLExecutor.class);
 
     protected List<StorageData> getByIDs(JDBCHikariCPClient h2Client, String modelName, String[] ids,
@@ -49,9 +50,15 @@ public class H2SQLExecutor {
 
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id in (" + param + ")")) {
                 List<StorageData> storageDataList = new ArrayList<>();
-                while (rs.next()) {
-                    storageDataList.add(toStorageData(rs, modelName, storageBuilder));
+                StorageData storageData;
+                do {
+                    storageData = toStorageData(rs, modelName, storageBuilder);
+                    if (storageData != null) {
+                        storageDataList.add(storageData);
+                    }
                 }
+                while (storageData != null);
+
                 return storageDataList;
             }
         } catch (SQLException | JDBCClientException e) {
