@@ -18,14 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng, peng-yongsheng
@@ -51,8 +53,13 @@ public class H2BatchDAO implements IBatchDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             for (Object exe : collection) {
-                SQLExecutor sqlExecutor = (SQLExecutor)exe;
-                sqlExecutor.invoke(connection);
+                try {
+                    SQLExecutor sqlExecutor = (SQLExecutor)exe;
+                    sqlExecutor.invoke(connection);
+                } catch (SQLException e) {
+                    // Just avoid one execution failure makes the rest of batch failure.
+                    logger.error(e.getMessage(), e);
+                }
             }
         } catch (SQLException | JDBCClientException e) {
             logger.error(e.getMessage(), e);
