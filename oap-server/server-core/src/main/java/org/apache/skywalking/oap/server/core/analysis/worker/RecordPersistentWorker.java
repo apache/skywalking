@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -46,8 +47,8 @@ public class RecordPersistentWorker extends AbstractWorker<Record> {
 
     @Override public void in(Record record) {
         try {
-            Object insert = recordDAO.prepareBatchInsert(model, record);
-            batchDAO.asynchronous(insert);
+            InsertRequest insertRequest = recordDAO.prepareBatchInsert(model, record);
+            batchDAO.asynchronous(insertRequest);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -85,16 +86,14 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         return super.flushAndSwitch();
     }
 
-    @Override public List<Object> prepareBatch(LimitedSizeDataCache<TopN> cache) {
-        List<Object> batchCollection = new LinkedList<>();
+    @Override public void prepareBatch(LimitedSizeDataCache<TopN> cache, List<PrepareRequest> prepareRequests) {
         cache.getLast().collection().forEach(record -> {
             try {
-                batchCollection.add(recordDAO.prepareBatchInsert(model, record));
+                prepareRequests.add(recordDAO.prepareBatchInsert(model, record));
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }
         });
-        return batchCollection;
     }
 
     @Override public void in(TopN n) {
@@ -102,7 +101,7 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     }
 
     private class TopNConsumer implements IConsumer<TopN> {
-        
+
         @Override public void init() {
 
         }

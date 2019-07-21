@@ -23,6 +23,7 @@ import java.util.concurrent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.*;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -61,18 +62,14 @@ public enum PersistenceTimer {
 
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(() -> extractDataAndSaveRecord(batchDAO),
+                new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO),
                     t -> logger.error("Extract data and save record failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
-
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(() -> extractDataAndSaveMetrics(batchDAO),
-                    t -> logger.error("Extract data and save metrics failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
 
             this.isStarted = true;
         }
     }
 
-    private void extractDataAndSaveRecord(IBatchDAO batchDAO) {
+    private void extractDataAndSave(IBatchDAO batchDAO) {
         if (logger.isDebugEnabled()) {
             logger.debug("Extract data and save record");
         }
@@ -81,13 +78,21 @@ public enum PersistenceTimer {
         try {
             HistogramMetrics.Timer timer = prepareLatency.createTimer();
 
-            List records = new LinkedList();
+            List<PrepareRequest> prepareRequests = new LinkedList<>();
             try {
                 List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
-                persistenceWorkers.addAll(RecordStreamProcessor.getInstance().getPersistentWorkers());
                 persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
+                persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
-                buildBatchCollection(persistenceWorkers, records);
+                persistenceWorkers.forEach(worker -> {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("extract {} worker data and save", worker.getClass().getName());
+                    }
+
+                    if (worker.flushAndSwitch()) {
+                        worker.buildBatchRequests(prepareRequests);
+                    }
+                });
 
                 if (debug) {
                     logger.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
@@ -98,8 +103,8 @@ public enum PersistenceTimer {
 
             HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
             try {
-                if (CollectionUtils.isNotEmpty(records)) {
-                    batchDAO.asynchronous(records);
+                if (CollectionUtils.isNotEmpty(prepareRequests)) {
+                    batchDAO.synchronous(prepareRequests);
                 }
             } finally {
                 executeLatencyTimer.finish();
@@ -116,67 +121,5 @@ public enum PersistenceTimer {
         if (debug) {
             logger.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
         }
-    }
-
-    private void extractDataAndSaveMetrics(IBatchDAO batchDAO) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Extract data and save metrics");
-        }
-
-        long startTime = System.currentTimeMillis();
-        try {
-            HistogramMetrics.Timer timer = prepareLatency.createTimer();
-
-            List metrics = new LinkedList();
-            try {
-                List<PersistenceWorker> persistenceWorkers = new ArrayList<>(MetricsStreamProcessor.getInstance().getPersistentWorkers());
-                buildBatchCollection(persistenceWorkers, metrics);
-
-                if (debug) {
-                    logger.info("build metrics batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
-                }
-            } finally {
-                timer.finish();
-            }
-
-            HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
-            try {
-                if (CollectionUtils.isNotEmpty(metrics)) {
-                    batchDAO.synchronous(metrics);
-                }
-            } finally {
-                executeLatencyTimer.finish();
-            }
-        } catch (Throwable e) {
-            errorCounter.inc();
-            logger.error(e.getMessage(), e);
-        } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Persistence data save finish");
-            }
-        }
-
-        if (debug) {
-            logger.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void buildBatchCollection(List<PersistenceWorker> persistenceWorkers, List collection) {
-        persistenceWorkers.forEach(worker -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("extract {} worker data and save", worker.getClass().getName());
-            }
-
-            if (worker.flushAndSwitch()) {
-                List<?> batchCollection = worker.buildBatchCollection();
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("extract {} worker data size: {}", worker.getClass().getName(), batchCollection.size());
-                }
-
-                collection.addAll(batchCollection);
-            }
-        });
     }
 }

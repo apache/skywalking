@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -82,10 +83,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         return mergeDataCache;
     }
 
-    @Override public List<Object> prepareBatch(MergeDataCache<Metrics> cache) {
+    @Override public void prepareBatch(MergeDataCache<Metrics> cache, List<PrepareRequest> prepareRequests) {
         long start = System.currentTimeMillis();
-
-        List<Object> batchCollection = new LinkedList<>();
 
         Collection<Metrics> collection = cache.getLast().collection();
 
@@ -117,9 +116,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                         if (dbMetricsMap.containsKey(metric.id())) {
                             metric.combine(dbMetricsMap.get(metric.id()));
                             metric.calculate();
-                            batchCollection.add(metricsDAO.prepareBatchUpdate(model, metric));
+                            prepareRequests.add(metricsDAO.prepareBatchUpdate(model, metric));
                         } else {
-                            batchCollection.add(metricsDAO.prepareBatchInsert(model, metric));
+                            prepareRequests.add(metricsDAO.prepareBatchInsert(model, metric));
                         }
 
                         if (Objects.nonNull(nextAlarmWorker)) {
@@ -138,11 +137,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             i++;
         }
 
-        if (batchCollection.size() > 0) {
-            logger.debug("prepareBatch model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
+        if (prepareRequests.size() > 0) {
+            logger.debug("prepare batch requests for model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
         }
-
-        return batchCollection;
     }
 
     @Override public void cacheData(Metrics input) {
