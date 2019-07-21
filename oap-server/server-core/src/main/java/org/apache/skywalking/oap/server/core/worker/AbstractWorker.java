@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
  * @author peng-yongsheng
  */
 public abstract class AbstractWorker<INPUT> {
+    
     @Getter private final ModuleDefineHolder moduleDefineHolder;
 
     public AbstractWorker(ModuleDefineHolder moduleDefineHolder) {
