@@ -23,8 +23,11 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -38,10 +41,10 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
     private final MetricsPersistentWorker dayPersistenceWorker;
     private final MetricsPersistentWorker monthPersistenceWorker;
 
-    private CounterMetrics aggregationMinCounter;
-    private CounterMetrics aggregationHourCounter;
-    private CounterMetrics aggregationDayCounter;
-    private CounterMetrics aggregationMonthCounter;
+    private final CounterMetrics aggregationMinCounter;
+    private final CounterMetrics aggregationHourCounter;
+    private final CounterMetrics aggregationDayCounter;
+    private final CounterMetrics aggregationMonthCounter;
 
     public MetricsTransWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
         MetricsPersistentWorker minutePersistenceWorker,

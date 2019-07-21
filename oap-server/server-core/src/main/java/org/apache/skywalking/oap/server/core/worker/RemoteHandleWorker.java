@@ -16,24 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.data;
+package org.apache.skywalking.oap.server.core.worker;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public class EndOfBatchContext {
-
-    private boolean isEndOfBatch;
-
-    public EndOfBatchContext(boolean isEndOfBatch) {
-        this.isEndOfBatch = isEndOfBatch;
-    }
-
-    public boolean isEndOfBatch() {
-        return isEndOfBatch;
-    }
-
-    public void setEndOfBatch(boolean endOfBatch) {
-        isEndOfBatch = endOfBatch;
-    }
+@AllArgsConstructor
+@Getter
+public class RemoteHandleWorker {
+    private AbstractWorker worker;
+    private Class<? extends StreamData> streamDataClass;
 }
