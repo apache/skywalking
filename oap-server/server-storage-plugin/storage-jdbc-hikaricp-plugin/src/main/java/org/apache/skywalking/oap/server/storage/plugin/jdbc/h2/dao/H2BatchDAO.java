@@ -44,7 +44,7 @@ public class H2BatchDAO implements IBatchDAO {
     public H2BatchDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
 
-        String name = "RECORD_PERSISTENT";
+        String name = "H2_ASYNCHRONOUS_BATCH_PERSISTENT";
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, 1, 20);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
