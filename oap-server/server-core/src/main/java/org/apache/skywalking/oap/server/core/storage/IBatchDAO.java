@@ -25,6 +25,8 @@ import java.util.List;
  */
 public interface IBatchDAO extends DAO {
 
+    void asynchronous(Object insert);
+
     void asynchronous(List<?> collection);
 
     void synchronous(List<?> collection);

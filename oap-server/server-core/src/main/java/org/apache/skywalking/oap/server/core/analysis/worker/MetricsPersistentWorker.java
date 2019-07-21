@@ -45,10 +45,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
 
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, int batchSize,
-        IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
         AbstractWorker<ExportEvent> nextExportWorker) {
-        super(moduleDefineHolder, batchSize);
+        super(moduleDefineHolder);
         this.model = model;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
@@ -76,24 +75,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     }
 
     @Override public void in(Metrics metrics) {
-        metrics.resetEndOfBatch();
         dataCarrier.produce(metrics);
     }
 
     @Override public MergeDataCache<Metrics> getCache() {
         return mergeDataCache;
-    }
-
-    public boolean flushAndSwitch() {
-        boolean isSwitch;
-        try {
-            if (isSwitch = getCache().trySwitchPointer()) {
-                getCache().switchPointer();
-            }
-        } finally {
-            getCache().trySwitchPointerFinally();
-        }
-        return isSwitch;
     }
 
     @Override public List<Object> prepareBatch(MergeDataCache<Metrics> cache) {
@@ -186,17 +172,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
 
         @Override public void consume(List<Metrics> data) {
-            Iterator<Metrics> inputIterator = data.iterator();
-
-            int i = 0;
-            while (inputIterator.hasNext()) {
-                Metrics metrics = inputIterator.next();
-                i++;
-                if (i == data.size()) {
-                    metrics.asEndOfBatch();
-                }
-                persistent.onWork(metrics);
-            }
+            data.forEach(persistent::onWork);
         }
 
         @Override public void onError(List<Metrics> data, Throwable t) {

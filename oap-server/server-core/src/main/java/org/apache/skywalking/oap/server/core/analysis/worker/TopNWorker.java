@@ -31,7 +31,7 @@ import org.slf4j.*;
 /**
  * Top N worker is a persistence worker, but no
  *
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<TopN>> {
 
@@ -44,9 +44,9 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     private long reportCycle;
     private volatile long lastReportTimestamp;
 
-    public TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model,
+    TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model,
         int topNSize, IRecordDAO recordDAO) {
-        super(moduleDefineHolder, -1);
+        super(moduleDefineHolder);
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
         this.model = model;
@@ -57,22 +57,13 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         this.reportCycle = 10 * 60 * 1000L;
     }
 
-    @Override void onWork(TopN data) {
+    @Override public void cacheData(TopN data) {
         limitedSizeDataCache.writing();
         try {
             limitedSizeDataCache.add(data);
         } finally {
             limitedSizeDataCache.finishWriting();
         }
-    }
-
-    /**
-     * TopN is not following the batch size trigger mode. The memory cost of this worker is limited always.
-     *
-     * `onWork` method has been override, so this method would never be executed. No need to implement this method,
-     */
-    @Override public void cacheData(TopN data) {
-
     }
 
     @Override public LimitedSizeDataCache<TopN> getCache() {
@@ -84,8 +75,6 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
      * time windows.
      *
      * Switch and persistent attempt happens based on reportCycle.
-     *
-     * @return
      */
     @Override public boolean flushAndSwitch() {
         long now = System.currentTimeMillis();
@@ -113,16 +102,17 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     }
 
     private class TopNConsumer implements IConsumer<TopN> {
+        
         @Override public void init() {
 
         }
 
         @Override public void consume(List<TopN> data) {
-            /**
+            /*
              * TopN is not following the batch size trigger mode.
              * No need to implement this method, the memory size is limited always.
              */
-            data.forEach(row -> onWork(row));
+            data.forEach(TopNWorker.this::onWork);
         }
 
         @Override public void onError(List<TopN> data, Throwable t) {
