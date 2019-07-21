@@ -23,12 +23,11 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
-public class H2StorageDAO implements StorageDAO<SQLExecutor, SQLExecutor> {
+public class H2StorageDAO implements StorageDAO {
 
     private JDBCHikariCPClient h2Client;
 
@@ -36,7 +35,7 @@ public class H2StorageDAO implements StorageDAO<SQLExecutor, SQLExecutor> {
         this.h2Client = h2Client;
     }
 
-    @Override public IMetricsDAO<SQLExecutor, SQLExecutor> newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
+    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
         return new H2MetricsDAO(h2Client, storageBuilder);
     }
 

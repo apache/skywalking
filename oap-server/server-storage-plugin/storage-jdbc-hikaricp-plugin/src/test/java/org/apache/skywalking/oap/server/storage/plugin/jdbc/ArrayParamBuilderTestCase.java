@@ -13,24 +13,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.junit.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface StorageDAO extends Service {
+public class ArrayParamBuilderTestCase {
 
-    IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+    @Test
+    public void testBuild() {
+        String param = ArrayParamBuilder.build(new String[] {"1"});
+        Assert.assertEquals("'1'", param);
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
+        param = ArrayParamBuilder.build(new String[] {"1", "2"});
+        Assert.assertEquals("'1','2'", param);
 
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
+        param = ArrayParamBuilder.build(new String[] {"1", "2", "3"});
+        Assert.assertEquals("'1','2','3'", param);
+    }
 }
