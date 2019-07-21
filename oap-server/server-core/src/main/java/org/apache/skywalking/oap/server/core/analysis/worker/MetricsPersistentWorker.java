@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -45,10 +46,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
 
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, int batchSize,
-        IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
         AbstractWorker<ExportEvent> nextExportWorker) {
-        super(moduleDefineHolder, batchSize);
+        super(moduleDefineHolder);
         this.model = model;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
@@ -76,7 +76,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     }
 
     @Override public void in(Metrics metrics) {
-        metrics.resetEndOfBatch();
         dataCarrier.produce(metrics);
     }
 
@@ -84,22 +83,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         return mergeDataCache;
     }
 
-    public boolean flushAndSwitch() {
-        boolean isSwitch;
-        try {
-            if (isSwitch = getCache().trySwitchPointer()) {
-                getCache().switchPointer();
-            }
-        } finally {
-            getCache().trySwitchPointerFinally();
-        }
-        return isSwitch;
-    }
-
-    @Override public List<Object> prepareBatch(MergeDataCache<Metrics> cache) {
+    @Override public void prepareBatch(MergeDataCache<Metrics> cache, List<PrepareRequest> prepareRequests) {
         long start = System.currentTimeMillis();
-
-        List<Object> batchCollection = new LinkedList<>();
 
         Collection<Metrics> collection = cache.getLast().collection();
 
@@ -131,9 +116,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                         if (dbMetricsMap.containsKey(metric.id())) {
                             metric.combine(dbMetricsMap.get(metric.id()));
                             metric.calculate();
-                            batchCollection.add(metricsDAO.prepareBatchUpdate(model, metric));
+                            prepareRequests.add(metricsDAO.prepareBatchUpdate(model, metric));
                         } else {
-                            batchCollection.add(metricsDAO.prepareBatchInsert(model, metric));
+                            prepareRequests.add(metricsDAO.prepareBatchInsert(model, metric));
                         }
 
                         if (Objects.nonNull(nextAlarmWorker)) {
@@ -152,11 +137,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             i++;
         }
 
-        if (batchCollection.size() > 0) {
-            logger.debug("prepareBatch model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
+        if (prepareRequests.size() > 0) {
+            logger.debug("prepare batch requests for model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
         }
-
-        return batchCollection;
     }
 
     @Override public void cacheData(Metrics input) {
@@ -186,17 +169,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
 
         @Override public void consume(List<Metrics> data) {
-            Iterator<Metrics> inputIterator = data.iterator();
-
-            int i = 0;
-            while (inputIterator.hasNext()) {
-                Metrics metrics = inputIterator.next();
-                i++;
-                if (i == data.size()) {
-                    metrics.asEndOfBatch();
-                }
-                persistent.onWork(metrics);
-            }
+            data.forEach(persistent::onWork);
         }
 
         @Override public void onError(List<Metrics> data, Throwable t) {
