@@ -43,9 +43,11 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
+    private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
+    private static final String GET_STATUS_METHOD = "getStatus";
 
     static {
-        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isGetStatusExist(TomcatInvokeInterceptor.class.getClassLoader());
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(TomcatInvokeInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
     }
 
     /**

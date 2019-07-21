@@ -45,10 +45,15 @@ public class MethodUtil {
     }
 
 
-    public static boolean isGetStatusExist(ClassLoader classLoader) {
+    public static boolean isMethodExist(ClassLoader classLoader, String className, String methodName, Class<?>... parameterTypes) {
         try {
-            Class<?> httpServletResponse = Class.forName("javax.servlet.http.HttpServletResponse", true, classLoader);
-            httpServletResponse.getDeclaredMethod("getStatus");
+            Class<?> httpServletResponse = Class.forName(className, true, classLoader);
+            if (parameterTypes == null || parameterTypes.length == 0) {
+                httpServletResponse.getDeclaredMethod(methodName);
+            } else {
+                httpServletResponse.getDeclaredMethod(methodName, parameterTypes);
+            }
+
             return true;
         } catch (Exception e) {
             //ignore
