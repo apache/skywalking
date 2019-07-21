@@ -82,7 +82,7 @@ storage:
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
 #  h2:
 #    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-#    url: ${SW_STORAGE_H2_URL:jdbc:h2:tcp://localhost/~/test}
+#    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
 #    user: ${SW_STORAGE_H2_USER:sa}
 #    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 #  mysql:
