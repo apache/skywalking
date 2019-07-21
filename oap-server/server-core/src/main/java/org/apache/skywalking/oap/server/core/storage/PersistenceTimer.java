@@ -63,7 +63,7 @@ public enum PersistenceTimer {
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
                 new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO),
-                    t -> logger.error("Extract data and save record failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
+                    t -> logger.error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
 
             this.isStarted = true;
         }
@@ -71,7 +71,7 @@ public enum PersistenceTimer {
 
     private void extractDataAndSave(IBatchDAO batchDAO) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Extract data and save record");
+            logger.debug("Extract data and save");
         }
 
         long startTime = System.currentTimeMillis();
