@@ -13,24 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public interface StorageDAO extends Service {
+public class ElasticSearchUpdateRequest extends UpdateRequest implements org.apache.skywalking.oap.server.library.client.request.UpdateRequest {
 
-    IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+    public ElasticSearchUpdateRequest(String index, String type, String id) {
+        super(index, type, id);
+    }
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
-
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
+    @Override public ElasticSearchUpdateRequest doc(XContentBuilder source) {
+        super.doc(source);
+        return this;
+    }
 }
