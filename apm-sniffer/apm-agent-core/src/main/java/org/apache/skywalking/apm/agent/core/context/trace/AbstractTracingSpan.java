@@ -40,7 +40,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected String operationName;
     protected int operationId;
     protected SpanLayer layer;
-    protected boolean isInAsyncMode = false;
+    protected boolean inAsyncMode = false;
     protected volatile AbstractTracerContext context;
 
     /**
@@ -323,17 +323,25 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     @Override public AbstractSpan prepareForAsync() {
         context = ContextManager.awaitFinishAsync(this);
-        isInAsyncMode = true;
+        inAsyncMode = true;
         return this;
     }
 
     @Override public AbstractSpan asyncFinish() {
-        if (!isInAsyncMode) {
+        if (!inAsyncMode) {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
 
         this.endTime = System.currentTimeMillis();
         context.asyncStop(this);
         return this;
+    }
+
+    
+    /**
+     * @return true if only inAsyncMode=true
+     */
+    public boolean isInAsyncMode() {
+        return inAsyncMode;
     }
 }
