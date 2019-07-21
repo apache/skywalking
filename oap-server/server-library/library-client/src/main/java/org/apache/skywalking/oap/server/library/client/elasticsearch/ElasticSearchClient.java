@@ -254,14 +254,14 @@ public class ElasticSearchClient implements Client {
         client.update(request);
     }
 
-    public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source) {
+    public ElasticSearchInsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new IndexRequest(indexName, TYPE, id).source(source);
+        return new ElasticSearchInsertRequest(indexName, TYPE, id).source(source);
     }
 
-    public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
+    public ElasticSearchUpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new UpdateRequest(indexName, TYPE, id).doc(source);
+        return new ElasticSearchUpdateRequest(indexName, TYPE, id).doc(source);
     }
 
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {

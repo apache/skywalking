@@ -23,16 +23,14 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.action.index.IndexRequest;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.*;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, UpdateRequest> {
+public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     private final StorageBuilder<Metrics> storageBuilder;
 
@@ -57,13 +55,13 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, Upd
         return result;
     }
 
-    @Override public IndexRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    @Override public ElasticSearchInsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
         String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareInsert(modelName, metrics.id(), builder);
     }
 
-    @Override public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    @Override public ElasticSearchUpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
         String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareUpdate(modelName, metrics.id(), builder);
