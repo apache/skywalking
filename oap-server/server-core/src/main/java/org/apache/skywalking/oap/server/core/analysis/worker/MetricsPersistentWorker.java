@@ -40,7 +40,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
 
     private final Model model;
     private final MergeDataCache<Metrics> mergeDataCache;
-    private final IMetricsDAO<?, ?> metricsDAO;
+    private final IMetricsDAO metricsDAO;
     private final AbstractWorker<Metrics> nextAlarmWorker;
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
