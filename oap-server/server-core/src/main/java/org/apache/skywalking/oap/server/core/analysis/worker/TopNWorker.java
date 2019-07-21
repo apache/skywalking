@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
- * Top N worker is a persistence worker, but no
+ * Top N worker is a persistence worker. Cache and order the data, flush in longer period.
  *
  * @author wusheng, peng-yongsheng
  */
