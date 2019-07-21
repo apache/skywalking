@@ -25,6 +25,10 @@ pipeline {
         jdk 'JDK 1.8 (latest)'
     }
 
+    environment {
+        MAVEN_OPTS = '-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+    }
+
     stages {
         stage('Checkout Source Code') {
             steps {
@@ -36,7 +40,11 @@ pipeline {
 
         stage('Prepare Distribution Package') {
             steps {
-                sh './mvnw -DskipTests clean package'
+                // although these checks are done in ci-it, since they are lightweight/cheap
+                // we're using them as a barrier here to filter out some invalid PRs (fast-fail)
+                // thus save unnecessary E2E builds(which is expensive)
+                sh './mvnw checkstyle:check apache-rat:check'
+                sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean package'
                 sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
             }
         }
