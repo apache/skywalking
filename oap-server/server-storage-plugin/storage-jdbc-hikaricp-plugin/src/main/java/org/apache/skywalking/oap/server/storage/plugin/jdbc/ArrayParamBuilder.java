@@ -13,23 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.remote.client;
-
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteClient extends Comparable<RemoteClient> {
+public class ArrayParamBuilder {
 
-    Address getAddress();
-
-    void connect();
-
-    void close();
-
-    void push(String nextWorkerName, StreamData streamData);
+    public static String build(String[] values) {
+        StringBuilder param = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            param.append("'").append(values[i]).append("'");
+            if (i < values.length - 1) {
+                param.append(",");
+            }
+        }
+        return param.toString();
+    }
 }

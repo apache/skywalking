@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -28,7 +29,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 /**
  * @author wusheng
  */
-public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO<SQLExecutor, SQLExecutor> {
+public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
+
     private JDBCHikariCPClient h2Client;
     private StorageBuilder<Metrics> storageBuilder;
 
@@ -37,8 +39,20 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO<SQLExecut
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Metrics get(Model model, Metrics metrics) throws IOException {
-        return (Metrics)getByID(h2Client, model.getName(), metrics.id(), storageBuilder);
+    @Override public Map<String, Metrics> get(Model model, Metrics[] metrics) throws IOException {
+        Map<String, Metrics> result = new HashMap<>();
+
+        String[] ids = new String[metrics.length];
+        for (int i = 0; i < metrics.length; i++) {
+            ids[i] = metrics[i].id();
+        }
+
+        List<StorageData> storageDataList = getByIDs(h2Client, model.getName(), ids, storageBuilder);
+
+        for (StorageData storageData : storageDataList) {
+            result.put(storageData.id(), (Metrics)storageData);
+        }
+        return result;
     }
 
     @Override public SQLExecutor prepareBatchInsert(Model model, Metrics metrics) throws IOException {

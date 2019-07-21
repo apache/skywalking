@@ -13,17 +13,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.remote.define;
+package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public interface StreamDataMappingSetter extends Service {
-    void putIfAbsent(Class<? extends StreamData> streamDataClass);
+public class ElasticSearchInsertRequest extends IndexRequest implements InsertRequest {
+
+    public ElasticSearchInsertRequest(String index, String type, String id) {
+        super(index, type, id);
+    }
+
+    @Override public ElasticSearchInsertRequest source(XContentBuilder sourceBuilder) {
+        super.source(sourceBuilder);
+        return this;
+    }
 }

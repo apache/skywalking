@@ -19,17 +19,19 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.client.request.*;
 
 /**
  * @author peng-yongsheng
  */
-public interface IMetricsDAO<INSERT, UPDATE> extends DAO {
+public interface IMetricsDAO extends DAO {
 
-    Metrics get(Model model, Metrics metrics) throws IOException;
+    Map<String, Metrics> get(Model model, Metrics[] metrics) throws IOException;
 
-    INSERT prepareBatchInsert(Model model, Metrics metrics) throws IOException;
+    InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException;
 
-    UPDATE prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+    UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
 }

@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -27,26 +29,13 @@ import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.client.*;
+import org.elasticsearch.common.xcontent.*;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.powermock.reflect.Whitebox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -188,7 +177,7 @@ public class ITElasticSearchClient {
 
     @Test
     public void bulk() throws InterruptedException {
-        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 200, 10, 2);
+        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2);
 
         Map<String, String> source = new HashMap<>();
         source.put("column1", "value1");
@@ -246,7 +235,7 @@ public class ITElasticSearchClient {
     }
 
     private RestHighLevelClient getRestHighLevelClient() {
-        return (RestHighLevelClient) Whitebox.getInternalState(client, "client");
+        return (RestHighLevelClient)Whitebox.getInternalState(client, "client");
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {
