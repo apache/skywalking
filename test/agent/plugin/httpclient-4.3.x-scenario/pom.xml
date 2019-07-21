@@ -37,7 +37,6 @@
 
         <test.framework>Httpclient</test.framework>
         <test.framework.version>4.3</test.framework.version>
-        <scenario.entry_service>http://localhost:8080/httpclient-4.3.x-scenario/case/httpclient</scenario.entry_service>
     </properties>
 
     <name>skywalking-httpclient-4.3.x-scenario</name>
@@ -144,12 +143,13 @@
             <properties>
                 <test.framework.version>4.3.2</test.framework.version>
             </properties>
-        </profile><profile>
-        <id>httpclient-4.3.x-scenario-4.3.1</id>
-        <properties>
-            <test.framework.version>4.3.1</test.framework.version>
-        </properties>
-    </profile>
+        </profile>
+        <profile>
+            <id>httpclient-4.3.x-scenario-4.3.1</id>
+            <properties>
+                <test.framework.version>4.3.1</test.framework.version>
+            </properties>
+        </profile>
     </profiles>
 
     <build>
@@ -161,24 +161,6 @@
                     <source>${compiler.version}</source>
                     <target>${compiler.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>ru.yaal.maven</groupId>
-                <artifactId>write-text-files-maven-plugin</artifactId>
-                <version>1.1</version>
-                <configuration>
-                    <charset>UTF-8</charset>
-                    <files>
-                        <file>
-                            <path>${project.build.directory}/testcase.conf</path>
-                            <lines>
-                                <line>scenario.entry_service=${scenario.entry_service}</line>
-                                <line>test.framework=${test.framework}</line>
-                                <line>test.framework.version=${test.framework.version}</line>
-                            </lines>
-                        </file>
-                    </files>
                 </configuration>
             </plugin>
             <plugin>

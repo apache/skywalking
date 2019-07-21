@@ -26,10 +26,10 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/config</directory>
-            <outputDirectory>/config</outputDirectory>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
             <includes>
-                <include>docker-compose.yml</include>
+                <include>configuration.yml</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -37,20 +37,6 @@
             <outputDirectory>/data</outputDirectory>
             <includes>
                 <include>expectedData.yaml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>${project.basedir}</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>scenario.sh</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>${project.build.directory}</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>testcase.conf</include>
             </includes>
         </fileSet>
         <fileSet>

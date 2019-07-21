@@ -31,5 +31,58 @@
         <module>httpclient-4.3.x-scenario</module>
     </modules>
 
+    <properties>
+        <test.framework.version>NOT-SETTING</test.framework.version>
+    </properties>
 
+    <build>
+        <finalName>apm-test</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete dir="${project.build.directory}/dist"/>
+                                <delete dir="${project.build.directory}/testcases"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.basedir}/configuration.yml"
+                                      tofile="${project.build.directory}/configuration.yml"/>
+                                <echo file="${project.build.directory}/configuration.yml" append="true">
+                                    ${line.separator}
+                                </echo>
+                                <echo file="${project.build.directory}/configuration.yml" append="true">
+                                    version: ${test.framework.version}
+                                </echo>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
