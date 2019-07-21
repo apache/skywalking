@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.data.Window;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -32,28 +33,11 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
 
     private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private final int batchSize;
-    private final IBatchDAO batchDAO;
-
-    PersistenceWorker(ModuleDefineHolder moduleDefineHolder, int batchSize) {
+    PersistenceWorker(ModuleDefineHolder moduleDefineHolder) {
         super(moduleDefineHolder);
-        this.batchSize = batchSize;
-        this.batchDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
     }
 
     void onWork(INPUT input) {
-        if (getCache().currentCollectionSize() >= batchSize) {
-            try {
-                if (getCache().trySwitchPointer()) {
-                    getCache().switchPointer();
-
-                    List<?> collection = buildBatchCollection();
-                    batchDAO.batchPersistence(collection);
-                }
-            } finally {
-                getCache().trySwitchPointerFinally();
-            }
-        }
         cacheData(input);
     }
 
@@ -73,10 +57,9 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
         return isSwitch;
     }
 
-    public abstract List<Object> prepareBatch(CACHE cache);
+    public abstract void prepareBatch(CACHE cache, List<PrepareRequest> prepareRequests);
 
-    public final List<?> buildBatchCollection() {
-        List<?> batchCollection = new LinkedList<>();
+    public final void buildBatchRequests(List<PrepareRequest> prepareRequests) {
         try {
             while (getCache().getLast().isWriting()) {
                 try {
@@ -87,11 +70,10 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
             }
 
             if (getCache().getLast().collection() != null) {
-                batchCollection = prepareBatch(getCache());
+                prepareBatch(getCache(), prepareRequests);
             }
         } finally {
             getCache().finishReadingLast();
         }
-        return batchCollection;
     }
 }

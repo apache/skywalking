@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
-import lombok.Getter;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -48,8 +47,6 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
     }
 
-    @Getter private List<RecordPersistentWorker> persistentWorkers = new ArrayList<>();
-
     @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Record> recordClass) {
         if (DisableRegister.INSTANCE.include(stream.name())) {
@@ -65,10 +62,9 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        Model model = modelSetter.putIfAbsent(recordClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second));
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, 1000, recordDAO);
+        Model model = modelSetter.putIfAbsent(recordClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second), true);
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO);
 
-        persistentWorkers.add(persistentWorker);
         workers.put(recordClass, persistentWorker);
     }
 }

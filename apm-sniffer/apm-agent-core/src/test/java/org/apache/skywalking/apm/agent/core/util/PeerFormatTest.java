@@ -16,20 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.client;
+package org.apache.skywalking.apm.agent.core.util;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * @author peng-yongsheng
+ * @author zhaoyuguang
  */
-public interface RemoteClient extends Comparable<RemoteClient> {
 
-    Address getAddress();
+public class PeerFormatTest {
 
-    void connect();
-
-    void close();
-
-    void push(String nextWorkerName, StreamData streamData);
+    @Test
+    public void testShorten() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < 100; i++) {
+            sb.append("localhost:" + i + ";");
+        }
+        Assert.assertTrue(PeerFormat.shorten(sb.toString()).length() == 200);
+    }
 }

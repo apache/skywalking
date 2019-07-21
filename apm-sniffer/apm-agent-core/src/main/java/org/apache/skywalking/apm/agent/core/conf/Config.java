@@ -158,6 +158,12 @@ public class Config {
     }
 
     public static class Plugin {
+
+        /**
+         * Control the length of the peer field.
+         */
+        public static int PEER_MAX_LENGTH = 200;
+
         public static class MongoDB {
             /**
              * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.

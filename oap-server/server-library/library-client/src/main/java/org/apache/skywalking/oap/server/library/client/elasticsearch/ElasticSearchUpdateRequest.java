@@ -13,23 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.remote.client;
+package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteClient extends Comparable<RemoteClient> {
+public class ElasticSearchUpdateRequest extends UpdateRequest implements org.apache.skywalking.oap.server.library.client.request.UpdateRequest {
 
-    Address getAddress();
+    public ElasticSearchUpdateRequest(String index, String type, String id) {
+        super(index, type, id);
+    }
 
-    void connect();
-
-    void close();
-
-    void push(String nextWorkerName, StreamData streamData);
+    @Override public ElasticSearchUpdateRequest doc(XContentBuilder source) {
+        super.doc(source);
+        return this;
+    }
 }

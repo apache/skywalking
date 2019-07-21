@@ -22,16 +22,15 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
-
-import static java.util.Objects.nonNull;
 
 /**
  * @author peng-yongsheng
@@ -47,10 +46,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
 
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, int batchSize,
-        IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
         AbstractWorker<ExportEvent> nextExportWorker) {
-        super(moduleDefineHolder, batchSize);
+        super(moduleDefineHolder);
         this.model = model;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
@@ -74,11 +72,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     }
 
     @Override void onWork(Metrics metrics) {
-        super.onWork(metrics);
+        cacheData(metrics);
     }
 
     @Override public void in(Metrics metrics) {
-        metrics.setEndOfBatchContext(new EndOfBatchContext(false));
         dataCarrier.produce(metrics);
     }
 
@@ -86,55 +83,63 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         return mergeDataCache;
     }
 
-    public boolean flushAndSwitch() {
-        boolean isSwitch;
-        try {
-            if (isSwitch = getCache().trySwitchPointer()) {
-                getCache().switchPointer();
-            }
-        } finally {
-            getCache().trySwitchPointerFinally();
-        }
-        return isSwitch;
-    }
+    @Override public void prepareBatch(MergeDataCache<Metrics> cache, List<PrepareRequest> prepareRequests) {
+        long start = System.currentTimeMillis();
 
-    @Override public List<Object> prepareBatch(MergeDataCache<Metrics> cache) {
-        List<Object> batchCollection = new LinkedList<>();
-        cache.getLast().collection().forEach(data -> {
+        Collection<Metrics> collection = cache.getLast().collection();
+
+        int i = 0;
+        Metrics[] metrics = null;
+        for (Metrics data : collection) {
             if (Objects.nonNull(nextExportWorker)) {
                 ExportEvent event = new ExportEvent(data, ExportEvent.EventType.INCREMENT);
                 nextExportWorker.in(event);
             }
 
-            Metrics dbData = null;
-            try {
-                dbData = metricsDAO.get(model, data);
-            } catch (Throwable t) {
-                logger.error(t.getMessage(), t);
-            }
-            try {
-                if (nonNull(dbData)) {
-                    data.combine(dbData);
-                    data.calculate();
-
-                    batchCollection.add(metricsDAO.prepareBatchUpdate(model, data));
+            int batchGetSize = 2000;
+            int mod = i % batchGetSize;
+            if (mod == 0) {
+                int residual = collection.size() - i;
+                if (residual >= batchGetSize) {
+                    metrics = new Metrics[batchGetSize];
                 } else {
-                    batchCollection.add(metricsDAO.prepareBatchInsert(model, data));
+                    metrics = new Metrics[residual];
                 }
-
-                if (Objects.nonNull(nextAlarmWorker)) {
-                    nextAlarmWorker.in(data);
-                }
-                if (Objects.nonNull(nextExportWorker)) {
-                    ExportEvent event = new ExportEvent(data, ExportEvent.EventType.TOTAL);
-                    nextExportWorker.in(event);
-                }
-            } catch (Throwable t) {
-                logger.error(t.getMessage(), t);
             }
-        });
+            metrics[mod] = data;
 
-        return batchCollection;
+            if (mod == metrics.length - 1) {
+                try {
+                    Map<String, Metrics> dbMetricsMap = metricsDAO.get(model, metrics);
+
+                    for (Metrics metric : metrics) {
+                        if (dbMetricsMap.containsKey(metric.id())) {
+                            metric.combine(dbMetricsMap.get(metric.id()));
+                            metric.calculate();
+                            prepareRequests.add(metricsDAO.prepareBatchUpdate(model, metric));
+                        } else {
+                            prepareRequests.add(metricsDAO.prepareBatchInsert(model, metric));
+                        }
+
+                        if (Objects.nonNull(nextAlarmWorker)) {
+                            nextAlarmWorker.in(metric);
+                        }
+                        if (Objects.nonNull(nextExportWorker)) {
+                            ExportEvent event = new ExportEvent(metric, ExportEvent.EventType.TOTAL);
+                            nextExportWorker.in(event);
+                        }
+                    }
+                } catch (Throwable t) {
+                    logger.error(t.getMessage(), t);
+                }
+            }
+
+            i++;
+        }
+
+        if (prepareRequests.size() > 0) {
+            logger.debug("prepare batch requests for model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
+        }
     }
 
     @Override public void cacheData(Metrics input) {
@@ -164,17 +169,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
 
         @Override public void consume(List<Metrics> data) {
-            Iterator<Metrics> inputIterator = data.iterator();
-
-            int i = 0;
-            while (inputIterator.hasNext()) {
-                Metrics metrics = inputIterator.next();
-                i++;
-                if (i == data.size()) {
-                    metrics.getEndOfBatchContext().setEndOfBatch(true);
-                }
-                persistent.onWork(metrics);
-            }
+            data.forEach(persistent::onWork);
         }
 
         @Override public void onError(List<Metrics> data, Throwable t) {
