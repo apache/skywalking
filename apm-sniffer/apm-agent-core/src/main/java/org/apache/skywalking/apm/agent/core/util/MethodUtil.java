@@ -44,7 +44,9 @@ public class MethodUtil {
         return operationName.toString();
     }
 
-
+    /**
+     * This is a low-performance method, recommand to use this when have to, make sure it is only executed once and the result is being cached.
+     */
     public static boolean isMethodExist(ClassLoader classLoader, String className, String methodName, String... parameterTypes) {
         try {
             Class<?> clazz = Class.forName(className, true, classLoader);
