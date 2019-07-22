@@ -119,12 +119,10 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          *
          */
         if (!context.isObjectExtended()) {
-            if (!instrumentJDKClass()) {
-                newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
-                    .implement(EnhancedInstance.class)
-                    .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
-                context.extendObjectCompleted();
-            }
+            newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
+                .implement(EnhancedInstance.class)
+                .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
+            context.extendObjectCompleted();
         }
 
         /**
@@ -153,32 +151,23 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                 if (instanceMethodsInterceptPoint instanceof DeclaredInstanceMethodsInterceptPoint) {
                     junction = junction.and(ElementMatchers.<MethodDescription>isDeclaredBy(typeDescription));
                 }
-                if (instrumentJDKClass()) {
+                if (instanceMethodsInterceptPoint.isOverrideArgs()) {
                     newClassBuilder =
                         newClassBuilder.method(junction)
                             .intercept(
                                 MethodDelegation.withDefaultConfiguration()
-                                    .to(BootstrapInstMethodsInter.class)
+                                    .withBinders(
+                                        Morph.Binder.install(OverrideCallable.class)
+                                    )
+                                    .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader))
                             );
                 } else {
-                    if (instanceMethodsInterceptPoint.isOverrideArgs()) {
-                        newClassBuilder =
-                            newClassBuilder.method(junction)
-                                .intercept(
-                                    MethodDelegation.withDefaultConfiguration()
-                                        .withBinders(
-                                            Morph.Binder.install(OverrideCallable.class)
-                                        )
-                                        .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader))
-                                );
-                    } else {
-                        newClassBuilder =
-                            newClassBuilder.method(junction)
-                                .intercept(
-                                    MethodDelegation.withDefaultConfiguration()
-                                        .to(new InstMethodsInter(interceptor, classLoader))
-                                );
-                    }
+                    newClassBuilder =
+                        newClassBuilder.method(junction)
+                            .intercept(
+                                MethodDelegation.withDefaultConfiguration()
+                                    .to(new InstMethodsInter(interceptor, classLoader))
+                            );
                 }
             }
         }
@@ -199,10 +188,6 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @return collections of {@link InstanceMethodsInterceptPoint}
      */
     protected abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
-
-    protected boolean instrumentJDKClass() {
-        return false;
-    }
 
     /**
      * Enhance a class to intercept class static methods.

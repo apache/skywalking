@@ -48,8 +48,9 @@ import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInstMethodsInter;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapInstanceMethodsInterceptPoint;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -78,39 +79,20 @@ public class SkyWalkingAgent {
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
         } catch (ConfigNotFoundException ce) {
-            logger.error(ce, "Skywalking agent could not find config. Shutting down.");
+            logger.error(ce, "SkyWalking agent could not find config. Shutting down.");
             return;
         } catch (AgentPackageNotFoundException ape) {
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
-            logger.error(e, "Skywalking agent initialized failure. Shutting down.");
+            logger.error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         }
-
-        File temp = null;
-        try {
-            temp = new File(AgentPackagePath.getPath(), "logs");
-        } catch (AgentPackageNotFoundException e) {
-            logger.error(e, "Bootstrap temp path can't be found.");
-            return;
-        }
-        Map<TypeDescription.ForLoadedType, byte[]> loadedTypeMap = new HashMap<TypeDescription.ForLoadedType, byte[]>();
-        loadedTypeMap.put(
-            new TypeDescription.ForLoadedType(BootstrapInstMethodsInter.class),
-            ClassFileLocator.ForClassLoader.read(BootstrapInstMethodsInter.class)
-        );
-        loadedTypeMap.put(new TypeDescription.ForLoadedType(EnhancedInstance.class),
-            ClassFileLocator.ForClassLoader.read(BootstrapInstMethodsInter.class));
-        loadedTypeMap.put(new TypeDescription.ForLoadedType(BootstrapInstMethodsInter.class),
-            ClassFileLocator.ForClassLoader.read(BootstrapInstMethodsInter.class));
-
-        ClassInjector.UsingInstrumentation.of(temp, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation).inject(loadedTypeMap);
 
         final ByteBuddy byteBuddy = new ByteBuddy()
             .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
-        new AgentBuilder.Default(byteBuddy)
+        AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy)
             .ignore(
                 nameStartsWith("net.bytebuddy.")
                     .or(nameStartsWith("org.slf4j."))
@@ -120,8 +102,16 @@ public class SkyWalkingAgent {
                     .or(nameContains(".asm."))
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
-                    .or(ElementMatchers.<TypeDescription>isSynthetic()))
-            .enableBootstrapInjection(instrumentation, temp)
+                    .or(ElementMatchers.<TypeDescription>isSynthetic()));
+
+        try {
+            injectBootstrapInstrumentation(pluginFinder, agentBuilder, instrumentation);
+        } catch (Exception e) {
+            logger.error(e, "SkyWalking agent inject boostrap instrumentation failure. Shutting down.");
+            return;
+        }
+
+        agentBuilder
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
             .with(new Listener())
@@ -170,6 +160,40 @@ public class SkyWalkingAgent {
             logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
             return builder;
         }
+    }
+
+    private static AgentBuilder injectBootstrapInstrumentation(PluginFinder pluginFinder, AgentBuilder agentBuilder,
+        Instrumentation instrumentation) {
+        Map<TypeDescription.ForLoadedType, byte[]> loadedTypeMap = new HashMap<TypeDescription.ForLoadedType, byte[]>();
+
+        boolean isHasJREInstrumentation = false;
+        for (BootstrapClassEnhancePluginDefine define : pluginFinder.getBootstrapClassMatchDefine()) {
+            for (BootstrapInstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
+                Class methodsInterceptor = point.getMethodsInterceptor();
+                loadedTypeMap.put(new TypeDescription.ForLoadedType(methodsInterceptor),
+                    ClassFileLocator.ForClassLoader.read(methodsInterceptor));
+                isHasJREInstrumentation = true;
+            }
+        }
+
+        if (!isHasJREInstrumentation) {
+            return agentBuilder;
+        }
+
+        loadedTypeMap.put(new TypeDescription.ForLoadedType(EnhancedInstance.class),
+            ClassFileLocator.ForClassLoader.read(EnhancedInstance.class));
+
+        File temp = null;
+        try {
+            temp = new File(AgentPackagePath.getPath(), "bootstrapJarTmp");
+        } catch (AgentPackageNotFoundException e) {
+            logger.error(e, "Bootstrap plugin exist, but SkyWalking agent can't create bootstrapJarTmp folder. Shutting down.");
+            throw new UnsupportedOperationException("Bootstrap plugin exist, but SkyWalking agent can't create bootstrapJarTmp folder. Shutting down.", e);
+        }
+
+        ClassInjector.UsingInstrumentation.of(temp, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation).inject(loadedTypeMap);
+        agentBuilder = agentBuilder.enableBootstrapInjection(instrumentation, temp);
+        return agentBuilder;
     }
 
     private static ElementMatcher.Junction<NamedElement> allSkyWalkingAgentExcludeToolkit() {

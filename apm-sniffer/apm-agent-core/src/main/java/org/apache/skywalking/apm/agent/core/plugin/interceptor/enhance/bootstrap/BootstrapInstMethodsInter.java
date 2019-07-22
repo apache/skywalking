@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
+package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
