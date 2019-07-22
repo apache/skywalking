@@ -26,9 +26,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.HESSIAN_SERVICE_EXPORTER_CLASS;
-import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.HESSIAN_SERVICE_EXPORTER_INTERCEOTPOR;
+import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.HESSIAN_SERVICE_EXPORTER_INCERCEPTOR;
 
 /**
  * @author Alan Lau
@@ -43,11 +44,11 @@ public class HessianServiceExporterInstrumentation extends ClassInstanceMethodsE
 
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("handleRequest");
+                    return named("handleRequest").and(takesArgumentWithType(1, "javax.servlet.http.HttpServletRequest")).and(takesArgumentWithType(1, "javax.servlet.http.HttpServletResponse"));
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return HESSIAN_SERVICE_EXPORTER_INTERCEOTPOR;
+                    return HESSIAN_SERVICE_EXPORTER_INCERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {

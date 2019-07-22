@@ -29,8 +29,6 @@
     <artifactId>apm-hessian-4.0.x-plugin</artifactId>
 
     <name>hessian-4.0.x-plugin</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
 
     <properties>
         <hessian.version>4.0.38</hessian.version>
@@ -44,7 +42,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

@@ -82,7 +82,18 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
+        Object service = allArguments[0];
+
+        if (service == null) {
+            return ret;
+        }
+
+        if (argumentsTypes.length < 3) {
+            return ret;
+        }
+
         ContextManager.stopSpan();
+
         return ret;
     }
 

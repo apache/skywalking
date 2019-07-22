@@ -66,7 +66,13 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
-        if (allArguments.length == 0) {
+        HessianEnhanceCache cache = (HessianEnhanceCache)objInst.getSkyWalkingDynamicField();
+        URL url = cache.getUrl();
+        if (url == null) {
+            return ret;
+        }
+
+        if (allArguments.length < 0) {
             return ret;
         }
 

@@ -19,7 +19,6 @@ package org.apache.skywalking.apm.plugin.hessian.v4;
 
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -42,14 +41,6 @@ public class HessianServiceExporterInterceptor implements InstanceMethodsAroundI
             return;
         }
 
-        if (!argumentsTypes[0].isAssignableFrom(HttpServletRequest.class)) {
-            return;
-        }
-
-        if (!argumentsTypes[1].isAssignableFrom(HttpServletResponse.class)) {
-            return;
-        }
-
         HttpServletRequest request = (HttpServletRequest)allArguments[0];
 
         String operateName = request.getRequestURI();
@@ -65,6 +56,9 @@ public class HessianServiceExporterInterceptor implements InstanceMethodsAroundI
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
+        if (argumentsTypes.length != 2) {
+            return ret;
+        }
         ContextManager.stopSpan();
         return ret;
     }
