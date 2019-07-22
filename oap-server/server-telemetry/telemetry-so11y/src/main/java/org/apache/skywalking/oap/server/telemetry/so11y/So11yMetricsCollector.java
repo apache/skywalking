@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.telemetry.so11y;
 
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
-import org.apache.skywalking.oap.server.telemetry.api.Metrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 
 import java.util.ArrayList;
@@ -35,17 +35,17 @@ import java.util.List;
  */
 public class So11yMetricsCollector implements MetricsCollector {
     @Override
-    public Iterable<Metrics> collect() {
+    public Iterable<MetricFamily> collect() {
         Enumeration<Collector.MetricFamilySamples> mfs = CollectorRegistry.defaultRegistry.metricFamilySamples();
-        List<Metrics> result = new LinkedList<>();
+        List<MetricFamily> result = new LinkedList<>();
         while (mfs.hasMoreElements()) {
             Collector.MetricFamilySamples metricFamilySamples = mfs.nextElement();
-            List<Metrics.Sample> samples = new ArrayList<>(metricFamilySamples.samples.size());
-            Metrics m = new Metrics(metricFamilySamples.name, Metrics.Type.valueOf(metricFamilySamples.type.name()),
+            List<MetricFamily.Sample> samples = new ArrayList<>(metricFamilySamples.samples.size());
+            MetricFamily m = new MetricFamily(metricFamilySamples.name, MetricFamily.Type.valueOf(metricFamilySamples.type.name()),
                     metricFamilySamples.help, samples);
             result.add(m);
             for (Collector.MetricFamilySamples.Sample sample: metricFamilySamples.samples) {
-                samples.add(new Metrics.Sample(sample.name, sample.labelNames, sample.labelValues, sample.value, sample.timestampMs));
+                samples.add(new MetricFamily.Sample(sample.name, sample.labelNames, sample.labelValues, sample.value, sample.timestampMs));
             }
         }
         return result;

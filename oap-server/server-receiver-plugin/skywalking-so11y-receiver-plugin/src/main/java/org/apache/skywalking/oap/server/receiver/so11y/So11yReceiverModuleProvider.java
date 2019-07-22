@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryR
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.Metrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.Logger;
@@ -114,9 +114,9 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
                     } else {
                         return;
                     }
-                    Iterable<Metrics> mfs = collector.collect();
-                    Map<String, Metrics> metricsIndex = new HashMap<>();
-                    for (Metrics each : mfs) {
+                    Iterable<MetricFamily> mfs = collector.collect();
+                    Map<String, MetricFamily> metricsIndex = new HashMap<>();
+                    for (MetricFamily each : mfs) {
                         if (each.samples.size() < 1) {
                             continue;
                         }
@@ -141,7 +141,7 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         return new String[] {TelemetryModule.NAME, CoreModule.NAME};
     }
 
-    private void writeGC(Map<String, Metrics> metricsIndex) {
+    private void writeGC(Map<String, MetricFamily> metricsIndex) {
         if (!metricsIndex.containsKey("jvm_gc_collection_seconds")) {
             return;
         }
@@ -189,7 +189,7 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
                 });
     }
 
-    private void writeJvmMemoryPool(Map<String, Metrics> metricsIndex) {
+    private void writeJvmMemoryPool(Map<String, MetricFamily> metricsIndex) {
         List<MetricSetter<ServiceInstanceJVMMemoryPool>> setterList = ImmutableList.of(
                 new MetricSetter<>("jvm_memory_pool_bytes_used", (m, v) -> m.setUsed(v.longValue())),
                 new MetricSetter<>("jvm_memory_pool_bytes_committed", (m, v) -> m.setCommitted(v.longValue())),
@@ -249,7 +249,7 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         });
     }
 
-    private void writeJvmMemory(final Map<String, Metrics> metricsIndex) {
+    private void writeJvmMemory(final Map<String, MetricFamily> metricsIndex) {
         List<MetricSetter<ServiceInstanceJVMMemory>> setterList = ImmutableList.of(
                 new MetricSetter<>("jvm_memory_bytes_used", (m, v) -> m.setUsed(v.longValue())),
                 new MetricSetter<>("jvm_memory_bytes_committed", (m, v) -> m.setCommitted(v.longValue())),
@@ -295,7 +295,7 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         return memory;
     }
 
-    private void writeCpuUsage(Map<String, Metrics> metricsIndex) {
+    private void writeCpuUsage(Map<String, MetricFamily> metricsIndex) {
         if (!metricsIndex.containsKey("process_cpu_seconds_total")) {
             return;
         }

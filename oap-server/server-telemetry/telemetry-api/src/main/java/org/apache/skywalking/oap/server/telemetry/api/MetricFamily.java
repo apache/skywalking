@@ -25,14 +25,14 @@ import lombok.ToString;
 import java.util.List;
 
 /**
- * Metrics define a metric and all its samples.
+ * MetricFamily define a metric and all its samples.
  *
  * @author gaohongtao
  */
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class Metrics {
+public class MetricFamily {
 
     public final String name;
     public final Type type;

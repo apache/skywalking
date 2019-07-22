@@ -16,21 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.api;
+package org.apache.skywalking.oap.server.telemetry.none;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
+
+import java.util.Collections;
 
 /**
- * Collect all metrics from telemetry.
+ * No-op MetricFamily Collector.
  *
  * @author gaohongtao
  */
-public interface MetricsCollector extends Service {
-
-    /**
-     * Get all of metrics.
-     *
-     * @return all metrics
-     */
-    Iterable<MetricFamily> collect();
+public class MetricsCollectorNoop implements MetricsCollector {
+    @Override
+    public Iterable<MetricFamily> collect() {
+        return Collections.emptyList();
+    }
 }
