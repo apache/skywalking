@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4.define;
 
-import com.caucho.hessian.io.AbstractHessianInput;
-import com.caucho.hessian.io.AbstractHessianOutput;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -29,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.HESSIAN_SERVLET_ENHANCE_CLASS;
 import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.SKELETON_CONSTRUCT_INTERCEPTOR;
@@ -61,7 +59,7 @@ public class HessianSkeletonInstrumentation extends ClassInstanceMethodsEnhanceP
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("invoke").and(takesArgument(1, AbstractHessianInput.class)).and(takesArgument(2, AbstractHessianOutput.class));
+                    return named("invoke").and(takesArgumentWithType(1, "AbstractHessianInput")).and(takesArgumentWithType(2, "AbstractHessianOutput"));
                 }
 
                 @Override public String getMethodsInterceptor() {

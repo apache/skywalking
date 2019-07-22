@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
-import io.opencensus.trace.Span;
 import java.lang.reflect.Method;
 import java.net.URL;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
