@@ -256,6 +256,8 @@ receiver-jvm:
   default:
 receiver-clr:
   default:
+receiver-so11y:
+  default:
 service-mesh:
   default:
     bufferPath: \${SW_SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
@@ -270,9 +272,10 @@ query:
 alarm:
   default:
 telemetry:
-  prometheus:
-    host: \${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
-    port: \${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+  so11y:
+    prometheusExporterEnabled: \${SW_TELEMETRY_SO11Y_PROMETHEUS_ENABLED:true}
+    prometheusExporterHost: \${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+    prometheusExporterPort: \${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 EOT
     # generate configuration
     case ${SW_CONFIGURATION} in
