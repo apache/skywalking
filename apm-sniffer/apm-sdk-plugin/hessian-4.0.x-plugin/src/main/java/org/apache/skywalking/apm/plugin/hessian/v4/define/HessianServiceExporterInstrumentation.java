@@ -44,7 +44,7 @@ public class HessianServiceExporterInstrumentation extends ClassInstanceMethodsE
 
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("handleRequest").and(takesArgumentWithType(1, "javax.servlet.http.HttpServletRequest")).and(takesArgumentWithType(1, "javax.servlet.http.HttpServletResponse"));
+                    return named("handleRequest").and(takesArgumentWithType(0, "javax.servlet.http.HttpServletRequest")).and(takesArgumentWithType(1, "javax.servlet.http.HttpServletResponse"));
                 }
 
                 @Override public String getMethodsInterceptor() {
