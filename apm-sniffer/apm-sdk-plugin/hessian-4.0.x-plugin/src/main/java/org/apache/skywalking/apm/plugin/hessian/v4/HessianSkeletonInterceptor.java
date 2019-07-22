@@ -53,10 +53,6 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
             return;
         }
 
-        if (!argumentsTypes[1].isAssignableFrom(AbstractHessianInput.class)) {
-            return;
-        }
-
         AbstractHessianInput in = (AbstractHessianInput)allArguments[1];
 
         final ContextCarrier contextCarrier = new ContextCarrier();

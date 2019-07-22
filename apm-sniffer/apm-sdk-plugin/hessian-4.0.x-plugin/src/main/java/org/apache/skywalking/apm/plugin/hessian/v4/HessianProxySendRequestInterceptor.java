@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
+import io.opencensus.trace.Span;
 import java.lang.reflect.Method;
 import java.net.URL;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -58,7 +60,7 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
         span.start(System.currentTimeMillis());
         span.setOperationName(url.getPath());
 
-        span.tag(HessianTags.HESSIAN_RPC, url.getPath());
+        Tags.URL.set(span, url.getPath());
         SpanLayer.asRPCFramework(span);
     }
 
