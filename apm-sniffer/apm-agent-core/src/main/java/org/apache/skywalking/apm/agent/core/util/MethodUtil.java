@@ -45,19 +45,40 @@ public class MethodUtil {
     }
 
 
-    public static boolean isMethodExist(ClassLoader classLoader, String className, String methodName, Class<?>... parameterTypes) {
+    public static boolean isMethodExist(ClassLoader classLoader, String className, String methodName, String... parameterTypes) {
         try {
-            Class<?> httpServletResponse = Class.forName(className, true, classLoader);
+            Class<?> clazz = Class.forName(className, true, classLoader);
             if (parameterTypes == null || parameterTypes.length == 0) {
-                httpServletResponse.getDeclaredMethod(methodName);
+                clazz.getDeclaredMethod(methodName);
+                return true;
             } else {
-                httpServletResponse.getDeclaredMethod(methodName, parameterTypes);
+                Method[] declaredMethods = clazz.getDeclaredMethods();
+                for (Method declaredMethod : declaredMethods) {
+                    if (declaredMethod.getName().equals(methodName) && isParameterTypesEquals(declaredMethod.getParameterTypes(), parameterTypes)) {
+                        return true;
+                    }
+                }
             }
-
-            return true;
         } catch (Exception e) {
             //ignore
         }
         return false;
+    }
+
+
+    private static boolean isParameterTypesEquals(Class<?>[] parameterTypeClazz, String[] parameterTypeString) {
+        if (parameterTypeClazz == null) {
+            return false;
+        }
+        if (parameterTypeClazz.length != parameterTypeString.length) {
+            return false;
+        }
+        for (int i = 0; i < parameterTypeClazz.length; i++) {
+            if (!parameterTypeClazz[i].getName().equals(parameterTypeString[i])) {
+                return false;
+            }
+        }
+        return true;
+
     }
 }
