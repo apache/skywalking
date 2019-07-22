@@ -43,14 +43,18 @@ import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.f
 /**
  * @author zhangxin
  */
-public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
+public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall implements CallClientInterceptor {
 
     private final String serviceName;
     private final String remotePeer;
     private final String operationPrefix;
+    private final Channel channel;
+    private final MethodDescriptor methodDescriptor;
 
     protected StreamCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
         super(delegate);
+        this.channel = channel;
+        this.methodDescriptor = method;
         this.serviceName = formatOperationName(method);
         this.remotePeer = channel.authority();
         this.operationPrefix = OperationNameFormatUtil.formatOperationName(method) + CLIENT;
@@ -70,6 +74,16 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
         }
         delegate().start(new CallListener(responseListener, ContextManager.capture()), headers);
         ContextManager.stopSpan();
+    }
+
+    @Override
+    public Channel getChannel() {
+        return channel;
+    }
+
+    @Override
+    public MethodDescriptor getMethodDescriptor() {
+        return methodDescriptor;
     }
 
     private class CallListener extends ForwardingClientCallListener.SimpleForwardingClientCallListener {
