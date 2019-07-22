@@ -18,18 +18,25 @@
 
 package org.apache.skywalking.apm.agent;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
@@ -41,6 +48,8 @@ import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInstMethodsInter;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -61,7 +70,7 @@ public class SkyWalkingAgent {
      * @param instrumentation
      * @throws PluginException
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException, IOException {
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initialize(agentArgs);
@@ -79,6 +88,25 @@ public class SkyWalkingAgent {
             return;
         }
 
+        File temp = null;
+        try {
+            temp = new File(AgentPackagePath.getPath(), "logs");
+        } catch (AgentPackageNotFoundException e) {
+            logger.error(e, "Bootstrap temp path can't be found.");
+            return;
+        }
+        Map<TypeDescription.ForLoadedType, byte[]> loadedTypeMap = new HashMap<TypeDescription.ForLoadedType, byte[]>();
+        loadedTypeMap.put(
+            new TypeDescription.ForLoadedType(BootstrapInstMethodsInter.class),
+            ClassFileLocator.ForClassLoader.read(BootstrapInstMethodsInter.class)
+        );
+        loadedTypeMap.put(new TypeDescription.ForLoadedType(EnhancedInstance.class),
+            ClassFileLocator.ForClassLoader.read(BootstrapInstMethodsInter.class));
+        loadedTypeMap.put(new TypeDescription.ForLoadedType(BootstrapInstMethodsInter.class),
+            ClassFileLocator.ForClassLoader.read(BootstrapInstMethodsInter.class));
+
+        ClassInjector.UsingInstrumentation.of(temp, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation).inject(loadedTypeMap);
+
         final ByteBuddy byteBuddy = new ByteBuddy()
             .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
@@ -93,6 +121,7 @@ public class SkyWalkingAgent {
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
                     .or(ElementMatchers.<TypeDescription>isSynthetic()))
+            .enableBootstrapInjection(instrumentation, temp)
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
             .with(new Listener())

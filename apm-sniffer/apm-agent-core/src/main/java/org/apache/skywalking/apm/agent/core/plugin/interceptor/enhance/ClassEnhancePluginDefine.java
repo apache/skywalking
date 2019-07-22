@@ -33,7 +33,11 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.*;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.EnhanceException;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import static net.bytebuddy.jar.asm.Opcodes.ACC_PRIVATE;
@@ -45,8 +49,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * This class controls all enhance operations, including enhance constructors, instance methods and static methods. All
  * the enhances base on three types interceptor point: {@link ConstructorInterceptPoint}, {@link
  * InstanceMethodsInterceptPoint} and {@link StaticMethodsInterceptPoint} If plugin is going to enhance constructors,
- * instance methods, or both, {@link ClassEnhancePluginDefine} will add a field of {@link
- * Object} type.
+ * instance methods, or both, {@link ClassEnhancePluginDefine} will add a field of {@link Object} type.
  *
  * @author wusheng
  */
@@ -59,8 +62,7 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
     public static final String CONTEXT_ATTR_NAME = "_$EnhancedClassField_ws";
 
     /**
-     * Begin to define how to enhance class.
-     * After invoke this method, only means definition is finished.
+     * Begin to define how to enhance class. After invoke this method, only means definition is finished.
      *
      * @param typeDescription target class description
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
@@ -68,8 +70,8 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      */
     @Override
     protected DynamicType.Builder<?> enhance(TypeDescription typeDescription,
-                                             DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
-                                             EnhanceContext context) throws PluginException {
+        DynamicType.Builder<?> newClassBuilder, ClassLoader classLoader,
+        EnhanceContext context) throws PluginException {
         newClassBuilder = this.enhanceClass(typeDescription, newClassBuilder, classLoader);
 
         newClassBuilder = this.enhanceInstance(typeDescription, newClassBuilder, classLoader, context);
@@ -117,10 +119,12 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          *
          */
         if (!context.isObjectExtended()) {
-            newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
-                .implement(EnhancedInstance.class)
-                .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
-            context.extendObjectCompleted();
+            if (!instrumentJDKClass()) {
+                newClassBuilder = newClassBuilder.defineField(CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
+                    .implement(EnhancedInstance.class)
+                    .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
+                context.extendObjectCompleted();
+            }
         }
 
         /**
@@ -149,23 +153,32 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                 if (instanceMethodsInterceptPoint instanceof DeclaredInstanceMethodsInterceptPoint) {
                     junction = junction.and(ElementMatchers.<MethodDescription>isDeclaredBy(typeDescription));
                 }
-                if (instanceMethodsInterceptPoint.isOverrideArgs()) {
+                if (instrumentJDKClass()) {
                     newClassBuilder =
                         newClassBuilder.method(junction)
                             .intercept(
                                 MethodDelegation.withDefaultConfiguration()
-                                    .withBinders(
-                                        Morph.Binder.install(OverrideCallable.class)
-                                    )
-                                    .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader))
+                                    .to(BootstrapInstMethodsInter.class)
                             );
                 } else {
-                    newClassBuilder =
-                        newClassBuilder.method(junction)
-                            .intercept(
-                                MethodDelegation.withDefaultConfiguration()
-                                    .to(new InstMethodsInter(interceptor, classLoader))
-                            );
+                    if (instanceMethodsInterceptPoint.isOverrideArgs()) {
+                        newClassBuilder =
+                            newClassBuilder.method(junction)
+                                .intercept(
+                                    MethodDelegation.withDefaultConfiguration()
+                                        .withBinders(
+                                            Morph.Binder.install(OverrideCallable.class)
+                                        )
+                                        .to(new InstMethodsInterWithOverrideArgs(interceptor, classLoader))
+                                );
+                    } else {
+                        newClassBuilder =
+                            newClassBuilder.method(junction)
+                                .intercept(
+                                    MethodDelegation.withDefaultConfiguration()
+                                        .to(new InstMethodsInter(interceptor, classLoader))
+                                );
+                    }
                 }
             }
         }
@@ -186,6 +199,10 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
      * @return collections of {@link InstanceMethodsInterceptPoint}
      */
     protected abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+
+    protected boolean instrumentJDKClass() {
+        return false;
+    }
 
     /**
      * Enhance a class to intercept class static methods.
