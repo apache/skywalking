@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  *
  * @author wusheng, peng-yongsheng
  */
-public abstract class PxxMetrics extends Metrics implements IntValueHolder {
+public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder {
 
     protected static final String DETAIL_GROUP = "detail_group";
     protected static final String VALUE = "value";
@@ -70,15 +70,7 @@ public abstract class PxxMetrics extends Metrics implements IntValueHolder {
         this.isCalculated = false;
 
         PxxMetrics pxxMetrics = (PxxMetrics)metrics;
-
-        pxxMetrics.getDetailGroup().forEach((key, element) -> {
-            IntKeyLongValue existingElement = this.detailGroup.get(key);
-            if (existingElement == null) {
-                this.detailGroup.put(key, new IntKeyLongValue(key, element.getValue()));
-            } else {
-                existingElement.addValue(element.getValue());
-            }
-        });
+        combine(pxxMetrics.getDetailGroup(), this.detailGroup);
     }
 
     @Override

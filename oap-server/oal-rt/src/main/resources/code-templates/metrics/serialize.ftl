@@ -16,10 +16,9 @@ public org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builde
         remoteBuilder.addDataIntegers(${field.getter}());
     </#list>
     <#list serializeFields.intLongValuePairListFields as field>
-        java.util.Collection collection = super.getDetailGroup().values();
-        for (Object value : collection) {
-        org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue intKeyLongValue = (org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue)value;
-            remoteBuilder.addDataIntLongPairList(intKeyLongValue.serialize());
+        java.util.Iterator iterator = super.getDetailGroup().values().iterator();
+        while (iterator.hasNext()) {
+            remoteBuilder.addDataIntLongPairList(((org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue)(iterator.next())).serialize());
         }
     </#list>
 

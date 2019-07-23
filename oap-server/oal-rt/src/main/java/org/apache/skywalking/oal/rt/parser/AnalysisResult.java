@@ -136,7 +136,7 @@ public class AnalysisResult {
                 case "long":
                     serializeFields.addLongField(column.getFieldName());
                     break;
-                case "IntKeyLongValueArray":
+                case "IntKeyLongValueHashMap":
                     serializeFields.addIntLongValuePairelistField(column.getFieldName());
                     break;
                 default:
