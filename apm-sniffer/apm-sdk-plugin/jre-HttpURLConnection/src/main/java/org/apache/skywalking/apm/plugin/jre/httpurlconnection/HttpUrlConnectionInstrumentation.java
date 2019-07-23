@@ -64,4 +64,8 @@ public class HttpUrlConnectionInstrumentation extends ClassEnhancePluginDefine {
     @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[0];
     }
+
+    @Override public boolean isBootstrapInstrumentation() {
+        return true;
+    }
 }

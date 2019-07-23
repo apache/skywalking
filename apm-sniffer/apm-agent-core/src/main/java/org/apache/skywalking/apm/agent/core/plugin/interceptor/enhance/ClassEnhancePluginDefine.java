@@ -184,14 +184,14 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
                             newClassBuilder.method(junction)
                                 .intercept(
                                     MethodDelegation.withDefaultConfiguration()
-                                        .to(new InstMethodsInter(interceptor, classLoader))
+                                        .to(BootstrapInstrumentBoost.forInternalDelegateClass(interceptor))
                                 );
                     } else {
                         newClassBuilder =
                             newClassBuilder.method(junction)
                                 .intercept(
                                     MethodDelegation.withDefaultConfiguration()
-                                        .to(BootstrapInstrumentBoost.forInternalDelegateClass(interceptor))
+                                        .to(new InstMethodsInter(interceptor, classLoader))
                                 );
                     }
                 }

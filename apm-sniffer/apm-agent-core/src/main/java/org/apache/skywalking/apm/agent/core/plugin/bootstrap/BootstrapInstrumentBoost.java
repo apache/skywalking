@@ -53,7 +53,7 @@ public class BootstrapInstrumentBoost {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterAssist",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult",
-        "org.apache.skywalking.apm.agent.core.logging.api.ILog"
+        "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog"
     };
     private static String INSTANCE_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInstanceMethodInterceptorTemplate";
 
@@ -120,7 +120,7 @@ public class BootstrapInstrumentBoost {
         Map<String, byte[]> classesTypeMap) throws PluginException {
         ClassPool classPool = ClassPool.getDefault();
         boolean isHasJREInstrumentation = false;
-        for (AbstractClassEnhancePluginDefine   define : pluginFinder.getBootstrapClassMatchDefine()) {
+        for (AbstractClassEnhancePluginDefine define : pluginFinder.getBootstrapClassMatchDefine()) {
             for (InstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
                 String methodsInterceptor = point.getMethodsInterceptor();
                 String internalInterceptorName = internalDelegate(methodsInterceptor);

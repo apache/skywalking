@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
@@ -25,7 +26,7 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
 
 /**
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
@@ -33,10 +34,14 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
  * @author wusheng
  */
 public class BootstrapInstanceMethodInterceptorTemplate {
+    private static final PrintStream OUT = System.out;
+    /**
+     * This field is never set, but has value in the runtime.
+     */
     private static String TARGET_INTERCEPTOR;
 
-    private static ILog LOGGER;
     private static InstanceMethodsAroundInterceptor INTERCEPTOR;
+    private static IBootstrapLog LOGGER;
 
     /**
      * Intercept the target instance method.
@@ -97,15 +102,15 @@ public class BootstrapInstanceMethodInterceptorTemplate {
             }
         }
 
-        return result;
+        return ret;
     }
 
     private static void prepare() {
-        if (LOGGER == null) {
+        if (INTERCEPTOR == null) {
             ClassLoader loader = BootstrapInterAssist.getAgentClassLoader();
 
             if (loader != null) {
-                ILog logger = BootstrapInterAssist.getLogger(loader, TARGET_INTERCEPTOR);
+                IBootstrapLog logger = BootstrapInterAssist.getLogger(loader, TARGET_INTERCEPTOR);
                 if (logger != null) {
                     LOGGER = logger;
 

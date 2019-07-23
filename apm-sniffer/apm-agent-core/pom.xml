@@ -55,8 +55,8 @@
         <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
         <shade.io.opencensus.source>io.opencensus</shade.io.opencensus.source>
         <shade.io.opencensus.target>${shade.package}.${shade.io.opencensus.source}</shade.io.opencensus.target>
-        <shade.net.javaassist.source>javassist</shade.net.javaassist.source>
-        <shade.net.javaassist.target>${shade.package}.${shade.net.javaassist.source}</shade.net.javaassist.target>
+        <shade.javaassist.source>javassist</shade.javaassist.source>
+        <shade.javaassist.target>${shade.package}.${shade.javaassist.source}</shade.javaassist.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
     </properties>
 
@@ -190,8 +190,8 @@
                             </artifactSet>
                             <relocations>
                                 <relocation>
-                                    <pattern>${shade.net.javaassist.source}</pattern>
-                                    <shadedPattern>${shade.net.javaassist.target}</shadedPattern>
+                                    <pattern>${shade.javaassist.source}</pattern>
+                                    <shadedPattern>${shade.javaassist.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>${shade.com.lmax.disruptor.source}</pattern>

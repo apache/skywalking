@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
 
 /**
  * This assist help all bootstrap class core interceptor.
@@ -31,8 +31,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 public class BootstrapInterAssist {
     private static final String AGENT_CLASSLOADER_DEFAULT = "org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader";
     private static final String DEFAULT_AGENT_CLASSLOADER_INSTANCE = "DEFAULT_LOADER";
-    private static final String LOG_MANAGER_CLASS = "org.apache.skywalking.apm.agent.core.logging.api.LogManager";
-    private static final String LOG_MANAGER_INSTANCE = "RESOLVER";
+    private static final String LOG_MANAGER_CLASS = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapPluginLogBridge";
     private static final String LOG_MANAGER_GET_LOGGER_METHOD = "getLogger";
     private static final PrintStream OUT = System.out;
 
@@ -54,15 +53,11 @@ public class BootstrapInterAssist {
         }
     }
 
-    public static ILog getLogger(ClassLoader defaultAgentClassLoader, String interceptor) {
+    public static IBootstrapLog getLogger(ClassLoader defaultAgentClassLoader, String interceptor) {
         try {
             Class<?> logManagerClass = Class.forName(LOG_MANAGER_CLASS, true, defaultAgentClassLoader);
-            Field resolver = logManagerClass.getDeclaredField(LOG_MANAGER_INSTANCE);
-            resolver.setAccessible(true);
-            Object logManagerInstance = resolver.get(null);
-
             Method getLogger = logManagerClass.getMethod(LOG_MANAGER_GET_LOGGER_METHOD, String.class);
-            return (ILog)getLogger.invoke(logManagerInstance, interceptor + "_internal");
+            return (IBootstrapLog)getLogger.invoke(null, interceptor + "_internal");
         } catch (Exception e) {
             e.printStackTrace(OUT);
             return null;
@@ -70,7 +65,7 @@ public class BootstrapInterAssist {
     }
 
     public static InstanceMethodsAroundInterceptor createInterceptor(ClassLoader defaultAgentClassLoader,
-        String className, ILog log) {
+        String className, IBootstrapLog log) {
         try {
             Class<?> interceptor = Class.forName(className, true, defaultAgentClassLoader);
             InstanceMethodsAroundInterceptor interceptorInstance = (InstanceMethodsAroundInterceptor)interceptor.newInstance();
