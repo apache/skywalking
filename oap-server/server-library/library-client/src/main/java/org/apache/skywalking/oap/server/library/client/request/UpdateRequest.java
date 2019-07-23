@@ -13,23 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.remote.client;
-
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+package org.apache.skywalking.oap.server.library.client.request;
 
 /**
  * @author peng-yongsheng
  */
-public interface RemoteClient extends Comparable<RemoteClient> {
-
-    Address getAddress();
-
-    void connect();
-
-    void close();
-
-    void push(String nextWorkerName, StreamData streamData);
+public interface UpdateRequest extends PrepareRequest {
 }

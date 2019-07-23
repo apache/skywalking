@@ -21,17 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2StorageDAO implements StorageDAO {
+
     private JDBCHikariCPClient h2Client;
 
     public H2StorageDAO(JDBCHikariCPClient h2Client) {

@@ -16,20 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.client;
+package org.apache.skywalking.oap.server.core.worker;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
 /**
- * @author peng-yongsheng
+ * @author wusheng
  */
-public interface RemoteClient extends Comparable<RemoteClient> {
-
-    Address getAddress();
-
-    void connect();
-
-    void close();
-
-    void push(String nextWorkerName, StreamData streamData);
+@AllArgsConstructor
+@Getter
+public class RemoteHandleWorker {
+    private AbstractWorker worker;
+    private Class<? extends StreamData> streamDataClass;
 }
