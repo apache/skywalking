@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
-import lombok.Getter;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -39,6 +39,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
     private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new HashMap<>();
     @Getter private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
+    @Setter @Getter private boolean enableDatabaseSession;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -104,14 +105,14 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 
-        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker);
+        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker, enableDatabaseSession);
         persistentWorkers.add(minutePersistentWorker);
 
         return minutePersistentWorker;
     }
 
     private MetricsPersistentWorker worker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model) {
-        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model, metricsDAO, null, null, null);
+        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model, metricsDAO, null, null, null, enableDatabaseSession);
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;

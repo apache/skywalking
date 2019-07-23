@@ -43,6 +43,8 @@ public enum PersistenceTimer {
     private CounterMetrics errorCounter;
     private HistogramMetrics prepareLatency;
     private HistogramMetrics executeLatency;
+    private long lastTime = System.currentTimeMillis();
+    private final List<PrepareRequest> prepareRequests = new ArrayList<>(50000);
 
     PersistenceTimer() {
         this.debug = System.getProperty("debug") != null;
@@ -61,7 +63,7 @@ public enum PersistenceTimer {
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
 
         if (!isStarted) {
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+            Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(
                 new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO),
                     t -> logger.error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
 
@@ -75,10 +77,10 @@ public enum PersistenceTimer {
         }
 
         long startTime = System.currentTimeMillis();
+
         try {
             HistogramMetrics.Timer timer = prepareLatency.createTimer();
 
-            List<PrepareRequest> prepareRequests = new LinkedList<>();
             try {
                 List<PersistenceWorker> persistenceWorkers = new ArrayList<>();
                 persistenceWorkers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
@@ -92,6 +94,8 @@ public enum PersistenceTimer {
                     if (worker.flushAndSwitch()) {
                         worker.buildBatchRequests(prepareRequests);
                     }
+
+                    worker.endOfRound(System.currentTimeMillis() - lastTime);
                 });
 
                 if (debug) {
@@ -116,6 +120,9 @@ public enum PersistenceTimer {
             if (logger.isDebugEnabled()) {
                 logger.debug("Persistence data save finish");
             }
+
+            prepareRequests.clear();
+            lastTime = System.currentTimeMillis();
         }
 
         if (debug) {
