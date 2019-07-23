@@ -242,7 +242,7 @@ protected ClassMatch enhanceClassName() {
 
 2. Define an instance method intercept point
 ```java
-protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
 
 public interface InstanceMethodsInterceptPoint {
     /**

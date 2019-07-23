@@ -18,25 +18,19 @@
 
 package org.apache.skywalking.apm.agent;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
-import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
@@ -48,9 +42,7 @@ import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapClassEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapInstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -105,7 +97,7 @@ public class SkyWalkingAgent {
                     .or(ElementMatchers.<TypeDescription>isSynthetic()));
 
         try {
-            injectBootstrapInstrumentation(pluginFinder, agentBuilder, instrumentation);
+            agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, agentBuilder, instrumentation);
         } catch (Exception e) {
             logger.error(e, "SkyWalking agent inject boostrap instrumentation failure. Shutting down.");
             return;
@@ -151,7 +143,7 @@ public class SkyWalkingAgent {
                     }
                 }
                 if (context.isEnhanced()) {
-                    logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
+                    logger.debug("Finish the loadHighPriorityClass stage for {}.", typeDescription.getName());
                 }
 
                 return newBuilder;
@@ -160,40 +152,6 @@ public class SkyWalkingAgent {
             logger.debug("Matched class {}, but ignore by finding mechanism.", typeDescription.getTypeName());
             return builder;
         }
-    }
-
-    private static AgentBuilder injectBootstrapInstrumentation(PluginFinder pluginFinder, AgentBuilder agentBuilder,
-        Instrumentation instrumentation) {
-        Map<TypeDescription.ForLoadedType, byte[]> loadedTypeMap = new HashMap<TypeDescription.ForLoadedType, byte[]>();
-
-        boolean isHasJREInstrumentation = false;
-        for (BootstrapClassEnhancePluginDefine define : pluginFinder.getBootstrapClassMatchDefine()) {
-            for (BootstrapInstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
-                Class methodsInterceptor = point.getMethodsInterceptor();
-                loadedTypeMap.put(new TypeDescription.ForLoadedType(methodsInterceptor),
-                    ClassFileLocator.ForClassLoader.read(methodsInterceptor));
-                isHasJREInstrumentation = true;
-            }
-        }
-
-        if (!isHasJREInstrumentation) {
-            return agentBuilder;
-        }
-
-        loadedTypeMap.put(new TypeDescription.ForLoadedType(EnhancedInstance.class),
-            ClassFileLocator.ForClassLoader.read(EnhancedInstance.class));
-
-        File temp = null;
-        try {
-            temp = new File(AgentPackagePath.getPath(), "bootstrapJarTmp");
-        } catch (AgentPackageNotFoundException e) {
-            logger.error(e, "Bootstrap plugin exist, but SkyWalking agent can't create bootstrapJarTmp folder. Shutting down.");
-            throw new UnsupportedOperationException("Bootstrap plugin exist, but SkyWalking agent can't create bootstrapJarTmp folder. Shutting down.", e);
-        }
-
-        ClassInjector.UsingInstrumentation.of(temp, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation).inject(loadedTypeMap);
-        agentBuilder = agentBuilder.enableBootstrapInjection(instrumentation, temp);
-        return agentBuilder;
     }
 
     private static ElementMatcher.Junction<NamedElement> allSkyWalkingAgentExcludeToolkit() {

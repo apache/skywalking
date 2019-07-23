@@ -18,36 +18,32 @@
 
 package org.apache.skywalking.apm.plugin.jre.httpurlconnection;
 
+import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
  * @author wusheng
  */
-public class Interceptor {
-    /**
-     * Intercept the target instance method.
-     *
-     * @param obj target class instance.
-     * @param allArguments all method arguments
-     * @param method method description.
-     * @param zuper the origin call ref.
-     * @return the return value of target instance method.
-     * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
-     * bug, if anything triggers this condition ).
-     */
-    @RuntimeType
-    public static Object intercept(@This Object obj,
-        @AllArguments Object[] allArguments,
-        @SuperCall Callable<?> zuper,
-        @Origin Method method
-    ) throws Throwable {
-        Object result = zuper.call();
-        return result;
+public class Interceptor implements InstanceMethodsAroundInterceptor {
+
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+    }
+
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        PrintStream out = System.out;
+        out.println("abc");
+        return ret;
+    }
+
+    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+
     }
 }

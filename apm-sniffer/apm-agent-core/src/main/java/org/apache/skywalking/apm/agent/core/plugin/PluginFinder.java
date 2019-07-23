@@ -28,7 +28,6 @@ import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.AbstractJunction;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
@@ -46,7 +45,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 public class PluginFinder {
     private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
     private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
-    private final List<BootstrapClassEnhancePluginDefine> bootstrapClassMatchDefine = new ArrayList<BootstrapClassEnhancePluginDefine>();
+    private final List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
@@ -68,8 +67,8 @@ public class PluginFinder {
                 signatureMatchDefine.add(plugin);
             }
 
-            if (plugin instanceof BootstrapClassEnhancePluginDefine) {
-                bootstrapClassMatchDefine.add((BootstrapClassEnhancePluginDefine)plugin);
+            if (plugin.isBootstrapInstrumentation()) {
+                bootstrapClassMatchDefine.add(plugin);
             }
         }
     }
@@ -108,7 +107,7 @@ public class PluginFinder {
         return new ProtectiveShieldMatcher(judge);
     }
 
-    public List<BootstrapClassEnhancePluginDefine> getBootstrapClassMatchDefine() {
+    public List<AbstractClassEnhancePluginDefine> getBootstrapClassMatchDefine() {
         return bootstrapClassMatchDefine;
     }
 }

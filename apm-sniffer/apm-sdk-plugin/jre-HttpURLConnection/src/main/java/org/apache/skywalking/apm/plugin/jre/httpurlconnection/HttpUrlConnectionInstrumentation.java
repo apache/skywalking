@@ -20,8 +20,10 @@ package org.apache.skywalking.apm.plugin.jre.httpurlconnection;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapClassEnhancePluginDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.bootstrap.BootstrapInstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -30,22 +32,26 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * @author wusheng
  */
-public class HttpUrlConnectionInstrumentation extends BootstrapClassEnhancePluginDefine {
+public class HttpUrlConnectionInstrumentation extends ClassEnhancePluginDefine {
     private static String CLASS_NAME = "java.net.HttpURLConnection";
 
     @Override protected ClassMatch enhanceClass() {
         return byName(CLASS_NAME);
     }
 
-    @Override public BootstrapInstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new BootstrapInstanceMethodsInterceptPoint[] {
-            new BootstrapInstanceMethodsInterceptPoint() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
+
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("setRequestMethod");
                 }
 
-                @Override public Class getMethodsInterceptor() {
-                    return Interceptor.class;
+                @Override public String getMethodsInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.jre.httpurlconnection.Interceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -53,5 +59,9 @@ public class HttpUrlConnectionInstrumentation extends BootstrapClassEnhancePlugi
                 }
             }
         };
+    }
+
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[0];
     }
 }

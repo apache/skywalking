@@ -23,6 +23,9 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -104,4 +107,29 @@ public abstract class AbstractClassEnhancePluginDefine {
     protected String[] witnessClasses() {
         return new String[] {};
     }
+
+    public boolean isBootstrapInstrumentation() {
+        return false;
+    }
+
+    /**
+     * Constructor methods intercept point. See {@link ConstructorInterceptPoint}
+     *
+     * @return collections of {@link ConstructorInterceptPoint}
+     */
+    public abstract ConstructorInterceptPoint[] getConstructorsInterceptPoints();
+
+    /**
+     * Instance methods intercept point. See {@link InstanceMethodsInterceptPoint}
+     *
+     * @return collections of {@link InstanceMethodsInterceptPoint}
+     */
+    public abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+
+    /**
+     * Static methods intercept point. See {@link StaticMethodsInterceptPoint}
+     *
+     * @return collections of {@link StaticMethodsInterceptPoint}
+     */
+    public abstract StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints();
 }
