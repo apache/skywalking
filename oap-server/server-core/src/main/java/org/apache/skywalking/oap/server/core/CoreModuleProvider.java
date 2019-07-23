@@ -80,7 +80,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
-        getManager().find(CoreModule.NAME);
 
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
