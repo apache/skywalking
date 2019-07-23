@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.data.Window;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.data.*;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
@@ -45,6 +45,8 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
 
     public abstract CACHE getCache();
 
+    public abstract void endOfRound(long tookTime);
+
     public boolean flushAndSwitch() {
         boolean isSwitch;
         try {
@@ -57,11 +59,12 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
         return isSwitch;
     }
 
-    public abstract void prepareBatch(CACHE cache, List<PrepareRequest> prepareRequests);
+    public abstract void prepareBatch(Collection<INPUT> lastCollection, List<PrepareRequest> prepareRequests);
 
     public final void buildBatchRequests(List<PrepareRequest> prepareRequests) {
         try {
-            while (getCache().getLast().isWriting()) {
+            SWCollection<INPUT> last = getCache().getLast();
+            while (last.isWriting()) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -69,8 +72,8 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
                 }
             }
 
-            if (getCache().getLast().collection() != null) {
-                prepareBatch(getCache(), prepareRequests);
+            if (last.collection() != null) {
+                prepareBatch(last.collection(), prepareRequests);
             }
         } finally {
             getCache().finishReadingLast();

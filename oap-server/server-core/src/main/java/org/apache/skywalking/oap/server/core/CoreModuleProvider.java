@@ -96,7 +96,6 @@ public class CoreModuleProvider extends ModuleProvider {
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
     private final SourceReceiverImpl receiver;
-    private StreamAnnotationListener streamAnnotationListener;
     private OALEngine oalEngine;
 
     public CoreModuleProvider() {
@@ -120,7 +119,8 @@ public class CoreModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        streamAnnotationListener = new StreamAnnotationListener(getManager());
+        StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
+        getManager().find(CoreModule.NAME);
 
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
