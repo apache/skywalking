@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
@@ -40,16 +41,20 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private static final Logger logger = LoggerFactory.getLogger(MetricsPersistentWorker.class);
 
     private final Model model;
+    private final Map<Metrics, Metrics> databaseSession;
     private final MergeDataCache<Metrics> mergeDataCache;
     private final IMetricsDAO metricsDAO;
     private final AbstractWorker<Metrics> nextAlarmWorker;
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
+    private final boolean enableDatabaseSession;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
-        AbstractWorker<ExportEvent> nextExportWorker) {
+        AbstractWorker<ExportEvent> nextExportWorker, boolean enableDatabaseSession) {
         super(moduleDefineHolder);
         this.model = model;
+        this.databaseSession = new HashMap<>(100);
+        this.enableDatabaseSession = enableDatabaseSession;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = nextAlarmWorker;
@@ -83,23 +88,21 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         return mergeDataCache;
     }
 
-    @Override public void prepareBatch(MergeDataCache<Metrics> cache, List<PrepareRequest> prepareRequests) {
+    @Override public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
         long start = System.currentTimeMillis();
 
-        Collection<Metrics> collection = cache.getLast().collection();
-
         int i = 0;
+        int batchGetSize = 2000;
         Metrics[] metrics = null;
-        for (Metrics data : collection) {
+        for (Metrics data : lastCollection) {
             if (Objects.nonNull(nextExportWorker)) {
                 ExportEvent event = new ExportEvent(data, ExportEvent.EventType.INCREMENT);
                 nextExportWorker.in(event);
             }
 
-            int batchGetSize = 2000;
             int mod = i % batchGetSize;
             if (mod == 0) {
-                int residual = collection.size() - i;
+                int residual = lastCollection.size() - i;
                 if (residual >= batchGetSize) {
                     metrics = new Metrics[batchGetSize];
                 } else {
@@ -110,23 +113,18 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
 
             if (mod == metrics.length - 1) {
                 try {
-                    Map<String, Metrics> dbMetricsMap = metricsDAO.get(model, metrics);
+                    syncStorageToCache(metrics);
 
                     for (Metrics metric : metrics) {
-                        if (dbMetricsMap.containsKey(metric.id())) {
-                            metric.combine(dbMetricsMap.get(metric.id()));
-                            metric.calculate();
-                            prepareRequests.add(metricsDAO.prepareBatchUpdate(model, metric));
+                        Metrics cacheMetric = databaseSession.get(metric);
+                        if (cacheMetric != null) {
+                            cacheMetric.combine(metric);
+                            cacheMetric.calculate();
+                            prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cacheMetric));
+                            nextWorker(cacheMetric);
                         } else {
                             prepareRequests.add(metricsDAO.prepareBatchInsert(model, metric));
-                        }
-
-                        if (Objects.nonNull(nextAlarmWorker)) {
-                            nextAlarmWorker.in(metric);
-                        }
-                        if (Objects.nonNull(nextExportWorker)) {
-                            ExportEvent event = new ExportEvent(metric, ExportEvent.EventType.TOTAL);
-                            nextExportWorker.in(event);
+                            nextWorker(metric);
                         }
                     }
                 } catch (Throwable t) {
@@ -142,6 +140,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
     }
 
+    private void nextWorker(Metrics metric) {
+        if (Objects.nonNull(nextAlarmWorker)) {
+            nextAlarmWorker.in(metric);
+        }
+        if (Objects.nonNull(nextExportWorker)) {
+            ExportEvent event = new ExportEvent(metric, ExportEvent.EventType.TOTAL);
+            nextExportWorker.in(event);
+        }
+    }
+
     @Override public void cacheData(Metrics input) {
         mergeDataCache.writing();
         if (mergeDataCache.containsKey(input)) {
@@ -154,6 +162,39 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
 
         mergeDataCache.finishWriting();
+    }
+
+    private void syncStorageToCache(Metrics[] metrics) throws IOException {
+        if (!enableDatabaseSession) {
+            databaseSession.clear();
+        }
+
+        List<String> notInCacheIds = new ArrayList<>();
+        for (Metrics metric : metrics) {
+            if (!databaseSession.containsKey(metric)) {
+                notInCacheIds.add(metric.id());
+            }
+        }
+
+        if (notInCacheIds.size() > 0) {
+            List<Metrics> metricsList = metricsDAO.multiGet(model, notInCacheIds);
+            for (Metrics metric : metricsList) {
+                databaseSession.put(metric, metric);
+            }
+        }
+    }
+
+    @Override public void endOfRound(long tookTime) {
+        if (enableDatabaseSession) {
+            Iterator<Metrics> iterator = databaseSession.values().iterator();
+            while (iterator.hasNext()) {
+                Metrics metrics = iterator.next();
+                metrics.setSurvivalTime(tookTime + metrics.getSurvivalTime());
+                if (metrics.getSurvivalTime() > 70000) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     private class PersistentConsumer implements IConsumer<Metrics> {
