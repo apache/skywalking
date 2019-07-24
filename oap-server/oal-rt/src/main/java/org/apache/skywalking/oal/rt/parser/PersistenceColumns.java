@@ -43,7 +43,7 @@ public class PersistenceColumns {
         intFields.add(new PersistenceField(fieldName));
     }
 
-    public void addIntLongValuePairelistField(String fieldName) {
+    public void addIntKeyLongValueHashMapField(String fieldName) {
         intLongValuePairListFields.add(new PersistenceField(fieldName));
     }
 
@@ -63,7 +63,7 @@ public class PersistenceColumns {
         return intFields;
     }
 
-    public List<PersistenceField> getIntLongValuePairListFields() {
+    public List<PersistenceField> getIntKeyLongValueHashMapFields() {
         return intLongValuePairListFields;
     }
 }

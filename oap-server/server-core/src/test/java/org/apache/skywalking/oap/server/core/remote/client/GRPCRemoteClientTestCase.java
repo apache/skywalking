@@ -24,33 +24,21 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
-import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
-import org.apache.skywalking.oap.server.core.worker.WorkerInstancesService;
+import org.apache.skywalking.oap.server.core.worker.*;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
-import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.testing.module.*;
+import org.junit.*;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author peng-yongsheng
  */
 public class GRPCRemoteClientTestCase {
 
-    private final String nextWorkerId = "mock-worker";
+    private final String nextWorkerName = "mock-worker";
     private ModuleManagerTesting moduleManager;
     @Rule public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
@@ -65,6 +53,7 @@ public class GRPCRemoteClientTestCase {
         moduleDefine.provider().registerServiceImplementation(IWorkerInstanceSetter.class, workerInstancesService);
 
         TestWorker worker = new TestWorker(moduleManager);
+        workerInstancesService.put(nextWorkerName, worker, TestStreamData.class);
     }
 
     @Test
@@ -79,6 +68,17 @@ public class GRPCRemoteClientTestCase {
 
             }
         });
+
+        when(metricsCreator.createHistogramMetric(any(), any(), any(), any())).thenReturn(new HistogramMetrics() {
+            @Override public Timer createTimer() {
+                return super.createTimer();
+            }
+
+            @Override public void observe(double value) {
+
+            }
+        });
+
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
@@ -92,7 +92,7 @@ public class GRPCRemoteClientTestCase {
         doReturn(grpcServerRule.getChannel()).when(remoteClient).getChannel();
 
         for (int i = 0; i < 12; i++) {
-            remoteClient.push(nextWorkerId, new TestStreamData());
+            remoteClient.push(nextWorkerName, new TestStreamData());
         }
 
         TimeUnit.SECONDS.sleep(2);

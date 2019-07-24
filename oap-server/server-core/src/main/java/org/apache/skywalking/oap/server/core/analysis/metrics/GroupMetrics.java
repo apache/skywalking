@@ -23,10 +23,10 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 public abstract class GroupMetrics extends Metrics {
 
     protected void combine(IntKeyLongValueHashMap source, IntKeyLongValueHashMap target) {
-        target.forEach((key, element) -> {
-            IntKeyLongValue existingElement = source.get(key);
+        source.forEach((key, element) -> {
+            IntKeyLongValue existingElement = target.get(key);
             if (existingElement == null) {
-                source.put(key, new IntKeyLongValue(key, element.getValue()));
+                target.put(key, new IntKeyLongValue(key, element.getValue()));
             } else {
                 existingElement.addValue(element.getValue());
             }

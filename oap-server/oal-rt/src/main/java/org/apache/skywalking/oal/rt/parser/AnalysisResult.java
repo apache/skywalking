@@ -137,7 +137,7 @@ public class AnalysisResult {
                     serializeFields.addLongField(column.getFieldName());
                     break;
                 case "IntKeyLongValueHashMap":
-                    serializeFields.addIntLongValuePairelistField(column.getFieldName());
+                    serializeFields.addIntKeyLongValueHashMapField(column.getFieldName());
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field type [" + type + "] of persistence column [" + column.getFieldName() + "]");
