@@ -16,25 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry;
+package org.apache.skywalking.oap.server.receiver.so11y;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * Telemetry module definition
- *
- * @author wusheng
+ * Self observability receiver config.
  */
-public class TelemetryModule extends ModuleDefine {
-    public static final String NAME = "telemetry";
-
-    public TelemetryModule() {
-        super(NAME);
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {MetricsCreator.class, MetricsCollector.class};
-    }
+public class So11yReceiverConfig extends ModuleConfig {
 }

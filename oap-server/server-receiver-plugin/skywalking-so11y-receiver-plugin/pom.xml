@@ -17,19 +17,25 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-receiver-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-telemetry</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>telemetry-prometheus</module>
-        <module>telemetry-api</module>
-        <module>telemetry-so11y</module>
-    </modules>
+    <artifactId>skywalking-so11y-receiver-plugin</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>telemetry-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+
 </project>
