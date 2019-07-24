@@ -43,7 +43,7 @@ public abstract class PxxMetrics extends Metrics implements IntValueHolder {
     @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup;
 
     private final int percentileRank;
-    private Map<Integer, IntKeyLongValue> detailIndex;
+    @Getter private Map<Integer, IntKeyLongValue> detailIndex;
 
     public PxxMetrics(int percentileRank) {
         this.percentileRank = percentileRank;
