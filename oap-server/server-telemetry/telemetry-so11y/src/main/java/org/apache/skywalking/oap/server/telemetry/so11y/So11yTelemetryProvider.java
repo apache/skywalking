@@ -16,21 +16,31 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.none;
+package org.apache.skywalking.oap.server.telemetry.so11y;
 
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 
+import java.io.IOException;
+
 /**
- * A nutshell telemetry implementor.
+ * Self observability telemetry provider.
  *
- * @author wusheng
+ * @author gaohongtao
  */
-public class NoneTelemetryProvider extends ModuleProvider {
+public class So11yTelemetryProvider extends ModuleProvider {
+    private So11yConfig config;
+
+    public So11yTelemetryProvider() {
+        config = new So11yConfig();
+    }
+
     @Override public String name() {
-        return "none";
+        return "so11y";
     }
 
     @Override public Class<? extends ModuleDefine> module() {
@@ -38,13 +48,20 @@ public class NoneTelemetryProvider extends ModuleProvider {
     }
 
     @Override public ModuleConfig createConfigBeanIfAbsent() {
-        return new ModuleConfig() {
-        };
+        return config;
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        this.registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
-        this.registerServiceImplementation(MetricsCollector.class, new MetricsCollectorNoop());
+        this.registerServiceImplementation(MetricsCreator.class, new So11yMetricsCreator());
+        this.registerServiceImplementation(MetricsCollector.class, new So11yMetricsCollector());
+        if (config.isPrometheusExporterEnabled()) {
+            try {
+                new HTTPServer(config.getPrometheusExporterHost(), config.getPrometheusExporterPort());
+            } catch (IOException e) {
+                throw new ModuleStartException(e.getMessage(), e);
+            }
+        }
+        DefaultExports.initialize();
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
@@ -52,7 +69,6 @@ public class NoneTelemetryProvider extends ModuleProvider {
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-
     }
 
     @Override public String[] requiredModules() {
