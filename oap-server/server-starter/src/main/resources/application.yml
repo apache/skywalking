@@ -103,8 +103,8 @@ receiver-jvm:
   default:
 receiver-clr:
   default:
-receiver-so11y:
-  default:
+#receiver-so11y:
+#  default:
 service-mesh:
   default:
     bufferPath: ${SW_SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
