@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog;
  *
  * @author wusheng
  */
-public class BootstrapInterAssist {
+public class BootstrapInterRuntimeAssist {
     private static final String AGENT_CLASSLOADER_DEFAULT = "org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader";
     private static final String DEFAULT_AGENT_CLASSLOADER_INSTANCE = "DEFAULT_LOADER";
     private static final String LOG_MANAGER_CLASS = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapPluginLogBridge";
@@ -64,12 +64,11 @@ public class BootstrapInterAssist {
         }
     }
 
-    public static InstanceMethodsAroundInterceptor createInterceptor(ClassLoader defaultAgentClassLoader,
+    public static <T> T createInterceptor(ClassLoader defaultAgentClassLoader,
         String className, IBootstrapLog log) {
         try {
             Class<?> interceptor = Class.forName(className, true, defaultAgentClassLoader);
-            InstanceMethodsAroundInterceptor interceptorInstance = (InstanceMethodsAroundInterceptor)interceptor.newInstance();
-            return interceptorInstance;
+            return (T)interceptor.newInstance();
         } catch (Exception e) {
             log.error(e, "Interceptor[{}] not found", className);
         }

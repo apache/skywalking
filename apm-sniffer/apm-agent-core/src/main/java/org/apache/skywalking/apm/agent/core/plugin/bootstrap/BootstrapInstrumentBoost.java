@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -37,7 +38,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
 /**
@@ -50,12 +53,18 @@ public class BootstrapInstrumentBoost {
     private static final ILog logger = LogManager.getLogger(BootstrapInstrumentBoost.class);
     private static final String[] HIGH_PRIORITY_CLASSES = {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance",
-        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterAssist",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideCallable",
         "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog"
     };
-    private static String INSTANCE_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInstanceMethodInterceptorTemplate";
+    private static String INSTANCE_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterTemplate";
+    private static String INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterWithOverrideArgsTemplate";
+    private static String CONSTRUCTOR_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.ConstructorInterTemplate";
+    private static String STATIC_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterTemplate";
+    private static String STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterWithOverrideArgsTemplate";
 
     public static AgentBuilder inject(PluginFinder pluginFinder, AgentBuilder agentBuilder,
         Instrumentation instrumentation) throws PluginException {
@@ -119,35 +128,63 @@ public class BootstrapInstrumentBoost {
     private static boolean prepareJREInstrumentation(PluginFinder pluginFinder,
         Map<String, byte[]> classesTypeMap) throws PluginException {
         ClassPool classPool = ClassPool.getDefault();
-        boolean isHasJREInstrumentation = false;
-        for (AbstractClassEnhancePluginDefine define : pluginFinder.getBootstrapClassMatchDefine()) {
+        List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefines = pluginFinder.getBootstrapClassMatchDefine();
+        for (AbstractClassEnhancePluginDefine define : bootstrapClassMatchDefines) {
             for (InstanceMethodsInterceptPoint point : define.getInstanceMethodsInterceptPoints()) {
-                String methodsInterceptor = point.getMethodsInterceptor();
-                String internalInterceptorName = internalDelegate(methodsInterceptor);
-
-                try {
-                    CtClass interClass = classPool.get(INSTANCE_DELEGATE_TEMPLATE);
-                    interClass.setName(internalInterceptorName);
-
-                    CtField interceptorDefine = interClass.getField("TARGET_INTERCEPTOR");
-                    interClass.removeField(interceptorDefine);
-
-                    interceptorDefine = CtField.make("private static String TARGET_INTERCEPTOR = \"" + methodsInterceptor + "\";", interClass);
-                    interClass.addField(interceptorDefine);
-
-                    byte[] bytes = interClass.toBytecode();
-
-                    interClass.toClass();
-
-                    classesTypeMap.put(internalInterceptorName, bytes);
-                } catch (Exception e) {
-                    throw new PluginException("Generate Dynamic plugin failure", e);
+                if (point.isOverrideArgs()) {
+                    generateDelegator(classesTypeMap, classPool, INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                } else {
+                    generateDelegator(classesTypeMap, classPool, INSTANCE_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
                 }
+            }
 
-                isHasJREInstrumentation = true;
+            for (ConstructorInterceptPoint point : define.getConstructorsInterceptPoints()) {
+                generateDelegator(classesTypeMap, classPool, CONSTRUCTOR_DELEGATE_TEMPLATE, point.getConstructorInterceptor());
+            }
+
+            for (StaticMethodsInterceptPoint point : define.getStaticMethodsInterceptPoints()) {
+                if (point.isOverrideArgs()) {
+                    generateDelegator(classesTypeMap, classPool, STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                } else {
+                    generateDelegator(classesTypeMap, classPool, STATIC_METHOD_DELEGATE_TEMPLATE, point.getMethodsInterceptor());
+                }
             }
         }
-        return isHasJREInstrumentation;
+        return bootstrapClassMatchDefines.size() > 0;
+    }
+
+    /**
+     * Generate the delegator class based on given template class. This is preparation stage level code generation.
+     *
+     * One key step to avoid class confliction between AppClassLoader and BootstrapClassLoader
+     *
+     * @param classesTypeMap hosts injected binary of generated class
+     * @param classPool to generate new class
+     * @param templateClassName represents the class as template in this generation process. The templates are
+     * pre-defined in SkyWalking agent core.
+     * @param methodsInterceptor
+     */
+    private static void generateDelegator(Map<String, byte[]> classesTypeMap, ClassPool classPool,
+        String templateClassName, String methodsInterceptor) {
+        String internalInterceptorName = internalDelegate(methodsInterceptor);
+        try {
+            CtClass interClass = classPool.get(templateClassName);
+            interClass.setName(internalInterceptorName);
+
+            CtField interceptorDefine = interClass.getField("TARGET_INTERCEPTOR");
+            interClass.removeField(interceptorDefine);
+
+            interceptorDefine = CtField.make("private static String TARGET_INTERCEPTOR = \"" + methodsInterceptor + "\";", interClass);
+            interClass.addField(interceptorDefine);
+
+            byte[] bytes = interClass.toBytecode();
+
+            interClass.toClass();
+
+            classesTypeMap.put(internalInterceptorName, bytes);
+        } catch (Exception e) {
+            throw new PluginException("Generate Dynamic plugin failure", e);
+        }
     }
 
     /**
