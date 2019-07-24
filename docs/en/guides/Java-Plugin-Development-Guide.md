@@ -312,6 +312,49 @@ public interface InstanceMethodsAroundInterceptor {
 ```
 Use the core APIs in before, after and exception handle stages.
 
+### Do bootstrap class instrumentation.
+SkyWalking has packaged the bootstrap instrumentation in the agent core. It is easy to open by declaring it in the Instrumentation definition.
+
+Override the `public boolean isBootstrapInstrumentation()` and return **true**. Such as
+```java
+public class URLInstrumentation extends ClassEnhancePluginDefine {
+    private static String CLASS_NAME = "java.net.URL";
+
+    @Override protected ClassMatch enhanceClass() {
+        return byName(CLASS_NAME);
+    }
+
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.jre.httpurlconnection.Interceptor2";
+                }
+            }
+        };
+    }
+
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
+    }
+
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[0];
+    }
+
+    @Override public boolean isBootstrapInstrumentation() {
+        return true;
+    }
+}
+```
+
+**NOTICE**, doing bootstrap instrumentation should only happen in necessary, but mostly it effect the JRE core(rt.jar),
+and could make very unexpected result or side effect.
+
 
 ### Contribute plugins into Apache SkyWalking repository
 We are welcome everyone to contribute plugins.
