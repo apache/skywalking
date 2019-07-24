@@ -35,6 +35,7 @@ public abstract class Metrics extends StreamData implements StorageData {
     public static final String ENTITY_ID = "entity_id";
 
     @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
+    @Getter @Setter private long survivalTime = 0L;
 
     public abstract String id();
 
