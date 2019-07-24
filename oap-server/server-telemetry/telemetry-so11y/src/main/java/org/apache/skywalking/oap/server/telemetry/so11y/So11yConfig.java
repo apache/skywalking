@@ -16,25 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry;
+package org.apache.skywalking.oap.server.telemetry.so11y;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * Telemetry module definition
- *
- * @author wusheng
+ * The module configuration of self observability.
  */
-public class TelemetryModule extends ModuleDefine {
-    public static final String NAME = "telemetry";
+@Setter
+@Getter
+public class So11yConfig extends ModuleConfig {
 
-    public TelemetryModule() {
-        super(NAME);
-    }
+    private boolean prometheusExporterEnabled = false;
 
-    @Override public Class[] services() {
-        return new Class[] {MetricsCreator.class, MetricsCollector.class};
-    }
+    private String prometheusExporterHost = "0.0.0.0";
+
+    private int prometheusExporterPort = 1234;
+
 }
