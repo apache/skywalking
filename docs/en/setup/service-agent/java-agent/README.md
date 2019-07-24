@@ -108,6 +108,8 @@ Now, we have the following known optional plugins.
 # Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
 
+**Make sure `bootstrapJarTmp` writable by agent, which is required by bootstrap instrumentation. New temp jar files will be generated there.**.
+
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
 * Use gRPC TLS to link backend. See [open TLS](TLS.md)
