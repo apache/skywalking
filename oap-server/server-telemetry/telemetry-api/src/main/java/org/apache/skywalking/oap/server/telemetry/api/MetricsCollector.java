@@ -16,25 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry;
+package org.apache.skywalking.oap.server.telemetry.api;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Telemetry module definition
+ * Collect all metrics from telemetry.
  *
- * @author wusheng
+ * @author gaohongtao
  */
-public class TelemetryModule extends ModuleDefine {
-    public static final String NAME = "telemetry";
+public interface MetricsCollector extends Service {
 
-    public TelemetryModule() {
-        super(NAME);
-    }
-
-    @Override public Class[] services() {
-        return new Class[] {MetricsCreator.class, MetricsCollector.class};
-    }
+    /**
+     * Get all of metrics.
+     *
+     * @return all metrics
+     */
+    Iterable<MetricFamily> collect();
 }
