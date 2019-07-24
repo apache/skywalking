@@ -38,7 +38,7 @@
         <grpc.version>1.14.0</grpc.version>
         <guava.version>20.0</guava.version>
         <bytebuddy.version>1.9.2</bytebuddy.version>
-        <javaassist.version>3.25.0-GA</javaassist.version>
+        <javaassist.version>3.23.2-GA</javaassist.version>
         <disruptor.version>3.3.6</disruptor.version>
         <wiremock.version>2.6.0</wiremock.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
