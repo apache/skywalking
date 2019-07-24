@@ -16,22 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.telemetry.api;
 
-import java.io.IOException;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * Collect all metrics from telemetry.
+ *
+ * @author gaohongtao
  */
-public interface IMetricsDAO extends DAO {
+public interface MetricsCollector extends Service {
 
-    List<Metrics> multiGet(Model model, List<String> ids) throws IOException;
-
-    InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException;
-
-    UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+    /**
+     * Get all of metrics.
+     *
+     * @return all metrics
+     */
+    Iterable<MetricFamily> collect();
 }

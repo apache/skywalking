@@ -16,22 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.receiver.so11y;
 
-import java.io.IOException;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * Self observability receiver config.
  */
-public interface IMetricsDAO extends DAO {
-
-    List<Metrics> multiGet(Model model, List<String> ids) throws IOException;
-
-    InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException;
-
-    UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+public class So11yReceiverConfig extends ModuleConfig {
 }

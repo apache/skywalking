@@ -16,22 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.telemetry.so11y;
 
-import java.io.IOException;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * The module configuration of self observability.
  */
-public interface IMetricsDAO extends DAO {
+@Setter
+@Getter
+public class So11yConfig extends ModuleConfig {
 
-    List<Metrics> multiGet(Model model, List<String> ids) throws IOException;
+    private boolean prometheusExporterEnabled = false;
 
-    InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException;
+    private String prometheusExporterHost = "0.0.0.0";
 
-    UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException;
+    private int prometheusExporterPort = 1234;
+
 }
