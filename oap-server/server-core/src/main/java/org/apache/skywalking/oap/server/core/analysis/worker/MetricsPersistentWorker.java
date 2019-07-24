@@ -47,10 +47,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final AbstractWorker<Metrics> nextAlarmWorker;
     private final AbstractWorker<ExportEvent> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
+    private final MetricsTransWorker transWorker;
     private final boolean enableDatabaseSession;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
-        AbstractWorker<ExportEvent> nextExportWorker, boolean enableDatabaseSession) {
+        AbstractWorker<ExportEvent> nextExportWorker, MetricsTransWorker transWorker, boolean enableDatabaseSession) {
         super(moduleDefineHolder);
         this.model = model;
         this.databaseSession = new HashMap<>(100);
@@ -59,6 +60,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = nextAlarmWorker;
         this.nextExportWorker = nextExportWorker;
+        this.transWorker = transWorker;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -98,6 +100,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             if (Objects.nonNull(nextExportWorker)) {
                 ExportEvent event = new ExportEvent(data, ExportEvent.EventType.INCREMENT);
                 nextExportWorker.in(event);
+            }
+            if (Objects.nonNull(transWorker)) {
+                transWorker.in(data);
             }
 
             int mod = i % batchGetSize;
