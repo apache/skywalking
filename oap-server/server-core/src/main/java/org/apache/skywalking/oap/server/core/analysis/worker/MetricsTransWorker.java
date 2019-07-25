@@ -23,11 +23,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
@@ -36,30 +33,24 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsTransWorker.class);
 
-    private final MetricsPersistentWorker minutePersistenceWorker;
     private final MetricsPersistentWorker hourPersistenceWorker;
     private final MetricsPersistentWorker dayPersistenceWorker;
     private final MetricsPersistentWorker monthPersistenceWorker;
 
-    private final CounterMetrics aggregationMinCounter;
     private final CounterMetrics aggregationHourCounter;
     private final CounterMetrics aggregationDayCounter;
     private final CounterMetrics aggregationMonthCounter;
 
     public MetricsTransWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
-        MetricsPersistentWorker minutePersistenceWorker,
         MetricsPersistentWorker hourPersistenceWorker,
         MetricsPersistentWorker dayPersistenceWorker,
         MetricsPersistentWorker monthPersistenceWorker) {
         super(moduleDefineHolder);
-        this.minutePersistenceWorker = minutePersistenceWorker;
         this.hourPersistenceWorker = hourPersistenceWorker;
         this.dayPersistenceWorker = dayPersistenceWorker;
         this.monthPersistenceWorker = monthPersistenceWorker;
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        aggregationMinCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "min"));
         aggregationHourCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
             new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "hour"));
         aggregationDayCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
@@ -80,15 +71,6 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
         if (Objects.nonNull(monthPersistenceWorker)) {
             aggregationHourCounter.inc();
             monthPersistenceWorker.in(metrics.toMonth());
-        }
-
-        /*
-         * Minute persistent must be at the end of all time dimensionalities
-         * Because #toHour, #toDay, #toMonth include clone inside, which could avoid concurrency situation.
-         */
-        if (Objects.nonNull(minutePersistenceWorker)) {
-            aggregationMinCounter.inc();
-            minutePersistenceWorker.in(metrics);
         }
     }
 }

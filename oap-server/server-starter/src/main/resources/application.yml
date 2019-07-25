@@ -62,6 +62,9 @@ core:
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
     dayMetricsDataTTL: ${SW_CORE_DAY_METRIC_DATA_TTL:45} # Unit is day
     monthMetricsDataTTL: ${SW_CORE_MONTH_METRIC_DATA_TTL:18} # Unit is month
+    # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
+    # the metrics may not be accurate within that minute.
+    enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
 storage:
   elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
@@ -103,6 +106,8 @@ receiver-jvm:
   default:
 receiver-clr:
   default:
+#receiver-so11y:
+#  default:
 service-mesh:
   default:
     bufferPath: ${SW_SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
@@ -129,9 +134,14 @@ query:
 alarm:
   default:
 telemetry:
-  prometheus:
-    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
-    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+  none:
+#  prometheus:
+#    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+#    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+#  so11y:
+#    prometheusExporterEnabled: ${SW_TELEMETRY_SO11Y_PROMETHEUS_ENABLED:true}
+#    prometheusExporterHost: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+#    prometheusExporterPort: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
 configuration:
   none:
 #  apollo:
