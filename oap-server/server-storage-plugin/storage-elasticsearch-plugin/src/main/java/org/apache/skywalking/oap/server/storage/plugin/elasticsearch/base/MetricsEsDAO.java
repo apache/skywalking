@@ -39,18 +39,13 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Map<String, Metrics> get(Model model, Metrics[] metrics) throws IOException {
-        Map<String, Metrics> result = new HashMap<>();
+    @Override public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
+        SearchResponse response = getClient().ids(model.getName(), ids.toArray(new String[0]));
 
-        String[] ids = new String[metrics.length];
-        for (int i = 0; i < metrics.length; i++) {
-            ids[i] = metrics[i].id();
-        }
-
-        SearchResponse response = getClient().ids(model.getName(), ids);
+        List<Metrics> result = new ArrayList<>((int)response.getHits().totalHits);
         for (int i = 0; i < response.getHits().totalHits; i++) {
             Metrics source = storageBuilder.map2Data(response.getHits().getAt(i).getSourceAsMap());
-            result.put(source.id(), source);
+            result.add(source);
         }
         return result;
     }
