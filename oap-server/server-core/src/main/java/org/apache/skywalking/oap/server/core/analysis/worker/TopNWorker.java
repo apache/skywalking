@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.List;
+import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeDataCache;
@@ -86,14 +86,20 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         return super.flushAndSwitch();
     }
 
-    @Override public void prepareBatch(LimitedSizeDataCache<TopN> cache, List<PrepareRequest> prepareRequests) {
-        cache.getLast().collection().forEach(record -> {
+    @Override public void prepareBatch(Collection<TopN> lastCollection, List<PrepareRequest> prepareRequests) {
+        lastCollection.forEach(record -> {
             try {
                 prepareRequests.add(recordDAO.prepareBatchInsert(model, record));
             } catch (Throwable t) {
                 logger.error(t.getMessage(), t);
             }
         });
+    }
+
+    /**
+     * This method used to clear the expired cache, but TopN is not following it.
+     */
+    @Override public void endOfRound(long tookTime) {
     }
 
     @Override public void in(TopN n) {
