@@ -38,54 +38,54 @@ public class BootstrapPluginLogBridge implements IBootstrapLog {
     }
 
     @Override public void info(String format) {
-
+        logger.info(format);
     }
 
     @Override public void info(String format, Object... arguments) {
-
+        logger.info(format, arguments);
     }
 
     @Override public void warn(String format, Object... arguments) {
-
+        logger.warn(format, arguments);
     }
 
     @Override public void warn(Throwable e, String format, Object... arguments) {
-
+        logger.warn(e, format, arguments);
     }
 
     @Override public void error(String format, Throwable e) {
-
+        logger.error(format, e);
     }
 
     @Override public void error(Throwable e, String format, Object... arguments) {
-
+        logger.error(e, format, arguments);
     }
 
     @Override public boolean isDebugEnable() {
-        return false;
+        return logger.isDebugEnable();
     }
 
     @Override public boolean isInfoEnable() {
-        return false;
+        return logger.isInfoEnable();
     }
 
     @Override public boolean isWarnEnable() {
-        return false;
+        return logger.isWarnEnable();
     }
 
     @Override public boolean isErrorEnable() {
-        return false;
+        return logger.isErrorEnable();
     }
 
     @Override public void debug(String format) {
-
+        logger.debug(format);
     }
 
     @Override public void debug(String format, Object... arguments) {
-
+        logger.debug(format, arguments);
     }
 
     @Override public void error(String format) {
-
+        logger.error(format);
     }
 }
