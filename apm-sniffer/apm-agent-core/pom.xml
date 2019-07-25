@@ -38,7 +38,10 @@
         <grpc.version>1.14.0</grpc.version>
         <guava.version>20.0</guava.version>
         <bytebuddy.version>1.9.2</bytebuddy.version>
-        <javaassist.version>3.23.2-GA</javaassist.version>
+        <!-- 3.21.0-GA is the last version w/ JDK 6 supported -->
+        <!-- We can't update this, unless JDK 6 agent is not supported. -->
+        <!-- ref discussion, https://github.com/jboss-javassist/javassist/issues/268 -->
+        <javaassist.version>3.21.0-GA</javaassist.version>
         <disruptor.version>3.3.6</disruptor.version>
         <wiremock.version>2.6.0</wiremock.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>

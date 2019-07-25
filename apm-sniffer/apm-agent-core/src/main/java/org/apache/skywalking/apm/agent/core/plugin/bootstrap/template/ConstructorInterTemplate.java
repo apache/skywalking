@@ -57,8 +57,13 @@ public class ConstructorInterTemplate {
     public static void intercept(@This Object obj,
         @AllArguments Object[] allArguments) {
         try {
+            prepare();
+
             EnhancedInstance targetObject = (EnhancedInstance)obj;
 
+            if (INTERCEPTOR == null) {
+                return;
+            }
             INTERCEPTOR.onConstruct(targetObject, allArguments);
         } catch (Throwable t) {
             LOGGER.error("ConstructorInter failure.", t);
@@ -79,6 +84,8 @@ public class ConstructorInterTemplate {
 
                     INTERCEPTOR = BootstrapInterRuntimeAssist.createInterceptor(loader, TARGET_INTERCEPTOR, LOGGER);
                 }
+            } else {
+                LOGGER.error("Runtime ClassLoader not found when create {}." + TARGET_INTERCEPTOR);
             }
         }
     }

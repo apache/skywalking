@@ -75,8 +75,10 @@ public class InstanceMethodInterTemplate {
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                result);
+            if (INTERCEPTOR != null) {
+                INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(),
+                    result);
+            }
         } catch (Throwable t) {
             if (LOGGER != null) {
                 LOGGER.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
@@ -92,8 +94,10 @@ public class InstanceMethodInterTemplate {
             }
         } catch (Throwable t) {
             try {
-                INTERCEPTOR.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(),
-                    t);
+                if (INTERCEPTOR != null) {
+                    INTERCEPTOR.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(),
+                        t);
+                }
             } catch (Throwable t2) {
                 if (LOGGER != null) {
                     LOGGER.error(t2, "class[{}] handle method[{}] exception failure", obj.getClass(), method.getName());
@@ -102,8 +106,10 @@ public class InstanceMethodInterTemplate {
             throw t;
         } finally {
             try {
-                ret = INTERCEPTOR.afterMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                    ret);
+                if (INTERCEPTOR != null) {
+                    ret = INTERCEPTOR.afterMethod(targetObject, method, allArguments, method.getParameterTypes(),
+                        ret);
+                }
             } catch (Throwable t) {
                 if (LOGGER != null) {
                     LOGGER.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
@@ -128,6 +134,8 @@ public class InstanceMethodInterTemplate {
 
                     INTERCEPTOR = BootstrapInterRuntimeAssist.createInterceptor(loader, TARGET_INTERCEPTOR, LOGGER);
                 }
+            } else {
+                LOGGER.error("Runtime ClassLoader not found when create {}." + TARGET_INTERCEPTOR);
             }
         }
     }

@@ -68,7 +68,9 @@ public class StaticMethodInterWithOverrideArgsTemplate {
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
-            INTERCEPTOR.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result);
+            if (INTERCEPTOR != null) {
+                INTERCEPTOR.beforeMethod(clazz, method, allArguments, method.getParameterTypes(), result);
+            }
         } catch (Throwable t) {
             LOGGER.error(t, "class[{}] before static method[{}] intercept failure", clazz, method.getName());
         }
@@ -82,14 +84,18 @@ public class StaticMethodInterWithOverrideArgsTemplate {
             }
         } catch (Throwable t) {
             try {
-                INTERCEPTOR.handleMethodException(clazz, method, allArguments, method.getParameterTypes(), t);
+                if (INTERCEPTOR != null) {
+                    INTERCEPTOR.handleMethodException(clazz, method, allArguments, method.getParameterTypes(), t);
+                }
             } catch (Throwable t2) {
                 LOGGER.error(t2, "class[{}] handle static method[{}] exception failure", clazz, method.getName(), t2.getMessage());
             }
             throw t;
         } finally {
             try {
-                ret = INTERCEPTOR.afterMethod(clazz, method, allArguments, method.getParameterTypes(), ret);
+                if (INTERCEPTOR != null) {
+                    ret = INTERCEPTOR.afterMethod(clazz, method, allArguments, method.getParameterTypes(), ret);
+                }
             } catch (Throwable t) {
                 LOGGER.error(t, "class[{}] after static method[{}] intercept failure:{}", clazz, method.getName(), t.getMessage());
             }
@@ -111,6 +117,8 @@ public class StaticMethodInterWithOverrideArgsTemplate {
 
                     INTERCEPTOR = BootstrapInterRuntimeAssist.createInterceptor(loader, TARGET_INTERCEPTOR, LOGGER);
                 }
+            } else {
+                LOGGER.error("Runtime ClassLoader not found when create {}." + TARGET_INTERCEPTOR);
             }
         }
     }
