@@ -95,18 +95,25 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
             this.contextSnapshot = contextSnapshot;
         }
 
-        @Override public void onReady() {
+        @Override
+        public void onReady() {
             delegate().onReady();
         }
 
-        @Override public void onHeaders(Metadata headers) {
+        @Override
+        public void onHeaders(Metadata headers) {
             delegate().onHeaders(headers);
         }
 
-        @Override public void onMessage(Object message) {
+        @Override
+        public void onMessage(Object message) {
             try {
                 ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME);
                 ContextManager.continued(contextSnapshot);
+            } catch (Throwable t) {
+                // ignore trace error
+            }
+            try {
                 delegate().onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
@@ -115,7 +122,8 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
             }
         }
 
-        @Override public void onClose(Status status, Metadata trailers) {
+        @Override
+        public void onClose(Status status, Metadata trailers) {
             try {
                 if (!status.isOk()) {
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME);
@@ -124,8 +132,12 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
                 } else {
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME);
                 }
-                delegate().onClose(status, trailers);
                 ContextManager.continued(contextSnapshot);
+            } catch (Throwable t) {
+                // ignore trace error
+            }
+            try {
+                delegate().onClose(status, trailers);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
             } finally {
