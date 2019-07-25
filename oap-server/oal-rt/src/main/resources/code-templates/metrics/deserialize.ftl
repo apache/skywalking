@@ -15,7 +15,7 @@ public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.
         ${field.setter}(remoteData.getDataIntegers(${field?index}));
     </#list>
 
-    <#list serializeFields.intLongValuePairListFields as field>
+    <#list serializeFields.intKeyLongValueHashMapFields as field>
         setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap(30));
 
         java.util.Iterator iterator = remoteData.getDataIntLongPairListList().iterator();

@@ -15,7 +15,7 @@ public org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builde
     <#list serializeFields.intFields as field>
         remoteBuilder.addDataIntegers(${field.getter}());
     </#list>
-    <#list serializeFields.intLongValuePairListFields as field>
+    <#list serializeFields.intKeyLongValueHashMapFields as field>
         java.util.Iterator iterator = super.getDetailGroup().values().iterator();
         while (iterator.hasNext()) {
             remoteBuilder.addDataIntLongPairList(((org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue)(iterator.next())).serialize());
