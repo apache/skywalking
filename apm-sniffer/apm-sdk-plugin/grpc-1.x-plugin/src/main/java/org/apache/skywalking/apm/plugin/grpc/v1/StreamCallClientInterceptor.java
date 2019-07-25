@@ -127,7 +127,7 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
             try {
                 if (!status.isOk()) {
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME);
-                    abstractSpan.errorOccurred().log(status.getCause());
+                    abstractSpan.errorOccurred().log(status.asRuntimeException());
                     Tags.STATUS_CODE.set(abstractSpan, status.getCode().name());
                 } else {
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME);
