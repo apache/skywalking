@@ -131,7 +131,7 @@ public class AppAndServiceRegisterClient implements BootService, GRPCChannelList
                                     = instanceMapping.getApplicationInstanceId();
                             }
                         } else {
-                            if (lastSegmentTime - System.currentTimeMillis() > 60 * 1000) {
+                            if ( System.currentTimeMillis() - lastSegmentTime > 60 * 1000) {
                                 instanceDiscoveryServiceBlockingStub.heartbeat(ApplicationInstanceHeartbeat.newBuilder()
                                     .setApplicationInstanceId(RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID)
                                     .setHeartbeatTime(System.currentTimeMillis())
