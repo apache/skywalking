@@ -34,8 +34,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import java.util.Objects;
-
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.CLIENT;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME;
@@ -111,9 +109,7 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
         public void onMessage(Object message) {
             try {
                 ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME);
-                if (Objects.nonNull(contextSnapshot)) {
-                    ContextManager.continued(contextSnapshot);
-                }
+                ContextManager.continued(contextSnapshot);
                 delegate().onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
@@ -133,9 +129,7 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME);
                 }
                 delegate().onClose(status, trailers);
-                if (Objects.nonNull(contextSnapshot)) {
-                    ContextManager.continued(contextSnapshot);
-                }
+                ContextManager.continued(contextSnapshot);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
             } finally {
