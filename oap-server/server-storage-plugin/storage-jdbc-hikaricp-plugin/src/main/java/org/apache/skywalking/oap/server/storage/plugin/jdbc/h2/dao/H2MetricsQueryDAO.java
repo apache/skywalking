@@ -178,7 +178,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     String id = resultSet.getString("id");
                     numOfSteps = resultSet.getInt("num_of_steps") + 1;
                     String value = resultSet.getString("detail_group");
-                    IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                    IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
                     intKeyLongValues.toObject(value);
 
                     List<Long> axisYValues = new ArrayList<>();
@@ -186,7 +186,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                         axisYValues.add(0L);
                     }
 
-                    for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                    for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
                         axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
                     }
 

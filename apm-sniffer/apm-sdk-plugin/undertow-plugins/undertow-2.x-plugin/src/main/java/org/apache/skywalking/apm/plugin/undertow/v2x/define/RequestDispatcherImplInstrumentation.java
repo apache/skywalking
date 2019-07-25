@@ -40,7 +40,7 @@ public class RequestDispatcherImplInstrumentation extends ClassInstanceMethodsEn
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.ForwardInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -57,7 +57,7 @@ public class RequestDispatcherImplInstrumentation extends ClassInstanceMethodsEn
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

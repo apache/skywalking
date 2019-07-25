@@ -36,7 +36,7 @@ public class ApplicationDispatcherInstrumentation extends ClassInstanceMethodsEn
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.tomcat78x.ForwardInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -50,7 +50,7 @@ public class ApplicationDispatcherInstrumentation extends ClassInstanceMethodsEn
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

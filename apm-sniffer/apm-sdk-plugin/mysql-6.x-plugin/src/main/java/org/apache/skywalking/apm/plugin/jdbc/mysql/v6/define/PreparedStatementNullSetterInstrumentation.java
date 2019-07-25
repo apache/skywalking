@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInst
 public class PreparedStatementNullSetterInstrumentation extends PreparedStatementInstrumentation {
 
     @Override
-    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint()
         };

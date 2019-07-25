@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.plugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,14 +37,15 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * The <code>PluginFinder</code> represents a finder , which assist to find the one
- * from the given {@link AbstractClassEnhancePluginDefine} list.
+ * The <code>PluginFinder</code> represents a finder , which assist to find the one from the given {@link
+ * AbstractClassEnhancePluginDefine} list.
  *
  * @author wusheng
  */
 public class PluginFinder {
     private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
-    private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new LinkedList<AbstractClassEnhancePluginDefine>();
+    private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
+    private final List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
@@ -63,6 +65,10 @@ public class PluginFinder {
                 pluginDefines.add(plugin);
             } else {
                 signatureMatchDefine.add(plugin);
+            }
+
+            if (plugin.isBootstrapInstrumentation()) {
+                bootstrapClassMatchDefine.add(plugin);
             }
         }
     }
@@ -99,5 +105,9 @@ public class PluginFinder {
             }
         }
         return new ProtectiveShieldMatcher(judge);
+    }
+
+    public List<AbstractClassEnhancePluginDefine> getBootstrapClassMatchDefine() {
+        return bootstrapClassMatchDefine;
     }
 }

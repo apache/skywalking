@@ -40,12 +40,12 @@ public class AsyncCommandInstrumentation extends ClassInstanceMethodsEnhancePlug
     private static final String ASYNC_COMMAND_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.lettuce.v5.AsyncCommandMethodInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
