@@ -29,8 +29,6 @@ import org.joda.time.format.*;
  */
 public abstract class Metrics extends StreamData implements StorageData {
 
-    private static DateTimeFormatter TIME_BUCKET_MONTH_FORMATTER = DateTimeFormat.forPattern("yyyyMM");
-
     public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
 
@@ -92,11 +90,12 @@ public abstract class Metrics extends StreamData implements StorageData {
         } else if (isDayBucket()) {
             return 24 * 60;
         } else {
-            /**
+            /*
              * In month time bucket status.
              * Usually after {@link #toTimeBucketInMonth()} called.
              */
-            int dayOfMonth = TIME_BUCKET_MONTH_FORMATTER.parseLocalDate(timeBucket + "").getDayOfMonth();
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMM");
+            int dayOfMonth = formatter.parseLocalDate(timeBucket + "").getDayOfMonth();
             return dayOfMonth * 24 * 60;
         }
     }

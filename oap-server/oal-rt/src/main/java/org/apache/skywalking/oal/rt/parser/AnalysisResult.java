@@ -136,8 +136,8 @@ public class AnalysisResult {
                 case "long":
                     serializeFields.addLongField(column.getFieldName());
                     break;
-                case "IntKeyLongValueArray":
-                    serializeFields.addIntLongValuePairelistField(column.getFieldName());
+                case "IntKeyLongValueHashMap":
+                    serializeFields.addIntKeyLongValueHashMapField(column.getFieldName());
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field type [" + type + "] of persistence column [" + column.getFieldName() + "]");
