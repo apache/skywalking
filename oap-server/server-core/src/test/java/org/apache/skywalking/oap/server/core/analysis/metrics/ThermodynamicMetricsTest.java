@@ -20,9 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.junit.Assert;
-import org.junit.Test;
-import org.powermock.reflect.Whitebox;
+import org.junit.*;
 
 /**
  * @author wusheng
@@ -49,7 +47,7 @@ public class ThermodynamicMetricsTest {
         metricsMocker.combine(100, step, maxNumOfSteps);
         metricsMocker.combine(100, step, maxNumOfSteps);
 
-        Map<Integer, IntKeyLongValue> index = Whitebox.getInternalState(metricsMocker, "detailIndex");
+        Map<Integer, IntKeyLongValue> index = metricsMocker.getDetailGroup();
         Assert.assertEquals(4, index.size());
 
         Assert.assertEquals(1, index.get(2).getValue());
@@ -81,7 +79,7 @@ public class ThermodynamicMetricsTest {
 
         metricsMocker.combine(metricsMocker1);
 
-        Map<Integer, IntKeyLongValue> index = Whitebox.getInternalState(metricsMocker, "detailIndex");
+        Map<Integer, IntKeyLongValue> index = metricsMocker.getDetailGroup();
         Assert.assertEquals(4, index.size());
 
         Assert.assertEquals(1, index.get(2).getValue());
