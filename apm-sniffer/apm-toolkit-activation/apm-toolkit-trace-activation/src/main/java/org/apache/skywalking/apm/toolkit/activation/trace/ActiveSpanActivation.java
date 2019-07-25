@@ -56,11 +56,11 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
     private static final String INFO_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanInfoInterceptor";
 
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
