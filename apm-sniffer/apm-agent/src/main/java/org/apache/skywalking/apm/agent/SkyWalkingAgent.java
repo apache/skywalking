@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import net.bytebuddy.ByteBuddy;
@@ -41,6 +42,7 @@ import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
+import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -61,7 +63,7 @@ public class SkyWalkingAgent {
      * @param instrumentation
      * @throws PluginException
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException, IOException {
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initialize(agentArgs);
@@ -69,20 +71,20 @@ public class SkyWalkingAgent {
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
         } catch (ConfigNotFoundException ce) {
-            logger.error(ce, "Skywalking agent could not find config. Shutting down.");
+            logger.error(ce, "SkyWalking agent could not find config. Shutting down.");
             return;
         } catch (AgentPackageNotFoundException ape) {
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
         } catch (Exception e) {
-            logger.error(e, "Skywalking agent initialized failure. Shutting down.");
+            logger.error(e, "SkyWalking agent initialized failure. Shutting down.");
             return;
         }
 
         final ByteBuddy byteBuddy = new ByteBuddy()
             .with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));
 
-        new AgentBuilder.Default(byteBuddy)
+        AgentBuilder agentBuilder = new AgentBuilder.Default(byteBuddy)
             .ignore(
                 nameStartsWith("net.bytebuddy.")
                     .or(nameStartsWith("org.slf4j."))
@@ -92,7 +94,16 @@ public class SkyWalkingAgent {
                     .or(nameContains(".asm."))
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
-                    .or(ElementMatchers.<TypeDescription>isSynthetic()))
+                    .or(ElementMatchers.<TypeDescription>isSynthetic()));
+
+        try {
+            agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, agentBuilder, instrumentation);
+        } catch (Exception e) {
+            logger.error(e, "SkyWalking agent inject boostrap instrumentation failure. Shutting down.");
+            return;
+        }
+
+        agentBuilder
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
             .with(new Listener())
@@ -132,7 +143,7 @@ public class SkyWalkingAgent {
                     }
                 }
                 if (context.isEnhanced()) {
-                    logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
+                    logger.debug("Finish the loadHighPriorityClass stage for {}.", typeDescription.getName());
                 }
 
                 return newBuilder;

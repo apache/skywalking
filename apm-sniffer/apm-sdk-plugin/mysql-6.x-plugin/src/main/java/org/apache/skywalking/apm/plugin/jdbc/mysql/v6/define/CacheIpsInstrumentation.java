@@ -37,12 +37,12 @@ public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
