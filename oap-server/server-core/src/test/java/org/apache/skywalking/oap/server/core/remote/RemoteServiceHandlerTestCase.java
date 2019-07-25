@@ -18,34 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
-import io.grpc.inprocess.InProcessChannelBuilder;
-import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.inprocess.*;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
-import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.DuplicateProviderException;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.*;
+import org.apache.skywalking.oap.server.core.worker.*;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
-import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.testing.module.*;
+import org.junit.*;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author peng-yongsheng
@@ -57,12 +44,18 @@ public class RemoteServiceHandlerTestCase {
 
     @Test
     public void callTest() throws DuplicateProviderException, ProviderNotFoundException, IOException {
-        final int streamDataClassId = 1;
         final String testWorkerId = "mock-worker";
 
         ModuleManagerTesting moduleManager = new ModuleManagerTesting();
         ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
         moduleManager.put(CoreModule.NAME, moduleDefine);
+
+        WorkerInstancesService workerInstancesService = new WorkerInstancesService();
+        moduleDefine.provider().registerServiceImplementation(IWorkerInstanceGetter.class, workerInstancesService);
+        moduleDefine.provider().registerServiceImplementation(IWorkerInstanceSetter.class, workerInstancesService);
+
+        TestWorker worker = new TestWorker(moduleManager);
+        workerInstancesService.put(testWorkerId, worker, TestRemoteData.class);
 
         String serverName = InProcessServerBuilder.generateName();
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
@@ -75,13 +68,16 @@ public class RemoteServiceHandlerTestCase {
 
             }
         });
-        when(metricsCreator.createHistogramMetric(any(), any(), any(), any(), any())).thenReturn(
-            new HistogramMetrics() {
-                @Override public void observe(double value) {
-
-                }
+        when(metricsCreator.createHistogramMetric(any(), any(), any(), any())).thenReturn(new HistogramMetrics() {
+            @Override public Timer createTimer() {
+                return super.createTimer();
             }
-        );
+
+            @Override public void observe(double value) {
+
+            }
+        });
+
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
