@@ -39,7 +39,7 @@ public class RedisClusterClientInstrumentation extends ClassInstanceMethodsEnhan
     private static final String REDIS_CLUSTER_CLIENT_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.lettuce.v5.RedisClusterClientConstructorInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{
             new ConstructorInterceptPoint() {
                 @Override
@@ -56,7 +56,7 @@ public class RedisClusterClientInstrumentation extends ClassInstanceMethodsEnhan
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[0];
     }
 

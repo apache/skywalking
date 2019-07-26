@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
-import org.apache.skywalking.oap.server.core.remote.define.StreamDataMapping;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -37,7 +36,6 @@ public class StorageInstallerTestCase {
 
     @Test
     public void testInstall() throws StorageException, ServiceNotProvidedException {
-        StreamDataMapping streamDataMapping = new StreamDataMapping();
         CoreModuleProvider moduleProvider = Mockito.mock(CoreModuleProvider.class);
         CoreModule moduleDefine = Mockito.spy(CoreModule.class);
         ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
@@ -45,7 +43,6 @@ public class StorageInstallerTestCase {
         Whitebox.setInternalState(moduleDefine, "loadedProvider", moduleProvider);
 
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleDefine);
-        Mockito.when(moduleProvider.getService(StreamDataMapping.class)).thenReturn(streamDataMapping);
 
 //        streamDataMapping.generate();
 

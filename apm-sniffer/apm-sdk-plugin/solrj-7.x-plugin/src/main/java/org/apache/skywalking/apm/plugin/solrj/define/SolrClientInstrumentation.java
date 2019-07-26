@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 public class SolrClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{
             new ConstructorInterceptPoint() {
 
@@ -47,7 +47,7 @@ public class SolrClientInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override

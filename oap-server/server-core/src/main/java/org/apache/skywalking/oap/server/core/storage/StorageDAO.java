@@ -26,9 +26,9 @@ import org.apache.skywalking.oap.server.library.module.Service;
 /**
  * @author peng-yongsheng
  */
-public interface StorageDAO<INSERT, UPDATE> extends Service {
+public interface StorageDAO extends Service {
 
-    IMetricsDAO<INSERT, UPDATE> newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+    IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);
 
     IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
 

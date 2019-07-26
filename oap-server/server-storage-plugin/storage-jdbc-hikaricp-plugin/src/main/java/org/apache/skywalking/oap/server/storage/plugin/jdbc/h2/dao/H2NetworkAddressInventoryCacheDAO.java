@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -48,5 +49,33 @@ public class H2NetworkAddressInventoryCacheDAO extends H2SQLExecutor implements 
             logger.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
+        List<NetworkAddressInventory> addressInventories = new ArrayList<>();
+
+        try {
+            StringBuilder sql = new StringBuilder("select * from ");
+            sql.append(NetworkAddressInventory.INDEX_NAME);
+            sql.append(" where ").append(NetworkAddressInventory.LAST_UPDATE_TIME).append(">?");
+
+            try (Connection connection = h2Client.getConnection()) {
+                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), lastUpdateTime)) {
+                    NetworkAddressInventory addressInventory;
+                    do {
+                        addressInventory = (NetworkAddressInventory)toStorageData(resultSet, NetworkAddressInventory.INDEX_NAME, new ServiceInventory.Builder());
+                        if (addressInventory != null) {
+                            addressInventories.add(addressInventory);
+                        }
+                    }
+                    while (addressInventory != null);
+                }
+            } catch (SQLException e) {
+                throw new IOException(e);
+            }
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
+        return addressInventories;
     }
 }

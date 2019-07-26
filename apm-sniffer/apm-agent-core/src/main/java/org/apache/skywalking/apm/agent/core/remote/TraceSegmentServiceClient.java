@@ -114,13 +114,14 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
                     UpstreamSegment upstreamSegment = segment.transform();
                     upstreamSegmentStreamObserver.onNext(upstreamSegment);
                 }
-                upstreamSegmentStreamObserver.onCompleted();
-
-                status.wait4Finish();
-                segmentUplinkedCounter += data.size();
             } catch (Throwable t) {
                 logger.error(t, "Transform and send UpstreamSegment to collector fail.");
             }
+
+            upstreamSegmentStreamObserver.onCompleted();
+
+            status.wait4Finish();
+            segmentUplinkedCounter += data.size();
         } else {
             segmentAbandonedCounter += data.size();
         }

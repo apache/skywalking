@@ -28,16 +28,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnha
  */
 public abstract class AbstractMysqlInstrumentation extends ClassEnhancePluginDefine {
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return null;
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return null;
     }
 

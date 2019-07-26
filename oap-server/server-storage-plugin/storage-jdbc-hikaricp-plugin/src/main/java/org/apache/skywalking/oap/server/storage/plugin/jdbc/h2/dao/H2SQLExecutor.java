@@ -32,10 +32,39 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.*;
 import org.slf4j.*;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2SQLExecutor {
+    
     private static final Logger logger = LoggerFactory.getLogger(H2SQLExecutor.class);
+
+    protected List<StorageData> getByIDs(JDBCHikariCPClient h2Client, String modelName, String[] ids,
+        StorageBuilder storageBuilder) throws IOException {
+
+        try (Connection connection = h2Client.getConnection()) {
+            /*
+             * Although H2 database or other database support createArrayOf and setArray operate.
+             * But Mysql 5.1.44 driver doesn't.
+             */
+            String param = ArrayParamBuilder.build(ids);
+
+            try (ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id in (" + param + ")")) {
+                List<StorageData> storageDataList = new ArrayList<>();
+                StorageData storageData;
+                do {
+                    storageData = toStorageData(rs, modelName, storageBuilder);
+                    if (storageData != null) {
+                        storageDataList.add(storageData);
+                    }
+                }
+                while (storageData != null);
+
+                return storageDataList;
+            }
+        } catch (SQLException | JDBCClientException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+    }
 
     protected StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
         StorageBuilder storageBuilder) throws IOException {
@@ -59,8 +88,7 @@ public class H2SQLExecutor {
         }
     }
 
-    protected StorageData toStorageData(ResultSet rs, String modelName,
-        StorageBuilder storageBuilder) throws SQLException {
+    protected StorageData toStorageData(ResultSet rs, String modelName, StorageBuilder storageBuilder) throws SQLException {
         if (rs.next()) {
             Map data = new HashMap();
             List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
@@ -85,8 +113,7 @@ public class H2SQLExecutor {
         return Const.NONE;
     }
 
-    protected SQLExecutor getInsertExecutor(String modelName, StorageData metrics,
-        StorageBuilder storageBuilder) throws IOException {
+    protected SQLExecutor getInsertExecutor(String modelName, StorageData metrics, StorageBuilder storageBuilder) throws IOException {
         Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
@@ -113,8 +140,7 @@ public class H2SQLExecutor {
         return new SQLExecutor(sqlBuilder.toString(), param);
     }
 
-    protected SQLExecutor getUpdateExecutor(String modelName, StorageData metrics,
-        StorageBuilder storageBuilder) throws IOException {
+    protected SQLExecutor getUpdateExecutor(String modelName, StorageData metrics, StorageBuilder storageBuilder) throws IOException {
         Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");

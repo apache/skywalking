@@ -25,7 +25,6 @@ pipeline {
         ))
         timestamps()
         skipStagesAfterUnstable()
-        timeout time: 60, unit: 'MINUTES'
     }
 
     stages {

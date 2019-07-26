@@ -15,13 +15,13 @@ public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.
         ${field.setter}(remoteData.getDataIntegers(${field?index}));
     </#list>
 
-    <#list serializeFields.intLongValuePairListFields as field>
-        setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray(30));
+    <#list serializeFields.intKeyLongValueHashMapFields as field>
+        setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap(30));
 
         java.util.Iterator iterator = remoteData.getDataIntLongPairListList().iterator();
         while (iterator.hasNext()) {
             org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair element = (org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair)(iterator.next());
-            super.getDetailGroup().add(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue(element.getKey(), element.getValue()));
+            super.getDetailGroup().put(new Integer(element.getKey()), new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue(element.getKey(), element.getValue()));
         }
     </#list>
 }

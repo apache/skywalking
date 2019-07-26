@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumenta
 public class PreparedStatementSetterInstrumentation extends PreparedStatementInstrumentation {
 
     @Override
-    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new PSSetterDefinitionOfJDBCInstrumentation(false)
         };
