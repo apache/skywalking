@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
+import java.util.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
@@ -75,5 +76,25 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
             logger.error(t.getMessage(), t);
             return null;
         }
+    }
+
+    @Override public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
+        List<NetworkAddressInventory> addressInventories = new ArrayList<>();
+
+        try {
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
+            searchSourceBuilder.size(500);
+
+            SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
+
+            for (SearchHit searchHit : response.getHits().getHits()) {
+                addressInventories.add(this.builder.map2Data(searchHit.getSourceAsMap()));
+            }
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
+
+        return addressInventories;
     }
 }

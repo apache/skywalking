@@ -57,17 +57,17 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
         }
     }
 
-    @Override public List<ServiceInventory> loadLastMappingUpdate() {
+    @Override public List<ServiceInventory> loadLastUpdate(long lastUpdateTime) {
         List<ServiceInventory> serviceInventories = new ArrayList<>();
 
         try {
             StringBuilder sql = new StringBuilder("select * from ");
             sql.append(ServiceInventory.INDEX_NAME);
             sql.append(" where ").append(ServiceInventory.IS_ADDRESS).append("=? ");
-            sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
+            sql.append(" and ").append(ServiceInventory.LAST_UPDATE_TIME).append(">?");
 
             try (Connection connection = h2Client.getConnection()) {
-                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 30 * 60 * 1000)) {
+                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, lastUpdateTime)) {
                     ServiceInventory serviceInventory;
                     do {
                         serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.INDEX_NAME, new ServiceInventory.Builder());

@@ -116,10 +116,6 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
      * Need to try to get the id by assuming the endpoint name is detected at server, local or client.
      *
      * If agent does the exchange, then always use endpoint id.
-     *
-     * @param serviceId
-     * @param endpointName
-     * @return
      */
     private int getEndpointId(int serviceId, String endpointName) {
         int endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.SERVER.ordinal());
