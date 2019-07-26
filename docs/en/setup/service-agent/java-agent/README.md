@@ -67,6 +67,7 @@ property key | Description | Default |
 `agent.instance_uuid` |Instance uuid is the identity of an instance, skywalking treat same instance uuid as one instance.if empty, skywalking agent will generate an 32-bit uuid.   |`""`|
 `agent.cause_exception_depth`|How depth the agent goes, when log all cause exceptions.|`5`|
 `agent.active_v1_header `|Deactive V1 header in default.|`false`|
+`agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
 `collector.backend_service`|Collector skywalking trace receiver service addresses.|`127.0.0.1:11800`|

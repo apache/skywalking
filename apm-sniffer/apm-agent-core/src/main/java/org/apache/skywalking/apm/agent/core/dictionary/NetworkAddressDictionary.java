@@ -66,4 +66,8 @@ public enum NetworkAddressDictionary {
             }
         }
     }
+
+    public void clear() {
+        this.applicationDictionary.clear();
+    }
 }

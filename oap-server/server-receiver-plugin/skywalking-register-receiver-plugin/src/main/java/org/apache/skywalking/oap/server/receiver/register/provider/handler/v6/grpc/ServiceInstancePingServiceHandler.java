@@ -19,10 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc;
 
 import io.grpc.stub.StreamObserver;
-import java.util.Objects;
+import org.apache.skywalking.apm.network.common.Command;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingGrpc;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingPkg;
+import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -32,6 +33,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author wusheng
@@ -57,11 +61,15 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
         ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
+            responseObserver.onNext(Commands.getDefaultInstance());
         } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't found service by service instance id from cache," +
+                " service instance id is: {}, will send a reset command to agent side", serviceInstanceId);
+            final Command resetCommand = new ServiceResetCommand(UUID.randomUUID().toString()).serialize().build();
+            final Commands nextCommands = Commands.newBuilder().addCommands(resetCommand).build();
+            responseObserver.onNext(nextCommands);
         }
 
-        responseObserver.onNext(Commands.getDefaultInstance());
         responseObserver.onCompleted();
     }
 }

@@ -88,24 +88,22 @@ public class GRPCChannelManager implements BootService, Runnable {
                 String server = "";
                 try {
                     int index = Math.abs(random.nextInt()) % grpcServers.size();
-                    if (index != selectedIdx) {
-                        selectedIdx = index;
+                    selectedIdx = index;
 
-                        server = grpcServers.get(index);
-                        String[] ipAndPort = server.split(":");
+                    server = grpcServers.get(index);
+                    String[] ipAndPort = server.split(":");
 
-                        if (managedChannel != null) {
-                            managedChannel.shutdownNow();
-                        }
-
-                        managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                            .addManagedChannelBuilder(new StandardChannelBuilder())
-                            .addManagedChannelBuilder(new TLSChannelBuilder())
-                            .addChannelDecorator(new AuthenticationDecorator())
-                            .build();
-
-                        notify(GRPCChannelStatus.CONNECTED);
+                    if (managedChannel != null) {
+                        managedChannel.shutdownNow();
                     }
+
+                    managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                        .addManagedChannelBuilder(new StandardChannelBuilder())
+                        .addManagedChannelBuilder(new TLSChannelBuilder())
+                        .addChannelDecorator(new AuthenticationDecorator())
+                        .build();
+
+                    notify(GRPCChannelStatus.CONNECTED);
 
                     reconnect = false;
                     return;

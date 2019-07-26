@@ -23,6 +23,8 @@ import java.util.*;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.library.buffer.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -48,6 +50,7 @@ public class SegmentParseV2 {
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
     private final TraceServiceModuleConfig config;
+    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     @Setter private SegmentStandardizationWorker standardizationWorker;
     private volatile static CounterMetrics TRACE_BUFFER_FILE_RETRY;
     private volatile static CounterMetrics TRACE_BUFFER_FILE_OUT;
@@ -72,6 +75,8 @@ public class SegmentParseV2 {
             TRACE_PARSE_ERROR = metricsCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file",
                 MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
+
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
     public boolean parse(BufferData<UpstreamSegment> bufferData, SegmentSource source) {
@@ -86,6 +91,12 @@ public class SegmentParseV2 {
                 bufferData.setV2Segment(parseBinarySegment(upstreamSegment));
             }
             SegmentObject segmentObject = bufferData.getV2Segment();
+
+            final int serviceInstanceId = segmentObject.getServiceInstanceId();
+            if (serviceInstanceInventoryCache.get(serviceInstanceId) == null) {
+                logger.warn("Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);
+                return false;
+            }
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
