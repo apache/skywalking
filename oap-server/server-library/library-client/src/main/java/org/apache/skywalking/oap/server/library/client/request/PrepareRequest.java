@@ -13,27 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.data;
+package org.apache.skywalking.oap.server.library.client.request;
 
 /**
  * @author peng-yongsheng
  */
-public class EndOfBatchContext {
-
-    private boolean isEndOfBatch;
-
-    public EndOfBatchContext(boolean isEndOfBatch) {
-        this.isEndOfBatch = isEndOfBatch;
-    }
-
-    public boolean isEndOfBatch() {
-        return isEndOfBatch;
-    }
-
-    public void setEndOfBatch(boolean endOfBatch) {
-        isEndOfBatch = endOfBatch;
-    }
+public interface PrepareRequest {
 }

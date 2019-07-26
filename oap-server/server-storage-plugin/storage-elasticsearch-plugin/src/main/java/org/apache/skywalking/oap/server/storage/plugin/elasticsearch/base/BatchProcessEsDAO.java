@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.request.*;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
@@ -36,51 +37,34 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
     private BulkProcessor bulkProcessor;
     private final int bulkActions;
-    private final int bulkSize;
     private final int flushInterval;
     private final int concurrentRequests;
 
-    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int bulkSize, int flushInterval,
+    public BatchProcessEsDAO(ElasticSearchClient client, int bulkActions, int flushInterval,
         int concurrentRequests) {
         super(client);
         this.bulkActions = bulkActions;
-        this.bulkSize = bulkSize;
         this.flushInterval = flushInterval;
         this.concurrentRequests = concurrentRequests;
     }
 
-    @Override public void asynchronous(List<?> collection) {
+    @Override public void asynchronous(InsertRequest insertRequest) {
         if (bulkProcessor == null) {
-            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, bulkSize, flushInterval, concurrentRequests);
+            this.bulkProcessor = getClient().createBulkProcessor(bulkActions, flushInterval, concurrentRequests);
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Asynchronous batch persistent data collection size: {}", collection.size());
-        }
-
-        if (CollectionUtils.isNotEmpty(collection)) {
-            collection.forEach(builder -> {
-                if (builder instanceof IndexRequest) {
-                    this.bulkProcessor.add((IndexRequest)builder);
-                }
-                if (builder instanceof UpdateRequest) {
-                    this.bulkProcessor.add((UpdateRequest)builder);
-                }
-            });
-            this.bulkProcessor.flush();
-        }
+        this.bulkProcessor.add((IndexRequest)insertRequest);
     }
 
-    @Override public void synchronous(List<?> collection) {
-        if (CollectionUtils.isNotEmpty(collection)) {
+    @Override public void synchronous(List<PrepareRequest> prepareRequests) {
+        if (CollectionUtils.isNotEmpty(prepareRequests)) {
             BulkRequest request = new BulkRequest();
 
-            for (Object builder : collection) {
-                if (builder instanceof IndexRequest) {
-                    request.add((IndexRequest)builder);
-                }
-                if (builder instanceof UpdateRequest) {
-                    request.add((UpdateRequest)builder);
+            for (PrepareRequest prepareRequest : prepareRequests) {
+                if (prepareRequest instanceof InsertRequest) {
+                    request.add((IndexRequest)prepareRequest);
+                } else {
+                    request.add((UpdateRequest)prepareRequest);
                 }
             }
             getClient().synchronousBulk(request);

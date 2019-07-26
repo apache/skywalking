@@ -26,5 +26,5 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface IModelSetter extends Service {
 
-    Model putIfAbsent(Class aClass, int scopeId, Storage storage);
+    Model putIfAbsent(Class aClass, int scopeId, Storage storage, boolean record);
 }

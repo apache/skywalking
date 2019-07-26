@@ -16,17 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.remote.define;
+package org.apache.skywalking.apm.agent.core.context.util;
 
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * @author peng-yongsheng
+ * @author zhaoyuguang
  */
-public interface StreamDataMappingGetter extends Service {
 
-    int findIdByClass(Class<? extends StreamData> streamDataClass);
+public class PeerFormat {
 
-    Class<? extends StreamData> findClassById(int id);
+    private static final String ABBR = "...";
+
+    public static String shorten(String original) {
+        if (!StringUtil.isEmpty(original) && original.length() > Config.Plugin.PEER_MAX_LENGTH) {
+            return original.substring(0, Config.Plugin.PEER_MAX_LENGTH - 3) + ABBR;
+        }
+        return original;
+    }
 }

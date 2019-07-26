@@ -30,5 +30,6 @@
     <modules>
         <module>telemetry-prometheus</module>
         <module>telemetry-api</module>
+        <module>telemetry-so11y</module>
     </modules>
 </project>
