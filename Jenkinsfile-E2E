@@ -28,6 +28,7 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
+                sh 'docker run -v $(pwd)/dist:/sw alpine sleep 10 && rm -rf /sw'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
