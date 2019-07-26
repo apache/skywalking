@@ -143,7 +143,7 @@ public class SkyWalkingAgent {
                     }
                 }
                 if (context.isEnhanced()) {
-                    logger.debug("Finish the loadHighPriorityClass stage for {}.", typeDescription.getName());
+                    logger.debug("Finish the prepare stage for {}.", typeDescription.getName());
                 }
 
                 return newBuilder;
