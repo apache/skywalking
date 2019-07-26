@@ -34,11 +34,11 @@ import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_PREP
  * @author zhang xin
  */
 public class PgPreparedStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

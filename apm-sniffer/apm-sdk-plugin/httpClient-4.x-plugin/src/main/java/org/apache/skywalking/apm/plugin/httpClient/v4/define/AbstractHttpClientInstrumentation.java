@@ -48,7 +48,7 @@ public class AbstractHttpClientInstrumentation extends HttpClientInstrumentation
      * public final HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context)
      */
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

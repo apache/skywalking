@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -87,7 +87,7 @@ public class H2TableInstaller extends ModelInstaller {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
             return "VARCHAR(2000)";
-        } else if (IntKeyLongValueArray.class.equals(type)) {
+        } else if (IntKeyLongValueHashMap.class.equals(type)) {
             return "VARCHAR(20000)";
         } else if (byte[].class.equals(type)) {
             return "VARCHAR(20000)";

@@ -45,7 +45,7 @@ public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrument
 
 
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[]{
             new StaticMethodsInterceptPoint() {
                 @Override

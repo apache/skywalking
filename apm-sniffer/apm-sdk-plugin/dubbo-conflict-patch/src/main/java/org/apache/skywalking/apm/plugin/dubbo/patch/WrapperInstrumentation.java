@@ -37,7 +37,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * @author Zhang Xin
  */
 public class WrapperInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
-    @Override protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
