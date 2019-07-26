@@ -55,7 +55,7 @@ public class Log4j2OutputAppenderActivation extends ClassStaticMethodsEnhancePlu
      * interceptors.
      */
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override

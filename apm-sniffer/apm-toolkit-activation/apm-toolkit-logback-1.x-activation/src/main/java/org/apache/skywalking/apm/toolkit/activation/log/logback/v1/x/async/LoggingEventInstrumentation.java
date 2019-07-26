@@ -34,7 +34,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class LoggingEventInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{
             new ConstructorInterceptPoint() {
                 @Override
@@ -51,7 +51,7 @@ public class LoggingEventInstrumentation extends ClassInstanceMethodsEnhancePlug
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[0];
     }
 

@@ -55,7 +55,7 @@ public class MethodInterceptResult {
     /**
      * @return the new return value.
      */
-    Object _ret() {
+    public Object _ret() {
         return ret;
     }
 }

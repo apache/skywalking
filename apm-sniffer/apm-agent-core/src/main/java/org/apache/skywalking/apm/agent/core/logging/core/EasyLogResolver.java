@@ -30,4 +30,8 @@ public class EasyLogResolver implements LogResolver {
     public ILog getLogger(Class<?> clazz) {
         return new EasyLogger(clazz);
     }
+
+    @Override public ILog getLogger(String clazz) {
+        return new EasyLogger(clazz);
+    }
 }
