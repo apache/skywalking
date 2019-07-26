@@ -145,7 +145,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
     }
 
     /**
-     * get real key in etcd cluster which is removed "/${group}" from the key retrived from etcd.
+     * get real key in etcd cluster which is removed "/${group}" from the key retrive from etcd.
      *
      * @param key
      * @param group

@@ -140,7 +140,6 @@
                                     <providerSelection>2.0</providerSelection>
                                     <source>
                                         project.properties.setProperty('etcd.host', 'localhost')
-                                        project.properties.setProperty('etcd.port', '2379')
 
                                         log.info("Etcd host is " + project.properties['etcd.host'])
                                     </source>

@@ -74,7 +74,8 @@ public class EtcdConfigWatcherRegisterTest {
         final EtcdClient client = PowerMockito.mock(EtcdClient.class);
         whenNew(EtcdClient.class).withAnyArguments().thenReturn(client);
 
-        URI uri = new URI("http://localhost:2379");
+        String port = System.getProperty("etcd.port");
+        URI uri = new URI("http://localhost:" + port);
         List<URI> urisArray = spy(ArrayList.class);
         urisArray.add(uri);
         URI[] array = urisArray.toArray(new URI[] {});
