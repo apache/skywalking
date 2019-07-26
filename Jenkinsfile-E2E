@@ -18,7 +18,7 @@
 
 pipeline {
     agent {
-        label 'H43'
+        label 'H14'
     }
 
     tools {
@@ -26,52 +26,10 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Source Code') {
+        stage('Clean Up') {
             steps {
-                sh 'docker run -v $(pwd)/dist:/sw alpine sleep 10 && rm -rf /sw'
-                deleteDir()
-                checkout scm
-                sh 'git submodule update --init'
+                sh 'docker run -v $(pwd)/dist:/sw alpine rm -rf /sw'
             }
-        }
-
-        stage('Prepare Distribution Package') {
-            steps {
-                sh './mvnw -DskipTests clean package'
-                sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
-            }
-        }
-
-        stage('Run End-to-End Tests') {
-            parallel {
-                stage('Run Single Node Tests') {
-                    steps {
-                        sh './mvnw -DskipSurefire=false -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
-                    }
-                }
-
-                stage('Run Cluster Tests (ES/ZK)') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner -am verify'
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            // "Abort old build on update" will interrupt the job completely,
-            // we need to clean up when there are containers started by the e2e tests
-            sh 'docker ps'
-            sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker stop'
-            sh 'docker ps | grep -e "skywalking-e2e-container-${BUILD_ID}" | awk \'{print $1}\' | xargs --no-run-if-empty docker rm'
-            
-            // Files created by docker container in the directories that are mounted from the host to
-            // the container can not be deleted by `deleteDir()`, we need to mount it again and delete them
-            // inside the container
-            sh 'docker run -v $(pwd)/dist:/sw alpine rm -rf /sw'
-            deleteDir()
         }
     }
 }
