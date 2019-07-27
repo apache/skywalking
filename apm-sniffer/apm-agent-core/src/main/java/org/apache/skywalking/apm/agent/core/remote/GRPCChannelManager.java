@@ -88,24 +88,32 @@ public class GRPCChannelManager implements BootService, Runnable {
                 String server = "";
                 try {
                     int index = Math.abs(random.nextInt()) % grpcServers.size();
-                    selectedIdx = index;
+                    if (index != selectedIdx) {
+                        selectedIdx = index;
 
-                    server = grpcServers.get(index);
-                    String[] ipAndPort = server.split(":");
+                        server = grpcServers.get(index);
+                        String[] ipAndPort = server.split(":");
 
-                    if (managedChannel != null) {
-                        managedChannel.shutdownNow();
+                        if (managedChannel != null) {
+                            managedChannel.shutdownNow();
+                        }
+
+                        managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                            .addManagedChannelBuilder(new StandardChannelBuilder())
+                            .addManagedChannelBuilder(new TLSChannelBuilder())
+                            .addChannelDecorator(new AuthenticationDecorator())
+                            .build();
+
+                        notify(GRPCChannelStatus.CONNECTED);
+                        reconnect = false;
+                    } else if (managedChannel.isConnected()) {
+                        // Reconnect to the same server is automatically done by GRPC,
+                        // therefore we are responsible to check the connectivity and
+                        // set the state and notify listeners
+                        notify(GRPCChannelStatus.CONNECTED);
+                        reconnect = false;
                     }
 
-                    managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                        .addManagedChannelBuilder(new StandardChannelBuilder())
-                        .addManagedChannelBuilder(new TLSChannelBuilder())
-                        .addChannelDecorator(new AuthenticationDecorator())
-                        .build();
-
-                    notify(GRPCChannelStatus.CONNECTED);
-
-                    reconnect = false;
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
