@@ -21,22 +21,25 @@ package org.apache.skywalking.apm.plugin.jdk.http.define;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * @author lican
  */
 public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "sun.net.www.http.HttpClient";
+    private static final String ENHANCE_HTTP_CLASS = "sun.net.www.http.HttpClient";
+
+    private static final String ENHANCE_HTTPS_CLASS = "sun.net.www.protocol.https.HttpsClient";
 
     private static final String AFTER_METHOD = "parseHTTP";
 
@@ -50,6 +53,8 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
     private static final String INTERCEPT_NEW_INSTANCE_CLASS = "org.apache.skywalking.apm.plugin.jdk.http.HttpClientNewInstanceInterceptor";
 
+    private static final String ARG_TYPE_HTTP_CONNECTION = "sun.net.www.protocol.http.HttpURLConnection";
+
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -58,7 +63,7 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
+        return new InstanceMethodsInterceptPoint[]{new DeclaredInstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
                 return named(AFTER_METHOD);
@@ -73,7 +78,7 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
             public boolean isOverrideArgs() {
                 return false;
             }
-        }, new InstanceMethodsInterceptPoint() {
+        }, new DeclaredInstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
                 return named(BEFORE_METHOD).and(takesArguments(2).or(takesArguments(1)));
@@ -98,8 +103,16 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
                 return named(NEW_INSTANCE_METHOD)
-                        .and(takesArguments(5))
-                        .and(takesArgumentWithType(4, "sun.net.www.protocol.http.HttpURLConnection"));
+                        .and(
+                                (takesArguments(5)
+                                        .and(takesArgumentWithType(0, "java.net.URL"))
+                                        .and(takesArgumentWithType(4, ARG_TYPE_HTTP_CONNECTION))
+                                ).or(takesArguments(7)
+                                        .and(takesArgumentWithType(0, "javax.net.ssl.SSLSocketFactory"))
+                                        .and(takesArgumentWithType(3, "java.net.Proxy"))
+                                        .and(takesArgumentWithType(6, ARG_TYPE_HTTP_CONNECTION))
+                                )
+                        );
             }
 
             @Override
@@ -117,7 +130,7 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(ENHANCE_HTTP_CLASS, ENHANCE_HTTPS_CLASS);
     }
 
     @Override

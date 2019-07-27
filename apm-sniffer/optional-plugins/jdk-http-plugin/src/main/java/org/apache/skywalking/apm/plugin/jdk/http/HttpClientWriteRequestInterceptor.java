@@ -48,18 +48,16 @@ public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundI
         MessageHeader headers = (MessageHeader) allArguments[0];
         URL url = connection.getURL();
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(StringUtil.isEmpty(url.getPath()) ? "/" : url.getPath(), contextCarrier, getPeer(url));
+        AbstractSpan span = ContextManager.createExitSpan(getPath(url), contextCarrier, getPeer(url));
         span.setComponent(ComponentsDefine.JDK_HTTP);
         Tags.HTTP.METHOD.set(span, connection.getRequestMethod());
-        Tags.URL.set(span, url.getPath());
+        Tags.URL.set(span, url.toString());
         SpanLayer.asHttp(span);
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
             headers.add(next.getHeadKey(), next.getHeadValue());
         }
-
-
     }
 
 
@@ -81,8 +79,12 @@ public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundI
         if (url.getPort() > 0) {
             return host + ":" + url.getPort();
         }
-        return host + (url.getProtocol().equals("https") ? 443 : 80);
+        return host;
     }
 
+    private String getPath(URL url) {
+        return StringUtil.isEmpty(url.getPath()) ? "/" : url.getPath();
+    }
 
 }
+

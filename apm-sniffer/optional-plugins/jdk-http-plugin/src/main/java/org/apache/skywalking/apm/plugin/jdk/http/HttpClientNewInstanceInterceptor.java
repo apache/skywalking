@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 
 /**
  * @author lican
@@ -38,8 +39,14 @@ public class HttpClientNewInstanceInterceptor implements StaticMethodsAroundInte
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
         if (ret instanceof EnhancedInstance) {
-            //allArguments[4] is HttpURLConnection
-            ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[4]);
+            if (allArguments.length >= 5 && allArguments[4] instanceof HttpURLConnection) {
+                //allArguments[4] is HttpURLConnection,for HttpClient
+                ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[4]);
+            } else if (allArguments.length >= 7 && allArguments[6] instanceof HttpURLConnection) {
+                //for HttpsClient
+                ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[6]);
+            }
+
         }
         return ret;
     }
