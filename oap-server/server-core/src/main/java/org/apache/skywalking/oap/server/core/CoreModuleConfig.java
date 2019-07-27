@@ -37,6 +37,7 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int gRPCPort;
     @Setter private int maxConcurrentCallsPerConnection;
     @Setter private int maxMessageSize;
+    @Setter private boolean enableDatabaseSession;
     private final List<String> downsampling;
     /**
      * The period of doing data persistence.

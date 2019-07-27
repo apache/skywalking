@@ -103,12 +103,11 @@ public class SpanIdExchanger implements IdExchanger<SpanDecorator> {
             NodeType nodeType = NodeType.fromSpanLayerValue(spanLayerValue);
             networkAddressInventoryRegister.update(peerId, nodeType);
 
-            /**
+            /*
              * In some case, conjecture node, such as Database node, could be registered by agents.
              * At here, if the target service properties need to be updated,
              * it will only be updated at the first time for now.
              */
-
             JsonObject properties = null;
             ServiceInventory newServiceInventory = serviceInventoryCacheDAO.get(serviceInventoryCacheDAO.getServiceId(peerId));
             if (SpanLayer.Database.equals(standardBuilder.getSpanLayer())) {

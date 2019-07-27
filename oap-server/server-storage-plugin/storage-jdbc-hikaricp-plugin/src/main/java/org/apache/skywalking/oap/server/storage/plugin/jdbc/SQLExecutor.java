@@ -18,20 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.library.client.request.*;
+import org.slf4j.*;
 
 /**
  * A SQL executor.
  *
  * @author wusheng
  */
-public class SQLExecutor {
-    private final Logger logger = LoggerFactory.getLogger(SQLExecutor.class);
+public class SQLExecutor implements InsertRequest, UpdateRequest {
+
+    private static final Logger logger = LoggerFactory.getLogger(SQLExecutor.class);
 
     private String sql;
     private List<Object> param;

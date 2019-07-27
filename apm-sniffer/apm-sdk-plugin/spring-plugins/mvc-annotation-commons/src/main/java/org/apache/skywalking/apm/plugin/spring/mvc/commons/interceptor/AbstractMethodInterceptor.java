@@ -46,6 +46,15 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
  * the abstract method interceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
+    private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
+    private static final String GET_STATUS_METHOD = "getStatus";
+
+    static {
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(AbstractMethodInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
+    }
+
     public abstract String getRequestURL(Method method);
 
     public abstract String getAcceptedMethodTypes(Method method);
@@ -151,7 +160,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                     throw new ServletResponseNotFoundException();
                 }
 
-                if (response.getStatus() >= 400) {
+                if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
                     span.errorOccurred();
                     Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
                 }

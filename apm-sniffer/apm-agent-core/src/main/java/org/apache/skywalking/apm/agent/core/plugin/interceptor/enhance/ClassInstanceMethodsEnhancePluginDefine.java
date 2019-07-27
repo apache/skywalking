@@ -35,7 +35,7 @@ public abstract class ClassInstanceMethodsEnhancePluginDefine extends ClassEnhan
      * @return null, means enhance no static methods.
      */
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return null;
     }
 
