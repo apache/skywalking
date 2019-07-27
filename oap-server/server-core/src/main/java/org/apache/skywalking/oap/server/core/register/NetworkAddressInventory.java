@@ -88,6 +88,7 @@ public class NetworkAddressInventory extends RegisterSource {
         inventory.setSequence(getSequence());
         inventory.setRegisterTime(getRegisterTime());
         inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setLastUpdateTime(getLastUpdateTime());
         inventory.setName(name);
         inventory.setNodeType(nodeType);
 
@@ -95,14 +96,14 @@ public class NetworkAddressInventory extends RegisterSource {
     }
 
     @Override public boolean combine(RegisterSource registerSource) {
-        boolean isCombine = super.combine(registerSource);
+        boolean isChanged = super.combine(registerSource);
         NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
 
-        if (nodeType != inventory.nodeType) {
-            setNodeType(inventory.nodeType);
+        if (this.nodeType != inventory.getNodeType() && inventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
+            setNodeType(inventory.getNodeType());
             return true;
         } else {
-            return isCombine;
+            return isChanged;
         }
     }
 
@@ -113,6 +114,7 @@ public class NetworkAddressInventory extends RegisterSource {
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
+        remoteBuilder.addDataLongs(getLastUpdateTime());
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
@@ -124,6 +126,7 @@ public class NetworkAddressInventory extends RegisterSource {
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
+        setLastUpdateTime(remoteData.getDataLongs(2));
 
         setName(remoteData.getDataStrings(0));
     }
@@ -136,11 +139,12 @@ public class NetworkAddressInventory extends RegisterSource {
 
         @Override public NetworkAddressInventory map2Data(Map<String, Object> dbMap) {
             NetworkAddressInventory inventory = new NetworkAddressInventory();
-            inventory.setSequence((Integer)dbMap.get(SEQUENCE));
+            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setNodeType((Integer)dbMap.get(NODE_TYPE));
-            inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
+            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
             return inventory;
         }
 
@@ -151,6 +155,7 @@ public class NetworkAddressInventory extends RegisterSource {
             map.put(NODE_TYPE, storageData.getNodeType());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
+            map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             return map;
         }
     }
