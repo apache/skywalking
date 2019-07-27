@@ -18,20 +18,15 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import io.undertow.server.HttpServerExchange;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.undertow.v2x.util.TraceContextUtils;
 
 import java.lang.reflect.Method;
-
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderMap;
 
 /**
  * @author chenpengfei
@@ -40,33 +35,25 @@ public class ExecuteRootHandlerInterceptor implements StaticMethodsAroundInterce
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
-        HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
-
-        ContextCarrier contextCarrier = new ContextCarrier();
-        HeaderMap headers = exchange.getRequestHeaders();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(headers.getFirst(next.getHeadKey()));
+        if (TraceContextUtils.isNotInRoutingHandlerTracing()) {
+            HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
+            TraceContextUtils.buildUndertowEntrySpan(exchange, exchange.getRequestPath());
         }
-        AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequestPath(), contextCarrier);
-        Tags.URL.set(span, exchange.getRequestURL());
-        Tags.HTTP.METHOD.set(span, exchange.getRequestMethod().toString());
-        span.setComponent(ComponentsDefine.UNDERTOW);
-        SpanLayer.asHttp(span);
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
-        HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
+        if (TraceContextUtils.isNotInRoutingHandlerTracing()) {
+            HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
 
-        AbstractSpan span = ContextManager.activeSpan();
-        if (exchange.getStatusCode() >= 400) {
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(exchange.getStatusCode()));
+            AbstractSpan span = ContextManager.activeSpan();
+            if (exchange.getStatusCode() >= 400) {
+                span.errorOccurred();
+                Tags.STATUS_CODE.set(span, Integer.toString(exchange.getStatusCode()));
+            }
+            ContextManager.stopSpan();
+            ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
         }
-        ContextManager.stopSpan();
-        ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
         return ret;
     }
 
@@ -74,4 +61,5 @@ public class ExecuteRootHandlerInterceptor implements StaticMethodsAroundInterce
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
+
 }

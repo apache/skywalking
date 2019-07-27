@@ -14,5 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.RoutingHandlerInstrumentation
 undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.RequestDispatcherImplInstrumentation
 undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowInstrumentation
