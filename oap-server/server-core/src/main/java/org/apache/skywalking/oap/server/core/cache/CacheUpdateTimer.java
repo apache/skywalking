@@ -22,10 +22,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.storage.cache.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -38,33 +38,59 @@ public enum CacheUpdateTimer {
 
     private Boolean isStarted = false;
 
-    public void start(ModuleManager moduleManager) {
-        logger.info("Cache update timer start");
+    public void start(ModuleDefineHolder moduleDefineHolder) {
+        logger.info("Cache updateServiceInventory timer start");
 
-        final long timeInterval = 3;
+        final long timeInterval = 10;
 
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(() -> update(moduleManager),
+                new RunnableWithExceptionProtection(() -> update(moduleDefineHolder),
                     t -> logger.error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
 
             this.isStarted = true;
         }
     }
 
-    private void update(ModuleManager moduleManager) {
-        IServiceInventoryCacheDAO serviceInventoryCacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IServiceInventoryCacheDAO.class);
-        ServiceInventoryCache serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        List<ServiceInventory> serviceInventories = serviceInventoryCacheDAO.loadLastMappingUpdate();
+    private void update(ModuleDefineHolder moduleDefineHolder) {
+        updateServiceInventory(moduleDefineHolder);
+        updateNetAddressInventory(moduleDefineHolder);
+    }
+
+    private void updateServiceInventory(ModuleDefineHolder moduleDefineHolder) {
+        IServiceInventoryCacheDAO serviceInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IServiceInventoryCacheDAO.class);
+        ServiceInventoryCache serviceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        List<ServiceInventory> serviceInventories = serviceInventoryCacheDAO.loadLastUpdate(System.currentTimeMillis() - 60000);
 
         serviceInventories.forEach(serviceInventory -> {
-            logger.info("Update mapping service id in the cache of service inventory, service id: {}, mapping service id: {}", serviceInventory.getSequence(), serviceInventory.getMappingServiceId());
             ServiceInventory cache = serviceInventoryCache.get(serviceInventory.getSequence());
             if (Objects.nonNull(cache)) {
-                cache.setMappingServiceId(serviceInventory.getMappingServiceId());
-                cache.setMappingLastUpdateTime(serviceInventory.getMappingLastUpdateTime());
+                if (cache.getMappingServiceId() != serviceInventory.getMappingServiceId()) {
+                    cache.setMappingServiceId(serviceInventory.getMappingServiceId());
+                    cache.setServiceNodeType(serviceInventory.getServiceNodeType());
+                    cache.setProperties(serviceInventory.getProperties());
+                    logger.info("Update the cache of service inventory, service id: {}", serviceInventory.getSequence());
+                }
             } else {
                 logger.warn("Unable to found the id of {} in service inventory cache.", serviceInventory.getSequence());
+            }
+        });
+    }
+
+    private void updateNetAddressInventory(ModuleDefineHolder moduleDefineHolder) {
+        INetworkAddressInventoryCacheDAO addressInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(INetworkAddressInventoryCacheDAO.class);
+        NetworkAddressInventoryCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
+        List<NetworkAddressInventory> addressInventories = addressInventoryCacheDAO.loadLastUpdate(System.currentTimeMillis() - 60000);
+
+        addressInventories.forEach(addressInventory -> {
+            NetworkAddressInventory cache = addressInventoryCache.get(addressInventory.getSequence());
+            if (Objects.nonNull(cache)) {
+                if (!cache.getNetworkAddressNodeType().equals(addressInventory.getNetworkAddressNodeType())) {
+                    cache.setNetworkAddressNodeType(addressInventory.getNetworkAddressNodeType());
+                    logger.info("Update the cache of net address inventory, address id: {}", addressInventory.getSequence());
+                }
+            } else {
+                logger.warn("Unable to found the id of {} in net address inventory cache.", addressInventory.getSequence());
             }
         });
     }
