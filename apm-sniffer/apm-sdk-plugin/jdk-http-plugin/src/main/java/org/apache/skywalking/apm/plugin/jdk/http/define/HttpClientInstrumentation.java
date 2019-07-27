@@ -27,18 +27,28 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnha
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * @author lican
  */
-public class HttpUrlConnectionInstrumentation extends ClassEnhancePluginDefine {
+public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "sun.net.www.http.HttpClient";
 
-    private static final String METHOD = "parseHTTP";
+    private static final String AFTER_METHOD = "parseHTTP";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdk.http.HttpConnectInterceptor";
+    private static final String BEFORE_METHOD = "writeRequests";
+
+    private static final String NEW_INSTANCE_METHOD = "New";
+
+    private static final String INTERCEPT_PARSE_HTTP_CLASS = "org.apache.skywalking.apm.plugin.jdk.http.HttpClientParseHttpInterceptor";
+
+    private static final String INTERCEPT_WRITE_REQUEST_CLASS = "org.apache.skywalking.apm.plugin.jdk.http.HttpClientWriteRequestInterceptor";
+
+    private static final String INTERCEPT_NEW_INSTANCE_CLASS = "org.apache.skywalking.apm.plugin.jdk.http.HttpClientNewInstanceInterceptor";
 
 
     @Override
@@ -51,12 +61,27 @@ public class HttpUrlConnectionInstrumentation extends ClassEnhancePluginDefine {
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(METHOD);
+                return named(AFTER_METHOD);
             }
 
             @Override
             public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
+                return INTERCEPT_PARSE_HTTP_CLASS;
+            }
+
+            @Override
+            public boolean isOverrideArgs() {
+                return false;
+            }
+        }, new InstanceMethodsInterceptPoint() {
+            @Override
+            public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                return named(BEFORE_METHOD).and(takesArguments(2).or(takesArguments(1)));
+            }
+
+            @Override
+            public String getMethodsInterceptor() {
+                return INTERCEPT_WRITE_REQUEST_CLASS;
             }
 
             @Override
@@ -69,7 +94,25 @@ public class HttpUrlConnectionInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[0];
+        return new StaticMethodsInterceptPoint[]{new StaticMethodsInterceptPoint() {
+            @Override
+            public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                return named(NEW_INSTANCE_METHOD)
+                        .and(takesArguments(5))
+                        .and(takesArgumentWithType(4, "sun.net.www.protocol.http.HttpURLConnection"));
+            }
+
+            @Override
+            public String getMethodsInterceptor() {
+                return INTERCEPT_NEW_INSTANCE_CLASS;
+            }
+
+            @Override
+            public boolean isOverrideArgs() {
+                return false;
+            }
+        }
+        };
     }
 
     @Override

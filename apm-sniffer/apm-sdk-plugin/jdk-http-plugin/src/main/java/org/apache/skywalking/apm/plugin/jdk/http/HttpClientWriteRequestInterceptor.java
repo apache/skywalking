@@ -38,14 +38,16 @@ import java.net.URL;
 /**
  * @author lican
  */
-public class HttpConnectInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientWriteRequestInterceptor implements InstanceMethodsAroundInterceptor {
+
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        HttpURLConnection connection = (HttpURLConnection) allArguments[2];
-        ContextCarrier contextCarrier = new ContextCarrier();
+        HttpURLConnection connection = (HttpURLConnection) objInst.getSkyWalkingDynamicField();
+        MessageHeader headers = (MessageHeader) allArguments[0];
         URL url = connection.getURL();
+        ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(StringUtil.isEmpty(url.getPath()) ? "/" : url.getPath(), contextCarrier, getPeer(url));
         span.setComponent(ComponentsDefine.JDK_HTTP);
         Tags.HTTP.METHOD.set(span, connection.getRequestMethod());
@@ -54,23 +56,16 @@ public class HttpConnectInterceptor implements InstanceMethodsAroundInterceptor 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            connection.addRequestProperty(next.getHeadKey(), next.getHeadValue());
+            headers.add(next.getHeadKey(), next.getHeadValue());
         }
+
+
     }
 
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        MessageHeader messageHeader = (MessageHeader) allArguments[0];
-        String statusLine = messageHeader.getValue(0);
-        Integer responseCode = parseResponseCode(statusLine);
-        if (responseCode >= 400) {
-            AbstractSpan span = ContextManager.activeSpan();
-            span.errorOccurred();
-            Tags.STATUS_CODE.set(span, Integer.toString(responseCode));
-        }
-        ContextManager.stopSpan();
         return ret;
     }
 
@@ -81,33 +76,13 @@ public class HttpConnectInterceptor implements InstanceMethodsAroundInterceptor 
         span.errorOccurred().log(t);
     }
 
-
-    /**
-     * <PRE>
-     * HTTP/1.0 200 OK
-     * HTTP/1.0 401 Unauthorized
-     * </PRE>
-     * It will return 200 and 401 respectively.
-     * Returns -1 if no code can be discerned
-     */
-    private Integer parseResponseCode(String statusLine) {
-        if (!StringUtil.isEmpty(statusLine)) {
-            String[] results = statusLine.split(" ");
-            if (results.length >= 1) {
-                try {
-                    return Integer.valueOf(results[1]);
-                } catch (Exception e) {
-                }
-            }
-        }
-        return -1;
-    }
-
     private String getPeer(URL url) {
         String host = url.getHost();
         if (url.getPort() > 0) {
             return host + ":" + url.getPort();
         }
-        return host + ":80";
+        return host + (url.getProtocol().equals("https") ? 443 : 80);
     }
+
+
 }
