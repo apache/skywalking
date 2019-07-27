@@ -115,7 +115,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         if (!this.compare(networkAddress, nodeType)) {
             NetworkAddressInventory newNetworkAddress = networkAddress.getClone();
             newNetworkAddress.setNetworkAddressNodeType(nodeType);
-            newNetworkAddress.setHeartbeatTime(System.currentTimeMillis());
+            newNetworkAddress.setLastUpdateTime(System.currentTimeMillis());
 
             InventoryStreamProcessor.getInstance().in(newNetworkAddress);
         }
