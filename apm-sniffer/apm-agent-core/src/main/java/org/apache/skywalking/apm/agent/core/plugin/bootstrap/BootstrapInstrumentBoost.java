@@ -56,6 +56,7 @@ public class BootstrapInstrumentBoost {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideCallable",
         "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog"
