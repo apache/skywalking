@@ -39,7 +39,7 @@ public class JVMSourceDispatcher {
 
     public JVMSourceDispatcher(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
     void sendMetric(int serviceInstanceId, long minuteTimeBucket, JVMMetric metrics) {

@@ -92,6 +92,7 @@ public class SegmentParseV2 {
             }
             SegmentObject segmentObject = bufferData.getV2Segment();
 
+            // Recheck in case that the segment comes from file buffer
             final int serviceInstanceId = segmentObject.getServiceInstanceId();
             if (serviceInstanceInventoryCache.get(serviceInstanceId) == null) {
                 logger.warn("Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);

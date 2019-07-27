@@ -18,25 +18,31 @@
 package org.apache.skywalking.apm.agent.core.commands.executor;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.commands.CommandExecutionException;
+import org.apache.skywalking.apm.agent.core.commands.CommandExecutor;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.EndpointNameDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.ServiceAndEndpointRegisterClient;
+import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 
 /**
+ * Command executor that executes the {@link ServiceResetCommand} command
+ *
  * @author Zhang Xin
  * @author kezhenxu94
  */
-public class ServiceResetCommandExecutor extends AbstractCommandExecutor<ServiceResetCommand> {
-
-    public ServiceResetCommandExecutor(ServiceResetCommand command) {
-        super(command);
-    }
+public class ServiceResetCommandExecutor implements CommandExecutor {
+    private static final ILog LOGGER = LogManager.getLogger(ServiceResetCommandExecutor.class);
 
     @Override
-    public void execute() {
+    public void execute(final BaseCommand command) throws CommandExecutionException {
+        LOGGER.warn("Received ServiceResetCommand, a re-register task is scheduled.");
+
         ServiceManager.INSTANCE.findService(ServiceAndEndpointRegisterClient.class).coolDown();
 
         RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();

@@ -17,23 +17,19 @@
 
 package org.apache.skywalking.apm.agent.core.commands.executor;
 
+import org.apache.skywalking.apm.agent.core.commands.CommandExecutionException;
 import org.apache.skywalking.apm.agent.core.commands.CommandExecutor;
+import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 
-public enum NoopCommandExecutor implements CommandExecutor<Object> {
-
+/**
+ * A dummy executor that does nothing when executing a command
+ */
+public enum NoopCommandExecutor implements CommandExecutor {
     INSTANCE;
 
-    NoopCommandExecutor() {
-
-    }
-
     @Override
-    public void execute() {
+    public void execute(final BaseCommand command) throws CommandExecutionException {
 
     }
 
-    @Override
-    public Object command() {
-        return null;
-    }
 }

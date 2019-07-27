@@ -65,11 +65,17 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
         } else {
             logger.warn("Can't found service by service instance id from cache," +
                 " service instance id is: {}, will send a reset command to agent side", serviceInstanceId);
-            final Command resetCommand = new ServiceResetCommand(UUID.randomUUID().toString()).serialize().build();
+            final String serialNumber = generateSerialNumber(request);
+            final Command resetCommand = new ServiceResetCommand(serialNumber).serialize().build();
             final Commands nextCommands = Commands.newBuilder().addCommands(resetCommand).build();
             responseObserver.onNext(nextCommands);
         }
 
         responseObserver.onCompleted();
+    }
+
+    // Simply generate a uuid without taking care of the {@code request}
+    private String generateSerialNumber(final ServiceInstancePingPkg request) {
+        return UUID.randomUUID().toString();
     }
 }

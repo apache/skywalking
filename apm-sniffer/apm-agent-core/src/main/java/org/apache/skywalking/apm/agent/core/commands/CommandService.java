@@ -19,13 +19,13 @@ package org.apache.skywalking.apm.agent.core.commands;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.common.Command;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.CommandDeserializer;
-import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 import org.apache.skywalking.apm.network.trace.component.command.UnsupportedCommandException;
 
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ public class CommandService implements BootService {
 
     private static final ILog LOGGER = LogManager.getLogger(CommandService.class);
 
+    private volatile boolean isRunning = true;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private LinkedBlockingQueue<BaseCommand> commands = new LinkedBlockingQueue<BaseCommand>(64);
     private CommandSerialNumberCache serialNumberCache = new CommandSerialNumberCache();
@@ -51,7 +52,9 @@ public class CommandService implements BootService {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                while (!Thread.currentThread().isInterrupted()) {
+                final CommandExecutorService commandExecutorService = ServiceManager.INSTANCE.findService(CommandExecutorService.class);
+
+                while (isRunning) {
                     try {
                         BaseCommand command = commands.take();
 
@@ -59,18 +62,15 @@ public class CommandService implements BootService {
                             continue;
                         }
 
-                        try {
-                            CommandExecutors.newCommandExecutor(command).execute();
-                            serialNumberCache.add(command.getSerialNumber());
-                        } catch (ExecuteFailedException e) {
-                            LOGGER.error(e, "Failed to execute command[{}].", command.getCommand());
-                        }
+                        commandExecutorService.executorForCommand(command).execute(command);
+                        serialNumberCache.add(command.getSerialNumber());
                     } catch (InterruptedException e) {
                         LOGGER.error(e, "Failed to take commands.");
+                    } catch (CommandExecutionException e) {
+                        LOGGER.error(e, "Failed to execute command[{}].", e.command().getCommand());
                     }
                 }
             }
-
         });
     }
 
@@ -85,6 +85,7 @@ public class CommandService implements BootService {
 
     @Override
     public void shutdown() throws Throwable {
+        isRunning = false;
         commands.drainTo(new ArrayList<BaseCommand>());
         executorService.shutdown();
     }
@@ -95,14 +96,12 @@ public class CommandService implements BootService {
                 BaseCommand baseCommand = CommandDeserializer.deserialize(command);
 
                 if (isCommandExecuted(baseCommand)) {
+                    LOGGER.warn("Command[{}] is executed, ignored", baseCommand.getCommand());
                     continue;
                 }
 
-                if (ServiceResetCommand.NAME.equals(baseCommand.getCommand())) {
-                    LOGGER.warn("Received ServiceResetCommand, a re-register task is scheduled.");
-                }
-
                 boolean success = this.commands.offer(baseCommand);
+
                 if (!success && LOGGER.isWarnEnable()) {
                     LOGGER.warn("Command[{}, {}] cannot add to command list. because the command list is full.",
                         baseCommand.getCommand(), baseCommand.getSerialNumber());

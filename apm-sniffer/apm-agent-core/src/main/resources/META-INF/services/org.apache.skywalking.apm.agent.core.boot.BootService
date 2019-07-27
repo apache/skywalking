@@ -24,3 +24,4 @@ org.apache.skywalking.apm.agent.core.jvm.JVMService
 org.apache.skywalking.apm.agent.core.remote.ServiceAndEndpointRegisterClient
 org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService
 org.apache.skywalking.apm.agent.core.commands.CommandService
+org.apache.skywalking.apm.agent.core.commands.CommandExecutorService

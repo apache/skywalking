@@ -17,12 +17,19 @@
 
 package org.apache.skywalking.apm.agent.core.commands;
 
+import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
+
 /**
+ * Command executor that can handle a given command, implementations are required to be stateless,
+ * i.e. the previous execution of a command cannot affect the next execution of another command.
+ *
  * @author Zhang Xin
  * @author kezhenxu94
  */
-public interface CommandExecutor<T> {
-    void execute() throws ExecuteFailedException;
-
-    T command();
+public interface CommandExecutor {
+    /**
+     * @param command the command that is to be executed
+     * @throws CommandExecutionException when the executor failed to execute the command
+     */
+    void execute(BaseCommand command) throws CommandExecutionException;
 }

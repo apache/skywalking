@@ -454,7 +454,7 @@ public class TracingContext implements AbstractTracerContext {
         try {
             if (activeSpanStack.isEmpty() && running && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
-                /**
+                /*
                  * Recheck the segment if the segment contains only one span.
                  * Because in the runtime, can't sure this segment is part of distributed trace.
                  *
@@ -466,6 +466,11 @@ public class TracingContext implements AbstractTracerContext {
                     }
                 }
 
+                /*
+                 * Check that the segment is created after the agent (re-)registered to backend,
+                 * otherwise the segment may be created when the agent is still rebooting and should
+                 * be ignored
+                 */
                 if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTERED_TIME) {
                     finishedSegment.setIgnore(true);
                 }
