@@ -71,4 +71,8 @@ public class CarrierItem implements Iterator<CarrierItem> {
     public void remove() {
 
     }
+
+    public void setHeadValue(String headValue,ContextCarrier carrier) {
+        throw new IllegalAccessError("NotImplemented!");
+    }
 }

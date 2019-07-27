@@ -26,12 +26,19 @@ public class SW6CarrierItem extends CarrierItem {
     private ContextCarrier carrier;
 
     public SW6CarrierItem(ContextCarrier carrier, CarrierItem next) {
-        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v2), next);
+        super(HEADER_NAME, carrier == null ? "" : carrier.serialize(ContextCarrier.HeaderVersion.v2), next);
         this.carrier = carrier;
     }
 
     @Override
     public void setHeadValue(String headValue) {
-        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v2);
+        setHeadValue(headValue,carrier);
+    }
+
+    @Override
+    public void setHeadValue(final String headValue,final ContextCarrier carrier) {
+        if (headValue != null) {
+            carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v2);
+        }
     }
 }

@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
@@ -77,23 +78,40 @@ public class ContextCarrier implements Serializable {
     private DistributedTraceId primaryDistributedTraceId;
 
     public CarrierItem items() {
-        CarrierItemHead head;
+        return  new CarrierItemHead(topItem(this));
+    }
+
+    public CarrierItem topItem() {
+        return topItem(this);
+    }
+
+    public static CarrierItem topItem(final ContextCarrier carrier) {
         if (Config.Agent.ACTIVE_V2_HEADER && Config.Agent.ACTIVE_V1_HEADER) {
-            SW3CarrierItem  carrierItem = new SW3CarrierItem(this, null);
-            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, carrierItem);
-            head = new CarrierItemHead(sw6CarrierItem);
+            SW3CarrierItem  carrierItem = new SW3CarrierItem(carrier, null);
+            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(carrier, carrierItem);
+            return sw6CarrierItem;
         } else if (Config.Agent.ACTIVE_V2_HEADER) {
-            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, null);
-            head = new CarrierItemHead(sw6CarrierItem);
+            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(carrier, null);
+            return sw6CarrierItem;
         } else if (Config.Agent.ACTIVE_V1_HEADER) {
-            SW3CarrierItem carrierItem = new SW3CarrierItem(this, null);
-            head = new CarrierItemHead(carrierItem);
+            SW3CarrierItem carrierItem = new SW3CarrierItem(carrier, null);
+            return carrierItem;
         } else {
             throw new IllegalArgumentException("At least active v1 or v2 header.");
         }
-        return head;
     }
 
+    public static HeaderVersion[] getHeaderVersions() {
+        if (Config.Agent.ACTIVE_V2_HEADER && Config.Agent.ACTIVE_V1_HEADER) {
+            return new HeaderVersion[] {HeaderVersion.v2, HeaderVersion.v1};
+        } else if (Config.Agent.ACTIVE_V2_HEADER) {
+            return new HeaderVersion[] {HeaderVersion.v2};
+        } else if (Config.Agent.ACTIVE_V1_HEADER) {
+            return new HeaderVersion[] {HeaderVersion.v1};
+        } else {
+            throw new IllegalArgumentException("At least active v1 or v2 header.");
+        }
+    }
     /**
      * Serialize this {@link ContextCarrier} to a {@link String}, with '|' split.
      *
@@ -136,6 +154,7 @@ public class ContextCarrier implements Serializable {
         }
     }
 
+    
     /**
      * Initialize fields with the given text.
      *
@@ -144,44 +163,47 @@ public class ContextCarrier implements Serializable {
     ContextCarrier deserialize(String text, HeaderVersion version) {
         if (text != null) {
             // if this carrier is initialized by v1 or v2, don't do deserialize again for performance.
-            if (this.isValid(HeaderVersion.v1) || this.isValid(HeaderVersion.v2)) {
+            if (this.isValid(HeaderVersion.v2) || this.isValid(HeaderVersion.v1)) {
                 return this;
             }
-            if (HeaderVersion.v1.equals(version)) {
-                String[] parts = text.split("\\|", 8);
-                if (parts.length == 8) {
-                    try {
-                        this.traceSegmentId = new ID(parts[0]);
-                        this.spanId = Integer.parseInt(parts[1]);
-                        this.parentServiceInstanceId = Integer.parseInt(parts[2]);
-                        this.entryServiceInstanceId = Integer.parseInt(parts[3]);
-                        this.peerHost = parts[4];
-                        this.entryEndpointName = parts[5];
-                        this.parentEndpointName = parts[6];
-                        this.primaryDistributedTraceId = new PropagatedTraceId(parts[7]);
-                    } catch (NumberFormatException e) {
-
+            switch (version) {
+                case v2:
+                    String[] parts = text.split("\\-", 9);
+                    if (parts.length == 9) {
+                        try {
+                            // parts[0] is sample flag, always trace if header exists.
+                            this.primaryDistributedTraceId = new PropagatedTraceId(Base64.decode2UTFString(parts[1]));
+                            this.traceSegmentId = new ID(Base64.decode2UTFString(parts[2]));
+                            this.spanId = Integer.parseInt(parts[3]);
+                            this.parentServiceInstanceId = Integer.parseInt(parts[4]);
+                            this.entryServiceInstanceId = Integer.parseInt(parts[5]);
+                            this.peerHost = Base64.decode2UTFString(parts[6]);
+                            this.entryEndpointName = Base64.decode2UTFString(parts[7]);
+                            this.parentEndpointName = Base64.decode2UTFString(parts[8]);
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            } else if (HeaderVersion.v2.equals(version)) {
-                String[] parts = text.split("\\-", 9);
-                if (parts.length == 9) {
-                    try {
-                        // parts[0] is sample flag, always trace if header exists.
-                        this.primaryDistributedTraceId = new PropagatedTraceId(Base64.decode2UTFString(parts[1]));
-                        this.traceSegmentId = new ID(Base64.decode2UTFString(parts[2]));
-                        this.spanId = Integer.parseInt(parts[3]);
-                        this.parentServiceInstanceId = Integer.parseInt(parts[4]);
-                        this.entryServiceInstanceId = Integer.parseInt(parts[5]);
-                        this.peerHost = Base64.decode2UTFString(parts[6]);
-                        this.entryEndpointName = Base64.decode2UTFString(parts[7]);
-                        this.parentEndpointName = Base64.decode2UTFString(parts[8]);
-                    } catch (NumberFormatException e) {
-
+                    break;
+                case v1:
+                    parts = text.split("\\|", 8);
+                    if (parts.length == 8) {
+                        try {
+                            this.traceSegmentId = new ID(parts[0]);
+                            this.spanId = Integer.parseInt(parts[1]);
+                            this.parentServiceInstanceId = Integer.parseInt(parts[2]);
+                            this.entryServiceInstanceId = Integer.parseInt(parts[3]);
+                            this.peerHost = parts[4];
+                            this.entryEndpointName = parts[5];
+                            this.parentEndpointName = parts[6];
+                            this.primaryDistributedTraceId = new PropagatedTraceId(parts[7]);
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            } else {
-                throw new IllegalArgumentException("Unimplemented header version." + version);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unimplemented header version." + version);
             }
         }
         return this;
@@ -197,26 +219,27 @@ public class ContextCarrier implements Serializable {
      * @return true for unbroken {@link ContextCarrier} or no-initialized. Otherwise, false;
      */
     boolean isValid(HeaderVersion version) {
-        if (HeaderVersion.v1.equals(version)) {
-            return traceSegmentId != null
-                && traceSegmentId.isValid()
-                && getSpanId() > -1
-                && parentServiceInstanceId != DictionaryUtil.nullValue()
-                && entryServiceInstanceId != DictionaryUtil.nullValue()
-                && !StringUtil.isEmpty(peerHost)
-                && !StringUtil.isEmpty(entryEndpointName)
-                && !StringUtil.isEmpty(parentEndpointName)
-                && primaryDistributedTraceId != null;
-        } else if (HeaderVersion.v2.equals(version)) {
-            return traceSegmentId != null
-                && traceSegmentId.isValid()
-                && getSpanId() > -1
-                && parentServiceInstanceId != DictionaryUtil.nullValue()
-                && entryServiceInstanceId != DictionaryUtil.nullValue()
-                && !StringUtil.isEmpty(peerHost)
-                && primaryDistributedTraceId != null;
-        } else {
-            throw new IllegalArgumentException("Unimplemented header version." + version);
+        switch (version) {
+            case v2:
+                return traceSegmentId != null
+                    && traceSegmentId.isValid()
+                    && getSpanId() > -1
+                    && parentServiceInstanceId != DictionaryUtil.nullValue()
+                    && entryServiceInstanceId != DictionaryUtil.nullValue()
+                    && !StringUtil.isEmpty(peerHost)
+                    && primaryDistributedTraceId != null;
+            case v1:
+                return traceSegmentId != null
+                    && traceSegmentId.isValid()
+                    && getSpanId() > -1
+                    && parentServiceInstanceId != DictionaryUtil.nullValue()
+                    && entryServiceInstanceId != DictionaryUtil.nullValue()
+                    && !StringUtil.isEmpty(peerHost)
+                    && !StringUtil.isEmpty(entryEndpointName)
+                    && !StringUtil.isEmpty(parentEndpointName)
+                    && primaryDistributedTraceId != null;
+            default:
+                throw new IllegalArgumentException("Unimplemented header version." + version);
         }
     }
 
@@ -300,7 +323,20 @@ public class ContextCarrier implements Serializable {
         this.entryServiceInstanceId = entryServiceInstanceId;
     }
 
-    public enum HeaderVersion {
-        v1, v2
+    public static enum HeaderVersion {
+        v1(SW3CarrierItem.HEADER_NAME,"\\|"), v2(SW6CarrierItem.HEADER_NAME,"\\-");
+        
+        private final String headKey;
+        private final Pattern splitterPattern;
+        public String getHeadKey() {
+            return headKey;
+        }
+        private HeaderVersion(String headKey,String splitterPattern) {
+            this.headKey = headKey;
+            this.splitterPattern = Pattern.compile(splitterPattern);
+        }
+        public String[] split(final String text,final int limit) {
+            return splitterPattern.split(text, limit);
+        }
     }
 }
