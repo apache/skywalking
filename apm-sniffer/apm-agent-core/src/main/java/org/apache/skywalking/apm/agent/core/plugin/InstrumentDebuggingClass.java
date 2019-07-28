@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
@@ -30,6 +29,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
+ * The manipulated class output. Write the dynamic classes to the `debugging` folder, when we need to do some debug and
+ * recheck.
+ *
  * @author wu-sheng
  */
 public enum InstrumentDebuggingClass {
