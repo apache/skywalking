@@ -81,7 +81,6 @@
                                     <exclude>io.opencensus:*</exclude>
                                     <exclude>com.google.*:*</exclude>
                                     <exclude>com.google.guava:guava</exclude>
-                                    <exclude>org.javassist:*</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
