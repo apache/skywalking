@@ -193,28 +193,6 @@ public class BootstrapInstrumentBoost {
 
             classesTypeMap.put(internalInterceptorName, interceptorType.getBytes());
 
-            try {
-                File debuggingClassesRootPath = null;
-                try {
-                    debuggingClassesRootPath = new File(AgentPackagePath.getPath(), "/debugging");
-                    if (!debuggingClassesRootPath.exists()) {
-                        debuggingClassesRootPath.mkdir();
-                    }
-                } catch (AgentPackageNotFoundException e) {
-                    logger.error(e, "Can't find the root path for creating /debugging folder.");
-                }
-
-                try {
-                    interceptorType.saveIn(debuggingClassesRootPath);
-                } catch (IOException e) {
-                    logger.error(e, "Can't save class {} to file.");
-                }
-            } catch (Throwable t) {
-                logger.error(t, "Save debugging classes fail.");
-            }
-
-            classesTypeMap.put(internalInterceptorName, interceptorType.getBytes());
-
             InstrumentDebuggingClass.INSTANCE.log(interceptorType);
         } catch (Exception e) {
             throw new PluginException("Generate Dynamic plugin failure", e);
