@@ -16,23 +16,20 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>server-cluster-plugin</artifactId>
+        <artifactId>server-configuration</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>6.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cluster-etcd-plugin</artifactId>
-
-    <name>cluster-etcd-plugin</name>
+    <artifactId>configuration-etcd</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-core</artifactId>
+            <artifactId>configuration-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -66,6 +63,10 @@
             <artifactId>jackson-module-afterburner</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -96,10 +97,10 @@
                                             <alias>etcd-client-integration-test</alias>
                                             <run>
                                                 <ports>
-                                                    <port>+etcd.host:etcd.port:2379</port>
+                                                    <port>etcd.port:2379</port>
                                                 </ports>
                                                 <wait>
-                                                    <time>20000</time>
+                                                    <time>5000</time>
                                                 </wait>
                                                 <entrypoint>
                                                     <!-- exec form  -->
@@ -120,6 +121,29 @@
                                 <goals>
                                     <goal>stop</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>gmaven-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>add-default-properties</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <providerSelection>2.0</providerSelection>
+                                    <source>
+                                        project.properties.setProperty('etcd.host', 'localhost')
+
+                                        log.info("Etcd host is " + project.properties['etcd.host'])
+                                    </source>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
