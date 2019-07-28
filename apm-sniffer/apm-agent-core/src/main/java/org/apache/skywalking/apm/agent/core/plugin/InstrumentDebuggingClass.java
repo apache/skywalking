@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.agent;
+package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public enum InstrumentDebuggingClass {
     private static final ILog logger = LogManager.getLogger(InstrumentDebuggingClass.class);
     private File debuggingClassesRootPath;
 
-    public void log(TypeDescription typeDescription, DynamicType dynamicType) {
+    public void log(DynamicType dynamicType) {
         if (!Config.Agent.IS_OPEN_DEBUGGING_CLASS) {
             return;
         }
@@ -62,7 +62,7 @@ public enum InstrumentDebuggingClass {
                 try {
                     dynamicType.saveIn(debuggingClassesRootPath);
                 } catch (IOException e) {
-                    logger.error(e, "Can't save class {} to file." + typeDescription.getActualName());
+                    logger.error(e, "Can't save class {} to file." + dynamicType.getTypeDescription().getActualName());
                 }
             } catch (Throwable t) {
                 logger.error(t, "Save debugging classes fail.");
