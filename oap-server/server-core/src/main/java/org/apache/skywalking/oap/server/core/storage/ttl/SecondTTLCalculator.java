@@ -26,6 +26,6 @@ import org.joda.time.DateTime;
 public class SecondTTLCalculator implements TTLCalculator {
 
     @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
+        return Long.parseLong(currentTime.minusSeconds(dataTTLConfig.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
     }
 }

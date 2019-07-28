@@ -27,6 +27,6 @@ import org.joda.time.DateTime;
 public class EsMinuteTTLCalculator implements TTLCalculator {
 
     @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getMinuteMetricsDataTTL()).toString("yyyyMMdd"));
+        return Long.parseLong(currentTime.minusMinutes(dataTTLConfig.getMinuteMetricsDataTTL()).toString("yyyyMMdd"));
     }
 }

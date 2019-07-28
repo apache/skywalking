@@ -27,6 +27,6 @@ import org.joda.time.DateTime;
 public class EsHourTTLCalculator implements TTLCalculator {
 
     @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getHourMetricsDataTTL()).toString("yyyyMMdd"));
+        return Long.parseLong(currentTime.minusHours(dataTTLConfig.getHourMetricsDataTTL()).toString("yyyyMMdd"));
     }
 }
