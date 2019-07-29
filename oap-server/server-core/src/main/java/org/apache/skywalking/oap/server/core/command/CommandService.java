@@ -28,18 +28,18 @@ import java.util.UUID;
  * @author kezhenxu94
  */
 public class CommandService implements Service {
-  private final ModuleManager moduleManager;
+    private final ModuleManager moduleManager;
 
-  public CommandService(final ModuleManager moduleManager) {
-    this.moduleManager = moduleManager;
-  }
+    public CommandService(final ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
 
-  public ServiceResetCommand newResetCommand(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {
-    final String serialNumber = generateSerialNumber(serviceInstanceId, time, serviceInstanceUUID);
-    return new ServiceResetCommand(serialNumber);
-  }
+    public ServiceResetCommand newResetCommand(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {
+        final String serialNumber = generateSerialNumber(serviceInstanceId, time, serviceInstanceUUID);
+        return new ServiceResetCommand(serialNumber);
+    }
 
-  private String generateSerialNumber(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {
-    return UUID.randomUUID().toString(); // Simply generate a uuid without taking care of the parameters
-  }
+    private String generateSerialNumber(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {
+        return UUID.randomUUID().toString(); // Simply generate a uuid without taking care of the parameters
+    }
 }

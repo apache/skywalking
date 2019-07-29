@@ -23,7 +23,6 @@ import org.apache.skywalking.apm.network.common.Command;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingGrpc;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingPkg;
-import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -37,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author wusheng
