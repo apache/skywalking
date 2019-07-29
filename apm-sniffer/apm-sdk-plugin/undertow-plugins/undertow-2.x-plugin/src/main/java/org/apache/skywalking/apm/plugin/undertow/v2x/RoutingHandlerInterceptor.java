@@ -87,8 +87,8 @@ public class RoutingHandlerInterceptor implements InstanceMethodsAroundIntercept
                     nextListener.proceed();
                 }
             });
-            next.handleRequest(exchange);
             span.prepareForAsync();
+            next.handleRequest(exchange);
             ContextManager.stopSpan(span);
         }
     }
