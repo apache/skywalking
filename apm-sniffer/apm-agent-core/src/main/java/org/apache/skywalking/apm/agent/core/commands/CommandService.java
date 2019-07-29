@@ -62,7 +62,7 @@ public class CommandService implements BootService {
                             continue;
                         }
 
-                        commandExecutorService.executorForCommand(command).execute(command);
+                        commandExecutorService.execute(command);
                         serialNumberCache.add(command.getSerialNumber());
                     } catch (InterruptedException e) {
                         LOGGER.error(e, "Failed to take commands.");
