@@ -106,7 +106,7 @@ Now, we have the following known optional plugins.
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway.
 
-# Bootstrap class plugins
+## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
 
 **Make sure `bootstrapJarTmp` writable by agent, which is required by bootstrap instrumentation. New temp jar files will be generated there.**.
