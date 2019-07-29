@@ -64,7 +64,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
             serviceInventory.setMappingServiceId(Const.NONE);
-            serviceInventory.setMappingLastUpdateTime(now);
+            serviceInventory.setLastUpdateTime(now);
             serviceInventory.setProperties(properties);
 
             InventoryStreamProcessor.getInstance().in(serviceInventory);
@@ -84,7 +84,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
-            serviceInventory.setMappingLastUpdateTime(now);
+            serviceInventory.setLastUpdateTime(now);
 
             InventoryStreamProcessor.getInstance().in(serviceInventory);
         }
@@ -98,7 +98,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
                 serviceInventory = serviceInventory.getClone();
                 serviceInventory.setServiceNodeType(nodeType);
                 serviceInventory.setProperties(properties);
-                serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
+                serviceInventory.setLastUpdateTime(System.currentTimeMillis());
 
                 InventoryStreamProcessor.getInstance().in(serviceInventory);
             }
@@ -124,7 +124,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         if (Objects.nonNull(serviceInventory)) {
             serviceInventory = serviceInventory.getClone();
             serviceInventory.setMappingServiceId(mappingServiceId);
-            serviceInventory.setMappingLastUpdateTime(System.currentTimeMillis());
+            serviceInventory.setLastUpdateTime(System.currentTimeMillis());
 
             InventoryStreamProcessor.getInstance().in(serviceInventory);
         } else {
