@@ -105,9 +105,15 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .build();
 
                         notify(GRPCChannelStatus.CONNECTED);
+                        reconnect = false;
+                    } else if (managedChannel.isConnected()) {
+                        // Reconnect to the same server is automatically done by GRPC,
+                        // therefore we are responsible to check the connectivity and
+                        // set the state and notify listeners
+                        notify(GRPCChannelStatus.CONNECTED);
+                        reconnect = false;
                     }
 
-                    reconnect = false;
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);

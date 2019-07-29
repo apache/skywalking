@@ -325,6 +325,7 @@ The text of each license is the standard Apache 2.0 license.
     Ctripcorp: apollo 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
     etcd4j 2.17.0: https://github.com/jurmous/etcd4j Apache 2.0
     javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
+    jackson-module-afterburner 2.9.5: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
 
 ========================================================================
 MIT licenses
