@@ -34,7 +34,7 @@ Here are the steps about how to use **ContextCarrier** in a `A->B` distributed c
 1. Put all items of `ContextCarrier` into heads(e.g. HTTP HEAD), attachments(e.g. Dubbo RPC framework) or messages(e.g. Kafka)
 1. The `ContextCarrier` propagates to server side by the service call.
 1. At server side, get all items from heads, attachments or messages.
-1. Create an EntrySpan by `ContestManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
+1. Create an EntrySpan by `ContextManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
 
 
 Let's demonstrate the steps by Apache HTTPComponent client plugin and Tomcat 7 server plugin
