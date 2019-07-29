@@ -64,7 +64,7 @@ public class RoutingHandlerInterceptor implements InstanceMethodsAroundIntercept
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
-    private static class TracingHandler implements HttpHandler {
+    static class TracingHandler implements HttpHandler {
         private final String template;
         private final HttpHandler next;
 
