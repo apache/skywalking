@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.CommandDeserializer;
 import org.apache.skywalking.apm.network.trace.component.command.UnsupportedCommandException;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @DefaultImplementor
-public class CommandService implements BootService {
+public class CommandService implements BootService, Runnable {
 
     private static final ILog LOGGER = LogManager.getLogger(CommandService.class);
 
@@ -49,29 +50,36 @@ public class CommandService implements BootService {
 
     @Override
     public void boot() throws Throwable {
-        executorService.submit(new Runnable() {
+        executorService.submit(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
             @Override
-            public void run() {
-                final CommandExecutorService commandExecutorService = ServiceManager.INSTANCE.findService(CommandExecutorService.class);
-
-                while (isRunning) {
-                    try {
-                        BaseCommand command = commands.take();
-
-                        if (isCommandExecuted(command)) {
-                            continue;
-                        }
-
-                        commandExecutorService.execute(command);
-                        serialNumberCache.add(command.getSerialNumber());
-                    } catch (InterruptedException e) {
-                        LOGGER.error(e, "Failed to take commands.");
-                    } catch (CommandExecutionException e) {
-                        LOGGER.error(e, "Failed to execute command[{}].", e.command().getCommand());
-                    }
-                }
+            public void handle(final Throwable t) {
+                LOGGER.error(t, "CommandService failed to execute commands");
             }
-        });
+        }));
+    }
+
+    @Override
+    public void run() {
+        final CommandExecutorService commandExecutorService = ServiceManager.INSTANCE.findService(CommandExecutorService.class);
+
+        while (isRunning) {
+            try {
+                BaseCommand command = commands.take();
+
+                if (isCommandExecuted(command)) {
+                    continue;
+                }
+
+                commandExecutorService.execute(command);
+                serialNumberCache.add(command.getSerialNumber());
+            } catch (InterruptedException e) {
+                LOGGER.error(e, "Failed to take commands.");
+            } catch (CommandExecutionException e) {
+                LOGGER.error(e, "Failed to execute command[{}].", e.command().getCommand());
+            } catch (Throwable e) {
+                LOGGER.error(e, "There is unexpected exception");
+            }
+        }
     }
 
     private boolean isCommandExecuted(BaseCommand command) {
