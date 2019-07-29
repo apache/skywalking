@@ -39,6 +39,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.EnhanceContext;
+import org.apache.skywalking.apm.agent.core.plugin.InstrumentDebuggingClass;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
@@ -106,6 +107,7 @@ public class SkyWalkingAgent {
         agentBuilder
             .type(pluginFinder.buildMatch())
             .transform(new Transformer(pluginFinder))
+            .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new Listener())
             .installOn(instrumentation);
 
@@ -171,7 +173,7 @@ public class SkyWalkingAgent {
                 logger.debug("On Transformation class {}.", typeDescription.getName());
             }
 
-            InstrumentDebuggingClass.INSTANCE.log(typeDescription, dynamicType);
+            InstrumentDebuggingClass.INSTANCE.log(dynamicType);
         }
 
         @Override

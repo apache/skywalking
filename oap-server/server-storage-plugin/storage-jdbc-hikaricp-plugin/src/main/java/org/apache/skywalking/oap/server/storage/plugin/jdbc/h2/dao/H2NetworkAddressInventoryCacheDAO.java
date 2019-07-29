@@ -63,7 +63,7 @@ public class H2NetworkAddressInventoryCacheDAO extends H2SQLExecutor implements 
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), lastUpdateTime)) {
                     NetworkAddressInventory addressInventory;
                     do {
-                        addressInventory = (NetworkAddressInventory)toStorageData(resultSet, NetworkAddressInventory.INDEX_NAME, new ServiceInventory.Builder());
+                        addressInventory = (NetworkAddressInventory)toStorageData(resultSet, NetworkAddressInventory.INDEX_NAME, new NetworkAddressInventory.Builder());
                         if (addressInventory != null) {
                             addressInventories.add(addressInventory);
                         }

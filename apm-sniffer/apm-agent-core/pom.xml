@@ -38,10 +38,6 @@
         <grpc.version>1.14.0</grpc.version>
         <guava.version>20.0</guava.version>
         <bytebuddy.version>1.9.2</bytebuddy.version>
-        <!-- 3.21.0-GA is the last version w/ JDK 6 supported -->
-        <!-- We can't update this, unless JDK 6 agent is not supported. -->
-        <!-- ref discussion, https://github.com/jboss-javassist/javassist/issues/268 -->
-        <javaassist.version>3.21.0-GA</javaassist.version>
         <disruptor.version>3.3.6</disruptor.version>
         <wiremock.version>2.6.0</wiremock.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
@@ -58,8 +54,6 @@
         <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
         <shade.io.opencensus.source>io.opencensus</shade.io.opencensus.source>
         <shade.io.opencensus.target>${shade.package}.${shade.io.opencensus.source}</shade.io.opencensus.target>
-        <shade.javaassist.source>javassist</shade.javaassist.source>
-        <shade.javaassist.target>${shade.package}.${shade.javaassist.source}</shade.javaassist.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
     </properties>
 
@@ -103,11 +97,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
             <version>${netty-tcnative-boringssl-static.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>${javaassist.version}</version>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -192,10 +181,6 @@
                                 </excludes>
                             </artifactSet>
                             <relocations>
-                                <relocation>
-                                    <pattern>${shade.javaassist.source}</pattern>
-                                    <shadedPattern>${shade.javaassist.target}</shadedPattern>
-                                </relocation>
                                 <relocation>
                                     <pattern>${shade.com.lmax.disruptor.source}</pattern>
                                     <shadedPattern>${shade.com.lmax.disruptor.target}</shadedPattern>
