@@ -48,11 +48,7 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
             return;
         }
 
-        if (argumentsTypes.length < 3) {
-            return;
-        }
-
-        AbstractHessianInput in = (AbstractHessianInput)allArguments[1];
+        AbstractHessianInput in = (AbstractHessianInput)allArguments[0];
 
         final ContextCarrier contextCarrier = new ContextCarrier();
 
@@ -79,10 +75,6 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
         Object service = allArguments[0];
 
         if (service == null) {
-            return ret;
-        }
-
-        if (argumentsTypes.length < 3) {
             return ret;
         }
 
