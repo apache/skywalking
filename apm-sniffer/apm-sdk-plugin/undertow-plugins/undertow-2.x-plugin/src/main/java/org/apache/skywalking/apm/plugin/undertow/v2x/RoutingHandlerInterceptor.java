@@ -76,6 +76,7 @@ public class RoutingHandlerInterceptor implements InstanceMethodsAroundIntercept
         @Override
         public void handleRequest(HttpServerExchange exchange) throws Exception {
             final AbstractSpan span = TraceContextUtils.buildUndertowEntrySpan(exchange, template);
+            span.prepareForAsync();
             exchange.addExchangeCompleteListener(new ExchangeCompletionListener() {
                 @Override
                 public void exchangeEvent(HttpServerExchange httpServerExchange, NextListener nextListener) {
@@ -87,7 +88,6 @@ public class RoutingHandlerInterceptor implements InstanceMethodsAroundIntercept
                     nextListener.proceed();
                 }
             });
-            span.prepareForAsync();
             next.handleRequest(exchange);
             ContextManager.stopSpan(span);
         }
