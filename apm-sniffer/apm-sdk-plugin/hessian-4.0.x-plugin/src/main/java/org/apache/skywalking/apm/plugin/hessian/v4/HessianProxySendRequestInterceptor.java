@@ -64,10 +64,10 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
             operateName = url.getPath();
             span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
             Tags.URL.set(span, url.getPath());
-        }else {
+        } else {
             Class clazz = (Class)cache.getT();
             if (clazz == null) {
-                return ;
+                return;
             }
             operateName = clazz.getName();
             span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
