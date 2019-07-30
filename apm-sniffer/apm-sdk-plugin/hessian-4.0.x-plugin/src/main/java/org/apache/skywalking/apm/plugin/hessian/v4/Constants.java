@@ -41,5 +41,4 @@ public class Constants {
 
     public static final String SKELETON_CONSTRUCT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.hessian.v4.HessianSkeletonConstructorInterceptor";
 
-    public static final String HESSIAN_SERVICE_EXPORTER_INCERCEPTOR = "org.apache.skywalking.apm.plugin.hessian.v4.HessianServiceExporterInterceptor";
 }

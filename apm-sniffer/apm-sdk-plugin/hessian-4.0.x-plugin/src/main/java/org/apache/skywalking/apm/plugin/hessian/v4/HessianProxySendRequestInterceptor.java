@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.hessian.v4;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -41,8 +42,12 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HessianEnhanceCache cache = (HessianEnhanceCache)objInst.getSkyWalkingDynamicField();
-        URL url = cache.getUrl();
+
+        if (allArguments.length < 0) {
+            return;
+        }
+
+        URL url = (URL)allArguments[0];
         if (url == null) {
             return;
         }
@@ -50,24 +55,39 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
         if (allArguments.length < 0) {
             return;
         }
-
-        String operateName = url.getPath();
+        HessianEnhanceCache cache = (HessianEnhanceCache)objInst.getSkyWalkingDynamicField();
+        AbstractSpan span;
         final ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
+        String operateName;
 
+        if (Config.Plugin.Hessian.USE_URL_AS_OPERATION_NAME) {
+            operateName = url.getPath();
+            span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
+            Tags.URL.set(span, url.getPath());
+        }else {
+            Class clazz = (Class)cache.getT();
+            if (clazz == null) {
+                return ;
+            }
+            operateName = clazz.getName();
+            span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
+            Tags.URL.set(span, operateName);
+        }
+
+        span.setOperationName(operateName);
         span.setComponent(ComponentsDefine.HESSIAN);
         span.start(System.currentTimeMillis());
-        span.setOperationName(url.getPath());
-
-        Tags.URL.set(span, url.getPath());
         SpanLayer.asRPCFramework(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
-        HessianEnhanceCache cache = (HessianEnhanceCache)objInst.getSkyWalkingDynamicField();
-        URL url = cache.getUrl();
+        if (allArguments.length < 0) {
+            return ret;
+        }
+
+        URL url = (URL)allArguments[0];
         if (url == null) {
             return ret;
         }

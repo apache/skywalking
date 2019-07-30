@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.hessian.v4;
 
 import com.caucho.hessian.io.AbstractHessianInput;
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -57,13 +56,8 @@ public class HessianSkeletonInterceptor implements InstanceMethodsAroundIntercep
 
         final ContextCarrier contextCarrier = new ContextCarrier();
 
-        String operationName = null;
-        if (!Config.Plugin.Hessian.USE_URL_AS_OPERATION_NAME) {
-            Object realService = objInst.getSkyWalkingDynamicField();
-            operationName = ((Class<?>)realService).getName();
-        } else {
-            operationName = ContextManager.activeSpan().getOperationName();
-        }
+        Object realService = objInst.getSkyWalkingDynamicField();
+        String operationName = ((Class<?>)realService).getName();
 
         AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
 
