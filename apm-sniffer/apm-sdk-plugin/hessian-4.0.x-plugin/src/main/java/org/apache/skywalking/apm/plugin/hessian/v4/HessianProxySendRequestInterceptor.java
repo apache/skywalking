@@ -47,15 +47,11 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
             return;
         }
 
-        URL url = (URL)allArguments[0];
-        if (url == null) {
-            return;
-        }
-
         if (allArguments.length < 0) {
             return;
         }
         HessianEnhanceCache cache = (HessianEnhanceCache)objInst.getSkyWalkingDynamicField();
+        URL url = cache.getUrl();
         AbstractSpan span;
         final ContextCarrier contextCarrier = new ContextCarrier();
         String operateName;
@@ -65,11 +61,11 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
             span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
             Tags.URL.set(span, url.getPath());
         } else {
-            Class clazz = (Class)cache.getT();
+            Object clazz = cache.getObj();
             if (clazz == null) {
                 return;
             }
-            operateName = clazz.getName();
+            operateName = ((Class)clazz).getName();
             span = ContextManager.createExitSpan(operateName, contextCarrier, String.format(":", url.getHost(), url.getPort()));
             Tags.URL.set(span, operateName);
         }
@@ -84,11 +80,6 @@ public class HessianProxySendRequestInterceptor implements InstanceMethodsAround
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
         if (allArguments.length < 0) {
-            return ret;
-        }
-
-        URL url = (URL)allArguments[0];
-        if (url == null) {
             return ret;
         }
 

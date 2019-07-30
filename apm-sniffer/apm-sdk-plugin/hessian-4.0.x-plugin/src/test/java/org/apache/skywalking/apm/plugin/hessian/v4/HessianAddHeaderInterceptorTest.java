@@ -94,7 +94,8 @@ public class HessianAddHeaderInterceptorTest {
     public void setUp() throws Exception {
         interceptor = new HessianAddHeaderInterceptor();
         PowerMockito.when(hessianProxy.getURL()).thenReturn(new URL("http://127.0.0.1:8080/TestHessian"));
-        HessianEnhanceCache cache = new HessianEnhanceCache(hessianProxy.getURL());
+        HessianEnhanceCache cache = new HessianEnhanceCache();
+        cache.setUrl(hessianProxy.getURL());
         enhancedInstance.setSkyWalkingDynamicField(cache);
 
         HessianConnection huc = PowerMockito.mock(HessianURLConnection.class);

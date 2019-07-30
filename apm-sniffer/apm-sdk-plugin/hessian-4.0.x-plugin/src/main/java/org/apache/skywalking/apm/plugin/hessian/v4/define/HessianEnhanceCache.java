@@ -18,22 +18,32 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4.define;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.net.URL;
 
 /**
  * cache field for EnhanceInstance, using for create Trace Spans.
  *
  * @author Alan Lau
  */
-public class HessianEnhanceCache<T> {
+public class HessianEnhanceCache {
 
-    @Getter
-    @Setter
-    private T t;
+    private Object obj;
 
-    public HessianEnhanceCache(T t) {
-        this.t = t;
+    private URL url;
+
+    public Object getObj() {
+        return obj;
     }
 
+    public void setObj(Object obj) {
+        this.obj = obj;
+    }
+
+    public URL getUrl() {
+        return url;
+    }
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
 }

@@ -67,6 +67,9 @@ public class HessianProxySendRequestInterceptorTest {
     @Mock
     private String methodName;
 
+    @Mock
+    private Object object;
+
     private HessianProxySendRequestInterceptor interceptor;
 
     private HessianConnection hessianConnection;
@@ -95,7 +98,9 @@ public class HessianProxySendRequestInterceptorTest {
     public void setUp() throws Exception {
         interceptor = new HessianProxySendRequestInterceptor();
         PowerMockito.when(hessianProxy.getURL()).thenReturn(new URL("http://127.0.0.1:8080/TestHessian"));
-        HessianEnhanceCache cache = new HessianEnhanceCache(hessianProxy.getURL());
+        HessianEnhanceCache cache = new HessianEnhanceCache();
+        cache.setUrl(hessianProxy.getURL());
+        cache.setObj(object);
         enhancedInstance.setSkyWalkingDynamicField(cache);
 
         HessianConnection huc = PowerMockito.mock(HessianURLConnection.class);

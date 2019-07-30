@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.hessian.v4;
 
+import java.net.URL;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.plugin.hessian.v4.define.HessianEnhanceCache;
@@ -31,11 +32,20 @@ public class HessianProxyConstructorInterceptor implements InstanceConstructorIn
 
     @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
 
+        if (allArguments.length < 3) {
+            return;
+        }
+
         if (allArguments[0] == null) {
             return;
         }
+
+        URL url = (URL)allArguments[0];
         Class clazz = (Class)allArguments[2];
-        objInst.setSkyWalkingDynamicField(new HessianEnhanceCache<Class>(clazz));
+        HessianEnhanceCache cache = new HessianEnhanceCache();
+        cache.setUrl(url);
+        cache.setObj(clazz);
+        objInst.setSkyWalkingDynamicField(cache);
 
     }
 }
