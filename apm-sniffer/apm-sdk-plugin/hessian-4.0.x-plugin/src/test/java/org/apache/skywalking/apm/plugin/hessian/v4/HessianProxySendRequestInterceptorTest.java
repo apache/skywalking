@@ -67,8 +67,8 @@ public class HessianProxySendRequestInterceptorTest {
     @Mock
     private String methodName;
 
-    @Mock
-    private Object object;
+
+    private Class object = new Object().getClass();
 
     private HessianProxySendRequestInterceptor interceptor;
 

@@ -59,7 +59,7 @@ public class HessianSkeletonInstrumentation extends ClassInstanceMethodsEnhanceP
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("invoke").and(takesArgumentWithType(0, "com.caucho.hessian.io.AbstractHessianInput")).and(takesArgumentWithType(1, "com.caucho.hessian.io.AbstractHessianOutput"));
+                    return named("invoke").and(ElementMatchers.takesArguments(3)).and(takesArgumentWithType(1, "com.caucho.hessian.io.AbstractHessianInput")).and(takesArgumentWithType(2, "com.caucho.hessian.io.AbstractHessianOutput"));
                 }
 
                 @Override public String getMethodsInterceptor() {
