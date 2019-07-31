@@ -47,11 +47,11 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
     public static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
     public static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
 
-    @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

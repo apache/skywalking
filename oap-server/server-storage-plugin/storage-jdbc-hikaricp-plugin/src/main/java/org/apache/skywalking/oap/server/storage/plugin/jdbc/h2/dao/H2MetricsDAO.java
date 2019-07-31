@@ -39,18 +39,11 @@ public class H2MetricsDAO extends H2SQLExecutor implements IMetricsDAO {
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Map<String, Metrics> get(Model model, Metrics[] metrics) throws IOException {
-        Map<String, Metrics> result = new HashMap<>();
-
-        String[] ids = new String[metrics.length];
-        for (int i = 0; i < metrics.length; i++) {
-            ids[i] = metrics[i].id();
-        }
-
-        List<StorageData> storageDataList = getByIDs(h2Client, model.getName(), ids, storageBuilder);
-
+    @Override public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
+        List<StorageData> storageDataList = getByIDs(h2Client, model.getName(), ids.toArray(new String[0]), storageBuilder);
+        List<Metrics> result = new ArrayList<>(storageDataList.size());
         for (StorageData storageData : storageDataList) {
-            result.put(storageData.id(), (Metrics)storageData);
+            result.add((Metrics)storageData);
         }
         return result;
     }

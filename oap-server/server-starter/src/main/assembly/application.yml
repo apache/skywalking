@@ -52,9 +52,9 @@ core:
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     downsampling:
-    - Hour
-    - Day
-    - Month
+      - Hour
+      - Day
+      - Month
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
@@ -62,6 +62,9 @@ core:
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
     dayMetricsDataTTL: ${SW_CORE_DAY_METRIC_DATA_TTL:45} # Unit is day
     monthMetricsDataTTL: ${SW_CORE_MONTH_METRIC_DATA_TTL:18} # Unit is month
+    # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
+    # the metrics may not be accurate within that minute.
+    enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
 storage:
 #  elasticsearch:
 #    nameSpace: ${SW_NAMESPACE:""}
@@ -146,6 +149,11 @@ configuration:
 #    #Retry Policy
 #    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
 #    maxRetries: 3 # max number of times to retry
+#  etcd:
+#    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+#    group :  'skywalking'
+#    serverAddr: localhost:2379
+#    clusterName: "default"
 #exporter:
 #  grpc:
 #    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}

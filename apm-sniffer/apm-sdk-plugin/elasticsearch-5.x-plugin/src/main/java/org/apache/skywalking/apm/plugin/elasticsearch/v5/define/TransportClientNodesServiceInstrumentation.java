@@ -33,11 +33,11 @@ public class TransportClientNodesServiceInstrumentation extends ClassInstanceMet
     public static final String REMOVE_TRANSPORT_ADDRESS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v5.RemoveTransportAddressInterceptor";
     public static final String ENHANCE_CLASS = "org.elasticsearch.client.transport.TransportClientNodesService";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

@@ -75,7 +75,7 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
     }
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -103,7 +103,7 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

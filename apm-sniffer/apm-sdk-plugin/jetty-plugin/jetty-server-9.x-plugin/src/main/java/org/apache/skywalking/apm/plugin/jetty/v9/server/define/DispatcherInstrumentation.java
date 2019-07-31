@@ -35,7 +35,7 @@ public class DispatcherInstrumentation extends ClassInstanceMethodsEnhancePlugin
     private static final String ENHANCE_CLASS = "org.eclipse.jetty.server.Dispatcher";
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jetty.v9.server.ForwardInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -49,7 +49,7 @@ public class DispatcherInstrumentation extends ClassInstanceMethodsEnhancePlugin
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

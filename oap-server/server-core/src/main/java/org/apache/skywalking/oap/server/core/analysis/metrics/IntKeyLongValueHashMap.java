@@ -13,40 +13,42 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.ArrayList;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 
 /**
  * @author peng-yongsheng
  */
-public class IntKeyLongValueArray extends ArrayList<IntKeyLongValue> implements StorageDataType {
+public class IntKeyLongValueHashMap extends HashMap<Integer, IntKeyLongValue> implements StorageDataType {
 
-    public IntKeyLongValueArray(int initialCapacity) {
+    public IntKeyLongValueHashMap() {
+        super();
+    }
+
+    public IntKeyLongValueHashMap(int initialCapacity) {
         super(initialCapacity);
     }
 
-    public IntKeyLongValueArray() {
-        super(30);
-    }
-
-    public IntKeyLongValueArray(String data) {
+    public IntKeyLongValueHashMap(String data) {
         super();
         toObject(data);
     }
 
     @Override public String toStorageData() {
         StringBuilder data = new StringBuilder();
-        for (int i = 0; i < this.size(); i++) {
+
+        List<Map.Entry<Integer, IntKeyLongValue>> list = new ArrayList<>(this.entrySet());
+
+        for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
-                data.append(this.get(i).toStorageData());
+                data.append(list.get(i).getValue().toStorageData());
             } else {
-                data.append(Const.ARRAY_SPLIT).append(this.get(i).toStorageData());
+                data.append(Const.ARRAY_SPLIT).append(list.get(i).getValue().toStorageData());
             }
         }
         return data.toString();
@@ -54,19 +56,19 @@ public class IntKeyLongValueArray extends ArrayList<IntKeyLongValue> implements 
 
     @Override public void toObject(String data) {
         String[] keyValues = data.split(Const.ARRAY_PARSER_SPLIT);
-        for (int i = 0; i < keyValues.length; i++) {
+        for (String keyValue : keyValues) {
             IntKeyLongValue value = new IntKeyLongValue();
-            value.toObject(keyValues[i]);
-            this.add(value);
+            value.toObject(keyValue);
+            this.put(value.getKey(), value);
         }
     }
 
     @Override public void copyFrom(Object source) {
-        IntKeyLongValueArray valueArray = (IntKeyLongValueArray)source;
-        valueArray.forEach(value -> {
+        IntKeyLongValueHashMap intKeyLongValueHashMap = (IntKeyLongValueHashMap)source;
+        intKeyLongValueHashMap.values().forEach(value -> {
             IntKeyLongValue newValue = new IntKeyLongValue();
             newValue.copyFrom(value);
-            this.add(newValue);
+            this.put(newValue.getKey(), newValue);
         });
     }
 }

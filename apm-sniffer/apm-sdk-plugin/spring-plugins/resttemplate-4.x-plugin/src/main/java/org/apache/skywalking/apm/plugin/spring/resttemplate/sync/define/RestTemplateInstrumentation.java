@@ -52,12 +52,12 @@ public class RestTemplateInstrumentation extends ClassInstanceMethodsEnhancePlug
     private static final String CREATE_REQUEST_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.resttemplate.sync.RestRequestInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

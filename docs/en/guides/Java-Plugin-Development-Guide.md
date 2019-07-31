@@ -34,7 +34,7 @@ Here are the steps about how to use **ContextCarrier** in a `A->B` distributed c
 1. Put all items of `ContextCarrier` into heads(e.g. HTTP HEAD), attachments(e.g. Dubbo RPC framework) or messages(e.g. Kafka)
 1. The `ContextCarrier` propagates to server side by the service call.
 1. At server side, get all items from heads, attachments or messages.
-1. Create an EntrySpan by `ContestManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
+1. Create an EntrySpan by `ContextManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
 
 
 Let's demonstrate the steps by Apache HTTPComponent client plugin and Tomcat 7 server plugin
@@ -242,7 +242,7 @@ protected ClassMatch enhanceClassName() {
 
 2. Define an instance method intercept point
 ```java
-protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
 
 public interface InstanceMethodsInterceptPoint {
     /**
@@ -311,6 +311,49 @@ public interface InstanceMethodsAroundInterceptor {
 }
 ```
 Use the core APIs in before, after and exception handle stages.
+
+### Do bootstrap class instrumentation.
+SkyWalking has packaged the bootstrap instrumentation in the agent core. It is easy to open by declaring it in the Instrumentation definition.
+
+Override the `public boolean isBootstrapInstrumentation()` and return **true**. Such as
+```java
+public class URLInstrumentation extends ClassEnhancePluginDefine {
+    private static String CLASS_NAME = "java.net.URL";
+
+    @Override protected ClassMatch enhanceClass() {
+        return byName(CLASS_NAME);
+    }
+
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.jre.httpurlconnection.Interceptor2";
+                }
+            }
+        };
+    }
+
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
+    }
+
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[0];
+    }
+
+    @Override public boolean isBootstrapInstrumentation() {
+        return true;
+    }
+}
+```
+
+**NOTICE**, doing bootstrap instrumentation should only happen in necessary, but mostly it effect the JRE core(rt.jar),
+and could make very unexpected result or side effect.
 
 
 ### Contribute plugins into Apache SkyWalking repository

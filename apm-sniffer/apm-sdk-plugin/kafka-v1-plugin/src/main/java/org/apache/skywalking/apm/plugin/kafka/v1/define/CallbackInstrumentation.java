@@ -33,11 +33,11 @@ public class CallbackInstrumentation extends AbstractKafkaInstrumentation {
     public static final String ENHANCE_METHOD = "onCompletion";
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.CallbackInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

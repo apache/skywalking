@@ -25,11 +25,6 @@ pipeline {
         ))
         timestamps()
         skipStagesAfterUnstable()
-        timeout time: 60, unit: 'MINUTES'
-    }
-
-    environment {
-        MAVEN_OPTS = '-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
     stages {
@@ -64,10 +59,8 @@ pipeline {
 
                         stage('Test & Report') {
                             steps {
-                                // separate lightweight checks that don't support parallel run
-                                sh './mvnw checkstyle:check apache-rat:check'
-                                sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
-                                sh './mvnw -DskipTests -Dcheckstyle.skip -Drat.skip -T 2C javadoc:javadoc'
+                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                                sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
                             }
                         }
                     }

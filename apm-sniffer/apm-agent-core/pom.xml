@@ -16,7 +16,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -211,7 +212,8 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
@@ -227,7 +229,7 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="${project.basedir}/../../packages" />
+                                <delete dir="${project.basedir}/../../packages"/>
                             </tasks>
                         </configuration>
                     </execution>
@@ -236,14 +238,22 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <echo message="unjar" />
-                                <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.jar" dest="${project.build.directory}/unpacked/" />
-                                <echo message="rename service providers in META-INF/services" />
-                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_osx_x86_64.jnilib" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_osx_x86_64.jnilib" />
-                                <move file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_linux_x86_64.so" tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_linux_x86_64.so" />
-                                <move file="${project.build.directory}/unpacked/META-INF/native/netty_tcnative_windows_x86_64.dll" tofile="${project.build.directory}/unpacked/META-INF/native/org_apache_skywalking_apm_dependencies_netty_tcnative_windows_x86_64.dll" />
-                                <echo message="jar back" />
-                                <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}.jar" basedir="${project.build.directory}/unpacked" />
+                                <echo message="unjar"/>
+                                <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                       dest="${project.build.directory}/unpacked/"/>
+                                <echo message="rename service providers in META-INF/services"/>
+                                <move
+                                    file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_osx_x86_64.jnilib"
+                                    tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_osx_x86_64.jnilib"/>
+                                <move
+                                    file="${project.build.directory}/unpacked/META-INF/native/libnetty_tcnative_linux_x86_64.so"
+                                    tofile="${project.build.directory}/unpacked/META-INF/native/liborg_apache_skywalking_apm_dependencies_netty_tcnative_linux_x86_64.so"/>
+                                <move
+                                    file="${project.build.directory}/unpacked/META-INF/native/netty_tcnative_windows_x86_64.dll"
+                                    tofile="${project.build.directory}/unpacked/META-INF/native/org_apache_skywalking_apm_dependencies_netty_tcnative_windows_x86_64.dll"/>
+                                <echo message="jar back"/>
+                                <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                     basedir="${project.build.directory}/unpacked"/>
                             </target>
                         </configuration>
                         <goals>

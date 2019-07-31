@@ -36,12 +36,12 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class AsyncExecutionInterceptorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
