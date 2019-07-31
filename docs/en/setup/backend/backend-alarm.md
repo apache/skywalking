@@ -53,7 +53,7 @@ rules:
 We provided a default `alarm-setting.yml` in our distribution only for convenience, which including following rules
 1. Service average response time over 1s in last 3 minutes.
 1. Service success rate lower than 80% in last 2 minutes.
-1. Service 90% response time is lower than 1000ms in last 3 minutes
+1. Service 90% response time is over 1s in last 3 minutes
 1. Service Instance average response time over 1s in last 2 minutes.
 1. Endpoint average response time over 1s in last 2 minutes.
 
