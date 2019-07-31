@@ -1,5 +1,5 @@
 # Setup java agent
-1. Agent is available for JDK 1.6 - 11.
+1. Agent is available for JDK 1.6 - 12.
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
@@ -20,7 +20,10 @@ The agent release dist is included in Apache [official release](http://skywalkin
          apm-feign-default-http-9.x.jar
          apm-httpClient-4.x-plugin.jar
          .....
-    +--- logs
+    +-- optional-plugins
+         apm-gson-2.x-plugin.jar
+         .....
+    +-- logs
     skywalking-agent.jar
 ```
 
