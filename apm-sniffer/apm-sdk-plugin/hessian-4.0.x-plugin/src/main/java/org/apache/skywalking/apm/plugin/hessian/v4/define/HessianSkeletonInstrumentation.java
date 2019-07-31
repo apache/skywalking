@@ -40,7 +40,7 @@ import static org.apache.skywalking.apm.plugin.hessian.v4.Constants.SKELETON_INT
  */
 public class HessianSkeletonInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
 
             new ConstructorInterceptPoint() {
@@ -55,7 +55,7 @@ public class HessianSkeletonInstrumentation extends ClassInstanceMethodsEnhanceP
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
