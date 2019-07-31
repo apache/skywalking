@@ -54,11 +54,6 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
     private static final String INTERCEPT_NEW_INSTANCE_CLASS = "org.apache.skywalking.apm.plugin.jdk.http.HttpClientNewInstanceInterceptor";
 
     private static final String ARG_TYPE_HTTP_CONNECTION = "sun.net.www.protocol.http.HttpURLConnection";
-    /**
-     * com.sun.image.codec.jpeg package has been remove in jdk9 and ImageFormatException exist since jdk1.2
-     * ref https://www.oracle.com/technetwork/java/javase/9-removed-features-3745614.html
-     */
-    private static final String WITNESS_CLASS = "com.sun.image.codec.jpeg.ImageFormatException";
 
 
     @Override
@@ -138,10 +133,6 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
         return MultiClassNameMatch.byMultiClassMatch(ENHANCE_HTTP_CLASS, ENHANCE_HTTPS_CLASS);
     }
 
-    @Override
-    protected String[] witnessClasses() {
-        return new String[]{WITNESS_CLASS};
-    }
 
     @Override
     public boolean isBootstrapInstrumentation() {
