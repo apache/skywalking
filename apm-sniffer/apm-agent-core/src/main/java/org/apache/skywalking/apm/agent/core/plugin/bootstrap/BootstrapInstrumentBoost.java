@@ -90,8 +90,8 @@ public class BootstrapInstrumentBoost {
         }
 
         /**
-         * This strategy is no longer available after Java 11.
-         * Inject the classes into bootstrap class loader.
+         * Inject the classes into bootstrap class loader by using Unsafe Strategy.
+         * ByteBuddy adapts the sun.misc.Unsafe and jdk.internal.misc.Unsafe automatically.
          */
         ClassInjector.UsingUnsafe.ofBootLoader().injectRaw(classesTypeMap);
         agentBuilder = agentBuilder.enableUnsafeBootstrapInjection();
