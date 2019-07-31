@@ -136,7 +136,6 @@
                                 <mkdir dir="${project.basedir}/../../skywalking-agent/logs"/>
                                 <copydir src="${project.basedir}/../config"
                                          dest="${project.basedir}/../../skywalking-agent/config" forceoverwrite="true"/>
-                                <mkdir dir="${project.basedir}/../../skywalking-agent/bootstrapJarTmp"/>
                             </tasks>
                         </configuration>
                     </execution>
