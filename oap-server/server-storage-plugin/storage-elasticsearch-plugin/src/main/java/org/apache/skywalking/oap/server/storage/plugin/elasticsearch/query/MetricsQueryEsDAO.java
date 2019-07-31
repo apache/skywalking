@@ -142,7 +142,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 numOfSteps = ((Number)source.get(ThermodynamicMetrics.NUM_OF_STEPS)).intValue() + 1;
 
                 String value = (String)source.get(ThermodynamicMetrics.DETAIL_GROUP);
-                IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
                 intKeyLongValues.toObject(value);
 
                 List<Long> axisYValues = new ArrayList<>();
@@ -150,7 +150,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                     axisYValues.add(0L);
                 }
 
-                for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
                     axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
                 }
 

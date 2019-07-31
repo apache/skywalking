@@ -40,7 +40,7 @@ public class CustomizeStaticInstrumentation extends ClassStaticMethodsEnhancePlu
     }
 
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         final ElementMatcher matcher = CustomizeConfiguration.INSTANCE.getInterceptPoints(enhanceClass, true);
         if (matcher == null) {
             return new StaticMethodsInterceptPoint[0];
