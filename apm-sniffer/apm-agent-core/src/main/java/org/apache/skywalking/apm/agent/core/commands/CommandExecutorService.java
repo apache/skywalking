@@ -28,15 +28,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Command executor service, responsible for managing the mapping
- * between commands and their executors, one can get a proper executor
- * for a specific command via {@link #executorForCommand(BaseCommand)}
+ * Command executor service, acts like a routing executor that controls all commands' execution,
+ * is responsible for managing all the mappings between commands and their executors,
+ * one can simply invoke {@link #execute(BaseCommand)} and it will routes the
+ * command to corresponding executor.
+ *
+ * Registering command executor for new command in {@link #commandExecutorMap}
+ * is required to support new command.
  *
  * @author Zhang Xin
  * @author kezhenxu94
  */
 @DefaultImplementor
-public class CommandExecutorService implements BootService {
+public class CommandExecutorService implements BootService, CommandExecutor {
     private Map<String, CommandExecutor> commandExecutorMap;
 
     @Override
@@ -62,7 +66,12 @@ public class CommandExecutorService implements BootService {
 
     }
 
-    public CommandExecutor executorForCommand(final BaseCommand command) {
+    @Override
+    public void execute(final BaseCommand command) throws CommandExecutionException {
+        executorForCommand(command).execute(command);
+    }
+
+    private CommandExecutor executorForCommand(final BaseCommand command) {
         final CommandExecutor executor = commandExecutorMap.get(command.getCommand());
         if (executor != null) {
             return executor;

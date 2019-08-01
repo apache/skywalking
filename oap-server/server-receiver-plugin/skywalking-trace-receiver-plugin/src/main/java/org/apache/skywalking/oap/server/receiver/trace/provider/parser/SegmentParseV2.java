@@ -96,7 +96,7 @@ public class SegmentParseV2 {
             final int serviceInstanceId = segmentObject.getServiceInstanceId();
             if (serviceInstanceInventoryCache.get(serviceInstanceId) == null) {
                 logger.warn("Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);
-                return false;
+                return true; // to mark it "completed" thus won't be retried
             }
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
