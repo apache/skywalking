@@ -35,7 +35,6 @@ public class JDK9ModuleExporter {
     private static final ILog logger = LogManager.getLogger(JDK9ModuleExporter.class);
 
     private static final String[] HIGH_PRIORITY_CLASSES = {
-        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsInter",
     };
 
     /**
