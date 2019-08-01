@@ -19,15 +19,12 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
@@ -42,8 +39,6 @@ import org.apache.skywalking.apm.agent.core.conf.Constants;
 public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
     private static FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
-    private Disruptor<LogMessageHolder> disruptor;
-    private RingBuffer<LogMessageHolder> buffer;
     private FileOutputStream fileOutputStream;
     private volatile boolean started = false;
     private volatile int fileSize;
@@ -61,16 +56,16 @@ public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
     }
 
     private FileWriter() {
-        disruptor = new Disruptor<LogMessageHolder>(new EventFactory<LogMessageHolder>() {
-            @Override
-            public LogMessageHolder newInstance() {
-                return new LogMessageHolder();
-            }
-        }, 1024, DaemonThreadFactory.INSTANCE);
-        disruptor.handleEventsWith(this);
-        buffer = disruptor.getRingBuffer();
-        lineNum = 0;
-        disruptor.start();
+//        disruptor = new Disruptor<LogMessageHolder>(new EventFactory<LogMessageHolder>() {
+//            @Override
+//            public LogMessageHolder newInstance() {
+//                return new LogMessageHolder();
+//            }
+//        }, 1024, DaemonThreadFactory.INSTANCE);
+//        disruptor.handleEventsWith(this);
+//        buffer = disruptor.getRingBuffer();
+//        lineNum = 0;
+//        disruptor.start();
     }
 
     @Override
@@ -168,12 +163,14 @@ public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
 
     @Override
     public void write(String message) {
-        long next = buffer.next();
-        try {
-            LogMessageHolder messageHolder = buffer.get(next);
-            messageHolder.setMessage(message);
-        } finally {
-            buffer.publish(next);
-        }
+        PrintStream out = System.out;
+        out.println(message);
+//        long next = buffer.next();
+//        try {
+//            LogMessageHolder messageHolder = buffer.get(next);
+//            messageHolder.setMessage(message);
+//        } finally {
+//            buffer.publish(next);
+//        }
     }
 }

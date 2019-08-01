@@ -44,6 +44,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
+import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -97,10 +98,18 @@ public class SkyWalkingAgent {
                     .or(allSkyWalkingAgentExcludeToolkit())
                     .or(ElementMatchers.<TypeDescription>isSynthetic()));
 
+        JDK9ModuleExporter.EdgeClasses edgeClasses = new JDK9ModuleExporter.EdgeClasses();
         try {
-            agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, agentBuilder, instrumentation);
+            agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, agentBuilder, edgeClasses);
         } catch (Exception e) {
             logger.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
+            return;
+        }
+
+        try {
+            JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);
+        } catch (Exception e) {
+            logger.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
             return;
         }
 

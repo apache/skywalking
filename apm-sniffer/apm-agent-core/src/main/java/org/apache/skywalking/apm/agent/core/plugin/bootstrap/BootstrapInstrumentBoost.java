@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.agent.core.plugin.bootstrap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +34,14 @@ import net.bytebuddy.pool.TypePool;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.ByteBuddyCoreClasses;
 import org.apache.skywalking.apm.agent.core.plugin.InstrumentDebuggingClass;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -53,7 +54,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class BootstrapInstrumentBoost {
     private static final ILog logger = LogManager.getLogger(BootstrapInstrumentBoost.class);
-    private static final String SHADE_PACKAGE = "org.apache.skywalking.apm.dependencies.";
+
     private static final String[] HIGH_PRIORITY_CLASSES = {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.BootstrapInterRuntimeAssist",
@@ -62,15 +63,9 @@ public class BootstrapInstrumentBoost {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideCallable",
-        "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.RuntimeType",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.This",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.AllArguments",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.AllArguments$Assignment",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.SuperCall",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.Origin",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.Morph"
+        "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog"
     };
+
     private static String INSTANCE_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterTemplate";
     private static String INSTANCE_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterWithOverrideArgsTemplate";
     private static String CONSTRUCTOR_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.ConstructorInterTemplate";
@@ -78,14 +73,26 @@ public class BootstrapInstrumentBoost {
     private static String STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterWithOverrideArgsTemplate";
 
     public static AgentBuilder inject(PluginFinder pluginFinder, AgentBuilder agentBuilder,
-        Instrumentation instrumentation) throws PluginException {
+        JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
         Map<String, byte[]> classesTypeMap = new HashMap<String, byte[]>();
 
         if (!prepareJREInstrumentation(pluginFinder, classesTypeMap)) {
             return agentBuilder;
         }
 
+        /**
+         * Prepare to open edge of necessary classes.
+         */
+        for (String generatedClass : classesTypeMap.keySet()) {
+            edgeClasses.add(generatedClass);
+        }
+
         for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
+            edgeClasses.add(highPriorityClass);
+            loadHighPriorityClass(classesTypeMap, highPriorityClass);
+        }
+
+        for (String highPriorityClass : ByteBuddyCoreClasses.CLASSES) {
             loadHighPriorityClass(classesTypeMap, highPriorityClass);
         }
 
@@ -95,29 +102,6 @@ public class BootstrapInstrumentBoost {
          */
         ClassInjector.UsingUnsafe.ofBootLoader().injectRaw(classesTypeMap);
         agentBuilder = agentBuilder.enableUnsafeBootstrapInjection();
-
-        /**
-         * Assures that all modules of the supplied types are read by the module of any instrumented type.
-         * JDK Module system was introduced since JDK9.
-         *
-         * The following codes work only JDK Module system exist.
-         */
-        for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
-            try {
-                agentBuilder = agentBuilder.assureReadEdgeTo(instrumentation, Class.forName(highPriorityClass));
-            } catch (ClassNotFoundException e) {
-                logger.error(e, "Fail to open the high priority class " + highPriorityClass + " to public access in JDK9+");
-                throw new UnsupportedOperationException("Fail to open the high priority class " + highPriorityClass + " to public access in JDK9+", e);
-            }
-        }
-        for (String generatedClass : classesTypeMap.keySet()) {
-            try {
-                agentBuilder = agentBuilder.assureReadEdgeTo(instrumentation, Class.forName(generatedClass));
-            } catch (ClassNotFoundException e) {
-                logger.error(e, "Fail to open the high generated class " + generatedClass + " to public access in JDK9+");
-                throw new UnsupportedOperationException("Fail to open the high generated class " + generatedClass + " to public access in JDK9+", e);
-            }
-        }
 
         return agentBuilder;
     }
