@@ -40,7 +40,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected String operationName;
     protected int operationId;
     protected SpanLayer layer;
-    protected boolean isInAsyncMode = false;
+    protected boolean inAsyncMode = false;
     protected volatile AbstractTracerContext context;
 
     /**
@@ -71,6 +71,8 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * we use this {@link #refs} to link them.
      */
     protected List<TraceSegmentRef> refs;
+
+    private volatile boolean asyncStop = false;
 
     protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName) {
         this.operationName = operationName;
@@ -322,18 +324,24 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override public AbstractSpan prepareForAsync() {
+        if (inAsyncMode) {
+            throw new RuntimeException("Span is already  in async mode, please do not  call '#prepareForAsync'  more than on the same span!");
+        }
         context = ContextManager.awaitFinishAsync(this);
-        isInAsyncMode = true;
+        inAsyncMode = true;
         return this;
     }
 
     @Override public AbstractSpan asyncFinish() {
-        if (!isInAsyncMode) {
+        if (!inAsyncMode) {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
-
+        if (asyncStop) {
+            throw new RuntimeException("Can not invoke '#asyncFinish' more than once on  the same span!");
+        }
         this.endTime = System.currentTimeMillis();
         context.asyncStop(this);
+        asyncStop = true;
         return this;
     }
 }
