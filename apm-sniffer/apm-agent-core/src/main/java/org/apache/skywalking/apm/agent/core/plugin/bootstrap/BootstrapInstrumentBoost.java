@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.agent.core.plugin.bootstrap;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
@@ -33,8 +32,6 @@ import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.pool.TypePool;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine;
@@ -82,7 +79,6 @@ public class BootstrapInstrumentBoost {
 
     public static AgentBuilder inject(PluginFinder pluginFinder, AgentBuilder agentBuilder,
         Instrumentation instrumentation) throws PluginException {
-
         Map<String, byte[]> classesTypeMap = new HashMap<String, byte[]>();
 
         if (!prepareJREInstrumentation(pluginFinder, classesTypeMap)) {
@@ -93,17 +89,36 @@ public class BootstrapInstrumentBoost {
             loadHighPriorityClass(classesTypeMap, highPriorityClass);
         }
 
-        File temp = null;
-        try {
-            temp = new File(AgentPackagePath.getPath(), "bootstrapJarTmp");
-        } catch (AgentPackageNotFoundException e) {
-            logger.error(e, "Bootstrap plugin exist, but SkyWalking agent can't create bootstrapJarTmp folder. Shutting down.");
-            throw new UnsupportedOperationException("Bootstrap plugin exist, but SkyWalking agent can't create bootstrapJarTmp folder. Shutting down.", e);
+        /**
+         * Inject the classes into bootstrap class loader by using Unsafe Strategy.
+         * ByteBuddy adapts the sun.misc.Unsafe and jdk.internal.misc.Unsafe automatically.
+         */
+        ClassInjector.UsingUnsafe.ofBootLoader().injectRaw(classesTypeMap);
+        agentBuilder = agentBuilder.enableUnsafeBootstrapInjection();
+
+        /**
+         * Assures that all modules of the supplied types are read by the module of any instrumented type.
+         * JDK Module system was introduced since JDK9.
+         *
+         * The following codes work only JDK Module system exist.
+         */
+        for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
+            try {
+                agentBuilder = agentBuilder.assureReadEdgeTo(instrumentation, Class.forName(highPriorityClass));
+            } catch (ClassNotFoundException e) {
+                logger.error(e, "Fail to open the high priority class " + highPriorityClass + " to public access in JDK9+");
+                throw new UnsupportedOperationException("Fail to open the high priority class " + highPriorityClass + " to public access in JDK9+", e);
+            }
+        }
+        for (String generatedClass : classesTypeMap.keySet()) {
+            try {
+                agentBuilder = agentBuilder.assureReadEdgeTo(instrumentation, Class.forName(generatedClass));
+            } catch (ClassNotFoundException e) {
+                logger.error(e, "Fail to open the high generated class " + generatedClass + " to public access in JDK9+");
+                throw new UnsupportedOperationException("Fail to open the high generated class " + generatedClass + " to public access in JDK9+", e);
+            }
         }
 
-        ClassInjector.UsingInstrumentation.of(temp, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation).injectRaw(classesTypeMap);
-
-        agentBuilder = agentBuilder.enableBootstrapInjection(instrumentation, temp);
         return agentBuilder;
     }
 
@@ -206,11 +221,16 @@ public class BootstrapInstrumentBoost {
      * @param loadedTypeMap hosts all injected class
      * @param className to load
      */
-    private static void loadHighPriorityClass(Map<String, byte[]> loadedTypeMap, String className) {
+    private static void loadHighPriorityClass(Map<String, byte[]> loadedTypeMap,
+        String className) throws PluginException {
         byte[] enhancedInstanceClassFile;
         try {
             String classResourceName = className.replaceAll("\\.", "/") + ".class";
             InputStream resourceAsStream = AgentClassLoader.getDefault().getResourceAsStream(classResourceName);
+
+            if (resourceAsStream == null) {
+                throw new PluginException("High priority class " + className + " not found.");
+            }
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 
