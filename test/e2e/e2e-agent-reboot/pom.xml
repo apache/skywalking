@@ -84,7 +84,7 @@
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <INSTRUMENTED_SERVICE_OPTS>-DSW_AGENT_COOL_DOWN_THRESHOLD=1</INSTRUMENTED_SERVICE_OPTS>
+                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.agent.cool_down_threshold=1</INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
