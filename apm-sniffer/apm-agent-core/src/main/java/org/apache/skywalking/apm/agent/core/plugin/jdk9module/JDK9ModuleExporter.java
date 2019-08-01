@@ -34,22 +34,34 @@ import org.apache.skywalking.apm.agent.core.plugin.ByteBuddyCoreClasses;
 public class JDK9ModuleExporter {
     private static final ILog logger = LogManager.getLogger(JDK9ModuleExporter.class);
 
+    private static final String[] HIGH_PRIORITY_CLASSES = {
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsInter",
+    };
+
     /**
-     * Assures that all modules of the supplied types are read by the module of any instrumented type.
-     * JDK Module system was introduced since JDK9.
+     * Assures that all modules of the supplied types are read by the module of any instrumented type. JDK Module system
+     * was introduced since JDK9.
      *
      * The following codes work only JDK Module system exist.
      */
-    public static void openReadEdge(Instrumentation instrumentation, AgentBuilder agentBuilder, EdgeClasses classes) {
+    public static AgentBuilder openReadEdge(Instrumentation instrumentation, AgentBuilder agentBuilder,
+        EdgeClasses classes) {
         for (String className : classes.classes) {
             try {
-                agentBuilder = agentBuilder.assureReadEdgeTo(instrumentation, Class.forName(className));
+                agentBuilder = agentBuilder.assureReadEdgeFromAndTo(instrumentation, Class.forName(className));
             } catch (ClassNotFoundException e) {
-                logger.error(e, "Fail to open read edge for class " + className + " to public access in JDK9+");
+                throw new UnsupportedOperationException("Fail to open read edge for class " + className + " to public access in JDK9+", e);
+            }
+        }
+        for (String className : HIGH_PRIORITY_CLASSES) {
+            try {
+                agentBuilder = agentBuilder.assureReadEdgeFromAndTo(instrumentation, Class.forName(className));
+            } catch (ClassNotFoundException e) {
                 throw new UnsupportedOperationException("Fail to open read edge for class " + className + " to public access in JDK9+", e);
             }
         }
 
+        return agentBuilder;
     }
 
     public static class EdgeClasses {

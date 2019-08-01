@@ -80,6 +80,13 @@ public class BootstrapInstrumentBoost {
             return agentBuilder;
         }
 
+        for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
+            loadHighPriorityClass(classesTypeMap, highPriorityClass);
+        }
+        for (String highPriorityClass : ByteBuddyCoreClasses.CLASSES) {
+            loadHighPriorityClass(classesTypeMap, highPriorityClass);
+        }
+
         /**
          * Prepare to open edge of necessary classes.
          */
@@ -87,21 +94,13 @@ public class BootstrapInstrumentBoost {
             edgeClasses.add(generatedClass);
         }
 
-        for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
-            edgeClasses.add(highPriorityClass);
-            loadHighPriorityClass(classesTypeMap, highPriorityClass);
-        }
-
-        for (String highPriorityClass : ByteBuddyCoreClasses.CLASSES) {
-            loadHighPriorityClass(classesTypeMap, highPriorityClass);
-        }
-
         /**
          * Inject the classes into bootstrap class loader by using Unsafe Strategy.
          * ByteBuddy adapts the sun.misc.Unsafe and jdk.internal.misc.Unsafe automatically.
          */
-        ClassInjector.UsingUnsafe.ofBootLoader().injectRaw(classesTypeMap);
         agentBuilder = agentBuilder.enableUnsafeBootstrapInjection();
+        ClassInjector.UsingUnsafe.ofBootLoader().injectRaw(classesTypeMap);
+
 
         return agentBuilder;
     }

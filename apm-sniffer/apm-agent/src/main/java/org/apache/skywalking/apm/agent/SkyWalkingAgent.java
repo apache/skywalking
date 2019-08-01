@@ -107,7 +107,7 @@ public class SkyWalkingAgent {
         }
 
         try {
-            JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);
+            agentBuilder = JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
             logger.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
             return;
