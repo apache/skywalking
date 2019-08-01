@@ -52,9 +52,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
@@ -74,8 +72,7 @@ public class AgentRebootITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentRebootITCase.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final int retryTimes = 5;
-    private final int retryInterval = 30;
+    private final int retryInterval = 30000;
 
     private SimpleQueryClient queryClient;
     private String instrumentedServiceUrl;
@@ -113,14 +110,29 @@ public class AgentRebootITCase {
     private void doVerify() throws InterruptedException {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
 
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl + "/e2e/users",
-            user,
-            String.class
-        );
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        while (true) {
+            try {
+                final Map<String, String> user = new HashMap<>();
+                user.put("name", "SkyWalking");
+                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+                );
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+                final List<Trace> traces = queryClient.traces(
+                    new TracesQuery()
+                        .start(minutesAgo)
+                        .end(LocalDateTime.now())
+                        .orderByDuration()
+                );
+                if (!traces.isEmpty()) {
+                    break;
+                }
+                Thread.sleep(10000L);
+            } catch (Exception ignored) {
+            }
+        }
 
         doRetryableVerification(() -> {
             try {
@@ -295,11 +307,11 @@ public class AgentRebootITCase {
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
-        tracesMatcher.verify(traces);
+        tracesMatcher.verifyLoosely(traces);
     }
 
     private void doRetryableVerification(Runnable runnable) throws InterruptedException {
-        for (int i = 0; i < retryTimes; i++) {
+        while (true) {
             try {
                 runnable.run();
                 break;

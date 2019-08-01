@@ -22,6 +22,4 @@
 
 endpoints:
   - key: not null
-    label: /e2e/health-check
-  - key: not null
     label: /e2e/users
