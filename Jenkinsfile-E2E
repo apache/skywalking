@@ -62,6 +62,12 @@ pipeline {
                         sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner -am verify'
                     }
                 }
+
+                stage('Run Agent Reboot Tests') {
+                    steps {
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-agent-reboot -am verify'
+                    }
+                }
             }
         }
     }
