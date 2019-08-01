@@ -93,7 +93,7 @@
                                 <volumes>
                                     <bind>
                                         <volume>
-                                            ${project.basedir}/../../../dist/apache-skywalking-apm-bin:/sw
+                                            ${project.basedir}/../../../dist-for-agent-reboot/apache-skywalking-apm-bin:/sw
                                         </volume>
                                         <volume>
                                             ${project.build.directory}:/home

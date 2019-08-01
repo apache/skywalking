@@ -45,7 +45,11 @@ pipeline {
                 // thus save unnecessary E2E builds(which is expensive)
                 sh './mvnw checkstyle:check apache-rat:check'
                 sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean package'
-                sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
+                // Some of the tests will modify files in the distribution folder, e.g. cluster test will modify the application.yml
+                // so we give each test a separate distribution folder here
+                sh 'mkdir -p dist-for-single-node-service && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-single-node-service'
+                sh 'mkdir -p dist-for-cluster && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-cluster'
+                sh 'mkdir -p dist-for-agent-reboot && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-agent-reboot'
             }
         }
 
@@ -84,8 +88,8 @@ pipeline {
             // the container can not be deleted by `deleteDir()`, we need to mount it again and delete them
             // inside the container
             //
-            // Delete `/dist` folder
-            sh 'docker run -v $(pwd)/dist:/sw alpine sleep 10 && rm -rf /sw/*'
+            // Delete all distribution folder
+            sh 'docker run -v $(pwd):/sw alpine sleep 10 && rm -rf /sw/dist-for-cluster/* /sw/dist-for-single-node-service/* /sw/dist-for-agent-reboot/*'
             deleteDir()
         }
     }
