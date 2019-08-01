@@ -49,7 +49,7 @@ public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginD
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
+                    return named("execute").or(ElementMatchers.named("run").and(ElementMatchers.not(ElementMatchers.isFinal())));
                 }
 
                 @Override public String getMethodsInterceptor() {
