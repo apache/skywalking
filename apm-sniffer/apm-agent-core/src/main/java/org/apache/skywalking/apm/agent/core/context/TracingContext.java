@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
@@ -453,7 +454,7 @@ public class TracingContext implements AbstractTracerContext {
         try {
             if (activeSpanStack.isEmpty() && running && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
-                /**
+                /*
                  * Recheck the segment if the segment contains only one span.
                  * Because in the runtime, can't sure this segment is part of distributed trace.
                  *
@@ -464,6 +465,16 @@ public class TracingContext implements AbstractTracerContext {
                         finishedSegment.setIgnore(true);
                     }
                 }
+
+                /*
+                 * Check that the segment is created after the agent (re-)registered to backend,
+                 * otherwise the segment may be created when the agent is still rebooting and should
+                 * be ignored
+                 */
+                if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTERED_TIME) {
+                    finishedSegment.setIgnore(true);
+                }
+
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);
 
                 running = false;

@@ -29,6 +29,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
 
+import static java.util.Objects.isNull;
+
 /**
  * @author peng-yongsheng
  */
@@ -55,6 +57,10 @@ class TopologyBuilder {
         for (Call.CallDetail clientCall : serviceRelationClientCalls) {
             ServiceInventory source = serviceInventoryCache.get(clientCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(clientCall.getTarget());
+
+            if (isNull(source) || isNull(target)) {
+                continue;
+            }
 
             if (target.getMappingServiceId() != Const.NONE) {
                 continue;
@@ -93,6 +99,10 @@ class TopologyBuilder {
         for (Call.CallDetail serverCall : serviceRelationServerCalls) {
             ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(serverCall.getTarget());
+
+            if (isNull(source) || isNull(target)) {
+                continue;
+            }
 
             if (source.getSequence() == Const.USER_SERVICE_ID) {
                 if (!nodes.containsKey(source.getSequence())) {
