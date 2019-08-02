@@ -23,6 +23,9 @@ The agent release dist is included in Apache [official release](http://skywalkin
     +-- optional-plugins
          apm-gson-2.x-plugin.jar
          .....
+    +-- bootstrap-plugins
+         jdk-http-plugin.jar
+         .....
     +-- logs
     skywalking-agent.jar
 ```
@@ -71,10 +74,11 @@ property key | Description | Default |
 `agent.active_v2_header`|Active V2 header in default.|`true`|
 `agent.instance_uuid` |Instance uuid is the identity of an instance, skywalking treat same instance uuid as one instance.if empty, skywalking agent will generate an 32-bit uuid.   |`""`|
 `agent.cause_exception_depth`|How depth the agent goes, when log all cause exceptions.|`5`|
-`agent.active_v1_header `|Deactive V1 header in default.|`false`|
+`agent.active_v1_header `|Deactivate V1 header in default.|`false`|
+`agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
-`collector.backend_service`|Collector skywalking trace receiver service addresses.|`127.0.0.1:11800`|
+`collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
@@ -116,7 +120,7 @@ All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins ar
 * Use gRPC TLS to link backend. See [open TLS](TLS.md)
 * Monitor a big cluster by different SkyWalking services. Use [Namespace](Namespace.md) to isolate the context propagation. 
 * Set client [token](Token-auth.md) if backend open [token authentication](../../backend/backend-token-auth.md).
-* Application Toolkit, are a collection of libraries, provided by skywalking APM. Using them, you have a bridge between your application and skywalking APM agent. 
+* Application Toolkit, are a collection of libraries, provided by SkyWalking APM. Using them, you have a bridge between your application and SkyWalking APM agent. 
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
     * If you want to print trace context(e.g. traceId) in your logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
 [log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)

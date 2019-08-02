@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.commands.CommandService;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
@@ -36,6 +37,7 @@ import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
+import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 import org.apache.skywalking.apm.network.register.v2.Service;
@@ -61,6 +63,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
     private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
     private volatile ServiceInstancePingGrpc.ServiceInstancePingBlockingStub serviceInstancePingStub;
     private volatile ScheduledFuture<?> applicationRegisterFuture;
+    private volatile long coolDownStartTime = -1;
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
@@ -107,6 +110,18 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
     @Override
     public void run() {
         logger.debug("ServiceAndEndpointRegisterClient running, status:{}.", status);
+
+        if (coolDownStartTime > 0) {
+            final long coolDownDurationInMillis = TimeUnit.MINUTES.toMillis(Config.Agent.COOL_DOWN_THRESHOLD);
+            if (System.currentTimeMillis() - coolDownStartTime < coolDownDurationInMillis) {
+                logger.warn("The agent is cooling down, won't register itself");
+                return;
+            } else {
+                logger.warn("The agent is re-registering itself to backend");
+            }
+        }
+        coolDownStartTime = -1;
+
         boolean shouldTry = true;
         while (GRPCChannelStatus.CONNECTED.equals(status) && shouldTry) {
             shouldTry = false;
@@ -142,11 +157,13 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                                     int serviceInstanceId = serviceInstance.getValue();
                                     if (serviceInstanceId != DictionaryUtil.nullValue()) {
                                         RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = serviceInstanceId;
+                                        RemoteDownstreamConfig.Agent.INSTANCE_REGISTERED_TIME = System.currentTimeMillis();
                                     }
                                 }
                             }
                         } else {
-                            serviceInstancePingStub.withDeadlineAfter(10, TimeUnit.SECONDS).doPing(ServiceInstancePingPkg.newBuilder()
+                            final Commands commands = serviceInstancePingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
+                                .doPing(ServiceInstancePingPkg.newBuilder()
                                 .setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID)
                                 .setTime(System.currentTimeMillis())
                                 .setServiceInstanceUUID(INSTANCE_UUID)
@@ -154,6 +171,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub.withDeadlineAfter(10, TimeUnit.SECONDS));
                             EndpointNameDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub.withDeadlineAfter(10, TimeUnit.SECONDS));
+                            ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                         }
                     }
                 }
@@ -162,5 +180,9 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }
+    }
+
+    public void coolDown() {
+        this.coolDownStartTime = System.currentTimeMillis();
     }
 }

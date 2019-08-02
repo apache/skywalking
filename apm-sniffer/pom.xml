@@ -34,6 +34,7 @@
         <module>apm-sdk-plugin</module>
         <module>apm-toolkit-activation</module>
         <module>apm-test-tools</module>
+        <module>bootstrap-plugins</module>
         <module>optional-plugins</module>
     </modules>
 
