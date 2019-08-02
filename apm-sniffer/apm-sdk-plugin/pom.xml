@@ -75,6 +75,7 @@
         <module>vertx-plugins</module>
         <module>resteasy-plugin</module>
         <module>solrj-7.x-plugin</module>
+        <module>play-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
