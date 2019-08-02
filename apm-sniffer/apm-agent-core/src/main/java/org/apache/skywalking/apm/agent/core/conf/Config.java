@@ -93,6 +93,13 @@ public class Config {
          * How depth the agent goes, when log cause exceptions.
          */
         public static int CAUSE_EXCEPTION_DEPTH = 5;
+
+        /**
+         * How long should the agent wait (in minute)
+         * before re-registering to the OAP server
+         * after receiving reset command
+         */
+        public static int COOL_DOWN_THRESHOLD = 10;
     }
 
     public static class Collector {
