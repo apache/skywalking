@@ -41,6 +41,7 @@ public class HttpFiltersInterceptor implements InstanceMethodsAroundInterceptor,
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Object object = objInst.getSkyWalkingDynamicField();
         if (Objects.nonNull(object) && ret instanceof Seq) {

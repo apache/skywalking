@@ -33,9 +33,11 @@ import play.routing.Router;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 /**
  * @author AI
@@ -44,6 +46,8 @@ import java.util.function.Function;
 @Singleton
 public class TracingFilter extends Filter {
 
+    private final Pattern routePattern = Pattern.compile("\\$(\\w+)\\<\\[\\^/\\]\\+\\>", Pattern.DOTALL);
+
     @Inject
     public TracingFilter(Materializer mat) {
         super(mat);
@@ -51,9 +55,14 @@ public class TracingFilter extends Filter {
 
     @Override
     public CompletionStage<Result> apply(Function<Http.RequestHeader, CompletionStage<Result>> next, Http.RequestHeader request) {
+        HandlerDef def = null;
         try {
-            HandlerDef def = request.attrs().get(Router.Attrs.HANDLER_DEF);
-            ContextCarrier carrier = new ContextCarrier();
+            def = request.attrs().get(Router.Attrs.HANDLER_DEF);
+        } catch (Throwable t) {
+            // ignore get HandlerDef exception
+        }
+        if (Objects.nonNull(def)) {
+            final ContextCarrier carrier = new ContextCarrier();
             CarrierItem items = carrier.items();
             while (items.hasNext()) {
                 items = items.next();
@@ -62,20 +71,24 @@ public class TracingFilter extends Filter {
                     items.setHeadValue(value.get());
                 }
             }
-            String operationName = def.path().replaceAll("<[^/]+>", "");
+            final String operationName = routePattern.matcher(def.path()).replaceAll("{$1}");
             final AbstractSpan span = ContextManager.createEntrySpan(operationName, carrier);
-            Tags.URL.set(span, request.path());
+            final String url = request.host() + request.uri();
+            Tags.URL.set(span, url);
             Tags.HTTP.METHOD.set(span, request.method());
             span.setComponent(ComponentsDefine.PLAY);
             SpanLayer.asHttp(span);
             span.prepareForAsync();
             ContextManager.stopSpan(span);
             return next.apply(request).thenApply(result -> {
+                if (result.status() >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(result.status()));
+                }
                 span.asyncFinish();
                 return result;
             });
-        } catch (Throwable t) {
-            return next.apply(request);
         }
+        return next.apply(request);
     }
 }
