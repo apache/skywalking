@@ -67,7 +67,7 @@ public class GRPCStreamServiceStatus {
             hasWaited += recheckCycle;
 
             if (recheckCycle >= maxCycle) {
-                logger.warn("Collector traceSegment service doesn't response in {} seconds.", hasWaited);
+                logger.warn("Collector traceSegment service doesn't response in {} seconds.", hasWaited / 1000);
             } else {
                 recheckCycle = recheckCycle * 2 > maxCycle ? maxCycle : recheckCycle * 2;
             }
