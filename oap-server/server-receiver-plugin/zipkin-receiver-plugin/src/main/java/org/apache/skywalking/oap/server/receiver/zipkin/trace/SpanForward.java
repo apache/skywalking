@@ -73,7 +73,8 @@ public class SpanForward {
             }
 
             String spanName = span.name();
-            Span.Kind kind = span.kind();
+            //Add default Span.kind to SERVER in case span.kind is null
+            Span.Kind kind = span.kind() == null ? Span.Kind.SERVER : span.kind();
             switch (kind) {
                 case SERVER:
                 case CONSUMER:

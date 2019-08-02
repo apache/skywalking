@@ -145,7 +145,8 @@ public class SegmentBuilder {
         if (!isSegmentRoot && parentSegmentSpan != null) {
             spanBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
         }
-        Span.Kind kind = span.kind();
+        //Add default Span.kind to SERVER in case span.kind is null
+        Span.Kind kind = span.kind() == null ? Span.Kind.SERVER : span.kind();
         String opName = Strings.isNullOrEmpty(span.name()) ? "-" : span.name();
         spanBuilder.setOperationName(opName);
         ClientSideSpan clientSideSpan;

@@ -186,7 +186,8 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             swSpan.setParentSpanId(-1);
             swSpan.setSegmentSpanId(span.id());
             swSpan.setSegmentId(span.id());
-            Span.Kind kind = span.kind();
+            //Add default Span.kind to SERVER in case span.kind is null
+            Span.Kind kind = span.kind() == null ? Span.Kind.SERVER : span.kind();
             switch (kind) {
                 case CLIENT:
                 case PRODUCER:

@@ -69,7 +69,7 @@ public class SpanProcessor {
     private InputStream getInputStream(HttpServletRequest request) throws IOException {
         InputStream requestInStream;
 
-        String headEncoding = request.getHeader("accept-encoding");
+        String headEncoding = request.getHeader("Content-Encoding");
         if (headEncoding != null && (headEncoding.indexOf("gzip") != -1)) {
             requestInStream = new GZIPInputStream(request.getInputStream());
         } else {
