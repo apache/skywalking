@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 /**
  * @author lican
  */
-public class HttpClientNewInstanceInterceptor implements StaticMethodsAroundInterceptor {
+public class HttpsClientNewInstanceInterceptor implements StaticMethodsAroundInterceptor {
 
 
     @Override
@@ -38,7 +38,7 @@ public class HttpClientNewInstanceInterceptor implements StaticMethodsAroundInte
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
         if (ret instanceof EnhancedInstance) {
-            ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[4]);
+            ((EnhancedInstance) ret).setSkyWalkingDynamicField(allArguments[6]);
         }
         return ret;
     }
