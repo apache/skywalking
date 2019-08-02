@@ -23,6 +23,9 @@ The agent release dist is included in Apache [official release](http://skywalkin
     +-- optional-plugins
          apm-gson-2.x-plugin.jar
          .....
+    +-- bootstrap-plugins
+         jdk-http-plugin.jar
+         .....
     +-- logs
     skywalking-agent.jar
 ```

@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>optional-plugins</artifactId>
+    <artifactId>bootstrap-plugins</artifactId>
     <packaging>pom</packaging>
     <properties>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
@@ -34,19 +34,14 @@
 
         <sdk.plugin.related.dir />
         <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
-        <optional.plugin.dest.dir>${agent.package.dest.dir}/optional-plugins</optional.plugin.dest.dir>
+        <bootstrap.plugin.dest.dir>${agent.package.dest.dir}/bootstrap-plugins</bootstrap.plugin.dest.dir>
 
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <ant-nodeps.version>1.8.1</ant-nodeps.version>
     </properties>
 
     <modules>
-        <module>optional-spring-plugins</module>
-        <module>trace-ignore-plugin</module>
-        <module>gson-2.8.x-plugin</module>
-        <module>lettuce-5.x-plugin</module>
-        <module>zookeeper-3.4.x-plugin</module>
-        <module>customize-enhance-plugin</module>
+        <module>jdk-http-plugin</module>
     </modules>
 
     <dependencies>
@@ -109,8 +104,8 @@
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar" />
                                     <then>
-                                        <mkdir dir="${optional.plugin.dest.dir}" />
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${optional.plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
+                                        <mkdir dir="${bootstrap.plugin.dest.dir}" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" tofile="${bootstrap.plugin.dest.dir}/${project.artifactId}-${project.version}.jar" overwrite="true" />
                                     </then>
                                 </if>
                             </tasks>
