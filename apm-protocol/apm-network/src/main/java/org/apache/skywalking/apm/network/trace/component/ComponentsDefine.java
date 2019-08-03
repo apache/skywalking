@@ -126,6 +126,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
 
+    public static final OfficialComponent JDK_HTTP = new OfficialComponent(66, "JdkHttp");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
