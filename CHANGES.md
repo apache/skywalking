@@ -15,7 +15,7 @@ Release Notes.
 * Java agent supports JDK 9 - 12, but don't support Java Module yet.
 * Support JVM class auto instrumentation, cataloged as bootstrap plugin.
 * Support JVM HttpClient and HttpsClient plugin.[Optional]
-* Support backend upgrade with rebooting required.
+* Support backend upgrade without rebooting required.
 * Open Redefine and Retransform by other agents.
 * Support Servlet 2.5 in Jetty, Tomcat and SpringMVC plugins.
 * Add new config item to restrict the length of span#peer.
