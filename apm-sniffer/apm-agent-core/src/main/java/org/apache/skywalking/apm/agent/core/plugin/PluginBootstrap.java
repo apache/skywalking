@@ -66,12 +66,11 @@ public class PluginBootstrap {
         for (PluginDefine pluginDefine : pluginClassList) {
             try {
                 logger.debug("loading plugin class {}.", pluginDefine.getDefineClass());
-                AbstractClassEnhancePluginDefine plugin =
-                    (AbstractClassEnhancePluginDefine)Class.forName(pluginDefine.getDefineClass(),
-                        true,
-                        AgentClassLoader.getDefault())
-                        .newInstance();
-                plugins.add(plugin);
+                final Class<?> cls = Class.forName(pluginDefine.getDefineClass(),
+                    true, AgentClassLoader.getDefault());
+                final String arg = pluginDefine.getConstructorArgument();
+                final Object plugin =  arg == null ? cls.newInstance() : cls.getConstructor(String.class).newInstance(arg);
+                plugins.add((AbstractClassEnhancePluginDefine)plugin);
             } catch (Throwable t) {
                 logger.error(t, "load plugin [{}] failure.", pluginDefine.getDefineClass());
             }

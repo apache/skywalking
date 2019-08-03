@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import org.apache.skywalking.apm.agent.core.plugin.exception.IllegalPluginDefineException;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstanceInstrumentation;
 import org.apache.skywalking.apm.util.StringUtil;
 
 public class PluginDefine {
@@ -32,25 +33,46 @@ public class PluginDefine {
      * The class name of plugin defined.
      */
     private String defineClass;
+    
+    /**
+     * The  string argument of defineClass  constructor
+     */
+    private final String constructorArgument;
 
-    private PluginDefine(String name, String defineClass) {
+    public String getConstructorArgument() {
+        return constructorArgument;
+    }
+
+    private PluginDefine(String name, String defineClass, String constructorArgument) {
         this.name = name;
         this.defineClass = defineClass;
+        this.constructorArgument = constructorArgument;
     }
 
     public static PluginDefine build(String define) throws IllegalPluginDefineException {
         if (StringUtil.isEmpty(define)) {
             throw new IllegalPluginDefineException(define);
         }
-
-        String[] pluginDefine = define.split("=");
-        if (pluginDefine.length != 2) {
+        final int defineIdx = define.indexOf('=');
+        if (defineIdx == -1) {
             throw new IllegalPluginDefineException(define);
         }
-
-        String pluginName = pluginDefine[0];
-        String defineClass = pluginDefine[1];
-        return new PluginDefine(pluginName, defineClass);
+        String pluginName = define.substring(0, defineIdx);
+        String defineClass = define.substring(defineIdx + 1);
+        String arg = null;
+        if (pluginName.endsWith("enhancedInstanceClasses")) {
+            arg = defineClass;
+            defineClass = EnhancedInstanceInstrumentation.class.getName();
+        } else {
+            final int idx = defineClass.indexOf(':');
+            if (idx != -1) {
+                if (defineClass.length() > idx) {
+                    arg = defineClass.substring(idx + 1);
+                }
+                defineClass = defineClass.substring(0,idx);
+            }
+        }
+        return new PluginDefine(pluginName, defineClass,arg);
     }
 
     public String getDefineClass() {
