@@ -42,7 +42,8 @@ public class TestController {
     }
 
     @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) {
+    public User createAuthor(@RequestBody final User user) throws InterruptedException {
+        Thread.sleep(1000L);
         return userRepo.save(user);
     }
 }
