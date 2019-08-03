@@ -38,58 +38,32 @@
 
         <dependency>
             <groupId>io.netty</groupId>
+            <artifactId>netty-codec-dns</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.27.Final</version>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns</artifactId>
-            <version>4.1.27.Final</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.mousio</groupId>
             <artifactId>etcd4j</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>netty-codec-dns</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-
-                <exclusion>
-                    <artifactId>netty-codec-dns</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-
-                <exclusion>
-                    <artifactId>netty-codec-http</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-
-                <exclusion>
-                    <artifactId>netty-handler</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-
-                <exclusion>
-                    <artifactId>netty-resolver-dns</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-afterburner</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-afterburner</artifactId>
-            <version>2.9.5</version>
         </dependency>
 
     </dependencies>
