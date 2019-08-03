@@ -25,6 +25,7 @@ Release Notes.
 * Fix gRPC reconnect bug.
 * Fix trace segment service doesn't report `onComplete`.
 * Fix wrong logger class name.
+* Fix gRPC plugin bug.
 
 #### Backend
 * Support agent reset command downstream when the storage is erased, mostly because of backend upgrade.
