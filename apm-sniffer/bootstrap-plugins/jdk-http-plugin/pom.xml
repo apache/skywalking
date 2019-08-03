@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -17,29 +16,31 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
+        <artifactId>bootstrap-plugins</artifactId>
         <version>6.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-sniffer</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>apm-jdk-http-plugin</artifactId>
+    <packaging>jar</packaging>
 
-    <modules>
-        <module>apm-agent</module>
-        <module>apm-agent-core</module>
-        <module>apm-sdk-plugin</module>
-        <module>apm-toolkit-activation</module>
-        <module>apm-test-tools</module>
-        <module>bootstrap-plugins</module>
-        <module>optional-plugins</module>
-    </modules>
+    <name>apm-jdk-http-plugin</name>
+    <url>http://maven.apache.org</url>
 
     <properties>
-        <compiler.version>1.6</compiler.version>
-        <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
