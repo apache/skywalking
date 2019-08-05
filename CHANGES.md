@@ -18,6 +18,7 @@ Release Notes.
 * Support backend upgrade without rebooting required.
 * Open Redefine and Retransform by other agents.
 * Support Servlet 2.5 in Jetty, Tomcat and SpringMVC plugins.
+* Support Spring @Async plugin.
 * Add new config item to restrict the length of span#peer.
 * Refactor `ContextManager#stopSpan`.
 * Add gRPC timeout.
@@ -26,6 +27,7 @@ Release Notes.
 * Fix trace segment service doesn't report `onComplete`.
 * Fix wrong logger class name.
 * Fix gRPC plugin bug.
+* Fix `ContextManager.activeSpan()` API usage error.
 
 #### Backend
 * Support agent reset command downstream when the storage is erased, mostly because of backend upgrade.
@@ -41,7 +43,6 @@ Release Notes.
 * Add the new OAL runtime engine.
 * Add gRPC timeout.
 * Add Charset in the alarm web hook.
-* Support Spring @Async plugin.
 * Fix buffer lost.
 * Fix dirty read in ElasticSearch storage.
 * Fix bug of cluster management plugins in un-Mixed mode.
@@ -84,7 +85,7 @@ All issues and pull requests are [here](https://github.com/apache/skywalking/mil
 * Support collect SQL parameter in MySQL plugin.[Optional]
 * Support SolrJ plugin.
 * Support RESTEasy plugin.
-* Support Spring Gateway plugin for 2.1.x
+* Support Spring Gateway plugin for 2.1.x[Optional]
 * TracingContext performance improvement.
 * Support Apache ShardingSphere(incubating) plugin.
 * Support `span#error` in application toolkit.
