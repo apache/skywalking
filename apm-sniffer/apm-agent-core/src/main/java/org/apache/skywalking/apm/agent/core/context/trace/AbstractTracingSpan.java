@@ -333,7 +333,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             throw new RuntimeException("Prepare for async repeatedly. Span is already in async mode.");
         }
         context = ContextManager.awaitFinishAsync(this);
-        isAsyncStopped = true;
+        isInAsyncMode = true;
         return this;
     }
 
