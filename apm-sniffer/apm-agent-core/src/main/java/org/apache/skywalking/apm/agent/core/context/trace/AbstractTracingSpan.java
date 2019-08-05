@@ -325,7 +325,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     @Override public AbstractSpan prepareForAsync() {
         if (inAsyncMode) {
-            throw new RuntimeException("Span is already  in async mode, please do not  call '#prepareForAsync'  more than on the same span!");
+            throw new RuntimeException("Prepare for async repeatedly. Span is already in async mode.");
         }
         context = ContextManager.awaitFinishAsync(this);
         inAsyncMode = true;
@@ -337,7 +337,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
         if (asyncStop) {
-            throw new RuntimeException("Can not invoke '#asyncFinish' more than once on  the same span!");
+            throw new RuntimeException("Can not do async finish for the span repeately.");
         }
         this.endTime = System.currentTimeMillis();
         context.asyncStop(this);
