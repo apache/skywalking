@@ -39,7 +39,7 @@ public class JVMSourceDispatcher {
 
     public JVMSourceDispatcher(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
     void sendMetric(int serviceInstanceId, long minuteTimeBucket, JVMMetric metrics) {
@@ -48,7 +48,7 @@ public class JVMSourceDispatcher {
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceId = serviceInstanceInventory.getServiceId();
         } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't find service by service instance id from cache, service instance id is: {}", serviceInstanceId);
             return;
         }
 

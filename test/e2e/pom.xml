@@ -35,6 +35,7 @@
         <module>e2e-base</module>
         <module>e2e-single-service</module>
         <module>e2e-cluster</module>
+        <module>e2e-agent-reboot</module>
     </modules>
 
     <properties>

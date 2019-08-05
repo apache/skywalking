@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 /**
  * @author zhang xin
  */
-public class BlockingCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
+public class BlockingCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall implements CallClientInterceptor {
 
     private final MethodDescriptor methodDescriptor;
     private final Channel channel;
