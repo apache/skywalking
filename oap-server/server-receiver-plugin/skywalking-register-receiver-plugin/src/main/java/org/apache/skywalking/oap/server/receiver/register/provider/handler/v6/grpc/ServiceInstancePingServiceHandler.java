@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc;
 
 import io.grpc.stub.StreamObserver;
-import java.util.Objects;
+import org.apache.skywalking.apm.network.common.Command;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingGrpc;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingPkg;
+import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -32,6 +34,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * @author wusheng
@@ -42,11 +46,13 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
+    private final CommandService commandService;
 
     public ServiceInstancePingServiceHandler(ModuleManager moduleManager) {
         this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
         this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+        this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
     }
 
     @Override public void doPing(ServiceInstancePingPkg request, StreamObserver<Commands> responseObserver) {
@@ -57,11 +63,17 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
         ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
+            responseObserver.onNext(Commands.getDefaultInstance());
         } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't find service by service instance id from cache," +
+                " service instance id is: {}, will send a reset command to agent side", serviceInstanceId);
+
+            final ServiceResetCommand resetCommand = commandService.newResetCommand(request.getServiceInstanceId(), request.getTime(), request.getServiceInstanceUUID());
+            final Command command = resetCommand.serialize().build();
+            final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
+            responseObserver.onNext(nextCommands);
         }
 
-        responseObserver.onNext(Commands.getDefaultInstance());
         responseObserver.onCompleted();
     }
 }
