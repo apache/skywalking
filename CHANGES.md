@@ -52,6 +52,7 @@ Release Notes.
 * Totally remove `IDs can't be null` log, to avoid misleading.
 * Fix provider has been initialized repeatedly.
 * Adjust providers conflict log message.
+* Fix using wrong gc time metrics in OAL.
 
 #### UI
 * Fix refresh is not working after endpoint and instance changed.
