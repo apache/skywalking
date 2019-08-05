@@ -43,7 +43,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     /**
      * The span has been tagged in async mode, required async stop to finish.
      */
-    protected boolean isInAsyncMode = false;
+    protected volatile boolean isInAsyncMode = false;
     /**
      * The flag represents whether the span has been async stopped
      */
