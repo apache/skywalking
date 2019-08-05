@@ -125,8 +125,9 @@ All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins ar
 * If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
 
 ## Java Platform Module System (JPMS)
-Since Java 9, JDK introduces a new level of abstraction above packages, formally known as the Java Platform Module System (JPMS), or “Modules” for short.
-If you are using this JDK feature, add `--add-modules jdk.unsupported` to the JVM argument if your application hasn't require `jdk.unsupported`.
+Since Java 9, JDK introduced a new level of abstraction above packages, formally known as the Java Platform Module System (JPMS), or “Modules” for short.
+When you are using this JDK feature, add `--add-modules jdk.unsupported` to the JVM argument, 
+if your application hasn't require `jdk.unsupported`, such as log output showing `Caused by: java.lang.ClassNotFoundException: sun.misc.Unsafe`.
 
 ## Plugin Development Guide
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
