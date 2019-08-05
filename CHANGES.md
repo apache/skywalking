@@ -18,6 +18,7 @@ Release Notes.
 * Support backend upgrade without rebooting required.
 * Open Redefine and Retransform by other agents.
 * Support Servlet 2.5 in Jetty, Tomcat and SpringMVC plugins.
+* Support Spring @Async plugin.
 * Add new config item to restrict the length of span#peer.
 * Refactor `ContextManager#stopSpan`.
 * Add gRPC timeout.
@@ -26,7 +27,7 @@ Release Notes.
 * Fix trace segment service doesn't report `onComplete`.
 * Fix wrong logger class name.
 * Fix gRPC plugin bug.
-* Support Spring @Async plugin.
+* Fix `ContextManager.activeSpan()` API usage error.
 
 #### Backend
 * Support agent reset command downstream when the storage is erased, mostly because of backend upgrade.
