@@ -422,6 +422,7 @@
 
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
+                        <exclude>tools/dependencies/known-dependencies.txt</exclude>
                     </excludes>
                 </configuration>
                 <executions>
