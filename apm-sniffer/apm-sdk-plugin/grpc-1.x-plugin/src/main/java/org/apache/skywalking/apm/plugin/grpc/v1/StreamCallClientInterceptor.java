@@ -43,14 +43,18 @@ import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.f
 /**
  * @author zhangxin
  */
-public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall {
+public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForwardingClientCall implements CallClientInterceptor {
 
     private final String serviceName;
     private final String remotePeer;
     private final String operationPrefix;
+    private final Channel channel;
+    private final MethodDescriptor methodDescriptor;
 
     protected StreamCallClientInterceptor(ClientCall delegate, MethodDescriptor method, Channel channel) {
         super(delegate);
+        this.channel = channel;
+        this.methodDescriptor = method;
         this.serviceName = formatOperationName(method);
         this.remotePeer = channel.authority();
         this.operationPrefix = OperationNameFormatUtil.formatOperationName(method) + CLIENT;
@@ -72,6 +76,16 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
         ContextManager.stopSpan();
     }
 
+    @Override
+    public Channel getChannel() {
+        return channel;
+    }
+
+    @Override
+    public MethodDescriptor getMethodDescriptor() {
+        return methodDescriptor;
+    }
+
     private class CallListener extends ForwardingClientCallListener.SimpleForwardingClientCallListener {
 
         private final ContextSnapshot contextSnapshot;
@@ -81,15 +95,18 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
             this.contextSnapshot = contextSnapshot;
         }
 
-        @Override public void onReady() {
+        @Override
+        public void onReady() {
             delegate().onReady();
         }
 
-        @Override public void onHeaders(Metadata headers) {
+        @Override
+        public void onHeaders(Metadata headers) {
             delegate().onHeaders(headers);
         }
 
-        @Override public void onMessage(Object message) {
+        @Override
+        public void onMessage(Object message) {
             try {
                 ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME);
                 ContextManager.continued(contextSnapshot);
@@ -101,11 +118,12 @@ public class StreamCallClientInterceptor extends ForwardingClientCall.SimpleForw
             }
         }
 
-        @Override public void onClose(Status status, Metadata trailers) {
+        @Override
+        public void onClose(Status status, Metadata trailers) {
             try {
                 if (!status.isOk()) {
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME);
-                    abstractSpan.errorOccurred().log(status.getCause());
+                    abstractSpan.errorOccurred().log(status.asRuntimeException());
                     Tags.STATUS_CODE.set(abstractSpan, status.getCode().name());
                 } else {
                     AbstractSpan abstractSpan = ContextManager.createLocalSpan(operationPrefix + STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME);

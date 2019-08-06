@@ -2,6 +2,75 @@ Changes by Version
 ==================
 Release Notes.
 
+6.3.0
+------------------
+
+#### Project
+* e2e tests have been added, and verify every pull request.
+* Use ArrayList to replace LinkedList in DataCarrier for much better performance.
+* Add plugin instrumentation definition check in CI.
+* DataCarrier performance improvement by avoiding false-sharing.
+
+#### Java Agent
+* Java agent supports JDK 9 - 12, but don't support Java Module yet.
+* Support JVM class auto instrumentation, cataloged as bootstrap plugin.
+* Support JVM HttpClient and HttpsClient plugin.[Optional]
+* Support backend upgrade without rebooting required.
+* Open Redefine and Retransform by other agents.
+* Support Servlet 2.5 in Jetty, Tomcat and SpringMVC plugins.
+* Support Spring @Async plugin.
+* Add new config item to restrict the length of span#peer.
+* Refactor `ContextManager#stopSpan`.
+* Add gRPC timeout.
+* Support Logback AsyncAppender print tid 
+* Fix gRPC reconnect bug.
+* Fix trace segment service doesn't report `onComplete`.
+* Fix wrong logger class name.
+* Fix gRPC plugin bug.
+* Fix `ContextManager.activeSpan()` API usage error.
+
+#### Backend
+* Support agent reset command downstream when the storage is erased, mostly because of backend upgrade.
+* Backend stream flow refactor.
+* High dimensionality metrics(Hour/Day/Month) are changed to lower priority, to ease the storage payload.
+* Add OAP metrics cache to ease the storage query payload and improve performance.
+* Remove DataCarrier in trace persistent of ElasticSearch storage, by leveraging the elasticsearch bulk queue.
+* OAP internal communication protocol changed. Don't be compatible with old releases.
+* Improve ElasticSearch storage bulk performance.
+* Support etcd as dynamic configuration center.
+* Simplify the PxxMetrics and ThermodynamicMetrics functions for better performance and GC.
+* Support JVM metrics self observability.
+* Add the new OAL runtime engine.
+* Add gRPC timeout.
+* Add Charset in the alarm web hook.
+* Fix buffer lost.
+* Fix dirty read in ElasticSearch storage.
+* Fix bug of cluster management plugins in un-Mixed mode.
+* Fix wrong logger class name.
+* Fix delete bug in ElasticSearch when using namespace.
+* Fix MySQL TTL failure.
+* Totally remove `IDs can't be null` log, to avoid misleading.
+* Fix provider has been initialized repeatedly.
+* Adjust providers conflict log message.
+* Fix using wrong gc time metrics in OAL.
+
+#### UI
+* Fix refresh is not working after endpoint and instance changed.
+* Fix endpoint selector but.
+* Fix wrong copy value in slow traces.
+* Fix can't show trace when it is broken partially(Because of agent sampling or fail safe).
+* Fix database and response time graph bugs.
+
+#### Document
+* Add bootstrap plugin development document.
+* Alarm documentation typo fixed.
+* Clarify the Docker file purpose.
+* Fix a license typo.
+
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/34?closed=1)
+
+
 6.2.0
 ------------------
 
@@ -16,7 +85,7 @@ Release Notes.
 * Support collect SQL parameter in MySQL plugin.[Optional]
 * Support SolrJ plugin.
 * Support RESTEasy plugin.
-* Support Spring Gateway plugin for 2.1.x
+* Support Spring Gateway plugin for 2.1.x[Optional]
 * TracingContext performance improvement.
 * Support Apache ShardingSphere(incubating) plugin.
 * Support `span#error` in application toolkit.
