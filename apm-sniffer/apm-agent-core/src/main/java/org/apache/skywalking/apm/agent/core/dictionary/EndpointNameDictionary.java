@@ -91,6 +91,10 @@ public enum EndpointNameDictionary {
         }
     }
 
+    public void clear() {
+        endpointDictionary.clear();
+    }
+
     private class OperationNameKey {
         private int serviceId;
         private String endpointName;

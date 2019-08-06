@@ -72,6 +72,8 @@ public class TraceSegment {
 
     private boolean isSizeLimited = false;
 
+    private final long createTime;
+
     /**
      * Create a default/empty trace segment, with current time as start time, and generate a new segment id.
      */
@@ -80,6 +82,7 @@ public class TraceSegment {
         this.spans = new LinkedList<AbstractTracingSpan>();
         this.relatedGlobalTraces = new DistributedTraceIds();
         this.relatedGlobalTraces.append(new NewDistributedTraceId());
+        this.createTime = System.currentTimeMillis();
     }
 
     /**
@@ -194,5 +197,9 @@ public class TraceSegment {
 
     public int getApplicationInstanceId() {
         return RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
+    }
+
+    public long createTime() {
+        return this.createTime;
     }
 }

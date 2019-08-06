@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -77,6 +78,8 @@ public class CoreModule extends ModuleDefine {
         addRegisterService(classes);
         addCacheService(classes);
         addQueryService(classes);
+
+        classes.add(CommandService.class);
 
         return classes.toArray(new Class[] {});
     }
