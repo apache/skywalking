@@ -29,4 +29,4 @@ grep -vf self-modules.txt all-dependencies.txt | sort > third-party-dependencies
 # Compare the third-party dependencies with known dependencies, expect that
 # all third-party dependencies are KNOWN and the exit code of the command is 0,
 # otherwise we should add its license to LICENSE file and add the dependency to known-oap-backend-dependencies.txt
-diff -U0 tools/dependencies/known-oap-backend-dependencies.txt third-party-dependencies.txt
+diff -w -B -U0 tools/dependencies/known-oap-backend-dependencies.txt third-party-dependencies.txt
