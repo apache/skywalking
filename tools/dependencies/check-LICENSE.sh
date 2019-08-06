@@ -19,12 +19,12 @@
 
 # List all modules(jars) that belong to the SkyWalking itself, these will be ignored
 # when checking the dependency licenses
-./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
+./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q | sort > self-modules.txt
 
-ls dist/apache-skywalking-apm-bin/oap-libs > all-dependencies.txt
+ls dist/apache-skywalking-apm-bin/oap-libs | sort > all-dependencies.txt
 
 # Exclude all self modules(jars) to generate all third-party dependencies
-grep -vf self-modules.txt all-dependencies.txt > third-party-dependencies.txt
+grep -vf self-modules.txt all-dependencies.txt | sort > third-party-dependencies.txt
 
 # Compare the third-party dependencies with known dependencies, expect that
 # all third-party dependencies are KNOWN and the exit code of the command is 0,
