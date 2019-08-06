@@ -37,7 +37,7 @@
         <jetty.version>9.4.2.v20170220</jetty.version>
         <grpc.version>1.14.0</grpc.version>
         <guava.version>20.0</guava.version>
-        <bytebuddy.version>1.9.2</bytebuddy.version>
+        <bytebuddy.version>1.9.16</bytebuddy.version>
         <disruptor.version>3.3.6</disruptor.version>
         <wiremock.version>2.6.0</wiremock.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>

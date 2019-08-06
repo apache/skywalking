@@ -1,4 +1,5 @@
 # Setup java agent
+1. Agent is available for JDK 1.6 - 12.
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
@@ -19,8 +20,10 @@ The agent release dist is included in Apache [official release](http://skywalkin
          apm-feign-default-http-9.x.jar
          apm-httpClient-4.x-plugin.jar
          .....
-    +--- bootstrapJarTmp
-    +--- logs
+    +-- optional-plugins
+         apm-gson-2.x-plugin.jar
+         .....
+    +-- logs
     skywalking-agent.jar
 ```
 
@@ -107,8 +110,6 @@ Now, we have the following known optional plugins.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
-
-**Make sure `bootstrapJarTmp` writable by agent, which is required by bootstrap instrumentation. New temp jar files will be generated there.**.
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
