@@ -66,8 +66,7 @@ pipeline {
 
                         stage('Check Dependencies Licenses') {
                             steps {
-                                sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean package'
-                                sh 'mkdir -p dist && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
+                                sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
                                 sh 'tools/dependencies/check-LICENSE.sh'
                             }
                         }
