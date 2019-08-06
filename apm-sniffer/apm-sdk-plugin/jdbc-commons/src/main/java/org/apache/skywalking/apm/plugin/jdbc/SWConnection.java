@@ -37,20 +37,42 @@ import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.apache.skywalking.apm.plugin.jdbc.trace.SWCallableStatement;
 import org.apache.skywalking.apm.plugin.jdbc.trace.SWPreparedStatement;
-import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 import org.apache.skywalking.apm.plugin.jdbc.trace.SWStatement;
 
 public class SWConnection implements Connection {
-    private ConnectionInfo connectInfo;
+    private final ConnectionInfo connectInfo;
     private final Connection realConnection;
 
     public SWConnection(String url, Properties info, Connection realConnection) {
+        this(url,realConnection);
+    }
+    public SWConnection(String url, Connection realConnection) {
+        this(getConnectionInfo(url, realConnection),realConnection);
+    }
+    public SWConnection(ConnectionInfo connectInfo, Connection realConnection) {
         super();
-        this.connectInfo = URLParser.parser(url);
+        this.connectInfo = connectInfo;
         this.realConnection = realConnection;
+    }
+    protected  static ConnectionInfo getConnectionInfo(String url, Connection realConnection) {
+        ConnectionInfo connectInfo;
+        if (realConnection instanceof EnhancedInstance) {
+            final EnhancedInstance o = (EnhancedInstance)realConnection;
+            connectInfo = (ConnectionInfo) o.getSkyWalkingDynamicField();
+            if (connectInfo == null) {
+                connectInfo = URLParser.parser(url);
+                o.setSkyWalkingDynamicField(connectInfo);
+            }
+        } else {
+            connectInfo = URLParser.parser(url);
+        }
+        return connectInfo;
     }
 
     public <T> T unwrap(Class<T> iface) throws SQLException {
