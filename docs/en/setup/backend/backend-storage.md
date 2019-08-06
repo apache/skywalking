@@ -56,7 +56,7 @@ storage:
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
 
-###ElasticsearchS server settings
+### Elasticearch server settings
 Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. 
 And recommend read more about these configuration from ElasticSearch official document. 
 This effects the performance of ElasticSearch very much.
