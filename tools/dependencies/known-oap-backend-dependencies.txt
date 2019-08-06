@@ -1,5 +1,3 @@
-HdrHistogram-2.1.9.jar
-HikariCP-3.1.0.jar
 aggs-matrix-stats-client-6.3.2.jar
 animal-sniffer-annotations-1.17.jar
 annotations-13.0.jar
@@ -52,6 +50,8 @@ gson-2.8.1.jar
 guava-20.0.jar
 guice-4.1.0.jar
 h2-1.4.196.jar
+HdrHistogram-2.1.9.jar
+HikariCP-3.1.0.jar
 hppc-0.7.1.jar
 httpasyncclient-4.1.2.jar
 httpclient-4.5.2.jar
