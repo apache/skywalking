@@ -15,8 +15,10 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.undertow.v2x.util;
+package org.apache.skywalking.apm.plugin.undertow.v2x.handler;
 
+import io.undertow.server.ExchangeCompletionListener;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderMap;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
@@ -26,50 +28,61 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.skywalking.apm.plugin.undertow.v2x.Constants;
 
 /**
  * @author AI
- * 2019-07-26
+ * 2019-08-06
  */
-public class TraceContextUtils {
+public class TracingHandler implements HttpHandler {
+    private final String template;
+    private final HttpHandler next;
 
-    private static final AtomicBoolean IS_IN_ROUTING_HANDLER_TRACE = new AtomicBoolean(false);
-
-    private TraceContextUtils() {
+    public TracingHandler(HttpHandler handler) {
+        this(null, handler);
     }
 
-    public static ContextCarrier buildContextCarrier(HeaderMap headers) {
-        ContextCarrier carrier = new ContextCarrier();
+
+    public TracingHandler(String template, HttpHandler handler) {
+        this.next = handler;
+        this.template = template;
+    }
+
+    @Override
+    public void handleRequest(HttpServerExchange exchange) throws Exception {
+        final HeaderMap headers = exchange.getRequestHeaders();
+        final ContextCarrier carrier = new ContextCarrier();
         CarrierItem items = carrier.items();
         while (items.hasNext()) {
             items = items.next();
             items.setHeadValue(headers.getFirst(items.getHeadKey()));
         }
-        return carrier;
-    }
-
-    public static AbstractSpan buildUndertowEntrySpan(HttpServerExchange exchange, String operationName) {
-        ContextCarrier carrier = TraceContextUtils.buildContextCarrier(exchange.getRequestHeaders());
+        String operationName;
+        if (null == template) {
+            operationName = exchange.getRequestPath();
+        } else {
+            operationName = template;
+        }
         final AbstractSpan span = ContextManager.createEntrySpan(operationName, carrier);
         Tags.URL.set(span, exchange.getRequestURL());
         Tags.HTTP.METHOD.set(span, exchange.getRequestMethod().toString());
         span.setComponent(ComponentsDefine.UNDERTOW);
         SpanLayer.asHttp(span);
-        return span;
-    }
-
-    public static void enabledRoutingHandlerTracing() {
-        IS_IN_ROUTING_HANDLER_TRACE.set(true);
-    }
-
-    public static boolean isInRoutingHandlerTracing() {
-        return IS_IN_ROUTING_HANDLER_TRACE.get();
-    }
-
-    public static boolean isNotInRoutingHandlerTracing() {
-        return !isInRoutingHandlerTracing();
+        span.prepareForAsync();
+        exchange.addExchangeCompleteListener(new ExchangeCompletionListener() {
+            @Override
+            public void exchangeEvent(HttpServerExchange httpServerExchange, NextListener nextListener) {
+                if (httpServerExchange.getStatusCode() >= 400) {
+                    span.errorOccurred();
+                    Tags.STATUS_CODE.set(span, Integer.toString(httpServerExchange.getStatusCode()));
+                }
+                span.asyncFinish();
+                nextListener.proceed();
+            }
+        });
+        next.handleRequest(exchange);
+        ContextManager.stopSpan(span);
+        ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
     }
 
 }

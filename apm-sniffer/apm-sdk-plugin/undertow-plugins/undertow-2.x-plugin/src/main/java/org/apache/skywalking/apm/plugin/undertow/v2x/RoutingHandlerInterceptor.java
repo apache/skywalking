@@ -17,16 +17,12 @@
  */
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
-import io.undertow.server.ExchangeCompletionListener;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.undertow.v2x.util.TraceContextUtils;
+import org.apache.skywalking.apm.plugin.undertow.v2x.handler.TracingHandler;
 
 import java.lang.reflect.Method;
 
@@ -50,7 +46,6 @@ public class RoutingHandlerInterceptor implements InstanceMethodsAroundIntercept
             HttpHandler handler = (HttpHandler) allArguments[httpHandlerIndex];
             String template = (String) allArguments[1];
             allArguments[httpHandlerIndex] = new TracingHandler(template, handler);
-            TraceContextUtils.enabledRoutingHandlerTracing();
         }
     }
 
@@ -62,35 +57,6 @@ public class RoutingHandlerInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
-    }
-
-    static class TracingHandler implements HttpHandler {
-        private final String template;
-        private final HttpHandler next;
-
-        TracingHandler(String template, HttpHandler handler) {
-            this.next = handler;
-            this.template = template;
-        }
-
-        @Override
-        public void handleRequest(HttpServerExchange exchange) throws Exception {
-            final AbstractSpan span = TraceContextUtils.buildUndertowEntrySpan(exchange, template);
-            span.prepareForAsync();
-            exchange.addExchangeCompleteListener(new ExchangeCompletionListener() {
-                @Override
-                public void exchangeEvent(HttpServerExchange httpServerExchange, NextListener nextListener) {
-                    if (httpServerExchange.getStatusCode() >= 400) {
-                        span.errorOccurred();
-                        Tags.STATUS_CODE.set(span, Integer.toString(httpServerExchange.getStatusCode()));
-                    }
-                    span.asyncFinish();
-                    nextListener.proceed();
-                }
-            });
-            next.handleRequest(exchange);
-            ContextManager.stopSpan(span);
-        }
     }
 
 }

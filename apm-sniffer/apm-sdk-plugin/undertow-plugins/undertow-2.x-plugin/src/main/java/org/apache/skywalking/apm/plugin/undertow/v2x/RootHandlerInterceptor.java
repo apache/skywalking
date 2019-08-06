@@ -18,42 +18,31 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
-import io.undertow.server.HttpServerExchange;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.RoutingHandler;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.plugin.undertow.v2x.util.TraceContextUtils;
+import org.apache.skywalking.apm.plugin.undertow.v2x.handler.TracingHandler;
 
 import java.lang.reflect.Method;
 
 /**
  * @author chenpengfei
  */
-public class ExecuteRootHandlerInterceptor implements StaticMethodsAroundInterceptor {
+public class RootHandlerInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
-        if (TraceContextUtils.isNotInRoutingHandlerTracing()) {
-            HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
-            TraceContextUtils.buildUndertowEntrySpan(exchange, exchange.getRequestPath());
+        final HttpHandler handler = (HttpHandler) allArguments[0];
+        final boolean isRoutingHandler = handler instanceof RoutingHandler;
+        if (!isRoutingHandler) {
+            allArguments[0] = new TracingHandler(handler);
         }
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
-        if (TraceContextUtils.isNotInRoutingHandlerTracing()) {
-            HttpServerExchange exchange = (HttpServerExchange) allArguments[1];
-
-            AbstractSpan span = ContextManager.activeSpan();
-            if (exchange.getStatusCode() >= 400) {
-                span.errorOccurred();
-                Tags.STATUS_CODE.set(span, Integer.toString(exchange.getStatusCode()));
-            }
-            ContextManager.stopSpan();
-            ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
-        }
         return ret;
     }
 

@@ -33,9 +33,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public class UndertowInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.undertow.server.Connectors";
-    private static final String ENHANCE_METHOD = "executeRootHandler";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.ExecuteRootHandlerInterceptor";
+    private static final String ENHANCE_CLASS = "io.undertow.Undertow.Builder";
+    private static final String ENHANCE_METHOD = "setHandler";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.RootHandlerInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -57,7 +57,7 @@ public class UndertowInstrumentation extends ClassStaticMethodsEnhancePluginDefi
                 }
 
                 @Override public boolean isOverrideArgs() {
-                    return false;
+                    return true;
                 }
             }
         };
