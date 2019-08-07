@@ -45,24 +45,25 @@ public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePl
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(ENHANCE_METHOD)
+        return new InstanceMethodsInterceptPoint[]{
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD)
                         .and(takesArgumentWithType(0, "io.undertow.util.HttpString"))
                         .and(takesArgumentWithType(1, "java.lang.String"));
-            }
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return true;
+                @Override
+                public boolean isOverrideArgs() {
+                    return true;
+                }
             }
-        }
         };
     }
 

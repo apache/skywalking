@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
+import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import io.undertow.util.Methods;
@@ -37,6 +38,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertTrue;
 
@@ -62,6 +65,10 @@ public class RootHandlerInterceptorTest {
     @Mock
     private MethodInterceptResult methodInterceptResult;
 
+    @Mock
+    private EnhancedInstance enhancedInstance;
+
+
     @Before
     public void setUp() throws Exception {
         Config.Agent.ACTIVE_V1_HEADER = true;
@@ -76,9 +83,10 @@ public class RootHandlerInterceptorTest {
     @Test
     public void testBindTracingHandler() throws Throwable {
         Object[] arguments = new Object[]{httpHandler};
-        Class[] argumentType = new Class[]{httpHandler.getClass()};
-        rootHandlerInterceptor.beforeMethod(EnhancedInstance.class, null, arguments, argumentType, methodInterceptResult);
-        rootHandlerInterceptor.afterMethod(EnhancedInstance.class, null, arguments, argumentType, null);
+        Class[] argumentType = new Class[]{HttpHandler.class};
+        final Method method = Undertow.Builder.class.getMethod("setHandler", argumentType);
+        rootHandlerInterceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, methodInterceptResult);
+        rootHandlerInterceptor.afterMethod(enhancedInstance, method, arguments, argumentType, null);
         assertTrue(arguments[0] instanceof TracingHandler);
     }
 
@@ -87,9 +95,10 @@ public class RootHandlerInterceptorTest {
         RoutingHandler handler = new RoutingHandler();
         handler.add(Methods.GET, "/projects/{projectId}", httpHandler);
         Object[] arguments = new Object[]{handler};
-        Class[] argumentType = new Class[]{handler.getClass()};
-        rootHandlerInterceptor.beforeMethod(EnhancedInstance.class, null, arguments, argumentType, methodInterceptResult);
-        rootHandlerInterceptor.afterMethod(EnhancedInstance.class, null, arguments, argumentType, null);
+        Class[] argumentType = new Class[]{HttpHandler.class};
+        final Method method = Undertow.Builder.class.getMethod("setHandler", argumentType);
+        rootHandlerInterceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, methodInterceptResult);
+        rootHandlerInterceptor.afterMethod(enhancedInstance, method, arguments, argumentType, null);
         assertTrue(arguments[0] instanceof RoutingHandler);
     }
 }

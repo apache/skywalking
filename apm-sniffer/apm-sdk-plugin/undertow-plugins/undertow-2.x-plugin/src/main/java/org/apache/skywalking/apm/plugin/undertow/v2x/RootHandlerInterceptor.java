@@ -18,36 +18,56 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
+import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.apache.skywalking.apm.plugin.undertow.v2x.handler.TracingHandler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
  * @author chenpengfei
  */
-public class RootHandlerInterceptor implements StaticMethodsAroundInterceptor {
+public class RootHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
-        final HttpHandler handler = (HttpHandler) allArguments[0];
-        final boolean isRoutingHandler = handler instanceof RoutingHandler;
-        if (!isRoutingHandler) {
-            allArguments[0] = new TracingHandler(handler);
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        final String methodName = method.getName();
+        if ("addListener".equals(methodName)) {
+            final Undertow.ListenerBuilder builder = (Undertow.ListenerBuilder) allArguments[0];
+            final Field rootHandlerField = Undertow.ListenerBuilder.class.getDeclaredField("rootHandler");
+            rootHandlerField.setAccessible(true);
+            final Object handler = rootHandlerField.get(builder);
+            if (null != handler && !(handler instanceof RoutingHandler)) {
+                rootHandlerField.set(builder, new TracingHandler((HttpHandler) handler));
+            }
+        } else {
+            int handlerIndex = -1;
+            for (int i = 0; i < allArguments.length; i++) {
+                final Object argument = allArguments[i];
+                if (argument instanceof HttpHandler) {
+                    handlerIndex = i;
+                    break;
+                }
+            }
+            if (handlerIndex > -1 && !(allArguments[handlerIndex] instanceof RoutingHandler)) {
+                allArguments[handlerIndex] = new TracingHandler((HttpHandler) allArguments[handlerIndex]);
+            }
         }
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
