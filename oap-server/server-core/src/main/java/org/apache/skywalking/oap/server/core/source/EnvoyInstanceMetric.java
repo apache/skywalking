@@ -31,6 +31,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
  * @author wusheng
  */
 @ScopeDeclaration(id = ENVOY_INSTANCE_METRIC, name = "EnvoyInstanceMetric", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class EnvoyInstanceMetric extends Source {
     @Override public int scope() {
         return ENVOY_INSTANCE_METRIC;
@@ -44,7 +45,7 @@ public class EnvoyInstanceMetric extends Source {
      * Instance id
      */
     @Getter @Setter private int id;
-    @Getter @Setter private int serviceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
     @Getter @Setter private String metricName;
