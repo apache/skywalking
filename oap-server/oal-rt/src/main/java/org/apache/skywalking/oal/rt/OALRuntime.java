@@ -49,8 +49,6 @@ import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oal.rt.meta.MetaReader;
-import org.apache.skywalking.oal.rt.meta.MetaSettings;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
 import org.apache.skywalking.oal.rt.parser.AnalysisResult;
@@ -58,7 +56,6 @@ import org.apache.skywalking.oal.rt.parser.MetricsHolder;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.parser.SourceColumn;
-import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
 import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
@@ -136,10 +133,6 @@ public class OALRuntime implements OALEngine {
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Can't locate scope-meta.yml", e);
         }
-
-        MetaReader reader = new MetaReader();
-        MetaSettings metaSettings = reader.read(read);
-        SourceColumnsFactory.setSettings(metaSettings);
 
         try {
             MetricsHolder.init();
@@ -286,7 +279,7 @@ public class OALRuntime implements OALEngine {
         /**
          * Add following annotation to the metrics class
          *
-         * at Stream(name = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
+         * at Stream(fieldName = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
          */
         AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
         Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);

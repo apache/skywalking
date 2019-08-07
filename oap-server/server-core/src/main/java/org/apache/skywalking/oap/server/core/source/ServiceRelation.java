@@ -27,6 +27,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
  * @author peng-yongsheng
  */
 @ScopeDeclaration(id = SERVICE_RELATION, name = "ServiceRelation")
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceRelation extends Source {
 
     @Override public int scope() {
