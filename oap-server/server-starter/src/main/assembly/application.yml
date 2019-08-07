@@ -51,6 +51,8 @@ core:
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
+    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:50}
+    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_THREAD_POOL_QUEUE_SIZE:10000}
     downsampling:
       - Hour
       - Day
