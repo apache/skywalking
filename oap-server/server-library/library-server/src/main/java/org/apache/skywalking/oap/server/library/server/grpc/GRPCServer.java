@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.library.server.*;
 import org.slf4j.*;
 
 /**
- * @author peng-yongsheng, wusheng
+ * @author peng-yongsheng, wusheng, yantaowu
  */
 public class GRPCServer implements Server {
 
