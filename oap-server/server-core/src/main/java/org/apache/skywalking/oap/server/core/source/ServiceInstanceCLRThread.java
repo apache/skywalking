@@ -28,6 +28,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
  * @author liuhaoyang
  **/
 @ScopeDeclaration(id = SERVICE_INSTANCE_CLR_THREAD, name = "ServiceInstanceCLRThread", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceCLRThread extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE_CLR_THREAD;
@@ -40,7 +41,7 @@ public class ServiceInstanceCLRThread extends Source {
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private long availableCompletionPortThreads;
     @Getter @Setter private long availableWorkerThreads;
     @Getter @Setter private long maxCompletionPortThreads;
