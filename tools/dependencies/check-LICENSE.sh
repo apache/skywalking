@@ -19,14 +19,17 @@
 
 # List all modules(jars) that belong to the SkyWalking itself, these will be ignored
 # when checking the dependency licenses
-./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q | sort --ignore-case > self-modules.txt
+./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
 
-ls dist/apache-skywalking-apm-bin/oap-libs | sort --ignore-case > all-dependencies.txt
+ls dist/apache-skywalking-apm-bin/oap-libs > all-dependencies.txt
 
 # Exclude all self modules(jars) to generate all third-party dependencies
-grep -vf self-modules.txt all-dependencies.txt | sort --ignore-case > third-party-dependencies.txt
+grep -vf self-modules.txt all-dependencies.txt > third-party-dependencies.txt
 
 # Compare the third-party dependencies with known dependencies, expect that
 # all third-party dependencies are KNOWN and the exit code of the command is 0,
-# otherwise we should add its license to LICENSE file and add the dependency to known-oap-backend-dependencies.txt
-diff -w -B -U0 tools/dependencies/known-oap-backend-dependencies.txt third-party-dependencies.txt
+# otherwise we should add its license to LICENSE file and add the dependency to known-oap-backend-dependencies.txt.
+# Unify the `sort` behaviour: here we'll sort them again in case that the behaviour of `sort` command in target OS is different from what we
+# used to sort the file `known-oap-backend-dependencies.txt`,
+# i.e. "sort the two file using the same command (and default arguments)"
+diff -w -B -U0 <(cat tools/dependencies/known-oap-backend-dependencies.txt | sort) <(cat third-party-dependencies.txt | sort)
