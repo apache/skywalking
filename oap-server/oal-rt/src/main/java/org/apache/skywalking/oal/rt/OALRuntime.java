@@ -274,7 +274,7 @@ public class OALRuntime implements OALEngine {
         /**
          * Add following annotation to the metrics class
          *
-         * at Stream(fieldName = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
+         * at Stream(name = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
          */
         AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
         Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);
