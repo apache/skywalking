@@ -128,11 +128,6 @@ public class OALRuntime implements OALEngine {
 
         this.currentClassLoader = currentClassLoader;
         Reader read;
-        try {
-            read = ResourceUtils.read("scope-meta.yml");
-        } catch (FileNotFoundException e) {
-            throw new ModuleStartException("Can't locate scope-meta.yml", e);
-        }
 
         try {
             MetricsHolder.init();

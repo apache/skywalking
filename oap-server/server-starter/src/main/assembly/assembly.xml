@@ -47,7 +47,6 @@
             <includes>
                 <include>component-libraries.yml</include>
                 <include>official_analysis.oal</include>
-                <include>scope-meta.yml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>
