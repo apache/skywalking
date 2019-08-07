@@ -24,6 +24,9 @@ import io.netty.handler.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.Objects;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.*;
 import org.slf4j.*;
@@ -90,10 +93,24 @@ public class GRPCServer implements Server {
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
-
+        ArrayBlockingQueue blockingQueue = new ArrayBlockingQueue(10000);
+        ExecutorService executor = new ThreadPoolExecutor(500, 500, 60,
+                TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
-        nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize);
+        nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize).executor(executor);
         logger.info("Server started, host {} listening on {}", host, port);
+    }
+
+    static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
+        private final AtomicInteger rejectNumber = new AtomicInteger(1);
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            if (rejectNumber.getAndIncrement() == 100) {
+                logger.warn("Grpc server thread pool is full, rejecting the task");
+                rejectNumber.set(1);
+            }
+        }
     }
 
     @Override
