@@ -22,6 +22,9 @@ import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.api.LogResolver;
+import org.apache.skywalking.apm.agent.core.logging.core.PatternLogResolver;
+import org.apache.skywalking.apm.agent.core.logging.core.PatternLogger;
 import org.apache.skywalking.apm.util.ConfigInitializer;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -95,6 +98,10 @@ public class SnifferConfigInitializer {
         if (Config.Plugin.PEER_MAX_LENGTH <= 3) {
             logger.warn("PEER_MAX_LENGTH configuration:{} error, the default value of 200 will be used.", Config.Plugin.PEER_MAX_LENGTH);
             Config.Plugin.PEER_MAX_LENGTH = 200;
+        }
+
+        if (!StringUtil.isEmpty(Config.Logging.PATTERN)) {
+            LogManager.setLogResolver(new PatternLogResolver());
         }
 
         IS_INIT_COMPLETED = true;

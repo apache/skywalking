@@ -162,6 +162,11 @@ public class Config {
          * The log level. Default is debug.
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
+
+        /**
+         * The log patten. Default is "", means use EasyLogger.
+         */
+        public static String PATTERN = "";
     }
 
     public static class Plugin {

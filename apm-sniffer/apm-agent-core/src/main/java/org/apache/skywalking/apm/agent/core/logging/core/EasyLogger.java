@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class EasyLogger implements ILog {
 
-    private String targetClass;
+    protected String targetClass;
 
     public EasyLogger(Class targetClass) {
         this.targetClass = targetClass.getSimpleName();
