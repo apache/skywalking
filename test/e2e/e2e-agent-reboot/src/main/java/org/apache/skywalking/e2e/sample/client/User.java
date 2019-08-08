@@ -16,18 +16,41 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.meta;
+package org.apache.skywalking.e2e.sample.client;
 
-import java.util.*;
-import lombok.*;
-import org.apache.skywalking.oal.rt.parser.SourceColumn;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
- * @author wusheng
+ * @author kezhenxu94
  */
-@Setter
-@Getter
-public class ScopeMeta {
+@Entity
+public class User {
+    public User() {
+    }
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column
     private String name;
-    private List<SourceColumn> columns = new ArrayList<>();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(final Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
 }

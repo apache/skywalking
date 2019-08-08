@@ -100,7 +100,7 @@ public class SkyWalkingAgent {
         try {
             agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, agentBuilder, instrumentation);
         } catch (Exception e) {
-            logger.error(e, "SkyWalking agent inject boostrap instrumentation failure. Shutting down.");
+            logger.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
             return;
         }
 

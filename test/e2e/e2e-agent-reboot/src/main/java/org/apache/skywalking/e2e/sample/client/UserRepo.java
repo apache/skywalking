@@ -16,27 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.meta;
+package org.apache.skywalking.e2e.sample.client;
 
-import java.io.InputStream;
-import java.io.Reader;
-import org.yaml.snakeyaml.Yaml;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * @author wusheng
+ * @author kezhenxu94
  */
-public class MetaReader {
-    public MetaSettings read(Reader reader) {
-        Yaml yaml = new Yaml();
-        MetaSettings settings = yaml.loadAs(reader, MetaSettings.class);
-
-        return settings;
-    }
-
-    public MetaSettings read(InputStream reader) {
-        Yaml yaml = new Yaml();
-        MetaSettings settings = yaml.loadAs(reader, MetaSettings.class);
-
-        return settings;
-    }
+public interface UserRepo extends JpaRepository<User, Long> {
 }

@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.meta;
+package org.apache.skywalking.apm.plugin.grpc.v1;
 
-import java.util.List;
-import lombok.*;
+import io.grpc.Channel;
+import io.grpc.MethodDescriptor;
 
 /**
- * @author wusheng
+ * @author AI
+ * 2019-07-22
  */
-@Setter
-@Getter
-public class MetaSettings {
-    private List<ScopeMeta> scopes;
+public interface CallClientInterceptor {
+
+    public Channel getChannel();
+
+    public MethodDescriptor getMethodDescriptor();
+
 }

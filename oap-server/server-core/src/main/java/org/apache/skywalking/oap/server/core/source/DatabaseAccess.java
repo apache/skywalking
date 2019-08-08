@@ -26,6 +26,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DA
  * @author: liuhaoyang
  */
 @ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class DatabaseAccess extends Source {
 
     @Override

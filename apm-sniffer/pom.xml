@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,6 +34,7 @@
         <module>apm-sdk-plugin</module>
         <module>apm-toolkit-activation</module>
         <module>apm-test-tools</module>
+        <module>bootstrap-plugins</module>
         <module>optional-plugins</module>
     </modules>
 
