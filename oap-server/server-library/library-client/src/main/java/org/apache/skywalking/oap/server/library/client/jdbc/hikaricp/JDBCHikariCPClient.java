@@ -31,7 +31,7 @@ import org.slf4j.*;
  * @author wusheng
  */
 public class JDBCHikariCPClient implements Client {
-    private final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
 
     private HikariDataSource dataSource;
     private HikariConfig hikariConfig;

@@ -42,11 +42,11 @@ public class Struts2Instrumentation extends ClassInstanceMethodsEnhancePluginDef
     private static final String ENHANCE_METHOD = "invokeAction";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.struts2.Struts2Interceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

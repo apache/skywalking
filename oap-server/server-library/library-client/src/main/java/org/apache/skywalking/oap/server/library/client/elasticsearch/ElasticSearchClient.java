@@ -37,11 +37,12 @@ import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.*;
-import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.action.support.*;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.*;
-import org.elasticsearch.common.unit.*;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.*;
 
@@ -57,7 +58,7 @@ public class ElasticSearchClient implements Client {
     private final String namespace;
     private final String user;
     private final String password;
-    private RestHighLevelClient client;
+    protected RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
@@ -119,32 +120,41 @@ public class ElasticSearchClient implements Client {
 
     public List<String> retrievalIndexByAliases(String aliases) throws IOException {
         aliases = formatIndexName(aliases);
-
         Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/_alias/" + aliases);
-
-        List<String> indexes = new ArrayList<>();
         if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
             Gson gson = new Gson();
             InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
             JsonObject responseJson = gson.fromJson(reader, JsonObject.class);
             logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
-            indexes.addAll(responseJson.keySet());
+            return new ArrayList<>(responseJson.keySet());
         }
-        return indexes;
+        return Collections.emptyList();
     }
 
-    public JsonObject getIndex(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
-        GetIndexRequest request = new GetIndexRequest();
-        request.indices(indexName);
-        Response response = client.getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
-        InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
-        Gson gson = new Gson();
-        return gson.fromJson(reader, JsonObject.class);
+    /**
+     * If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
+     * Then you should delete the index by this method, this method will no longer concatenate namespace.
+     *
+     * https://github.com/apache/skywalking/pull/3017
+     */
+    public boolean deleteByIndexName(String indexName) throws IOException {
+        return deleteIndex(indexName, false);
     }
 
-    public boolean deleteIndex(String indexName) throws IOException {
-        indexName = formatIndexName(indexName);
+    /**
+     * If your indexName is obtained from metadata or configuration and without namespace.
+     * Then you should delete the index by this method, this method automatically concatenates namespace.
+     *
+     * https://github.com/apache/skywalking/pull/3017
+     */
+    public boolean deleteByModelName(String modelName) throws IOException {
+        return deleteIndex(modelName, true);
+    }
+
+    private boolean deleteIndex(String indexName, boolean formatIndexName) throws IOException {
+        if (formatIndexName) {
+            indexName = formatIndexName(indexName);
+        }
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         DeleteIndexResponse response;
         response = client.indices().delete(request);
@@ -216,6 +226,15 @@ public class ElasticSearchClient implements Client {
         return client.get(request);
     }
 
+    public SearchResponse ids(String indexName, String[] ids) throws IOException {
+        indexName = formatIndexName(indexName);
+
+        SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.types(TYPE);
+        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).size(ids.length);
+        return client.search(searchRequest);
+    }
+
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
         IndexRequest request = prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
@@ -235,14 +254,14 @@ public class ElasticSearchClient implements Client {
         client.update(request);
     }
 
-    public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source) {
+    public ElasticSearchInsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new IndexRequest(indexName, TYPE, id).source(source);
+        return new ElasticSearchInsertRequest(indexName, TYPE, id).source(source);
     }
 
-    public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
+    public ElasticSearchUpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new UpdateRequest(indexName, TYPE, id).doc(source);
+        return new ElasticSearchUpdateRequest(indexName, TYPE, id).doc(source);
     }
 
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
@@ -263,14 +282,20 @@ public class ElasticSearchClient implements Client {
         return response.getStatusLine().getStatusCode();
     }
 
-    public String formatIndexName(String indexName) {
-        if (StringUtils.isNotEmpty(namespace)) {
-            return namespace + "_" + indexName;
+    public void synchronousBulk(BulkRequest request) {
+        request.timeout(TimeValue.timeValueMinutes(2));
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
+        request.waitForActiveShards(ActiveShardCount.ONE);
+        try {
+            int size = request.requests().size();
+            BulkResponse responses = client.bulk(request);
+            logger.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
-        return indexName;
     }
 
-    public BulkProcessor createBulkProcessor(int bulkActions, int bulkSize, int flushInterval, int concurrentRequests) {
+    public BulkProcessor createBulkProcessor(int bulkActions, int flushInterval, int concurrentRequests) {
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
@@ -283,7 +308,7 @@ public class ElasticSearchClient implements Client {
                 if (response.hasFailures()) {
                     logger.warn("Bulk [{}] executed with failures", executionId);
                 } else {
-                    logger.info("Bulk [{}] completed in {} milliseconds", executionId, response.getTook().getMillis());
+                    logger.info("Bulk execution id [{}] completed in {} milliseconds, size: {}", executionId, response.getTook().getMillis(), request.requests().size());
                 }
             }
 
@@ -295,10 +320,16 @@ public class ElasticSearchClient implements Client {
 
         return BulkProcessor.builder(client::bulkAsync, listener)
             .setBulkActions(bulkActions)
-            .setBulkSize(new ByteSizeValue(bulkSize, ByteSizeUnit.MB))
             .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
             .setConcurrentRequests(concurrentRequests)
             .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
             .build();
+    }
+
+    public String formatIndexName(String indexName) {
+        if (StringUtils.isNotEmpty(namespace)) {
+            return namespace + "_" + indexName;
+        }
+        return indexName;
     }
 }

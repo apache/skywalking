@@ -42,9 +42,8 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
 
-        AbstractSpan span = ContextManager.activeSpan();
-        if (span != null) {
-            span.tag("route", route.getId());
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().tag("route", route.getId());
         }
     }
 

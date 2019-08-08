@@ -31,13 +31,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 
 /**
  * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
- * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and 
+ * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and
  * com.mysql.cj.jdbc.PreparedStatement class:
- * 1. execute 
- * 2. executeQuery 
- * 3. executeUpdate 
- * 4. executeLargeUpdate 
- * 5. addBatch 
+ * 1. execute
+ * 2. executeQuery
+ * 3. executeUpdate
+ * 4. executeLargeUpdate
+ * 5. addBatch
  *
  * @author zhangxin
  */
@@ -47,11 +47,11 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
     public static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
     public static final String JDBC42_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.JDBC42PreparedStatement";
 
-    @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

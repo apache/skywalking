@@ -25,7 +25,6 @@ pipeline {
         ))
         timestamps()
         skipStagesAfterUnstable()
-        timeout time: 60, unit: 'MINUTES'
     }
 
     stages {
@@ -56,7 +55,7 @@ pipeline {
                                 sh 'ls'
                                 sh 'git status'
                             }
-                        }    
+                        }
 
                         stage('Test & Report') {
                             steps {
@@ -64,11 +63,21 @@ pipeline {
                                 sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
                             }
                         }
+
+                        stage('Check Dependencies Licenses') {
+                            steps {
+                                sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
+                                sh 'tools/dependencies/check-LICENSE.sh'
+                            }
+                        }
                     }
 
                     post {
-                        always {
+                        success {
                             junit '**/target/surefire-reports/*.xml'
+                        }
+
+                        cleanup {
                             deleteDir()
                         }
                     }

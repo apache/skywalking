@@ -40,7 +40,7 @@ public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhanceP
     private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ProxyRootInvokeInterceptor";
     
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -62,7 +62,7 @@ public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhanceP
     }
     
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
     
