@@ -94,6 +94,8 @@ storage:
 #    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
+    gRPCThreadPoolSize: ${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_SIZE:50}
+    gRPCThreadPoolQueueSize: ${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_QUEUE_SIZE:10000}
 receiver-register:
   default:
 receiver-trace:
@@ -130,6 +132,8 @@ envoy-metric:
 #  default:
 #    gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
 #    gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
+#    gRPCThreadPoolSize: ${SW_RECEIVER_JAEGER_GRPC_THREAD_POOL_SIZE:50}
+#    gRPCThreadPoolQueueSize: ${SW_RECEIVER_JAEGER_GRPC_THREAD_POOL_QUEUE_SIZE:10000}
 query:
   graphql:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
