@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private String nameSpace;
     @Setter private String clusterNodes;
+    @Getter @Setter String protocol = "http";
     @Setter private int indexShardsNumber = 2;
     @Setter private int indexReplicasNumber = 0;
     @Setter private int indexRefreshInterval = 2;
