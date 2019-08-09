@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>6.3.0-SNAPSHOT</version>
+    <version>6.4.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -422,6 +422,7 @@
 
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
+                        <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                     </excludes>
                 </configuration>
                 <executions>

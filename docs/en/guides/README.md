@@ -116,6 +116,21 @@ static resources and send GraphQL query requests to backend.
 - [Legacy UI repository](https://github.com/apache/skywalking-ui) is still there, but not included
 in SkyWalking release, after 6.0.0-GA.
 
+### OAP backend dependency management
+> This section is only applicable to the dependencies of the backend module
+
+Being one of the Top Level Projects of The Apache Software Foundation (ASF),
+SkyWalking is supposed to follow the [ASF 3RD PARTY LICENSE POLICY](https://apache.org/legal/resolved.html),
+so if you're adding new dependencies to the project, you're responsible to check the newly-added dependencies
+won't break the policy, and add their LICENSE's and NOTICES's to the project.
+
+We have a [simple script](../../../tools/dependencies/check-LICENSE.sh) to help you make sure that you didn't
+miss any newly-added dependency:
+- Build a distribution package and unzip/untar it to folder `dist`.
+- Run the script in the root directory, it will print out all newly-added dependencies.
+- Check the LICENSE's and NOTICE's of those dependencies, if they can be included in an ASF project, add them in the `apm-dist/release-docs/{LICENSE,NOTICE}` file.
+- Add those dependencies' names to the `tools/dependencies/known-oap-backend-dependencies.txt` file (**alphabetical order**), the next run of `check-LICENSE.sh` should pass. 
+
 ## For release
 [Apache Release Guide](How-to-release.md) introduces to the committer team about doing official Apache version release, to avoid 
 breaking any Apache rule. Apache license allows everyone to redistribute if you keep our licenses and NOTICE
