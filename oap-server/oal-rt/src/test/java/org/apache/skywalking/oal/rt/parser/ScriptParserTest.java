@@ -18,20 +18,18 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oal.rt.meta.*;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class ScriptParserTest {
     @BeforeClass
     public static void init() throws IOException {
-        MetaReader reader = new MetaReader();
-        InputStream stream = MetaReaderTest.class.getResourceAsStream("/scope-meta.yml");
-        MetaSettings metaSettings = reader.read(stream);
-        SourceColumnsFactory.setSettings(metaSettings);
         MetricsHolder.init();
 
         AnnotationScan scopeScan = new AnnotationScan();

@@ -72,8 +72,10 @@ or providing commercial products including Apache SkyWalking.
 1. StartDT 奇点云 https://www.startdt.com/
 1. Successchannel 苏州渠成易销网络科技有限公司. http://www.successchannel.com
 1. syswin.com 北京思源集团 http://www.syswin.com/
+1. szhittech.com 深圳和而泰智能控制股份有限公司. http://www.szhittech.com/
 1. Tetrate.io https://www.tetrate.io/
 1. Today36524.com Today便利店
+1. Tongcheng. 同城金服. https://jr.ly.com/
 1. Tools information technology co. LTD 杭州图尔兹信息技术有限公司 http://bintools.cn/
 1. Tsfinance.com 重庆宜迅联供应链科技有限公司 https://www.tsfinance.com.cn/
 1. tuhu.cn 途虎养车 https://www.tuhu.cn

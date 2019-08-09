@@ -18,23 +18,22 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.*;
-import org.apache.skywalking.oal.rt.meta.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 
 /**
  * @author wusheng
  */
 public class SourceColumnsFactory {
-    private static Map<String, ScopeMeta> SETTINGS;
-
-    public static void setSettings(MetaSettings settings) {
-        SourceColumnsFactory.SETTINGS = new HashMap<>();
-        settings.getScopes().forEach(scope -> {
-            SourceColumnsFactory.SETTINGS.put(scope.getName(), scope);
-        });
-    }
-
     public static List<SourceColumn> getColumns(String source) {
-        return SETTINGS.get(source).getColumns();
+        List<SourceColumn> sourceColumns = new ArrayList<>();
+
+        List<ScopeDefaultColumn> columns = DefaultScopeDefine.getDefaultColumns(source);
+        for (ScopeDefaultColumn defaultColumn : columns) {
+            sourceColumns.add(new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn.getType(), defaultColumn.isID()));
+        }
+        return sourceColumns;
     }
 }
