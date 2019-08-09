@@ -134,6 +134,9 @@
                                 <elastic.search.address>
                                     ${docker.hostname}:${es-port}
                                 </elastic.search.address>
+                                <elastic.search.protocol>
+                                    http
+                                </elastic.search.protocol>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>
