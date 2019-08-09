@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.plugin.bootstrap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,10 @@ public class BootstrapInstrumentBoost {
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor",
         "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor",
-        "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog"
+        "org.apache.skywalking.apm.agent.core.plugin.bootstrap.IBootstrapLog",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideCallable",
+        "org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult"
     };
 
     private static String INSTANCE_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.InstanceMethodInterTemplate";
@@ -69,7 +73,7 @@ public class BootstrapInstrumentBoost {
     private static String STATIC_METHOD_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterTemplate";
     private static String STATIC_METHOD_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.StaticMethodInterWithOverrideArgsTemplate";
 
-    public static AgentBuilder inject(PluginFinder pluginFinder, AgentBuilder agentBuilder,
+    public static AgentBuilder inject(PluginFinder pluginFinder, Instrumentation instrumentation, AgentBuilder agentBuilder,
         JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
         Map<String, byte[]> classesTypeMap = new HashMap<String, byte[]>();
 
@@ -95,8 +99,9 @@ public class BootstrapInstrumentBoost {
          * Inject the classes into bootstrap class loader by using Unsafe Strategy.
          * ByteBuddy adapts the sun.misc.Unsafe and jdk.internal.misc.Unsafe automatically.
          */
-        agentBuilder = agentBuilder.enableUnsafeBootstrapInjection();
-        ClassInjector.UsingUnsafe.ofBootLoader().injectRaw(classesTypeMap);
+        ClassInjector.UsingUnsafe.Factory factory = ClassInjector.UsingUnsafe.Factory.resolve(instrumentation);
+        factory.make(null, null).injectRaw(classesTypeMap);
+        agentBuilder = agentBuilder.with(new AgentBuilder.InjectionStrategy.UsingUnsafe.OfFactory(factory));
 
 
         return agentBuilder;

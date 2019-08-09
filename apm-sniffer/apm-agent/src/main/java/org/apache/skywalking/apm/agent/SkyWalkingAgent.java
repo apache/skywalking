@@ -100,7 +100,7 @@ public class SkyWalkingAgent {
 
         JDK9ModuleExporter.EdgeClasses edgeClasses = new JDK9ModuleExporter.EdgeClasses();
         try {
-            agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, agentBuilder, edgeClasses);
+            agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
             logger.error(e, "SkyWalking agent inject bootstrap instrumentation failure. Shutting down.");
             return;

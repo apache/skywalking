@@ -33,6 +33,6 @@ public class ByteBuddyCoreClasses {
         SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.AllArguments$Assignment",
         SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.SuperCall",
         SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.Origin",
-        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.Morph"
+        SHADE_PACKAGE + "net.bytebuddy.implementation.bind.annotation.Morph",
     };
 }
