@@ -1,4 +1,5 @@
 # Setup java agent
+1. Agent is available for JDK 1.6 - 12.
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
@@ -19,6 +20,13 @@ The agent release dist is included in Apache [official release](http://skywalkin
          apm-feign-default-http-9.x.jar
          apm-httpClient-4.x-plugin.jar
          .....
+    +-- optional-plugins
+         apm-gson-2.x-plugin.jar
+         .....
+    +-- bootstrap-plugins
+         jdk-http-plugin.jar
+         .....
+    +-- logs
     skywalking-agent.jar
 ```
 
@@ -65,10 +73,12 @@ property key | Description | Default |
 `agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder.Skywalking team may ask for these files in order to resolve compatible problem.|Not set|
 `agent.active_v2_header`|Active V2 header in default.|`true`|
 `agent.instance_uuid` |Instance uuid is the identity of an instance, skywalking treat same instance uuid as one instance.if empty, skywalking agent will generate an 32-bit uuid.   |`""`|
-`agent.active_v1_header `|Deactive V1 header in default.|`false`|
+`agent.cause_exception_depth`|How depth the agent goes, when log all cause exceptions.|`5`|
+`agent.active_v1_header `|Deactivate V1 header in default.|`false`|
+`agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
-`collector.backend_service`|Collector skywalking trace receiver service addresses.|`127.0.0.1:11800`|
+`collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
@@ -78,15 +88,18 @@ property key | Description | Default |
 `buffer.buffer_size`|The buffer size.|`300`|
 `dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
+`plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
 `plugin.springmvc.use_qualified_name_as_endpoint_name`|If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.|`false`|
 `plugin.toolit.use_qualified_name_as_operation_name`|If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.|`false`|
+`plugin.mysql.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
+`plugin.mysql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
 `plugin.solrj.trace_statement`|If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.|`false`|
 `plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 
 ## Optional Plugins
-Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositores.
+Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
 For using these plugins, you need to put the target plugin jar file into `/plugins`.
 
 Now, we have the following known optional plugins.
@@ -99,12 +112,19 @@ Now, we have the following known optional plugins.
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway.
 
+## Bootstrap class plugins
+All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
+For using these plugins, you need to put the target plugin jar file into `/plugins`.
+
+Now, we have the following known bootstrap plugins.
+* Plugin of JDK HttpURLConnection. Agent is compatible with JDK 1.6+
+
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).
 * Use gRPC TLS to link backend. See [open TLS](TLS.md)
 * Monitor a big cluster by different SkyWalking services. Use [Namespace](Namespace.md) to isolate the context propagation. 
 * Set client [token](Token-auth.md) if backend open [token authentication](../../backend/backend-token-auth.md).
-* Application Toolkit, are a collection of libraries, provided by skywalking APM. Using them, you have a bridge between your application and skywalking APM agent. 
+* Application Toolkit, are a collection of libraries, provided by SkyWalking APM. Using them, you have a bridge between your application and SkyWalking APM agent. 
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
     * If you want to print trace context(e.g. traceId) in your logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
 [log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)

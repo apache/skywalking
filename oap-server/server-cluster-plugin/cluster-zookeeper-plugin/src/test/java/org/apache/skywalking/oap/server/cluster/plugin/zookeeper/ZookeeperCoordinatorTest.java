@@ -52,14 +52,13 @@ public class ZookeeperCoordinatorTest {
 
     @Before
     public void setUp() throws Exception {
-        config.setHostPort(address.getHost() + ":" + address.getPort());
-        coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
-        when(serviceDiscovery.serviceCacheBuilder()).thenReturn(cacheBuilder);
         when(cacheBuilder.name("remote")).thenReturn(cacheBuilder);
         when(cacheBuilder.build()).thenReturn(serviceCache);
         doNothing().when(serviceCache).start();
-
         doNothing().when(serviceDiscovery).registerService(any());
+        when(serviceDiscovery.serviceCacheBuilder()).thenReturn(cacheBuilder);
+        config.setHostPort(address.getHost() + ":" + address.getPort());
+        coordinator = new ZookeeperCoordinator(config, serviceDiscovery);
     }
 
     @Test

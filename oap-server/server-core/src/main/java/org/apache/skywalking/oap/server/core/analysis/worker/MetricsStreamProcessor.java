@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
-import lombok.Getter;
+import lombok.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -38,6 +39,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
     private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new HashMap<>();
     @Getter private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
+    @Setter @Getter private boolean enableDatabaseSession;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -50,6 +52,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) {
         if (DisableRegister.INSTANCE.include(stream.name())) {
             return;
@@ -71,42 +74,45 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         MetricsPersistentWorker monthPersistentWorker = null;
 
         if (configService.shouldToHour()) {
-            Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour));
+            Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
             hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
         }
         if (configService.shouldToDay()) {
-            Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day));
+            Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
             dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
         }
         if (configService.shouldToMonth()) {
-            Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month));
+            Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
             monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
         }
 
-        Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute));
-        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model);
+        MetricsTransWorker transWorker = new MetricsTransWorker(moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
 
-        MetricsTransWorker transWorker = new MetricsTransWorker(moduleDefineHolder, stream.name(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
-        MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, transWorker, stream.name());
+        Model model = modelSetter.putIfAbsent(metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute), false);
+        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model, transWorker);
+
+        String remoteReceiverWorkerName = stream.name() + "_rec";
+        IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceSetter.class);
+        workerInstanceSetter.put(remoteReceiverWorkerName, minutePersistentWorker, metricsClass);
+
+        MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
         MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(moduleDefineHolder, remoteWorker, stream.name());
 
         entryWorkers.put(metricsClass, aggregateWorker);
     }
 
-    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model) {
+    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model, MetricsTransWorker transWorker) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 
-        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model,
-            1000, metricsDAO, alarmNotifyWorker, exportWorker);
+        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker, enableDatabaseSession);
         persistentWorkers.add(minutePersistentWorker);
 
         return minutePersistentWorker;
     }
 
     private MetricsPersistentWorker worker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model) {
-        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model,
-            1000, metricsDAO, null, null);
+        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, model, metricsDAO, null, null, null, enableDatabaseSession);
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;

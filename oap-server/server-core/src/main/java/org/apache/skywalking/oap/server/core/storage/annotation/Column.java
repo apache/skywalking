@@ -29,9 +29,23 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
 public @interface Column {
     String columnName();
 
+    /**
+     * The column value is used in metrics value query.
+     */
     boolean isValue() default false;
 
+    /**
+     * The function is used in aggregation query.
+     */
     Function function() default Function.None;
 
+    /**
+     * Match query means using analyzer(if storage have) to do key word match query.
+     */
     boolean matchQuery() default false;
+    
+    /**
+     * The column is just saved, never used in query.
+     */
+    boolean content() default false;
 }

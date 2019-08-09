@@ -32,7 +32,7 @@ public class ProducerRecordInstrumentation extends AbstractKafkaInstrumentation 
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.v1.ProducerRecordConstructorInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.ProducerRecord";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -46,7 +46,7 @@ public class ProducerRecordInstrumentation extends AbstractKafkaInstrumentation 
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[0];
     }
 

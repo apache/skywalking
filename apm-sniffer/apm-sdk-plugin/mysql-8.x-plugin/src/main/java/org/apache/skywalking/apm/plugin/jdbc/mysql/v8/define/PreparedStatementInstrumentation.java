@@ -36,11 +36,11 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
 
     private static final String SERVICE_METHOD_INTERCEPTOR =  Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
 
-    @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

@@ -40,7 +40,14 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected String operationName;
     protected int operationId;
     protected SpanLayer layer;
-    protected boolean isInAsyncMode = false;
+    /**
+     * The span has been tagged in async mode, required async stop to finish.
+     */
+    protected volatile boolean isInAsyncMode = false;
+    /**
+     * The flag represents whether the span has been async stopped
+     */
+    private volatile boolean isAsyncStopped = false;
     protected volatile AbstractTracerContext context;
 
     /**
@@ -322,6 +329,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     }
 
     @Override public AbstractSpan prepareForAsync() {
+        if (isInAsyncMode) {
+            throw new RuntimeException("Prepare for async repeatedly. Span is already in async mode.");
+        }
         context = ContextManager.awaitFinishAsync(this);
         isInAsyncMode = true;
         return this;
@@ -331,9 +341,12 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         if (!isInAsyncMode) {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
-
+        if (isAsyncStopped) {
+            throw new RuntimeException("Can not do async finish for the span repeately.");
+        }
         this.endTime = System.currentTimeMillis();
         context.asyncStop(this);
+        isAsyncStopped = true;
         return this;
     }
 }

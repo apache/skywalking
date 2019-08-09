@@ -36,5 +36,6 @@ public class Const {
     public static final String SEGMENT_SPAN_SPLIT = "S";
     public static final String UNKNOWN = "Unknown";
     public static final String EMPTY_STRING = "";
+    public static final String EMPTY_JSON_OBJECT_STRING = "{}";
     public static final String DOMAIN_OPERATION_NAME = "{domain}";
 }

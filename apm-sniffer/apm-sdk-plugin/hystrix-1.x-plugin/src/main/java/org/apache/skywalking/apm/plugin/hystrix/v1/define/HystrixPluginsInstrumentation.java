@@ -37,12 +37,12 @@ public class HystrixPluginsInstrumentation extends ClassInstanceMethodsEnhancePl
     public static final String ENHANCE_CLASS = "com.netflix.hystrix.strategy.HystrixPlugins";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

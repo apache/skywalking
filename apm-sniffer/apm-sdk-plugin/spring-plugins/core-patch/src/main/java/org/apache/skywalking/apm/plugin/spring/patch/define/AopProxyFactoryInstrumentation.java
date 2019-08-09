@@ -34,11 +34,11 @@ public class AopProxyFactoryInstrumentation extends ClassInstanceMethodsEnhanceP
     public static final String ENHANCE_METHOD = "hasNoUserSuppliedProxyInterfaces";
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spring.patch.CreateAopProxyInterceptor";
 
-    @Override protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

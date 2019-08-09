@@ -17,25 +17,23 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>6.2.0-SNAPSHOT</version>
+    <version>6.4.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>21</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
-        <module>apm-checkstyle</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -155,6 +153,28 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>CI-with-IT</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <properties>
@@ -183,9 +203,10 @@
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
         <jmh.version>1.21</jmh.version>
+        <gmaven-plugin.version>1.5</gmaven-plugin.version>
     </properties>
 
     <dependencies>
@@ -279,16 +300,34 @@
                     <version>${maven-failsafe-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin.version}</version>
+                </plugin>
+                <!--
+                    maven-surefire-plugin will exclude integration tests (ITs)
+                    and leave them for maven-failsafe-plugin to run, which is bound to the `verify` goal.
+                    If you want to run the ITs please activate the CI-with-IT profile
+                    as well as the the profiles of the modules whose ITs you want to run.
+                    e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend,CI-with-IT clean verify`
+                 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>IT*.class</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${maven-docker-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -306,7 +345,7 @@
                             <rules>
                                 <requireJavaVersion>
                                     <!-- Build has not yet been updated for Java 9+ -->
-                                    <version>[1.8,9)</version>
+                                    <version>1.8</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -377,11 +416,13 @@
                         <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
                         <exclude>**/src/main/proto/validate/validate.proto</exclude>
 
-                        <!-- generated file from antlr -->
-                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/tool/grammar/OALLexer.tokens</exclude>
+                        <!-- generated file from oal grammar and rt template -->
+                        <exclude>**/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/OALLexer.tokens</exclude>
+                        <exclude>**/src/main/resources/code-templates/*/*.ftl</exclude>
 
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
+                        <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -418,10 +459,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- 源码插件 -->
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${maven-source-plugin.version}</version>
-                <!-- 发布时自动将源码同时发布的配置 -->
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -459,36 +498,29 @@
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.skywalking</groupId>
-                        <artifactId>apm-checkstyle</artifactId>
-                        <version>6.0.0-GA</version>
-                    </dependency>
-                </dependencies>
+                <configuration>
+                    <configLocation>apm-checkstyle/checkStyle.xml</configLocation>
+                    <headerLocation>apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <failsOnError>true</failsOnError>
+                    <includes>org/apache/skywalking/**/*.java</includes>
+                    <excludes>
+                        org/apache/skywalking/apm/network/register/v2/**/*.java,
+                        org/apache/skywalking/apm/network/common/**/*.java,
+                        org/apache/skywalking/apm/network/servicemesh/**/*.java,
+                        org/apache/skywalking/apm/network/language/**/*.java,
+                        org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
+                        org/apache/skywalking/oal/rt/grammar/*.java,
+                        org/apache/skywalking/oap/server/exporter/grpc/*.java,
+                        org/apache/skywalking/oap/server/configuration/service/*.java
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>validate</id>
                         <phase>process-sources</phase>
-                        <configuration>
-                            <configLocation>skywalking/checkStyle.xml</configLocation>
-                            <headerLocation>skywalking/CHECKSTYLE_HEAD</headerLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            <failsOnError>true</failsOnError>
-                            <includes>org/apache/skywalking/**/*.java</includes>
-                            <excludes>
-                                org/apache/skywalking/apm/network/register/v2/**/*.java,
-                                org/apache/skywalking/apm/network/common/**/*.java,
-                                org/apache/skywalking/apm/network/servicemesh/**/*.java,
-                                org/apache/skywalking/apm/network/language/**/*.java,
-                                org/apache/skywalking/oap/server/core/remote/grpc/proto/*.java,
-                                org/apache/skywalking/oal/tool/grammar/*.java,
-                                org/apache/skywalking/oap/server/exporter/grpc/*.java,
-                                org/apache/skywalking/oap/server/configuration/service/*.java
-                            </excludes>
-                        </configuration>
                         <goals>
                             <goal>check</goal>
                         </goals>

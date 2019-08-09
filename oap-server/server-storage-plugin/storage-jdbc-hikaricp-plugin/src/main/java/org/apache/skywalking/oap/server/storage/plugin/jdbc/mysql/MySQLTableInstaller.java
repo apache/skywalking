@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.sql.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -73,7 +73,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
                     return "VARCHAR(300)";
             }
             return "VARCHAR(2000)";
-        } else if (IntKeyLongValueArray.class.equals(type)) {
+        } else if (IntKeyLongValueHashMap.class.equals(type)) {
             return "MEDIUMTEXT";
         } else if (byte[].class.equals(type)) {
             return "MEDIUMTEXT";

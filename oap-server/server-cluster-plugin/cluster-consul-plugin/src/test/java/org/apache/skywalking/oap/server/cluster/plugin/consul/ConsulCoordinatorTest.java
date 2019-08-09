@@ -104,7 +104,8 @@ public class ConsulCoordinatorTest {
         List<ServiceHealth> serviceHealths = mockHealth();
         when(consulResponse.getResponse()).thenReturn(serviceHealths);
         List<RemoteInstance> remoteInstances = coordinator.queryRemoteNodes();
-        assertTrue(remoteInstances.isEmpty());
+        // filter empty address
+        assertEquals(2, remoteInstances.size());
     }
 
     @Test

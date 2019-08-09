@@ -42,7 +42,7 @@ public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethod
     private static final String ENHANCE_METHOD = "end";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -56,7 +56,7 @@ public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethod
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

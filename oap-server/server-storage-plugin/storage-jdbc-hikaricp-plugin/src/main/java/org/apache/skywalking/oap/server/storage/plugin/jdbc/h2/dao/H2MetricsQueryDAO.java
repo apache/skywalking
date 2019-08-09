@@ -23,7 +23,6 @@ import java.sql.*;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.query.ID;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.query.sql.*;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
@@ -101,7 +100,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return orderWithDefault0(intValues, ids);
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<ID> ids, String valueCName) throws IOException {
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -127,11 +126,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             throw new IOException(e);
         }
 
-        List<String> idList = new ArrayList<>();
-        for (ID id : ids) {
-            idList.add(id.toString());
-        }
-        return orderWithDefault0(intValues, idList);
+        return orderWithDefault0(intValues, ids);
     }
 
     /**
@@ -154,7 +149,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return intValues;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<ID> ids, String valueCName) throws IOException {
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -183,7 +178,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     String id = resultSet.getString("id");
                     numOfSteps = resultSet.getInt("num_of_steps") + 1;
                     String value = resultSet.getString("detail_group");
-                    IntKeyLongValueArray intKeyLongValues = new IntKeyLongValueArray(5);
+                    IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
                     intKeyLongValues.toObject(value);
 
                     List<Long> axisYValues = new ArrayList<>();
@@ -191,7 +186,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                         axisYValues.add(0L);
                     }
 
-                    for (IntKeyLongValue intKeyLongValue : intKeyLongValues) {
+                    for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
                         axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
                     }
 

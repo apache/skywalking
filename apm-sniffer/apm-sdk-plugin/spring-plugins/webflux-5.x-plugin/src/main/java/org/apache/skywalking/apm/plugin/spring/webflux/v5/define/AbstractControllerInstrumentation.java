@@ -46,7 +46,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  */
 public abstract class AbstractControllerInstrumentation extends AbstractSpringWebflux5Instrumentation {
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -63,7 +63,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpringWe
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override

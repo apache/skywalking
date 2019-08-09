@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.LinkedList;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.remote.define.StreamDataMapping;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleProvider;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
@@ -35,16 +36,13 @@ public class StorageInstallerTestCase {
 
     @Test
     public void testInstall() throws StorageException, ServiceNotProvidedException {
-        StreamDataMapping streamDataMapping = new StreamDataMapping();
         CoreModuleProvider moduleProvider = Mockito.mock(CoreModuleProvider.class);
         CoreModule moduleDefine = Mockito.spy(CoreModule.class);
         ModuleManager moduleManager = Mockito.mock(ModuleManager.class);
 
-        LinkedList<ModuleProvider> moduleProviders = Whitebox.getInternalState(moduleDefine, "loadedProviders");
-        moduleProviders.add(moduleProvider);
+        Whitebox.setInternalState(moduleDefine, "loadedProvider", moduleProvider);
 
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleDefine);
-        Mockito.when(moduleProvider.getService(StreamDataMapping.class)).thenReturn(streamDataMapping);
 
 //        streamDataMapping.generate();
 
