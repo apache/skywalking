@@ -19,34 +19,60 @@
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.common.base.Splitter;
-import com.google.gson.*;
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
-import org.apache.http.auth.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.elasticsearch.action.admin.indices.create.*;
-import org.elasticsearch.action.admin.indices.delete.*;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.bulk.*;
-import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.*;
-import org.elasticsearch.action.support.*;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.ActiveShardCount;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -57,13 +83,15 @@ public class ElasticSearchClient implements Client {
 
     public static final String TYPE = "type";
     private final String clusterNodes;
+    private final String protocol;
     private final String namespace;
     private final String user;
     private final String password;
     protected RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
+    public ElasticSearchClient(String clusterNodes, String protocol, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
+        this.protocol = protocol;
         this.namespace = namespace;
         this.user = user;
         this.password = password;
@@ -88,15 +116,16 @@ public class ElasticSearchClient implements Client {
         client.close();
     }
 
-    private List<HttpHost> parseClusterNodes(String urls) {
-        List<HttpHost> httpHosts;
-        logger.info("elasticsearch cluster nodes: {}", urls);
-        List<String> urlSplits = Splitter.on(",").omitEmptyStrings().splitToList(urls);
+    private List<HttpHost> parseClusterNodes(String nodes) {
+        List<HttpHost> httpHosts = new LinkedList<>();
+        logger.info("elasticsearch cluster nodes: {}", nodes);
+        List<String> nodesSplit = Splitter.on(",").omitEmptyStrings().splitToList(nodes);
 
-        httpHosts = urlSplits.stream().map(item -> {
-            List<String> split = Splitter.onPattern("[:/]").omitEmptyStrings().splitToList(item);
-            return new HttpHost(split.get(1), Integer.parseInt(split.get(2)), split.get(0));
-        }).collect(Collectors.toList());
+        for (String node : nodesSplit) {
+            String host = node.split(":")[0];
+            String port = node.split(":")[1];
+            httpHosts.add(new HttpHost(host, Integer.parseInt(port), protocol));
+        }
 
         return httpHosts;
     }
