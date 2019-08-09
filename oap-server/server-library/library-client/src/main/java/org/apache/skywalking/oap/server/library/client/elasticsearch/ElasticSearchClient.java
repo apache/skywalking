@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
+import com.google.common.base.Splitter;
 import com.google.gson.*;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -86,15 +88,15 @@ public class ElasticSearchClient implements Client {
         client.close();
     }
 
-    private List<HttpHost> parseClusterNodes(String nodes) {
-        List<HttpHost> httpHosts = new LinkedList<>();
-        logger.info("elasticsearch cluster nodes: {}", nodes);
-        String[] nodesSplit = nodes.split(",");
-        for (String node : nodesSplit) {
-            String host = node.split(":")[0];
-            String port = node.split(":")[1];
-            httpHosts.add(new HttpHost(host, Integer.valueOf(port)));
-        }
+    private List<HttpHost> parseClusterNodes(String urls) {
+        List<HttpHost> httpHosts;
+        logger.info("elasticsearch cluster nodes: {}", urls);
+        List<String> urlSplits = Splitter.on(",").omitEmptyStrings().splitToList(urls);
+
+        httpHosts = urlSplits.stream().map(item -> {
+            List<String> split = Splitter.onPattern("[:/]").omitEmptyStrings().splitToList(item);
+            return new HttpHost(split.get(1), Integer.parseInt(split.get(2)), split.get(0));
+        }).collect(Collectors.toList());
 
         return httpHosts;
     }

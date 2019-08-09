@@ -39,7 +39,7 @@ storage:
     # nameSpace: ${SW_NAMESPACE:""}
     # user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     # password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:http://localhost:9200}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Those data TTL settings will override the same settings in core module.
@@ -69,7 +69,7 @@ It has all same configs.
 storage:
   zipkin-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:http://localhost:9200}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
@@ -92,7 +92,7 @@ It has all same configs.
 storage:
   jaeger-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:http://localhost:9200}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}

@@ -82,7 +82,7 @@ generateStorageElastisearch() {
 storage:
   elasticsearch:
     nameSpace: \${SW_NAMESPACE:""}
-    clusterNodes: \${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    clusterNodes: \${SW_STORAGE_ES_CLUSTER_NODES:http://localhost:9200}
     user: \${SW_ES_USER:""}
     password: \${SW_ES_PASSWORD:""}
     indexShardsNumber: \${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}

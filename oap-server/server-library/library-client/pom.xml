@@ -132,7 +132,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <elastic.search.address>
-                                    ${docker.hostname}:${es-port}
+                                    http://${docker.hostname}:${es-port}
                                 </elastic.search.address>
                             </systemPropertyVariables>
                         </configuration>
