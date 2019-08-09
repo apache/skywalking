@@ -59,7 +59,8 @@ public class ITElasticSearchClient {
     @Before
     public void before() throws IOException {
         final String esAddress = System.getProperty("elastic.search.address");
-        client = new ElasticSearchClient(esAddress, namespace, "test", "test");
+        final String esProtocol = System.getProperty("elastic.search.protocol");
+        client = new ElasticSearchClient(esAddress, esProtocol, namespace, "test", "test");
         client.connect();
     }
 
