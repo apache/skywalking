@@ -100,6 +100,13 @@ public class Config {
          * after receiving reset command
          */
         public static int COOL_DOWN_THRESHOLD = 10;
+
+        /**
+         * Max wait grpc channel auto connect count for same channel.
+         * If count of check grpc channel status more than this number.
+         * The channel check will call channel.getState(true) to requestConnection.
+         */
+        public static long MAX_WAIT_CHANNEL_AUTO_CONNECT_COUNT = 1;
     }
 
     public static class Collector {
