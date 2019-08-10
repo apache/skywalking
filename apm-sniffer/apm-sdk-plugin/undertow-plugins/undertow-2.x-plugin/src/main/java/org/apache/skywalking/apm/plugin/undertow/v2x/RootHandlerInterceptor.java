@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
-import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -27,37 +26,19 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.undertow.v2x.handler.TracingHandler;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
  * @author chenpengfei
+ * @author AI
  */
 public class RootHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        final String methodName = method.getName();
-        if ("addListener".equals(methodName)) {
-            final Undertow.ListenerBuilder builder = (Undertow.ListenerBuilder) allArguments[0];
-            final Field rootHandlerField = Undertow.ListenerBuilder.class.getDeclaredField("rootHandler");
-            rootHandlerField.setAccessible(true);
-            final Object handler = rootHandlerField.get(builder);
-            if (null != handler && !(handler instanceof RoutingHandler)) {
-                rootHandlerField.set(builder, new TracingHandler((HttpHandler) handler));
-            }
-        } else {
-            int handlerIndex = -1;
-            for (int i = 0; i < allArguments.length; i++) {
-                final Object argument = allArguments[i];
-                if (argument instanceof HttpHandler) {
-                    handlerIndex = i;
-                    break;
-                }
-            }
-            if (handlerIndex > -1 && !(allArguments[handlerIndex] instanceof RoutingHandler)) {
-                allArguments[handlerIndex] = new TracingHandler((HttpHandler) allArguments[handlerIndex]);
-            }
+        int handlerIndex = allArguments.length - 1;
+        if (!(allArguments[handlerIndex] instanceof RoutingHandler)) {
+            allArguments[handlerIndex] = new TracingHandler((HttpHandler) allArguments[handlerIndex]);
         }
     }
 

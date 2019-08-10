@@ -68,21 +68,30 @@ public class TracingHandler implements HttpHandler {
         Tags.HTTP.METHOD.set(span, exchange.getRequestMethod().toString());
         span.setComponent(ComponentsDefine.UNDERTOW);
         SpanLayer.asHttp(span);
-        span.prepareForAsync();
-        exchange.addExchangeCompleteListener(new ExchangeCompletionListener() {
-            @Override
-            public void exchangeEvent(HttpServerExchange httpServerExchange, NextListener nextListener) {
-                if (httpServerExchange.getStatusCode() >= 400) {
-                    span.errorOccurred();
-                    Tags.STATUS_CODE.set(span, Integer.toString(httpServerExchange.getStatusCode()));
+        try {
+            span.prepareForAsync();
+            exchange.addExchangeCompleteListener(new ExchangeCompletionListener() {
+                @Override
+                public void exchangeEvent(HttpServerExchange httpServerExchange, NextListener nextListener) {
+                    nextListener.proceed();
+                    if (httpServerExchange.getStatusCode() >= 400) {
+                        span.errorOccurred();
+                        Tags.STATUS_CODE.set(span, Integer.toString(httpServerExchange.getStatusCode()));
+                    }
+                    span.asyncFinish();
                 }
-                span.asyncFinish();
-                nextListener.proceed();
-            }
-        });
-        next.handleRequest(exchange);
-        ContextManager.stopSpan(span);
-        ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
+            });
+        } catch (Throwable e) {
+            ContextManager.activeSpan().log(e);
+        }
+        try {
+            next.handleRequest(exchange);
+        } catch (Throwable e) {
+            span.errorOccurred().log(e);
+        } finally {
+            ContextManager.stopSpan(span);
+            ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
+        }
     }
 
 }

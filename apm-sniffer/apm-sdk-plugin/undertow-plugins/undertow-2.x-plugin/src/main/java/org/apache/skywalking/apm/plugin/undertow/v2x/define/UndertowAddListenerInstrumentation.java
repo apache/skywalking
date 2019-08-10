@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.apm.plugin.undertow.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -26,16 +25,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author chenpengfei
- */
-public class UndertowInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
+/**
+ * @author AI
+ * 2019-08-10
+ */
+public class UndertowAddListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.undertow.Undertow$Builder";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.RootHandlerInterceptor";
-    private static final String[] ENHANCE_METHODS = new String[]{"setHandler", "addListener", "addHttpListener", "addHttpsListener", "addAjpListener"};
+    private static final String[] ENHANCE_METHODS = new String[]{"addHttpListener", "addHttpsListener", "addAjpListener"};
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -50,7 +51,7 @@ public class UndertowInstrumentation extends ClassInstanceMethodsEnhancePluginDe
             final InstanceMethodsInterceptPoint point = new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(method);
+                    return named(method).and(takesArgument(2, io.undertow.server.HttpHandler.class));
                 }
 
                 @Override
@@ -72,5 +73,4 @@ public class UndertowInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
-
 }

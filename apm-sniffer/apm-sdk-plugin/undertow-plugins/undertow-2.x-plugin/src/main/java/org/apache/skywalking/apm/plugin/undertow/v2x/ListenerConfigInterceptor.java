@@ -15,29 +15,36 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
+import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.RoutingHandler;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.undertow.v2x.handler.TracingHandler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
  * @author AI
- * 2019-07-25
+ * 2019-08-10
  */
-public class RoutingHandlerInterceptor implements InstanceMethodsAroundInterceptor {
+public class ListenerConfigInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        final int httpHandlerIndex = argumentsTypes.length - 1;
-        final HttpHandler handler = (HttpHandler) allArguments[httpHandlerIndex];
-        final String template = (String) allArguments[1];
-        allArguments[httpHandlerIndex] = new TracingHandler(template, handler);
+        final Undertow.ListenerBuilder builder = (Undertow.ListenerBuilder) allArguments[0];
+        final Field rootHandlerField = Undertow.ListenerBuilder.class.getDeclaredField("rootHandler");
+        rootHandlerField.setAccessible(true);
+        final Object handler = rootHandlerField.get(builder);
+        if (null != handler && !(handler instanceof RoutingHandler)) {
+            rootHandlerField.set(builder, new TracingHandler((HttpHandler) handler));
+        }
     }
 
     @Override

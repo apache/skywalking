@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -26,19 +27,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
-
 
 /**
  * @author AI
- * 2019-07-26
+ * 2019-08-10
  */
-public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class UndertowListenerConfigInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_METHOD = "add";
-    private static final String ENHANCE_CLASS = "io.undertow.server.RoutingHandler";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.RoutingHandlerInterceptor";
+    private static final String ENHANCE_METHOD = "addListener";
+    private static final String ENHANCE_CLASS = "io.undertow.Undertow$Builder";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.ListenerConfigInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -51,10 +50,7 @@ public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePl
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD)
-                        .and(takesArgumentWithType(0, "io.undertow.util.HttpString"))
-                        .and(takesArgumentWithType(1, "java.lang.String"))
-                        .and(takesArguments(io.undertow.server.HttpHandler.class));
+                    return named(ENHANCE_METHOD).and(takesArguments(io.undertow.Undertow.ListenerBuilder.class));
                 }
 
                 @Override
@@ -64,7 +60,7 @@ public class RoutingHandlerInstrumentation extends ClassInstanceMethodsEnhancePl
 
                 @Override
                 public boolean isOverrideArgs() {
-                    return true;
+                    return false;
                 }
             }
         };
