@@ -36,8 +36,8 @@ public class CallableStatementTracing {
     public static <R> R execute(java.sql.CallableStatement realStatement,
         ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
         throws SQLException {
+        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method, connectInfo.getDatabasePeer());
         try {
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method, connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             SpanLayer.asDB(span);
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
@@ -45,12 +45,11 @@ public class CallableStatementTracing {
             span.setComponent(connectInfo.getComponent());
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
-            AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
             span.log(e);
             throw e;
         } finally {
-            ContextManager.stopSpan();
+            ContextManager.stopSpan(span);
         }
     }
 
