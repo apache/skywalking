@@ -128,6 +128,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JDK_HTTP = new OfficialComponent(66, "JdkHttp");
 
+    public static final OfficialComponent SPRING_WEBFLUX = new OfficialComponent(67, "spring-webflux");
+
     private static ComponentsDefine INSTANCE = new ComponentsDefine();
 
     private String[] components;
@@ -186,6 +188,7 @@ public class ComponentsDefine {
         addComponent(SPRING_CLOUD_GATEWAY);
         addComponent(RESTEASY);
         addComponent(SOLRJ);
+        addComponent(SPRING_WEBFLUX);
     }
 
     private void addComponent(OfficialComponent component) {
