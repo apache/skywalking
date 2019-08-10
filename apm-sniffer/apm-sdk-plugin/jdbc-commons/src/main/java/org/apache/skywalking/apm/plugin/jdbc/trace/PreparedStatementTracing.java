@@ -36,8 +36,8 @@ public class PreparedStatementTracing {
     public static <R> R execute(java.sql.PreparedStatement realStatement,
         ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
         throws SQLException {
+        final AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/PreparedStatement/" + method, connectInfo.getDatabasePeer());
         try {
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/PreparedStatement/" + method, connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
@@ -46,12 +46,11 @@ public class PreparedStatementTracing {
             SpanLayer.asDB(span);
             return exec.exe(realStatement, sql);
         } catch (SQLException e) {
-            AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
             span.log(e);
             throw e;
         } finally {
-            ContextManager.stopSpan();
+            ContextManager.stopSpan(span);
         }
     }
 
