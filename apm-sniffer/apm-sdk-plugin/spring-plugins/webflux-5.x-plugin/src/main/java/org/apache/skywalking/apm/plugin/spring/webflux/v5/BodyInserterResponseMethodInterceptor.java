@@ -33,8 +33,13 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.lang.reflect.Method;
 
-
 public class BodyInserterResponseMethodInterceptor implements InstanceMethodsAroundInterceptor {
+
+    /**
+     * The error reason
+     * see more details org.springframework.boot.web.reactive.error.DefaultErrorAttributes#storeErrorInformation
+     */
+    private final static String ERROR_ATTRIBUTE = "org.springframework.boot.web.reactive.error.DefaultErrorAttributes.ERROR";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
@@ -47,6 +52,9 @@ public class BodyInserterResponseMethodInterceptor implements InstanceMethodsAro
         HttpStatus status = exchange.getResponse().getStatusCode();
         if (status != null && status.value() >= 400) {
             span.errorOccurred();
+            if (exchange.getAttribute(ERROR_ATTRIBUTE) != null) {
+                span.log((Throwable) exchange.getAttribute(ERROR_ATTRIBUTE));
+            }
             Tags.STATUS_CODE.set(span, Integer.toString(status.value()));
         }
         ContextManager.stopSpan(span.asyncFinish());

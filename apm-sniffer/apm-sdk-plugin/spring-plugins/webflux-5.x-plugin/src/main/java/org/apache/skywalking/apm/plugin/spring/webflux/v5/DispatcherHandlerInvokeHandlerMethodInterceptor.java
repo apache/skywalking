@@ -63,11 +63,6 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
-        AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
-        if (span != null) {
-            span.errorOccurred().log(t);
-        }
     }
 
     private String getHandlerMethodOperationName(HandlerMethod handler) {
