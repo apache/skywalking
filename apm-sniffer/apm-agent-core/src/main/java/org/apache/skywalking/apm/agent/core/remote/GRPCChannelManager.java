@@ -117,7 +117,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                             .addChannelDecorator(new AuthenticationDecorator())
                             .build();
                         notify(GRPCChannelStatus.CONNECTED);
-                        reconnectCount =0;
+                        reconnectCount = 0;
                         reconnect = false;
                     } else if (managedChannel.isConnected(++reconnectCount > Config.Agent.MAX_WAIT_CHANNEL_AUTO_CONNECT_COUNT)) {
                         // Reconnect to the same server is automatically done by GRPC,
