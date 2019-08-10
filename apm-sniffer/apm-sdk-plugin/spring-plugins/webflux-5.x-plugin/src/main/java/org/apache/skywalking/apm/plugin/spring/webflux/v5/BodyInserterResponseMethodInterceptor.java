@@ -38,19 +38,19 @@ public class BodyInserterResponseMethodInterceptor implements InstanceMethodsAro
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = ((EnhancedInstance) allArguments[0]);
+        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
         AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
-        if(span==null) {
+        if (span == null) {
             return;
         }
-        ServerWebExchange exchange = ((ServerWebExchange) allArguments[0]);
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         HttpStatus status = exchange.getResponse().getStatusCode();
-        if(status != null && status.value() >= 400) {
+        if (status != null && status.value() >= 400) {
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(status.value()));
         }
         ContextManager.stopSpan(span.asyncFinish());
-        ((EnhancedInstance)allArguments[0]).setSkyWalkingDynamicField(null);
+        ((EnhancedInstance) allArguments[0]).setSkyWalkingDynamicField(null);
     }
 
     @Override

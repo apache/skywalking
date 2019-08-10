@@ -39,7 +39,7 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = ((EnhancedInstance) allArguments[0]);
+        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
         AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
         if (span == null) {
             return;
@@ -63,7 +63,7 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        EnhancedInstance instance = ((EnhancedInstance) allArguments[0]);
+        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
         AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
         if (span != null) {
             span.errorOccurred().log(t);

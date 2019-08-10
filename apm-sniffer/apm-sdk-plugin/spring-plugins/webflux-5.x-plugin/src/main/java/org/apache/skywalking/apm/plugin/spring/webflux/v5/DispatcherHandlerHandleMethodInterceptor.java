@@ -47,8 +47,8 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
                              MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
-        ServerWebExchange exchange = ((ServerWebExchange) allArguments[0]);
-        EnhancedInstance instance = ((EnhancedInstance) allArguments[0]);
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
         HttpHeaders headers = exchange.getRequest().getHeaders();
         while (next.hasNext()) {
             next = next.next();

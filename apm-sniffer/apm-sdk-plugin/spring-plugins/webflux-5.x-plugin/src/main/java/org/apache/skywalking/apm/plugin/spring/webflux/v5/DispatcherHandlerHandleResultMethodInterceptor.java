@@ -40,7 +40,7 @@ public class DispatcherHandlerHandleResultMethodInterceptor implements InstanceM
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        EnhancedInstance instance = ((EnhancedInstance) allArguments[0]);
+        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
         AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
         if (span != null) {
             ContextManager.stopSpan(span.asyncFinish());
