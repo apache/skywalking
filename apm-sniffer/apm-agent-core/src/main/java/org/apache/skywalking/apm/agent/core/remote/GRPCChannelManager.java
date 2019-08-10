@@ -119,7 +119,7 @@ public class GRPCChannelManager implements BootService, Runnable {
                         notify(GRPCChannelStatus.CONNECTED);
                         reconnectCount = 0;
                         reconnect = false;
-                    } else if (managedChannel.isConnected(++reconnectCount > Config.Agent.MAX_WAIT_CHANNEL_AUTO_CONNECT_COUNT)) {
+                    } else if (managedChannel.isConnected(++reconnectCount > Config.Agent.FORCE_RECONNECTION_PERIOD)) {
                         // Reconnect to the same server is automatically done by GRPC,
                         // therefore we are responsible to check the connectivity and
                         // set the state and notify listeners
