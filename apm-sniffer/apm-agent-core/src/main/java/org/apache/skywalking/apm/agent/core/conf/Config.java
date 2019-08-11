@@ -100,6 +100,13 @@ public class Config {
          * after receiving reset command
          */
         public static int COOL_DOWN_THRESHOLD = 10;
+
+        /**
+         * Force reconnection period of grpc, based on grpc_channel_check_interval.
+         * If count of check grpc channel status more than this number.
+         * The channel check will call channel.getState(true) to requestConnection.
+         */
+        public static long FORCE_RECONNECTION_PERIOD = 1;
     }
 
     public static class Collector {
