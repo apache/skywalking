@@ -35,7 +35,7 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
 
     private static final String ROUTER_SEARCH = "$$Lambda";
     private static final String ROUTER_FIELD = "arg$1";
-    private static final String HASHTAG = "#";
+    private static final String DOT = ".";
 
 
     @Override
@@ -53,7 +53,7 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
             try {
                 Field field = allArguments[1].getClass().getDeclaredField(ROUTER_FIELD);
                 field.setAccessible(true);
-                operationName = operationName + HASHTAG + field.get(allArguments[1]).getClass().getSimpleName();
+                operationName = operationName + DOT + field.get(allArguments[1]).getClass().getName();
             } catch (NoSuchFieldException ignore) {
             }
             span.setOperationName(operationName);
@@ -76,6 +76,6 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
 
     private String getHandlerMethodOperationName(HandlerMethod handler) {
         Method method = handler.getMethod();
-        return method.getDeclaringClass().getSimpleName() + HASHTAG + method.getName();
+        return method.getDeclaringClass().getName() + DOT + method.getName();
     }
 }
