@@ -33,6 +33,9 @@ public enum PropertyPlaceholderHelper {
 
     INSTANCE(PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX,
         PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
+        PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true),
+    LOGGER(PlaceholderConfigurerSupport.LOGGER_PLACEHOLDER_PREFIX,
+        PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX,
         PlaceholderConfigurerSupport.DEFAULT_VALUE_SEPARATOR, true);
 
     private final String placeholderPrefix;

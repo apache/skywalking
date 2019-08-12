@@ -31,4 +31,8 @@ public class PlaceholderConfigurerSupport {
 
     /** Default value separator: {@value} */
     public static final String DEFAULT_VALUE_SEPARATOR = ":";
+
+    /** Logger placeholder prefix: {@value} */
+    public static final String LOGGER_PLACEHOLDER_PREFIX = "%{";
+
 }

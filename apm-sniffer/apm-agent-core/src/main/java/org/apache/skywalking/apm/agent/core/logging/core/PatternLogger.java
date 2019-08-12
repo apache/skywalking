@@ -12,11 +12,7 @@ import java.util.Properties;
  */
 public class PatternLogger extends EasyLogger {
 
-    public static final String DEFAULT_PATTERN = "${level} ${timestamp} ${threadName} ${className} : ${msg} ${throwable:\"\"}";
-
-    String createPlaceHolderByKey(String key) {
-        return "${" + key + "}";
-    }
+    public static final String DEFAULT_PATTERN = "%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable:\"\"}";
 
     private String pattern;
 
@@ -43,15 +39,16 @@ public class PatternLogger extends EasyLogger {
     @Override
     String format(LogLevel level, String message, Throwable t) {
         Properties props = buildContext(level, message, t);
-        return PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(getPattern(), props);
+        return PropertyPlaceholderHelper.LOGGER.replacePlaceholders(getPattern(), props);
     }
 
     private Properties buildContext(LogLevel level, String message, Throwable t) {
         Properties props = new Properties();
+        props.putAll(System.getenv());
         props.put("level", level.name());
         props.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()));
-        props.put("threadName", Thread.currentThread().getName());
-        props.put("className", targetClass);
+        props.put("thread", Thread.currentThread().getName());
+        props.put("class", targetClass);
         props.put("msg", message);
         props.put("throwable", t == null ? "" : format(t));
         return props;
