@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * @author zhaoyuguang
@@ -36,7 +36,8 @@ public class BodyInserterResponseInstrumentation extends ClassInstanceMethodsEnh
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.springframework.web.reactive.function.server.DefaultServerResponseBuilder$BodyInserterResponse");
+        return byMultiClassMatch("org.springframework.web.reactive.function.server.DefaultServerResponseBuilder$BodyInserterResponse",
+                "org.springframework.web.reactive.function.server.DefaultServerResponseBuilder$BodyInserterServerResponse");
     }
 
     @Override

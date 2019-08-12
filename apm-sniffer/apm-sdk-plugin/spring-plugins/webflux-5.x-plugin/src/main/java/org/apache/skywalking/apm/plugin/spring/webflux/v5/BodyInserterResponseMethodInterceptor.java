@@ -57,7 +57,7 @@ public class BodyInserterResponseMethodInterceptor implements InstanceMethodsAro
             }
             Tags.STATUS_CODE.set(span, Integer.toString(status.value()));
         }
-        ContextManager.stopSpan(span.asyncFinish());
+        ContextManager.stopSpan(span);
         ((EnhancedInstance) allArguments[0]).setSkyWalkingDynamicField(null);
     }
 

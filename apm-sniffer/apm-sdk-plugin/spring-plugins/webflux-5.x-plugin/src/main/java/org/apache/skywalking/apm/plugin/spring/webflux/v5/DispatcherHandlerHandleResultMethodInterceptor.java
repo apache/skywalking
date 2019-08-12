@@ -43,7 +43,7 @@ public class DispatcherHandlerHandleResultMethodInterceptor implements InstanceM
         EnhancedInstance instance = (EnhancedInstance) allArguments[0];
         AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
         if (span != null) {
-            ContextManager.stopSpan(span.asyncFinish());
+            ContextManager.stopSpan(span);
             instance.setSkyWalkingDynamicField(null);
         }
         return ret;

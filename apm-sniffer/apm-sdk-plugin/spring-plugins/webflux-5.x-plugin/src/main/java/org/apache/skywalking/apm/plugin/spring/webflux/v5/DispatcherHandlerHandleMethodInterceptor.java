@@ -61,7 +61,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
-        instance.setSkyWalkingDynamicField(span.prepareForAsync());
+        instance.setSkyWalkingDynamicField(span);
     }
 
     @Override
