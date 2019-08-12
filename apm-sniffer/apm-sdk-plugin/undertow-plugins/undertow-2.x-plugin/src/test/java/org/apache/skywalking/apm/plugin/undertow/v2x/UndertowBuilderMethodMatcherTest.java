@@ -18,9 +18,14 @@
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
 import io.undertow.Undertow;
+import io.undertow.predicate.Predicate;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.RoutingHandler;
+import io.undertow.util.HttpString;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.plugin.undertow.v2x.define.RoutingHandlerInstrumentation;
+import org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowListenerConfigInstrumentation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,4 +49,19 @@ public class UndertowBuilderMethodMatcherTest {
         Assert.assertTrue(r);
     }
 
+    @Test
+    public void testMatchRoutingHandler() throws Throwable {
+        ElementMatcher<MethodDescription> matcher = RoutingHandlerInstrumentation.getRoutingHandlerMethodMatcher();
+        Method method1 = RoutingHandler.class.getMethod("add", HttpString.class, String.class, HttpHandler.class);
+        Method method2 = RoutingHandler.class.getMethod("add", HttpString.class, String.class, Predicate.class, HttpHandler.class);
+        Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(method1)));
+        Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(method2)));
+    }
+
+    @Test
+    public void testMatcListenerConfig() throws Throwable {
+        ElementMatcher<MethodDescription> matcher = UndertowListenerConfigInstrumentation.getUndertowBuilderMethodMatcher();
+        Method method = Undertow.Builder.class.getMethod("addListener", Undertow.ListenerBuilder.class);
+        Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(method)));
+    }
 }

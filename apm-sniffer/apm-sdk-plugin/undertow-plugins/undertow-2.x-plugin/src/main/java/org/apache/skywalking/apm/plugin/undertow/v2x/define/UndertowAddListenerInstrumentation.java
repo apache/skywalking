@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 
@@ -51,7 +51,7 @@ public class UndertowAddListenerInstrumentation extends ClassInstanceMethodsEnha
             final InstanceMethodsInterceptPoint point = new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(method).and(takesArgument(2, io.undertow.server.HttpHandler.class));
+                    return named(method).and(takesArgumentWithType(2, "io.undertow.server.HttpHandler"));
                 }
 
                 @Override
