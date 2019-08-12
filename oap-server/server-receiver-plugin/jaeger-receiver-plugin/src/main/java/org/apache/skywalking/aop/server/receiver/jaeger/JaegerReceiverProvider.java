@@ -58,6 +58,12 @@ public class JaegerReceiverProvider extends ModuleProvider {
             if (config.getMaxConcurrentCallsPerConnection() > 0) {
                 grpcServer.setMaxConcurrentCallsPerConnection(config.getMaxConcurrentCallsPerConnection());
             }
+            if (config.getGRPCThreadPoolQueueSize() > 0) {
+                grpcServer.setThreadPoolQueueSize(config.getGRPCThreadPoolQueueSize());
+            }
+            if (config.getGRPCThreadPoolSize() > 0) {
+                grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
+            }
             grpcServer.initialize();
         }
     }
