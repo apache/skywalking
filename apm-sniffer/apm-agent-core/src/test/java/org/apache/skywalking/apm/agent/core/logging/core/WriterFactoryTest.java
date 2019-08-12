@@ -31,4 +31,20 @@ public class WriterFactoryTest {
         PowerMockito.verifyStatic();
         assertTrue(logWriter instanceof SystemOutWriter);
     }
+
+    @Test
+    public void returnFileWriterWriteWithBlankLoggingDir() {
+        Config.Logging.DIR = "";
+        PowerMockito.mockStatic(SnifferConfigInitializer.class);
+        PowerMockito.mockStatic(AgentPackagePath.class);
+        BDDMockito.given(SnifferConfigInitializer.isInitCompleted()).willReturn(true);
+        BDDMockito.given(AgentPackagePath.isPathFound()).willReturn(true);
+
+        assertTrue(SnifferConfigInitializer.isInitCompleted());
+        assertTrue(AgentPackagePath.isPathFound());
+
+        IWriter logWriter = WriterFactory.getLogWriter();
+        PowerMockito.verifyStatic();
+        assertTrue(logWriter instanceof FileWriter);
+    }
 }
