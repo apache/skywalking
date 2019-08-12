@@ -30,6 +30,7 @@ public class PatternLoggerTest {
     public static void initAndHoldOut() {
         OUT_REF = System.out;
         ERR_REF = System.err;
+        Config.Agent.SERVICE_NAME = "testAppFromConfig";
     }
 
 
@@ -78,14 +79,11 @@ public class PatternLoggerTest {
             }
         };
         logger.info("logmsg: $$$$$!@#$%^&*() %{this is message}");
-        Assert.assertThat(strings.get(0), StringContains.containsString("INFO [testAppFromSystemEnv,,,] [main] PatternLoggerTest:-1 logmsg: $$$$$!@#$%^&*() %{this is message}"));
+        Assert.assertThat(strings.get(0), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 logmsg: $$$$$!@#$%^&*() %{this is message}"));
     }
 
     @Test
     public void testLogFormat() {
-        String old = Config.Agent.SERVICE_NAME;
-        Config.Agent.SERVICE_NAME = "testAppFromSystemEnv";
-
         final List<String> strings = Lists.newArrayList();
         PatternLogger logger = new PatternLogger(PatternLoggerTest.class, PATTERN) {
             @Override
@@ -99,12 +97,10 @@ public class PatternLoggerTest {
         logger.error("hello world", null);
         String formatLines = strings.get(0);
         String[] lines = formatLines.split(Constants.LINE_SEPARATOR);
-        Assert.assertThat(lines[0], StringContains.containsString("ERROR [testAppFromSystemEnv,,,] [main] PatternLoggerTest:-1 hello world "));
+        Assert.assertThat(lines[0], StringContains.containsString("ERROR [testAppFromConfig,,,] [main] PatternLoggerTest:-1 hello world "));
         Assert.assertEquals("java.lang.NullPointerException", lines[1]);
         Assert.assertThat(lines[2], StringContains.containsString("PatternLoggerTest.testLogFormat"));
         Assert.assertEquals(strings.get(1).split(Constants.LINE_SEPARATOR).length, 1);
-
-        Config.Agent.SERVICE_NAME = old;
     }
 
 
