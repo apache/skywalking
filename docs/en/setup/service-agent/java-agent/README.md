@@ -83,7 +83,7 @@ property key | Description | Default |
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs. If set "system.out", means, always use system.out|`""`|
-`logging.pattern `|logging format. Default is blank string, means, use EasyLogger who pattern is `%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable:""}` |`""`|
+`logging.pattern `|logging format. Default is blank string, means, use EasyLogger who pattern is `%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable}` |`""`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|

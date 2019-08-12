@@ -1,5 +1,6 @@
 package org.apache.skywalking.apm.agent.core.logging.core;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -12,7 +13,7 @@ import java.util.Properties;
  */
 public class PatternLogger extends EasyLogger {
 
-    public static final String DEFAULT_PATTERN = "%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable:\"\"}";
+    public static final String DEFAULT_PATTERN = "%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable}";
 
     private String pattern;
 
@@ -45,6 +46,9 @@ public class PatternLogger extends EasyLogger {
     private Properties buildContext(LogLevel level, String message, Throwable t) {
         Properties props = new Properties();
         props.putAll(System.getenv());
+        props.putAll(System.getProperties());
+        props.put("agent.service_name", Config.Agent.SERVICE_NAME);
+        props.put("agent.namespace", Config.Agent.NAMESPACE);
         props.put("level", level.name());
         props.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()));
         props.put("thread", Thread.currentThread().getName());
