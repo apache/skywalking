@@ -40,7 +40,7 @@ import java.util.List;
 
 public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String WIP_OPERATION_NAME = "WEBFLUX#handle";
+    private static final String WIP_OPERATION_NAME = "WEBFLUX.handle";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
