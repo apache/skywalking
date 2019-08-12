@@ -28,11 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.springframework.web.method.HandlerMethod;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class DispatcherHandlerInvokeHandlerMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String ROUTER_SEARCH = "$$Lambda";
+    private static final String ROUTER_FIELD = "arg$1";
     private static final String HASHTAG = "#";
 
 
@@ -47,7 +49,14 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
         String handleClassName = allArguments[1].getClass().getSimpleName();
         int index = handleClassName.indexOf(ROUTER_SEARCH);
         if (index != -1) {
-            span.setOperationName(handleClassName.substring(0, index));
+            String operationName = handleClassName.substring(0, index);
+            try {
+                Field field = allArguments[1].getClass().getDeclaredField(ROUTER_FIELD);
+                field.setAccessible(true);
+                operationName = operationName + HASHTAG + field.get(allArguments[1]).getClass().getSimpleName();
+            } catch (NoSuchFieldException ignore) {
+            }
+            span.setOperationName(operationName);
         } else if (allArguments[1] instanceof HandlerMethod) {
             HandlerMethod handler = (HandlerMethod) allArguments[1];
             span.setOperationName(getHandlerMethodOperationName(handler));
