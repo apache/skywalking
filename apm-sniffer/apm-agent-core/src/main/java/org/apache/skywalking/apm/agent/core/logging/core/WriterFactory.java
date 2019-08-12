@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 public class WriterFactory {
     public static IWriter getLogWriter() {
-        if (SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound() && !useSystemOut()) {
+        if (SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound() && !useConsole()) {
             if (StringUtil.isEmpty(Config.Logging.DIR)) {
                 try {
                     Config.Logging.DIR = AgentPackagePath.getPath() + "/logs";
@@ -41,7 +41,7 @@ public class WriterFactory {
         }
     }
 
-    private static boolean useSystemOut() {
-        return "system.out".equals(Config.Logging.DIR);
+    private static boolean useConsole() {
+        return LogOutput.CONSOLE == Config.Logging.OUTPUT;
     }
 }

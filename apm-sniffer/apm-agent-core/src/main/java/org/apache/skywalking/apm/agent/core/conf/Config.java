@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
 import java.util.HashMap;
@@ -169,6 +170,11 @@ public class Config {
          * The log level. Default is debug.
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
+
+        /**
+         * The log output. Default is FILE.
+         */
+        public static LogOutput OUTPUT = LogOutput.FILE;
 
         /**
          * The log patten. Default is "", means use EasyLogger.

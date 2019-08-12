@@ -82,7 +82,8 @@ property key | Description | Default |
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
-`logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs. If set "system.out", means, always use system.out|`""`|
+`logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
+`logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
 `logging.pattern `|logging format. Default is blank string, means, use EasyLogger who pattern is `%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable}` |`""`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|

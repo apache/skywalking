@@ -35,7 +35,7 @@ public class WriterFactoryTest {
 
     @Test
     public void alwaysReturnSystemLogWriteWithSetLoggingDir() {
-        Config.Logging.DIR = "system.out";
+        Config.Logging.OUTPUT = LogOutput.CONSOLE;
         PowerMockito.mockStatic(SnifferConfigInitializer.class);
         PowerMockito.mockStatic(AgentPackagePath.class);
         BDDMockito.given(SnifferConfigInitializer.isInitCompleted()).willReturn(true);
@@ -51,7 +51,7 @@ public class WriterFactoryTest {
 
     @Test
     public void returnFileWriterWriteWithBlankLoggingDir() {
-        Config.Logging.DIR = "";
+        Config.Logging.OUTPUT = LogOutput.FILE;
         PowerMockito.mockStatic(SnifferConfigInitializer.class);
         PowerMockito.mockStatic(AgentPackagePath.class);
         BDDMockito.given(SnifferConfigInitializer.isInitCompleted()).willReturn(true);
