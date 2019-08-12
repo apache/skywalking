@@ -271,7 +271,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
     Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
-    Apache: freemaker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
+    Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0

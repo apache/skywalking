@@ -63,6 +63,13 @@ pipeline {
                                 sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
                             }
                         }
+
+                        stage('Check Dependencies Licenses') {
+                            steps {
+                                sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
+                                sh 'tools/dependencies/check-LICENSE.sh'
+                            }
+                        }
                     }
 
                     post {

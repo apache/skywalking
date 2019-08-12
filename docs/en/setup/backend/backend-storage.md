@@ -40,6 +40,7 @@ storage:
     # user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     # password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Those data TTL settings will override the same settings in core module.
@@ -56,6 +57,12 @@ storage:
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
 
+### Elasticearch server settings
+Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. 
+And recommend read more about these configuration from ElasticSearch official document. 
+This effects the performance of ElasticSearch very much.
+
+
 ### ElasticSearch 6 with Zipkin trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
@@ -64,6 +71,7 @@ storage:
   zipkin-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
@@ -79,8 +87,6 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
 
-Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. And recommend read more about these configuration from ElasticSearch official document. This effects the performance of ElasticSearch very much.
-
 ### ElasticSearch 6 with Jaeger trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
@@ -89,6 +95,7 @@ storage:
   jaeger-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
