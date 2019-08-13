@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * Return the StackTrace of String with logEvent.getThrowable()
  * @author alvin
  */
 public class ThrowableConverter implements Converter {

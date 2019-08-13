@@ -86,6 +86,39 @@ public class PatternLoggerTest {
     }
 
     @Test
+    public void testLogWithSpecialChar() {
+        PrintStream output = Mockito.mock(PrintStream.class);
+        System.setOut(output);
+        PrintStream err = Mockito.mock(PrintStream.class);
+        System.setErr(err);
+        PatternLogger logger = new PatternLogger(PatternLoggerTest.class, PATTERN) {
+            @Override
+            protected void logger(LogLevel level, String message, Throwable e) {
+                SystemOutWriter.INSTANCE.write(format(level, message, e));
+            }
+        };
+
+        Assert.assertTrue(logger.isDebugEnable());
+        Assert.assertTrue(logger.isInfoEnable());
+        Assert.assertTrue(logger.isWarnEnable());
+        Assert.assertTrue(logger.isErrorEnable());
+
+        logger.debug("$^!@#*()");
+        logger.debug("hello {}", "!@#$%^&*(),./[]:;");
+        logger.info("{}{}");
+        logger.info("hello {}", "{}{}");
+
+        logger.warn("hello {}", "\\");
+        logger.warn("hello \\");
+        logger.error("hello <>..");
+        logger.error("hello ///\\\\", new NullPointerException());
+        logger.error(new NullPointerException(), "hello {}", "&&&**%%");
+
+        Mockito.verify(output, times(9))
+                .println(anyString());
+    }
+
+    @Test
     public void testLogOk_whenPatternHasKeyword() {
         final List<String> strings = Lists.newArrayList();
         PatternLogger logger = new PatternLogger(PatternLoggerTest.class, "logmsg: %%%%%%!@#$\\%^&*() %{this is message} \\\\ \\n\\t \t\n %%msg") {

@@ -177,9 +177,21 @@ public class Config {
         public static LogOutput OUTPUT = LogOutput.FILE;
 
         /**
-         * The log patten. Default is "", means use EasyLogger.
+         * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable".
+         * Each conversion specifiers starts with a percent sign '%' and fis followed by conversion word.
+         * There are some default conversion specifiers:
+         * %thread = ThreadName
+         * %level = LogLevel  {@link LogLevel}
+         * %timestamp = The now() who format is 'yyyy-MM-dd HH:mm:ss:SSS'
+         * %class = SimpleName of TargetClass
+         * %msg = Message of user input
+         * %throwable = Throwable of user input
+         * %agent_name = ServiceName of Agent {@link Agent#SERVICE_NAME}
+         *
+         * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
+         *
          */
-        public static String PATTERN = "";
+        public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
     }
 
     public static class Plugin {

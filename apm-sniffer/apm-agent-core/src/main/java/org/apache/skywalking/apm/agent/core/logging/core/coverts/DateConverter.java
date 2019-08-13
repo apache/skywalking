@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * The Converter is used to return a now date with format.
+ *
  * @author alvin
  */
 public class DateConverter implements Converter {

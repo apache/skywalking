@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
+ * Just return logEvent.getTargetClass().
  * @author alvin
  */
 public class ClassConverter implements Converter {

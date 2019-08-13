@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Parser of LogPattern. It is used to parse a pattern to the List<Converter>.
  * @author alvin
  */
 public class Parser {
@@ -53,7 +54,6 @@ public class Parser {
         this.pattern = pattern;
         this.patternLength = pattern.length();
     }
-
 
     public List<Converter> parse() {
         List<Converter> patternConverters = new ArrayList<Converter>();
