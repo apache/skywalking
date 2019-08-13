@@ -412,6 +412,10 @@ public class TracingContext implements AbstractTracerContext {
                 if (toFinishSpan.finish(segment)) {
                     pop();
                 }
+            } else if (lastSpan instanceof NoopExitSpan) {
+                if (((NoopExitSpan) lastSpan).checkFinish()) {
+                    pop();
+                }
             } else {
                 pop();
             }

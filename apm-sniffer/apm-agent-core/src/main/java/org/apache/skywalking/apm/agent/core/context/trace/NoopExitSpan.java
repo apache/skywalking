@@ -20,6 +20,7 @@
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 public class NoopExitSpan extends NoopSpan implements WithPeerInfo {
+    private int  stackDepth;
 
     private String peer;
     private int peerId;
@@ -45,5 +46,16 @@ public class NoopExitSpan extends NoopSpan implements WithPeerInfo {
     @Override
     public boolean isExit() {
         return true;
+    }
+
+    @Override
+    public NoopExitSpan start()
+    {
+        stackDepth++;
+        return this;
+    }
+
+    public boolean checkFinish() {
+        return --stackDepth == 0;
     }
 }
