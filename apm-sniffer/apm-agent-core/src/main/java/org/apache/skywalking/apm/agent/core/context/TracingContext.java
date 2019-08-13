@@ -325,6 +325,11 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public AbstractSpan createExitSpan(final String operationName, final String remotePeer) {
+        if (isLimitMechanismWorking()) {
+            NoopExitSpan span = new NoopExitSpan(remotePeer);
+            return push(span);
+        }
+
         AbstractSpan exitSpan;
         AbstractSpan parentSpan = peek();
         if (parentSpan != null && parentSpan.isExit()) {
@@ -336,10 +341,6 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.FoundAndObtain() {
                         @Override
                         public Object doProcess(final int peerId) {
-                            if (isLimitMechanismWorking()) {
-                                return new NoopExitSpan(peerId);
-                            }
-
                             return DictionaryManager.findEndpointSection()
                                 .findOnly(segment.getServiceId(), operationName)
                                 .doInCondition(
@@ -359,10 +360,6 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            if (isLimitMechanismWorking()) {
-                                return new NoopExitSpan(remotePeer);
-                            }
-
                             return DictionaryManager.findEndpointSection()
                                 .findOnly(segment.getServiceId(), operationName)
                                 .doInCondition(
