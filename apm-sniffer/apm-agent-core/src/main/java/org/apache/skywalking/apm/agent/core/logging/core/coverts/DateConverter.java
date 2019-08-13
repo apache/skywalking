@@ -16,20 +16,22 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+
+package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+
+import org.apache.skywalking.apm.agent.core.logging.core.Converter;
+import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- * @author jian.tan
+ * @author alvin
  */
-public class PlaceholderConfigurerSupport {
+public class DateConverter implements Converter {
 
-    /** Default placeholder prefix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
-
-    /** Default placeholder suffix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
-
-    /** Default value separator: {@value} */
-    public static final String DEFAULT_VALUE_SEPARATOR = ":";
-
+    @Override
+    public String convert(LogEvent logEvent) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date());
+    }
 }

@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ThrowableConverter;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -80,16 +81,7 @@ public class EasyLogger implements ILog {
     }
 
     String format(Throwable t) {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        t.printStackTrace(new java.io.PrintWriter(buf, true));
-        String expMessage = buf.toString();
-        try {
-            buf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return Constants.LINE_SEPARATOR + expMessage;
+        return ThrowableConverter.format(t);
     }
 
     @Override

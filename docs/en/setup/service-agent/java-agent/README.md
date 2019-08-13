@@ -84,7 +84,7 @@ property key | Description | Default |
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
 `logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
-`logging.pattern `|logging format. Default is blank string, means, use EasyLogger who pattern is `%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable}` |`""`|
+`logging.pattern `|logging format. Default is blank string, means, use EasyLogger who pattern is `%level %timestamp %thread %class : %msg %throwable` |`""`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|

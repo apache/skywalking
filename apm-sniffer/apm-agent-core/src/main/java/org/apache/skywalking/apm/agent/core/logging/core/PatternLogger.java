@@ -18,11 +18,11 @@
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -30,9 +30,10 @@ import java.util.Properties;
  */
 public class PatternLogger extends EasyLogger {
 
-    public static final String DEFAULT_PATTERN = "%{level} %{timestamp} %{thread} %{class} : %{msg} %{throwable}";
+    public static final String DEFAULT_PATTERN = "%level %timestamp %thread %class : %msg %throwable";
 
     private String pattern;
+    private List<Converter> converters;
 
     public PatternLogger(Class targetClass, String pattern) {
         this(targetClass.getSimpleName(), pattern);
@@ -51,27 +52,16 @@ public class PatternLogger extends EasyLogger {
         if (StringUtil.isEmpty(pattern)) {
             pattern = DEFAULT_PATTERN;
         }
-        this.pattern = pattern;
+        converters = new Parser(pattern, ConverterMapHolder.getConverterMap()).parse();
     }
 
     @Override
     String format(LogLevel level, String message, Throwable t) {
-        Properties props = buildContext(level, message, t);
-        return PropertyPlaceholderHelper.LOGGER.replacePlaceholders(getPattern(), props);
-    }
-
-    private Properties buildContext(LogLevel level, String message, Throwable t) {
-        Properties props = new Properties();
-        props.putAll(System.getenv());
-        props.putAll(System.getProperties());
-        props.put("agent.service_name", Config.Agent.SERVICE_NAME);
-        props.put("agent.namespace", Config.Agent.NAMESPACE);
-        props.put("level", level.name());
-        props.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()));
-        props.put("thread", Thread.currentThread().getName());
-        props.put("class", targetClass);
-        props.put("msg", message);
-        props.put("throwable", t == null ? "" : format(t));
-        return props;
+        LogEvent logEvent = new LogEvent(level, message, t, targetClass);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Converter converter : converters) {
+            stringBuilder.append(converter.convert(logEvent));
+        }
+        return stringBuilder.toString();
     }
 }

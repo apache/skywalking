@@ -16,20 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+
+package org.apache.skywalking.apm.agent.core.logging.core;
+
 
 /**
- * @author jian.tan
+ * @author alvin
  */
-public class PlaceholderConfigurerSupport {
+public interface Converter {
 
-    /** Default placeholder prefix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
-
-    /** Default placeholder suffix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
-
-    /** Default value separator: {@value} */
-    public static final String DEFAULT_VALUE_SEPARATOR = ":";
+    String convert(LogEvent logEvent);
 
 }

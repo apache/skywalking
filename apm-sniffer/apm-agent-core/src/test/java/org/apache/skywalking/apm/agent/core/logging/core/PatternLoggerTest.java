@@ -38,7 +38,7 @@ import static org.mockito.Mockito.times;
  */
 public class PatternLoggerTest {
 
-    public static final String PATTERN = "%{timestamp}+0800 %{level} [%{agent.service_name},,,] [%{thread}] %{class}:-1 %{msg} %{throwable}";
+    public static final String PATTERN = "%timestamp+0800 %level [%agent_name,,,] [%thread] %class:-1 %msg %throwable";
 
     private static PrintStream OUT_REF;
     private static PrintStream ERR_REF;
@@ -86,17 +86,17 @@ public class PatternLoggerTest {
     }
 
     @Test
-    public void testLogWithPlaceHolderKeyWord() {
+    public void testLogOk_whenPatternHasKeyword() {
         final List<String> strings = Lists.newArrayList();
-        PatternLogger logger = new PatternLogger(PatternLoggerTest.class, PATTERN) {
+        PatternLogger logger = new PatternLogger(PatternLoggerTest.class, "logmsg: %%%%%%!@#$\\%^&*() %{this is message} \\\\ \\n\\t \t\n %%msg") {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
                 String r = format(level, message, e);
                 strings.add(r);
             }
         };
-        logger.info("logmsg: $$$$$!@#$%^&*() %{this is message}");
-        Assert.assertThat(strings.get(0), StringContains.containsString("INFO [testAppFromConfig,,,] [main] PatternLoggerTest:-1 logmsg: $$$$$!@#$%^&*() %{this is message}"));
+        logger.info("msg");
+        Assert.assertThat(strings.get(0), StringContains.containsString("logmsg: %%%%%%!@#$%^&*() %{this is message} \\ \n\t \t\n %msg"));
     }
 
     @Test

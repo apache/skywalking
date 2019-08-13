@@ -16,20 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+
+package org.apache.skywalking.apm.agent.core.logging.core.coverts;
+
+import org.apache.skywalking.apm.agent.core.logging.core.Converter;
+import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
- * @author jian.tan
+ * @author alvin
  */
-public class PlaceholderConfigurerSupport {
+public class LiteralConverter implements Converter {
 
-    /** Default placeholder prefix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
+    private final String literal;
 
-    /** Default placeholder suffix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
+    public LiteralConverter(String literal) {
+        this.literal = literal;
+    }
 
-    /** Default value separator: {@value} */
-    public static final String DEFAULT_VALUE_SEPARATOR = ":";
-
+    @Override
+    public String convert(LogEvent logEvent) {
+        return literal;
+    }
 }
