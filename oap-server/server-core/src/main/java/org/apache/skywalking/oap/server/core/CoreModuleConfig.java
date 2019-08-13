@@ -50,6 +50,8 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int hourMetricsDataTTL;
     @Setter private int dayMetricsDataTTL;
     @Setter private int monthMetricsDataTTL;
+    @Setter private int gRPCThreadPoolSize;
+    @Setter private int gRPCThreadPoolQueueSize;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

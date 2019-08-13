@@ -75,7 +75,11 @@ public class GRPCChannel {
     }
 
     public boolean isConnected() {
-        return originChannel.getState(false) == ConnectivityState.READY;
+        return isConnected(false);
+    }
+
+    public boolean isConnected(boolean requestConnection) {
+        return originChannel.getState(requestConnection) == ConnectivityState.READY;
     }
 
     public static class Builder {
