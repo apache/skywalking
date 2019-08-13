@@ -152,7 +152,6 @@ public class Parser {
     private void addConverter(StringBuilder buf, List<Converter> patternConverters, Class<? extends Converter> aClass) {
         if (buf.length() > 0) {
             String result = buf.toString();
-            String className = aClass.getName();
             if (LiteralConverter.class.equals(aClass)) {
                 patternConverters.add(new LiteralConverter(result));
             } else {
