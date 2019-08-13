@@ -18,19 +18,20 @@
 package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+import java.lang.reflect.Method;
+
 public class StatusInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         HttpResponseStatus status = (HttpResponseStatus)allArguments[0];
-        if (status.code() > 400) {
+        if (status.code() >= 400) {
             ContextManager.activeSpan().errorOccurred();
             Tags.STATUS_CODE.set(ContextManager.activeSpan(), String.valueOf(status.code()));
         }

@@ -42,7 +42,7 @@ public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAro
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         HttpResponseStatus response = (HttpResponseStatus) ret;
-        if (response.code() > 400) {
+        if (response.code() >= 400) {
             ContextManager.activeSpan().errorOccurred();
             Tags.STATUS_CODE.set(ContextManager.activeSpan(), String.valueOf(response.code()));
         }
