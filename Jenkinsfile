@@ -59,7 +59,7 @@ pipeline {
 
                         stage('Test & Report') {
                             steps {
-                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report coveralls:report'
+                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report'
                                 sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
                             }
                         }
