@@ -19,7 +19,6 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
@@ -37,7 +36,6 @@ public class ThrowableConverter implements Converter {
         return t == null ? "" : format(t);
     }
 
-    @NotNull
     public static String format(Throwable t) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         t.printStackTrace(new java.io.PrintWriter(buf, true));
