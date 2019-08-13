@@ -17,18 +17,35 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.AgentNameConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ClassConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.DateConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.LevelConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.MessageConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ThreadConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ThrowableConverter;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * @author alvin
  */
 public class PatternLogger extends EasyLogger {
+
+    public static final Map<String, Class<? extends Converter>> DEFAULT_CONVERTER_MAP = new HashMap<String, Class<? extends Converter>>();
+
+    static {
+        DEFAULT_CONVERTER_MAP.put("thread", ThreadConverter.class);
+        DEFAULT_CONVERTER_MAP.put("level", LevelConverter.class);
+        DEFAULT_CONVERTER_MAP.put("agent_name", AgentNameConverter.class);
+        DEFAULT_CONVERTER_MAP.put("timestamp", DateConverter.class);
+        DEFAULT_CONVERTER_MAP.put("msg", MessageConverter.class);
+        DEFAULT_CONVERTER_MAP.put("throwable", ThrowableConverter.class);
+        DEFAULT_CONVERTER_MAP.put("class", ClassConverter.class);
+    }
 
     public static final String DEFAULT_PATTERN = "%level %timestamp %thread %class : %msg %throwable";
 
@@ -52,7 +69,7 @@ public class PatternLogger extends EasyLogger {
         if (StringUtil.isEmpty(pattern)) {
             pattern = DEFAULT_PATTERN;
         }
-        converters = new Parser(pattern, ConverterMapHolder.getConverterMap()).parse();
+        converters = new Parser(pattern, DEFAULT_CONVERTER_MAP).parse();
     }
 
     @Override

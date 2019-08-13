@@ -19,13 +19,10 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.core.coverts.ThrowableConverter;
 import org.apache.skywalking.apm.util.StringUtil;
