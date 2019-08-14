@@ -38,14 +38,14 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
  */
 public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PERFIX = "GATEWAY#";
+    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "GATEWAY/";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         AbstractSpan span = (AbstractSpan) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-        String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PERFIX;
+        String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
         if (span != null) {
             Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
             operationName = operationName + route.getId();
