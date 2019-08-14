@@ -37,6 +37,9 @@ import java.util.regex.Matcher;
 /**
  * A flexible Logger configurable with pattern string.
  * This is default implementation of {@link ILog}
+ * This can parse a pattern to the List of converter with Parser.
+ * We package LogEvent with message, level,timestamp ..., passing around to the List of converter to concat actually Log-String.
+ *
  * @author alvin
  */
 public class PatternLogger implements ILog {
