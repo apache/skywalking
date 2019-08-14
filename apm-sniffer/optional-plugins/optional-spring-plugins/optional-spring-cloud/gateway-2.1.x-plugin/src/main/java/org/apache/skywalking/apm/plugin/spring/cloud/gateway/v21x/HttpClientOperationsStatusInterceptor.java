@@ -16,51 +16,50 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.springframework.cloud.gateway.route.Route;
-import org.springframework.web.server.ServerWebExchange;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 
 import java.lang.reflect.Method;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
 
 /**
  * @author zhaoyuguang
  */
-public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
-
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().tag("route", route.getId());
-        }
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+
+        SWTransmitter transmitter = (SWTransmitter) objInst.getSkyWalkingDynamicField();
+        if (transmitter != null) {
+            HttpResponseStatus response = (HttpResponseStatus) ret;
+            if (response.code() >= 400) {
+                Tags.STATUS_CODE.set(transmitter.getSpanGateway().errorOccurred(), String.valueOf(response.code()));
+                Tags.STATUS_CODE.set(transmitter.getSpanWebflux().errorOccurred(), String.valueOf(response.code()));
+            }
+            transmitter.getSpanGateway().asyncFinish();
+            transmitter.getSpanWebflux().asyncFinish();
+            objInst.setSkyWalkingDynamicField(null);
+        }
         return ret;
     }
-
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        if (span != null) {
-            span.errorOccurred();
-            span.log(t);
-        }
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

@@ -16,13 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -30,6 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 import reactor.netty.channel.ChannelOperations;
 import reactor.netty.http.client.HttpClientRequest;
 
@@ -45,30 +45,32 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        HttpClientRequest request = (HttpClientRequest) objInst;
-        EnhancedInstance instance = (EnhancedInstance) request;
+        SWTransmitter transmitter = (SWTransmitter) objInst.getSkyWalkingDynamicField();
+        if (transmitter != null) {
+            HttpClientRequest request = (HttpClientRequest) objInst;
 
-        HttpHeaders header = request.requestHeaders();
-        ChannelOperations channelOpt = (ChannelOperations) objInst;
-        InetSocketAddress remote = (InetSocketAddress) (channelOpt.channel().remoteAddress());
-        String peer = remote.getHostName() + ":" + remote.getPort();
+            HttpHeaders header = request.requestHeaders();
+            ChannelOperations channelOpt = (ChannelOperations) objInst;
+            InetSocketAddress remote = (InetSocketAddress) (channelOpt.channel().remoteAddress());
+            String peer = remote.getHostName() + ":" + remote.getPort();
 
-        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), peer);
-        ContextSnapshot snapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
+            AbstractSpan span = ContextManager.createExitSpan(transmitter.getOperationName(), peer);
+            ContextManager.continued(transmitter.getSnapshot());
+            ContextCarrier contextCarrier = new ContextCarrier();
+            ContextManager.inject(contextCarrier);
 
-        ContextManager.continued(snapshot);
-        ContextCarrier contextCarrier = new ContextCarrier();
-        ContextManager.inject(contextCarrier);
+            span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
+            Tags.URL.set(span, peer + request.uri());
+            Tags.HTTP.METHOD.set(span, request.method().name());
+            SpanLayer.asHttp(span);
 
-        span.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
-        Tags.URL.set(span, peer + request.uri());
-        Tags.HTTP.METHOD.set(span, request.method().name());
-        SpanLayer.asHttp(span);
-
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            header.set(next.getHeadKey(), next.getHeadValue());
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                header.set(next.getHeadKey(), next.getHeadValue());
+            }
+            transmitter.setSpanGateway(span.prepareForAsync());
+            ContextManager.stopSpan(span);
         }
     }
 
@@ -83,14 +85,5 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
-    }
-
-    private static String toPath(String uri) {
-        int index = uri.indexOf("?");
-        if (index > -1) {
-            return uri.substring(0, index);
-        } else {
-            return uri;
-        }
     }
 }

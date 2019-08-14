@@ -28,7 +28,7 @@
 
     <artifactId>optional-spring-cloud</artifactId>
     <modules>
-        <module>gateway-2.x-plugin</module>
+        <module>gateway-2.1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
