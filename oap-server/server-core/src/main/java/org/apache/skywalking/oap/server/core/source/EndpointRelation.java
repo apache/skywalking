@@ -27,6 +27,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
  * @author peng-yongsheng
  */
 @ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class EndpointRelation extends Source {
 
     @Override public int scope() {
@@ -39,16 +40,16 @@ public class EndpointRelation extends Source {
 
     @Getter @Setter private int endpointId;
     @Getter @Setter private String endpoint;
-    @Getter @Setter private int serviceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id") private int serviceInstanceId;
     @Getter @Setter private String serviceInstanceName;
 
     @Getter @Setter private int childEndpointId;
     @Getter @Setter private String childEndpoint;
-    @Getter @Setter private int childServiceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id") private int childServiceId;
     @Getter @Setter private String childServiceName;
-    @Getter @Setter private int childServiceInstanceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "child_service_instance_id") private int childServiceInstanceId;
     @Getter @Setter private String childServiceInstanceName;
 
     @Getter @Setter private int componentId;

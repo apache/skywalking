@@ -225,7 +225,8 @@ ClassMatch represents how to match the target classes, there are 4 ways:
 * byHierarchyMatch, through the class's parent classes or interfaces
 
 **Attentions**:
-* Forbid to use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
+* Never use `ThirdPartyClass.class` in the instrumentation definitions, such as `takesArguments(ThirdPartyClass.class)`, or `byName(ThirdPartyClass.class.getName())`, because of the fact that `ThirdPartyClass` dose not necessarily exist in the target application and this will break the agent; we have `import` checks to help on checking this in CI, but it doesn't cover all scenarios of this limitation, so never try to work around this limitation by something like using full-qualified-class-name (FQCN), i.e. `takesArguments(full.qualified.ThirdPartyClass.class)` and `byName(full.qualified.ThirdPartyClass.class.getName())` will pass the CI check, but are still invalid in the agent codes, **Use Full Qualified Class Name String Literature Instead**.
+* Even you are perfectly sure that the class to be intercepted exists in the target application (such as JDK classes), still, don't use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
 avoiding ClassLoader issues.
 * `by*AnnotationMatch` doesn't support the inherited annotations.
 * Don't recommend to use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 

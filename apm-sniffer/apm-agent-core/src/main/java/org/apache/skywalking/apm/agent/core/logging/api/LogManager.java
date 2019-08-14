@@ -19,7 +19,7 @@
 
 package org.apache.skywalking.apm.agent.core.logging.api;
 
-import org.apache.skywalking.apm.agent.core.logging.core.EasyLogResolver;
+import org.apache.skywalking.apm.agent.core.logging.core.PatternLogResolver;
 
 /**
  * LogManager is the {@link LogResolver} implementation manager. By using {@link LogResolver}, {@link
@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.agent.core.logging.core.EasyLogResolver;
  * <p> Created by xin on 2016/11/10.
  */
 public class LogManager {
-    private static LogResolver RESOLVER = new EasyLogResolver();
+    private static LogResolver RESOLVER = new PatternLogResolver();
 
     public static void setLogResolver(LogResolver resolver) {
         LogManager.RESOLVER = resolver;

@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
 import java.util.HashMap;
@@ -100,6 +101,13 @@ public class Config {
          * after receiving reset command
          */
         public static int COOL_DOWN_THRESHOLD = 10;
+
+        /**
+         * Force reconnection period of grpc, based on grpc_channel_check_interval.
+         * If count of check grpc channel status more than this number.
+         * The channel check will call channel.getState(true) to requestConnection.
+         */
+        public static long FORCE_RECONNECTION_PERIOD = 1;
     }
 
     public static class Collector {
@@ -162,6 +170,28 @@ public class Config {
          * The log level. Default is debug.
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
+
+        /**
+         * The log output. Default is FILE.
+         */
+        public static LogOutput OUTPUT = LogOutput.FILE;
+
+        /**
+         * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable".
+         * Each conversion specifiers starts with a percent sign '%' and fis followed by conversion word.
+         * There are some default conversion specifiers:
+         * %thread = ThreadName
+         * %level = LogLevel  {@link LogLevel}
+         * %timestamp = The now() who format is 'yyyy-MM-dd HH:mm:ss:SSS'
+         * %class = SimpleName of TargetClass
+         * %msg = Message of user input
+         * %throwable = Throwable of user input
+         * %agent_name = ServiceName of Agent {@link Agent#SERVICE_NAME}
+         *
+         * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
+         *
+         */
+        public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
     }
 
     public static class Plugin {

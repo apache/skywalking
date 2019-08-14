@@ -33,9 +33,6 @@ public class SourceColumn {
     private String fieldSetter;
     private String fieldGetter;
 
-    public SourceColumn() {
-    }
-
     public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID) {
         this.fieldName = fieldName;
         this.columnName = columnName;
