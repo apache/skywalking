@@ -207,6 +207,12 @@ Solr:
 SpringAsync:
   id: 65
   languages: Java
+JdkHttp:
+  id: 66
+  languages: Java
+spring-webflux:
+  id: 67
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
