@@ -16,35 +16,74 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Matcher;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.AgentNameConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ClassConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.DateConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.LevelConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.MessageConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ThreadConverter;
+import org.apache.skywalking.apm.agent.core.logging.core.coverts.ThrowableConverter;
 import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * The <code>EasyLogger</code> is a simple implementation of {@link ILog}.
- *
- * @author wusheng
- */
-public class EasyLogger implements ILog {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 
+/**
+ * A flexible Logger configurable with pattern string.
+ * This is default implementation of {@link ILog}
+ * This can parse a pattern to the List of converter with Parser.
+ * We package LogEvent with message, level,timestamp ..., passing around to the List of converter to concat actually Log-String.
+ *
+ * @author alvin
+ */
+public class PatternLogger implements ILog {
+
+
+    public static final Map<String, Class<? extends Converter>> DEFAULT_CONVERTER_MAP = new HashMap<String, Class<? extends Converter>>();
+
+    static {
+        DEFAULT_CONVERTER_MAP.put("thread", ThreadConverter.class);
+        DEFAULT_CONVERTER_MAP.put("level", LevelConverter.class);
+        DEFAULT_CONVERTER_MAP.put("agent_name", AgentNameConverter.class);
+        DEFAULT_CONVERTER_MAP.put("timestamp", DateConverter.class);
+        DEFAULT_CONVERTER_MAP.put("msg", MessageConverter.class);
+        DEFAULT_CONVERTER_MAP.put("throwable", ThrowableConverter.class);
+        DEFAULT_CONVERTER_MAP.put("class", ClassConverter.class);
+    }
+
+    public static final String DEFAULT_PATTERN = "%level %timestamp %thread %class : %msg %throwable";
+
+    private String pattern;
+    private List<Converter> converters;
     private String targetClass;
 
-    public EasyLogger(Class targetClass) {
-        this.targetClass = targetClass.getSimpleName();
+    public PatternLogger(Class targetClass, String pattern) {
+        this(targetClass.getSimpleName(), pattern);
     }
 
-    public EasyLogger(String targetClass) {
+    public PatternLogger(String targetClass, String pattern) {
         this.targetClass = targetClass;
+        this.setPattern(pattern);
     }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String pattern) {
+        if (StringUtil.isEmpty(pattern)) {
+            pattern = DEFAULT_PATTERN;
+        }
+        this.pattern = pattern;
+        converters = new Parser(pattern, DEFAULT_CONVERTER_MAP).parse();
+    }
+
 
     protected void logger(LogLevel level, String message, Throwable e) {
         WriterFactory.getLogWriter().write(format(level, message, e));
@@ -66,30 +105,6 @@ public class EasyLogger implements ILog {
             startSize = index + 2;
         }
         return tmpMessage;
-    }
-
-    String format(LogLevel level, String message, Throwable t) {
-        return StringUtil.join(' ', level.name(),
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()),
-            Thread.currentThread().getName(),
-            targetClass,
-            ": ",
-            message,
-            t == null ? "" : format(t)
-        );
-    }
-
-    String format(Throwable t) {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        t.printStackTrace(new java.io.PrintWriter(buf, true));
-        String expMessage = buf.toString();
-        try {
-            buf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return Constants.LINE_SEPARATOR + expMessage;
     }
 
     @Override
@@ -167,5 +182,15 @@ public class EasyLogger implements ILog {
         if (isErrorEnable()) {
             logger(LogLevel.ERROR, format, null);
         }
+    }
+
+
+    String format(LogLevel level, String message, Throwable t) {
+        LogEvent logEvent = new LogEvent(level, message, t, targetClass);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Converter converter : converters) {
+            stringBuilder.append(converter.convert(logEvent));
+        }
+        return stringBuilder.toString();
     }
 }
