@@ -80,6 +80,19 @@ configuration:
     maxRetries: 3 # max number of times to retry
 ```
 
+## Dynamic Configuration Etcd Implementation
+
+[Etcd](https://github.com/etcd-io/etcd) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+
+```yaml
+configuration:
+  etcd:
+    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    group :  'skywalking'
+    serverAddr: localhost:2379
+    clusterName: "default"
+```
+
 ## 3rd party Configuration Center
 We are welcome contributions to implement this module provider to support popular configuration center, 
 such as Consul. Submit issue to discuss.

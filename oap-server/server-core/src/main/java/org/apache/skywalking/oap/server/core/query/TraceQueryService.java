@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.query.entity.RefType;
 import org.apache.skywalking.oap.server.core.query.entity.Trace;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -177,8 +178,12 @@ public class TraceQueryService implements Service {
             }
             span.setEndpointName(endpointName);
 
-            String serviceCode = getServiceInventoryCache().get(serviceId).getName();
-            span.setServiceCode(serviceCode);
+            final ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
+            if (serviceInventory != null) {
+                span.setServiceCode(serviceInventory.getName());
+            } else {
+                span.setServiceCode("unknown");
+            }
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());
@@ -282,8 +287,12 @@ public class TraceQueryService implements Service {
             }
             span.setEndpointName(endpointName);
 
-            String serviceCode = getServiceInventoryCache().get(serviceId).getName();
-            span.setServiceCode(serviceCode);
+            final ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
+            if (serviceInventory != null) {
+                span.setServiceCode(serviceInventory.getName());
+            } else {
+                span.setServiceCode("unknown");
+            }
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());

@@ -36,7 +36,7 @@
         <logger name="org.apache.skywalking.oap.server.core.remote.client" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.library.buffer" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.receiver.so11y" level="DEBUG" />
-        <Root level="ERROR">
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
