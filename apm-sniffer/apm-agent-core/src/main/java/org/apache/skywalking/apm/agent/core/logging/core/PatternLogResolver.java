@@ -16,20 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+
+package org.apache.skywalking.apm.agent.core.logging.core;
+
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogResolver;
 
 /**
- * @author jian.tan
+ * @author alvin
  */
-public class PlaceholderConfigurerSupport {
+public class PatternLogResolver implements LogResolver {
 
-    /** Default placeholder prefix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
+    @Override
+    public ILog getLogger(Class<?> clazz) {
+        return new PatternLogger(clazz, Config.Logging.PATTERN);
+    }
 
-    /** Default placeholder suffix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
-
-    /** Default value separator: {@value} */
-    public static final String DEFAULT_VALUE_SEPARATOR = ":";
-
+    @Override
+    public ILog getLogger(String clazz) {
+        return new PatternLogger(clazz, Config.Logging.PATTERN);
+    }
 }

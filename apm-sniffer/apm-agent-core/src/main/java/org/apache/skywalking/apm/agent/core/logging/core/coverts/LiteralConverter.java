@@ -17,17 +17,25 @@
  */
 
 
-package org.apache.skywalking.apm.agent.core.logging.core;
+package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.skywalking.apm.agent.core.logging.core.Converter;
+import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
- * Created by wusheng on 2017/2/28.
+ * This Converter is used to return the literal.
+ * @author alvin
  */
-public class EasyLogResolverTest {
-    @Test
-    public void testGetLogger() {
-        Assert.assertTrue(new EasyLogResolver().getLogger(EasyLogResolverTest.class) instanceof EasyLogger);
+public class LiteralConverter implements Converter {
+
+    private final String literal;
+
+    public LiteralConverter(String literal) {
+        this.literal = literal;
+    }
+
+    @Override
+    public String convert(LogEvent logEvent) {
+        return literal;
     }
 }
