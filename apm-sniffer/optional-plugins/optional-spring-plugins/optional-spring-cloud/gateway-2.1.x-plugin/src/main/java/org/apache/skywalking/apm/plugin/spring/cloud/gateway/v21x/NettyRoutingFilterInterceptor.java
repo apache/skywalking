@@ -16,13 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.Constants;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -34,22 +36,32 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
 /**
  * @author zhaoyuguang
  */
-public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
+public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PERFIX = "GATEWAY#";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
-
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().tag("route", route.getId());
+        AbstractSpan span = (AbstractSpan) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+        String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PERFIX;
+        if (span != null) {
+            Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
+            operationName = operationName + route.getId();
+            span.setOperationName(operationName);
+            SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(), ContextManager.capture(), operationName);
+            ContextManager.stopSpan(span);
+            ContextManager.getRuntimeContext().put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, transmitter);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        if (ContextManager.getRuntimeContext().get(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER) != null) {
+            ContextManager.getRuntimeContext().remove(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER);
+        }
         return ret;
     }
 
@@ -57,10 +69,5 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        if (span != null) {
-            span.errorOccurred();
-            span.log(t);
-        }
     }
 }

@@ -16,13 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 
 import java.lang.reflect.Method;
 
@@ -30,9 +32,7 @@ import java.lang.reflect.Method;
 /**
  * @author zhaoyuguang
  */
-public class HttpClientOperationsHeadersInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final ILog logger = LogManager.getLogger(HttpClientOperationsHeadersInterceptor.class);
+public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -40,15 +40,26 @@ public class HttpClientOperationsHeadersInterceptor implements InstanceMethodsAr
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ((EnhancedInstance) ret).setSkyWalkingDynamicField(((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField());
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+
+        SWTransmitter transmitter = (SWTransmitter) objInst.getSkyWalkingDynamicField();
+        if (transmitter != null) {
+            HttpResponseStatus response = (HttpResponseStatus) ret;
+            if (response.code() >= 400) {
+                Tags.STATUS_CODE.set(transmitter.getSpanGateway().errorOccurred(), String.valueOf(response.code()));
+                Tags.STATUS_CODE.set(transmitter.getSpanWebflux().errorOccurred(), String.valueOf(response.code()));
+            }
+            transmitter.getSpanGateway().asyncFinish();
+            transmitter.getSpanWebflux().asyncFinish();
+            objInst.setSkyWalkingDynamicField(null);
+        }
         return ret;
     }
-
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }
