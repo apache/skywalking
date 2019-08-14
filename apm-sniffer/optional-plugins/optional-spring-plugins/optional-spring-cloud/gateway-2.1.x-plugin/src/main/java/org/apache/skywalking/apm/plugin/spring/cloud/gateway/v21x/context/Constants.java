@@ -16,20 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.util;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context;
 
 /**
- * @author jian.tan
+ * @author zhaoyuguang
  */
-public class PlaceholderConfigurerSupport {
 
-    /** Default placeholder prefix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
-
-    /** Default placeholder suffix: {@value} */
-    public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
-
-    /** Default value separator: {@value} */
-    public static final String DEFAULT_VALUE_SEPARATOR = ":";
-
+public interface Constants {
+    String SPRING_CLOUD_GATEWAY_TRANSMITTER = "spring.cloud.gateway.transmitter";
 }
