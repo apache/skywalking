@@ -19,19 +19,13 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogResolver;
 
 /**
- * Created by wusheng on 2016/11/26.
+ * The Converter, It is used to convert the LogEvent to the String.
+ * @author alvin
  */
-public class EasyLogResolver implements LogResolver {
-    @Override
-    public ILog getLogger(Class<?> clazz) {
-        return new EasyLogger(clazz);
-    }
+public interface Converter {
 
-    @Override public ILog getLogger(String clazz) {
-        return new EasyLogger(clazz);
-    }
+    String convert(LogEvent logEvent);
+
 }
