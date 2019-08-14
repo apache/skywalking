@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Parser of LogPattern. It is used to parse a pattern to the List<Converter>.
+ * Parser of LogPattern. It is used to parse a pattern to the List of Converter.
  * @author alvin
  */
 public class Parser {
