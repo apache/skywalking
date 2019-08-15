@@ -20,12 +20,17 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.*;
+import org.apache.curator.framework.api.ACLProvider;
+import org.apache.curator.framework.imps.DefaultACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.zookeeper.data.ACL;
 import org.slf4j.*;
+
+import java.util.List;
 
 /**
  * Use Zookeeper to manage all instances in SkyWalking cluster.
@@ -61,7 +66,27 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(), config.getMaxRetries());
-        client = CuratorFrameworkFactory.newClient(config.getHostPort(), retryPolicy);
+
+
+        CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .retryPolicy(retryPolicy)
+                .connectString(config.getHostPort());
+        if (config.isEnableACL()) {
+            ACLProvider provider = new ACLProvider() {
+                @Override
+                public List<ACL> getDefaultAcl() {
+                    return null;
+                }
+
+                @Override
+                public List<ACL> getAclForPath(String s) {
+                    return null;
+                }
+            };
+            builder.aclProvider(provider);
+            builder.authorization(config.getSchema(), config.getAuth().getBytes());
+        }
+        client = builder.build();
 
         String path = BASE_PATH + (StringUtil.isEmpty(config.getNameSpace()) ? "" : "/" + config.getNameSpace());
 
