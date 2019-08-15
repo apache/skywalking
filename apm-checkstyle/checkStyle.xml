@@ -110,4 +110,11 @@
             <property name="path" value="apm-sniffer/(apm-sdk-plugin|optional-plugins)/.+/src/main/.+Instrumentation.java$" />
         </module>
     </module>
+
+    <module name="RegexpHeader">
+        <property name="headerFile" value="${checkstyle.header.file}"/>
+        <property name="multiLines" value="16"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
+
 </module>
