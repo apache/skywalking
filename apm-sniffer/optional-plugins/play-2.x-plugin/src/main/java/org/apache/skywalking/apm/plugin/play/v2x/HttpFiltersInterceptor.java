@@ -17,6 +17,7 @@
  */
 package org.apache.skywalking.apm.plugin.play.v2x;
 
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -27,7 +28,6 @@ import scala.collection.Seq;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author AI
@@ -44,34 +44,23 @@ public class HttpFiltersInterceptor implements InstanceMethodsAroundInterceptor,
     @SuppressWarnings("unchecked")
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         Object object = objInst.getSkyWalkingDynamicField();
-        if (Objects.nonNull(object) && ret instanceof Seq) {
-            Injector injector = (Injector) object;
-            TracingFilter filter = injector.instanceOf(TracingFilter.class);
-            Seq seq = (Seq) ret;
-            List<Object> filters = new ArrayList<>(seq.size() + 1);
-            filters.add(filter);
-            filters.addAll(scala.collection.JavaConverters.asJavaCollection(seq));
-            return scala.collection.JavaConverters.asScalaBuffer(filters).toList();
-        }
-        return ret;
+        Injector injector = (Injector) object;
+        TracingFilter filter = injector.instanceOf(TracingFilter.class);
+        Seq seq = (Seq) ret;
+        List<Object> filters = new ArrayList<>(seq.size() + 1);
+        filters.add(filter);
+        filters.addAll(scala.collection.JavaConverters.asJavaCollection(seq));
+        return scala.collection.JavaConverters.asScalaBuffer(filters).toList();
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Object injector = null;
-        for (Object argument : allArguments) {
-            if (argument instanceof Injector) {
-                injector = argument;
-                break;
-            }
-        }
-        if (Objects.nonNull(injector)) {
-            objInst.setSkyWalkingDynamicField(injector);
-        }
+        objInst.setSkyWalkingDynamicField(allArguments[2]);
     }
+
 }

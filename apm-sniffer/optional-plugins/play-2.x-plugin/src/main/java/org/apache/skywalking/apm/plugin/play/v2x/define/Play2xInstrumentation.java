@@ -19,13 +19,15 @@ package org.apache.skywalking.apm.plugin.play.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ReturnTypeNameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.AnnotationTypeNameMatch.isAnnotatedWithType;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
@@ -44,38 +46,50 @@ public class Play2xInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{new ConstructorInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return isAnnotatedWith(javax.inject.Inject.class);
-            }
+        return new ConstructorInterceptPoint[]{
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return Play2xInstrumentation.getInjectConstructorMatcher();
+                }
 
-            @Override
-            public String getConstructorInterceptor() {
-                return INTERCEPTOR_CLASS;
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
             }
-        }
         };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(ENHANCE_METHOD);
-            }
+        return new InstanceMethodsInterceptPoint[]{
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return Play2xInstrumentation.getFiltersMethodMatcher();
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
+
+    public static ElementMatcher<MethodDescription> getInjectConstructorMatcher() {
+        return isAnnotatedWithType("javax.inject.Inject")
+            .and(takesArgumentWithType(2, "play.api.inject.Injector"));
+    }
+
+    public static ElementMatcher<MethodDescription> getFiltersMethodMatcher() {
+        return named(ENHANCE_METHOD).and(ReturnTypeNameMatch.returnsWithType("scala.collection.Seq"));
+    }
+
 }

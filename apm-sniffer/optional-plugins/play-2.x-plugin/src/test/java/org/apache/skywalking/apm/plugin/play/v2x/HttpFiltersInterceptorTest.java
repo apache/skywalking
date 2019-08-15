@@ -18,14 +18,8 @@
 package org.apache.skywalking.apm.plugin.play.v2x;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import play.api.inject.BindingKey;
 import play.api.inject.Injector;
 import scala.collection.immutable.Seq;
@@ -38,8 +32,6 @@ import java.util.Objects;
  * @author AI
  * 2019-08-07
  */
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class HttpFiltersInterceptorTest {
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
@@ -55,9 +47,6 @@ public class HttpFiltersInterceptorTest {
             this.object = value;
         }
     };
-
-    @Mock
-    private MethodInterceptResult methodInterceptResult;
 
     private HttpFiltersInterceptor interceptor = new HttpFiltersInterceptor();
     private Injector injector = new Injector() {
@@ -84,7 +73,7 @@ public class HttpFiltersInterceptorTest {
 
     @Test
     public void testBindingInjector() {
-        Object[] arguments = new Object[]{injector};
+        Object[] arguments = new Object[]{null, null, injector};
         interceptor.onConstruct(enhancedInstance, arguments);
         Assert.assertTrue(Objects.nonNull(enhancedInstance.getSkyWalkingDynamicField()));
         Assert.assertTrue(enhancedInstance.getSkyWalkingDynamicField() instanceof Injector);
