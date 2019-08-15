@@ -20,19 +20,27 @@ package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import com.google.common.collect.Lists;
 import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.*;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
-import org.apache.curator.framework.imps.DefaultACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.x.discovery.*;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
 import org.apache.zookeeper.server.auth.DigestAuthenticationProvider;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -72,10 +80,9 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(), config.getMaxRetries());
 
-
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                .retryPolicy(retryPolicy)
-                .connectString(config.getHostPort());
+            .retryPolicy(retryPolicy)
+            .connectString(config.getHostPort());
         if (config.isEnableACL()) {
             final List<ACL> acls = Lists.newArrayList();
 
@@ -84,7 +91,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
                 try {
                     authInfo = DigestAuthenticationProvider.generateDigest(authInfo);
                 } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                 }
             }
             Id id = new Id(config.getSchema(), authInfo);
