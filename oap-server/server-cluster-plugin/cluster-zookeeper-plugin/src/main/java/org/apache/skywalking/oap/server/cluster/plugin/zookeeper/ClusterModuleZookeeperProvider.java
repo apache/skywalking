@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import com.google.common.collect.Lists;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.*;
 import org.apache.curator.framework.api.ACLProvider;
@@ -27,9 +28,13 @@ import org.apache.curator.x.discovery.*;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Id;
+import org.apache.zookeeper.server.auth.DigestAuthenticationProvider;
 import org.slf4j.*;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -72,15 +77,28 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
                 .retryPolicy(retryPolicy)
                 .connectString(config.getHostPort());
         if (config.isEnableACL()) {
+            final List<ACL> acls = Lists.newArrayList();
+
+            String authInfo = config.getAuth();
+            if ("digest".equals(config.getSchema())) {
+                try {
+                    authInfo = DigestAuthenticationProvider.generateDigest(authInfo);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+            }
+            Id id = new Id(config.getSchema(), authInfo);
+            acls.add(new ACL(ZooDefs.Perms.ALL, id));
+
             ACLProvider provider = new ACLProvider() {
                 @Override
                 public List<ACL> getDefaultAcl() {
-                    return null;
+                    return acls;
                 }
 
                 @Override
                 public List<ACL> getAclForPath(String s) {
-                    return null;
+                    return acls;
                 }
             };
             builder.aclProvider(provider);
