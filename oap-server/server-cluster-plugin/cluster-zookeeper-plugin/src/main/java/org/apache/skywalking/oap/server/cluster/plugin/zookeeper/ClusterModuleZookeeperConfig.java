@@ -34,9 +34,9 @@ class ClusterModuleZookeeperConfig extends ModuleConfig {
     @Setter @Getter private String internalComHost;
     @Setter @Getter private int internalComPort = -1;
 
-    @Setter @Getter private String auth;
+    @Setter @Getter private boolean enableACL = false;
     @Setter @Getter private String schema;
-    @Setter @Getter private boolean isEnableACL = false;
+    @Setter @Getter private String expression;
 
     public String getHostPort() {
         return Strings.isNullOrEmpty(hostPort) ? "localhost:2181" : hostPort;

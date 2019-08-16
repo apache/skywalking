@@ -83,15 +83,16 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
             .retryPolicy(retryPolicy)
             .connectString(config.getHostPort());
+
         if (config.isEnableACL()) {
             final List<ACL> acls = Lists.newArrayList();
 
-            String authInfo = config.getAuth();
+            String authInfo = config.getExpression();
             if ("digest".equals(config.getSchema())) {
                 try {
                     authInfo = DigestAuthenticationProvider.generateDigest(authInfo);
                 } catch (NoSuchAlgorithmException e) {
-                    logger.error(e.getMessage(), e);
+                    throw new ModuleStartException(e.getMessage(), e);
                 }
             }
             Id id = new Id(config.getSchema(), authInfo);
@@ -109,7 +110,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
                 }
             };
             builder.aclProvider(provider);
-            builder.authorization(config.getSchema(), config.getAuth().getBytes());
+            builder.authorization(config.getSchema(), config.getExpression().getBytes());
         }
         client = builder.build();
 

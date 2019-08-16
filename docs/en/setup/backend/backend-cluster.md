@@ -25,10 +25,21 @@ cluster:
     # Retry Policy
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
     maxRetries: 3 # max number of times to retry
+    # Enable ACL
+    enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+    schema: ${SW_ZK_SCHEMA:""}
+    expression: ${SW_ZK_AUTH:""}
 ```
 
 - `hostPort` is the list of zookeeper servers. Format is `IP1:PORT1,IP2:PORT2,...,IPn:PORTn`
+- `enableACL` enable [Zookeeper ACL](https://zookeeper.apache.org/doc/r3.4.1/zookeeperProgrammers.html#sc_ZooKeeperAccessControl) to control access to its znode.
+- `schema` is Zookeeper ACL schemas.
+- `expression` is a expression of ACL. The format of the expression is specific to the [schema](https://zookeeper.apache.org/doc/r3.4.1/zookeeperProgrammers.html#sc_BuiltinACLSchemes). 
 - `hostPort`, `baseSleepTimeMs` and `maxRetries` are settings of Zookeeper curator client.
+
+Note: 
+- If `Zookeeper ACL` is enabled and `/skywalking` existed, must be sure `SkyWalking` has `CREATE`, `READ` and `WRITE` permissions. If `/skywalking` is not exists, it will be create by SkyWalking and grant all permissions.
+- If set `schema` as `digest`, the password of expression is set in **clear text**. 
 
 In some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
 The following setting are provided to set the hot and port manually, based on your own LAN env.
