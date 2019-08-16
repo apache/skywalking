@@ -113,8 +113,7 @@
 
     <module name="RegexpHeader">
         <property name="headerFile" value="${checkstyle.header.file}"/>
-        <property name="multiLines" value="16"/>
-        <property name="fileExtensions" value="java"/>
+        <property name="multiLines" value="1, 2, 3, 18"/>
     </module>
 
 </module>

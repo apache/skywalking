@@ -507,6 +507,14 @@
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <failsOnError>true</failsOnError>
                     <includes>org/apache/skywalking/**/*.java</includes>
+                    <resourceIncludes>
+                        **/*.properties,
+                        **/*.sh,
+                        **/*.bat,
+                        **/*.yml,
+                        **/*.yaml,
+                        **/*.xml
+                    </resourceIncludes>
                     <excludes>
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
