@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.define;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -50,7 +50,7 @@ public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnh
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.HttpClientOperationsHeadersInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.HttpClientOperationsHeadersInterceptor";
                 }
 
                 @Override
@@ -65,7 +65,7 @@ public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnh
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.HttpClientOperationsSendInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.HttpClientOperationsSendInterceptor";
                 }
 
                 @Override
@@ -81,7 +81,7 @@ public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnh
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v2.HttpClientOperationsStatusInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.HttpClientOperationsStatusInterceptor";
                 }
 
                 @Override
