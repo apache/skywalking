@@ -47,11 +47,24 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int otherMetricsDataTTL = 0;
     @Setter private int monthMetricsDataTTL = 18;
 
-    public void setOtherMetricsDataTTL(int otherMetricsDataTTL) {
+    public int getMinuteMetricsDataTTL() {
         if (otherMetricsDataTTL > 0) {
-            minuteMetricsDataTTL = otherMetricsDataTTL;
-            hourMetricsDataTTL = otherMetricsDataTTL;
-            dayMetricsDataTTL = otherMetricsDataTTL;
+            return otherMetricsDataTTL;
         }
+        return minuteMetricsDataTTL;
+    }
+
+    public int getHourMetricsDataTTL() {
+        if (otherMetricsDataTTL > 0) {
+            return otherMetricsDataTTL;
+        }
+        return hourMetricsDataTTL;
+    }
+
+    public int getDayMetricsDataTTL() {
+        if (otherMetricsDataTTL > 0) {
+            return otherMetricsDataTTL;
+        }
+        return dayMetricsDataTTL;
     }
 }
