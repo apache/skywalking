@@ -76,7 +76,6 @@
                             </transformers>
                             <artifactSet>
                                 <excludes>
-                                    <exclude>com.lmax:*</exclude>
                                     <exclude>*:gson</exclude>
                                     <exclude>io.grpc:*</exclude>
                                     <exclude>io.netty:*</exclude>
