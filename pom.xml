@@ -423,6 +423,7 @@
                         <!-- Maven Wrapper generated files -->
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
+                        <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -506,6 +507,14 @@
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <failsOnError>true</failsOnError>
                     <includes>org/apache/skywalking/**/*.java</includes>
+                    <resourceIncludes>
+                        **/*.properties,
+                        **/*.sh,
+                        **/*.bat,
+                        **/*.yml,
+                        **/*.yaml,
+                        **/*.xml
+                    </resourceIncludes>
                     <excludes>
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
