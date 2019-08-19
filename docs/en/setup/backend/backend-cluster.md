@@ -10,6 +10,7 @@ with each other.
 by using k8s native APIs to manage cluster.
 - [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
 - [Nacos](#nacos). Use Nacos to coordinate backend instances.
+- [Etcd](#etcd). Use Etcd to coordinate backend instances.
 
 ## Zookeeper coordinator
 Zookeeper is a very common and wide used cluster coordinator. Set the **cluster** module's implementor
