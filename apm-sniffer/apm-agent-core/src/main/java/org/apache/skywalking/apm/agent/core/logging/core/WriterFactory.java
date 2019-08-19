@@ -26,7 +26,15 @@ import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.util.StringUtil;
 
 public class WriterFactory {
+
+    private static IWriter writer;
+
     public static IWriter getLogWriter() {
+
+        if (writer != null) {
+            return writer;
+        }
+
         if (!useConsole() && SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound()) {
             if (StringUtil.isEmpty(Config.Logging.DIR)) {
                 try {
@@ -35,10 +43,12 @@ public class WriterFactory {
                     e.printStackTrace();
                 }
             }
-            return FileWriter.get();
+            writer = FileWriter.get();
         } else {
-            return SystemOutWriter.INSTANCE;
+            writer = SystemOutWriter.INSTANCE;
         }
+
+        return writer;
     }
 
     private static boolean useConsole() {
