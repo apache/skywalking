@@ -85,8 +85,6 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
             .connectString(config.getHostPort());
 
         if (config.isEnableACL()) {
-            final List<ACL> acls = Lists.newArrayList();
-
             String authInfo = config.getExpression();
             if ("digest".equals(config.getSchema())) {
                 try {
@@ -94,9 +92,12 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
                 } catch (NoSuchAlgorithmException e) {
                     throw new ModuleStartException(e.getMessage(), e);
                 }
+            } else {
+                throw new ModuleStartException("Support digest schema only.");
             }
-            Id id = new Id(config.getSchema(), authInfo);
-            acls.add(new ACL(ZooDefs.Perms.ALL, id));
+            final List<ACL> acls = Lists.newArrayList();
+            acls.add(new ACL(ZooDefs.Perms.ALL, new Id(config.getSchema(), authInfo)));
+            acls.add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
 
             ACLProvider provider = new ACLProvider() {
                 @Override

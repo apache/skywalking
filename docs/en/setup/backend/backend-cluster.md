@@ -27,8 +27,8 @@ cluster:
     maxRetries: 3 # max number of times to retry
     # Enable ACL
     enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
-    schema: ${SW_ZK_SCHEMA:""}
-    expression: ${SW_ZK_AUTH:""}
+    schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
+    expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
 ```
 
 - `hostPort` is the list of zookeeper servers. Format is `IP1:PORT1,IP2:PORT2,...,IPn:PORTn`
@@ -38,7 +38,7 @@ cluster:
 - `hostPort`, `baseSleepTimeMs` and `maxRetries` are settings of Zookeeper curator client.
 
 Note: 
-- If `Zookeeper ACL` is enabled and `/skywalking` existed, must be sure `SkyWalking` has `CREATE`, `READ` and `WRITE` permissions. If `/skywalking` is not exists, it will be create by SkyWalking and grant all permissions.
+- If `Zookeeper ACL` is enabled and `/skywalking` existed, must be sure `SkyWalking` has `CREATE`, `READ` and `WRITE` permissions. If `/skywalking` is not exists, it will be created by SkyWalking and grant all permissions to the specified user. Simultaneously, znode is granted READ to anyone.
 - If set `schema` as `digest`, the password of expression is set in **clear text**. 
 
 In some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
@@ -55,6 +55,10 @@ zookeeper:
   maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
   internalComHost: 172.10.4.10
   internalComPort: 11800
+  # Enable ACL
+  enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+  schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
+  expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
 ``` 
 
 
