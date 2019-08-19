@@ -27,12 +27,12 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 public class WriterFactory {
 
-    private static volatile IWriter writer;
+    private static volatile IWriter WRITER;
 
     public static IWriter getLogWriter() {
 
-        if (writer != null) {
-            return writer;
+        if (WRITER != null) {
+            return WRITER;
         }
 
         if (!useConsole() && SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound()) {
@@ -43,12 +43,12 @@ public class WriterFactory {
                     e.printStackTrace();
                 }
             }
-            writer = FileWriter.get();
+            WRITER = FileWriter.get();
         } else {
-            writer = SystemOutWriter.INSTANCE;
+            WRITER = SystemOutWriter.INSTANCE;
         }
 
-        return writer;
+        return WRITER;
     }
 
     private static boolean useConsole() {
