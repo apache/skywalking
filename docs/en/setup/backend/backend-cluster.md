@@ -91,3 +91,15 @@ cluster:
     # Nacos cluster nodes, example: 10.0.0.1:8848,10.0.0.2:8848,10.0.0.3:8848
     hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
 ```
+
+## Etcd
+Set the **cluster** module's implementor to **etcd** in
+the yml to active.
+
+```yaml
+cluster:
+  etcd:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    #etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+    hostPort: ${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
+```
