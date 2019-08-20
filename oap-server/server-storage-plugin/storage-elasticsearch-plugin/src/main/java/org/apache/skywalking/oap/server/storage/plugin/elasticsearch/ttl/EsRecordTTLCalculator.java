@@ -30,6 +30,6 @@ import org.joda.time.DateTime;
 public class EsRecordTTLCalculator implements TTLCalculator {
 
     @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMdd"));
+        return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMdd"));
     }
 }
