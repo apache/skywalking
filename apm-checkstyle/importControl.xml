@@ -21,7 +21,7 @@
         "-//Puppy Crawl//DTD Import Control 1.4//EN"
         "https://checkstyle.org/dtds/import_control_1_4.dtd">
 
-<import-control pkg="org.apache.skywalking.apm.plugin">
+<import-control pkg="org.apache.skywalking.apm.(toolkit|plugin)" regex="true">
     <allow pkg="java"/>
     <allow pkg="org.apache.skywalking"/>
     <allow pkg="net.bytebuddy"/>
