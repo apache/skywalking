@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTL;
+import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.joda.time.DateTime;
@@ -51,7 +52,13 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         ConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ConfigService.class);
 
         ElasticSearchClient client = getClient();
-        long timeBefore = storageTTL.calculator(model.getDownsampling()).timeBefore(new DateTime(), configService.getDataTTLConfig());
+        TTLCalculator ttlCalculator;
+        if (model.isRecord()) {
+            ttlCalculator = storageTTL.recordCalculator();
+        } else {
+            ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
+        }
+        long timeBefore = ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig());
 
         if (model.isCapableOfTimeSeries()) {
             List<String> indexes = client.retrievalIndexByAliases(model.getName());

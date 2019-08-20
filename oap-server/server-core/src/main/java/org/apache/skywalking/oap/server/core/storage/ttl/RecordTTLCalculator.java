@@ -13,32 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.storage.ttl.*;
+import org.apache.skywalking.oap.server.core.DataTTLConfig;
+import org.joda.time.DateTime;
 
 /**
- * @author peng-yongsheng
+ * Calculate TTL for record.
+ *
+ * @author wusheng
  */
-public class ElasticsearchStorageTTL implements StorageTTL {
+public class RecordTTLCalculator implements TTLCalculator {
 
-    @Override public TTLCalculator metricsCalculator(Downsampling downsampling) {
-        switch (downsampling) {
-            case Month:
-                return new MonthTTLCalculator();
-            case Hour:
-                return new EsHourTTLCalculator();
-            case Minute:
-                return new EsMinuteTTLCalculator();
-            default:
-                return new DayTTLCalculator();
-        }
-    }
-
-    @Override public TTLCalculator recordCalculator() {
-        return new EsRecordTTLCalculator();
+    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
+        return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
     }
 }
