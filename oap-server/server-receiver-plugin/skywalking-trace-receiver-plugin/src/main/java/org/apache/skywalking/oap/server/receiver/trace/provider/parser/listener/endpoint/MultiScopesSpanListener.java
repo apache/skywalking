@@ -157,7 +157,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             statement.setId(segmentCoreInfo.getSegmentId() + "-" + spanDecorator.getSpanId());
             statement.setDatabaseServiceId(sourceBuilder.getDestServiceId());
             statement.setLatency(sourceBuilder.getLatency());
-            statement.setTimeBucket(TimeBucket.getSecondTimeBucket(segmentCoreInfo.getStartTime()));
+            statement.setTimeBucket(TimeBucket.getRecordTimeBucket(segmentCoreInfo.getStartTime()));
             statement.setTraceId(traceId);
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
