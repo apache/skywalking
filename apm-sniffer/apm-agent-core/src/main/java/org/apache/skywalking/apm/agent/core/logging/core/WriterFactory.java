@@ -48,6 +48,8 @@ public class WriterFactory {
                         }
                     }
                     WRITER = FileWriter.get();
+                } else {
+                    return SystemOutWriter.INSTANCE;
                 }
                 break;
             default:
