@@ -36,7 +36,7 @@ public class FileWriterTest {
     @BeforeClass
     public static void beforeTestFile() throws IOException {
         Config.Logging.MAX_FILE_SIZE = 10;
-        File directory = new File("");
+        File directory = new File(System.getProperty("java.io.tmpdir", "/tmp"));
         Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "/log-test/";
     }
 
@@ -57,16 +57,13 @@ public class FileWriterTest {
         Config.Logging.DIR = "";
     }
 
-    private static boolean deleteDir(File dir) {
+    private static void deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
+                deleteDir(new File(dir, children[i]));
             }
         }
-        return dir.delete();
+        dir.delete();
     }
 }
