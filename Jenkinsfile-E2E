@@ -53,11 +53,17 @@ pipeline {
             }
         }
 
+        stage('Compile Test Codes') {
+            steps {
+                sh './mvnw -f test/e2e/pom.xml clean'
+            }
+        }
+
         stage('Run End-to-End Tests') {
             parallel {
                 stage('Run Single Node Tests') {
                     steps {
-                        sh './mvnw -DskipSurefire=false -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
                     }
                 }
 
