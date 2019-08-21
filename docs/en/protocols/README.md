@@ -1,7 +1,7 @@
 # Protocols
 There are two types of protocols list here. 
 
-- [**Probe Protocol**](#probe-protocols). Include the descriptions and definitions about how agent send collected metric data and traces, also the formats of each entities.
+- [**Probe Protocol**](#probe-protocols). Include the descriptions and definitions about how agent send collected metrics data and traces, also the formats of each entities.
 
 - [**Query Protocol**](#query-protocol). The backend provide query capability to SkyWalking own UI and others. These queries are based on GraphQL.
 
@@ -21,12 +21,22 @@ service ID.
 
 
 ### Language based native agent protocol
-This protocol is combined from two parts:
-* [**SW6** Cross Process Propagation Headers Protocol](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
+There is two types of protocols to make language agents work in distributed environments.
+1. **Cross Process Propagation Headers Protocol** is in wire data format, agent/SDK usually uses HTTP/MQ/HTTP2 headers
+to carry the data with rpc request. The remote agent will receive this in the request handler, and bind the context 
+with this specific request.
+1. **Trace Data Protocol** is out of wire data, agent/SDK uses this to send traces and metrics to skywalking or other
+compatible backend. 
+
+Header protocol have two formats for compatible. Using v2 in default.
+* [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
 in-wire context propagation, started in 6.0.0-beta release. It will replace the old **SW3** protocol in the future, now both of them are supported.
-* [**SW3** Cross Process Propagation Headers Protocol](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md) is for in-wire propagation.
+* [Cross Process Propagation Headers Protocol v1](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md) is for in-wire propagation.
 By following this protocol, the trace segments in different processes could be linked.
-* [SkyWalking Trace Data Protocol](Trace-Data-Protocol.md) define the communication way and format between agent and backend.
+
+Since SkyWalking v6.0.0-beta, SkyWalking agent and backend are using Trace Data Protocol v2, and v1 is still supported in backend.
+* [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) define the communication way and format between agent and backend
+* [SkyWalking Trace Data Protocol v1](Trace-Data-Protocol-v1.md). This protocol is used in old version. Still supported.
 
 
 ### Service Mesh probe protocol
@@ -47,7 +57,7 @@ the following key info:
 3rd-party instrument protocols are not defined by SkyWalking. They are just protocols/formats, which SkyWalking is compatible and
 could receive from their existed libraries. SkyWalking starts with supporting Zipkin v1, v2 data formats.
 
-Backend is based on modulization principle, so very easy to extend a new receiver to support new protocol/format.
+Backend is based on modularization principle, so very easy to extend a new receiver to support new protocol/format.
 
 ## Query Protocol
 Query protocol follows GraphQL grammar, provides data query capabilities, which depends on your analysis metrics.
@@ -55,13 +65,75 @@ Query protocol follows GraphQL grammar, provides data query capabilities, which 
 There are 5 dimensionality data is provided.
 1. Metadata. Metadata includes the brief info of the whole under monitoring services and their instances, endpoints, etc.
 Use multiple ways to query this meta data.
-1. Metric. Metric query targets all the objects defined in [OAL script](../concepts-and-designs/oal.md). You could get the 
-metric data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
-1. Aggregation. Aggregation query means the metric data need a secondary aggregation in query stage, which makes the query 
+1. Topology. Show the topology and dependency graph of services or endpoints. Including direct relationship or global map.
+1. Metrics. Metrics query targets all the objects defined in [OAL script](../concepts-and-designs/oal.md). You could get the 
+metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
+1. Aggregation. Aggregation query means the metrics data need a secondary aggregation in query stage, which makes the query 
 interfaces have some different arguments. Such as, `TopN` list of services is a very typical aggregation query, 
-metric stream aggregation just calculates the metric values of each service, but the expected list needs ordering metric data
+metrics stream aggregation just calculates the metrics values of each service, but the expected list needs ordering metrics data
 by the values.
 1. Trace. Query distributed traces by this.
 1. Alarm. Through alarm query, you can have alarm trend and details.
 
-The actual query GraphQL scrips could be found in [here](../../../apm-protocol/apm-ui-protocol/src/main/resources/ui-graphql-v6).  
+The actual query GraphQL scrips could be found inside `query-protocol` folder in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
+
+Here is the list of all existing metrics names, based on [official_analysis.oal](../../../oap-server/generated-analysis/src/main/resources/official_analysis.oal)
+
+**Global metrics**
+- all_p99, p99 response time of all services
+- all_p95
+- all_p90
+- all_p75
+- all_p70
+- all_heatmap, the response time heatmap of all services 
+
+**Service metrics**
+- service_resp_time, avg response time of service
+- service_sla, successful rate of service
+- service_cpm, calls per minute of service
+- service_p99, p99 response time of service
+- service_p95
+- service_p90
+- service_p75
+- service_p50
+
+**Service instance metrics**
+- service_instance_sla, successful rate of service instance
+- service_instance_resp_time, avg response time of service instance
+- service_instance_cpm, calls per minute of service instance
+
+**Endpoint metrics**
+- endpoint_cpm, calls per minute of endpoint
+- endpoint_avg, avg response time of endpoint
+- endpoint_sla, successful rate of endpoint
+- endpoint_p99, p99 response time of endpoint
+- endpoint_p95
+- endpoint_p90
+- endpoint_p75
+- endpoint_p50
+
+**JVM metrics**, JVM related metrics, only work when javaagent is active
+- instance_jvm_cpu
+- instance_jvm_memory_heap
+- instance_jvm_memory_noheap
+- instance_jvm_memory_heap_max
+- instance_jvm_memory_noheap_max
+- instance_jvm_young_gc_time
+- instance_jvm_old_gc_time
+- instance_jvm_young_gc_count
+- instance_jvm_old_gc_count
+
+**Service relation metrics**, represents the metrics of calls between service. 
+The metrics ID could be
+got in topology query only.
+- service_relation_client_cpm, calls per minute detected at client side
+- service_relation_server_cpm, calls per minute detected at server side
+- service_relation_client_call_sla, successful rate detected at client side
+- service_relation_server_call_sla, successful rate detected at server side
+- service_relation_client_resp_time, avg response time detected at client side
+- service_relation_server_resp_time, avg response time detected at server side
+
+**Endpoint relation metrics**, represents the metrics between dependency endpoints. Only work when tracing agent.
+The metrics ID could be got in topology query only.
+- endpoint_relation_cpm
+- endpoint_relation_resp_time

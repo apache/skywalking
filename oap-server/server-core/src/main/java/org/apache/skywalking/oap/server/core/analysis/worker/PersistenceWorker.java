@@ -19,10 +19,11 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.data.Window;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 /**
@@ -32,34 +33,19 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
 
     private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
 
-    private final int batchSize;
-    private final IBatchDAO batchDAO;
-
-    PersistenceWorker(ModuleManager moduleManager, int workerId, int batchSize) {
-        super(workerId);
-        this.batchSize = batchSize;
-        this.batchDAO = moduleManager.find(StorageModule.NAME).getService(IBatchDAO.class);
+    PersistenceWorker(ModuleDefineHolder moduleDefineHolder) {
+        super(moduleDefineHolder);
     }
 
     void onWork(INPUT input) {
-        if (getCache().currentCollectionSize() >= batchSize) {
-            try {
-                if (getCache().trySwitchPointer()) {
-                    getCache().switchPointer();
-
-                    List<?> collection = buildBatchCollection();
-                    batchDAO.batchPersistence(collection);
-                }
-            } finally {
-                getCache().trySwitchPointerFinally();
-            }
-        }
         cacheData(input);
     }
 
     public abstract void cacheData(INPUT input);
 
     public abstract CACHE getCache();
+
+    public abstract void endOfRound(long tookTime);
 
     public boolean flushAndSwitch() {
         boolean isSwitch;
@@ -73,12 +59,12 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
         return isSwitch;
     }
 
-    public abstract List<Object> prepareBatch(CACHE cache);
+    public abstract void prepareBatch(Collection<INPUT> lastCollection, List<PrepareRequest> prepareRequests);
 
-    public final List<?> buildBatchCollection() {
-        List<?> batchCollection = new LinkedList<>();
+    public final void buildBatchRequests(List<PrepareRequest> prepareRequests) {
         try {
-            while (getCache().getLast().isWriting()) {
+            SWCollection<INPUT> last = getCache().getLast();
+            while (last.isWriting()) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -86,12 +72,11 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
                 }
             }
 
-            if (getCache().getLast().collection() != null) {
-                batchCollection = prepareBatch(getCache());
+            if (last.collection() != null) {
+                prepareBatch(last.collection(), prepareRequests);
             }
         } finally {
             getCache().finishReadingLast();
         }
-        return batchCollection;
     }
 }

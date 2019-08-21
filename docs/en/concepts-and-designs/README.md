@@ -18,6 +18,6 @@ SkyWalking already support.
 - Backend
   - [Overview](backend-overview.md). Provides a high level introduction about the OAP backend.
   - [Observability Analysis Language](oal.md). Introduces the core languages, which is designed for aggregation behaviour definition.
-  - [Query in OAP](query-oap.md). Introduces how to query data from backend, whether a simple metric data or topology map, even trace or log.
+  - [Query in OAP](../protocols/README.md#query-protocol). A set of query protocol provided, based on the Observability Analysis Language metrics definition. 
 - UI
-  - [Overview](ui-overview.md).
+  - [Overview](ui-overview.md). A simple brief about SkyWalking UI.

@@ -39,7 +39,7 @@ public enum DetectPoint {
         }
     }
 
-    public static DetectPoint fromMeshDetectPoint(org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
+    public static DetectPoint fromNetworkProtocolDetectPoint(org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
         switch (detectPoint) {
             case client:
                 return CLIENT;

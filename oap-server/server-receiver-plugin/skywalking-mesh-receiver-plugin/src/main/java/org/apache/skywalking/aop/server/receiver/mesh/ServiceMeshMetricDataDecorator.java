@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 
 /**
  * @author wusheng
@@ -44,12 +47,18 @@ public class ServiceMeshMetricDataDecorator {
         boolean isRegistered = true;
         sourceServiceId = origin.getSourceServiceId();
         if (sourceServiceId == Const.NONE) {
-            sourceServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getSourceServiceName());
-            if (sourceServiceId != Const.NONE) {
-                getNewDataBuilder().setSourceServiceId(sourceServiceId);
-            } else {
-                isRegistered = false;
+            String sourceServiceName = origin.getSourceServiceName();
+            // sourceServiceName is optional now,
+            // which means only generate dest service traffic.
+            if (!StringUtil.isEmpty(sourceServiceName)) {
+                sourceServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(sourceServiceName, null);
+                if (sourceServiceId != Const.NONE) {
+                    getNewDataBuilder().setSourceServiceId(sourceServiceId);
+                } else {
+                    isRegistered = false;
+                }
             }
+            // No service name, service instance will be ignored too.
         }
         sourceServiceInstanceId = origin.getSourceServiceInstanceId();
         if (sourceServiceId != Const.NONE && sourceServiceInstanceId == Const.NONE) {
@@ -65,7 +74,7 @@ public class ServiceMeshMetricDataDecorator {
         }
         destServiceId = origin.getDestServiceId();
         if (destServiceId == Const.NONE) {
-            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName());
+            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName(), null);
             if (destServiceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceId(destServiceId);
             } else {
@@ -77,7 +86,7 @@ public class ServiceMeshMetricDataDecorator {
             destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
                 .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin.getDestServiceInstance(),
                     origin.getEndTime(),
-                    getOSInfoForMesh(origin.getSourceServiceInstance()));
+                    getOSInfoForMesh(origin.getDestServiceInstance()));
             if (destServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceInstanceId(destServiceInstanceId);
             } else {
@@ -90,12 +99,12 @@ public class ServiceMeshMetricDataDecorator {
         if (DetectPoint.client.equals(point)) {
             if (sourceServiceId != Const.NONE) {
                 endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(sourceServiceId, endpoint,
-                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromNetworkProtocolDetectPoint(point));
             }
         } else {
             if (destServiceId != Const.NONE) {
                 endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
-                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromMeshDetectPoint(point));
+                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromNetworkProtocolDetectPoint(point));
             }
         }
 
@@ -129,9 +138,9 @@ public class ServiceMeshMetricDataDecorator {
         return newDataBuilder;
     }
 
-    private ServiceInstanceInventory.AgentOsInfo getOSInfoForMesh(String instanceName) {
-        ServiceInstanceInventory.AgentOsInfo osInfo = new ServiceInstanceInventory.AgentOsInfo();
-        osInfo.setHostname(instanceName);
-        return osInfo;
+    private JsonObject getOSInfoForMesh(String instanceName) {
+        JsonObject properties = new JsonObject();
+        properties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, instanceName);
+        return properties;
     }
 }

@@ -25,9 +25,10 @@ import java.util.*;
  *
  * @author wu-sheng, peng-yongsheng
  */
-public class ModuleManager {
+public class ModuleManager implements ModuleDefineHolder {
+
     private boolean isInPrepareStage = true;
-    private Map<String, ModuleDefine> loadedModules = new HashMap<>();
+    private final Map<String, ModuleDefine> loadedModules = new HashMap<>();
 
     /**
      * Init the given modules
@@ -36,6 +37,8 @@ public class ModuleManager {
         ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException, ModuleConfigException, ModuleStartException {
         String[] moduleNames = applicationConfiguration.moduleList();
         ServiceLoader<ModuleDefine> moduleServiceLoader = ServiceLoader.load(ModuleDefine.class);
+        ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
+
         LinkedList<String> moduleList = new LinkedList<>(Arrays.asList(moduleNames));
         for (ModuleDefine module : moduleServiceLoader) {
             for (String moduleName : moduleNames) {
@@ -46,7 +49,7 @@ public class ModuleManager {
                     } catch (InstantiationException | IllegalAccessException e) {
                         throw new ModuleNotFoundException(e);
                     }
-                    newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName));
+                    newInstance.prepare(this, applicationConfiguration.getModuleConfiguration(moduleName), moduleProviderLoader);
                     loadedModules.put(moduleName, newInstance);
                     moduleList.remove(moduleName);
                 }
@@ -65,11 +68,11 @@ public class ModuleManager {
         bootstrapFlow.notifyAfterCompleted();
     }
 
-    public boolean has(String moduleName) {
+    @Override public boolean has(String moduleName) {
         return loadedModules.get(moduleName) != null;
     }
 
-    public ModuleDefine find(String moduleName) throws ModuleNotFoundRuntimeException {
+    @Override public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
         assertPreparedStage();
         ModuleDefine module = loadedModules.get(moduleName);
         if (module != null)

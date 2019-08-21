@@ -6,12 +6,12 @@ It is more like a modern APM, specially designed for cloud native, container bas
 ## Why use SkyWalking?
 SkyWalking provides solutions for observing and monitoring distributed system, in many different scenarios. First of all,
 like traditional ways, SkyWalking provides auto instrument agents for service, such as Java, C#
-and NodeJS. At the same time, it provides manual instrument SDKs for Go(Not yet), C++(Not yet).
+and Node.js. At the same time, it provides manual instrument SDKs for Go(Not yet), C++(Not yet).
 Also with more languages required, risks in manipulating codes at runtime, cloud native infrastructures grow 
 more powerful, SkyWalking could use Service Mesher infra probes to collect data for understanding the whole distributed system.
 In general, it provides observability capabilities for **service**(s), **service instance**(s), **endpoint**(s).
 
-The concepts of Service, Instance and Endpoint are used everywhere today, so let's be clear about what they mean in SkyWalking first.
+The concepts of Service, Instance and Endpoint are used everywhere today, so let's make it clear about what they mean in SkyWalking first.
 
 - **Service**. Represent a set/group of workloads to provide the same behaviours for incoming requests. You can define the service
   name when you are using instrument agents or SDKs. Or SkyWalking uses the name you defined in platform such as Istio.
@@ -27,9 +27,9 @@ In addition to all these, you can have distributed tracing from SkyWalking nativ
 and OpenCensus.
 
 ## Architecture
-The SkyWalking is logically splittd into four parts: Probes, Platform backend, Storage and UI.
+The SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.
 
-<img src="https://skywalkingtest.github.io/page-resources/6_overview.png"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg"/>
 
 - The **Probe**s are different based on different sources. They collect data and reformat them in SkyWalking requirements.
 - The **Platform backend** is a backend, supported cluster for sure. It is for aggregation, analysis and driving process flow

@@ -47,7 +47,7 @@ public class ServiceNameDiscoveryServiceHandler extends JettyJsonHandler {
     private static final String ELEMENT = "el";
 
     public ServiceNameDiscoveryServiceHandler(ModuleManager moduleManager) {
-        this.inventoryService = moduleManager.find(CoreModule.NAME).getService(IEndpointInventoryRegister.class);
+        this.inventoryService = moduleManager.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
     }
 
     @Override public String pathSpec() {

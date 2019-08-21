@@ -22,12 +22,12 @@ package org.apache.skywalking.apm.plugin.jdbc;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -46,14 +46,14 @@ public abstract class AbstractStatementTest {
     protected void assertDBSpan(AbstractTracingSpan span, String exceptOperationName, String exceptDBStatement) {
         assertDBSpan(span, exceptOperationName);
         assertThat(span.isExit(), is(true));
-        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(2).getValue(), is(exceptDBStatement));
     }
 
     protected void assertDBSpan(AbstractTracingSpan span, String exceptOperationName) {
         assertThat(span.getOperationName(), is(exceptOperationName));
         assertThat(SpanHelper.getComponentId(span), is(33));
-        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("sql"));
         assertThat(tags.get(1).getValue(), is("test"));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.DB));

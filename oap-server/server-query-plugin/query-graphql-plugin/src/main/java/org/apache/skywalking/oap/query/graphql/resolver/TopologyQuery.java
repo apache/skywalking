@@ -41,7 +41,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
 
     private TopologyQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(TopologyQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(TopologyQueryService.class);
         }
         return queryService;
     }
@@ -50,23 +50,23 @@ public class TopologyQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        long startTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getStart());
-        long endTimestamp = DurationUtils.INSTANCE.toTimestamp(duration.getStep(), duration.getEnd());
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
-        return getQueryService().getGlobalTopology(duration.getStep(), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
+        return getQueryService().getGlobalTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
     }
 
     public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getQueryService().getServiceTopology(duration.getStep(), startTimeBucket, endTimeBucket, serviceId);
+        return getQueryService().getServiceTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, serviceId);
     }
 
     public Topology getEndpointTopology(final int endpointId, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getQueryService().getEndpointTopology(duration.getStep(), startTimeBucket, endTimeBucket, endpointId);
+        return getQueryService().getEndpointTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, endpointId);
     }
 }

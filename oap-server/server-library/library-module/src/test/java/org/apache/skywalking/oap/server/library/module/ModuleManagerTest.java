@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Properties;
+import org.junit.*;
 
 /**
  * @author wu-sheng

@@ -1,9 +1,12 @@
 sudo: required
 
+os:
+  - linux
+
+jdk:
+  - openjdk8
+
 language: java
 
 install:
-  - jdk_switcher use oraclejdk8
-  - ./mvnw clean install --quiet jacoco:report coveralls:report
-  - ./mvnw clean javadoc:javadoc -Dmaven.test.skip=true --quiet
-
+  - ./mvnw -DskipTests clean install --quiet

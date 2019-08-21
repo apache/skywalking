@@ -19,28 +19,20 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.xcontent.*;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.max.Max;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
 public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(RegisterEsDAO.class);
-
     private final StorageBuilder<RegisterSource> storageBuilder;
 
-    public RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
+    RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
@@ -55,45 +47,12 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
     }
 
     @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.data2Map(source);
-
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (String key : objectMap.keySet()) {
-            builder.field(key, objectMap.get(key));
-        }
-        builder.endObject();
-
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceInsert(modelName, source.id(), builder);
     }
 
     @Override public void forceUpdate(String modelName, RegisterSource source) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.data2Map(source);
-
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (String key : objectMap.keySet()) {
-            builder.field(key, objectMap.get(key));
-        }
-        builder.endObject();
-
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceUpdate(modelName, source.id(), builder);
-    }
-
-    @Override public int max(String modelName) throws IOException {
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.aggregation(AggregationBuilders.max(RegisterSource.SEQUENCE).field(RegisterSource.SEQUENCE));
-        searchSourceBuilder.size(0);
-        return getResponse(modelName, searchSourceBuilder);
-    }
-
-    private int getResponse(String modelName, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        SearchResponse searchResponse = getClient().search(modelName, searchSourceBuilder);
-        Max agg = searchResponse.getAggregations().get(RegisterSource.SEQUENCE);
-
-        int id = (int)agg.getValue();
-        if (id == Integer.MAX_VALUE || id == Integer.MIN_VALUE) {
-            return 1;
-        } else {
-            return id;
-        }
     }
 }

@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.kafka.v11;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.plugin.kafka.v1.ConsumerConstructorInterceptor;
@@ -29,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;

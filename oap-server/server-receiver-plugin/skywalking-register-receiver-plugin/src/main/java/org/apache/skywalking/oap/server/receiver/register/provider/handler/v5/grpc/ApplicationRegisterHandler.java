@@ -36,7 +36,7 @@ public class ApplicationRegisterHandler extends ApplicationRegisterServiceGrpc.A
     private final IServiceInventoryRegister serviceInventoryRegister;
 
     public ApplicationRegisterHandler(ModuleManager moduleManager) {
-        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ApplicationRegisterHandler extends ApplicationRegisterServiceGrpc.A
 
         ApplicationMapping.Builder builder = ApplicationMapping.newBuilder();
         String serviceName = request.getApplicationCode();
-        int serviceId = serviceInventoryRegister.getOrCreate(serviceName);
+        int serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
 
         if (serviceId != Const.NONE) {
             KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(serviceName).setValue(serviceId).build();

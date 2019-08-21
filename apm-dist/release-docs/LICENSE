@@ -217,6 +217,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     Apache: groovy 2.4.5-indy: https://github.com/apache/groovy, Apache 2.0
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
+    Apache: fastjson 1.2.47:  https://github.com/alibaba/fastjson, Apache 2.0
 
 ========================================================================
 Apache 2.0 licenses
@@ -226,11 +227,14 @@ The following components are provided under the Apache License. See project link
 The text of each license is the standard Apache 2.0 license.
 
     raphw (byte-buddy) 1.9.2: http://bytebuddy.net/ , Apache 2.0
-    Google: grpc 1.10.0: https://grpc.io/ , Apache 2.0
-    Google: gprc-java 1.10.0: https://github.com/grpc/grpc-java, Apache 2.0
-    Google: guava 19.0: https://github.com/google/guava , Apache 2.0
+    Google: grpc 1.14.0: https://grpc.io/ , Apache 2.0
+    Google: grpc 1.15.1: https://grpc.io/ , Apache 2.0
+    Google: gprc-java 1.14.0: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: gprc-java 1.15.1: https://github.com/grpc/grpc-java, Apache 2.0
+    Google: guava 20.0: https://github.com/google/guava , Apache 2.0
+    Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.1: https://github.com/google/gson , Apache 2.0
-    Google: opencensus-java 0.8.0: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
+    Google: opencensus-java 0.12.3: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
     Google: proto-google-common-protos 0.1.9: https://github.com/googleapis/googleapis , Apache 2.0
     Google: jsr305 3.0.0: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Elasticsearch BV (Elasticsearch) 6.3.2: https://www.elastic.co/products/elasticsearch , Apache 2.0
@@ -247,6 +251,7 @@ The text of each license is the standard Apache 2.0 license.
     Eclipse (Jetty) 3.3.6: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.9.9: http://www.joda.org/joda-time/ , Apache 2.0
+    Joda-Convert 1.2: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
@@ -264,7 +269,9 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
+    Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
+    Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
@@ -299,9 +306,26 @@ The text of each license is the standard Apache 2.0 license.
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 2.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 4.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
+    consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
+    okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
+    prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
+    nacos 1.0.0: https://github.com/alibaba/nacos, Apache 2.0
+    proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
+    proto files from istio/api: https://github.com/istio/api      Apache 2.0
+    proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
+    proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
+    proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
+    proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
+    json-flatter 0.6.0: https://github.com/wnameless/json-flattener  Apache 2.0
+    Apache: commons-text 1.4: https://github.com/apache/commons-text Apache 2.0
+    sundrio 0.9.2: https://github.com/sundrio/sundrio Apache 2.0
+    Ctripcorp: apollo 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
+    etcd4j 2.17.0: https://github.com/jurmous/etcd4j Apache 2.0
+    javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
+    jackson-module-afterburner 2.9.5: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -317,6 +341,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
     bcpkix-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
+    minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
 
 ========================================================================
 BSD licenses
@@ -331,8 +356,9 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     Google: protobuf-java 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     Google: protobuf-java-util 3.4.0: https://github.com/google/protobuf/blob/master/java/pom.xml , BSD-3-Clause
     reflectasm 1.11.3: https://github.com/EsotericSoftware/reflectasm , BSD-3-Clause
-    
-    gogo-protobuf, proto files: https://github.com/gogo/protobuf  BSD-2-Clause
+
+    proto files from gogo: https://github.com/gogo/protobuf  BSD-2
+    proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
 
 ========================================================================
 MPL 2.0 licenses
@@ -380,142 +406,64 @@ The text of each license is also included at licenses/ui-licenses/LICENSE-[proje
 ========================================
 MIT licenses
 ========================================
-antv/data-set	0.8.6:	https://github.com/antvis/data-set	MIT
-add-dom-event-listener  1.0.2:  https://github.com/yiminghe/add-dom-event-listener      MIT
-antd    3.2.2:  https://github.com/ant-design/ant-design        MIT
-iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
-ant-design-pro  1.3.0:  https://github.com/ant-design/ant-design-pro    MIT     , declare license in package.json only.
-async-validator 1.8.2:  https://github.com/yiminghe/async-validator     MIT
-babel/polyfill	7.0.0-beta.42:	https://github.com/babel/babel/tree/master/packages/babel-polyfill	MIT	, declare license in package.json only.
-babel/runtime   7.0.0-beta.42: https://github.com/babel/babel/tree/master/packages/babel-runtime       MIT , declare license in package.json only.
-batch-processor 1.0.0:  https://github.com/wnr/batch-processor  MIT
-bizcharts       3.1.3-beta.2:   https://github.com/alibaba/BizCharts    MIT
-classnames      2.2.5:  https://github.com/JedWatson/classnames MIT
-component-classes       1.2.6:  https://github.com/component/classes    MIT     , declare license in package.json only.
-component-indexof       0.0.3:  https://github.com/component/indexof    MIT     , declare license in README.md only.
-container-query-toolkit 0.1.1:  https://github.com/d6u/container-query-toolkit  MIT
-core-js 2.5.3:  https://github.com/zloirock/core-js     MIT
-create-react-class      15.6.3: https://github.com/facebook/react       MIT
-css-animation   1.4.1:  https://github.com/yiminghe/css-animation       MIT
-cytoscape       3.2.9:  https://github.com/cytoscape/cytoscape.js       MIT
-cytoscape-cose-bilkent  4.0.0:  https://github.com/cytoscape/cytoscape.js-cose-bilkent  MIT
-cytoscape-dagre 2.2.1:  https://github.com/cytoscape/cytoscape.js-dagre MIT
-dagre   0.7.4:  https://github.com/cpettitt/dagre       MIT
-dom-align       1.6.7:  https://github.com/yiminghe/dom-align   MIT
-dom-scroll-into-view    1.2.1:  https://github.com/yiminghe/dom-scroll-into-view        MIT     , declare license in package.json only.
-dva     2.1.0:  https://github.com/dvajs/dva    MIT     , declare license in package.json only.
-dva-core        1.1.0:  https://github.com/dvajs/dva    MIT     , declare license in package.json only.
-dva-loading     1.0.4:  https://github.com/dvajs/dva    MIT     , declare license in package.json only.
-enquire.js      2.1.6:  https://github.com/WickyNilliams/enquire.js     MIT
-fbjs    0.8.16: https://github.com/facebook/fbjs        MIT
-flatten 1.0.2:  https://github.com/jesusabdullah/node-flatten   MIT
-global  4.3.2:  https://github.com/Raynos/global        MIT
-graphlib        1.0.7:  https://github.com/cpettitt/graphlib    MIT
-history 4.7.2:  https://github.com/ReactTraining/history        MIT
-invariant       2.2.3:  https://github.com/zertosh/invariant    MIT
-is-plain-object 2.0.4:  https://github.com/jonschlinkert/is-plain-object        MIT
-isarray 1.0.0:  https://github.com/juliangruber/isarray MIT     , declare license in package.json only.
-isobject        3.0.1:  https://github.com/jonschlinkert/isobject       MIT
-isomorphic-fetch        2.2.1:  https://github.com/matthew-andrews/isomorphic-fetch     MIT
-lodash  4.17.5: https://github.com/lodash/lodash        MIT
-lodash-decorators       4.5.0:  https://github.com/steelsojka/lodash-decorators MIT
-lodash-es       4.17.5: https://github.com/lodash/lodash        MIT
-lodash.debounce 4.0.8:  https://github.com/lodash/lodash        MIT
-lodash.isarguments      3.1.0:  https://github.com/lodash/lodash        MIT
-lodash.isarray  3.0.4:  https://github.com/lodash/lodash        MIT
-lodash.keys     3.1.2:  https://github.com/lodash/lodash        MIT
-lodash._getnative       3.9.1:  https://github.com/lodash/lodash        MIT
-moment  2.20.1: https://github.com/moment/moment        MIT
-node-libs-browser       2.1.0:  https://github.com/webpack/node-libs-browser    MIT
-numeral 2.0.6:  https://github.com/adamwdraper/Numeral-js       MIT
-object-assign   4.1.1:  https://github.com/sindresorhus/object-assign   MIT
-omit.js 1.0.0:  https://github.com/benjycui/omit.js     MIT
-path-to-regexp  2.1.0:  https://github.com/pillarjs/path-to-regexp      MIT
-prop-types      15.6.1: https://github.com/facebook/prop-types  MIT
-rc-align        2.3.5:  https://github.com/react-component/align        MIT
-rc-animate      2.4.4:  https://github.com/react-component/animate      MIT
-rc-calendar     9.5.0:  https://github.com/react-component/calendar     MIT
-rc-checkbox     2.1.5:  https://github.com/react-component/checkbox     MIT
-rc-drawer-menu  0.5.5:  https://github.com/ant-motion/drawer-menu       MIT
-rc-dropdown     2.1.0:  https://github.com/react-component/dropdown     MIT
-rc-form 2.1.7:  https://github.com/react-component/form MIT
-rc-input-number 4.0.2:  https://github.com/react-component/input-number MIT
-rc-menu 6.2.6:  https://github.com/react-component/menu MIT
-rc-notification 3.0.1:  https://github.com/react-component/notification MIT
-rc-pagination   1.15.1: https://github.com/react-component/pagination   MIT
-rc-select       7.7.1:  https://github.com/react-component/select       MIT
-rc-tabs 9.2.4:  https://github.com/react-component/tabs MIT
-rc-time-picker  3.2.1:  https://github.com/react-component/time-picker  MIT
-rc-tooltip      3.7.0:  https://github.com/react-component/tooltip      MIT
-rc-trigger      2.3.4:  https://github.com/react-component/trigger      MIT
-rc-util 4.4.0:  https://github.com/react-component/util MIT
-react   16.2.0: https://github.com/facebook/react       MIT
-react-container-query   0.9.1:  https://github.com/d6u/react-container-query    MIT     , declare license in package.json only.
-react-document-title    2.0.3:  https://github.com/gaearon/react-document-title MIT
-react-dom       16.2.0: https://github.com/facebook/react       MIT
-react-fittext   1.0.0:  undefined       MIT
-react-redux     5.0.7:  https://github.com/reactjs/react-redux  MIT
-react-router    4.2.0:  https://github.com/ReactTraining/react-router   MIT     , declare license in package.json only.
-react-router-dom        4.2.2:  https://github.com/ReactTraining/react-router   MIT     , declare license in package.json only.
-react-router-redux      5.0.0-alpha.6:  https://github.com/ReactTraining/react-router   MIT     , declare license in package.json only.
-react-side-effect       1.1.5:  https://github.com/gaearon/react-side-effect    MIT
-redux   3.7.2:  https://github.com/reactjs/redux        MIT
-redux-saga      0.15.6: https://github.com/redux-saga/redux-saga        MIT
-regenerator-runtime     0.11.1: https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime        MIT     , declare license in package.json only.
-resize-observer-lite    0.2.2:  https://github.com/d6u/resize-observer-lite     MIT
-resolve-pathname        2.2.0:  https://github.com/mjackson/resolve-pathname    MIT     , declare license in package.json only.
-rmc-feedback    1.0.4:  https://github.com/react-component/m-feedback   MIT     , declare license in package.json only.
-setimmediate    1.0.5:  https://github.com/YuzuJS/setImmediate  MIT
-shallowequal    1.0.2:  https://github.com/dashed/shallowequal  MIT
-symbol-observable       1.2.0:  https://github.com/blesh/symbol-observable      MIT
-timers-browserify       2.0.6:  https://github.com/jryans/timers-browserify     MIT
-url-polyfill    1.0.11: https://github.com/lifaon74/url-polyfill        MIT
-value-equal     0.4.0:  https://github.com/mjackson/value-equal MIT     , declare license in package.json only.
-whatwg-fetch    2.0.3:  https://github.com/github/fetch MIT
+vue	2.6.6:	https://github.com/vuejs/vue	MIT
+vue-class-component	6.0.0:	https://github.com/vuejs/vue-class-component	MIT
+vue-property-decorator	7.0.0:	https://github.com/kaorun343/vue-property-decorator	MIT
+vue-router	3.0.1	https://github.com/vuejs/vue-router	MIT
+vuex	3.0.1	https://github.com/vuejs/vuex	MIT
+vuex-class	0.3.1	https://github.com/ktsn/vuex-class	MIT
+dayjs	1.8.8	https://github.com/iamkun/dayjs	MIT
+popper.js	1.14.7:	https://github.com/FezVrasta/popper.js	MIT
+vue-datepicker-local	1.0.19:	https://github.com/weifeiyue/vue-datepicker-local	MIT
 
 ========================================
 Apache 2.0 licenses
 ========================================
-tslib	1.9.0:	https://github.com/Microsoft/tslib	Apache-2.0
+echarts	4.1.0:	https://github.com/apache/incubator-echarts	Apache-2.0
 
 ========================================
 BSD licenses
 ========================================
-d3      4.13.0: https://github.com/d3/d3        BSD-3-Clause
-d3-array        1.2.1:  https://github.com/d3/d3-array  BSD-3-Clause
-d3-axis 1.0.8:  https://github.com/d3/d3-axis   BSD-3-Clause
-d3-brush        1.0.4:  https://github.com/d3/d3-brush  BSD-3-Clause
-d3-chord        1.0.4:  https://github.com/d3/d3-chord  BSD-3-Clause
-d3-collection   1.0.4:  https://github.com/d3/d3-collection     BSD-3-Clause
-d3-color        1.0.3:  https://github.com/d3/d3-color  BSD-3-Clause
-d3-dispatch     1.0.3:  https://github.com/d3/d3-dispatch       BSD-3-Clause
-d3-drag 1.2.1:  https://github.com/d3/d3-drag   BSD-3-Clause
-d3-dsv  1.0.8:  https://github.com/d3/d3-dsv    BSD-3-Clause
-d3-ease 1.0.3:  https://github.com/d3/d3-ease   BSD-3-Clause
-d3-force        1.1.0:  https://github.com/d3/d3-force  BSD-3-Clause
-d3-format       1.2.2:  https://github.com/d3/d3-format BSD-3-Clause
-d3-hierarchy    1.1.5:  https://github.com/d3/d3-hierarchy      BSD-3-Clause
-d3-interpolate  1.1.6:  https://github.com/d3/d3-interpolate    BSD-3-Clause
-d3-path 1.0.5:  https://github.com/d3/d3-path   BSD-3-Clause
-d3-polygon      1.0.3:  https://github.com/d3/d3-polygon        BSD-3-Clause
-d3-quadtree     1.0.3:  https://github.com/d3/d3-quadtree       BSD-3-Clause
+d3      5.9.1: https://github.com/d3/d3        BSD-3-Clause
+d3-array        1.2.4:  https://github.com/d3/d3-array  BSD-3-Clause
+d3-axis 1.0.12:  https://github.com/d3/d3-axis   BSD-3-Clause
+d3-brush        1.0.6:  https://github.com/d3/d3-brush  BSD-3-Clause
+d3-chord        1.0.6:  https://github.com/d3/d3-chord  BSD-3-Clause
+d3-collection   1.0.7:  https://github.com/d3/d3-collection     BSD-3-Clause
+d3-color        1.2.3:  https://github.com/d3/d3-color  BSD-3-Clause
+d3-contour      1.3.2:  https://github.com/d3/d3-contour  BSD-3-Clause
+d3-dispatch     1.0.5:  https://github.com/d3/d3-dispatch       BSD-3-Clause
+d3-drag 1.2.3:  https://github.com/d3/d3-drag   BSD-3-Clause
+d3-dsv  1.0.10:  https://github.com/d3/d3-dsv    BSD-3-Clause
+d3-ease 1.0.5:  https://github.com/d3/d3-ease   BSD-3-Clause
+d3-fetch 1.1.2:  https://github.com/d3/d3-fetch   BSD-3-Clause
+d3-force        1.1.2:  https://github.com/d3/d3-force  BSD-3-Clause
+d3-format       1.3.2:  https://github.com/d3/d3-format BSD-3-Clause
+d3-geo          1.11.1:  https://github.com/d3/d3-geo BSD-3-Clause
+d3-hierarchy    1.1.8:  https://github.com/d3/d3-hierarchy      BSD-3-Clause
+d3-interpolate  1.3.2:  https://github.com/d3/d3-interpolate    BSD-3-Clause
+d3-path 1.0.7:  https://github.com/d3/d3-path   BSD-3-Clause
+d3-polygon      1.0.5:  https://github.com/d3/d3-polygon        BSD-3-Clause
+d3-quadtree     1.0.5:  https://github.com/d3/d3-quadtree       BSD-3-Clause
 d3-queue        3.0.7:  https://github.com/d3/d3-queue  BSD-3-Clause
-d3-random       1.1.0:  https://github.com/d3/d3-random BSD-3-Clause
+d3-random       1.1.2:  https://github.com/d3/d3-random BSD-3-Clause
 d3-request      1.0.6:  https://github.com/d3/d3-request        BSD-3-Clause
-d3-selection    1.3.0:  https://github.com/d3/d3-selection      BSD-3-Clause
-d3-shape        1.2.0:  https://github.com/d3/d3-shape  BSD-3-Clause
-d3-time 1.0.8:  https://github.com/d3/d3-time   BSD-3-Clause
-d3-time-format  2.1.1:  https://github.com/d3/d3-time-format    BSD-3-Clause
-d3-timer        1.0.7:  https://github.com/d3/d3-timer  BSD-3-Clause
-d3-transition   1.1.1:  https://github.com/d3/d3-transition     BSD-3-Clause
-d3-voronoi      1.1.2:  https://github.com/d3/d3-voronoi        BSD-3-Clause
-d3-zoom 1.7.1:  https://github.com/d3/d3-zoom   BSD-3-Clause
-exenv   1.2.2:  https://github.com/JedWatson/exenv      BSD-3-Clause
-hoist-non-react-statics 2.5.0:  https://github.com/mridgway/hoist-non-react-statics     BSD-3-Clause
-qs      6.5.1:  https://github.com/ljharb/qs    BSD-3-Clause
-warning 3.0.0:  https://github.com/BerkeleyTrue/warning BSD-3-Clause
+d3-scale      2.1.2:  https://github.com/d3/d3-scale        BSD-3-Clause
+d3-scale-chromatic      1.3.3:  https://github.com/d3/d3-scale-chromatic        BSD-3-Clause
+d3-selection    1.3.2:  https://github.com/d3/d3-selection      BSD-3-Clause
+d3-shape        1.2.2:  https://github.com/d3/d3-shape  BSD-3-Clause
+d3-time 1.0.10:  https://github.com/d3/d3-time   BSD-3-Clause
+d3-time-format  2.1.3:  https://github.com/d3/d3-time-format    BSD-3-Clause
+d3-timer        1.0.9:  https://github.com/d3/d3-timer  BSD-3-Clause
+d3-tip          0.9.1:  https://github.com/Caged/d3-tip BSD-3-Clause
+d3-transition   1.1.3:  https://github.com/d3/d3-transition     BSD-3-Clause
+d3-voronoi      1.1.4:  https://github.com/d3/d3-voronoi        BSD-3-Clause
+d3-zoom 1.7.3:  https://github.com/d3/d3-zoom   BSD-3-Clause
+zrender 4.0.4:  https://github.com/ecomfe/zrender   BSD-3-Clause
+vue-i18n 8.10.0:  https://github.com/kazupon/vue-i18n   MIT
 
 ========================================
-PSF licenses
+Public Domain licenses
 ========================================
-heap	0.2.6:	https://github.com/qiao/heap.js	PSF	, declare license in package.json only.
+aopalliance 1.0: http://aopalliance.sourceforge.net Public Domain
+

@@ -21,13 +21,17 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceRelation extends Source {
 
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceRelation;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
     }
 
     @Override public String getEntityId() {
@@ -35,11 +39,11 @@ public class ServiceInstanceRelation extends Source {
     }
 
     @Getter @Setter private int sourceServiceInstanceId;
-    @Getter @Setter private int sourceServiceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "source_service_id") private int sourceServiceId;
     @Getter @Setter private String sourceServiceName;
     @Getter @Setter private String sourceServiceInstanceName;
     @Getter @Setter private int destServiceInstanceId;
-    @Getter @Setter private int destServiceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_id") private int destServiceId;
     @Getter @Setter private String destServiceName;
     @Getter @Setter private String destServiceInstanceName;
     @Getter @Setter private String endpoint;

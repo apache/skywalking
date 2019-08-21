@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.storage.cache.*;
 import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
@@ -29,8 +29,8 @@ public class StorageModule extends ModuleDefine {
 
     public static final String NAME = "storage";
 
-    @Override public String name() {
-        return NAME;
+    public StorageModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {
@@ -39,6 +39,7 @@ public class StorageModule extends ModuleDefine {
             IHistoryDeleteDAO.class,
             IServiceInventoryCacheDAO.class, IServiceInstanceInventoryCacheDAO.class,
             IEndpointInventoryCacheDAO.class, INetworkAddressInventoryCacheDAO.class,
-            ITopologyQueryDAO.class, IMetricQueryDAO.class, ITraceQueryDAO.class, IMetadataQueryDAO.class, IAggregationQueryDAO.class, IAlarmQueryDAO.class};
+            ITopologyQueryDAO.class, IMetricsQueryDAO.class, ITraceQueryDAO.class, IMetadataQueryDAO.class, IAggregationQueryDAO.class, IAlarmQueryDAO.class,
+            ITopNRecordsQueryDAO.class, ILogQueryDAO.class};
     }
 }

@@ -20,7 +20,7 @@
     <parent>
         <artifactId>optional-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,4 +29,17 @@
 
     <name>apm-trace-ignore-plugin</name>
     <url>http://maven.apache.org</url>
+
+    <properties>
+        <ststem-rules.version>1.18.0</ststem-rules.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>${ststem-rules.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wu-sheng, peng-yongsheng
@@ -71,7 +70,7 @@ class BootstrapFlow {
 
     private void makeSequence() throws CycleDependencyException {
         List<ModuleProvider> allProviders = new ArrayList<>();
-        loadedModules.forEach((moduleName, module) -> allProviders.addAll(module.providers()));
+        loadedModules.forEach((moduleName, module) -> allProviders.add(module.provider()));
 
         do {
             int numOfToBeSequenced = allProviders.size();

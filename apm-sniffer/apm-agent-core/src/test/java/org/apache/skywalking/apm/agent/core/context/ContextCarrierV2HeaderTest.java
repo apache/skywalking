@@ -98,11 +98,11 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setTraceSegmentId(new ID(1, 2, 3));
         contextCarrier.setDistributedTraceIds(distributedTraceIds);
         contextCarrier.setSpanId(4);
-        contextCarrier.setEntryApplicationInstanceId(1);
-        contextCarrier.setParentApplicationInstanceId(1);
+        contextCarrier.setEntryServiceInstanceId(1);
+        contextCarrier.setParentServiceInstanceId(1);
         contextCarrier.setPeerHost("127.0.0.1:8080");
-        contextCarrier.setEntryOperationName("/portal");
-        contextCarrier.setParentOperationId(123);
+        contextCarrier.setEntryEndpointName("/portal");
+        contextCarrier.setParentEndpointId(123);
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -152,11 +152,11 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setTraceSegmentId(new ID(1, 2, 3));
         contextCarrier.setDistributedTraceIds(distributedTraceIds);
         contextCarrier.setSpanId(4);
-        contextCarrier.setEntryApplicationInstanceId(1);
-        contextCarrier.setParentApplicationInstanceId(1);
+        contextCarrier.setEntryServiceInstanceId(1);
+        contextCarrier.setParentServiceInstanceId(1);
         contextCarrier.setPeerHost("127.0.0.1:8080");
-        contextCarrier.setEntryOperationName("/portal");
-        contextCarrier.setParentOperationId(123);
+        contextCarrier.setEntryEndpointName("/portal");
+        contextCarrier.setParentEndpointId(123);
 
         CarrierItem next = contextCarrier.items();
         String headerValue = null;
@@ -188,8 +188,8 @@ public class ContextCarrierV2HeaderTest {
         Assert.assertEquals(contextCarrier.getPeerHost(), contextCarrier2.getPeerHost());
         Assert.assertEquals(contextCarrier.getDistributedTraceId(), contextCarrier2.getDistributedTraceId());
         Assert.assertEquals(contextCarrier.getTraceSegmentId(), contextCarrier2.getTraceSegmentId());
-        Assert.assertEquals(contextCarrier.getEntryOperationName(), contextCarrier2.getEntryOperationName());
-        Assert.assertEquals(contextCarrier.getEntryApplicationInstanceId(), contextCarrier2.getEntryApplicationInstanceId());
-        Assert.assertEquals(contextCarrier.getParentApplicationInstanceId(), contextCarrier2.getParentApplicationInstanceId());
+        Assert.assertEquals(contextCarrier.getEntryEndpointName(), contextCarrier2.getEntryEndpointName());
+        Assert.assertEquals(contextCarrier.getEntryServiceInstanceId(), contextCarrier2.getEntryServiceInstanceId());
+        Assert.assertEquals(contextCarrier.getParentServiceInstanceId(), contextCarrier2.getParentServiceInstanceId());
     }
 }

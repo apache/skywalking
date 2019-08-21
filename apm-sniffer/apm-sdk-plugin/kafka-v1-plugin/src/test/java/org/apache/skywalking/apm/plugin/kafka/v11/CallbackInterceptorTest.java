@@ -139,7 +139,7 @@ public class CallbackInterceptorTest {
 
         TraceSegmentRef segmentRef = refs.get(0);
         SegmentRefAssert.assertSpanId(segmentRef, 1);
-        assertThat(segmentRef.getEntryOperationName(), is("/for-test-entryOperationName"));
+        assertThat(segmentRef.getEntryEndpointName(), is("/for-test-entryOperationName"));
     }
 
     private void assertCallbackSpan(AbstractTracingSpan span) {

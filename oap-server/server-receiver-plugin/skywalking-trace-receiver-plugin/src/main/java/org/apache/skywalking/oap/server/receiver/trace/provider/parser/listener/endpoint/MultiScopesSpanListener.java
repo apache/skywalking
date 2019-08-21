@@ -19,11 +19,15 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
 import java.util.*;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.receiver.trace.provider.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
 import org.slf4j.*;
@@ -35,13 +39,11 @@ import static java.util.Objects.nonNull;
  *
  * v5        |   v6
  *
- * 1. Application == Service
- * 2. Server == Service Instance
- * 3. Service == Endpoint
+ * 1. Application == Service 2. Server == Service Instance 3. Service == Endpoint
  *
  * @author peng-yongsheng, wusheng
  */
-public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener {
+public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiScopesSpanListener.class);
 
@@ -52,20 +54,26 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
     private final List<SourceBuilder> entrySourceBuilders;
     private final List<SourceBuilder> exitSourceBuilders;
+    private final List<DatabaseSlowStatement> slowDatabaseAccesses;
+    private final TraceServiceModuleConfig config;
     private SpanDecorator entrySpanDecorator;
     private long minuteTimeBucket;
+    private String traceId;
 
-    private MultiScopesSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
+    private MultiScopesSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.entrySourceBuilders = new LinkedList<>();
         this.exitSourceBuilders = new LinkedList<>();
-        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+        this.slowDatabaseAccesses = new ArrayList<>(10);
+        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+        this.config = config;
+        this.traceId = null;
     }
 
     @Override public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.TraceIds.equals(point);
     }
 
     @Override
@@ -76,7 +84,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 ReferenceDecorator reference = spanDecorator.getRefs(i);
                 SourceBuilder sourceBuilder = new SourceBuilder();
-                sourceBuilder.setSourceEndpointId(reference.getParentServiceId());
+                sourceBuilder.setSourceEndpointId(reference.getParentEndpointId());
 
                 if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
                     int serviceIdByPeerId = serviceInventoryCache.getServiceId(reference.getNetworkAddressId());
@@ -84,12 +92,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                     sourceBuilder.setSourceServiceInstanceId(instanceIdByPeerId);
                     sourceBuilder.setSourceServiceId(serviceIdByPeerId);
                 } else {
-                    sourceBuilder.setSourceServiceInstanceId(reference.getParentApplicationInstanceId());
-                    sourceBuilder.setSourceServiceId(instanceInventoryCache.get(reference.getParentApplicationInstanceId()).getServiceId());
+                    sourceBuilder.setSourceServiceInstanceId(reference.getParentServiceInstanceId());
+                    sourceBuilder.setSourceServiceId(instanceInventoryCache.get(reference.getParentServiceInstanceId()).getServiceId());
                 }
                 sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-                sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
-                sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
+                sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
+                sourceBuilder.setDestServiceId(segmentCoreInfo.getServiceId());
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(spanDecorator.getComponentId());
                 setPublicAttrs(sourceBuilder, spanDecorator);
@@ -101,8 +109,8 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceBuilder.setSourceServiceInstanceId(Const.USER_INSTANCE_ID);
             sourceBuilder.setSourceServiceId(Const.USER_SERVICE_ID);
             sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-            sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
-            sourceBuilder.setDestServiceId(segmentCoreInfo.getApplicationId());
+            sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
+            sourceBuilder.setDestServiceId(segmentCoreInfo.getServiceId());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(spanDecorator.getComponentId());
 
@@ -120,13 +128,16 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         SourceBuilder sourceBuilder = new SourceBuilder();
 
         int peerId = spanDecorator.getPeerId();
+        if (peerId == 0) {
+            return;
+        }
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
 
         sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
-        sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getApplicationInstanceId());
-        sourceBuilder.setSourceServiceId(segmentCoreInfo.getApplicationId());
+        sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
+        sourceBuilder.setSourceServiceId(segmentCoreInfo.getServiceId());
         sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
         sourceBuilder.setDestServiceInstanceId(destInstanceId);
         if (Const.NONE == mappingServiceId) {
@@ -138,6 +149,34 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         sourceBuilder.setComponentId(spanDecorator.getComponentId());
         setPublicAttrs(sourceBuilder, spanDecorator);
         exitSourceBuilders.add(sourceBuilder);
+
+        if (sourceBuilder.getType().equals(RequestType.DATABASE)) {
+            boolean isSlowDBAccess = false;
+
+            DatabaseSlowStatement statement = new DatabaseSlowStatement();
+            statement.setId(segmentCoreInfo.getSegmentId() + "-" + spanDecorator.getSpanId());
+            statement.setDatabaseServiceId(sourceBuilder.getDestServiceId());
+            statement.setLatency(sourceBuilder.getLatency());
+            statement.setTimeBucket(TimeBucket.getRecordTimeBucket(segmentCoreInfo.getStartTime()));
+            statement.setTraceId(traceId);
+            for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
+                if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
+                    statement.setStatement(tag.getValue());
+
+                } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
+                    String dbType = tag.getValue();
+                    DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
+                    int threshold = thresholds.getThreshold(dbType);
+                    if (sourceBuilder.getLatency() > threshold) {
+                        isSlowDBAccess = true;
+                    }
+                }
+            }
+
+            if (isSlowDBAccess) {
+                slowDatabaseAccesses.add(statement);
+            }
+        }
     }
 
     private void setPublicAttrs(SourceBuilder sourceBuilder, SpanDecorator spanDecorator) {
@@ -197,13 +236,33 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
             sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
+                sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
+            }
         });
+
+        slowDatabaseAccesses.forEach(sourceReceiver::receive);
+    }
+
+    @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+        if (traceId == null) {
+            StringBuilder traceIdBuilder = new StringBuilder();
+            for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
+                if (i == 0) {
+                    traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
+                } else {
+                    traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
+                }
+            }
+            traceId = traceIdBuilder.toString();
+        }
     }
 
     public static class Factory implements SpanListenerFactory {
 
-        @Override public SpanListener create(ModuleManager moduleManager) {
-            return new MultiScopesSpanListener(moduleManager);
+        @Override
+        public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+            return new MultiScopesSpanListener(moduleManager, config);
         }
     }
 }

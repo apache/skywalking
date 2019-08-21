@@ -37,7 +37,7 @@ public class JdbcXAConnectionInstrumentation extends AbstractConnectionInstrumen
     public static final String ENHANCE_CLASS = "org.h2.jdbcx.JdbcXAConnection";
     public static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.jdbc.JdbcXAConnectionConstructorInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {

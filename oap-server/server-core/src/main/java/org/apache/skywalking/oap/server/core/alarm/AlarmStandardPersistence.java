@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordProcess;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.slf4j.*;
 
 /**
@@ -39,15 +39,15 @@ public class AlarmStandardPersistence implements AlarmCallback {
             }
 
             AlarmRecord record = new AlarmRecord();
-            record.setScope(message.getScope().ordinal());
+            record.setScope(message.getScopeId());
             record.setId0(message.getId0());
             record.setId1(message.getId1());
             record.setName(message.getName());
             record.setAlarmMessage(message.getAlarmMessage());
             record.setStartTime(message.getStartTime());
-            record.setTimeBucket(TimeBucketUtils.INSTANCE.getMinuteTimeBucket(message.getStartTime()));
+            record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
 
-            RecordProcess.INSTANCE.in(record);
+            RecordStreamProcessor.getInstance().in(record);
         });
     }
 }

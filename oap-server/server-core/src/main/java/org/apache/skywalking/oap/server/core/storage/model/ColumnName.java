@@ -19,23 +19,28 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 /**
+ * Short column name unsupported for now. No define in @Column annotation. The storage implementation need to use name
+ * to do match.
+ *
  * @author peng-yongsheng
  */
 public class ColumnName {
-    private final String fullName;
-    private final String shortName;
-    private boolean useShortName = false;
+    private String fullName;
+    private String storageName = null;
 
-    public ColumnName(String fullName, String shortName) {
+    public ColumnName(String fullName) {
         this.fullName = fullName;
-        this.shortName = shortName;
     }
 
     public String getName() {
-        return useShortName ? shortName : fullName;
+        return fullName;
     }
 
-    public void useShortName() {
-        this.useShortName = true;
+    public String getStorageName() {
+        return storageName != null ? storageName : fullName;
+    }
+
+    public void setStorageName(String storageName) {
+        this.storageName = storageName;
     }
 }

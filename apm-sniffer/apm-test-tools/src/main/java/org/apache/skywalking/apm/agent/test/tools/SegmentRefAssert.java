@@ -39,7 +39,7 @@ public class SegmentRefAssert {
     }
 
     public static void assertEntryApplicationInstanceId(TraceSegmentRef ref, int entryApplicationInstanceID) {
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(entryApplicationInstanceID));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(entryApplicationInstanceID));
     }
 
 }

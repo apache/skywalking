@@ -79,7 +79,7 @@ public class SamplingService implements BootService {
                     logger.error("unexpected exception.", t);
                 }
             }), 0, 3, TimeUnit.SECONDS);
-            logger.debug("Agent sampling mechanism started. Sample {} traces in 10 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
+            logger.debug("Agent sampling mechanism started. Sample {} traces in 3 seconds.", Config.Agent.SAMPLE_N_PER_3_SECS);
         }
     }
 

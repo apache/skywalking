@@ -27,11 +27,12 @@ import lombok.*;
 @Setter
 public class SegmentCoreInfo {
     private String segmentId;
-    private int applicationId;
-    private int applicationInstanceId;
+    private int serviceId;
+    private int serviceInstanceId;
     private long startTime;
     private long endTime;
     private boolean isError;
     private long minuteTimeBucket;
     private byte[] dataBinary;
+    private boolean isV2;
 }

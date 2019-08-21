@@ -23,8 +23,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 public class MeshReceiverModule extends ModuleDefine {
     public static final String NAME = "service-mesh";
 
-    @Override public String name() {
-        return NAME;
+    public MeshReceiverModule() {
+        super("service-mesh");
     }
 
     @Override public Class[] services() {

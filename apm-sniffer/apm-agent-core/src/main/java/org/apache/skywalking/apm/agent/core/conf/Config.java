@@ -21,7 +21,11 @@ package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
+import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -37,10 +41,10 @@ public class Config {
         public static String NAMESPACE = "";
 
         /**
-         * Application code is showed in sky-walking-ui. Suggestion: set an unique name for each application, one
-         * application's nodes share the same code.
+         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
+         * service instance nodes share the same code
          */
-        public static String APPLICATION_CODE = "";
+        public static String SERVICE_NAME = "";
 
         /**
          * Authentication active is based on backend setting, see application.yml for more details.
@@ -50,7 +54,7 @@ public class Config {
 
         /**
          * Negative or zero means off, by default. {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
-         * 10 seconds tops.
+         * 3 seconds tops.
          */
         public static int SAMPLE_N_PER_3_SECS = -1;
 
@@ -80,6 +84,30 @@ public class Config {
          * Deactive V1 header in default
          */
         public static boolean ACTIVE_V1_HEADER = false;
+
+        /**
+         * The identify of the instance
+         */
+        public static String INSTANCE_UUID = "";
+
+        /**
+         * How depth the agent goes, when log cause exceptions.
+         */
+        public static int CAUSE_EXCEPTION_DEPTH = 5;
+
+        /**
+         * How long should the agent wait (in minute)
+         * before re-registering to the OAP server
+         * after receiving reset command
+         */
+        public static int COOL_DOWN_THRESHOLD = 10;
+
+        /**
+         * Force reconnection period of grpc, based on grpc_channel_check_interval.
+         * If count of check grpc channel status more than this number.
+         * The channel check will call channel.getState(true) to requestConnection.
+         */
+        public static long FORCE_RECONNECTION_PERIOD = 1;
     }
 
     public static class Collector {
@@ -88,7 +116,7 @@ public class Config {
          */
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
-         * application and service registry check interval
+         * service and endpoint registry check interval
          */
         public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
         /**
@@ -114,9 +142,9 @@ public class Config {
         /**
          * The buffer size of application codes and peer
          */
-        public static int APPLICATION_CODE_BUFFER_SIZE = 10 * 10000;
+        public static int SERVICE_CODE_BUFFER_SIZE = 10 * 10000;
 
-        public static int OPERATION_NAME_BUFFER_SIZE = 1000 * 10000;
+        public static int ENDPOINT_NAME_BUFFER_SIZE = 1000 * 10000;
     }
 
     public static class Logging {
@@ -142,19 +170,104 @@ public class Config {
          * The log level. Default is debug.
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
+
+        /**
+         * The log output. Default is FILE.
+         */
+        public static LogOutput OUTPUT = LogOutput.FILE;
+
+        /**
+         * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable".
+         * Each conversion specifiers starts with a percent sign '%' and fis followed by conversion word.
+         * There are some default conversion specifiers:
+         * %thread = ThreadName
+         * %level = LogLevel  {@link LogLevel}
+         * %timestamp = The now() who format is 'yyyy-MM-dd HH:mm:ss:SSS'
+         * %class = SimpleName of TargetClass
+         * %msg = Message of user input
+         * %throwable = Throwable of user input
+         * %agent_name = ServiceName of Agent {@link Agent#SERVICE_NAME}
+         *
+         * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
+         *
+         */
+        public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
     }
 
     public static class Plugin {
+
+        /**
+         * Control the length of the peer field.
+         */
+        public static int PEER_MAX_LENGTH = 200;
+
         public static class MongoDB {
             /**
-             * If true, trace all the parameters, default is false. Only trace the operation, not include parameters.
+             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.
              */
             public static boolean TRACE_PARAM = false;
         }
 
         public static class Elasticsearch {
-
+            /**
+             * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
+             */
             public static boolean TRACE_DSL = false;
         }
+
+        public static class Customize {
+            /**
+             * Custom enhancement class configuration file path, recommended to use an absolute path.
+             */
+            public static String ENHANCE_FILE = "";
+
+            /**
+             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+             * And using Map CONTEXT for avoiding classloader isolation issue.
+             */
+            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+        }
+
+        public static class SpringMVC {
+            /**
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+        }
+
+        public static class Toolkit {
+            /**
+             * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
+             */
+            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
+        }
+
+        public static class MySQL {
+            /**
+             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement})
+             * would be collected.
+             */
+            public static boolean TRACE_SQL_PARAMETERS = false;
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag,
+             * but only the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+        }
+
+        public static class SolrJ {
+            /**
+             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.
+             */
+            public static boolean TRACE_STATEMENT = false;
+
+            /**
+             * If true, trace all the operation parameters in Solr request, default is false.
+             */
+            public static boolean TRACE_OPS_PARAMS = false;
+        }
+
     }
 }

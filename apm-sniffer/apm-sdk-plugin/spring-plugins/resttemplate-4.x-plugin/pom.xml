@@ -20,7 +20,7 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,6 +40,12 @@
             <artifactId>spring-web</artifactId>
             <version>${spring-web.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>spring-commons</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

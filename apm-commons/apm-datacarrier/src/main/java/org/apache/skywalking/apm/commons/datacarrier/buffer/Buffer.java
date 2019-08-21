@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by wusheng on 2016/10/25.
@@ -80,15 +81,17 @@ public class Buffer<T> {
         return buffer.length;
     }
 
-    public LinkedList<T> obtain(int start, int end) {
-        LinkedList<T> result = new LinkedList<T>();
+    public void obtain(List<T> consumeList) {
+        this.obtain(consumeList, 0, buffer.length);
+    }
+
+    public void obtain(List<T> consumeList, int start, int end) {
         for (int i = start; i < end; i++) {
             if (buffer[i] != null) {
-                result.add((T)buffer[i]);
+                consumeList.add((T)buffer[i]);
                 buffer[i] = null;
             }
         }
-        return result;
     }
 
 }

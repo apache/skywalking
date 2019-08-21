@@ -19,15 +19,18 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstance extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstance;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE;
     }
 
     @Override public String getEntityId() {
@@ -35,7 +38,7 @@ public class ServiceInstance extends Source {
     }
 
     @Getter @Setter private int id;
-    @Getter @Setter private int serviceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
     @Getter @Setter private String endpointName;

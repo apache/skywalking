@@ -29,8 +29,10 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
  */
 public class RemoteDownstreamConfig {
     public static class Agent {
-        public volatile static int APPLICATION_ID = DictionaryUtil.nullValue();
+        public volatile static int SERVICE_ID = DictionaryUtil.nullValue();
 
-        public volatile static int APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
+        public volatile static int SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
+
+        public volatile static long INSTANCE_REGISTERED_TIME = DictionaryUtil.nullValue();
     }
 }

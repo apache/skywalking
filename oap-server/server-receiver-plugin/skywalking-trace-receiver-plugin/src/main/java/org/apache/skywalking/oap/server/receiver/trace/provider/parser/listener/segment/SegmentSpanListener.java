@@ -21,12 +21,21 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.Segment;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -36,14 +45,17 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private static final Logger logger = LoggerFactory.getLogger(SegmentSpanListener.class);
 
     private final SourceReceiver sourceReceiver;
+    private final TraceSegmentSampler sampler;
     private final Segment segment = new Segment();
     private final EndpointInventoryCache serviceNameCacheService;
+    private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
     private int entryEndpointId = 0;
     private int firstEndpointId = 0;
 
-    private SegmentSpanListener(ModuleManager moduleManager) {
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).getService(SourceReceiver.class);
-        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+    private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
+        this.sampler = sampler;
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
     }
 
     @Override public boolean containsPoint(Point point) {
@@ -52,16 +64,25 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
     @Override
     public void parseFirst(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(segmentCoreInfo.getStartTime());
+        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            return;
+        }
+
+        long timeBucket = TimeBucket.getRecordTimeBucket(segmentCoreInfo.getStartTime());
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
-        segment.setServiceId(segmentCoreInfo.getApplicationId());
+        segment.setServiceId(segmentCoreInfo.getServiceId());
+        segment.setServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
         segment.setLatency((int)(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
         segment.setStartTime(segmentCoreInfo.getStartTime());
         segment.setEndTime(segmentCoreInfo.getEndTime());
         segment.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
         segment.setTimeBucket(timeBucket);
         segment.setDataBinary(segmentCoreInfo.getDataBinary());
+        /**
+         * Only consider v1, v2 compatible for now.
+         */
+        segment.setVersion(segmentCoreInfo.isV2() ? 2 : 1);
 
         firstEndpointId = spanDecorator.getOperationNameId();
     }
@@ -71,6 +92,18 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     }
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+        if (sampleStatus.equals(SAMPLE_STATUS.UNKNOWN) || sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            if (sampler.shouldSample(uniqueId)) {
+                sampleStatus = SAMPLE_STATUS.SAMPLED;
+            } else {
+                sampleStatus = SAMPLE_STATUS.IGNORE;
+            }
+        }
+
+        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            return;
+        }
+
         StringBuilder traceIdBuilder = new StringBuilder();
         for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
             if (i == 0) {
@@ -87,6 +120,10 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             logger.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
 
+        if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
+            return;
+        }
+
         if (entryEndpointId == 0) {
             segment.setEndpointId(firstEndpointId);
             segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
@@ -98,10 +135,19 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         sourceReceiver.receive(segment);
     }
 
-    public static class Factory implements SpanListenerFactory {
+    private enum SAMPLE_STATUS {
+        UNKNOWN, SAMPLED, IGNORE
+    }
 
-        @Override public SpanListener create(ModuleManager moduleManager) {
-            return new SegmentSpanListener(moduleManager);
+    public static class Factory implements SpanListenerFactory {
+        private TraceSegmentSampler sampler;
+
+        public Factory(int segmentSamplingRate) {
+            this.sampler = new TraceSegmentSampler(segmentSamplingRate);
+        }
+
+        @Override public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+            return new SegmentSpanListener(moduleManager, sampler);
         }
     }
 }

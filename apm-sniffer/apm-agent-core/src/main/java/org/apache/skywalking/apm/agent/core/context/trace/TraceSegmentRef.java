@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.network.language.agent.RefType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
@@ -44,17 +44,17 @@ public class TraceSegmentRef {
 
     private String peerHost;
 
-    private int entryApplicationInstanceId = DictionaryUtil.nullValue();
+    private int entryServiceInstanceId = DictionaryUtil.nullValue();
 
-    private int parentApplicationInstanceId = DictionaryUtil.nullValue();
+    private int parentServiceInstanceId = DictionaryUtil.nullValue();
 
-    private String entryOperationName;
+    private String entryEndpointName;
 
-    private int entryOperationId = DictionaryUtil.nullValue();
+    private int entryEndpointId = DictionaryUtil.nullValue();
 
-    private String parentOperationName;
+    private String parentEndpointName;
 
-    private int parentOperationId = DictionaryUtil.nullValue();
+    private int parentEndpointId = DictionaryUtil.nullValue();
 
     /**
      * Transform a {@link ContextCarrier} to the <code>TraceSegmentRef</code>
@@ -65,28 +65,28 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_PROCESS;
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
-        this.parentApplicationInstanceId = carrier.getParentApplicationInstanceId();
-        this.entryApplicationInstanceId = carrier.getEntryApplicationInstanceId();
+        this.parentServiceInstanceId = carrier.getParentServiceInstanceId();
+        this.entryServiceInstanceId = carrier.getEntryServiceInstanceId();
         String host = carrier.getPeerHost();
         if (host.charAt(0) == '#') {
             this.peerHost = host.substring(1);
         } else {
             this.peerId = Integer.parseInt(host);
         }
-        String entryOperationName = carrier.getEntryOperationName();
+        String entryOperationName = carrier.getEntryEndpointName();
         if (!StringUtil.isEmpty(entryOperationName)) {
             if (entryOperationName.charAt(0) == '#') {
-                this.entryOperationName = entryOperationName.substring(1);
+                this.entryEndpointName = entryOperationName.substring(1);
             } else {
-                this.entryOperationId = Integer.parseInt(entryOperationName);
+                this.entryEndpointId = Integer.parseInt(entryOperationName);
             }
         }
-        String parentOperationName = carrier.getParentOperationName();
+        String parentOperationName = carrier.getParentEndpointName();
         if (!StringUtil.isEmpty(parentOperationName)) {
             if (parentOperationName.charAt(0) == '#') {
-                this.parentOperationName = parentOperationName.substring(1);
+                this.parentEndpointName = parentOperationName.substring(1);
             } else {
-                this.parentOperationId = Integer.parseInt(parentOperationName);
+                this.parentEndpointId = Integer.parseInt(parentOperationName);
             }
         }
     }
@@ -95,40 +95,40 @@ public class TraceSegmentRef {
         this.type = SegmentRefType.CROSS_THREAD;
         this.traceSegmentId = snapshot.getTraceSegmentId();
         this.spanId = snapshot.getSpanId();
-        this.parentApplicationInstanceId = RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID;
-        this.entryApplicationInstanceId = snapshot.getEntryApplicationInstanceId();
+        this.parentServiceInstanceId = RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
+        this.entryServiceInstanceId = snapshot.getEntryApplicationInstanceId();
         String entryOperationName = snapshot.getEntryOperationName();
         if (!StringUtil.isEmpty(entryOperationName)) {
             if (entryOperationName.charAt(0) == '#') {
-                this.entryOperationName = entryOperationName.substring(1);
+                this.entryEndpointName = entryOperationName.substring(1);
             } else {
-                this.entryOperationId = Integer.parseInt(entryOperationName);
+                this.entryEndpointId = Integer.parseInt(entryOperationName);
             }
         }
         String parentOperationName = snapshot.getParentOperationName();
         if (!StringUtil.isEmpty(parentOperationName)) {
             if (parentOperationName.charAt(0) == '#') {
-                this.parentOperationName = parentOperationName.substring(1);
+                this.parentEndpointName = parentOperationName.substring(1);
             } else {
-                this.parentOperationId = Integer.parseInt(parentOperationName);
+                this.parentEndpointId = Integer.parseInt(parentOperationName);
             }
         }
     }
 
-    public String getEntryOperationName() {
-        return entryOperationName;
+    public String getEntryEndpointName() {
+        return entryEndpointName;
     }
 
-    public int getEntryOperationId() {
-        return entryOperationId;
+    public int getEntryEndpointId() {
+        return entryEndpointId;
     }
 
-    public int getEntryApplicationInstanceId() {
-        return entryApplicationInstanceId;
+    public int getEntryServiceInstanceId() {
+        return entryServiceInstanceId;
     }
 
-    public TraceSegmentReference transform() {
-        TraceSegmentReference.Builder refBuilder = TraceSegmentReference.newBuilder();
+    public SegmentReference transform() {
+        SegmentReference.Builder refBuilder = SegmentReference.newBuilder();
         if (SegmentRefType.CROSS_PROCESS.equals(type)) {
             refBuilder.setRefType(RefType.CrossProcess);
             if (peerId == DictionaryUtil.nullValue()) {
@@ -140,28 +140,28 @@ public class TraceSegmentRef {
             refBuilder.setRefType(RefType.CrossThread);
         }
 
-        refBuilder.setParentApplicationInstanceId(parentApplicationInstanceId);
-        refBuilder.setEntryApplicationInstanceId(entryApplicationInstanceId);
+        refBuilder.setParentServiceInstanceId(parentServiceInstanceId);
+        refBuilder.setEntryServiceInstanceId(entryServiceInstanceId);
         refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
         refBuilder.setParentSpanId(spanId);
         /**
-         * entryOperationId/entryOperationName and parentOperationId/parentOperationName could be empty at same time.
+         * entryEndpointId/entryEndpointName and parentEndpointId/parentEndpointName could be empty at same time.
          * This is accepted in v2 format.
          *
          */
-        if (entryOperationId == DictionaryUtil.nullValue()) {
-            if (!StringUtil.isEmpty(entryOperationName)) {
-                refBuilder.setEntryServiceName(entryOperationName);
+        if (entryEndpointId == DictionaryUtil.nullValue()) {
+            if (!StringUtil.isEmpty(entryEndpointName)) {
+                refBuilder.setEntryEndpoint(entryEndpointName);
             }
         } else {
-            refBuilder.setEntryServiceId(entryOperationId);
+            refBuilder.setEntryEndpointId(entryEndpointId);
         }
-        if (parentOperationId == DictionaryUtil.nullValue()) {
-            if (!StringUtil.isEmpty(parentOperationName)) {
-                refBuilder.setParentServiceName(parentOperationName);
+        if (parentEndpointId == DictionaryUtil.nullValue()) {
+            if (!StringUtil.isEmpty(parentEndpointName)) {
+                refBuilder.setParentEndpoint(parentEndpointName);
             }
         } else {
-            refBuilder.setParentServiceId(parentOperationId);
+            refBuilder.setParentEndpointId(parentEndpointId);
         }
         return refBuilder.build();
     }

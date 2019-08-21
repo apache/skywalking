@@ -55,7 +55,7 @@ public class EndpointInventoryCache implements Service {
 
     private IEndpointInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            cacheDAO = moduleManager.find(StorageModule.NAME).getService(IEndpointInventoryCacheDAO.class);
+            cacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IEndpointInventoryCacheDAO.class);
         }
         return cacheDAO;
     }

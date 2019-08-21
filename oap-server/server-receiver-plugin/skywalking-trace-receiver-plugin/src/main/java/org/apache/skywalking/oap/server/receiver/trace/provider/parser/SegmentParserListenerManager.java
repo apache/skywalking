@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 
 /**
  * @author peng-yongsheng
  */
-public class SegmentParserListenerManager {
+public class SegmentParserListenerManager implements ISegmentParserListenerManager {
 
     private List<SpanListenerFactory> spanListenerFactories;
 
@@ -32,6 +33,7 @@ public class SegmentParserListenerManager {
         this.spanListenerFactories = new LinkedList<>();
     }
 
+    @Override
     public void add(SpanListenerFactory spanListenerFactory) {
         spanListenerFactories.add(spanListenerFactory);
     }

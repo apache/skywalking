@@ -37,7 +37,7 @@ public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegister
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
     public NetworkAddressRegisterServiceHandler(ModuleManager moduleManager) {
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class NetworkAddressRegisterServiceHandler extends NetworkAddressRegister
 
         NetworkAddressMappings.Builder builder = NetworkAddressMappings.newBuilder();
         for (String networkAddress : addressesList) {
-            int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress);
+            int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress, null);
 
             if (addressId != Const.NONE) {
                 KeyWithIntegerValue value = KeyWithIntegerValue.newBuilder().setKey(networkAddress).setValue(addressId).build();

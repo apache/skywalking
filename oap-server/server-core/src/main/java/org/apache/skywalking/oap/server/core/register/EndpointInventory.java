@@ -21,23 +21,24 @@ package org.apache.skywalking.oap.server.core.register;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.Scope;
+import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.elasticsearch.common.Strings;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
 
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
-@StorageEntity(name = EndpointInventory.MODEL_NAME, builder = EndpointInventory.Builder.class, deleteHistory = false, source = Scope.EndpointInventory)
+@ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
+@Stream(name = EndpointInventory.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_INVENTORY, builder = EndpointInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class EndpointInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "endpoint_inventory";
+    public static final String INDEX_NAME = "endpoint_inventory";
 
     public static final String SERVICE_ID = "service_id";
     public static final String NAME = "name";
@@ -90,8 +91,9 @@ public class EndpointInventory extends RegisterSource {
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
+        remoteBuilder.addDataLongs(getLastUpdateTime());
 
-        remoteBuilder.addDataStrings(StringUtils.getOrDefault(name, Const.EMPTY_STRING));
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
     }
 
@@ -102,6 +104,7 @@ public class EndpointInventory extends RegisterSource {
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
+        setLastUpdateTime(remoteData.getDataLongs(2));
 
         setName(remoteData.getDataStrings(0));
     }
@@ -114,12 +117,13 @@ public class EndpointInventory extends RegisterSource {
 
         @Override public EndpointInventory map2Data(Map<String, Object> dbMap) {
             EndpointInventory inventory = new EndpointInventory();
-            inventory.setSequence((Integer)dbMap.get(SEQUENCE));
-            inventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
+            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
+            inventory.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setDetectPoint((Integer)dbMap.get(DETECT_POINT));
-            inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            inventory.setDetectPoint(((Number)dbMap.get(DETECT_POINT)).intValue());
+            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
             return inventory;
         }
 
@@ -131,6 +135,7 @@ public class EndpointInventory extends RegisterSource {
             map.put(DETECT_POINT, storageData.getDetectPoint());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
+            map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             return map;
         }
     }

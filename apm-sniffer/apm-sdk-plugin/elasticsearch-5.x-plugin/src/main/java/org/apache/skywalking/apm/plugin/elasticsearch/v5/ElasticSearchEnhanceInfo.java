@@ -18,14 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+
 /**
  * @author oatiz.
  */
 public class ElasticSearchEnhanceInfo {
-    /**
-     * elasticsearch host and port
-     */
-    private String transportAddress;
     /**
      * elasticsearch cluster name
      */
@@ -47,12 +45,10 @@ public class ElasticSearchEnhanceInfo {
      */
     private String source;
 
-    public String getTransportAddress() {
-        return transportAddress;
-    }
+    private EnhancedInstance transportAddressHolder;
 
-    public void setTransportAddress(String transportAddress) {
-        this.transportAddress = transportAddress;
+    public String transportAddresses() {
+        return ((TransportAddressCache)transportAddressHolder.getSkyWalkingDynamicField()).transportAddress();
     }
 
     public String getClusterName() {
@@ -95,4 +91,7 @@ public class ElasticSearchEnhanceInfo {
         this.source = source;
     }
 
+    public void setTransportAddressHolder(EnhancedInstance service) {
+        this.transportAddressHolder = service;
+    }
 }

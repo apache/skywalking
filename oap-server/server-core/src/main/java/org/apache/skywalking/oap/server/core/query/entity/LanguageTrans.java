@@ -24,38 +24,17 @@ package org.apache.skywalking.oap.server.core.query.entity;
 public enum LanguageTrans {
     INSTANCE;
 
-    public int id(Language language) {
+    public Language value(String language) {
         switch (language) {
-            case UNKNOWN:
-                return 1;
-            case JAVA:
-                return 2;
-            case DOTNET:
-                return 3;
-            case NODEJS:
-                return 4;
-            case PYTHON:
-                return 5;
-            case RUBY:
-                return 6;
-            default:
-                return 1;
-        }
-    }
-
-    public Language value(int id) {
-        switch (id) {
-            case 1:
-                return Language.UNKNOWN;
-            case 2:
+            case "java":
                 return Language.JAVA;
-            case 3:
+            case ".net":
                 return Language.DOTNET;
-            case 4:
+            case "nodejs":
                 return Language.NODEJS;
-            case 5:
+            case "python":
                 return Language.PYTHON;
-            case 6:
+            case "ruby":
                 return Language.RUBY;
             default:
                 return Language.UNKNOWN;

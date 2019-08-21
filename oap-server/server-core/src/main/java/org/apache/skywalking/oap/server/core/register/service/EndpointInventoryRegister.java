@@ -22,9 +22,9 @@ import java.util.Objects;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
 import static java.util.Objects.isNull;
@@ -36,16 +36,16 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryRegister.class);
 
-    private final ModuleManager moduleManager;
+    private final ModuleDefineHolder moduleDefineHolder;
     private EndpointInventoryCache cacheService;
 
-    public EndpointInventoryRegister(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
+    public EndpointInventoryRegister(ModuleDefineHolder moduleDefineHolder) {
+        this.moduleDefineHolder = moduleDefineHolder;
     }
 
     private EndpointInventoryCache getCacheService() {
         if (isNull(cacheService)) {
-            cacheService = moduleManager.find(CoreModule.NAME).getService(EndpointInventoryCache.class);
+            cacheService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         }
         return cacheService;
     }
@@ -63,7 +63,7 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
             endpointInventory.setRegisterTime(now);
             endpointInventory.setHeartbeatTime(now);
 
-            InventoryProcess.INSTANCE.in(endpointInventory);
+            InventoryStreamProcessor.getInstance().in(endpointInventory);
         }
         return endpointId;
     }
@@ -77,9 +77,9 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         if (Objects.nonNull(endpointInventory)) {
             endpointInventory.setHeartbeatTime(heartBeatTime);
 
-            InventoryProcess.INSTANCE.in(endpointInventory);
+            InventoryStreamProcessor.getInstance().in(endpointInventory);
         } else {
-            logger.warn("Endpoint {} heartbeat, but not found in storage.");
+            logger.warn("Endpoint {} heartbeat, but not found in storage.", endpointId);
         }
     }
 }

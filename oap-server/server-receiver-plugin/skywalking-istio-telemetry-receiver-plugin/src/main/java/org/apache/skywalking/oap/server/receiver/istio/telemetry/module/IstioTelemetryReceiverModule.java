@@ -20,11 +20,11 @@ package org.apache.skywalking.oap.server.receiver.istio.telemetry.module;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-public class IstioTelemetryReceiverModule  extends ModuleDefine {
+public class IstioTelemetryReceiverModule extends ModuleDefine {
     public static final String NAME = "istio-telemetry";
 
-    @Override public String name() {
-        return NAME;
+    public IstioTelemetryReceiverModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {

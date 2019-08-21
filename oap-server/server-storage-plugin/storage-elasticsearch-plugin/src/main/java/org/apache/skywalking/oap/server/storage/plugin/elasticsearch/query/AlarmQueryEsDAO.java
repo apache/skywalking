@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
@@ -41,20 +40,21 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         super(client);
     }
 
-    public Alarms getAlarm(final Scope scope, final String keyword, final int limit, final int from, final long startTB,
+    public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from,
+        final long startTB,
         final long endTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
 
-        if (Objects.nonNull(scope)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AlarmRecord.SCOPE, scope.ordinal()));
+        if (Objects.nonNull(scopeId)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(AlarmRecord.SCOPE, scopeId.intValue()));
         }
 
-        if (StringUtils.isNotEmpty(keyword)) {
+        if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(AlarmRecord.ALARM_MESSAGE);
-            boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+            boolQueryBuilder.must().add(QueryBuilders.matchPhraseQuery(matchCName, keyword));
         }
 
         sourceBuilder.query(boolQueryBuilder);
@@ -74,7 +74,8 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
             message.setId(String.valueOf(alarmRecord.getId0()));
             message.setMessage(alarmRecord.getAlarmMessage());
             message.setStartTime(alarmRecord.getStartTime());
-            message.setScope(Scope.valueOf(alarmRecord.getScope()));
+            message.setScope(Scope.Finder.valueOf(alarmRecord.getScope()));
+            message.setScopeId(alarmRecord.getScope());
             alarms.getMsgs().add(message);
         }
         return alarms;

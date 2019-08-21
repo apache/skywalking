@@ -16,15 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
 /**
  * @author wu-sheng
  */
 public class TestModule extends ModuleDefine {
-    @Override public String name() {
-        return "Test";
+
+    public TestModule() {
+        super("Test");
     }
 
     @Override public Class<? extends Service>[] services() {

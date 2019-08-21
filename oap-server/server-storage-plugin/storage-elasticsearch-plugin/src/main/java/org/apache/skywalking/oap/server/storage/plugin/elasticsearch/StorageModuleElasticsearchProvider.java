@@ -18,33 +18,32 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
+import java.io.IOException;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.cache.*;
 import org.apache.skywalking.oap.server.core.storage.query.*;
-import org.apache.skywalking.oap.server.library.client.NameSpace;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.ElasticsearchStorageTTL;
 
 /**
  * @author peng-yongsheng
  */
 public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(StorageModuleElasticsearchProvider.class);
-
-    private final StorageModuleElasticsearchConfig config;
-    private final NameSpace nameSpace;
-    private ElasticSearchClient elasticSearchClient;
+    protected final StorageModuleElasticsearchConfig config;
+    protected ElasticSearchClient elasticSearchClient;
 
     public StorageModuleElasticsearchProvider() {
         super();
         this.config = new StorageModuleElasticsearchConfig();
-        this.nameSpace = new NameSpace();
     }
 
     @Override
@@ -64,12 +63,15 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), nameSpace);
+        if (!StringUtil.isEmpty(config.getNameSpace())) {
+            config.setNameSpace(config.getNameSpace().toLowerCase());
+        }
+        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), config.getProtocol(), config.getNameSpace(), config.getUser(), config.getPassword());
 
-        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getBulkSize(), config.getFlushInterval(), config.getConcurrentRequests()));
+        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockDAOImpl(elasticSearchClient, 1000));
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockDAOImpl(elasticSearchClient));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(getManager(), elasticSearchClient, new ElasticsearchStorageTTL()));
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new ServiceInventoryCacheEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new ServiceInstanceInventoryCacheDAO(elasticSearchClient));
@@ -77,25 +79,28 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new NetworkAddressInventoryCacheEsDAO(elasticSearchClient));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQueryEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(IMetricQueryDAO.class, new MetricQueryEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient, config.getSegmentQueryMaxSize()));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEsDAO(elasticSearchClient));
     }
 
     @Override
     public void start() throws ModuleStartException {
-        try {
-            nameSpace.setNameSpace(config.getNameSpace());
-            elasticSearchClient.initialize();
+        overrideCoreModuleTTLConfig();
 
-            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber());
+        try {
+            elasticSearchClient.connect();
+
+            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval());
             installer.install(elasticSearchClient);
 
             RegisterLockInstaller lockInstaller = new RegisterLockInstaller(elasticSearchClient);
             lockInstaller.install();
-        } catch (StorageException e) {
+        } catch (StorageException | IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
@@ -106,6 +111,15 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[0];
+        return new String[] {CoreModule.NAME};
+    }
+
+    private void overrideCoreModuleTTLConfig() {
+        ConfigService configService = getManager().find(CoreModule.NAME).provider().getService(ConfigService.class);
+        configService.getDataTTLConfig().setRecordDataTTL(config.getRecordDataTTL());
+        configService.getDataTTLConfig().setMinuteMetricsDataTTL(config.getMinuteMetricsDataTTL());
+        configService.getDataTTLConfig().setHourMetricsDataTTL(config.getHourMetricsDataTTL());
+        configService.getDataTTLConfig().setDayMetricsDataTTL(config.getDayMetricsDataTTL());
+        configService.getDataTTLConfig().setMonthMetricsDataTTL(config.getMonthMetricsDataTTL());
     }
 }

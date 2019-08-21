@@ -20,12 +20,17 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY;
+
 /**
  * @author peng-yongsheng
  */
+@ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY, name = "ServiceInstanceJVMMemory", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceJVMMemory extends Source {
-    @Override public Scope scope() {
-        return Scope.ServiceInstanceJVMMemory;
+    @Override public int scope() {
+        return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY;
     }
 
     @Override public String getEntityId() {
@@ -35,7 +40,7 @@ public class ServiceInstanceJVMMemory extends Source {
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private boolean heapStatus;
     @Getter @Setter private long init;
     @Getter @Setter private long max;

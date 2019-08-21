@@ -31,10 +31,11 @@
         <logger name="io.grpc.netty" level="INFO"/>
         <logger name="io.netty" level="INFO"/>
         <logger name="org.apache.http" level="INFO"/>
-        <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.server.core.remote.client" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.library.buffer" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.server.receiver.so11y" level="DEBUG" />
         <Root level="DEBUG">
             <AppenderRef ref="Console"/>
         </Root>

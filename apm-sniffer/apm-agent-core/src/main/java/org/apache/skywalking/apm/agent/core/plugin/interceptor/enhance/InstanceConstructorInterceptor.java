@@ -28,7 +28,7 @@ package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
  */
 public interface InstanceConstructorInterceptor {
     /**
-     * Called before the origin constructor invocation.
+     * Called after the origin constructor invocation.
      */
     void onConstruct(EnhancedInstance objInst, Object[] allArguments);
 }

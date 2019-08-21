@@ -29,8 +29,8 @@ public class QueryModule extends ModuleDefine {
 
     private static final String NAME = "query";
 
-    @Override public String name() {
-        return NAME;
+    public QueryModule() {
+        super(NAME);
     }
 
     @Override public Class[] services() {

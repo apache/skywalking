@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v5;
 
 import io.grpc.*;
+import io.grpc.stub.MetadataUtils;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.slf4j.*;
 
@@ -33,6 +34,10 @@ public class ApplicationRegisterHandlerTestCase {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
 
         ApplicationRegisterServiceGrpc.ApplicationRegisterServiceBlockingStub stub = ApplicationRegisterServiceGrpc.newBlockingStub(channel);
+
+        Metadata authHeader = new Metadata();
+        authHeader.put(Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER), "c4a4baabf931f2379bdfe53a450ecb89");
+        stub = MetadataUtils.attachHeaders(stub, authHeader);
 
         Application.Builder application = Application.newBuilder();
         application.setApplicationCode("dubbox-consumer");

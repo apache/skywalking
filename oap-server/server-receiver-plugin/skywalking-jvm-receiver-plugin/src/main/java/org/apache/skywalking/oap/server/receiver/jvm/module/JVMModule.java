@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.oap.server.receiver.jvm.module;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.*;
 
 /**
  * @author peng-yongsheng
  */
 public class JVMModule extends ModuleDefine {
 
-    @Override public String name() {
-        return "receiver-jvm";
+    public JVMModule() {
+        super("receiver-jvm");
     }
 
     @Override public Class[] services() {

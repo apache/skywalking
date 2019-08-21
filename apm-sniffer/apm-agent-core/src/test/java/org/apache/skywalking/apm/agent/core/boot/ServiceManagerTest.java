@@ -55,7 +55,7 @@ public class ServiceManagerTest {
     public void testServiceDependencies() throws Exception {
         HashMap<Class, BootService> registryService = getFieldValue(ServiceManager.INSTANCE, "bootedServices");
 
-        assertThat(registryService.size(), is(7));
+        assertThat(registryService.size(), is(9));
 
         assertTraceSegmentServiceClient(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class));
         assertContextManager(ServiceManager.INSTANCE.findService(ContextManager.class));
@@ -69,16 +69,13 @@ public class ServiceManagerTest {
 
     private void assertIgnoreTracingContextListener() throws Exception {
         List<TracingContextListener> listeners = getFieldValue(IgnoredTracerContext.ListenerManager.class, "LISTENERS");
-        assertThat(listeners.size(), is(1));
-
-        assertThat(listeners.contains(ServiceManager.INSTANCE.findService(ContextManager.class)), is(true));
+        assertThat(listeners.size(), is(0));
     }
 
     private void assertTracingContextListener() throws Exception {
         List<TracingContextListener> listeners = getFieldValue(TracingContext.ListenerManager.class, "LISTENERS");
-        assertThat(listeners.size(), is(2));
+        assertThat(listeners.size(), is(1));
 
-        assertThat(listeners.contains(ServiceManager.INSTANCE.findService(ContextManager.class)), is(true));
         assertThat(listeners.contains(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class)), is(true));
     }
 

@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
 import org.slf4j.*;
@@ -41,8 +42,8 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     private List<ServiceMapping> serviceMappings = new LinkedList<>();
 
     private ServiceMappingSpanListener(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).getService(ServiceInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).getService(IServiceInventoryRegister.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
     }
 
     @Override public boolean containsPoint(Point point) {
@@ -59,10 +60,10 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                     int serviceId = serviceInventoryCache.getServiceId(spanDecorator.getRefs(i).getNetworkAddressId());
                     int mappingServiceId = serviceInventoryCache.get(serviceId).getMappingServiceId();
-                    if (mappingServiceId != segmentCoreInfo.getApplicationId()) {
+                    if (mappingServiceId != segmentCoreInfo.getServiceId()) {
                         ServiceMapping serviceMapping = new ServiceMapping();
                         serviceMapping.setServiceId(serviceId);
-                        serviceMapping.setMappingServiceId(segmentCoreInfo.getApplicationId());
+                        serviceMapping.setMappingServiceId(segmentCoreInfo.getServiceId());
                         serviceMappings.add(serviceMapping);
                     }
                 }
@@ -81,7 +82,7 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
 
     public static class Factory implements SpanListenerFactory {
 
-        @Override public SpanListener create(ModuleManager moduleManager) {
+        @Override public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             return new ServiceMappingSpanListener(moduleManager);
         }
     }

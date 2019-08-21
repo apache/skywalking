@@ -66,13 +66,17 @@ public class GraphQLQueryProvider extends ModuleProvider {
             .resolvers(new AggregationQuery(getManager()))
             .file("query-protocol/alarm.graphqls")
             .resolvers(new AlarmQuery(getManager()))
+            .file("query-protocol/top-n-records.graphqls")
+            .resolvers(new TopNRecordsQuery(getManager()))
+            .file("query-protocol/log.graphqls")
+            .resolvers(new LogQuery(getManager()))
             .build()
             .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        JettyHandlerRegister service = getManager().find(CoreModule.NAME).getService(JettyHandlerRegister.class);
+        JettyHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
         service.addHandler(new GraphQLQueryHandler(config.getPath(), graphQL));
     }
 

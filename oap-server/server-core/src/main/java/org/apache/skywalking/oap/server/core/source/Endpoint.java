@@ -19,15 +19,18 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.*;
-import org.apache.skywalking.oap.server.core.source.annotation.SourceType;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
 
 /**
  * @author peng-yongsheng
  */
-@SourceType
+@ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Endpoint extends Source {
-    @Override public Scope scope() {
-        return Scope.Endpoint;
+    @Override public int scope() {
+        return DefaultScopeDefine.ENDPOINT;
     }
 
     @Override public String getEntityId() {
@@ -36,9 +39,9 @@ public class Endpoint extends Source {
 
     @Getter @Setter private int id;
     @Getter @Setter private String name;
-    @Getter @Setter private int serviceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceInstanceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id") private int serviceInstanceId;
     @Getter @Setter private String serviceInstanceName;
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;

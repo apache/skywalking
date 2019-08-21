@@ -19,17 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 /**
  * @author wusheng
@@ -44,52 +40,48 @@ public class H2ServiceInventoryCacheDAO extends H2SQLExecutor implements IServic
 
     @Override public int getServiceId(String serviceName) {
         String id = ServiceInventory.buildId(serviceName);
-        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.MODEL_NAME, id);
+        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.INDEX_NAME, id);
     }
 
     @Override public int getServiceId(int addressId) {
         String id = ServiceInventory.buildId(addressId);
-        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.MODEL_NAME, id);
+        return getEntityIDByID(h2Client, ServiceInventory.SEQUENCE, ServiceInventory.INDEX_NAME, id);
     }
 
     @Override public ServiceInventory get(int serviceId) {
         try {
-            return (ServiceInventory)getByColumn(h2Client, ServiceInventory.MODEL_NAME, ServiceInventory.SEQUENCE, serviceId, new ServiceInventory.Builder());
+            return (ServiceInventory)getByColumn(h2Client, ServiceInventory.INDEX_NAME, ServiceInventory.SEQUENCE, serviceId, new ServiceInventory.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
         }
     }
 
-    @Override public List<ServiceInventory> loadLastMappingUpdate() {
+    @Override public List<ServiceInventory> loadLastUpdate(long lastUpdateTime) {
         List<ServiceInventory> serviceInventories = new ArrayList<>();
 
         try {
             StringBuilder sql = new StringBuilder("select * from ");
-            sql.append(ServiceInventory.MODEL_NAME);
+            sql.append(ServiceInventory.INDEX_NAME);
             sql.append(" where ").append(ServiceInventory.IS_ADDRESS).append("=? ");
-            sql.append(" and ").append(ServiceInventory.MAPPING_LAST_UPDATE_TIME).append(">?");
+            sql.append(" and ").append(ServiceInventory.LAST_UPDATE_TIME).append(">?");
 
-            sql.append(" LIMIT 50 ");
-
-            Connection connection = null;
-            try {
-                connection = h2Client.getConnection();
-                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, System.currentTimeMillis() - 10000)) {
-                    while (resultSet.next()) {
-                        ServiceInventory serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.MODEL_NAME, new ServiceInventory.Builder());
+            try (Connection connection = h2Client.getConnection()) {
+                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, lastUpdateTime)) {
+                    ServiceInventory serviceInventory;
+                    do {
+                        serviceInventory = (ServiceInventory)toStorageData(resultSet, ServiceInventory.INDEX_NAME, new ServiceInventory.Builder());
                         if (serviceInventory != null) {
                             serviceInventories.add(serviceInventory);
                         }
                     }
+                    while (serviceInventory != null);
                 }
             } catch (SQLException e) {
                 throw new IOException(e);
-            } finally {
-                h2Client.close(connection);
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
         return serviceInventories;
     }

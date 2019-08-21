@@ -59,7 +59,7 @@ public class ServiceInstanceInventoryCache implements Service {
 
     private IServiceInstanceInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            this.cacheDAO = moduleManager.find(StorageModule.NAME).getService(IServiceInstanceInventoryCacheDAO.class);
+            this.cacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IServiceInstanceInventoryCacheDAO.class);
         }
         return this.cacheDAO;
     }

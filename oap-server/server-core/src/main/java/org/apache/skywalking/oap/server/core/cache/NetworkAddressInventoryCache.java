@@ -25,10 +25,9 @@ import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.slf4j.*;
 
-import static java.util.Objects.isNull;
+import static java.util.Objects.*;
 
 /**
  * @author peng-yongsheng
@@ -49,7 +48,7 @@ public class NetworkAddressInventoryCache implements Service {
 
     private INetworkAddressInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            this.cacheDAO = moduleManager.find(StorageModule.NAME).getService(INetworkAddressInventoryCacheDAO.class);
+            this.cacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(INetworkAddressInventoryCacheDAO.class);
         }
         return this.cacheDAO;
     }
@@ -72,7 +71,7 @@ public class NetworkAddressInventoryCache implements Service {
 
         if (isNull(networkAddress)) {
             networkAddress = getCacheDAO().get(addressId);
-            if (StringUtils.isNotEmpty(networkAddress)) {
+            if (nonNull(networkAddress)) {
                 addressIdCache.put(addressId, networkAddress);
             }
         }

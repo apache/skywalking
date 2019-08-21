@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.0.0-beta-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-test-tools</artifactId>
@@ -30,11 +30,15 @@
 
     <name>apm-test-tools</name>
     <url>http://maven.apache.org</url>
+
+    <properties>
+        <junit.version>4.12</junit.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

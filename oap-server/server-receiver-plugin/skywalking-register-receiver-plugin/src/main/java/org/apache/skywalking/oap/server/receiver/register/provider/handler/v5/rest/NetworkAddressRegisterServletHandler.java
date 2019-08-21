@@ -40,7 +40,7 @@ public class NetworkAddressRegisterServletHandler extends JettyJsonHandler {
     private static final String ADDRESS_ID = "i";
 
     public NetworkAddressRegisterServletHandler(ModuleManager moduleManager) {
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).getService(INetworkAddressInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
     }
 
     @Override public String pathSpec() {
@@ -59,10 +59,10 @@ public class NetworkAddressRegisterServletHandler extends JettyJsonHandler {
                 String networkAddress = networkAddresses.get(i).getAsString();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("network address register, network address: {}", networkAddress);
+                    logger.debug("network getAddress register, network getAddress: {}", networkAddress);
                 }
 
-                int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress);
+                int addressId = networkAddressInventoryRegister.getOrCreate(networkAddress, null);
                 JsonObject mapping = new JsonObject();
                 mapping.addProperty(ADDRESS_ID, addressId);
                 mapping.addProperty(NETWORK_ADDRESS, networkAddress);

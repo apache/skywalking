@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-public class ServiceNotProvidedException extends Exception {
+public class ServiceNotProvidedException extends RuntimeException {
     public ServiceNotProvidedException(String message) {
         super(message);
     }

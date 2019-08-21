@@ -18,22 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
-import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
-import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
-import org.apache.skywalking.oap.server.core.query.entity.TraceState;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtils;
 import org.elasticsearch.search.sort.SortOrder;
 
 /**
@@ -48,8 +41,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int endpointId, String traceId, int limit, int from, TraceState traceState,
-        QueryOrder queryOrder) throws IOException {
+        String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
+        TraceState traceState, QueryOrder queryOrder) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 
@@ -71,18 +64,22 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                 parameters.add(maxDuration);
             }
         }
-        if (StringUtils.isNotEmpty(endpointName)) {
+        if (!Strings.isNullOrEmpty(endpointName)) {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like '%" + endpointName + "%'");
         }
         if (serviceId != 0) {
             sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
+        if (serviceInstanceId != 0) {
+            sql.append(" and ").append(SegmentRecord.SERVICE_INSTANCE_ID).append(" = ?");
+            parameters.add(serviceInstanceId);
+        }
         if (endpointId != 0) {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_ID).append(" = ?");
             parameters.add(endpointId);
         }
-        if (StringUtils.isNotEmpty(traceId)) {
+        if (!Strings.isNullOrEmpty(traceId)) {
             sql.append(" and ").append(SegmentRecord.TRACE_ID).append(" = ?");
             parameters.add(traceId);
         }
@@ -102,19 +99,17 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                 sql.append(" order by ").append(SegmentRecord.LATENCY).append(" ").append(SortOrder.DESC);
                 break;
         }
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
 
         TraceBrief traceBrief = new TraceBrief();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, buildCountStatement(sql.toString()), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
             }
+
+            buildLimit(sql, from, limit);
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
@@ -132,18 +127,23 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
 
         return traceBrief;
     }
 
+    protected String buildCountStatement(String sql) {
+        return "select count(1) total from (select 1 " + sql + " )";
+    }
+
+    protected void buildLimit(StringBuilder sql, int from, int limit) {
+        sql.append(" LIMIT ").append(limit);
+        sql.append(" OFFSET ").append(from);
+    }
+
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = h2Client.getConnection();
+        try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId)) {
                 while (resultSet.next()) {
@@ -157,17 +157,24 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
                     segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
                     String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
-                    if (StringUtils.isNotEmpty(dataBinaryBase64)) {
+                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
                         segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
                     }
+                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
                     segmentRecords.add(segmentRecord);
                 }
             }
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            h2Client.close(connection);
         }
         return segmentRecords;
+    }
+
+    @Override public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
+        return Collections.emptyList();
+    }
+
+    protected JDBCHikariCPClient getClient() {
+        return h2Client;
     }
 }

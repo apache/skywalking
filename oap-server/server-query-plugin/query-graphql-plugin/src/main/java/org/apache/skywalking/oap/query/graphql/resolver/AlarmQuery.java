@@ -20,11 +20,10 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.query.graphql.type.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.source.Scope;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -41,7 +40,7 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     private AlarmQueryService getQueryService() {
         if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).getService(AlarmQueryService.class);
+            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(AlarmQueryService.class);
         }
         return queryService;
     }
@@ -52,9 +51,14 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
         final Pagination paging) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getQueryService().getAlarm(scope, keyword, paging, startTimeBucket, endTimeBucket);
+        Integer scopeId = null;
+        if (scope != null) {
+            scopeId = scope.getScopeId();
+        }
+
+        return getQueryService().getAlarm(scopeId, keyword, paging, startTimeBucket, endTimeBucket);
     }
 }
