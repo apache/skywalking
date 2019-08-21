@@ -94,6 +94,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
+1. GSX Techedu Inc. 跟谁学 https://www.genshuixue.com
 
 # User Cases
 ## Alibaba Cloud
