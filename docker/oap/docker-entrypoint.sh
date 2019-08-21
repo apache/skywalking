@@ -34,6 +34,10 @@ cluster:
     #Retry Policy
     baseSleepTimeMs: \${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
     maxRetries: \${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+    # Enable ACL
+    enableACL: \${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+    schema: \${SW_ZK_SCHEMA:digest} # only support digest schema
+    expression: \${SW_ZK_EXPRESSION:skywalking:skywalking}
 EOT
 }
 
