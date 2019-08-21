@@ -83,4 +83,4 @@
 
 ²These plugins affect the performance or must be used under some conditions, from experiences. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
 
-³Required JDK 8. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
+³JDK 8 Required. So only released in `/optional-plugins`, copy to `/plugins` in order to make them work.
