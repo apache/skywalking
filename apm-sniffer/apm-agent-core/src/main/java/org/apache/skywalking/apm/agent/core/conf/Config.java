@@ -271,7 +271,7 @@ public class Config {
             /**
              * Rules for RestTemplate plugin
              */
-            public static class RestTemplate {
+            public static class RestTemplate implements OPGroupDefinition {
                 public static Map<String, String> RULE = new HashMap<String, String>();
             }
         }
