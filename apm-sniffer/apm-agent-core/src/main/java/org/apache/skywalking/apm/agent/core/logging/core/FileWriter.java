@@ -65,14 +65,18 @@ public class FileWriter implements IWriter {
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("LogFileWriter"))
             .scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {
                 @Override public void run() {
-                    logBuffer.drainTo(outputLogs);
-                    for (String log : outputLogs) {
-                        writeToFile(log + Constants.LINE_SEPARATOR);
-                    }
                     try {
-                        fileOutputStream.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        logBuffer.drainTo(outputLogs);
+                        for (String log : outputLogs) {
+                            writeToFile(log + Constants.LINE_SEPARATOR);
+                        }
+                        try {
+                            fileOutputStream.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } finally {
+                        outputLogs.clear();
                     }
                 }
             }, new RunnableWithExceptionProtection.CallbackWhenException() {
@@ -165,8 +169,7 @@ public class FileWriter implements IWriter {
     }
 
     /**
-     * Write log to the queue.
-     * W/ performance trade off, set 2ms timeout for the log OP.
+     * Write log to the queue. W/ performance trade off, set 2ms timeout for the log OP.
      *
      * @param message to log
      */
