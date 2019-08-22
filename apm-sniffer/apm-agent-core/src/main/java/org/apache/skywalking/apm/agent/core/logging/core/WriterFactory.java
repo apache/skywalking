@@ -25,23 +25,37 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.util.StringUtil;
 
+/**
+ * @author Alan Lau
+ */
 public class WriterFactory {
-    public static IWriter getLogWriter() {
-        if (!useConsole() && SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound()) {
-            if (StringUtil.isEmpty(Config.Logging.DIR)) {
-                try {
-                    Config.Logging.DIR = AgentPackagePath.getPath() + "/logs";
-                } catch (AgentPackageNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            return FileWriter.get();
-        } else {
-            return SystemOutWriter.INSTANCE;
-        }
-    }
 
-    private static boolean useConsole() {
-        return LogOutput.CONSOLE == Config.Logging.OUTPUT;
+    private static IWriter WRITER;
+
+    public static IWriter getLogWriter() {
+
+        switch (Config.Logging.OUTPUT) {
+            case FILE:
+                if (WRITER != null) {
+                    return WRITER;
+                }
+                if (SnifferConfigInitializer.isInitCompleted() && AgentPackagePath.isPathFound()) {
+                    if (StringUtil.isEmpty(Config.Logging.DIR)) {
+                        try {
+                            Config.Logging.DIR = AgentPackagePath.getPath() + "/logs";
+                        } catch (AgentPackageNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    WRITER = FileWriter.get();
+                } else {
+                    return SystemOutWriter.INSTANCE;
+                }
+                break;
+            default:
+                return SystemOutWriter.INSTANCE;
+
+        }
+        return WRITER;
     }
 }
