@@ -33,6 +33,7 @@ or providing commercial products including Apache SkyWalking.
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
 1. fullgoal.com.cn 富国基金管理有限公司 https://www.fullgoal.com.cn/
 1. GTrace System. (No company provided) 
+1. GSX Techedu Inc. 跟谁学 https://www.genshuixue.com
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
 1. GOME 国美 https://www.gome.com.cn/
 1. Guazi.com 瓜子二手车直卖网. https://www.guazi.com/
