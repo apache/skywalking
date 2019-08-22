@@ -19,4 +19,4 @@ We have following plugins supporting operation name group.
 
 | Plugin | Config Key | Example |
 |:----:|:-----:|:----|
-|RestTemplate| plugin.opgroup.resttemplate.rule | plugin.opgroup.resttemplate.rule[/user/auth/{token}]=\/user\/auth\/.* |
+|RestTemplate| plugin.opgroup.resttemplate.rule | plugin.opgroup.resttemplate.rule[/user/auth/{token}]=`\/user\/auth\/.*` |
