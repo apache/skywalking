@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 public class WriterFactory {
 
-    private static volatile IWriter WRITER;
+    private static IWriter WRITER;
 
     public static IWriter getLogWriter() {
 
