@@ -45,7 +45,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setName(message.getName());
             record.setAlarmMessage(message.getAlarmMessage());
             record.setStartTime(message.getStartTime());
-            record.setTimeBucket(TimeBucket.getSecondTimeBucket(message.getStartTime()));
+            record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
 
             RecordStreamProcessor.getInstance().in(record);
         });
