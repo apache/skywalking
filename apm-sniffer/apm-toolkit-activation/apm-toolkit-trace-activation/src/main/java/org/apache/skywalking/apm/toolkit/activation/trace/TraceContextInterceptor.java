@@ -32,13 +32,13 @@ public class TraceContextInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         MethodInterceptResult result) {
-
+        result.defineReturnValue(ContextManager.getGlobalTraceId());
     }
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Object ret) {
-        return ContextManager.getGlobalTraceId();
+        return ret;
     }
 
     @Override
