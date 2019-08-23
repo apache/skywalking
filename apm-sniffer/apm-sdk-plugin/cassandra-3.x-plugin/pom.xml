@@ -9,9 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>apm-cassandra-3.x-plugin</name>
-
     <artifactId>apm-cassandra-3.x-plugin</artifactId>
+    <name>apm-cassandra-3.x-plugin</name>
 
     <properties>
         <compiler.version>1.8</compiler.version>
@@ -27,5 +26,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
 </project>
