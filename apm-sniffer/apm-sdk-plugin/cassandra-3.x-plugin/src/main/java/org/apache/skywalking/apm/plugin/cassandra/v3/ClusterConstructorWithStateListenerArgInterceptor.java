@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.cassandra.v3;
 
-import jnr.ffi.annotations.In;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.util.StringUtil;
