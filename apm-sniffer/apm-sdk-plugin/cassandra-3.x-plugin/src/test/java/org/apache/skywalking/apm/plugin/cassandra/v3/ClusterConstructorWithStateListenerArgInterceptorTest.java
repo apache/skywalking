@@ -61,14 +61,14 @@ public class ClusterConstructorWithStateListenerArgInterceptorTest {
     public void setUp() throws Exception {
         interceptor = new ClusterConstructorWithStateListenerArgInterceptor();
 
-        inetSocketAddresses = new ArrayList<>();
-        inetSocketAddresses.add(new InetSocketAddress("localhost", 9042));
+        inetSocketAddresses = new ArrayList<InetSocketAddress>();
+        inetSocketAddresses.add(new InetSocketAddress("172.20.0.2", 9042));
     }
 
     @Test
     public void onConstruct() {
         interceptor.onConstruct(enhancedInstance, new Object[]{"cluster-name", inetSocketAddresses});
         ConnectionInfo connectionInfo = (ConnectionInfo) enhancedInstance.getSkyWalkingDynamicField();
-        Assert.assertThat(connectionInfo.getContactPoints(), Is.is("localhost/127.0.0.1:9042"));
+        Assert.assertThat(connectionInfo.getContactPoints(), Is.is("172.20.0.2:9042"));
     }
 }

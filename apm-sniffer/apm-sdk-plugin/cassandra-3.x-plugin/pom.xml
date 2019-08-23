@@ -13,7 +13,6 @@
     <name>apm-cassandra-3.x-plugin</name>
 
     <properties>
-        <compiler.version>1.8</compiler.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cassandra.version>3.7.2</cassandra.version>
     </properties>

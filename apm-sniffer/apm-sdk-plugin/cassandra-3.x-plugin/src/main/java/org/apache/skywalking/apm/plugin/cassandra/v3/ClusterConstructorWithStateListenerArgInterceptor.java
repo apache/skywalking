@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.cassandra.v3;
 
+import jnr.ffi.annotations.In;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author stone.wlg
@@ -31,9 +33,12 @@ import java.util.stream.Collectors;
 public class ClusterConstructorWithStateListenerArgInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String contactPoints = ((List<InetSocketAddress>) allArguments[1]).stream()
-            .map(InetSocketAddress::toString)
-            .collect(Collectors.joining(","));
+        List<InetSocketAddress> inetSocketAddresses = (List<InetSocketAddress>) allArguments[1];
+        List<String> hosts = new ArrayList<String>();
+        for (InetSocketAddress inetSocketAddress : inetSocketAddresses) {
+            hosts.add(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort());
+        }
+        String contactPoints = StringUtil.join(',', hosts.toArray(new String[0]));
 
         objInst.setSkyWalkingDynamicField(
             new ConnectionInfo(contactPoints)
