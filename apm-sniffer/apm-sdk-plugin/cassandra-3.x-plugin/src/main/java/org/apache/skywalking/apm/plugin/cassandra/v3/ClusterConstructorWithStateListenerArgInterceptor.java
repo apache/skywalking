@@ -42,7 +42,7 @@ public class ClusterConstructorWithStateListenerArgInterceptor implements Instan
         }
 
         objInst.setSkyWalkingDynamicField(
-                new ConnectionInfo(contactPoints)
+            new ConnectionInfo(contactPoints)
         );
     }
 }
