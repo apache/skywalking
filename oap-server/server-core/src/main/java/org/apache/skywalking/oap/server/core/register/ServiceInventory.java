@@ -187,9 +187,7 @@ public class ServiceInventory extends RegisterSource {
         if (serviceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
             this.nodeType = serviceInventory.getNodeType();
             setProp(serviceInventory.getProp());
-            if (Const.NONE != serviceInventory.getMappingServiceId()) {
-                this.mappingServiceId = serviceInventory.getMappingServiceId();
-            }
+            this.mappingServiceId = serviceInventory.getMappingServiceId();
             isChanged = true;
         }
 

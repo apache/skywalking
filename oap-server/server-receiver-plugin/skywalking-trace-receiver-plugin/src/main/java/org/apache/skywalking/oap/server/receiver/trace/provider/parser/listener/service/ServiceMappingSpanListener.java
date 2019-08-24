@@ -18,17 +18,27 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service;
 
-import java.util.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -38,12 +48,16 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     private static final Logger logger = LoggerFactory.getLogger(ServiceMappingSpanListener.class);
 
     private final IServiceInventoryRegister serviceInventoryRegister;
+    private final TraceServiceModuleConfig config;
     private final ServiceInventoryCache serviceInventoryCache;
+    private final NetworkAddressInventoryCache networkAddressInventoryCache;
     private List<ServiceMapping> serviceMappings = new LinkedList<>();
 
-    private ServiceMappingSpanListener(ModuleManager moduleManager) {
+    private ServiceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
         this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+        this.config = config;
     }
 
     @Override public boolean containsPoint(Point point) {
@@ -58,14 +72,20 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
             if (spanDecorator.getRefsCount() > 0) {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
-                    int serviceId = serviceInventoryCache.getServiceId(spanDecorator.getRefs(i).getNetworkAddressId());
-                    int mappingServiceId = serviceInventoryCache.get(serviceId).getMappingServiceId();
-                    if (mappingServiceId != segmentCoreInfo.getServiceId()) {
-                        ServiceMapping serviceMapping = new ServiceMapping();
-                        serviceMapping.setServiceId(serviceId);
+                    int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
+                    String address = networkAddressInventoryCache.get(networkAddressId).getName();
+                    int serviceId = serviceInventoryCache.getServiceId(networkAddressId);
+                    ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
+                    ServiceMapping serviceMapping = new ServiceMapping();
+                    serviceMapping.setServiceId(serviceId);
+
+                    if (config.getStaticGatewaysConfig().isAddressConfiguredAsGateway(address)) {
+                        serviceMapping.setMappingServiceId(Const.NONE);
+                        serviceInventory.setMappingServiceId(Const.NONE);
+                    } else {
                         serviceMapping.setMappingServiceId(segmentCoreInfo.getServiceId());
-                        serviceMappings.add(serviceMapping);
                     }
+                    serviceMappings.add(serviceMapping);
                 }
             }
         }
@@ -83,7 +103,7 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     public static class Factory implements SpanListenerFactory {
 
         @Override public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new ServiceMappingSpanListener(moduleManager);
+            return new ServiceMappingSpanListener(moduleManager, config);
         }
     }
 

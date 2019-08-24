@@ -18,22 +18,33 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
-import java.io.IOException;
-import org.apache.skywalking.oap.server.configuration.api.*;
+import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
+import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.server.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.grpc.TraceSegmentServiceHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.TraceSegmentServletHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.grpc.TraceSegmentReportServiceHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParse;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserServiceImpl;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint.MultiScopesSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment.SegmentSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+
+import java.io.IOException;
 
 /**
  * @author peng-yongsheng
@@ -44,6 +55,7 @@ public class TraceModuleProvider extends ModuleProvider {
     private SegmentParse.Producer segmentProducer;
     private SegmentParseV2.Producer segmentProducerV2;
     private DBLatencyThresholdsAndWatcher thresholds;
+    private StaticGatewaysConfig staticGateways;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -64,7 +76,10 @@ public class TraceModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException {
         thresholds = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
 
+        staticGateways = new StaticGatewaysConfig(this);
+
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
+        moduleConfig.setStaticGatewaysConfig(staticGateways);
 
         segmentProducer = new SegmentParse.Producer(getManager(), listenerManager(), moduleConfig);
         segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager(), moduleConfig);
@@ -89,6 +104,7 @@ public class TraceModuleProvider extends ModuleProvider {
         JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(JettyHandlerRegister.class);
         try {
             dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
+            dynamicConfigurationService.registerConfigChangeWatcher(staticGateways);
 
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
             grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(segmentProducerV2, getManager()));
