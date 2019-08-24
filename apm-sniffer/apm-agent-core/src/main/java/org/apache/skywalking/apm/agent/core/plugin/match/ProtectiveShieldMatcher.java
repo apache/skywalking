@@ -18,6 +18,8 @@
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.description.type.TypeDescription;
+import java.util.regex.Pattern;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
@@ -38,12 +40,22 @@ public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.Abstract
 
     private final ElementMatcher<? super T> matcher;
 
+    private final Pattern ignoreClassPattern;
+
     public ProtectiveShieldMatcher(ElementMatcher<? super T> matcher) {
         this.matcher = matcher;
+        String p = System.getProperty("skywalking_enhance_ignore_class_pattern");
+        ignoreClassPattern = p == null || (p = p.trim()).length() < 1 ? null : Pattern.compile(p);
     }
 
     public boolean matches(T target) {
         try {
+            if (ignoreClassPattern != null && target instanceof TypeDescription) {
+                if (ignoreClassPattern.matcher(((TypeDescription)target).getActualName()).find()) {
+                    logger.debug("ignore:{}", target);
+                    return false;
+                }
+            }
             return this.matcher.matches(target);
         } catch (Throwable t) {
             logger.warn(t, "Byte-buddy occurs exception when match type.");
