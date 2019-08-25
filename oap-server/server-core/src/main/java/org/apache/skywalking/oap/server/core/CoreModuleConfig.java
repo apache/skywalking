@@ -37,6 +37,7 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int gRPCPort;
     @Setter private int maxConcurrentCallsPerConnection;
     @Setter private int maxMessageSize;
+    @Setter private boolean enableDatabaseSession;
     private final List<String> downsampling;
     /**
      * The period of doing data persistence.
@@ -49,6 +50,8 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int hourMetricsDataTTL;
     @Setter private int dayMetricsDataTTL;
     @Setter private int monthMetricsDataTTL;
+    @Setter private int gRPCThreadPoolSize;
+    @Setter private int gRPCThreadPoolQueueSize;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

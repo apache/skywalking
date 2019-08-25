@@ -40,7 +40,7 @@ public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePl
     private static final String JDBC_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.JDBCRootInvokeInterceptor";
     
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -62,7 +62,7 @@ public class JDBCRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePl
     }
     
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
     

@@ -85,6 +85,8 @@
                                 </wait>
                                 <env>
                                     <discovery.type>single-node</discovery.type>
+                                    <thread_pool.index.queue_size>500</thread_pool.index.queue_size>
+                                    <thread_pool.write.queue_size>500</thread_pool.write.queue_size>
                                 </env>
                             </run>
                         </image>
@@ -151,7 +153,7 @@
                                 <volumes>
                                     <bind>
                                         <volume>
-                                            ../../../../dist/apache-skywalking-apm-bin:/sw
+                                            ../../../../dist-for-cluster/apache-skywalking-apm-bin:/sw
                                         </volume>
                                         <volume>
                                             ../${service0.name}/target/${service0.name}-${project.version}.jar:/home/${service0.name}-${project.version}.jar

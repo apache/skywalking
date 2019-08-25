@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -63,7 +63,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     }
 
     @Override public final void in(Metrics metrics) {
-        metrics.setEndOfBatchContext(new EndOfBatchContext(false));
+        metrics.resetEndOfBatch();
         dataCarrier.produce(metrics);
     }
 
@@ -71,7 +71,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         aggregationCounter.inc();
         aggregate(metrics);
 
-        if (metrics.getEndOfBatchContext().isEndOfBatch()) {
+        if (metrics.isEndOfBatch()) {
             sendToNext();
         }
     }
@@ -127,7 +127,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
                 Metrics metrics = inputIterator.next();
                 i++;
                 if (i == data.size()) {
-                    metrics.getEndOfBatchContext().setEndOfBatch(true);
+                    metrics.asEndOfBatch();
                 }
                 aggregator.onWork(metrics);
             }

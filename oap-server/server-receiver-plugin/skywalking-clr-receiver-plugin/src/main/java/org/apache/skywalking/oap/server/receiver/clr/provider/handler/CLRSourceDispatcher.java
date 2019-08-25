@@ -55,7 +55,7 @@ public class CLRSourceDispatcher {
         if (Objects.nonNull(serviceInstanceInventory)) {
             serviceId = serviceInstanceInventory.getServiceId();
         } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", serviceInstanceId);
+            logger.warn("Can't find service by service instance id from cache, service instance id is: {}", serviceInstanceId);
             return;
         }
 

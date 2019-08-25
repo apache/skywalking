@@ -40,12 +40,12 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
     private static final String INVOKE_EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.SynchronousDispatcherExceptionInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

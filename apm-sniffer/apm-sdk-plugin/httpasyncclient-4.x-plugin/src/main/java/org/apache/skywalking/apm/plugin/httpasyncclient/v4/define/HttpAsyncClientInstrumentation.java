@@ -43,12 +43,12 @@ public class HttpAsyncClientInstrumentation extends ClassInstanceMethodsEnhanceP
     private static final String FIRST_ARG_TYPE = "org.apache.http.nio.protocol.HttpAsyncRequestProducer";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {

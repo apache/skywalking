@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,10 +37,9 @@
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
         <module>server-testing</module>
-        <module>generated-analysis</module>
-        <module>generate-tool</module>
+        <module>oal-rt</module>
         <module>server-telemetry</module>
-        <module>generate-tool-grammar</module>
+        <module>oal-grammar</module>
         <module>exporter</module>
         <module>server-configuration</module>
     </modules>
@@ -83,7 +82,14 @@
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
+        <netty.version>4.1.27.Final</netty.version>
+        <jackson-module-afterburner.version>2.9.5</jackson-module-afterburner.version>
+        <antlr.version>4.7.1</antlr.version>
+        <freemarker.version>2.3.28</freemarker.version>
+        <javaassist.version>3.25.0-GA</javaassist.version>
+
         <zookeeper.image.version>3.5</zookeeper.image.version>
+
     </properties>
 
     <dependencies>
@@ -376,11 +382,75 @@
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.mousio</groupId>
                 <artifactId>etcd4j</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>netty-codec-dns</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-codec-dns</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-codec-http</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-handler</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-resolver-dns</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
                 <version>${etcd4j.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver-dns</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-dns</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-afterburner</artifactId>
+                <version>${jackson-module-afterburner.version}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-x-discovery</artifactId>
@@ -407,6 +477,22 @@
                     </exclusion>
                 </exclusions>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javaassist.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -37,7 +37,7 @@ public abstract class ClassStaticMethodsEnhancePluginDefine extends ClassEnhance
      * @return null, means enhance no constructors.
      */
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
@@ -45,7 +45,7 @@ public abstract class ClassStaticMethodsEnhancePluginDefine extends ClassEnhance
      * @return null, means enhance no instance methods.
      */
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return null;
     }
 }

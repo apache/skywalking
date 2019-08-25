@@ -19,19 +19,18 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.action.index.IndexRequest;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.*;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, UpdateRequest> {
+public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
     private final StorageBuilder<Metrics> storageBuilder;
 
@@ -40,22 +39,24 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO<IndexRequest, Upd
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public Metrics get(Model model, Metrics metrics) throws IOException {
-        SearchResponse response = getClient().idQuery(model.getName(), metrics.id());
-        if (response.getHits().totalHits > 0) {
-            return storageBuilder.map2Data(response.getHits().getAt(0).getSourceAsMap());
-        } else {
-            return null;
+    @Override public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
+        SearchResponse response = getClient().ids(model.getName(), ids.toArray(new String[0]));
+
+        List<Metrics> result = new ArrayList<>((int)response.getHits().totalHits);
+        for (int i = 0; i < response.getHits().totalHits; i++) {
+            Metrics source = storageBuilder.map2Data(response.getHits().getAt(i).getSourceAsMap());
+            result.add(source);
         }
+        return result;
     }
 
-    @Override public IndexRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    @Override public ElasticSearchInsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
         String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareInsert(modelName, metrics.id(), builder);
     }
 
-    @Override public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    @Override public ElasticSearchUpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
         String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareUpdate(modelName, metrics.id(), builder);

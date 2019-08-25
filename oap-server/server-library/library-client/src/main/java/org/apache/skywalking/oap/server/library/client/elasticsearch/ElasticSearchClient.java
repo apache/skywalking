@@ -18,35 +18,61 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import com.google.gson.*;
-import java.io.*;
-import java.util.*;
-
+import com.google.common.base.Splitter;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
-import org.apache.http.auth.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.elasticsearch.action.admin.indices.create.*;
-import org.elasticsearch.action.admin.indices.delete.*;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.bulk.*;
-import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.ActiveShardCount;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.*;
-import org.elasticsearch.common.unit.*;
-import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -57,13 +83,15 @@ public class ElasticSearchClient implements Client {
 
     public static final String TYPE = "type";
     private final String clusterNodes;
+    private final String protocol;
     private final String namespace;
     private final String user;
     private final String password;
-    private RestHighLevelClient client;
+    protected RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
+    public ElasticSearchClient(String clusterNodes, String protocol, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
+        this.protocol = protocol;
         this.namespace = namespace;
         this.user = user;
         this.password = password;
@@ -91,11 +119,12 @@ public class ElasticSearchClient implements Client {
     private List<HttpHost> parseClusterNodes(String nodes) {
         List<HttpHost> httpHosts = new LinkedList<>();
         logger.info("elasticsearch cluster nodes: {}", nodes);
-        String[] nodesSplit = nodes.split(",");
+        List<String> nodesSplit = Splitter.on(",").omitEmptyStrings().splitToList(nodes);
+
         for (String node : nodesSplit) {
             String host = node.split(":")[0];
             String port = node.split(":")[1];
-            httpHosts.add(new HttpHost(host, Integer.valueOf(port)));
+            httpHosts.add(new HttpHost(host, Integer.parseInt(port), protocol));
         }
 
         return httpHosts;
@@ -130,26 +159,24 @@ public class ElasticSearchClient implements Client {
             logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
             return new ArrayList<>(responseJson.keySet());
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
-     *  If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
-     *  Then you should delete the index by this method, this method will no longer concatenate namespace.
+     * If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
+     * Then you should delete the index by this method, this method will no longer concatenate namespace.
      *
      * https://github.com/apache/skywalking/pull/3017
-     *
      */
     public boolean deleteByIndexName(String indexName) throws IOException {
         return deleteIndex(indexName, false);
     }
 
     /**
-     *  If your indexName is obtained from metadata or configuration and without namespace.
-     *  Then you should delete the index by this method, this method automatically concatenates namespace.
+     * If your indexName is obtained from metadata or configuration and without namespace.
+     * Then you should delete the index by this method, this method automatically concatenates namespace.
      *
-     *  https://github.com/apache/skywalking/pull/3017
-     *
+     * https://github.com/apache/skywalking/pull/3017
      */
     public boolean deleteByModelName(String modelName) throws IOException {
         return deleteIndex(modelName, true);
@@ -230,29 +257,13 @@ public class ElasticSearchClient implements Client {
         return client.get(request);
     }
 
-    public SearchResponse idQuery(String indexName, String id) throws IOException {
-        indexName = formatIndexName(indexName);
-
-        SearchRequest searchRequest = new SearchRequest(indexName);
-        searchRequest.types(TYPE);
-        searchRequest.source().query(QueryBuilders.idsQuery().addIds(id));
-        return client.search(searchRequest);
-    }
-
-    public Map<String, Map<String, Object>> ids(String indexName, String... ids) throws IOException {
+    public SearchResponse ids(String indexName, String[] ids) throws IOException {
         indexName = formatIndexName(indexName);
 
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(TYPE);
         searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).size(ids.length);
-        SearchResponse response = client.search(searchRequest);
-
-        Map<String, Map<String, Object>> result = new HashMap<>();
-        SearchHit[] hits = response.getHits().getHits();
-        for (SearchHit hit : hits) {
-            result.put(hit.getId(), hit.getSourceAsMap());
-        }
-        return result;
+        return client.search(searchRequest);
     }
 
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
@@ -274,14 +285,14 @@ public class ElasticSearchClient implements Client {
         client.update(request);
     }
 
-    public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source) {
+    public ElasticSearchInsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new IndexRequest(indexName, TYPE, id).source(source);
+        return new ElasticSearchInsertRequest(indexName, TYPE, id).source(source);
     }
 
-    public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
+    public ElasticSearchUpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new UpdateRequest(indexName, TYPE, id).doc(source);
+        return new ElasticSearchUpdateRequest(indexName, TYPE, id).doc(source);
     }
 
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
@@ -302,14 +313,20 @@ public class ElasticSearchClient implements Client {
         return response.getStatusLine().getStatusCode();
     }
 
-    public String formatIndexName(String indexName) {
-        if (StringUtils.isNotEmpty(namespace)) {
-            return namespace + "_" + indexName;
+    public void synchronousBulk(BulkRequest request) {
+        request.timeout(TimeValue.timeValueMinutes(2));
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
+        request.waitForActiveShards(ActiveShardCount.ONE);
+        try {
+            int size = request.requests().size();
+            BulkResponse responses = client.bulk(request);
+            logger.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
-        return indexName;
     }
 
-    public BulkProcessor createBulkProcessor(int bulkActions, int bulkSize, int flushInterval, int concurrentRequests) {
+    public BulkProcessor createBulkProcessor(int bulkActions, int flushInterval, int concurrentRequests) {
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
@@ -322,7 +339,7 @@ public class ElasticSearchClient implements Client {
                 if (response.hasFailures()) {
                     logger.warn("Bulk [{}] executed with failures", executionId);
                 } else {
-                    logger.info("Bulk [{}] completed in {} milliseconds", executionId, response.getTook().getMillis());
+                    logger.info("Bulk execution id [{}] completed in {} milliseconds, size: {}", executionId, response.getTook().getMillis(), request.requests().size());
                 }
             }
 
@@ -334,10 +351,16 @@ public class ElasticSearchClient implements Client {
 
         return BulkProcessor.builder(client::bulkAsync, listener)
             .setBulkActions(bulkActions)
-            .setBulkSize(new ByteSizeValue(bulkSize, ByteSizeUnit.MB))
             .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
             .setConcurrentRequests(concurrentRequests)
             .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
             .build();
+    }
+
+    public String formatIndexName(String indexName) {
+        if (StringUtils.isNotEmpty(namespace)) {
+            return namespace + "_" + indexName;
+        }
+        return indexName;
     }
 }

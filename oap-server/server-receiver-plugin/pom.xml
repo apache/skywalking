@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,6 +39,7 @@
         <module>skywalking-clr-receiver-plugin</module>
         <module>jaeger-receiver-plugin</module>
         <module>receiver-proto</module>
+        <module>skywalking-so11y-receiver-plugin</module>
     </modules>
 
     <dependencies>

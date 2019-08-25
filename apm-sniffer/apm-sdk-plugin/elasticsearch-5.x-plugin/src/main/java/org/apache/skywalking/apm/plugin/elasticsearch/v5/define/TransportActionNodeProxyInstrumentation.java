@@ -39,7 +39,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
     public static final String ENHANC_CLASS = "org.elasticsearch.action.TransportActionNodeProxy";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -54,7 +54,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -76,7 +76,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
     }
 
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[0];
     }
 

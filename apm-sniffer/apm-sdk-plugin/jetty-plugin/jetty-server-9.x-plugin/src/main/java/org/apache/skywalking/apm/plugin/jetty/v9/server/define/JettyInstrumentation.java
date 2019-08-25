@@ -40,11 +40,11 @@ public class JettyInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     private static final String ENHANCE_METHOD = "handle";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jetty.v9.server.HandleInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -34,16 +33,15 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * @author wusheng, peng-yongsheng
  */
 @MetricsFunction(functionName = "thermodynamic")
-public abstract class ThermodynamicMetrics extends Metrics {
+public abstract class ThermodynamicMetrics extends GroupMetrics {
+
     public static final String DETAIL_GROUP = "detail_group";
     public static final String STEP = "step";
     public static final String NUM_OF_STEPS = "num_of_steps";
 
     @Getter @Setter @Column(columnName = STEP) private int step = 0;
     @Getter @Setter @Column(columnName = NUM_OF_STEPS) private int numOfSteps = 0;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP, isValue = true) private IntKeyLongValueArray detailGroup = new IntKeyLongValueArray(30);
-
-    private Map<Integer, IntKeyLongValue> detailIndex;
+    @Getter @Setter @Column(columnName = DETAIL_GROUP, isValue = true) private IntKeyLongValueHashMap detailGroup = new IntKeyLongValueHashMap(30);
 
     /**
      * Data will be grouped in
@@ -64,18 +62,15 @@ public abstract class ThermodynamicMetrics extends Metrics {
             this.numOfSteps = maxNumOfSteps;
         }
 
-        indexCheckAndInit();
-
         int index = value / step;
         if (index > maxNumOfSteps) {
             index = numOfSteps;
         }
-        IntKeyLongValue element = detailIndex.get(index);
+
+        IntKeyLongValue element = detailGroup.get(index);
         if (element == null) {
-            element = new IntKeyLongValue();
-            element.setKey(index);
-            element.setValue(1);
-            addElement(element);
+            element = new IntKeyLongValue(index, 1);
+            detailGroup.put(element.getKey(), element);
         } else {
             element.addValue(1);
         }
@@ -84,21 +79,7 @@ public abstract class ThermodynamicMetrics extends Metrics {
     @Override
     public void combine(Metrics metrics) {
         ThermodynamicMetrics thermodynamicMetrics = (ThermodynamicMetrics)metrics;
-        this.indexCheckAndInit();
-        thermodynamicMetrics.indexCheckAndInit();
-        final ThermodynamicMetrics self = this;
-
-        thermodynamicMetrics.detailIndex.forEach((key, element) -> {
-            IntKeyLongValue existingElement = self.detailIndex.get(key);
-            if (existingElement == null) {
-                existingElement = new IntKeyLongValue();
-                existingElement.setKey(key);
-                existingElement.setValue(element.getValue());
-                self.addElement(element);
-            } else {
-                existingElement.addValue(element.getValue());
-            }
-        });
+        combine(thermodynamicMetrics.getDetailGroup(), this.detailGroup);
     }
 
     /**
@@ -106,18 +87,5 @@ public abstract class ThermodynamicMetrics extends Metrics {
      */
     @Override
     public final void calculate() {
-
-    }
-
-    private void addElement(IntKeyLongValue element) {
-        detailGroup.add(element);
-        detailIndex.put(element.getKey(), element);
-    }
-
-    private void indexCheckAndInit() {
-        if (detailIndex == null) {
-            detailIndex = new HashMap<>();
-            detailGroup.forEach(element -> detailIndex.put(element.getKey(), element));
-        }
     }
 }

@@ -96,7 +96,8 @@ and private plugin developer should read this.
 - If you want to build a new probe or plugin in any language, please read [Component library definition and extension](Component-library-settings.md) document.
 - [Storage extension development guide](storage-extention.md). Help potential contributors to build a new 
 storage implementor besides the official.
-- [Customize analysis by oal script](write-oal.md). Guide you to use oal script to make your own metrics available.
+- Customize analysis by oal script. OAL scripts locate in `config/official_analysis.oal`. You could change it and reboot the OAP server. Read 
+[Observability Analysis Language Introduction](../concepts-and-designs/oal.md) if you need to learn about OAL script.
 - [Source and scope extension for new metrics](source-extension.md). If you want to analysis a new metrics, which SkyWalking
 haven't provide. You need to 
 add a new receiver rather than choosing [existed receiver](../setup/backend/backend-receivers.md).
@@ -114,6 +115,21 @@ It is built with vue + typescript. You could know more at the rocketbot reposito
 static resources and send GraphQL query requests to backend.
 - [Legacy UI repository](https://github.com/apache/skywalking-ui) is still there, but not included
 in SkyWalking release, after 6.0.0-GA.
+
+### OAP backend dependency management
+> This section is only applicable to the dependencies of the backend module
+
+Being one of the Top Level Projects of The Apache Software Foundation (ASF),
+SkyWalking is supposed to follow the [ASF 3RD PARTY LICENSE POLICY](https://apache.org/legal/resolved.html),
+so if you're adding new dependencies to the project, you're responsible to check the newly-added dependencies
+won't break the policy, and add their LICENSE's and NOTICES's to the project.
+
+We have a [simple script](../../../tools/dependencies/check-LICENSE.sh) to help you make sure that you didn't
+miss any newly-added dependency:
+- Build a distribution package and unzip/untar it to folder `dist`.
+- Run the script in the root directory, it will print out all newly-added dependencies.
+- Check the LICENSE's and NOTICE's of those dependencies, if they can be included in an ASF project, add them in the `apm-dist/release-docs/{LICENSE,NOTICE}` file.
+- Add those dependencies' names to the `tools/dependencies/known-oap-backend-dependencies.txt` file (**alphabetical order**), the next run of `check-LICENSE.sh` should pass. 
 
 ## For release
 [Apache Release Guide](How-to-release.md) introduces to the committer team about doing official Apache version release, to avoid 
