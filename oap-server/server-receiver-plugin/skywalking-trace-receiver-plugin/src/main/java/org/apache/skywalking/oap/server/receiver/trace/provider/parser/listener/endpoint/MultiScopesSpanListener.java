@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import java.util.*;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
@@ -161,7 +162,13 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             statement.setTraceId(traceId);
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
-                    statement.setStatement(tag.getValue());
+                    String sqlStatement = tag.getValue();
+                    if (!StringUtil.isEmpty(sqlStatement) && sqlStatement.length() > config.getMaxSlowSQLLength()) {
+                        statement.setStatement(sqlStatement.substring(0,config.getMaxSlowSQLLength()));
+                    }
+                    else {
+                        statement.setStatement(sqlStatement);
+                    }
 
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
