@@ -162,11 +162,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             statement.setTraceId(traceId);
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
-                    if (!StringUtil.isEmpty(tag.getValue()) && tag.getValue().length() > config.getMaxSlowSQLLength()) {
-                        statement.setStatement(tag.getValue().substring(0,config.getMaxSlowSQLLength()));
+                    String sqlStatement = tag.getValue();
+                    if (!StringUtil.isEmpty(sqlStatement) && sqlStatement.length() > config.getMaxSlowSQLLength()) {
+                        statement.setStatement(sqlStatement.substring(0,config.getMaxSlowSQLLength()));
                     }
                     else {
-                        statement.setStatement(tag.getValue());
+                        statement.setStatement(sqlStatement);
                     }
 
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
