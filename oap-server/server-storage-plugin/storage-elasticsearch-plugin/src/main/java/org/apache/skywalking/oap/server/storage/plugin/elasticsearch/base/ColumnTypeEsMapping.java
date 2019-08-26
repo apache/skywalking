@@ -36,7 +36,7 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
         } else if (String.class.equals(type)) {
             return "keyword";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
-            return "keyword";
+            return "text";
         } else if (byte[].class.equals(type)) {
             return "binary";
         } else {

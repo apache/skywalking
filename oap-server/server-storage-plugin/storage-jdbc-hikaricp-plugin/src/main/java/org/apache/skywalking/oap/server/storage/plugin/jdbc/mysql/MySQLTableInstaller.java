@@ -71,6 +71,9 @@ public class MySQLTableInstaller extends H2TableInstaller {
             if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
                 if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID))
                     return "VARCHAR(300)";
+                if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
+                    return "MEDIUMTEXT";
+                }
             }
             return "VARCHAR(2000)";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
