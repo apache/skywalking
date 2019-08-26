@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -75,15 +74,15 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
                     String address = networkAddressInventoryCache.get(networkAddressId).getName();
                     int serviceId = serviceInventoryCache.getServiceId(networkAddressId);
-                    ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
                     ServiceMapping serviceMapping = new ServiceMapping();
                     serviceMapping.setServiceId(serviceId);
 
                     if (config.getStaticGatewaysConfig().isAddressConfiguredAsGateway(address)) {
                         serviceMapping.setMappingServiceId(Const.NONE);
-                        serviceInventory.setMappingServiceId(Const.NONE);
+                        serviceMapping.setForceUpdate(true);
                     } else {
                         serviceMapping.setMappingServiceId(segmentCoreInfo.getServiceId());
+                        serviceMapping.setForceUpdate(false);
                     }
                     serviceMappings.add(serviceMapping);
                 }
@@ -96,7 +95,7 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
             if (logger.isDebugEnabled()) {
                 logger.debug("service mapping listener build, service id: {}, mapping service id: {}", serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
             }
-            serviceInventoryRegister.updateMapping(serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
+            serviceInventoryRegister.updateMapping(serviceMapping.getServiceId(), serviceMapping.getMappingServiceId(), serviceMapping.isForceUpdate());
         });
     }
 
@@ -109,8 +108,9 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
 
     @Setter
     @Getter
-    private class ServiceMapping {
+    private static class ServiceMapping {
         private int serviceId;
         private int mappingServiceId;
+        private boolean forceUpdate;
     }
 }

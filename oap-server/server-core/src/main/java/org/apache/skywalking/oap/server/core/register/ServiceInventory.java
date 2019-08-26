@@ -58,6 +58,12 @@ public class ServiceInventory extends RegisterSource {
     @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop = Const.EMPTY_JSON_OBJECT_STRING;
     @Getter private JsonObject properties;
 
+    /**
+     * Indicates that the {@link #mappingServiceId} of this {@code ServiceInventory} should be reset
+     * when {@link #combine(RegisterSource)}-ing, no matter what its new {@link #mappingServiceId} is.
+     */
+    @Setter @Getter private volatile boolean forceResetServiceMapping = false;
+
     public NodeType getServiceNodeType() {
         return NodeType.get(this.nodeType);
     }
@@ -119,6 +125,7 @@ public class ServiceInventory extends RegisterSource {
         inventory.setAddressId(addressId);
         inventory.setLastUpdateTime(getLastUpdateTime());
         inventory.setMappingServiceId(mappingServiceId);
+        inventory.setForceResetServiceMapping(forceResetServiceMapping);
         inventory.setProp(prop);
 
         return inventory;
@@ -187,7 +194,9 @@ public class ServiceInventory extends RegisterSource {
         if (serviceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
             this.nodeType = serviceInventory.getNodeType();
             setProp(serviceInventory.getProp());
-            this.mappingServiceId = serviceInventory.getMappingServiceId();
+            if (serviceInventory.isForceResetServiceMapping() || Const.NONE != serviceInventory.getMappingServiceId()) {
+                this.mappingServiceId = serviceInventory.getMappingServiceId();
+            }
             isChanged = true;
         }
 

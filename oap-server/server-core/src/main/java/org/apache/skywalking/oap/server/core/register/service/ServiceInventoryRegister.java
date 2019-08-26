@@ -119,12 +119,13 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         }
     }
 
-    @Override public void updateMapping(int serviceId, int mappingServiceId) {
+    @Override public void updateMapping(int serviceId, int mappingServiceId, boolean force) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
             serviceInventory = serviceInventory.getClone();
             serviceInventory.setMappingServiceId(mappingServiceId);
             serviceInventory.setLastUpdateTime(System.currentTimeMillis());
+            serviceInventory.setForceResetServiceMapping(force);
 
             InventoryStreamProcessor.getInstance().in(serviceInventory);
         } else {
