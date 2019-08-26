@@ -20,10 +20,8 @@ package org.apache.skywalking.apm.plugin.cassandra.v3;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.util.StringUtil;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,11 +31,15 @@ public class ClusterConstructorWithStateListenerArgInterceptor implements Instan
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         List<InetSocketAddress> inetSocketAddresses = (List<InetSocketAddress>) allArguments[1];
-        List<String> hosts = new ArrayList<String>();
+        StringBuilder hosts = new StringBuilder();
         for (InetSocketAddress inetSocketAddress : inetSocketAddresses) {
-            hosts.add(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort());
+            hosts.append(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort() + ",");
         }
-        String contactPoints = StringUtil.join(',', hosts.toArray(new String[0]));
+
+        String contactPoints = hosts.toString();
+        if (contactPoints.length() > 0) {
+            contactPoints = contactPoints.substring(0, contactPoints.length() - 1);
+        }
 
         objInst.setSkyWalkingDynamicField(
             new ConnectionInfo(contactPoints)
