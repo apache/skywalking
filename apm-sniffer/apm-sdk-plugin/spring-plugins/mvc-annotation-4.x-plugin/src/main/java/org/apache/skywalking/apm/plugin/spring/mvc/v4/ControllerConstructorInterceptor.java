@@ -45,10 +45,13 @@ public class ControllerConstructorInterceptor implements InstanceConstructorInte
         String basePath = "";
         RequestMapping basePathRequestMapping = objInst.getClass().getAnnotation(RequestMapping.class);
         if (basePathRequestMapping != null) {
-            if (basePathRequestMapping.value().length > 0) {
-                basePath = basePathRequestMapping.value()[0];
-            } else if (basePathRequestMapping.path().length > 0) {
-                basePath = basePathRequestMapping.path()[0];
+            try {
+                if (basePathRequestMapping.value().length > 0) {
+                    basePath = basePathRequestMapping.value()[0];
+                } else if (basePathRequestMapping.path().length > 0) {
+                    basePath = basePathRequestMapping.path()[0];
+                }
+            } catch (NoSuchMethodError noSuchMethodError) {
             }
         }
         EnhanceRequireObjectCache enhanceRequireObjectCache = new EnhanceRequireObjectCache();
