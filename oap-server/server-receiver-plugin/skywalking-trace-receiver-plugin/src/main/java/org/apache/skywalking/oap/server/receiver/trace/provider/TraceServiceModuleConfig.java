@@ -48,4 +48,8 @@ public class TraceServiceModuleConfig extends ModuleConfig {
      * 2. NO means, only save trace, but metrics come other places, such as service mesh.
      */
     @Setter @Getter private boolean traceAnalysis = true;
+    /**
+     * Slow Sql string length can't beyond this limit
+     */
+    @Setter @Getter private int maxSlowSQLLength = 2000;
 }
