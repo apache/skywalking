@@ -212,6 +212,9 @@ JdkHttp:
 spring-webflux:
   id: 67
   languages: Java
+Light4J:
+  id: 68
+  languages: java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

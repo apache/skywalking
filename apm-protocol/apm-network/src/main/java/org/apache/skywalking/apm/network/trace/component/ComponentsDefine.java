@@ -130,4 +130,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_WEBFLUX = new OfficialComponent(67, "spring-webflux");
 
+    public static final OfficialComponent LIGHT_4J = new OfficialComponent(68, "Light4J");
+
 }
