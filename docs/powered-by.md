@@ -77,6 +77,7 @@ or providing commercial products including Apache SkyWalking.
 1. syswin.com 北京思源集团 http://www.syswin.com/
 1. szhittech.com 深圳和而泰智能控制股份有限公司. http://www.szhittech.com/
 1. Tetrate.io https://www.tetrate.io/
+1. Thomas Cook 托迈酷客 https://www.thomascook.com.cn
 1. Today36524.com Today便利店
 1. Tongcheng. 同城金服. https://jr.ly.com/
 1. Tools information technology co. LTD 杭州图尔兹信息技术有限公司 http://bintools.cn/
