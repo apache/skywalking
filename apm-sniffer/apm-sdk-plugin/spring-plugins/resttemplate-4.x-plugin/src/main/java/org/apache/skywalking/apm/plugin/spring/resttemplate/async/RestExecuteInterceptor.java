@@ -73,8 +73,8 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
         cacheValues[2] = ContextManager.capture();
         if (ret != null) {
-            URI uri = (URI)cacheValues[0];
-            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new EnhanceCacheObjects(uri.getPath(), ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, (ContextSnapshot)cacheValues[2]));
+            String uri = (String)cacheValues[0];
+            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new EnhanceCacheObjects(uri, ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, (ContextSnapshot)cacheValues[2]));
         }
         ContextManager.stopSpan();
         return ret;
