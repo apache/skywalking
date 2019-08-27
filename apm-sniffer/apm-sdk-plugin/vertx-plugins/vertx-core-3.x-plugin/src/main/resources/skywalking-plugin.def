@@ -23,3 +23,4 @@ vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpClientRequestI
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerResponseImplEndInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerResponseImplHandleExceptionInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouterImplAcceptInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.ServerConnectionInstrumentation
