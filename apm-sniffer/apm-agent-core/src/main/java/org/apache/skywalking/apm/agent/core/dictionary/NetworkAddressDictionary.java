@@ -43,6 +43,9 @@ public enum NetworkAddressDictionary {
 
     public PossibleFound find(String networkAddress) {
         Integer applicationId = applicationDictionary.get(networkAddress);
+        if (networkAddress == null || (networkAddress.length()) == 0) {
+            return new NotFound();
+        }
         if (applicationId != null) {
             return new Found(applicationId);
         } else {
