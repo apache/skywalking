@@ -68,6 +68,7 @@ or providing commercial products including Apache SkyWalking.
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
 1. shuaibaoshop.com 宁波鲸灵网络科技有限公司 http://www.shuaibaoshop.com/
+1. shuyun.com 杭州数云信息技术有限公司 http://www.shuyun.com/
 1. Sijibao.com 司机宝 https://www.sijibao.com/
 1. Sinolink Securities Co.,Ltd. 国金证券佣金宝 http://www.yongjinbao.com.cn/
 1. Source++ https://sourceplusplus.com
@@ -96,7 +97,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. shuyun.com 杭州数云信息技术有限公司 http://www.shuyun.com/
 
 # User Cases
 ## Alibaba Cloud
