@@ -19,35 +19,33 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * The <code>FileWriter</code> support async file output, by using a queue as buffer.
  *
  * @author wusheng
  */
-public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
+public class FileWriter implements IWriter {
     private static FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
-    private Disruptor<LogMessageHolder> disruptor;
-    private RingBuffer<LogMessageHolder> buffer;
     private FileOutputStream fileOutputStream;
-    private volatile boolean started = false;
+    private ArrayBlockingQueue logBuffer;
     private volatile int fileSize;
-    private volatile int lineNum;
 
     public static FileWriter get() {
         if (INSTANCE == null) {
@@ -61,41 +59,46 @@ public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
     }
 
     private FileWriter() {
-        disruptor = new Disruptor<LogMessageHolder>(new EventFactory<LogMessageHolder>() {
-            @Override
-            public LogMessageHolder newInstance() {
-                return new LogMessageHolder();
+        logBuffer = new ArrayBlockingQueue(1024);
+        final ArrayList<String> outputLogs = new ArrayList<String>(200);
+        Executors
+            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("LogFileWriter"))
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {
+                @Override public void run() {
+                    try {
+                        logBuffer.drainTo(outputLogs);
+                        for (String log : outputLogs) {
+                            writeToFile(log + Constants.LINE_SEPARATOR);
+                        }
+                        try {
+                            fileOutputStream.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } finally {
+                        outputLogs.clear();
+                    }
+                }
+            }, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override public void handle(Throwable t) {
+                }
             }
-        }, 1024, DaemonThreadFactory.INSTANCE);
-        disruptor.handleEventsWith(this);
-        buffer = disruptor.getRingBuffer();
-        lineNum = 0;
-        disruptor.start();
+            ), 0, 1, TimeUnit.SECONDS);
     }
 
-    @Override
-    public void onEvent(LogMessageHolder event, long sequence, boolean endOfBatch) throws Exception {
-        if (hasWriteStream()) {
+    /**
+     * @param message to be written into the file.
+     */
+    private void writeToFile(String message) {
+        if (prepareWriteStream()) {
             try {
-                lineNum++;
-                write(event.getMessage() + Constants.LINE_SEPARATOR, endOfBatch);
+                fileOutputStream.write(message.getBytes());
+                fileSize += message.length();
+            } catch (IOException e) {
+                e.printStackTrace();
             } finally {
-                event.setMessage(null);
+                switchFile();
             }
-        }
-    }
-
-    private void write(String message, boolean forceFlush) {
-        try {
-            fileOutputStream.write(message.getBytes());
-            fileSize += message.length();
-            if (forceFlush || lineNum % 20 == 0) {
-                fileOutputStream.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            switchFile();
         }
     }
 
@@ -128,7 +131,6 @@ public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
                 @Override
                 public Object call() throws Exception {
                     fileOutputStream = null;
-                    started = false;
                     return null;
                 }
             });
@@ -143,37 +145,39 @@ public class FileWriter implements IWriter, EventHandler<LogMessageHolder> {
         }
     }
 
-    private boolean hasWriteStream() {
+    /**
+     * @return true if stream is prepared ready.
+     */
+    private boolean prepareWriteStream() {
         if (fileOutputStream != null) {
             return true;
         }
-        if (!started) {
-            File logFilePath = new File(Config.Logging.DIR);
-            if (!logFilePath.exists()) {
-                logFilePath.mkdirs();
-            } else if (!logFilePath.isDirectory()) {
-                System.err.println("Log dir(" + Config.Logging.DIR + ") is not a directory.");
-            }
-            try {
-                fileOutputStream = new FileOutputStream(new File(logFilePath, Config.Logging.FILE_NAME), true);
-                fileSize = Long.valueOf(new File(logFilePath, Config.Logging.FILE_NAME).length()).intValue();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            started = true;
+        File logFilePath = new File(Config.Logging.DIR);
+        if (!logFilePath.exists()) {
+            logFilePath.mkdirs();
+        } else if (!logFilePath.isDirectory()) {
+            System.err.println("Log dir(" + Config.Logging.DIR + ") is not a directory.");
+        }
+        try {
+            fileOutputStream = new FileOutputStream(new File(logFilePath, Config.Logging.FILE_NAME), true);
+            fileSize = Long.valueOf(new File(logFilePath, Config.Logging.FILE_NAME).length()).intValue();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
 
         return fileOutputStream != null;
     }
 
-    @Override
-    public void write(String message) {
-        long next = buffer.next();
+    /**
+     * Write log to the queue. W/ performance trade off, set 2ms timeout for the log OP.
+     *
+     * @param message to log
+     */
+    @Override public void write(String message) {
         try {
-            LogMessageHolder messageHolder = buffer.get(next);
-            messageHolder.setMessage(message);
-        } finally {
-            buffer.publish(next);
+            logBuffer.offer(message, 2, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

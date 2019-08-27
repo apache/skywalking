@@ -68,7 +68,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             return;
         }
 
-        long timeBucket = TimeBucket.getSecondTimeBucket(segmentCoreInfo.getStartTime());
+        long timeBucket = TimeBucket.getRecordTimeBucket(segmentCoreInfo.getStartTime());
 
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
         segment.setServiceId(segmentCoreInfo.getServiceId());
