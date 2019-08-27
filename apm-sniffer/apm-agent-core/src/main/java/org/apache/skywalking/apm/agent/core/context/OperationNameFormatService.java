@@ -79,7 +79,7 @@ public class OperationNameFormatService implements BootService {
      * @param opName represents the operation name literal string
      * @return format string if rule matched or the given opName
      */
-    public static String formatOperationName(Class<? extends OPGroupDefinition> definition, String opName) {
+    public String formatOperationName(Class<? extends OPGroupDefinition> definition, String opName) {
         StringFormatGroup formatGroup = RULES.get(definition);
         if (formatGroup == null) {
             return opName;
