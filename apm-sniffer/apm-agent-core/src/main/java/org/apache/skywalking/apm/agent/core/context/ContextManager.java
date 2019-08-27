@@ -162,7 +162,9 @@ public class ContextManager implements BootService {
     }
 
     public static void stopSpan() {
-        stopSpan(activeSpan());
+        if (get() != null) {
+            stopSpan(activeSpan());
+        }
     }
 
     public static void stopSpan(AbstractSpan span) {
