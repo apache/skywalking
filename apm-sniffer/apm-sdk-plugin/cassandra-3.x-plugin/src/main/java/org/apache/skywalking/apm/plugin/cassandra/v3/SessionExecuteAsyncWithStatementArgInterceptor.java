@@ -41,7 +41,7 @@ public class SessionExecuteAsyncWithStatementArgInterceptor implements InstanceM
                                    MethodInterceptResult result) throws Throwable {
         ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
         Statement statement = (Statement) allArguments[0];
-        String remotePeer = statement.getHost() == null ? connectionInfo.getContactPoints() : statement.getHost().toString();
+        String remotePeer = statement.getHost() == null ? connectionInfo.getContactPoints() : (statement.getHost().getSocketAddress().getHostName() + ":" + statement.getHost().getSocketAddress().getPort());
         String keyspace = statement.getKeyspace() == null ? connectionInfo.getKeyspace() : statement.getKeyspace();
         String query = statement.toString();
         if (statement instanceof BoundStatement) {

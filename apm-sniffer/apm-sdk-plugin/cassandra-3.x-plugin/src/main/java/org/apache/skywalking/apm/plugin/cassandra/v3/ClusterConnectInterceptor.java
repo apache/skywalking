@@ -38,8 +38,9 @@ public class ClusterConnectInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
+            String keyspace = allArguments.length > 0 ? (String) allArguments[0] : null;
             ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
-            connectionInfo.setKeyspace((String) allArguments[0]);
+            connectionInfo.setKeyspace(keyspace);
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
         }
         return ret;
