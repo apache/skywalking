@@ -23,9 +23,8 @@ package org.apache.skywalking.apm.plugin.cassandra.v3;
  */
 public class ConnectionInfo {
 
+    private final String contactPoints;
     private String keyspace;
-
-    private String contactPoints;
 
     public ConnectionInfo(final String contactPoints) {
         this.contactPoints = contactPoints;
@@ -41,9 +40,5 @@ public class ConnectionInfo {
 
     public String getContactPoints() {
         return this.contactPoints;
-    }
-
-    public void setContactPoints(String contactPoints) {
-        this.contactPoints = contactPoints;
     }
 }
