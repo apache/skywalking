@@ -333,14 +333,17 @@ public class ClusterVerificationITCase {
     }
 
     private void generateTraffic() {
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl + "/e2e/users",
-            user,
-            String.class
-        );
-        LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        try {
+            final Map<String, String> user = new HashMap<>();
+            user.put("name", "SkyWalking");
+            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+            );
+            LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
+        } catch (Throwable t) {
+            LOGGER.warn(t.getMessage(), t);
+        }
     }
 }
