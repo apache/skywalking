@@ -230,6 +230,12 @@ JdkHttp:
 spring-webflux:
   id: 67
   languages: Java
+cassandra-java-driver:
+  id: 68
+  languages: Java
+Cassandra:
+  id: 69
+  languages: Java
 
 
 # .NET/.NET Core components
@@ -331,3 +337,4 @@ Component-Server-Mappings:
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
   SolrJ: Solr
+  cassandra-java-driver: Cassandra

@@ -16,35 +16,41 @@
  *
  */
 
+package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
-package org.apache.skywalking.apm.plugin.spring.resttemplate.async;
-
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
-public class FutureGetInterceptor implements InstanceMethodsAroundInterceptor {
+import java.lang.reflect.Method;
+
+/**
+ * <p>Pass the global trace Id into the _sw field of Lo4jLogEvent instance after enhancing</p>
+ *
+ * @author xuhe
+ */
+
+public class AsyncLoggerConfigMethodInterceptor implements InstanceMethodsAroundInterceptor {
+
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
-        ContextManager.createLocalSpan("future/get:" + cacheValues[0]);
+                             MethodInterceptResult result) throws Throwable {
+        if (allArguments[0] instanceof EnhancedInstance) {
+            EnhancedInstance instances = (EnhancedInstance) allArguments[0];
+            instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
+        }
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        ContextManager.stopSpan();
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred().log(t);
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
     }
 }

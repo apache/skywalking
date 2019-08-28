@@ -16,35 +16,41 @@
  *
  */
 
+package org.apache.skywalking.apm.plugin.cassandra.v3;
 
-package org.apache.skywalking.apm.plugin.spring.resttemplate.async;
-
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
-public class FutureGetInterceptor implements InstanceMethodsAroundInterceptor {
+import java.lang.reflect.Method;
+
+/**
+ * @author stone.wlg
+ */
+public class ClusterConnectInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
-        ContextManager.createLocalSpan("future/get:" + cacheValues[0]);
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        ContextManager.stopSpan();
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        if (ret instanceof EnhancedInstance) {
+            String keyspace = allArguments.length > 0 ? (String) allArguments[0] : null;
+            ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
+            connectionInfo.setKeyspace(keyspace);
+            ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
+        }
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred().log(t);
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+        AbstractSpan span = ContextManager.activeSpan();
+        span.errorOccurred();
+        span.log(t);
     }
 }
+

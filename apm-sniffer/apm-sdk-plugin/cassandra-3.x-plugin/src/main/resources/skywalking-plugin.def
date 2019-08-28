@@ -14,6 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.TraceIdConverterActivation
-toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.AsyncLoggerConfigInstrumentation
-toolkit-log4j2=org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.Log4jLogEventInstrumentation
+cassandra-3.x=org.apache.skywalking.apm.plugin.cassandra.v3.define.ClusterInstrumentation
+cassandra-3.x=org.apache.skywalking.apm.plugin.cassandra.v3.define.SessionInstrumentation
