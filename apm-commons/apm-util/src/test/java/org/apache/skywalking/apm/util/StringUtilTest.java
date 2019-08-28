@@ -53,4 +53,10 @@ public class StringUtilTest {
         Assert.assertFalse(StringUtil.substringMatch("", 4770, ""));
     }
 
+    @Test
+    public void testCut() {
+        String str = "aaaaaaabswbswbbsbwbsbbwbsbwbsbwbbsbbebewewewewewewewewewewew";
+        Assert.assertEquals(10, StringUtil.cut(str, 10).getBytes().length);
+    }
+
 }

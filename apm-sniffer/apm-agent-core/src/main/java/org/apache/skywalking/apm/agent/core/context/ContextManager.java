@@ -41,6 +41,7 @@ public class ContextManager implements BootService {
     private static ThreadLocal<AbstractTracerContext> CONTEXT = new ThreadLocal<AbstractTracerContext>();
     private static ThreadLocal<RuntimeContext> RUNTIME_CONTEXT = new ThreadLocal<RuntimeContext>();
     private static ContextManagerExtendService EXTEND_SERVICE;
+    private static final int NAME_THRESHOLD = 500;
 
     private static AbstractTracerContext getOrCreate(String operationName, boolean forceSampling) {
         AbstractTracerContext context = CONTEXT.get();
@@ -89,6 +90,7 @@ public class ContextManager implements BootService {
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
         AbstractSpan span;
         AbstractTracerContext context;
+        operationName = StringUtil.cut(operationName, NAME_THRESHOLD);
         if (carrier != null && carrier.isValid()) {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             samplingService.forceSampled();
@@ -103,6 +105,7 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractSpan createLocalSpan(String operationName) {
+        operationName = StringUtil.cut(operationName, NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
         return context.createLocalSpan(operationName);
     }
@@ -111,6 +114,7 @@ public class ContextManager implements BootService {
         if (carrier == null) {
             throw new IllegalArgumentException("ContextCarrier can't be null.");
         }
+        operationName = StringUtil.cut(operationName, NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
         AbstractSpan span = context.createExitSpan(operationName, remotePeer);
         context.inject(carrier);
@@ -118,6 +122,7 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractSpan createExitSpan(String operationName, String remotePeer) {
+        operationName = StringUtil.cut(operationName, NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
         AbstractSpan span = context.createExitSpan(operationName, remotePeer);
         return span;

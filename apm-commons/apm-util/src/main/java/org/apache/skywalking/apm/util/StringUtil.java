@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.util;
 
+import java.util.Arrays;
+
 public final class StringUtil {
     public static boolean isEmpty(String str) {
         return str == null || str.length() == 0;
@@ -61,5 +63,12 @@ public final class StringUtil {
             }
         }
         return true;
+    }
+
+    public static String cut(String str, int threshold) {
+        if (isEmpty(str) || str.getBytes().length <= threshold) {
+            return str;
+        }
+        return new String(Arrays.copyOf(str.getBytes(), threshold));
     }
 }
