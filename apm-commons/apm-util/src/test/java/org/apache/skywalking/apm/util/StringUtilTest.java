@@ -56,7 +56,9 @@ public class StringUtilTest {
     @Test
     public void testCut() {
         String str = "aaaaaaabswbswbbsbwbsbbwbsbwbsbwbbsbbebewewewewewewewewewewew";
-        Assert.assertEquals(10, StringUtil.cut(str, 10).getBytes().length);
+        String shortStr = "ab";
+        Assert.assertEquals(10, StringUtil.cut(str, 10).length());
+        Assert.assertEquals(2, StringUtil.cut(shortStr, 10).length());
     }
 
 }
