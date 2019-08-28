@@ -16,5 +16,5 @@
 #gateways:
 #  - name: proxy0
 #    instances:
-#      - host: 127.0.0.1
-#        port: 9099
+#      - host: 127.0.0.1 # the host/ip of this gateway instance
+#        port: 9099 # the port of this gateway instance, defaults to 80

@@ -47,7 +47,7 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class StaticGatewaysConfig extends ConfigChangeWatcher {
     private final AtomicReference<String> settingsString;
-    private Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();
+    private volatile Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();
 
     StaticGatewaysConfig(TraceModuleProvider provider) {
         super(TraceModule.NAME, provider, "staticGateways");
@@ -56,6 +56,9 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
     }
 
     private void activeSetting(String config) {
+        if (log.isDebugEnabled()) {
+            log.debug("Updating using new static config: {}", config);
+        }
         this.settingsString.set(config);
         onStaticGatewaysUpdated(parseGatewaysFromYml(config));
     }

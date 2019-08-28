@@ -13,8 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#gateways:
-#  - name: proxy0
-#    instances:
-#      - host: 127.0.0.1
-#        port: 9099
+server:
+  port: 9099
+
+spring:
+  application:
+    name: SkyWalking
+
+zuul:
+  ignoredServices: '*'
+  routes:
+    api:
+      path: /e2e/users
+      url: http://127.0.0.1:9090

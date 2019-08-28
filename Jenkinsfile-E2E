@@ -55,7 +55,7 @@ pipeline {
 
         stage('Compile Test Codes') {
             steps {
-                sh './mvnw -f test/e2e/pom.xml clean'
+                sh './mvnw -f test/e2e/pom.xml clean compile'
             }
         }
 

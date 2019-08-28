@@ -74,10 +74,13 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
 
             }
 
-            @Override public void updateMapping(int serviceId, int mappingServiceId, boolean force) {
+            @Override public void updateMapping(int serviceId, int mappingServiceId) {
 
             }
 
+            @Override public void resetMapping(final int serviceId) {
+
+            }
         };
 
         IServiceInstanceInventoryRegister instanceIDService = new IServiceInstanceInventoryRegister() {

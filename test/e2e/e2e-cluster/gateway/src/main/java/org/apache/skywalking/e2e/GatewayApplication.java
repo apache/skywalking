@@ -13,29 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.core.register.service;
+package org.apache.skywalking.e2e;
 
-import com.google.gson.JsonObject;
-import org.apache.skywalking.oap.server.core.register.NodeType;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 /**
- * @author peng-yongsheng
+ * @author kezhenxu94
  */
-public interface IServiceInventoryRegister extends Service {
-
-    int getOrCreate(String serviceName, JsonObject properties);
-
-    int getOrCreate(int addressId, String serviceName, JsonObject properties);
-
-    void update(int serviceId, NodeType nodeType, JsonObject properties);
-
-    void heartbeat(int serviceId, long heartBeatTime);
-
-    void updateMapping(int serviceId, int mappingServiceId);
-
-    void resetMapping(int serviceId);
+@EnableZuulProxy
+@SpringBootApplication
+public class GatewayApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
+    }
 }

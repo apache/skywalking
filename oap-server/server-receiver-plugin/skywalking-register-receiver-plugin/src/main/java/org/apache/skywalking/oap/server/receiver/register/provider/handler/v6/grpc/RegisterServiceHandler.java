@@ -200,7 +200,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                 }
             }
 
-            serviceInventoryRegister.updateMapping(networkAddressId, serviceId, false);
+            serviceInventoryRegister.updateMapping(networkAddressId, serviceId);
         });
 
         responseObserver.onNext(Commands.getDefaultInstance());

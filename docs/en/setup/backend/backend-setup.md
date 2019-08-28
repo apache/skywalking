@@ -83,6 +83,8 @@ system.
 set the expired time for each dimension.
 1. [Dynamic Configuration](dynamic-config.md). Make configuration of OAP changed dynamic, from remote service
 or 3rd party configuration management system.
+1. [Static Gateways](static-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
+to reflect the delegation in topology graph.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
