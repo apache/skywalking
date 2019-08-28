@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
@@ -49,7 +50,7 @@ public class SessionExecuteAsyncWithStatementArgInterceptor implements InstanceM
         }
 
         AbstractSpan span = ContextManager.createExitSpan(Constants.CASSANDRA_OP_PREFIX + method.getName(), remotePeer);
-        span.setComponent(Constants.CASSANDRA_COMPONENT_NAME);
+        span.setComponent(ComponentsDefine.CASSANDRA_JAVA_DRIVER);
         Tags.DB_TYPE.set(span, Constants.CASSANDRA_DB_TYPE);
         Tags.DB_INSTANCE.set(span, keyspace);
         Tags.DB_STATEMENT.set(span, query);

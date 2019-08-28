@@ -130,4 +130,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SPRING_WEBFLUX = new OfficialComponent(67, "spring-webflux");
 
+    public static final OfficialComponent CASSANDRA_JAVA_DRIVER = new OfficialComponent(68, "cassandra-java-driver");
+
 }
