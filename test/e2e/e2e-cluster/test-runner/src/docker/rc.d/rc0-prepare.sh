@@ -22,7 +22,14 @@ if test "${MODE}" = "cluster"; then
     # substitute application.yml to be capable of cluster mode
     cd ${SW_HOME}/config \
         && awk -f /clusterize.awk application.yml > clusterized_app.yml \
-        && mv clusterized_app.yml application.yml
+        && mv clusterized_app.yml application.yml \
+        && echo '
+gateways:
+  - name: proxy0
+    instances:
+      - host: 127.0.0.1 # the host/ip of this gateway instance
+        port: 9099 # the port of this gateway instance, defaults to 80
+' > gateways.yml
 
     cd ${SW_HOME}/webapp \
         && awk '/^\s+listOfServers:/ {gsub("listOfServers:.*", "listOfServers: 127.0.0.1:12800,127.0.0.1:12801", $0)} {print}' webapp.yml > clusterized_webapp.yml \
