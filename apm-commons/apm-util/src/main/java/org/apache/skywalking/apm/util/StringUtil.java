@@ -62,4 +62,11 @@ public final class StringUtil {
         }
         return true;
     }
+
+    public static String cut(String str, int threshold) {
+        if (isEmpty(str) || str.length() <= threshold) {
+            return str;
+        }
+        return str.substring(0, threshold);
+    }
 }
