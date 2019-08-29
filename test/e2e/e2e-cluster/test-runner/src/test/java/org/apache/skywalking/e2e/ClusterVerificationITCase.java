@@ -45,7 +45,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -61,10 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
 
 /**
  * @author kezhenxu94
@@ -114,7 +110,13 @@ public class ClusterVerificationITCase {
 
         verifyServices(startTime);
 
-        verifyTopo(startTime);
+        doRetryableVerification(() -> {
+            try {
+                verifyTopo(startTime);
+            } catch (Exception e) {
+                generateTraffic();
+            }
+        });
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
@@ -344,6 +346,17 @@ public class ClusterVerificationITCase {
             LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         } catch (Throwable t) {
             LOGGER.warn(t.getMessage(), t);
+        }
+    }
+
+    private void doRetryableVerification(Runnable runnable) throws InterruptedException {
+        while (true) {
+            try {
+                runnable.run();
+                break;
+            } catch (Throwable ignored) {
+                Thread.sleep(retryInterval);
+            }
         }
     }
 }
