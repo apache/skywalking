@@ -22,22 +22,46 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 
 /**
+ * Return Type match.
+ * Similar with {@link net.bytebuddy.matcher.ElementMatchers#returns},
+ * the only different between them is this match use {@link String} to declare the type, instead of {@link Class}.
+ * This can avoid the classloader risk.
+ * <p>
+ *
  * @author AI
  * 2019-08-15
  */
 public class ReturnTypeNameMatch implements ElementMatcher<MethodDescription> {
 
+    /**
+     * the target return type
+     */
     private String returnTypeName;
 
+    /**
+     * declare the match target method with the certain type.
+     *
+     * @param returnTypeName target return type
+     */
     private ReturnTypeNameMatch(String returnTypeName) {
         this.returnTypeName = returnTypeName;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean matches(MethodDescription target) {
         return target.getReturnType().asErasure().getName().equals(returnTypeName);
     }
 
+    /**
+     * The static method to create {@link ReturnTypeNameMatch}
+     * This is a delegate method to follow byte-buddy {@link ElementMatcher}'s code style.
+     *
+     * @param returnTypeName target return type
+     * @return new {@link ReturnTypeNameMatch} instance.
+     */
     public static ElementMatcher<MethodDescription> returnsWithType(String returnTypeName) {
         return new ReturnTypeNameMatch(returnTypeName);
     }

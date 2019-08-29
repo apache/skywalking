@@ -24,22 +24,47 @@ import net.bytebuddy.matcher.DeclaringAnnotationMatcher;
 import net.bytebuddy.matcher.ElementMatcher;
 
 /**
+ * Annotation Type match.
+ * Similar with {@link net.bytebuddy.matcher.ElementMatchers#isAnnotatedWith},
+ * the only different between them is this match use {@link String} to declare the type, instead of {@link Class}.
+ * This can avoid the classloader risk.
+ * <p>
+ *
  * @author AI
  * 2019-08-15
  */
 public class AnnotationTypeNameMatch<T extends AnnotationDescription> implements ElementMatcher<T> {
 
+    /**
+     * the target annotation type
+     */
     private String annotationTypeName;
 
+    /**
+     * declare the match target method with the certain type.
+     *
+     * @param annotationTypeName target annotation type
+     */
     private AnnotationTypeNameMatch(String annotationTypeName) {
         this.annotationTypeName = annotationTypeName;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean matches(T target) {
         return target.getAnnotationType().asErasure().getName().equals(annotationTypeName);
     }
 
+    /**
+     * The static method to create {@link AnnotationTypeNameMatch}
+     * This is a delegate method to follow byte-buddy {@link ElementMatcher}'s code style.
+     *
+     * @param annotationTypeName target annotation type
+     * @param <T>                The type of the object that is being matched.
+     * @return new {@link AnnotationTypeNameMatch} instance.
+     */
     public static <T extends AnnotationSource> ElementMatcher.Junction<T> isAnnotatedWithType(String annotationTypeName) {
         final AnnotationTypeNameMatch<AnnotationDescription> matcher = new AnnotationTypeNameMatch<AnnotationDescription>(annotationTypeName);
         return new DeclaringAnnotationMatcher<T>(new CollectionItemMatcher<AnnotationDescription>(matcher));
