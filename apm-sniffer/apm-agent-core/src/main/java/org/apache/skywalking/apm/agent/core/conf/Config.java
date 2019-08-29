@@ -105,6 +105,11 @@ public class Config {
          * status more than this number. The channel check will call channel.getState(true) to requestConnection.
          */
         public static long FORCE_RECONNECTION_PERIOD = 1;
+
+        /**
+         * Limit the length of the operationName to prevent errors when inserting elasticsearch
+         **/
+        public static int OPERATION_NAME_THRESHOLD = 500;
     }
 
     public static class Collector {
