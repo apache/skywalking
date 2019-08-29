@@ -29,7 +29,6 @@ import net.logstash.logback.fieldnames.LogstashFieldNames;
 
 /**
  * @author wuxingye
- * @date 2019-08-28
  */
 public class TraceIdJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> implements FieldNamesAware<LogstashFieldNames> {
 
