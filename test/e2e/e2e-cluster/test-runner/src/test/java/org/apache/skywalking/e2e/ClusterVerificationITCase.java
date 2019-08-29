@@ -123,6 +123,7 @@ public class ClusterVerificationITCase {
                                 .start(minutesAgo)
                                 .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
                 );
+                LOGGER.info("Actual topology: {}", topoData);
 
                 InputStream expectedInputStream =
                         new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
@@ -131,6 +132,7 @@ public class ClusterVerificationITCase {
                 topoMatcher.verify(topoData);
                 valid = true;
             } catch (Throwable t) {
+                LOGGER.warn(t.getMessage(), t);
                 generateTraffic();
                 Thread.sleep(retryInterval);
             }
