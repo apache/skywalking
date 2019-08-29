@@ -23,7 +23,6 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
@@ -32,12 +31,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Active the toolkit class "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter". Should not
- * dependency or import any class in "skywalking-toolkit-logback-1.x" module. Activation's classloader is diff from
- * "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter", using direct will trigger classloader
- * issue.
- * <p>
- * Created by wusheng on 2016/12/7.
+ * enhance the method prepareForDeferredProcessing of the logstash logback class "net.logstash.logback.appender.LogstashTcpSocketAppender".
+ *
+ * @author wuxingye
  */
 public class TcpSocketAppenderActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -45,26 +41,16 @@ public class TcpSocketAppenderActivation extends ClassInstanceMethodsEnhancePlug
     public static final String ENHANCE_CLASS = "net.logstash.logback.appender.LogstashTcpSocketAppender";
     public static final String ENHANCE_METHOD = "prepareForDeferredProcessing";
 
-    /**
-     * @return the target class, which needs active.
-     */
     @Override
     protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 
-    /**
-     * @return null, no need to intercept constructor of enhance class.
-     */
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
-    /**
-     * @return the collection of {@link StaticMethodsInterceptPoint}, represent the intercepted methods and their
-     * interceptors.
-     */
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
