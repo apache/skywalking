@@ -114,7 +114,9 @@ public class ClusterVerificationITCase {
             try {
                 verifyTopo(startTime);
             } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
                 generateTraffic();
+                throw new RuntimeException(e);
             }
         });
     }

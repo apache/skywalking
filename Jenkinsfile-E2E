@@ -26,7 +26,7 @@ pipeline {
     }
 
     environment {
-        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository/${BUILD_ID} -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
     stages {
@@ -55,7 +55,7 @@ pipeline {
 
         stage('Compile Test Codes') {
             steps {
-                sh './mvnw -f test/e2e/pom.xml clean package'
+                sh './mvnw -f test/e2e/pom.xml -pl e2e-base clean install'
             }
         }
 
