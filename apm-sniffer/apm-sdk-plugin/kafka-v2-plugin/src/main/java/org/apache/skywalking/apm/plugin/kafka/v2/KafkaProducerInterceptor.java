@@ -47,7 +47,6 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-
         ContextCarrier contextCarrier = new ContextCarrier();
         ProducerRecord record = (ProducerRecord) allArguments[0];
         String topicName = record.topic();
@@ -58,9 +57,9 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
         Tags.MQ_QUEUE.set(activeSpan, key);
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
-
-        EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
-        if (callbackInstance != null) {
+        // kafkaTemplate can lead to ClassCastException
+        if (allArguments[1] instanceof EnhancedInstance) {
+            EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
             callbackInstance.setSkyWalkingDynamicField(ContextManager.capture());
         }
     }

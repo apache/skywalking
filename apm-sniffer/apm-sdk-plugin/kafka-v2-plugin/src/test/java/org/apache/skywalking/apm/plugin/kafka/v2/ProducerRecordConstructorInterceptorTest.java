@@ -16,13 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v20;
+package org.apache.skywalking.apm.plugin.kafka.v2;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.plugin.kafka.v2.ProducerConstructorInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,15 +27,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProducerConstructorInterceptorTest {
-    @Mock
-    private ProducerConfig producerConfig;
+public class ProducerRecordConstructorInterceptorTest {
 
     @Mock
-    private ProducerConstructorInterceptor constructorInterceptor;
+    private ProducerRecordConstructorInterceptor constructorInterceptor;
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private String brokerServers;
@@ -55,16 +48,12 @@ public class ProducerConstructorInterceptorTest {
 
     @Before
     public void setUp() {
-        List<String> mockBootstrapServers = new ArrayList<String>();
-        mockBootstrapServers.add("localhost:9092");
-        mockBootstrapServers.add("localhost:19092");
-        when(producerConfig.getList("bootstrap.servers")).thenReturn(mockBootstrapServers);
-        constructorInterceptor = new ProducerConstructorInterceptor();
+        constructorInterceptor = new ProducerRecordConstructorInterceptor();
     }
 
     @Test
     public void testOnConsumer() {
-        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {producerConfig});
-        assertThat(enhancedInstance.getSkyWalkingDynamicField().toString(), is("localhost:9092;localhost:19092"));
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {"test"});
+        assertThat(enhancedInstance.getSkyWalkingDynamicField().toString(), is("test"));
     }
 }

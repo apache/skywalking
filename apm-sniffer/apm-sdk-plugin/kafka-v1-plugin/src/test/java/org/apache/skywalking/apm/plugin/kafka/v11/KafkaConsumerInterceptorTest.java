@@ -92,7 +92,7 @@ public class KafkaConsumerInterceptorTest {
         brokers.add("localhost:9092");
         brokers.add("localhost:19092");
         consumerEnhanceRequiredInfo.setBrokerServers(brokers);
-
+        consumerEnhanceRequiredInfo.setGroupId("test");
         messages = new HashMap<TopicPartition, List<ConsumerRecord>>();
         TopicPartition topicPartition = new TopicPartition("test", 1);
         List<ConsumerRecord> records = new ArrayList<ConsumerRecord>();
@@ -137,9 +137,10 @@ public class KafkaConsumerInterceptorTest {
     private void assertConsumerSpan(AbstractTracingSpan span) {
         SpanAssert.assertLayer(span, SpanLayer.MQ);
         SpanAssert.assertComponent(span, KAFKA_CONSUMER);
-        SpanAssert.assertTagSize(span, 2);
+        SpanAssert.assertTagSize(span, 3);
         SpanAssert.assertTag(span, 0, "localhost:9092;localhost:19092");
         SpanAssert.assertTag(span, 1, "test;test-1");
+        SpanAssert.assertTag(span, 2, "test");
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v20;
+package org.apache.skywalking.apm.plugin.kafka.v2;
 
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.skywalking.apm.agent.core.context.MockContextSnapshot;
@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
 import org.apache.skywalking.apm.agent.test.tools.*;
-import org.apache.skywalking.apm.plugin.kafka.v2.CallbackInterceptor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

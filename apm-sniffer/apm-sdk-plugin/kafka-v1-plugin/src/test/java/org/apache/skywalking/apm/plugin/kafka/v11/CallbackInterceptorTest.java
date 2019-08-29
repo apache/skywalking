@@ -143,6 +143,6 @@ public class CallbackInterceptorTest {
     }
 
     private void assertCallbackSpan(AbstractTracingSpan span) {
-        assertThat(span.getOperationName(), is("Producer/Callback"));
+        assertThat(span.getOperationName(), is("Kafka/null/0/Producer/Callback"));
     }
 }

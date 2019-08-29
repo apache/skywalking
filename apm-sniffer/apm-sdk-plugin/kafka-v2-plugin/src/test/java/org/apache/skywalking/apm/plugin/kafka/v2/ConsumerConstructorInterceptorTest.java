@@ -16,12 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v20;
+package org.apache.skywalking.apm.plugin.kafka.v2;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.plugin.kafka.v2.ConsumerConstructorInterceptor;
-import org.apache.skywalking.apm.plugin.kafka.v2.ConsumerEnhanceRequiredInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

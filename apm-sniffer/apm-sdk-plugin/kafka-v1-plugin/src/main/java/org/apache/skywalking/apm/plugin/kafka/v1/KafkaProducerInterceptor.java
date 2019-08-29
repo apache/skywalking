@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.kafka.v1;
 
-import java.lang.reflect.Method;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -30,6 +28,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.lang.reflect.Method;
 
 /**
  * @author zhang xin
@@ -47,22 +47,18 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
 
         ProducerRecord record = (ProducerRecord)allArguments[0];
         String topicName = (String)((EnhancedInstance)record).getSkyWalkingDynamicField();
-
+        String key = record.key() == null ? null : (String) record.key();
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, (String)objInst.getSkyWalkingDynamicField());
 
-        Tags.MQ_BROKER.set(activeSpan, (String)objInst.getSkyWalkingDynamicField());
+        Tags.MQ_BROKER.set(activeSpan, (String) objInst.getSkyWalkingDynamicField());
         Tags.MQ_TOPIC.set(activeSpan, topicName);
+        Tags.MQ_QUEUE.set(activeSpan, key);
         SpanLayer.asMQ(activeSpan);
         activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
 
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            record.headers().add(next.getHeadKey(), next.getHeadValue().getBytes());
-        }
-
-        EnhancedInstance callbackInstance = (EnhancedInstance)allArguments[1];
-        if (callbackInstance != null) {
+        // kafkaTemplate can lead to ClassCastException
+        if (allArguments[1] instanceof EnhancedInstance) {
+            EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
             callbackInstance.setSkyWalkingDynamicField(ContextManager.capture());
         }
     }

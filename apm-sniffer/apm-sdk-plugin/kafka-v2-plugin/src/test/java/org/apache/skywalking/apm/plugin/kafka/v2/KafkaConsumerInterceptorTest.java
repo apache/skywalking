@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v20;
+package org.apache.skywalking.apm.plugin.kafka.v2;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -29,8 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.apache.skywalking.apm.agent.test.tools.*;
-import org.apache.skywalking.apm.plugin.kafka.v2.ConsumerEnhanceRequiredInfo;
-import org.apache.skywalking.apm.plugin.kafka.v2.KafkaConsumerInterceptor;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;

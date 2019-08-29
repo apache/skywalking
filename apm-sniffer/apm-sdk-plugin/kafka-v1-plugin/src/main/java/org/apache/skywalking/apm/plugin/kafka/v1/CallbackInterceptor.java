@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.plugin.kafka.v1;
 
 import java.lang.reflect.Method;
+
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -27,10 +29,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final String OPERATE_NAME_PREFIX = "Kafka/";
+
+    private static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer/Callback";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        AbstractSpan abstractSpan = ContextManager.createLocalSpan("Producer/Callback");
+        RecordMetadata metadata = (RecordMetadata) allArguments[0];
+        AbstractSpan abstractSpan = ContextManager.createLocalSpan(OPERATE_NAME_PREFIX + metadata.topic() + "/" + metadata.offset() + PRODUCER_OPERATE_NAME_SUFFIX);
 
         //Get the SnapshotContext
         ContextSnapshot contextSnapshot = (ContextSnapshot)objInst.getSkyWalkingDynamicField();

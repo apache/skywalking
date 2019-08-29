@@ -29,6 +29,7 @@ public class ConsumerConstructorInterceptor implements InstanceConstructorInterc
         // set the bootstrap server address
         ConsumerEnhanceRequiredInfo requiredInfo = new ConsumerEnhanceRequiredInfo();
         requiredInfo.setBrokerServers(config.getList("bootstrap.servers"));
+        requiredInfo.setGroupId(config.getString("group.id"));
         objInst.setSkyWalkingDynamicField(requiredInfo);
     }
 }

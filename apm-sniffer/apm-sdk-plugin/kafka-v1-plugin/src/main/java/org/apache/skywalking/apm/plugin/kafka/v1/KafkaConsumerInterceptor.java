@@ -66,6 +66,7 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
             SpanLayer.asMQ(activeSpan);
             Tags.MQ_BROKER.set(activeSpan, requiredInfo.getBrokerServers());
             Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopics());
+            Tags.MQ_QUEUE.set(activeSpan, requiredInfo.getGroupId());
 
             for (List<ConsumerRecord<?, ?>> consumerRecords : records.values()) {
                 for (ConsumerRecord<?, ?> record : consumerRecords) {

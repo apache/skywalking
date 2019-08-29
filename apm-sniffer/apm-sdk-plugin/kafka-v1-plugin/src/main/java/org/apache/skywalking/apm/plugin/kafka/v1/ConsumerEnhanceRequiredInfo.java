@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class ConsumerEnhanceRequiredInfo {
     private String brokerServers;
     private String topics;
+    private String groupId;
     private long startTime;
 
     public void setBrokerServers(List<String> brokerServers) {
@@ -35,12 +36,20 @@ public class ConsumerEnhanceRequiredInfo {
         this.topics = StringUtil.join(';', topics.toArray(new String[0]));
     }
 
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     public String getBrokerServers() {
         return brokerServers;
     }
 
     public String getTopics() {
         return topics;
+    }
+
+    public String getGroupId() {
+        return groupId;
     }
 
     public void setStartTime(long startTime) {

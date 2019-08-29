@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.kafka.v20;
+package org.apache.skywalking.apm.plugin.kafka.v2;
 
 import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -30,7 +30,6 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.plugin.kafka.v2.KafkaProducerInterceptor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
