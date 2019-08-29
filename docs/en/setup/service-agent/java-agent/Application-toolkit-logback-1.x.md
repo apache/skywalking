@@ -75,6 +75,5 @@
 <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
     <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.TraceIdJsonProvider">
     </provider>
-    <customFields>{"app_id":"${app_id}"}</customFields>
 </encoder>
 ```
