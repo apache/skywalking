@@ -78,11 +78,7 @@ public class TracingFilter extends Filter {
             Tags.HTTP.METHOD.set(span, request.method());
             span.setComponent(ComponentsDefine.PLAY);
             SpanLayer.asHttp(span);
-            try {
-                span.prepareForAsync();
-            } catch (Throwable t) {
-                ContextManager.activeSpan().errorOccurred().log(t);
-            }
+            span.prepareForAsync();
             CompletionStage<Result> stage = next.apply(request).thenApply(result -> {
                 if (result.status() >= 400) {
                     span.errorOccurred();
