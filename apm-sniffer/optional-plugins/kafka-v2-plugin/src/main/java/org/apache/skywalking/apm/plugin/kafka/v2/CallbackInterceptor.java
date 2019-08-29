@@ -1,0 +1,77 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.apm.plugin.kafka.v2;
+
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.lang.reflect.Method;
+
+/**
+ * 1. Receive the producer message callback
+ * 2. operationName is Kafka/topic/offset/Producer/Callback
+ * @author stalary
+ */
+public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final String OPERATE_NAME_PREFIX = "Kafka/";
+
+    private static final String PRODUCER_OPERATE_NAME_SUFFIX = "/Producer/Callback";
+
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
+        // set callback info
+        RecordMetadata metadata = (RecordMetadata) allArguments[0];
+        AbstractSpan activeSpan = ContextManager.createLocalSpan(OPERATE_NAME_PREFIX + metadata.topic() + "/" + metadata.offset() + PRODUCER_OPERATE_NAME_SUFFIX);
+        activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
+        activeSpan.setLayer(SpanLayer.MQ);
+        Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
+        // get the SnapshotContext
+        ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
+        if (null != contextSnapshot) {
+            ContextManager.continued(contextSnapshot);
+        }
+    }
+
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+        Exception exceptions = (Exception) allArguments[1];
+        if (exceptions != null) {
+            ContextManager.activeSpan().errorOccurred().log(exceptions);
+        }
+        ContextManager.stopSpan();
+        return ret;
+    }
+
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        // via enhance onCompletion handle
+    }
+}
