@@ -19,11 +19,12 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -39,6 +40,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.OSUtil;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.common.KeyIntValuePair;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 import org.apache.skywalking.apm.network.register.v2.Service;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstance;
@@ -58,6 +60,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class ServiceAndEndpointRegisterClient implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(ServiceAndEndpointRegisterClient.class);
     private static String INSTANCE_UUID;
+    private static List<KeyStringValuePair> SERVICE_PROPERTIES;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
@@ -84,6 +87,13 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
 
         INSTANCE_UUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID) ? UUID.randomUUID().toString()
             .replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
+
+        SERVICE_PROPERTIES = new ArrayList<KeyStringValuePair>();
+
+        for (String key : Config.Agent.PROPERTIES.keySet()) {
+            SERVICE_PROPERTIES.add(KeyStringValuePair.newBuilder()
+                .setKey(key).setValue(Config.Agent.PROPERTIES.get(key)).build());
+        }
     }
 
     @Override
@@ -129,7 +139,8 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID == DictionaryUtil.nullValue()) {
                     if (registerBlockingStub != null) {
                         ServiceRegisterMapping serviceRegisterMapping = registerBlockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).doServiceRegister(
-                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)).build());
+                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)
+                                .addAllProperties(SERVICE_PROPERTIES)).build());
                         if (serviceRegisterMapping != null) {
                             for (KeyIntValuePair registered : serviceRegisterMapping.getServicesList()) {
                                 if (Config.Agent.SERVICE_NAME.equals(registered.getKey())) {

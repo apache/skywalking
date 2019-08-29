@@ -110,6 +110,13 @@ public class Config {
          * Limit the length of the operationName to prevent errors when inserting elasticsearch
          **/
         public static int OPERATION_NAME_THRESHOLD = 500;
+
+        /*
+        * service properties
+        * e.g.
+        *   agent.properties[org]=apache
+        */
+        public static Map<String, String> PROPERTIES = new HashMap<String, String>();
     }
 
     public static class Collector {

@@ -85,6 +85,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
             serviceInventory.setLastUpdateTime(now);
+            serviceInventory.setProperties(properties);
 
             InventoryStreamProcessor.getInstance().in(serviceInventory);
         }
