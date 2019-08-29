@@ -63,19 +63,19 @@ pipeline {
             parallel {
                 stage('Run Single Node Tests') {
                     steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service verify'
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
                     }
                 }
 
                 stage('Run Cluster Tests (ES/ZK)') {
                     steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner verify'
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner -am verify'
                     }
                 }
 
                 stage('Run Agent Reboot Tests') {
                     steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-agent-reboot verify'
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-agent-reboot -am verify'
                     }
                 }
             }
