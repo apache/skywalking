@@ -141,7 +141,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         if (Objects.nonNull(serviceInventory)) {
             serviceInventory = serviceInventory.getClone();
             serviceInventory.setLastUpdateTime(System.currentTimeMillis());
-            serviceInventory.setForceResetServiceMapping(true);
+            serviceInventory.setResetServiceMapping(true);
 
             InventoryStreamProcessor.getInstance().in(serviceInventory);
         } else {

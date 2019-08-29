@@ -60,12 +60,6 @@ public class ServiceInventory extends RegisterSource {
 
     @Getter @Setter private boolean resetServiceMapping = false;
 
-    /**
-     * Indicates that the {@link #mappingServiceId} of this {@code ServiceInventory} should be reset
-     * when {@link #combine(RegisterSource)}-ing, no matter what its new {@link #mappingServiceId} is.
-     */
-    @Setter @Getter private volatile boolean forceResetServiceMapping = false;
-
     public NodeType getServiceNodeType() {
         return NodeType.get(this.nodeType);
     }
@@ -127,7 +121,7 @@ public class ServiceInventory extends RegisterSource {
         inventory.setAddressId(addressId);
         inventory.setLastUpdateTime(getLastUpdateTime());
         inventory.setMappingServiceId(mappingServiceId);
-        inventory.setForceResetServiceMapping(forceResetServiceMapping);
+        inventory.setResetServiceMapping(resetServiceMapping);
         inventory.setProp(prop);
 
         return inventory;
@@ -199,7 +193,9 @@ public class ServiceInventory extends RegisterSource {
             this.nodeType = serviceInventory.getNodeType();
             this.resetServiceMapping = serviceInventory.isResetServiceMapping();
             setProp(serviceInventory.getProp());
-            if (serviceInventory.isForceResetServiceMapping() || Const.NONE != serviceInventory.getMappingServiceId()) {
+            if (serviceInventory.isResetServiceMapping()) {
+                this.mappingServiceId = Const.NONE;
+            } else if (Const.NONE != serviceInventory.getMappingServiceId()) {
                 this.mappingServiceId = serviceInventory.getMappingServiceId();
             }
             isChanged = true;

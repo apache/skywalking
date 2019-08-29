@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
@@ -52,7 +53,11 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
     StaticGatewaysConfig(TraceModuleProvider provider) {
         super(TraceModule.NAME, provider, "staticGateways");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
-        onStaticGatewaysUpdated(parseGatewaysFromFile("gateways.yml"));
+        final GatewayInfos defaultGateways = parseGatewaysFromFile("gateways.yml");
+        if (log.isDebugEnabled()) {
+            log.debug("Default configured gateways: {}", defaultGateways);
+        }
+        onStaticGatewaysUpdated(defaultGateways);
     }
 
     private void activeSetting(String config) {
@@ -78,6 +83,9 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
     }
 
     private void onStaticGatewaysUpdated(final GatewayInfos gateways) {
+        if (log.isDebugEnabled()) {
+            log.debug("Updating static gateways with: {}", gateways);
+        }
         if (isNull(gateways)) {
             gatewayInstanceKeyedByAddress = Collections.emptyMap();
         } else {
@@ -89,7 +97,11 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
     }
 
     public boolean isAddressConfiguredAsGateway(final String address) {
-        return gatewayInstanceKeyedByAddress.get(address) != null;
+        final boolean isConfiguredAsGateway = gatewayInstanceKeyedByAddress.get(address) != null;
+        if (log.isDebugEnabled()) {
+            log.debug("Address [{}] is configured as static gateway: {}", address, isConfiguredAsGateway);
+        }
+        return isConfiguredAsGateway;
     }
 
     private GatewayInfos parseGatewaysFromFile(final String file) {
@@ -113,11 +125,13 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
 
     @Getter
     @Setter
+    @ToString
     public static class GatewayInfo {
         private String name;
         private List<GatewayInstanceInfo> instances;
     }
 
+    @ToString
     public static class GatewayInfos implements Iterable<GatewayInfo> {
         static final GatewayInfos EMPTY = new GatewayInfos();
 
@@ -137,6 +151,7 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
 
     @Getter
     @Setter
+    @ToString
     public static class GatewayInstanceInfo {
         private String host;
         private Integer port;

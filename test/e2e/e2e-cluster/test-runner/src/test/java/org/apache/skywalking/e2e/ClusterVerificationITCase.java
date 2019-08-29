@@ -110,30 +110,31 @@ public class ClusterVerificationITCase {
 
         verifyServices(startTime);
 
-        doRetryableVerification(() -> {
-            try {
-                verifyTopo(startTime);
-            } catch (Exception e) {
-                LOGGER.warn(e.getMessage(), e);
-                generateTraffic();
-                throw new RuntimeException(e);
-            }
-        });
+        verifyTopo(startTime);
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
-        final TopoData topoData = queryClient.topo(
-            new TopoQuery()
-                .stepByMinute()
-                .start(minutesAgo)
-                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-        );
+        boolean valid = false;
+        while (!valid) {
+            try {
+                final TopoData topoData = queryClient.topo(
+                        new TopoQuery()
+                                .stepByMinute()
+                                .start(minutesAgo)
+                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                );
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
+                InputStream expectedInputStream =
+                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
 
-        final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
-        topoMatcher.verify(topoData);
+                final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
+                topoMatcher.verify(topoData);
+                valid = true;
+            } catch (Throwable t) {
+                generateTraffic();
+                Thread.sleep(retryInterval);
+            }
+        }
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
@@ -348,17 +349,6 @@ public class ClusterVerificationITCase {
             LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         } catch (Throwable t) {
             LOGGER.warn(t.getMessage(), t);
-        }
-    }
-
-    private void doRetryableVerification(Runnable runnable) throws InterruptedException {
-        while (true) {
-            try {
-                runnable.run();
-                break;
-            } catch (Throwable ignored) {
-                Thread.sleep(retryInterval);
-            }
         }
     }
 }
