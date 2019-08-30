@@ -19,25 +19,30 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>apm-toolkit-activation</artifactId>
         <groupId>org.apache.skywalking</groupId>
+        <artifactId>optional-plugins</artifactId>
         <version>6.4.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-toolkit-logback-1.x-activation</artifactId>
+    <artifactId>apm-play-2.x-plugin</artifactId>
+    <name>play-2.x-plugin</name>
+    <packaging>jar</packaging>
 
     <properties>
-        <logback-classic.version>1.2.3</logback-classic.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <play2.version>2.7.3</play2.version>
+        <compiler.version>1.8</compiler.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback-classic.version}</version>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play_2.12</artifactId>
+            <version>${play2.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
 </project>
