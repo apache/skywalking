@@ -233,6 +233,9 @@ spring-webflux:
 Play:
   id: 68
   languages: Java,Scala
+Light4J:
+  id: 71
+  languages: Java
 
 
 # .NET/.NET Core components
