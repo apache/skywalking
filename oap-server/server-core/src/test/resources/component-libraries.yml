@@ -213,10 +213,10 @@ spring-webflux:
   id: 67
   languages: Java
 cassandra-java-driver:
-  id: 68
+  id: 69
   languages: Java
 Cassandra:
-  id: 69
+  id: 70
   languages: Java
 
 # .NET/.NET Core components
