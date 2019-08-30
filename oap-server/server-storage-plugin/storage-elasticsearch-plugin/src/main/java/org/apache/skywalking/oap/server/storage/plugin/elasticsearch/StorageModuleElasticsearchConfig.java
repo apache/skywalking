@@ -39,8 +39,8 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private int syncBulkActions = 3;
     @Setter private String user;
     @Setter private String password;
-    @Getter @Setter String keyStorePath;
-    @Getter @Setter String keyStorePass;
+    @Getter @Setter String trustStorePath;
+    @Getter @Setter String trustStorePass;
     @Setter private int metadataQueryMaxSize = 5000;
     @Setter private int segmentQueryMaxSize = 200;
     @Setter private int recordDataTTL = 7;

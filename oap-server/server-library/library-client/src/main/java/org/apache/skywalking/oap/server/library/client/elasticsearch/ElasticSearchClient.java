@@ -95,22 +95,22 @@ public class ElasticSearchClient implements Client {
     public static final String TYPE = "type";
     private final String clusterNodes;
     private final String protocol;
-    private final String keyStorePath;
-    private final String keyStorePass;
+    private final String trustStorePath;
+    private final String trustStorePass;
     private final String namespace;
     private final String user;
     private final String password;
     protected RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, String protocol, String keyStorePath, String keyStorePass,
+    public ElasticSearchClient(String clusterNodes, String protocol, String trustStorePath, String trustStorePass,
         String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
         this.namespace = namespace;
         this.user = user;
         this.password = password;
-        this.keyStorePath = keyStorePath;
-        this.keyStorePass = keyStorePass;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePass = trustStorePass;
     }
 
     @Override
@@ -126,8 +126,8 @@ public class ElasticSearchClient implements Client {
             if ("https".equals(protocol)) {
                 // more type: https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyStore
                 KeyStore truststore = KeyStore.getInstance("jks");
-                try (InputStream is = Files.newInputStream(Paths.get(keyStorePath))) {
-                    truststore.load(is, keyStorePass.toCharArray());
+                try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
+                    truststore.load(is, trustStorePass.toCharArray());
                 }
                 SSLContextBuilder sslBuilder = SSLContexts.custom()
                     .loadTrustMaterial(truststore, null);
