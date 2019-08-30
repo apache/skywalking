@@ -76,16 +76,14 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
                     String address = networkAddressInventoryCache.get(networkAddressId).getName();
                     int serviceId = serviceInventoryCache.getServiceId(networkAddressId);
-                    ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
 
                     if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("{} is configured as gateway, will reset its mapping service id", serviceId);
                         }
+                        ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
                         if (serviceInventory.getMappingServiceId() != Const.NONE && !servicesToResetMapping.contains(serviceId)) {
                             servicesToResetMapping.add(serviceId);
-                        } else if (logger.isDebugEnabled()) {
-                            logger.debug("Mapping id is already 0 or service id {} is already scheduled to be reset", serviceId);
                         }
                     } else {
                         ServiceMapping serviceMapping = new ServiceMapping();
