@@ -54,9 +54,7 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
         super(TraceModule.NAME, provider, "staticGateways");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
         final GatewayInfos defaultGateways = parseGatewaysFromFile("gateways.yml");
-        if (log.isDebugEnabled()) {
-            log.debug("Default configured gateways: {}", defaultGateways);
-        }
+        log.info("Default configured gateways: {}", defaultGateways);
         onStaticGatewaysUpdated(defaultGateways);
     }
 
@@ -83,9 +81,7 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
     }
 
     private void onStaticGatewaysUpdated(final GatewayInfos gateways) {
-        if (log.isDebugEnabled()) {
-            log.debug("Updating static gateways with: {}", gateways);
-        }
+        log.info("Updating static gateways with: {}", gateways);
         if (isNull(gateways)) {
             gatewayInstanceKeyedByAddress = Collections.emptyMap();
         } else {
