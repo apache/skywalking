@@ -45,6 +45,7 @@ or providing commercial products including Apache SkyWalking.
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
+1. juhaokan 聚好看科技股份有限公司 https://www.juhaokan.org/
 1. Ke.com. 贝壳找房. https://www.ke.com
 1. Keking.cn 凯京集团. http://www.keking.cn
 1. JoinTown. 九州通医药集团 http://www.jztey.com/
