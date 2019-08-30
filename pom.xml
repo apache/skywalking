@@ -424,6 +424,8 @@
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                         <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
+
+                        <exclude>.m2/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

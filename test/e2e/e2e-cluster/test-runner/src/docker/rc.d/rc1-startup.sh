@@ -16,12 +16,27 @@
 
 #!/usr/bin/env bash
 
+echo 'starting gateway service...' \
+    && java -jar /home/gateway-1.0.0.jar 2>&1 > /tmp/gateway.log &
+
+check_tcp 127.0.0.1 \
+          9099 \
+          60 \
+          10 \
+          'waiting for the gateway service to be ready'
+
+if [[ $? -ne 0 ]]; then
+    echo "gateway service failed to start in 60 * 10 seconds: "
+    cat /tmp/gateway.log
+    exit 1
+fi
+
 echo 'starting OAP server...' \
     && SW_STORAGE_ES_BULK_ACTIONS=1 \
-    && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
-    && SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer1 \
-    && SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer1 \
-    && start_oap 'init'
+    SW_STORAGE_ES_FLUSH_INTERVAL=1 \
+    SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer1 \
+    SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer1 \
+    start_oap 'init'
 
 echo 'starting Web app...' \
     && start_webapp '0.0.0.0' 8081
@@ -30,12 +45,12 @@ if test "${MODE}" = "cluster"; then
     # start another OAP server in a different port
     echo 'starting OAP server...' \
         && SW_CORE_GRPC_PORT=11801 \
-        && SW_CORE_REST_PORT=12801 \
-        && SW_STORAGE_ES_BULK_ACTIONS=1 \
-        && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
-        && SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer2 \
-        && SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer2 \
-        && start_oap 'no-init'
+        SW_CORE_REST_PORT=12801 \
+        SW_STORAGE_ES_BULK_ACTIONS=1 \
+        SW_STORAGE_ES_FLUSH_INTERVAL=1 \
+        SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer2 \
+        SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer2 \
+        start_oap 'no-init'
 fi
 
 echo 'starting instrumented services...' && start_instrumented_services

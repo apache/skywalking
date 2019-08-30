@@ -87,7 +87,7 @@
                                                 </ports>
                                                 <wait>
                                                     <log>started</log>
-                                                    <time>30000</time>
+                                                    <time>60000</time>
                                                 </wait>
                                                 <env>
                                                     <discovery.type>single-node</discovery.type>
