@@ -60,7 +60,7 @@
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
-  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.x (Optional² & Except 3.4.4)
+  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.0+ (Optional² & Except 3.4.4)
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x
