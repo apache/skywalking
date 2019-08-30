@@ -1,9 +1,9 @@
-# Static Gateways/Proxies
+# Uninstrumented Gateways/Proxies
 
 The word "static" here means that the gateways are not automatically/dynamically registered by SkyWalking agent when they are started,
 but configured statically in `gateways.yml` file or via [Dynamic Configuration](dynamic-config.md). The reason why they can't register
 to backend automatically is that there're no suitable agent plugins, for example, there is no agent plugins for Nginx, haproxy, etc.
-So in order to reflect the real topology, we provide a way to configure the gateways/proxies manually.
+So in order to visualize the real topology, we provide a way to configure the gateways/proxies manually.
 
 ## Configuration Format
 

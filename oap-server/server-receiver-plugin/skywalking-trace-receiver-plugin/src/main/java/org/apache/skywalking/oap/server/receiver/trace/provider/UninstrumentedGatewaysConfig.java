@@ -46,16 +46,16 @@ import static java.util.Objects.isNull;
  * @author kezhenxu94
  */
 @Slf4j
-public class StaticGatewaysConfig extends ConfigChangeWatcher {
+public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     private final AtomicReference<String> settingsString;
     private volatile Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();
 
-    StaticGatewaysConfig(TraceModuleProvider provider) {
-        super(TraceModule.NAME, provider, "staticGateways");
+    UninstrumentedGatewaysConfig(TraceModuleProvider provider) {
+        super(TraceModule.NAME, provider, "uninstrumentedGateways");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
         final GatewayInfos defaultGateways = parseGatewaysFromFile("gateways.yml");
         log.info("Default configured gateways: {}", defaultGateways);
-        onStaticGatewaysUpdated(defaultGateways);
+        onGatewaysUpdated(defaultGateways);
     }
 
     private void activeSetting(String config) {
@@ -63,7 +63,7 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
             log.debug("Updating using new static config: {}", config);
         }
         this.settingsString.set(config);
-        onStaticGatewaysUpdated(parseGatewaysFromYml(config));
+        onGatewaysUpdated(parseGatewaysFromYml(config));
     }
 
     @Override
@@ -80,8 +80,8 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
         return settingsString.get();
     }
 
-    private void onStaticGatewaysUpdated(final GatewayInfos gateways) {
-        log.info("Updating static gateways with: {}", gateways);
+    private void onGatewaysUpdated(final GatewayInfos gateways) {
+        log.info("Updating uninstrumented gateways with: {}", gateways);
         if (isNull(gateways)) {
             gatewayInstanceKeyedByAddress = Collections.emptyMap();
         } else {
@@ -95,7 +95,7 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
     public boolean isAddressConfiguredAsGateway(final String address) {
         final boolean isConfiguredAsGateway = gatewayInstanceKeyedByAddress.get(address) != null;
         if (log.isDebugEnabled()) {
-            log.debug("Address [{}] is configured as static gateway: {}", address, isConfiguredAsGateway);
+            log.debug("Address [{}] is configured as gateway: {}", address, isConfiguredAsGateway);
         }
         return isConfiguredAsGateway;
     }
@@ -114,7 +114,7 @@ public class StaticGatewaysConfig extends ConfigChangeWatcher {
         try {
             return new Yaml().loadAs(ymlContent, GatewayInfos.class);
         } catch (Exception e) {
-            log.error("Failed to parse yml content as static gateways: \n{}", ymlContent, e);
+            log.error("Failed to parse yml content as gateways: \n{}", ymlContent, e);
         }
         return GatewayInfos.EMPTY;
     }

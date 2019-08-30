@@ -55,7 +55,7 @@ public class TraceModuleProvider extends ModuleProvider {
     private SegmentParse.Producer segmentProducer;
     private SegmentParseV2.Producer segmentProducerV2;
     private DBLatencyThresholdsAndWatcher thresholds;
-    private StaticGatewaysConfig staticGateways;
+    private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -76,10 +76,10 @@ public class TraceModuleProvider extends ModuleProvider {
     @Override public void prepare() throws ServiceNotProvidedException {
         thresholds = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
 
-        staticGateways = new StaticGatewaysConfig(this);
+        uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
 
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
-        moduleConfig.setStaticGatewaysConfig(staticGateways);
+        moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
 
         segmentProducer = new SegmentParse.Producer(getManager(), listenerManager(), moduleConfig);
         segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager(), moduleConfig);
@@ -104,7 +104,7 @@ public class TraceModuleProvider extends ModuleProvider {
         JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(JettyHandlerRegister.class);
         try {
             dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
-            dynamicConfigurationService.registerConfigChangeWatcher(staticGateways);
+            dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
 
             grpcHandlerRegister.addHandler(new TraceSegmentServiceHandler(segmentProducer));
             grpcHandlerRegister.addHandler(new TraceSegmentReportServiceHandler(segmentProducerV2, getManager()));

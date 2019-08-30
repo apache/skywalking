@@ -39,7 +39,7 @@ public class TraceServiceModuleConfig extends ModuleConfig {
      */
     @Setter @Getter private String slowDBAccessThreshold = "default:200";
     @Setter @Getter private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
-    @Setter @Getter private StaticGatewaysConfig staticGatewaysConfig;
+    @Setter @Getter private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     /**
      * Analysis trace status.
      *

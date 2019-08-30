@@ -104,7 +104,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                 final int serviceIdByPeerId = serviceInventoryCache.getServiceId(networkAddressId);
                 final String address = networkAddressInventoryCache.get(networkAddressId).getName();
 
-                if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ) || config.getStaticGatewaysConfig().isAddressConfiguredAsGateway(address)) {
+                if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ) || config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
                     int instanceIdByPeerId = instanceInventoryCache.getServiceInstanceId(serviceIdByPeerId, networkAddressId);
                     sourceBuilder.setSourceServiceInstanceId(instanceIdByPeerId);
                     sourceBuilder.setSourceServiceId(serviceIdByPeerId);

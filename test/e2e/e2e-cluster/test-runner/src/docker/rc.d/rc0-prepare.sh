@@ -30,7 +30,7 @@ gateways:
       - host: 127.0.0.1 # the host/ip of this gateway instance
         port: 9099 # the port of this gateway instance, defaults to 80
 ' > gateways.yml \
-        && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.StaticGatewaysConfig" level="DEBUG"/>\
+        && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.UninstrumentedGatewaysConfig" level="DEBUG"/>\
         \n<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
         && mv log4j2debuggable.xml log4j2.xml
 

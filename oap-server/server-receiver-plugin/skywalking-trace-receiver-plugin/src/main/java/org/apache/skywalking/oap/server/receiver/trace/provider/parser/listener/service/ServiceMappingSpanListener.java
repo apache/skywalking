@@ -75,7 +75,7 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                     String address = networkAddressInventoryCache.get(networkAddressId).getName();
                     int serviceId = serviceInventoryCache.getServiceId(networkAddressId);
 
-                    if (config.getStaticGatewaysConfig().isAddressConfiguredAsGateway(address)) {
+                    if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("{} is configured as gateway, will reset its mapping service id", serviceId);
                         }
