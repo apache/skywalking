@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import com.google.gson.JsonObject;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author peng-yongsheng
@@ -29,5 +31,9 @@ import lombok.*;
 public class Service {
     private int id;
     private String name;
-    private JsonObject properties;
+    private final List<Attribute> properties;
+
+    public Service() {
+        this.properties = new ArrayList<>();
+    }
 }
