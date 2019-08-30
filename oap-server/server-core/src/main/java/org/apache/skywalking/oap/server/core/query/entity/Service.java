@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import com.google.gson.JsonObject;
 import lombok.*;
 
 /**
@@ -28,4 +29,5 @@ import lombok.*;
 public class Service {
     private int id;
     private String name;
+    private JsonObject properties;
 }

@@ -186,6 +186,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Service service = new Service();
             service.setId(((Number)response.getSource().get(ServiceInventory.SEQUENCE)).intValue());
             service.setName((String)response.getSource().get(ServiceInventory.NAME));
+            service.setProperties(GSON.fromJson((String)response.getSource().get(ServiceInventory.PROPERTIES), JsonObject.class));
             return service;
         } else {
             return null;
@@ -288,6 +289,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Service service = new Service();
             service.setId(((Number)sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
             service.setName((String)sourceAsMap.get(ServiceInventory.NAME));
+            service.setProperties(GSON.fromJson((String)sourceAsMap.get(ServiceInventory.PROPERTIES), JsonObject.class));
             services.add(service);
         }
 
