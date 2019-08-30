@@ -139,11 +139,13 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
     @Override public void resetMapping(int serviceId) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
-            serviceInventory = serviceInventory.getClone();
-            serviceInventory.setLastUpdateTime(System.currentTimeMillis());
-            serviceInventory.setResetServiceMapping(true);
+            if (serviceInventory.getMappingServiceId() != Const.NONE) {
+                serviceInventory = serviceInventory.getClone();
+                serviceInventory.setLastUpdateTime(System.currentTimeMillis());
+                serviceInventory.setResetServiceMapping(true);
 
-            InventoryStreamProcessor.getInstance().in(serviceInventory);
+                InventoryStreamProcessor.getInstance().in(serviceInventory);
+            }
         } else {
             logger.warn("Service {} mapping update, but not found in storage.", serviceId);
         }
