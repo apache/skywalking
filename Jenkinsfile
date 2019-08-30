@@ -27,6 +27,10 @@ pipeline {
         skipStagesAfterUnstable()
     }
 
+    environment {
+        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+    }
+
     stages {
         stage('Install & Test') {
             parallel {

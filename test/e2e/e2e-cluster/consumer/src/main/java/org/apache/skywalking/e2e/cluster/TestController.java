@@ -43,7 +43,7 @@ public class TestController {
     public User createAuthor(@RequestBody final User user) throws InterruptedException {
         Thread.sleep(1000L);
         final ResponseEntity<User> response = restTemplate.postForEntity(
-            "http://localhost:9090/e2e/users", user, User.class
+            "http://127.0.0.1:9099/e2e/users", user, User.class
         );
         return response.getBody();
     }
