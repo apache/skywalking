@@ -40,6 +40,12 @@
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>gateway</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>provider</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -53,8 +59,9 @@
     </dependencies>
 
     <properties>
-        <service0.name>provider</service0.name>
-        <service1.name>consumer</service1.name>
+        <provider.name>provider</provider.name>
+        <consumer.name>consumer</consumer.name>
+        <gateway.name>gateway</gateway.name>
         <e2e.container.version>1.1</e2e.container.version>
         <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-cluster</e2e.container.name.prefix>
     </properties>
@@ -99,7 +106,7 @@
                                 </ports>
                                 <wait>
                                     <log>binding to port</log>
-                                    <time>30000</time>
+                                    <time>120000</time>
                                 </wait>
                             </run>
                         </image>
@@ -117,22 +124,22 @@
                                     </SW_CLUSTER_ZK_HOST_PORT>
 
                                     <INSTRUMENTED_SERVICE_1>
-                                        ${service0.name}-${project.version}.jar
+                                        ${provider.name}-${project.version}.jar
                                     </INSTRUMENTED_SERVICE_1>
                                     <INSTRUMENTED_SERVICE_1_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
-                                        -DSW_AGENT_NAME=${service0.name}
+                                        -DSW_AGENT_NAME=${provider.name}
                                     </INSTRUMENTED_SERVICE_1_OPTS>
                                     <INSTRUMENTED_SERVICE_1_ARGS>
                                         --server.port=9090
                                     </INSTRUMENTED_SERVICE_1_ARGS>
 
                                     <INSTRUMENTED_SERVICE_2>
-                                        ${service1.name}-${project.version}.jar
+                                        ${consumer.name}-${project.version}.jar
                                     </INSTRUMENTED_SERVICE_2>
                                     <INSTRUMENTED_SERVICE_2_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11801
-                                        -DSW_AGENT_NAME=${service1.name}
+                                        -DSW_AGENT_NAME=${consumer.name}
                                     </INSTRUMENTED_SERVICE_2_OPTS>
                                     <INSTRUMENTED_SERVICE_2_ARGS>
                                         --server.port=9091
@@ -156,10 +163,13 @@
                                             ../../../../dist-for-cluster/apache-skywalking-apm-bin:/sw
                                         </volume>
                                         <volume>
-                                            ../${service0.name}/target/${service0.name}-${project.version}.jar:/home/${service0.name}-${project.version}.jar
+                                            ../${gateway.name}/target/${gateway.name}-${project.version}.jar:/home/${gateway.name}-${project.version}.jar
                                         </volume>
                                         <volume>
-                                            ../${service1.name}/target/${service1.name}-${project.version}.jar:/home/${service1.name}-${project.version}.jar
+                                            ../${provider.name}/target/${provider.name}-${project.version}.jar:/home/${provider.name}-${project.version}.jar
+                                        </volume>
+                                        <volume>
+                                            ../${consumer.name}/target/${consumer.name}-${project.version}.jar:/home/${consumer.name}-${project.version}.jar
                                         </volume>
                                         <volume>
                                             ${project.basedir}/src/docker/rc.d:/rc.d:ro
@@ -171,7 +181,7 @@
                                 </volumes>
                                 <wait>
                                     <log>SkyWalking e2e container is ready for tests</log>
-                                    <time>2400000</time>
+                                    <time>3000000</time>
                                 </wait>
                             </run>
                         </image>

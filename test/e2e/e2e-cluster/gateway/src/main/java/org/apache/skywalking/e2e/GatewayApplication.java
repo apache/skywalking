@@ -13,28 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
+package org.apache.skywalking.e2e;
 
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x;
-
-import ch.qos.logback.classic.pattern.ClassicConverter;
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 /**
- * Created by wusheng on 2016/12/7.
+ * @author kezhenxu94
  */
-public class LogbackPatternConverter extends ClassicConverter {
-    /**
-     * As default, return "TID: N/A" to the output message,
-     * if sky-walking agent in active mode, return the real traceId in the recent Context, if existed.
-     *
-     * @param iLoggingEvent the event
-     * @return the traceId: N/A, empty String, or the real traceId.
-     */
-    @Override
-    public String convert(ILoggingEvent iLoggingEvent) {
-        return "TID: N/A";
+@EnableZuulProxy
+@SpringBootApplication
+public class GatewayApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
     }
 }
