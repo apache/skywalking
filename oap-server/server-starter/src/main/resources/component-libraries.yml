@@ -230,11 +230,14 @@ JdkHttp:
 spring-webflux:
   id: 67
   languages: Java
-cassandra-java-driver:
+Play:
   id: 68
+  languages: Java,Scala
+cassandra-java-driver:
+  id: 69
   languages: Java
 Cassandra:
-  id: 69
+  id: 70
   languages: Java
 
 

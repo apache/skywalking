@@ -15,26 +15,20 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
-
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x;
-
-import ch.qos.logback.classic.pattern.ClassicConverter;
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by wusheng on 2016/12/7.
+ * @author AI
+ * 2019-08-15
  */
-public class LogbackPatternConverter extends ClassicConverter {
-    /**
-     * As default, return "TID: N/A" to the output message,
-     * if sky-walking agent in active mode, return the real traceId in the recent Context, if existed.
-     *
-     * @param iLoggingEvent the event
-     * @return the traceId: N/A, empty String, or the real traceId.
-     */
-    @Override
-    public String convert(ILoggingEvent iLoggingEvent) {
-        return "TID: N/A";
-    }
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Inject {
 }
