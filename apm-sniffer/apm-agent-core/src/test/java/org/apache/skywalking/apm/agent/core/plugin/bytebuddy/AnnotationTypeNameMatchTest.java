@@ -15,26 +15,24 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
-
-package org.apache.skywalking.apm.toolkit.log.logback.v1.x;
-
-import ch.qos.logback.classic.pattern.ClassicConverter;
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Created by wusheng on 2016/12/7.
+ * @author AI
+ * 2019-08-15
  */
-public class LogbackPatternConverter extends ClassicConverter {
-    /**
-     * As default, return "TID: N/A" to the output message,
-     * if sky-walking agent in active mode, return the real traceId in the recent Context, if existed.
-     *
-     * @param iLoggingEvent the event
-     * @return the traceId: N/A, empty String, or the real traceId.
-     */
-    @Override
-    public String convert(ILoggingEvent iLoggingEvent) {
-        return "TID: N/A";
+public class AnnotationTypeNameMatchTest {
+
+    @Test
+    public void testMatch() throws Exception {
+        final ElementMatcher<MethodDescription> matcher = AnnotationTypeNameMatch.isAnnotatedWithType("org.apache.skywalking.apm.agent.core.plugin.bytebuddy.Inject");
+        Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedConstructor(Person.class.getConstructor(String.class))));
+        Assert.assertFalse(matcher.matches(new MethodDescription.ForLoadedConstructor(Person.class.getConstructor(String.class, int.class))));
     }
+
 }

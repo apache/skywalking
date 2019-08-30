@@ -38,6 +38,7 @@ or providing commercial products including Apache SkyWalking.
 1. GOME 国美 https://www.gome.com.cn/
 1. Guazi.com 瓜子二手车直卖网. https://www.guazi.com/
 1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
+1. GrowingIO 北京易数科技有限公司 https://www.growingio.com/
 1. Haier. 海尔消费金融 https://www.haiercash.com/
 1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
