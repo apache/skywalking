@@ -32,14 +32,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cassandra.version>3.7.2</cassandra.version>
+        <cassandra.driver.version>3.7.2</cassandra.driver.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
-            <version>${cassandra.version}</version>
+            <version>${cassandra.driver.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
