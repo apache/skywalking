@@ -45,6 +45,7 @@ or providing commercial products including Apache SkyWalking.
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
+1. juhaokan 聚好看科技股份有限公司 https://www.juhaokan.org/
 1. Ke.com. 贝壳找房. https://www.ke.com
 1. Keking.cn 凯京集团. http://www.keking.cn
 1. JoinTown. 九州通医药集团 http://www.jztey.com/
@@ -98,7 +99,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. juhaokan 聚好看科技股份有限公司 https://www.juhaokan.org/
 
 # User Cases
 ## Alibaba Cloud
