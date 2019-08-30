@@ -28,7 +28,7 @@
 
     <artifactId>light4j-plugins</artifactId>
     <modules>
-        <module>light4j-1.6.x-plugin</module>
+        <module>light4j-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

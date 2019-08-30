@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-light4j-1.6.x=org.apache.skywalking.apm.plugin.light4j.define.LightInstrumentation
+light4j=org.apache.skywalking.apm.plugin.light4j.define.LightInstrumentation

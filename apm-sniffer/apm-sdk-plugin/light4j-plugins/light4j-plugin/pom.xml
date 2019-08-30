@@ -24,10 +24,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-light4j-1.6.x-plugin</artifactId>
+    <artifactId>apm-light4j-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <name>light4j-1.6.x-plugin</name>
+    <name>light4j-plugin</name>
     <url>http://maven.apache.org</url>
 
     <properties>
