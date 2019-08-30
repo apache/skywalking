@@ -58,6 +58,8 @@ public class ServiceInventory extends RegisterSource {
     @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop = Const.EMPTY_JSON_OBJECT_STRING;
     @Getter private JsonObject properties;
 
+    @Getter @Setter private boolean resetServiceMapping = false;
+
     public NodeType getServiceNodeType() {
         return NodeType.get(this.nodeType);
     }
@@ -119,6 +121,7 @@ public class ServiceInventory extends RegisterSource {
         inventory.setAddressId(addressId);
         inventory.setLastUpdateTime(getLastUpdateTime());
         inventory.setMappingServiceId(mappingServiceId);
+        inventory.setResetServiceMapping(resetServiceMapping);
         inventory.setProp(prop);
 
         return inventory;
@@ -150,6 +153,7 @@ public class ServiceInventory extends RegisterSource {
         remoteBuilder.addDataIntegers(addressId);
         remoteBuilder.addDataIntegers(mappingServiceId);
         remoteBuilder.addDataIntegers(nodeType);
+        remoteBuilder.addDataIntegers(resetServiceMapping ? 1 : 0);
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
@@ -166,6 +170,7 @@ public class ServiceInventory extends RegisterSource {
         setAddressId(remoteData.getDataIntegers(2));
         setMappingServiceId(remoteData.getDataIntegers(3));
         setNodeType(remoteData.getDataIntegers(4));
+        setResetServiceMapping(remoteData.getDataIntegers(5) == 1);
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -186,8 +191,11 @@ public class ServiceInventory extends RegisterSource {
 
         if (serviceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
             this.nodeType = serviceInventory.getNodeType();
+            this.resetServiceMapping = serviceInventory.isResetServiceMapping();
             setProp(serviceInventory.getProp());
-            if (Const.NONE != serviceInventory.getMappingServiceId()) {
+            if (serviceInventory.isResetServiceMapping()) {
+                this.mappingServiceId = Const.NONE;
+            } else if (Const.NONE != serviceInventory.getMappingServiceId()) {
                 this.mappingServiceId = serviceInventory.getMappingServiceId();
             }
             isChanged = true;
