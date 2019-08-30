@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-gateways:
-  - name: proxy0
-    instances:
-      - host: 127.0.0.1 # the host/ip of this gateway instance
-        port: 9099 # the port of this gateway instance, defaults to 80
+#gateways:
+#  - name: proxy0
+#    instances:
+#      - host: 127.0.0.1 # the host/ip of this gateway instance
+#        port: 9099 # the port of this gateway instance, defaults to 80
