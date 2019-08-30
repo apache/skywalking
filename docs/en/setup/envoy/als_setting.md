@@ -3,7 +3,7 @@ Envoy [ALS(access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-
 fully logs about RPC routed, including HTTP and TCP.
 
 You need three steps to open ALS.
-1. Right now, Istio pilot hasn't supported to open ALS, so you have to change pilot codes.
+1. Right now, Istio pilot hasn't supported to open ALS in current list, but it has been included in the master branch.
 1. Open SkyWalking [envoy receiver](../backend/backend-receivers.md).
 1. Active ALS k8s-mesh analysis
 ```yaml
