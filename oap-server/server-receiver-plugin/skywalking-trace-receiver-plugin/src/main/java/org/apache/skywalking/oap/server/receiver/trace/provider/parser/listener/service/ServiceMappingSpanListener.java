@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -35,6 +37,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,8 +52,8 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     private final TraceServiceModuleConfig config;
     private final ServiceInventoryCache serviceInventoryCache;
     private final NetworkAddressInventoryCache networkAddressInventoryCache;
-    private final List<ServiceMapping> serviceMappings = new LinkedList<>();
-    private final List<Integer> servicesToResetMapping = new LinkedList<>();
+    private final List<ServiceMapping> serviceMappings = new ArrayList<>();
+    private final List<Integer> servicesToResetMapping = new ArrayList<>();
 
     private ServiceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
@@ -74,12 +77,17 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
                     String address = networkAddressInventoryCache.get(networkAddressId).getName();
                     int serviceId = serviceInventoryCache.getServiceId(networkAddressId);
+                    ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
 
                     if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("{} is configured as gateway, will reset its mapping service id", serviceId);
                         }
-                        servicesToResetMapping.add(serviceId);
+                        if (serviceInventory.getMappingServiceId() != Const.NONE && !servicesToResetMapping.contains(serviceId)) {
+                            servicesToResetMapping.add(serviceId);
+                        } else if (logger.isDebugEnabled()) {
+                            logger.debug("Mapping id is already 0 or service id {} is already scheduled to be reset", serviceId);
+                        }
                     } else {
                         ServiceMapping serviceMapping = new ServiceMapping();
                         serviceMapping.setServiceId(serviceId);
