@@ -16,16 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+public class ControllerForLowVersionInstrumentation extends AbstractControllerInstrumentation {
+    public static final String WITNESS_CLASSES_LOW_VERSION = "org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer";
 
-public abstract class AbstractSpring4Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    public static final String WITHNESS_CLASSES = "org.springframework.cache.interceptor.SimpleKey";
+    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
 
     @Override
     protected String[] witnessClasses() {
-        return new String[] {WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator"};
+        return new String[]{WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator", WITNESS_CLASSES_LOW_VERSION};
+    }
+
+
+    @Override
+    protected String[] getEnhanceAnnotations() {
+        return new String[]{ENHANCE_ANNOTATION};
     }
 }
