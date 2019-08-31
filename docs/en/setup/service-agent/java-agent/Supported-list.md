@@ -12,6 +12,7 @@
   * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
   * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
+  * [Play Framework](https://www.playframework.com/) 2.6.x -> 2.7.x (Optional²)
   * [Light4J Microservices Framework](https://doc.networknt.com/) 1.6.x
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
@@ -60,7 +61,7 @@
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
-  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.x (Optional² & Except 3.4.4)
+  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.0+ (Optional² & Except 3.4.4)
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x

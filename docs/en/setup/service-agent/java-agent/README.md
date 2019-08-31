@@ -77,6 +77,7 @@ property key | Description | Default |
 `agent.active_v1_header `|Deactivate V1 header in default.|`false`|
 `agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
+`agent.operation_name_threshold `|The operationName max length, setting this value > 500 is not recommended.|`500`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
@@ -115,6 +116,7 @@ Now, we have the following known optional plugins.
 * Plugin of Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway.
+* Plugin of [Play Framework](https://www.playframework.com/) 2.6+ (JDK 1.8 required & Scala 2.12/2.13) in optional plugin folder. Please only active this plugin when you install agent in [Play Framework](https://www.playframework.com/). 
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.

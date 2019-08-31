@@ -38,12 +38,14 @@ or providing commercial products including Apache SkyWalking.
 1. GOME 国美 https://www.gome.com.cn/
 1. Guazi.com 瓜子二手车直卖网. https://www.guazi.com/
 1. guohuaitech.com 北京国槐信息科技有限公司. http://www.guohuaitech.com/
+1. GrowingIO 北京易数科技有限公司 https://www.growingio.com/
 1. Haier. 海尔消费金融 https://www.haiercash.com/
 1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
 1. Huawei Inc. DevCloud. https://www.huaweicloud.com/devcloud/
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
+1. juhaokan 聚好看科技股份有限公司 https://www.juhaokan.org/
 1. Ke.com. 贝壳找房. https://www.ke.com
 1. Keking.cn 凯京集团. http://www.keking.cn
 1. JoinTown. 九州通医药集团 http://www.jztey.com/

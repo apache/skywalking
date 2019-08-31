@@ -46,6 +46,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring.boot.version>2.1.5.RELEASE</spring.boot.version>
+        <spring.cloud.version>2.1.2.RELEASE</spring.cloud.version>
         <faster.jackson.version>2.9.7</faster.jackson.version>
         <junit.version>4.12</junit.version>
         <jackson.version>2.9.7</jackson.version>
