@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.light4j;
 
 import io.undertow.server.HttpServerExchange;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -42,8 +43,15 @@ public class HandleRequestInterceptor implements InstanceMethodsAroundIntercepto
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
         String operationName = objInst.getClass().getName() + "." + method.getName();
+
+        ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
         ContextManager.createLocalSpan(operationName)
                 .setComponent(ComponentsDefine.LIGHT_4J);
+        if (contextSnapshot != null) {
+            ContextManager.continued(contextSnapshot);
+        } else {
+            objInst.setSkyWalkingDynamicField(ContextManager.capture());
+        }
     }
 
     @Override
