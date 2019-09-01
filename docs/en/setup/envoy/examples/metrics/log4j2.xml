@@ -17,23 +17,22 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>apache-skywalking-e2e</artifactId>
-        <groupId>org.apache.skywalking</groupId>
-        <version>1.0.0</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>e2e-cluster</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>provider</module>
-        <module>consumer</module>
-        <module>gateway</module>
-        <module>test-runner</module>
-    </modules>
-</project>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8" pattern="%d - %c -%-4r [%t] %-5p %x - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <logger name="org.eclipse.jetty" level="INFO"/>
+        <logger name="org.apache.zookeeper" level="INFO"/>
+        <logger name="org.elasticsearch.common.network.IfConfig" level="INFO"/>
+        <logger name="io.grpc.netty" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.server.receiver.istio.telemetry" level="DEBUG"/>
+        <!-- We make envoy metrics receiver to log at DEBUG level -->
+        <logger name="org.apache.skywalking.oap.server.receiver.envoy" level="DEBUG"/>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

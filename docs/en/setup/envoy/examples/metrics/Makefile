@@ -14,32 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-nodes:
-  - id: not null
-    name: User
-    type: USER
-  - id: not null
-    name: provider
-    type: Tomcat
-  - id: not null
-    name: consumer
-    type: Tomcat
-  - id: not null
-    name: "localhost:-1"
-    type: H2
-  - id: not null
-    name: "127.0.0.1:9099"
-    type: Unknown
-calls:
-  - id: not null
-    source: not null
-    target: not null
-  - id: not null
-    source: not null
-    target: not null
-  - id: not null
-    source: not null
-    target: not null
-  - id: not null
-    source: not null
-    target: not null
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+.PHONY: up down
