@@ -49,5 +49,8 @@ skywalking_1  |     }
 skywalking_1  |     timestamp_ms: 1567295859556
 skywalking_1  |   }
 skywalking_1  | }
+...
+
+$ # To tear down:
 $ make down
 ```
