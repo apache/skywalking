@@ -22,7 +22,6 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -42,12 +41,14 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *
  * @author zhang xin, stalary
  */
-public class KafkaProducerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.KafkaProducerInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.KafkaProducer";
+    public static final String ENHANCE_METHOD = "doSend";
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ProducerConstructorInterceptor";
     public static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "org.apache.kafka.clients.producer.ProducerConfig";
+    public static final String METHOD_FLAG = "org.apache.kafka.clients.producer.Callback";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -72,7 +73,7 @@ public class KafkaProducerInstrumentation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("doSend");
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(1, METHOD_FLAG));
                 }
 
                 @Override
@@ -91,10 +92,5 @@ public class KafkaProducerInstrumentation extends ClassInstanceMethodsEnhancePlu
     @Override
     protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
-    }
-
-    @Override
-    protected String[] witnessClasses() {
-        return new String[]{"org.apache.kafka.clients.ApiVersions"};
     }
 }

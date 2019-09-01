@@ -38,14 +38,13 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        RecordMetadata metadata = (RecordMetadata) allArguments[0];
-        AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
-        activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
-        Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
-
         //Get the SnapshotContext
         ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
         if (null != contextSnapshot) {
+            RecordMetadata metadata = (RecordMetadata) allArguments[0];
+            AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
+            activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
+            Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
             ContextManager.continued(contextSnapshot);
         }
     }
@@ -53,11 +52,14 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        Exception exceptions = (Exception) allArguments[1];
-        if (exceptions != null) {
-            ContextManager.activeSpan().errorOccurred().log(exceptions);
+        ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
+        if (null != contextSnapshot) {
+            Exception exceptions = (Exception) allArguments[1];
+            if (exceptions != null) {
+                ContextManager.activeSpan().errorOccurred().log(exceptions);
+            }
+            ContextManager.stopSpan();
         }
-        ContextManager.stopSpan();
         return ret;
     }
 

@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
-import java.lang.reflect.Method;
-
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -31,6 +30,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
+import java.lang.reflect.Method;
 
 /**
  * @author zhang xin, stalary
@@ -63,7 +64,10 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
 
         EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
         if (callbackInstance != null) {
-            callbackInstance.setSkyWalkingDynamicField(ContextManager.capture());
+            ContextSnapshot snapshot = ContextManager.capture();
+            if (null != snapshot) {
+                callbackInstance.setSkyWalkingDynamicField(snapshot);
+            }
         }
     }
 
