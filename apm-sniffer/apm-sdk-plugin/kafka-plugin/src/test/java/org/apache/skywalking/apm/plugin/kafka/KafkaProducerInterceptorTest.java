@@ -107,6 +107,6 @@ public class KafkaProducerInterceptorTest {
         SpanAssert.assertTag(span, 1, "test");
         SpanAssert.assertComponent(span, KAFKA_PRODUCER);
         SpanAssert.assertLayer(span, SpanLayer.MQ);
-        assertThat(span.getOperationName(), is("Kafka/test/key1/Producer"));
+        assertThat(span.getOperationName(), is("Kafka/test/Producer"));
     }
 }

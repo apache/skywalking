@@ -48,8 +48,7 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
 
         ProducerRecord record = (ProducerRecord) allArguments[0];
         String topicName = record.topic();
-        String key = record.key() == null ? null : (String) record.key();
-        AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + "/" + key + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, (String) objInst.getSkyWalkingDynamicField());
+        AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, (String) objInst.getSkyWalkingDynamicField());
 
         Tags.MQ_BROKER.set(activeSpan, (String) objInst.getSkyWalkingDynamicField());
         Tags.MQ_TOPIC.set(activeSpan, topicName);

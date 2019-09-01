@@ -42,7 +42,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 public class KafkaConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String OPERATE_NAME_PREFIX = "Kafka/";
-    public static final String CONSUMER_OPERATE_NAME_SUFFIX = "/Consumer";
+    public static final String CONSUMER_OPERATE_NAME = "/Consumer";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -60,7 +60,7 @@ public class KafkaConsumerInterceptor implements InstanceMethodsAroundIntercepto
         //
         if (records.size() > 0) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)objInst.getSkyWalkingDynamicField();
-            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + requiredInfo.getTopics() + "/" + requiredInfo.getGroupId() +  CONSUMER_OPERATE_NAME_SUFFIX, null).start(requiredInfo.getStartTime());
+            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + requiredInfo.getTopics() + CONSUMER_OPERATE_NAME + "/" + requiredInfo.getGroupId(), null).start(requiredInfo.getStartTime());
 
             activeSpan.setComponent(ComponentsDefine.KAFKA_CONSUMER);
             SpanLayer.asMQ(activeSpan);
