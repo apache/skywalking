@@ -70,7 +70,7 @@ static_resources:
   clusters:
     - name: service_skywalking
       connect_timeout: 5s
-      type: LOGICAL_DNS
+      type: STRICT_DNS
       http2_protocol_options: {}
       # Comment out the following line to test on v6 networks
       dns_lookup_family: V4_ONLY
@@ -83,12 +83,11 @@ static_resources:
                   address:
                     socket_address:
                       address: skywalking
-                      # This is the port where SkyWalking serving the Envoy Metrics Service gRPC stream.
                       port_value: 11800
 
     - name: service_google
       connect_timeout: 5s
-      type: LOGICAL_DNS
+      type: STRICT_DNS
       # Comment out the following line to test on v6 networks
       dns_lookup_family: V4_ONLY
       lb_policy: ROUND_ROBIN
