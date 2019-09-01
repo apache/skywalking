@@ -230,6 +230,9 @@ JdkHttp:
 spring-webflux:
   id: 67
   languages: Java
+Play:
+  id: 68
+  languages: Java,Scala
 
 
 # .NET/.NET Core components

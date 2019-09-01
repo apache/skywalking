@@ -116,6 +116,7 @@ Now, we have the following known optional plugins.
 * Plugin of Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway.
+* Plugin of [Play Framework](https://www.playframework.com/) 2.6+ (JDK 1.8 required & Scala 2.12/2.13) in optional plugin folder. Please only active this plugin when you install agent in [Play Framework](https://www.playframework.com/). 
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
