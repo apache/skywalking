@@ -5,14 +5,14 @@ through [Metric Service](https://www.envoyproxy.io/docs/envoy/latest/api-v2/conf
 
 ## Running the example
 
-The example requires `docker` and `docker-compose` to be installed in your local. It fetches images from docker hub.
+The example requires `docker` and `docker-compose` to be installed in your local. It fetches images from Docker Hub.
 
 Note that in ths setup, we override the [`log4j2.xml`](log4j2.xml) config to set the `org.apache.skywalking.oap.server.receiver.envoy` logger level to `DEBUG`. This enables us to see the messages sent by Envoy to SkyWalking OAP server.
 
 ```
 $ make up
 $ docker-compose logs -f skywalking
-$ # Please wait for a moment until SkyWalking is ready and Envoy starts to send the metrics. You will see similar message like the following:
+$ # Please wait for a moment until SkyWalking is ready and Envoy starts sending the stats. You will see similar messages like the following:
 skywalking_1  | 2019-08-31 23:57:40,672 - org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandler -26870 [grpc-default-executor-0] DEBUG [] - Received msg identifier {
 skywalking_1  |   node {
 skywalking_1  |     id: "ingress"
