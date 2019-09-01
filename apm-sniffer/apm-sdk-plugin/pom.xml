@@ -59,7 +59,7 @@
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
-        <module>kafka-v1-plugin</module>
+        <module>kafka-plugin</module>
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
         <module>sofarpc-plugin</module>
