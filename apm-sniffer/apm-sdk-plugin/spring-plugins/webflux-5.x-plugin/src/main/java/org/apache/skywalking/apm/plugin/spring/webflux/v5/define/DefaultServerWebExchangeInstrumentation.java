@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
 /**
  * @author zhaoyuguang
@@ -57,6 +57,6 @@ public class DefaultServerWebExchangeInstrumentation extends ClassInstanceMethod
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.springframework.web.server.adapter.DefaultServerWebExchange");
+        return byMultiClassMatch("org.springframework.web.server.adapter.DefaultServerWebExchange", "org.springframework.web.server.ServerWebExchangeDecorator");
     }
 }
