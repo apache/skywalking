@@ -126,8 +126,10 @@ public class ElasticSearchClient implements Client {
             if ("https".equals(protocol)) {
                 // more type: https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyStore
                 KeyStore truststore = KeyStore.getInstance("jks");
-                try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
-                    truststore.load(is, trustStorePass.toCharArray());
+                if (StringUtils.isNotBlank(trustStorePath)) {
+                    try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
+                        truststore.load(is, trustStorePass.toCharArray());
+                    }
                 }
                 SSLContextBuilder sslBuilder = SSLContexts.custom()
                     .loadTrustMaterial(truststore, null);
