@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.apm.plugin.kafka.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -24,30 +23,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Here is the intercept process steps.
- *
- * <pre>
- *  1. Record the broker address when the client create the <code>org.apache.kafka.clients.producer.KafkaProducer</code>
- * instance
- *  2. Create the exit span when the client invoke <code>send</code> method
- *  3. Inject the context to {@link org.apache.kafka.clients.producer.ProducerRecord#headers}
- *  3. Stop the exit span when <code>send</code> method finished.
- * </pre>
- *
- * @author zhang xin, stalary
+ * after version 2.1.0 use Map to config
+ * @author stalary
  */
-public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
+public class KafkaProducerMapInstrumentation extends AbstractKafkaInstrumentation {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.KafkaProducerInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.KafkaProducer";
-    public static final String ENHANCE_METHOD = "doSend";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ProducerConstructorInterceptor";
-    public static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "org.apache.kafka.clients.producer.ProducerConfig";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ProducerConstructorMapInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "java.util.Map";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -68,24 +55,7 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 
     @Override
