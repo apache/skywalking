@@ -18,16 +18,19 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.util.StringUtil;
 
-public class ProducerConstructorInterceptor implements InstanceConstructorInterceptor {
+import java.util.Map;
 
+/**
+ * @author stalary
+ */
+public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        ProducerConfig config = (ProducerConfig) allArguments[0];
-        objInst.setSkyWalkingDynamicField(StringUtil.join(';', config.getList("bootstrap.servers").toArray(new String[0])));
+        Map<String, Object> config = (Map<String, Object>) allArguments[0];
+        objInst.setSkyWalkingDynamicField(StringUtil.join(';', ((String) config.get("bootstrap.servers")).split(",")));
     }
 }

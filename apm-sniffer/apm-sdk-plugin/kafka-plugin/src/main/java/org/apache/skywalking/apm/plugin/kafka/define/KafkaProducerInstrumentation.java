@@ -46,9 +46,11 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.KafkaProducerInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.kafka.clients.producer.KafkaProducer";
     public static final String ENHANCE_METHOD = "doSend";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.ProducerConstructorInterceptor";
-    public static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "org.apache.kafka.clients.producer.ProducerConfig";
-    public static final String METHOD_FLAG = "org.apache.kafka.clients.producer.Callback";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS1 = "org.apache.skywalking.apm.plugin.kafka.ProducerConstructorInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS2 = "org.apache.skywalking.apm.plugin.kafka.ProducerConstructorMapInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR_FLAG1 = "org.apache.kafka.clients.producer.ProducerConfig";
+    public static final String CONSTRUCTOR_INTERCEPTOR_FLAG2 = "java.util.Map";
+
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -56,12 +58,23 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPTOR_FLAG);
+                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPTOR_FLAG1);
                 }
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return CONSTRUCTOR_INTERCEPTOR_CLASS;
+                    return CONSTRUCTOR_INTERCEPTOR_CLASS1;
+                }
+            },
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPTOR_FLAG2);
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return CONSTRUCTOR_INTERCEPTOR_CLASS2;
                 }
             }
         };
@@ -73,7 +86,7 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(1, METHOD_FLAG));
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override
