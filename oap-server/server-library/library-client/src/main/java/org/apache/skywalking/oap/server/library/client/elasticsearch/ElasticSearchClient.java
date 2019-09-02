@@ -120,16 +120,14 @@ public class ElasticSearchClient implements Client {
         if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
-            builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
-                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 
-            if ("https".equals(protocol)) {
-                // more type: https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyStore
+            if (StringUtils.isBlank(trustStorePath)) {
+                builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
+                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            } else {
                 KeyStore truststore = KeyStore.getInstance("jks");
-                if (StringUtils.isNotBlank(trustStorePath)) {
-                    try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
-                        truststore.load(is, trustStorePass.toCharArray());
-                    }
+                try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
+                    truststore.load(is, trustStorePass.toCharArray());
                 }
                 SSLContextBuilder sslBuilder = SSLContexts.custom()
                     .loadTrustMaterial(truststore, null);
