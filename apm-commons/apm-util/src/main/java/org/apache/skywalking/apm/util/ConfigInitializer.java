@@ -23,12 +23,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
- * Init a class's static fields by a {@link Properties},
- * including static fields and static inner classes.
+ * Init a class's static fields by a {@link Properties}, including static fields and static inner classes.
  * <p>
  * Created by wusheng on 2017/1/9.
  */
@@ -44,21 +44,39 @@ public class ConfigInitializer {
         for (Field field : recentConfigType.getFields()) {
             if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                 String configKey = (parentDesc + "." + field.getName()).toLowerCase();
-                String value = properties.getProperty(configKey);
-                if (value != null) {
-                    Class<?> type = field.getType();
-                    if (type.equals(int.class))
-                        field.set(null, Integer.valueOf(value));
-                    else if (type.equals(String.class))
-                        field.set(null, value);
-                    else if (type.equals(long.class))
-                        field.set(null, Long.valueOf(value));
-                    else if (type.equals(boolean.class))
-                        field.set(null, Boolean.valueOf(value));
-                    else if (type.equals(List.class))
-                        field.set(null, convert2List(value));
-                    else if (type.isEnum())
-                        field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
+                /**
+                 * Map config format is, config_key[map_key]=map_value
+                 * Such as plugin.opgroup.resttemplate.rule[abc]=/url/path
+                 */
+                if (field.getType().equals(Map.class)) {
+                    Map map = (Map)field.get(null);
+                    for (Object key : properties.keySet()) {
+                        String stringKey = key.toString();
+                        if (stringKey.startsWith(configKey + "[") && stringKey.endsWith("]")) {
+                            String itemKey = stringKey.substring(configKey.length() + 1, stringKey.length() - 1);
+                            map.put(itemKey, properties.getProperty(stringKey));
+                        }
+                    }
+                } else {
+                    /**
+                     * Others typical field type
+                     */
+                    String value = properties.getProperty(configKey);
+                    if (value != null) {
+                        Class<?> type = field.getType();
+                        if (type.equals(int.class))
+                            field.set(null, Integer.valueOf(value));
+                        else if (type.equals(String.class))
+                            field.set(null, value);
+                        else if (type.equals(long.class))
+                            field.set(null, Long.valueOf(value));
+                        else if (type.equals(boolean.class))
+                            field.set(null, Boolean.valueOf(value));
+                        else if (type.equals(List.class))
+                            field.set(null, convert2List(value));
+                        else if (type.isEnum())
+                            field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
+                    }
                 }
             }
         }

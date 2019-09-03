@@ -45,7 +45,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -61,10 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
 
 /**
  * @author kezhenxu94
@@ -118,18 +114,29 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
-        final TopoData topoData = queryClient.topo(
-            new TopoQuery()
-                .stepByMinute()
-                .start(minutesAgo)
-                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-        );
+        boolean valid = false;
+        while (!valid) {
+            try {
+                final TopoData topoData = queryClient.topo(
+                        new TopoQuery()
+                                .stepByMinute()
+                                .start(minutesAgo)
+                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                );
+                LOGGER.info("Actual topology: {}", topoData);
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
+                InputStream expectedInputStream =
+                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
 
-        final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
-        topoMatcher.verify(topoData);
+                final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
+                topoMatcher.verify(topoData);
+                valid = true;
+            } catch (Throwable t) {
+                LOGGER.warn(t.getMessage(), t);
+                generateTraffic();
+                Thread.sleep(retryInterval);
+            }
+        }
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
@@ -333,14 +340,17 @@ public class ClusterVerificationITCase {
     }
 
     private void generateTraffic() {
-        final Map<String, String> user = new HashMap<>();
-        user.put("name", "SkyWalking");
-        final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-            instrumentedServiceUrl + "/e2e/users",
-            user,
-            String.class
-        );
-        LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        try {
+            final Map<String, String> user = new HashMap<>();
+            user.put("name", "SkyWalking");
+            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+            );
+            LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
+        } catch (Throwable t) {
+            LOGGER.warn(t.getMessage(), t);
+        }
     }
 }

@@ -22,7 +22,17 @@ if test "${MODE}" = "cluster"; then
     # substitute application.yml to be capable of cluster mode
     cd ${SW_HOME}/config \
         && awk -f /clusterize.awk application.yml > clusterized_app.yml \
-        && mv clusterized_app.yml application.yml
+        && mv clusterized_app.yml application.yml \
+        && echo '
+gateways:
+  - name: proxy0
+    instances:
+      - host: 127.0.0.1 # the host/ip of this gateway instance
+        port: 9099 # the port of this gateway instance, defaults to 80
+' > gateways.yml \
+        && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.UninstrumentedGatewaysConfig" level="DEBUG"/>\
+        \n<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
+        && mv log4j2debuggable.xml log4j2.xml
 
     cd ${SW_HOME}/webapp \
         && awk '/^\s+listOfServers:/ {gsub("listOfServers:.*", "listOfServers: 127.0.0.1:12800,127.0.0.1:12801", $0)} {print}' webapp.yml > clusterized_webapp.yml \

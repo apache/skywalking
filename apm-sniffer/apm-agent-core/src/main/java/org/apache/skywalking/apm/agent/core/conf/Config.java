@@ -19,13 +19,12 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -41,14 +40,14 @@ public class Config {
         public static String NAMESPACE = "";
 
         /**
-         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service,
-         * service instance nodes share the same code
+         * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service, service instance
+         * nodes share the same code
          */
         public static String SERVICE_NAME = "";
 
         /**
-         * Authentication active is based on backend setting, see application.yml for more details.
-         * For most scenarios, this needs backend extensions, only basic match auth provided in default implementation.
+         * Authentication active is based on backend setting, see application.yml for more details. For most scenarios,
+         * this needs backend extensions, only basic match auth provided in default implementation.
          */
         public static String AUTHENTICATION = "";
 
@@ -70,8 +69,8 @@ public class Config {
         public static int SPAN_LIMIT_PER_SEGMENT = 300;
 
         /**
-         * If true, skywalking agent will save all instrumented classes files in `/debugging` folder.
-         * Skywalking team may ask for these files in order to resolve compatible problem.
+         * If true, skywalking agent will save all instrumented classes files in `/debugging` folder. Skywalking team
+         * may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
@@ -96,18 +95,21 @@ public class Config {
         public static int CAUSE_EXCEPTION_DEPTH = 5;
 
         /**
-         * How long should the agent wait (in minute)
-         * before re-registering to the OAP server
-         * after receiving reset command
+         * How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset
+         * command
          */
         public static int COOL_DOWN_THRESHOLD = 10;
 
         /**
-         * Force reconnection period of grpc, based on grpc_channel_check_interval.
-         * If count of check grpc channel status more than this number.
-         * The channel check will call channel.getState(true) to requestConnection.
+         * Force reconnection period of grpc, based on grpc_channel_check_interval. If count of check grpc channel
+         * status more than this number. The channel check will call channel.getState(true) to requestConnection.
          */
         public static long FORCE_RECONNECTION_PERIOD = 1;
+
+        /**
+         * Limit the length of the operationName to prevent errors when inserting elasticsearch
+         **/
+        public static int OPERATION_NAME_THRESHOLD = 500;
     }
 
     public static class Collector {
@@ -177,19 +179,13 @@ public class Config {
         public static LogOutput OUTPUT = LogOutput.FILE;
 
         /**
-         * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable".
-         * Each conversion specifiers starts with a percent sign '%' and fis followed by conversion word.
-         * There are some default conversion specifiers:
-         * %thread = ThreadName
-         * %level = LogLevel  {@link LogLevel}
-         * %timestamp = The now() who format is 'yyyy-MM-dd HH:mm:ss:SSS'
-         * %class = SimpleName of TargetClass
-         * %msg = Message of user input
-         * %throwable = Throwable of user input
-         * %agent_name = ServiceName of Agent {@link Agent#SERVICE_NAME}
+         * The log patten. Default is "%level %timestamp %thread %class : %msg %throwable". Each conversion specifiers
+         * starts with a percent sign '%' and fis followed by conversion word. There are some default conversion
+         * specifiers: %thread = ThreadName %level = LogLevel  {@link LogLevel} %timestamp = The now() who format is
+         * 'yyyy-MM-dd HH:mm:ss:SSS' %class = SimpleName of TargetClass %msg = Message of user input %throwable =
+         * Throwable of user input %agent_name = ServiceName of Agent {@link Agent#SERVICE_NAME}
          *
          * @see org.apache.skywalking.apm.agent.core.logging.core.PatternLogger#DEFAULT_CONVERTER_MAP
-         *
          */
         public static String PATTERN = "%level %timestamp %thread %class : %msg %throwable";
     }
@@ -203,7 +199,8 @@ public class Config {
 
         public static class MongoDB {
             /**
-             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.
+             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not
+             * include parameters.
              */
             public static boolean TRACE_PARAM = false;
         }
@@ -230,27 +227,29 @@ public class Config {
 
         public static class SpringMVC {
             /**
-             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.
+             * If true, the fully qualified method name will be used as the endpoint name instead of the request URL,
+             * default is false.
              */
             public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
         }
 
         public static class Toolkit {
             /**
-             * If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.
+             * If true, the fully qualified method name will be used as the operation name instead of the given
+             * operation name, default is false.
              */
             public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
 
         public static class MySQL {
             /**
-             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement})
-             * would be collected.
+             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
+             * collected.
              */
             public static boolean TRACE_SQL_PARAMETERS = false;
             /**
-             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag,
-             * but only the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
              *
              * Set a negative number to save the complete parameter string to the tag.
              */
@@ -259,7 +258,8 @@ public class Config {
 
         public static class SolrJ {
             /**
-             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.
+             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,
+             * default is false.
              */
             public static boolean TRACE_STATEMENT = false;
 
@@ -269,5 +269,16 @@ public class Config {
             public static boolean TRACE_OPS_PARAMS = false;
         }
 
+        /**
+         * Operation name group rules
+         */
+        public static class OPGroup {
+            /**
+             * Rules for RestTemplate plugin
+             */
+            public static class RestTemplate implements OPGroupDefinition {
+                public static Map<String, String> RULE = new HashMap<String, String>();
+            }
+        }
     }
 }

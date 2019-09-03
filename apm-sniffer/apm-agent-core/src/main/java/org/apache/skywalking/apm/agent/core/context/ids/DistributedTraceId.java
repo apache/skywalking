@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.network.language.agent.*;
 /**
  * The <code>DistributedTraceId</code> presents a distributed call chain.
  * <p>
- * This call chain has an unique (service) entrance,
+ * This call chain has a unique (service) entrance,
  * <p>
  * such as: Service : http://www.skywalking.com/cust/query, all the remote, called behind this service, rest remote,
  * db executions, are using the same <code>DistributedTraceId</code> even in different JVM.
