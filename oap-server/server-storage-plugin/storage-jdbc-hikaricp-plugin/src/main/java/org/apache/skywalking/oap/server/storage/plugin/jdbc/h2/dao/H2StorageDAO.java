@@ -18,28 +18,25 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.IIndicatorDAO;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 /**
- * @author wusheng
+ * @author wusheng, peng-yongsheng
  */
 public class H2StorageDAO implements StorageDAO {
+
     private JDBCHikariCPClient h2Client;
 
     public H2StorageDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
     }
 
-    @Override public IIndicatorDAO newIndicatorDao(StorageBuilder<Indicator> storageBuilder) {
-        return new H2IndicatorDAO(h2Client, storageBuilder);
+    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
+        return new H2MetricsDAO(h2Client, storageBuilder);
     }
 
     @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {

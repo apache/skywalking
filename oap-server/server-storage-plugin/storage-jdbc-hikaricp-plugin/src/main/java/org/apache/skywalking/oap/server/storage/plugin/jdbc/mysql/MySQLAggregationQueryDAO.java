@@ -19,16 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
-import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.core.storage.DownSamplingModelNameBuilder;
+import java.sql.*;
+import java.util.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
 
@@ -36,25 +32,26 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2Aggregation
  * @author wusheng
  */
 public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
+
     public MySQLAggregationQueryDAO(
         JDBCHikariCPClient client) {
         super(client);
     }
 
     @Override
-    public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Step step,
+    public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Downsampling downsampling,
         long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
-        String tableName = DownSamplingModelNameBuilder.build(step, indName);
+        String tableName = ModelName.build(downsampling, indName);
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
-        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Indicator.ENTITY_ID).append(" from ")
+        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Metrics.ENTITY_ID).append(" from ")
             .append(tableName).append(" where ");
         this.setTimeRangeCondition(sql, conditions, startTB, endTB);
         if (appender != null) {
             appender.append(sql, conditions);
         }
-        sql.append(" group by ").append(Indicator.ENTITY_ID);
-        sql.append(") AS INDICATOR order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
+        sql.append(" group by ").append(Metrics.ENTITY_ID);
+        sql.append(") AS METRICS order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
         try (Connection connection = getClient().getConnection()) {
@@ -63,7 +60,7 @@ public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
                 try {
                     while (resultSet.next()) {
                         TopNEntity topNEntity = new TopNEntity();
-                        topNEntity.setId(resultSet.getString(Indicator.ENTITY_ID));
+                        topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
                         topNEntity.setValue(resultSet.getLong("value"));
                         topNEntities.add(topNEntity);
                     }

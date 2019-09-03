@@ -41,22 +41,22 @@ public class RemoteSenderService implements Service {
         this.rollingSelector = new RollingSelector();
     }
 
-    public void send(int nextWorkId, StreamData streamData, Selector selector) {
+    public void send(String nextWorkName, StreamData streamData, Selector selector) {
         RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).provider().getService(RemoteClientManager.class);
 
         RemoteClient remoteClient;
         switch (selector) {
             case HashCode:
                 remoteClient = hashCodeSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkId, streamData);
+                remoteClient.push(nextWorkName, streamData);
                 break;
             case Rolling:
                 remoteClient = rollingSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkId, streamData);
+                remoteClient.push(nextWorkName, streamData);
                 break;
             case ForeverFirst:
                 remoteClient = foreverFirstSelector.select(clientManager.getRemoteClient(), streamData);
-                remoteClient.push(nextWorkId, streamData);
+                remoteClient.push(nextWorkName, streamData);
                 break;
         }
     }

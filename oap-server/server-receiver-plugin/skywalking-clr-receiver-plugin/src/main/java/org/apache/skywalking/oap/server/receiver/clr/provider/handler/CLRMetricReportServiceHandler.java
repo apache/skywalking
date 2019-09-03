@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricReportServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +45,12 @@ public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CL
         int serviceInstanceId = request.getServiceInstanceId();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("receive the clr metric from service instance, id: {}", serviceInstanceId);
+            logger.debug("receive the clr metrics from service instance, id: {}", serviceInstanceId);
         }
 
-        request.getMetricsList().forEach(metric -> {
-            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
-            clrSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metric);
+        request.getMetricsList().forEach(metrics -> {
+            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
+            clrSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
         });
 
         responseObserver.onNext(Commands.newBuilder().build());

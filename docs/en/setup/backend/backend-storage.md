@@ -29,7 +29,7 @@ storage:
 ## ElasticSearch 6
 Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
 
-**Required ElasticSearch 6.3.0 or higher. HTTP RestHighLevelClient is used to connect server.**
+**Required ElasticSearch 6.3.2 or higher, excepted 7.0.0 or higher. HTTP RestHighLevelClient is used to connect server.**
 
 Setting fragment example
 
@@ -39,15 +39,59 @@ storage:
     # nameSpace: ${SW_NAMESPACE:""}
     # user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     # password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
+    #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:""}
+    #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
+    # Those data TTL settings will override the same settings in core module.
+    recordDataTTL: ${SW_STORAGE_ES_RECORD_DATA_TTL:7} # Unit is day
+    otherMetricsDataTTL: ${SW_STORAGE_ES_OTHER_METRIC_DATA_TTL:45} # Unit is day
+    monthMetricsDataTTL: ${SW_STORAGE_ES_MONTH_METRIC_DATA_TTL:18} # Unit is month
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
+
+### ElasticSearch 6 With Https SSL Encrypting communications.
+
+example: 
+
+```yaml
+storage:
+  elasticsearch:
+    # nameSpace: ${SW_NAMESPACE:""}
+    user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
+    password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:443}
+    trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
+    trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"https"}
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
+    # Those data TTL settings will override the same settings in core module.
+    recordDataTTL: ${SW_STORAGE_ES_RECORD_DATA_TTL:7} # Unit is day
+    otherMetricsDataTTL: ${SW_STORAGE_ES_OTHER_METRIC_DATA_TTL:45} # Unit is day
+    monthMetricsDataTTL: ${SW_STORAGE_ES_MONTH_METRIC_DATA_TTL:18} # Unit is month
+    # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
+    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
+    bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
+    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+```
+
+
+### Data TTL
+TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
+
+### Elasticearch server settings
+Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. 
+And recommend read more about these configuration from ElasticSearch official document. 
+This effects the performance of ElasticSearch very much.
+
 
 ### ElasticSearch 6 with Zipkin trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
@@ -57,10 +101,15 @@ storage:
   zipkin-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
+    # Those data TTL settings will override the same settings in core module.
+    recordDataTTL: ${SW_STORAGE_ES_RECORD_DATA_TTL:7} # Unit is day
+    otherMetricsDataTTL: ${SW_STORAGE_ES_OTHER_METRIC_DATA_TTL:45} # Unit is day
+    monthMetricsDataTTL: ${SW_STORAGE_ES_MONTH_METRIC_DATA_TTL:18} # Unit is month
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
@@ -76,10 +125,15 @@ storage:
   jaeger-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
+    # Those data TTL settings will override the same settings in core module.
+    recordDataTTL: ${SW_STORAGE_ES_RECORD_DATA_TTL:7} # Unit is day
+    otherMetricsDataTTL: ${SW_STORAGE_ES_OTHER_METRIC_DATA_TTL:45} # Unit is day
+    monthMetricsDataTTL: ${SW_STORAGE_ES_MONTH_METRIC_DATA_TTL:18} # Unit is month
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:2000} # Execute the bulk every 2000 requests
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb

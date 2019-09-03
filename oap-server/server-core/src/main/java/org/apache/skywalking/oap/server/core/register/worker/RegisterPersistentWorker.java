@@ -22,7 +22,6 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.*;
@@ -52,7 +51,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.registerDAO = registerDAO;
         this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scopeId = scopeId;
-        this.dataCarrier = new DataCarrier<>("IndicatorPersistentWorker." + modelName, 1, 1000);
+        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
 
         String name = "REGISTER_L2";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -70,7 +69,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     }
 
     @Override public final void in(RegisterSource registerSource) {
-        registerSource.setEndOfBatchContext(new EndOfBatchContext(false));
+        registerSource.resetEndOfBatch();
         dataCarrier.produce(registerSource);
     }
 
@@ -81,7 +80,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
 
-        if (sources.size() > 1000 || registerSource.getEndOfBatchContext().isEndOfBatch()) {
+        if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
             sources.values().forEach(source -> {
                 try {
                     RegisterSource dbSource = registerDAO.get(modelName, source.id());
@@ -134,12 +133,12 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
             int i = 0;
             while (sourceIterator.hasNext()) {
-                RegisterSource indicator = sourceIterator.next();
+                RegisterSource registerSource = sourceIterator.next();
                 i++;
                 if (i == data.size()) {
-                    indicator.getEndOfBatchContext().setEndOfBatch(true);
+                    registerSource.asEndOfBatch();
                 }
-                persistent.onWork(indicator);
+                persistent.onWork(registerSource);
             }
         }
 

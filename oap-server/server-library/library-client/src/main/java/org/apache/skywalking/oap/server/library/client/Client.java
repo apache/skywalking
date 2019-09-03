@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public interface Client {
 
-    void connect() throws IOException;
+    void connect() throws Exception;
 
     void shutdown() throws IOException;
 }

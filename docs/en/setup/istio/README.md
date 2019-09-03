@@ -1,6 +1,6 @@
 # Work with Istio
 
-Instructions for transport Istio's metrics to skywalking oap server.
+Instructions for transport Istio's metrics to SkyWalking OAP server.
 
 ## Prerequisites
 
@@ -13,6 +13,5 @@ Follow the [deploying backend in kubernetes](../backend/backend-k8s.md) to insta
 
 ## Setup Istio to send metrics to oap
 
-Follow instructions in the [setup Istio to send metric to oap](https://github.com/apache/skywalking-kubernetes#setup-istio-to-send-metric-to-oap)
- to setup Istio with oap.
+The SkyWalking uses Istio bypass adapter collects metrics. Use `kubectl apply -f` with the `yaml`(s) in [the yaml folder](yaml) to setup.
  

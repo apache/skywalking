@@ -29,6 +29,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.*;
 
+import static java.util.Objects.isNull;
+
 /**
  * @author peng-yongsheng
  */
@@ -44,17 +46,21 @@ class TopologyBuilder {
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
     }
 
-    Topology build(List<Call> serviceRelationClientCalls, List<Call> serviceRelationServerCalls) {
+    Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
         filterZeroSourceOrTargetReference(serviceRelationClientCalls);
         filterZeroSourceOrTargetReference(serviceRelationServerCalls);
 
         Map<Integer, Node> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
-        Set<String> callIds = new HashSet<>();
+        HashMap<String, Call> callMap = new HashMap<>();
 
-        for (Call clientCall : serviceRelationClientCalls) {
+        for (Call.CallDetail clientCall : serviceRelationClientCalls) {
             ServiceInventory source = serviceInventoryCache.get(clientCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(clientCall.getTarget());
+
+            if (isNull(source) || isNull(target)) {
+                continue;
+            }
 
             if (target.getMappingServiceId() != Const.NONE) {
                 continue;
@@ -72,22 +78,31 @@ class TopologyBuilder {
             }
 
             String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
-            if (!callIds.contains(callId)) {
-                callIds.add(callId);
-
+            if (!callMap.containsKey(callId)) {
                 Call call = new Call();
+
+                callMap.put(callId, call);
+
                 call.setSource(clientCall.getSource());
                 call.setTarget(clientCall.getTarget());
                 call.setId(clientCall.getId());
-                call.setDetectPoint(DetectPoint.CLIENT);
-                call.setCallType(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
+                call.addDetectPoint(DetectPoint.CLIENT);
+                call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
+            } else {
+                Call call = callMap.get(callId);
+                call.addDetectPoint(DetectPoint.CLIENT);
+                call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
             }
         }
 
-        for (Call serverCall : serviceRelationServerCalls) {
+        for (Call.CallDetail serverCall : serviceRelationServerCalls) {
             ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
             ServiceInventory target = serviceInventoryCache.get(serverCall.getTarget());
+
+            if (isNull(source) || isNull(target)) {
+                continue;
+            }
 
             if (source.getSequence() == Const.USER_SERVICE_ID) {
                 if (!nodes.containsKey(source.getSequence())) {
@@ -112,21 +127,22 @@ class TopologyBuilder {
             }
 
             String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
-            if (!callIds.contains(callId)) {
-                callIds.add(callId);
-
+            if (!callMap.containsKey(callId)) {
                 Call call = new Call();
+                callMap.put(callId, call);
+
                 call.setSource(serverCall.getSource());
                 call.setTarget(serverCall.getTarget());
                 call.setId(serverCall.getId());
-                call.setDetectPoint(DetectPoint.SERVER);
-                calls.add(call);
+                call.addDetectPoint(DetectPoint.SERVER);
+                call.addTargetComponent(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
 
-                if (source.getSequence() == Const.USER_SERVICE_ID) {
-                    call.setCallType(Const.EMPTY_STRING);
-                } else {
-                    call.setCallType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
-                }
+                calls.add(call);
+            } else {
+                Call call = callMap.get(callId);
+
+                call.addDetectPoint(DetectPoint.SERVER);
+                call.addTargetComponent(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
             }
 
             if (!nodes.containsKey(source.getSequence())) {
@@ -160,9 +176,9 @@ class TopologyBuilder {
         return serviceNode;
     }
 
-    private void filterZeroSourceOrTargetReference(List<Call> serviceRelationClientCalls) {
+    private void filterZeroSourceOrTargetReference(List<Call.CallDetail> serviceRelationClientCalls) {
         for (int i = serviceRelationClientCalls.size() - 1; i >= 0; i--) {
-            Call call = serviceRelationClientCalls.get(i);
+            Call.CallDetail call = serviceRelationClientCalls.get(i);
             if (call.getSource() == 0 || call.getTarget() == 0) {
                 serviceRelationClientCalls.remove(i);
             }

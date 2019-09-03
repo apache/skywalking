@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
 import com.google.gson.JsonObject;
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryProcess;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.StorageEntityAnnotationUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.*;
@@ -54,9 +54,9 @@ public class RegisterLockInstaller {
                 createIndex();
             }
 
-            for (Class registerSource : InventoryProcess.INSTANCE.getAllRegisterSources()) {
-                int sourceScopeId = StorageEntityAnnotationUtils.getSourceScope(registerSource);
-                putIfAbsent(sourceScopeId);
+            for (Class registerSource : InventoryStreamProcessor.getInstance().getAllRegisterSources()) {
+                int scopeId = ((Stream)registerSource.getAnnotation(Stream.class)).scopeId();
+                putIfAbsent(scopeId);
             }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
@@ -64,7 +64,7 @@ public class RegisterLockInstaller {
     }
 
     private void deleteIndex() throws IOException {
-        client.deleteIndex(RegisterLockIndex.NAME);
+        client.deleteByModelName(RegisterLockIndex.NAME);
     }
 
     private void createIndex() throws IOException {

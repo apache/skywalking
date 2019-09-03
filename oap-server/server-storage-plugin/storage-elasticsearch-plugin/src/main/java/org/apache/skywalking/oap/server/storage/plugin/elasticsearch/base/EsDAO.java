@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import java.io.IOException;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.elasticsearch.common.xcontent.*;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -34,8 +38,8 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         super(client);
     }
 
-    public final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Indicator.TIME_BUCKET).gte(startTB).lte(endTB);
+    protected final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).gte(startTB).lte(endTB);
         if (where.getKeyValues().isEmpty()) {
             sourceBuilder.query(rangeQueryBuilder);
         } else {
@@ -52,5 +56,20 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
             sourceBuilder.query(boolQuery);
         }
         sourceBuilder.size(0);
+    }
+
+    protected XContentBuilder map2builder(Map<String, Object> objectMap) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+        for (String key : objectMap.keySet()) {
+            Object value = objectMap.get(key);
+            if (value instanceof StorageDataType) {
+                builder.field(key, ((StorageDataType)value).toStorageData());
+            } else {
+                builder.field(key, value);
+            }
+        }
+        builder.endObject();
+
+        return builder;
     }
 }

@@ -23,9 +23,11 @@ import java.util.*;
 import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.library.buffer.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
@@ -48,10 +50,11 @@ public class SegmentParseV2 {
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
     private final TraceServiceModuleConfig config;
+    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     @Setter private SegmentStandardizationWorker standardizationWorker;
-    private volatile static CounterMetric TRACE_BUFFER_FILE_RETRY;
-    private volatile static CounterMetric TRACE_BUFFER_FILE_OUT;
-    private volatile static CounterMetric TRACE_PARSE_ERROR;
+    private volatile static CounterMetrics TRACE_BUFFER_FILE_RETRY;
+    private volatile static CounterMetrics TRACE_BUFFER_FILE_OUT;
+    private volatile static CounterMetrics TRACE_PARSE_ERROR;
 
     private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
@@ -64,14 +67,16 @@ public class SegmentParseV2 {
         this.config = config;
 
         if (TRACE_BUFFER_FILE_RETRY == null) {
-            MetricCreator metricCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricCreator.class);
-            TRACE_BUFFER_FILE_RETRY = metricCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
-                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-            TRACE_BUFFER_FILE_OUT = metricCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file",
-                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
-            TRACE_PARSE_ERROR = metricCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file",
-                MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+            MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+            TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            TRACE_PARSE_ERROR = metricsCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
+
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
     }
 
     public boolean parse(BufferData<UpstreamSegment> bufferData, SegmentSource source) {
@@ -85,7 +90,14 @@ public class SegmentParseV2 {
             if (bufferData.getV2Segment() == null) {
                 bufferData.setV2Segment(parseBinarySegment(upstreamSegment));
             }
-            SegmentObject segmentObject = parseBinarySegment(upstreamSegment);
+            SegmentObject segmentObject = bufferData.getV2Segment();
+
+            // Recheck in case that the segment comes from file buffer
+            final int serviceInstanceId = segmentObject.getServiceInstanceId();
+            if (serviceInstanceInventoryCache.get(serviceInstanceId) == null) {
+                logger.warn("Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);
+                return true; // to mark it "completed" thus won't be retried
+            }
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
@@ -167,7 +179,7 @@ public class SegmentParseV2 {
         }
 
         if (exchanged) {
-            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(segmentCoreInfo.getStartTime());
+            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(segmentCoreInfo.getStartTime());
             segmentCoreInfo.setMinuteTimeBucket(minuteTimeBucket);
 
             for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
@@ -275,7 +287,7 @@ public class SegmentParseV2 {
             segmentParse.setStandardizationWorker(standardizationWorker);
             boolean parseResult = segmentParse.parse(bufferData, SegmentSource.Buffer);
             if (parseResult) {
-                segmentParse.TRACE_BUFFER_FILE_OUT.inc();
+                TRACE_BUFFER_FILE_OUT.inc();
             }
 
             return parseResult;

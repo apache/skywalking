@@ -40,13 +40,13 @@ Apache maven staging repository check list.
 ## Test your settings
 This step is only for test, if your env is set right, don't need to check every time.
 ```
-./mvnw clean install -Papache-release (this will build artifacts, sources and sign)
+./mvnw clean install -Pall (this will build artifacts, sources and sign)
 ```
 
 ## Prepare the release
 ```
 ./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true
+./mvnw release:prepare -DautoVersionSubmodules=true -Pall
 ```
 
 - Set version number as x.y.z, and tag as **v**x.y.z (version tag must start with **v**, you will find the purpose in next step.)
@@ -56,7 +56,7 @@ but just failure. Run `gpg --sign xxx` to any file could remember the password f
 
 ## Stage the release 
 ```
-./mvnw release:perform -DskipTests
+./mvnw release:perform -DskipTests -Pall
 ```
 
 - The release will automatically be inserted into a temporary staging repository for you.
@@ -269,9 +269,9 @@ SkyWalking Resources:
 - Documents: https://github.com/apache/skywalking/blob/x.y.z/docs/README.md
 
 
-- Apache SkyWalking  Team
+- Apache SkyWalking Team
 ```
 
 7. Update website download page. http://skywalking.apache.org/downloads/ . Include new download source, distribution, sha512, asc and document
 links. Links could be found by following above rules(3)-(6).
-8. Add an release event on website homepage and even page. Announce the public release with changelog or key features.
+8. Add a release event on website homepage and even page. Announce the public release with changelog or key features.

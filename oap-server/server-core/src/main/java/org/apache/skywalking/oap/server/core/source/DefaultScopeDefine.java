@@ -19,7 +19,11 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
@@ -30,9 +34,10 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
+    private static final Map<String, List<ScopeDefaultColumn>> SCOPE_COLUMNS = new HashMap<>();
 
     /**
-     * All metric IDs in [0, 10,000) are reserved in Apache SkyWalking.
+     * All metrics IDs in [0, 10,000) are reserved in Apache SkyWalking.
      *
      * If you want to extend the scope, recommend to start with 10,000.
      */
@@ -64,7 +69,7 @@ public class DefaultScopeDefine {
     public static final int HTTP_ACCESS_LOG = 25;
 
     /**
-     * Catalog of scope, the indicator processor could use this to group all generated indicators by oal tool.
+     * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
     public static final String SERVICE_CATALOG_NAME = "SERVICE";
     public static final String SERVICE_INSTANCE_CATALOG_NAME = "SERVICE_INSTANCE";
@@ -94,10 +99,30 @@ public class DefaultScopeDefine {
         }
         String name = declaration.name();
         if (NAME_2_ID.containsKey(name)) {
-            throw new UnexpectedException("ScopeDeclaration name=" + name + " at " + originalClass.getName() + " has conflict with another id= " + NAME_2_ID.get(name));
+            throw new UnexpectedException("ScopeDeclaration fieldName=" + name + " at " + originalClass.getName() + " has conflict with another id= " + NAME_2_ID.get(name));
         }
         ID_2_NAME.put(id, name);
         NAME_2_ID.put(name, id);
+
+        List<ScopeDefaultColumn> scopeDefaultColumns = new ArrayList<>();
+
+        ScopeDefaultColumn.VirtualColumnDefinition virtualColumn = (ScopeDefaultColumn.VirtualColumnDefinition)originalClass.getAnnotation(ScopeDefaultColumn.VirtualColumnDefinition.class);
+        if (virtualColumn != null) {
+            scopeDefaultColumns.add(new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(),
+                virtualColumn.type(), virtualColumn.isID()));
+        }
+        Field[] scopeClassField = originalClass.getDeclaredFields();
+        if (scopeClassField != null) {
+            for (Field field : scopeClassField) {
+                ScopeDefaultColumn.DefinedByField definedByField = field.getAnnotation(ScopeDefaultColumn.DefinedByField.class);
+                if (definedByField != null) {
+                    scopeDefaultColumns.add(new ScopeDefaultColumn(field.getName(), definedByField.columnName(),
+                        field.getType(), definedByField.isID()));
+                }
+            }
+        }
+
+        SCOPE_COLUMNS.put(name, scopeDefaultColumns);
 
         String catalogName = declaration.catalog();
         switch (catalogName) {
@@ -124,7 +149,7 @@ public class DefaultScopeDefine {
     public static int valueOf(String name) {
         Integer id = NAME_2_ID.get(name);
         if (id == null) {
-            throw new UnexpectedException("ScopeDefine name = " + name + " not found.");
+            throw new UnexpectedException("ScopeDefine fieldName = " + name + " not found.");
         }
         return id;
     }
@@ -132,6 +157,7 @@ public class DefaultScopeDefine {
     public static void reset() {
         NAME_2_ID.clear();
         ID_2_NAME.clear();
+        SCOPE_COLUMNS.clear();
     }
 
     public static boolean inServiceCatalog(int scopeId) {
@@ -144,5 +170,19 @@ public class DefaultScopeDefine {
 
     public static boolean inEndpointCatalog(int scopeId) {
         return ENDPOINT_CATALOG.containsKey(scopeId);
+    }
+
+    /**
+     * Get the default columns defined in Scope. All those columns will forward to persistent entity.
+     *
+     * @param scopeName of the default columns
+     * @return
+     */
+    public static List<ScopeDefaultColumn> getDefaultColumns(String scopeName) {
+        List<ScopeDefaultColumn> scopeDefaultColumns = SCOPE_COLUMNS.get(scopeName);
+        if (scopeDefaultColumns == null) {
+            throw new UnexpectedException("ScopeDefine name = " + scopeName + " not found.");
+        }
+        return scopeDefaultColumns;
     }
 }

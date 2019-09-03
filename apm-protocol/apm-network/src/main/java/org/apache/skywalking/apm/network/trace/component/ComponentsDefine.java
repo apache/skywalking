@@ -116,63 +116,20 @@ public class ComponentsDefine {
 
     public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
 
-    private static ComponentsDefine INSTANCE = new ComponentsDefine();
+    public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
 
-    private String[] components;
+    public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
 
-    public static ComponentsDefine getInstance() {
-        return INSTANCE;
-    }
+    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
 
-    public ComponentsDefine() {
-        components = new String[60];
-        addComponent(TOMCAT);
-        addComponent(HTTPCLIENT);
-        addComponent(DUBBO);
-        addComponent(MOTAN);
-        addComponent(RESIN);
-        addComponent(FEIGN);
-        addComponent(OKHTTP);
-        addComponent(SPRING_REST_TEMPLATE);
-        addComponent(SPRING_MVC_ANNOTATION);
-        addComponent(STRUTS2);
-        addComponent(NUTZ_MVC_ANNOTATION);
-        addComponent(NUTZ_HTTP);
-        addComponent(JETTY_CLIENT);
-        addComponent(JETTY_SERVER);
-        addComponent(SHARDING_JDBC);
-        addComponent(GRPC);
-        addComponent(ELASTIC_JOB);
-        addComponent(HTTP_ASYNC_CLIENT);
-        addComponent(SERVICECOMB);
-        addComponent(HYSTRIX);
-        addComponent(H2_JDBC_DRIVER);
-        addComponent(MYSQL_JDBC_DRIVER);
-        addComponent(OJDBC);
-        addComponent(JEDIS);
-        addComponent(SPYMEMCACHED);
-        addComponent(XMEMCACHED);
-        addComponent(POSTGRESQL_DRIVER);
-        addComponent(ROCKET_MQ_PRODUCER);
-        addComponent(ROCKET_MQ_CONSUMER);
-        addComponent(KAFKA_PRODUCER);
-        addComponent(KAFKA_CONSUMER);
-        addComponent(MONGO_DRIVER);
-        addComponent(SOFARPC);
-        addComponent(ACTIVEMQ_PRODUCER);
-        addComponent(ACTIVEMQ_CONSUMER);
-        addComponent(UNDERTOW);
-        addComponent(RABBITMQ_PRODUCER);
-        addComponent(RABBITMQ_CONSUMER);
-        addComponent(CANAL);
-        addComponent(GSON);
-        addComponent(REDISSON);
-        addComponent(LETTUCE);
-        addComponent(ZOOKEEPER);
-        addComponent(VERTX);
-    }
+    public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
 
-    private void addComponent(OfficialComponent component) {
-        components[component.getId()] = component.getName();
-    }
+    public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
+
+    public static final OfficialComponent JDK_HTTP = new OfficialComponent(66, "JdkHttp");
+
+    public static final OfficialComponent SPRING_WEBFLUX = new OfficialComponent(67, "spring-webflux");
+
+    public static final OfficialComponent PLAY = new OfficialComponent(68, "Play");
+
 }

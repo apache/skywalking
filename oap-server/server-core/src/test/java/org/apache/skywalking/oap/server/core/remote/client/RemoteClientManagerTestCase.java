@@ -18,16 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.apache.skywalking.oap.server.testing.module.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
+import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
+import org.junit.Assert;
+import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author peng-yongsheng
@@ -46,11 +53,9 @@ public class RemoteClientManagerTestCase {
         ClusterNodesQuery clusterNodesQuery = mock(ClusterNodesQuery.class);
         clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
 
-        StreamDataClassGetter streamDataClassGetter = mock(StreamDataClassGetter.class);
-        coreModuleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, streamDataClassGetter);
 
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetrics() {
             @Override public void inc() {
 
             }
@@ -73,7 +78,7 @@ public class RemoteClientManagerTestCase {
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
 

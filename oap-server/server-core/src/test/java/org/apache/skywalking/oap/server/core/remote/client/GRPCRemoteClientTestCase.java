@@ -22,7 +22,6 @@ import io.grpc.testing.GrpcServerRule;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.worker.*;
@@ -39,9 +38,8 @@ import static org.mockito.Mockito.*;
  */
 public class GRPCRemoteClientTestCase {
 
-    private final int nextWorkerId = 1;
+    private final String nextWorkerName = "mock-worker";
     private ModuleManagerTesting moduleManager;
-    private StreamDataClassGetter classGetter;
     @Rule public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
     @Before
@@ -50,20 +48,18 @@ public class GRPCRemoteClientTestCase {
         ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
         moduleManager.put(CoreModule.NAME, moduleDefine);
 
-        classGetter = mock(StreamDataClassGetter.class);
-        moduleDefine.provider().registerServiceImplementation(StreamDataClassGetter.class, classGetter);
-
         WorkerInstancesService workerInstancesService = new WorkerInstancesService();
         moduleDefine.provider().registerServiceImplementation(IWorkerInstanceGetter.class, workerInstancesService);
         moduleDefine.provider().registerServiceImplementation(IWorkerInstanceSetter.class, workerInstancesService);
 
         TestWorker worker = new TestWorker(moduleManager);
+        workerInstancesService.put(nextWorkerName, worker, TestStreamData.class);
     }
 
     @Test
     public void testPush() throws InterruptedException {
-        MetricCreator metricCreator = mock(MetricCreator.class);
-        when(metricCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetric() {
+        MetricsCreator metricsCreator = mock(MetricsCreator.class);
+        when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
             @Override public void inc() {
 
             }
@@ -72,25 +68,31 @@ public class GRPCRemoteClientTestCase {
 
             }
         });
+
+        when(metricsCreator.createHistogramMetric(any(), any(), any(), any())).thenReturn(new HistogramMetrics() {
+            @Override public Timer createTimer() {
+                return super.createTimer();
+            }
+
+            @Override public void observe(double value) {
+
+            }
+        });
+
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
-        telemetryModuleDefine.provider().registerServiceImplementation(MetricCreator.class, metricCreator);
+        telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
         grpcServerRule.getServiceRegistry().addService(new RemoteServiceHandler(moduleManager));
 
         Address address = new Address("not-important", 11, false);
-        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, classGetter, address, 1, 10));
+        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10));
         remoteClient.connect();
 
         doReturn(grpcServerRule.getChannel()).when(remoteClient).getChannel();
 
-        when(classGetter.findIdByClass(TestStreamData.class)).thenReturn(1);
-
-        Class<?> dataClass = TestStreamData.class;
-        when(classGetter.findClassById(1)).thenReturn((Class<StreamData>)dataClass);
-
         for (int i = 0; i < 12; i++) {
-            remoteClient.push(nextWorkerId, new TestStreamData());
+            remoteClient.push(nextWorkerName, new TestStreamData());
         }
 
         TimeUnit.SECONDS.sleep(2);

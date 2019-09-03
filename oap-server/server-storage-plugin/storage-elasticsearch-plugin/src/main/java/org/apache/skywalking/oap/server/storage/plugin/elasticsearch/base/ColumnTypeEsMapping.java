@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntKeyLongValueArray;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 
 /**
@@ -35,8 +35,8 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
             return "double";
         } else if (String.class.equals(type)) {
             return "keyword";
-        } else if (IntKeyLongValueArray.class.equals(type)) {
-            return "keyword";
+        } else if (IntKeyLongValueHashMap.class.equals(type)) {
+            return "text";
         } else if (byte[].class.equals(type)) {
             return "binary";
         } else {

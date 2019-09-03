@@ -26,9 +26,9 @@ import org.apache.skywalking.apm.network.language.agent.*;
 /**
  * @author wusheng
  */
-public class UnknownMemoryPool implements MemoryPoolMetricAccessor {
+public class UnknownMemoryPool implements MemoryPoolMetricsAccessor {
     @Override
-    public List<MemoryPool> getMemoryPoolMetricList() {
+    public List<MemoryPool> getMemoryPoolMetricsList() {
         List<MemoryPool> poolList = new LinkedList<MemoryPool>();
         poolList.add(MemoryPool.newBuilder().setType(PoolType.CODE_CACHE_USAGE).build());
         poolList.add(MemoryPool.newBuilder().setType(PoolType.NEWGEN_USAGE).build());

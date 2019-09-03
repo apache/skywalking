@@ -31,4 +31,5 @@ public class PlaceholderConfigurerSupport {
 
     /** Default value separator: {@value} */
     public static final String DEFAULT_VALUE_SEPARATOR = ":";
+
 }
