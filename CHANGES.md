@@ -6,7 +6,6 @@ Release Notes.
 ------------------
 
 #### Project
-* Compatible update from 6.3.0.
 * Highly recommend to upgrade due to Pxx metrics calculation bug.
 * Make agent working in JDK9+ Module system.
 
