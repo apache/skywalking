@@ -18,15 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import java.util.*;
-import java.util.concurrent.*;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamDataClassGetter;
-import org.apache.skywalking.oap.server.library.module.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
@@ -39,12 +52,11 @@ public class RemoteClientManager implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
-    private StreamDataClassGetter streamDataClassGetter;
     private ClusterNodesQuery clusterNodesQuery;
     private final List<RemoteClient> clientsA;
     private final List<RemoteClient> clientsB;
     private volatile List<RemoteClient> usingClients;
-    private GaugeMetric gauge;
+    private GaugeMetrics gauge;
 
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
@@ -63,23 +75,15 @@ public class RemoteClientManager implements Service {
      */
     void refresh() {
         if (gauge == null) {
-            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricCreator.class)
+            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
                 .createGauge("cluster_size", "Cluster size of current oap node",
-                    MetricTag.EMPTY_KEY, MetricTag.EMPTY_VALUE);
+                    MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
         try {
             if (Objects.isNull(clusterNodesQuery)) {
                 synchronized (RemoteClientManager.class) {
                     if (Objects.isNull(clusterNodesQuery)) {
                         this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
-                    }
-                }
-            }
-
-            if (Objects.isNull(streamDataClassGetter)) {
-                synchronized (RemoteClientManager.class) {
-                    if (Objects.isNull(streamDataClassGetter)) {
-                        this.streamDataClassGetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(StreamDataClassGetter.class);
                     }
                 }
             }
@@ -199,7 +203,7 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         getFreeClients().add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, streamDataClassGetter, address, 1, 3000);
+                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000);
                         client.connect();
                         getFreeClients().add(client);
                     }

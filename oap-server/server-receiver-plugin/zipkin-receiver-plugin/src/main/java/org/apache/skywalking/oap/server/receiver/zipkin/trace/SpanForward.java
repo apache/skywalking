@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.library.util.*;
@@ -92,7 +93,7 @@ public class SpanForward {
             long startTime = span.timestampAsLong() / 1000;
             zipkinSpan.setStartTime(startTime);
             if (startTime != 0) {
-                long timeBucket = TimeBucketUtils.INSTANCE.getSecondTimeBucket(zipkinSpan.getStartTime());
+                long timeBucket = TimeBucket.getRecordTimeBucket(zipkinSpan.getStartTime());
                 zipkinSpan.setTimeBucket(timeBucket);
             }
 

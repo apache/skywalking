@@ -46,7 +46,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
     @Override public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
         try {
             String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
-            GetResponse response = getClient().get(EndpointInventory.MODEL_NAME, id);
+            GetResponse response = getClient().get(EndpointInventory.INDEX_NAME, id);
             if (response.isExists()) {
                 return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
@@ -64,7 +64,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
             searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(EndpointInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

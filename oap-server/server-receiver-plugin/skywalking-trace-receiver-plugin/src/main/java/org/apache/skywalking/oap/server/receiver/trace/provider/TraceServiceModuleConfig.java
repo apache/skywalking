@@ -38,13 +38,18 @@ public class TraceServiceModuleConfig extends ModuleConfig {
      * The threshold used to check the slow database access. Unit, millisecond.
      */
     @Setter @Getter private String slowDBAccessThreshold = "default:200";
-    @Setter @Getter private DBLatencyThresholds dbLatencyThresholds;
+    @Setter @Getter private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
+    @Setter @Getter private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     /**
      * Analysis trace status.
      *
-     * 1. Default(YES) means analysis all metric from trace.
+     * 1. Default(YES) means analysis all metrics from trace.
      *
      * 2. NO means, only save trace, but metrics come other places, such as service mesh.
      */
     @Setter @Getter private boolean traceAnalysis = true;
+    /**
+     * Slow Sql string length can't beyond this limit
+     */
+    @Setter @Getter private int maxSlowSQLLength = 2000;
 }

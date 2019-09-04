@@ -46,7 +46,7 @@ public class ExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     private static final String ASYNC_EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.sjdbc.define.AsyncExecuteInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return  new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -63,7 +63,7 @@ public class ExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDe
     }
     
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override

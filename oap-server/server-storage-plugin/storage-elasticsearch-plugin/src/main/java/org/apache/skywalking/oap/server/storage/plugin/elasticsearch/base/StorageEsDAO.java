@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
@@ -33,8 +33,8 @@ public class StorageEsDAO extends EsDAO implements StorageDAO {
         super(client);
     }
 
-    @Override public IIndicatorDAO newIndicatorDao(StorageBuilder<Indicator> storageBuilder) {
-        return new IndicatorEsDAO(getClient(), storageBuilder);
+    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
+        return new MetricsEsDAO(getClient(), storageBuilder);
     }
 
     @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,11 +37,11 @@
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
         <module>server-testing</module>
-        <module>generated-analysis</module>
-        <module>generate-tool</module>
+        <module>oal-rt</module>
         <module>server-telemetry</module>
-        <module>generate-tool-grammar</module>
+        <module>oal-grammar</module>
         <module>exporter</module>
+        <module>server-configuration</module>
     </modules>
 
     <properties>
@@ -64,13 +64,32 @@
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <joda-time.version>2.9.9</joda-time.version>
-        <kubernetes.version>2.0.0</kubernetes.version>
+        <kubernetes.version>4.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
         <caffeine.version>2.6.2</caffeine.version>
         <okhttp.version>3.9.0</okhttp.version>
+        <jackson-core.version>2.9.5</jackson-core.version>
+        <jackson-annotations.version>2.9.5</jackson-annotations.version>
+        <jackson-databind.version>2.9.5</jackson-databind.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <commons-lang3.version>3.7</commons-lang3.version>
+        <simpleclient.version>0.6.0</simpleclient.version>
+        <apollo.version>1.4.0</apollo.version>
+        <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
+        <nacos.version>1.0.0</nacos.version>
+        <curator.version>4.0.1</curator.version>
+        <curator-test.version>2.12.0</curator-test.version>
+        <etcd4j.version>2.17.0</etcd4j.version>
+        <etcd.version>v3.2.3</etcd.version>
+        <netty.version>4.1.27.Final</netty.version>
+        <jackson-module-afterburner.version>2.9.5</jackson-module-afterburner.version>
+        <antlr.version>4.7.1</antlr.version>
+        <freemarker.version>2.3.28</freemarker.version>
+        <javaassist.version>3.25.0-GA</javaassist.version>
 
-        <maven-docker-plugin.version>0.28.0</maven-docker-plugin.version>
+        <zookeeper.image.version>3.5</zookeeper.image.version>
+
     </properties>
 
     <dependencies>
@@ -322,41 +341,159 @@
                 <version>${caffeine.version}</version>
             </dependency>
             <!-- -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${simpleclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>apollo-client</artifactId>
+                <version>${apollo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousio</groupId>
+                <artifactId>etcd4j</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>netty-codec-dns</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-codec-dns</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-codec-http</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-handler</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <artifactId>netty-resolver-dns</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
+
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>${etcd4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver-dns</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-dns</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-afterburner</artifactId>
+                <version>${jackson-module-afterburner.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-x-discovery</artifactId>
+                <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${curator-test.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javaassist.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>${maven-docker-plugin.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>IT*.class</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

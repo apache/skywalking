@@ -9,7 +9,8 @@ with each other.
 - [Kubernetes](#kubernetes). When backend cluster are deployed inside kubernetes, you could choose this
 by using k8s native APIs to manage cluster.
 - [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
-
+- [Nacos](#nacos). Use Nacos to coordinate backend instances.
+- [Etcd](#etcd). Use Etcd to coordinate backend instances.
 
 ## Zookeeper coordinator
 Zookeeper is a very common and wide used cluster coordinator. Set the **cluster** module's implementor
@@ -25,10 +26,21 @@ cluster:
     # Retry Policy
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
     maxRetries: 3 # max number of times to retry
+    # Enable ACL
+    enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+    schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
+    expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
 ```
 
 - `hostPort` is the list of zookeeper servers. Format is `IP1:PORT1,IP2:PORT2,...,IPn:PORTn`
+- `enableACL` enable [Zookeeper ACL](https://zookeeper.apache.org/doc/r3.4.1/zookeeperProgrammers.html#sc_ZooKeeperAccessControl) to control access to its znode.
+- `schema` is Zookeeper ACL schemas.
+- `expression` is a expression of ACL. The format of the expression is specific to the [schema](https://zookeeper.apache.org/doc/r3.4.1/zookeeperProgrammers.html#sc_BuiltinACLSchemes). 
 - `hostPort`, `baseSleepTimeMs` and `maxRetries` are settings of Zookeeper curator client.
+
+Note: 
+- If `Zookeeper ACL` is enabled and `/skywalking` existed, must be sure `SkyWalking` has `CREATE`, `READ` and `WRITE` permissions. If `/skywalking` is not exists, it will be created by SkyWalking and grant all permissions to the specified user. Simultaneously, znode is granted READ to anyone.
+- If set `schema` as `digest`, the password of expression is set in **clear text**. 
 
 In some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
 The following setting are provided to set the hot and port manually, based on your own LAN env.
@@ -44,6 +56,10 @@ zookeeper:
   maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
   internalComHost: 172.10.4.10
   internalComPort: 11800
+  # Enable ACL
+  enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+  schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
+  expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
 ``` 
 
 
@@ -78,3 +94,28 @@ in some cases, oap default gRPC host and port in core are not suitable for inter
 The following setting are provided to set the hot and port manually, based on your own LAN env.
 - internalComHost, the host registered and other oap node use this to communicate with current node.
 - internalComPort, the port registered and other oap node use this to communicate with current node.
+
+
+## Nacos
+Set the **cluster** module's implementor to **nacos** in 
+the yml to active. 
+
+```yaml
+cluster:
+  nacos:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    # Nacos cluster nodes, example: 10.0.0.1:8848,10.0.0.2:8848,10.0.0.3:8848
+    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
+```
+
+## Etcd
+Set the **cluster** module's implementor to **etcd** in
+the yml to active.
+
+```yaml
+cluster:
+  etcd:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    #etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+    hostPort: ${SW_CLUSTER_ETCD_HOST_PORT:localhost:2379}
+```

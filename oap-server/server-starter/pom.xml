@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,19 +35,13 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- generated analysis core -->
+        <!-- OAL runtime core -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>generated-analysis</artifactId>
+            <artifactId>oal-rt</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>generate-tool</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        <!-- generated analysis core -->
+        <!-- OAL runtime core -->
 
         <!-- cluster module -->
         <dependency>
@@ -68,6 +62,16 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>cluster-consul-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-nacos-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>cluster-etcd-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- cluster module -->
@@ -111,6 +115,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-clr-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-so11y-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- receiver module -->
@@ -159,11 +168,44 @@
             <artifactId>telemetry-prometheus</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>telemetry-so11y</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- exporter -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>exporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- configuration -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>grpc-configuration-sync</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-apollo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-nacos</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-etcd</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -197,6 +239,7 @@
                         <exclude>component-libraries.yml</exclude>
                         <exclude>datasource-settings.properties</exclude>
                         <exclude>endpoint_naming_rules.properties</exclude>
+                        <exclude>official_analysis.oal</exclude>
                     </excludes>
                 </configuration>
             </plugin>

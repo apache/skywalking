@@ -18,17 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -36,6 +25,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.ConfigInitializer;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
@@ -52,13 +44,13 @@ public class SnifferConfigInitializer {
     /**
      * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
      * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
-     * /config dictionary of agent package.
+     * /config directory of agent package.
      * <p>
      * Also try to override the config by system.properties. All the keys in this place should
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override
      * `agent.service_name` in config file.
      * <p>
-     * At the end, `agent.service_name` and `collector.servers` must be not blank.
+     * At the end, `agent.service_name` and `collector.servers` must not be blank.
      */
     public static void initialize(String agentOptions) throws ConfigNotFoundException, AgentPackageNotFoundException {
         InputStreamReader configFileStream;
@@ -99,6 +91,10 @@ public class SnifferConfigInitializer {
         }
         if (StringUtil.isEmpty(Config.Collector.BACKEND_SERVICE)) {
             throw new ExceptionInInitializerError("`collector.backend_service` is missing.");
+        }
+        if (Config.Plugin.PEER_MAX_LENGTH <= 3) {
+            logger.warn("PEER_MAX_LENGTH configuration:{} error, the default value of 200 will be used.", Config.Plugin.PEER_MAX_LENGTH);
+            Config.Plugin.PEER_MAX_LENGTH = 200;
         }
 
         IS_INIT_COMPLETED = true;

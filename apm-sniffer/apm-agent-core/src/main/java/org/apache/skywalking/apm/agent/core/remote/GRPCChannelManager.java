@@ -18,12 +18,23 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.*;
-import java.util.*;
-import java.util.concurrent.*;
-import org.apache.skywalking.apm.agent.core.boot.*;
+import io.grpc.Channel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.logging.api.*;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
@@ -40,6 +51,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
     private volatile List<String> grpcServers;
     private volatile int selectedIdx = -1;
+    private volatile int reconnectCount = 0;
 
     @Override
     public void prepare() throws Throwable {
@@ -101,13 +113,21 @@ public class GRPCChannelManager implements BootService, Runnable {
                         managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
                             .addManagedChannelBuilder(new StandardChannelBuilder())
                             .addManagedChannelBuilder(new TLSChannelBuilder())
+                            .addChannelDecorator(new AgentIDDecorator())
                             .addChannelDecorator(new AuthenticationDecorator())
                             .build();
-
                         notify(GRPCChannelStatus.CONNECTED);
+                        reconnectCount = 0;
+                        reconnect = false;
+                    } else if (managedChannel.isConnected(++reconnectCount > Config.Agent.FORCE_RECONNECTION_PERIOD)) {
+                        // Reconnect to the same server is automatically done by GRPC,
+                        // therefore we are responsible to check the connectivity and
+                        // set the state and notify listeners
+                        reconnectCount = 0;
+                        notify(GRPCChannelStatus.CONNECTED);
+                        reconnect = false;
                     }
 
-                    reconnect = false;
                     return;
                 } catch (Throwable t) {
                     logger.error(t, "Create channel to {} fail.", server);
@@ -134,6 +154,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void reportError(Throwable throwable) {
         if (isNetworkError(throwable)) {
             reconnect = true;
+            notify(GRPCChannelStatus.DISCONNECT);
         }
     }
 
@@ -149,7 +170,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     private boolean isNetworkError(Throwable throwable) {
         if (throwable instanceof StatusRuntimeException) {
-            StatusRuntimeException statusRuntimeException = (StatusRuntimeException)throwable;
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) throwable;
             return statusEquals(statusRuntimeException.getStatus(),
                 Status.UNAVAILABLE,
                 Status.PERMISSION_DENIED,

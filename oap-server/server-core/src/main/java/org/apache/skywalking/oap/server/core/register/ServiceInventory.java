@@ -22,12 +22,12 @@ import com.google.gson.*;
 import java.util.*;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.*;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.elasticsearch.common.Strings;
 
@@ -36,20 +36,17 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
 @ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
-@StorageEntity(name = ServiceInventory.MODEL_NAME, builder = ServiceInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.SERVICE_INVENTORY)
+@Stream(name = ServiceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INVENTORY, builder = ServiceInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class ServiceInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "service_inventory";
+    public static final String INDEX_NAME = "service_inventory";
 
     public static final String NAME = "name";
     public static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
     public static final String NODE_TYPE = "node_type";
     public static final String MAPPING_SERVICE_ID = "mapping_service_id";
-    public static final String MAPPING_LAST_UPDATE_TIME = "mapping_last_update_time";
     public static final String PROPERTIES = "properties";
     private static final Gson GSON = new Gson();
 
@@ -58,9 +55,10 @@ public class ServiceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
     @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
-    @Setter @Getter @Column(columnName = MAPPING_LAST_UPDATE_TIME) private long mappingLastUpdateTime;
-    @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop;
+    @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop = Const.EMPTY_JSON_OBJECT_STRING;
     @Getter private JsonObject properties;
+
+    @Getter @Setter private boolean resetServiceMapping = false;
 
     public NodeType getServiceNodeType() {
         return NodeType.get(this.nodeType);
@@ -121,8 +119,9 @@ public class ServiceInventory extends RegisterSource {
         inventory.setIsAddress(isAddress);
         inventory.setNodeType(nodeType);
         inventory.setAddressId(addressId);
-        inventory.setMappingLastUpdateTime(mappingLastUpdateTime);
+        inventory.setLastUpdateTime(getLastUpdateTime());
         inventory.setMappingServiceId(mappingServiceId);
+        inventory.setResetServiceMapping(resetServiceMapping);
         inventory.setProp(prop);
 
         return inventory;
@@ -154,10 +153,11 @@ public class ServiceInventory extends RegisterSource {
         remoteBuilder.addDataIntegers(addressId);
         remoteBuilder.addDataIntegers(mappingServiceId);
         remoteBuilder.addDataIntegers(nodeType);
+        remoteBuilder.addDataIntegers(resetServiceMapping ? 1 : 0);
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
-        remoteBuilder.addDataLongs(getMappingLastUpdateTime());
+        remoteBuilder.addDataLongs(getLastUpdateTime());
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(prop) ? Const.EMPTY_STRING : prop);
@@ -170,10 +170,11 @@ public class ServiceInventory extends RegisterSource {
         setAddressId(remoteData.getDataIntegers(2));
         setMappingServiceId(remoteData.getDataIntegers(3));
         setNodeType(remoteData.getDataIntegers(4));
+        setResetServiceMapping(remoteData.getDataIntegers(5) == 1);
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
-        setMappingLastUpdateTime(remoteData.getDataLongs(2));
+        setLastUpdateTime(remoteData.getDataLongs(2));
 
         setName(remoteData.getDataStrings(0));
         setProp(remoteData.getDataStrings(1));
@@ -185,21 +186,25 @@ public class ServiceInventory extends RegisterSource {
     }
 
     @Override public boolean combine(RegisterSource registerSource) {
-        super.combine(registerSource);
+        boolean isChanged = super.combine(registerSource);
         ServiceInventory serviceInventory = (ServiceInventory)registerSource;
 
-        nodeType = serviceInventory.nodeType;
-        setProp(serviceInventory.getProp());
-        if (Const.NONE != serviceInventory.getMappingServiceId() && serviceInventory.getMappingLastUpdateTime() >= this.getMappingLastUpdateTime()) {
-            this.mappingServiceId = serviceInventory.getMappingServiceId();
-            this.mappingLastUpdateTime = serviceInventory.getMappingLastUpdateTime();
+        if (serviceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
+            this.nodeType = serviceInventory.getNodeType();
+            this.resetServiceMapping = serviceInventory.isResetServiceMapping();
+            setProp(serviceInventory.getProp());
+            if (serviceInventory.isResetServiceMapping()) {
+                this.mappingServiceId = Const.NONE;
+            } else if (Const.NONE != serviceInventory.getMappingServiceId()) {
+                this.mappingServiceId = serviceInventory.getMappingServiceId();
+            }
+            isChanged = true;
         }
 
-        return true;
+        return isChanged;
     }
 
     public static class PropertyUtil {
-
         public static final String DATABASE = "database";
     }
 
@@ -207,15 +212,15 @@ public class ServiceInventory extends RegisterSource {
 
         @Override public ServiceInventory map2Data(Map<String, Object> dbMap) {
             ServiceInventory inventory = new ServiceInventory();
-            inventory.setSequence((Integer)dbMap.get(SEQUENCE));
-            inventory.setIsAddress((Integer)dbMap.get(IS_ADDRESS));
-            inventory.setMappingServiceId((Integer)dbMap.get(MAPPING_SERVICE_ID));
+            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
+            inventory.setIsAddress(((Number)dbMap.get(IS_ADDRESS)).intValue());
+            inventory.setMappingServiceId(((Number)dbMap.get(MAPPING_SERVICE_ID)).intValue());
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setAddressId((Integer)dbMap.get(ADDRESS_ID));
-            inventory.setNodeType((Integer)dbMap.get(NODE_TYPE));
-            inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
-            inventory.setMappingLastUpdateTime((Long)dbMap.get(MAPPING_LAST_UPDATE_TIME));
+            inventory.setAddressId(((Number)dbMap.get(ADDRESS_ID)).intValue());
+            inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
+            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
             inventory.setProp((String)dbMap.get(PROPERTIES));
             return inventory;
         }
@@ -230,7 +235,7 @@ public class ServiceInventory extends RegisterSource {
             map.put(NODE_TYPE, storageData.getNodeType());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
-            map.put(MAPPING_LAST_UPDATE_TIME, storageData.getMappingLastUpdateTime());
+            map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             map.put(PROPERTIES, storageData.getProp());
             return map;
         }

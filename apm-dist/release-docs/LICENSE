@@ -217,6 +217,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     Apache: groovy 2.4.5-indy: https://github.com/apache/groovy, Apache 2.0
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
+    Apache: fastjson 1.2.47:  https://github.com/alibaba/fastjson, Apache 2.0
 
 ========================================================================
 Apache 2.0 licenses
@@ -231,6 +232,7 @@ The text of each license is the standard Apache 2.0 license.
     Google: gprc-java 1.14.0: https://github.com/grpc/grpc-java, Apache 2.0
     Google: gprc-java 1.15.1: https://github.com/grpc/grpc-java, Apache 2.0
     Google: guava 20.0: https://github.com/google/guava , Apache 2.0
+    Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.1: https://github.com/google/gson , Apache 2.0
     Google: opencensus-java 0.12.3: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
     Google: proto-google-common-protos 0.1.9: https://github.com/googleapis/googleapis , Apache 2.0
@@ -249,6 +251,7 @@ The text of each license is the standard Apache 2.0 license.
     Eclipse (Jetty) 3.3.6: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
     Joda-Time 2.9.9: http://www.joda.org/joda-time/ , Apache 2.0
+    Joda-Convert 1.2: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0
     Spring Cloud Config 1.4.1: https://github.com/spring-cloud/spring-cloud-config, Apache-2.0
@@ -266,7 +269,9 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
+    Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
+    Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
@@ -301,18 +306,26 @@ The text of each license is the standard Apache 2.0 license.
     HikariCP 3.1.0: https://github.com/brettwooldridge/HikariCP, Apache 2.0
     zipkin 2.9.1: https://github.com/openzipkin/zipkin, Apache 2.0
     sharding-jdbc-core 2.0.3: https://github.com/sharding-sphere/sharding-sphere, Apache 2.0
-    kubernetes-client 2.0.0: https://github.com/kubernetes-client/java, Apache 2.0
+    kubernetes-client 4.0.0: https://github.com/kubernetes-client/java, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
+    nacos 1.0.0: https://github.com/alibaba/nacos, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
     proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
     proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
     proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
+    json-flatter 0.6.0: https://github.com/wnameless/json-flattener  Apache 2.0
+    Apache: commons-text 1.4: https://github.com/apache/commons-text Apache 2.0
+    sundrio 0.9.2: https://github.com/sundrio/sundrio Apache 2.0
+    Ctripcorp: apollo 1.4.0: https://github.com/ctripcorp/apollo Apache 2.0
+    etcd4j 2.17.0: https://github.com/jurmous/etcd4j Apache 2.0
+    javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
+    jackson-module-afterburner 2.9.5: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -328,6 +341,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
     bcpkix-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
+    minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
 
 ========================================================================
 BSD licenses
@@ -447,3 +461,9 @@ d3-voronoi      1.1.4:  https://github.com/d3/d3-voronoi        BSD-3-Clause
 d3-zoom 1.7.3:  https://github.com/d3/d3-zoom   BSD-3-Clause
 zrender 4.0.4:  https://github.com/ecomfe/zrender   BSD-3-Clause
 vue-i18n 8.10.0:  https://github.com/kazupon/vue-i18n   MIT
+
+========================================
+Public Domain licenses
+========================================
+aopalliance 1.0: http://aopalliance.sourceforge.net Public Domain
+

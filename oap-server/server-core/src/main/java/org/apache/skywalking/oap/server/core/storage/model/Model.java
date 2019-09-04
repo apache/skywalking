@@ -20,28 +20,29 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
 /**
  * @author peng-yongsheng
  */
 @Getter
 public class Model {
+
     private final String name;
-    private final boolean isIndicator;
+    private final boolean capableOfTimeSeries;
+    private final Downsampling downsampling;
     private final boolean deleteHistory;
     private final List<ModelColumn> columns;
-    private final int sourceScopeId;
+    private final int scopeId;
+    private final boolean record;
 
-    public Model(String name, List<ModelColumn> columns, boolean isIndicator, boolean deleteHistory,
-        int sourceScopeId) {
-        this.name = name;
+    public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory, int scopeId, Downsampling downsampling, boolean record) {
         this.columns = columns;
-        this.isIndicator = isIndicator;
+        this.capableOfTimeSeries = capableOfTimeSeries;
+        this.downsampling = downsampling;
         this.deleteHistory = deleteHistory;
-        this.sourceScopeId = sourceScopeId;
-    }
-
-    public Model copy(String name) {
-        return new Model(name, columns, isIndicator, deleteHistory, sourceScopeId);
+        this.scopeId = scopeId;
+        this.name = ModelName.build(downsampling, name);
+        this.record = record;
     }
 }

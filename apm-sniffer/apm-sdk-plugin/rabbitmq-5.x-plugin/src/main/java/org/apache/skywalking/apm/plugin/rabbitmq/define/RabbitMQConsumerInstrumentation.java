@@ -35,7 +35,7 @@ public class RabbitMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     public static final String ENHANCE_METHOD_DISPATCH = "handleDelivery";
     public static final String INTERCEPTOR_CONSTRUCTOR = "org.apache.skywalking.apm.plugin.rabbitmq.RabbitMQProducerAndConsumerConstructorInterceptor";
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                     @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -50,7 +50,7 @@ public class RabbitMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                     @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.mock;
 
-import io.grpc.*;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.Downstream;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
 /**
  * @author peng-yongsheng
@@ -39,6 +43,7 @@ public class AgentDataMock {
 
         UniqueId.Builder globalTraceId = UniqueIdBuilder.INSTANCE.create();
         long startTimestamp = System.currentTimeMillis();
+        //long startTimestamp = new DateTime().minusDays(2).getMillis();
 
         // ServiceAMock
         ServiceAMock serviceAMock = new ServiceAMock(registerMock);
