@@ -132,4 +132,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent PLAY = new OfficialComponent(68, "Play");
 
+    public static final OfficialComponent CASSANDRA_JAVA_DRIVER = new OfficialComponent(69, "cassandra-java-driver");
+
 }
