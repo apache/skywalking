@@ -66,7 +66,7 @@ public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptor imp
                                     Class<?>[] argumentsTypes,
                                     Object ret) throws Throwable {
         ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
-        if (connectionInfo != null) {
+        if (connectionInfo != null && ContextManager.isActive()) {
             ContextManager.stopSpan();
         }
         return ret;
@@ -75,8 +75,10 @@ public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptor imp
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                             Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(t);
+        if (ContextManager.isActive()) {
+            AbstractSpan span = ContextManager.activeSpan();
+            span.errorOccurred();
+            span.log(t);
+        }
     }
 }

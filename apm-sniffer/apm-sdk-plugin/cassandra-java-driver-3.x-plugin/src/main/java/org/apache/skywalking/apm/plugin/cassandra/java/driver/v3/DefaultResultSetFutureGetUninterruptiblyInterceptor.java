@@ -44,14 +44,18 @@ public class DefaultResultSetFutureGetUninterruptiblyInterceptor implements Inst
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        if (ContextManager.isActive()) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan span = ContextManager.activeSpan();
-        span.errorOccurred();
-        span.log(t);
+        if (ContextManager.isActive()) {
+            AbstractSpan span = ContextManager.activeSpan();
+            span.errorOccurred();
+            span.log(t);
+        }
     }
 }
