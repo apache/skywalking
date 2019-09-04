@@ -18,3 +18,5 @@ spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.
 spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.RestControllerInstrumentation
 spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.HandlerMethodInstrumentation
 spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.InvocableHandlerInstrumentation
+spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.ControllerForLowVersionInstrumentation
+spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.RestControllerForLowVersionInstrumentation
