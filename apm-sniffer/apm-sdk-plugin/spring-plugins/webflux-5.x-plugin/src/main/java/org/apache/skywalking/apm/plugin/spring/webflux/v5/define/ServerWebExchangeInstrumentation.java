@@ -25,42 +25,38 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
  * @author zhaoyuguang
  */
 
-public class BodyInserterResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return byMultiClassMatch("org.springframework.web.reactive.function.server.DefaultServerResponseBuilder$BodyInserterResponse",
-                "org.springframework.web.reactive.function.server.DefaultServerResponseBuilder$BodyInserterServerResponse");
-    }
-
+public class ServerWebExchangeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[]{
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.ServerWebExchangeConstructorInterceptor";
+                }
+            }
+        };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("writeToInternal");
-                }
+        return new InstanceMethodsInterceptPoint[0];
+    }
 
-                @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.BodyInserterResponseMethodInterceptor";
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName("org.springframework.web.server.adapter.DefaultServerWebExchange");
     }
 }

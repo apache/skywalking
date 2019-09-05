@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
  *
  * @author zhaoyuguang
  */
-public class DefaultServerWebExchangeConstructorInterceptor implements InstanceConstructorInterceptor {
+public class ServerWebExchangeConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
     }
