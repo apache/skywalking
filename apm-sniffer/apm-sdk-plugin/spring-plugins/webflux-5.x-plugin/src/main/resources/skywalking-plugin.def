@@ -15,5 +15,5 @@
 # limitations under the License.
 
 spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.DispatcherHandlerInstrumentation
-spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.DefaultServerWebExchangeInstrumentation
-spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.BodyInserterResponseInstrumentation
+spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.ServerWebExchangeInstrumentation
+spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.AbstractServerResponseInstrumentation
