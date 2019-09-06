@@ -240,6 +240,7 @@
                         <exclude>datasource-settings.properties</exclude>
                         <exclude>endpoint_naming_rules.properties</exclude>
                         <exclude>official_analysis.oal</exclude>
+                        <exclude>gateways.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
