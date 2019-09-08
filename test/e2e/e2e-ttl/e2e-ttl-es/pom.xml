@@ -30,7 +30,7 @@
 
     <properties>
         <e2e.dist.directory>dist-for-ttl-es</e2e.dist.directory>
-        <e2e.container.version>1.1</e2e.container.version>
+        <e2e.container.version>1.2</e2e.container.version>
         <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-ttl-es</e2e.container.name.prefix>
     </properties>
 
