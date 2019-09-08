@@ -113,7 +113,7 @@ public class StorageTTLITCase {
             "DAY"
         );
 
-        shouldRemoveAfterBetweenTimeRange(queryStart, queryEnd, "DAY");
+        shouldBeEmptyBetweenTimeRange(queryStart, queryEnd, "DAY");
     }
 
     @Test(timeout = 360000)
@@ -148,10 +148,10 @@ public class StorageTTLITCase {
             "MONTH"
         );
 
-        shouldRemoveAfterBetweenTimeRange(queryStart, queryEnd, "MONTH");
+        shouldBeEmptyBetweenTimeRange(queryStart, queryEnd, "MONTH");
     }
 
-    private void shouldRemoveAfterBetweenTimeRange(
+    private void shouldBeEmptyBetweenTimeRange(
         final LocalDateTime queryStart,
         final LocalDateTime queryEnd,
         final String step
