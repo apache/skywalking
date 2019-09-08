@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -59,7 +59,7 @@
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
-        <module>kafka-v1-plugin</module>
+        <module>kafka-plugin</module>
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
         <module>sofarpc-plugin</module>
