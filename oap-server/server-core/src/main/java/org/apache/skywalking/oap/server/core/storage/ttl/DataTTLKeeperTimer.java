@@ -18,18 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.*;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author peng-yongsheng
@@ -42,13 +50,13 @@ public enum DataTTLKeeperTimer {
     private ModuleManager moduleManager;
     private ClusterNodesQuery clusterNodesQuery;
 
-    public void start(ModuleManager moduleManager) {
+    public void start(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(this::delete,
-                t -> logger.error("Remove data in background failure.", t)), 5, 5, TimeUnit.MINUTES);
+            new RunnableWithExceptionProtection(this::delete, t -> logger.error("Remove data in background failure.", t)),
+            moduleConfig.getDataKeeperExecutePeriod(), moduleConfig.getDataKeeperExecutePeriod(), TimeUnit.MINUTES);
     }
 
     private void delete() {
