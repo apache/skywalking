@@ -82,13 +82,28 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
     public static EnhancedInstance getInstance(Object o) {
         EnhancedInstance instance = null;
         if (o instanceof ServerWebExchangeDecorator) {
-            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
-            if (delegate instanceof DefaultServerWebExchange) {
-                instance = (EnhancedInstance) delegate;
-            }
+            instance = getEnhancedInstance((ServerWebExchangeDecorator) o);
         } else if (o instanceof DefaultServerWebExchange) {
             instance = (EnhancedInstance) o;
         }
         return instance;
     }
+
+
+    private static EnhancedInstance getEnhancedInstance( ServerWebExchangeDecorator serverWebExchangeDecorator){
+        Object o = serverWebExchangeDecorator.getDelegate();
+        if( o instanceof ServerWebExchangeDecorator){
+            return getEnhancedInstance((ServerWebExchangeDecorator) o);
+        }
+        else if( o instanceof DefaultServerWebExchange ){
+            return (EnhancedInstance) o;
+        }
+        else if( o == null ){
+            throw new NullPointerException("The expected class DefaultServerWebExchange is null");
+        }
+        else {
+            throw new RuntimeException("Unknown parameter types:" + o.getClass());
+        }
+    }
+
 }
