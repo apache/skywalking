@@ -33,26 +33,4 @@
         <module>e2e-ttl-es</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-agent-core</artifactId>
-            <version>${skywalking.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-mesh-receiver-plugin</artifactId>
-            <version>${skywalking.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-    </dependencies>
-
 </project>

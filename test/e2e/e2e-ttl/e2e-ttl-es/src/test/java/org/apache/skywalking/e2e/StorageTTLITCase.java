@@ -17,12 +17,12 @@
 
 package org.apache.skywalking.e2e;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.internal.DnsNameResolverProvider;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.dependencies.io.grpc.ManagedChannel;
-import org.apache.skywalking.apm.dependencies.io.grpc.ManagedChannelBuilder;
-import org.apache.skywalking.apm.dependencies.io.grpc.internal.DnsNameResolverProvider;
-import org.apache.skywalking.apm.dependencies.io.grpc.netty.NettyChannelBuilder;
-import org.apache.skywalking.apm.dependencies.io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
 import org.apache.skywalking.apm.network.servicemesh.Protocol;
@@ -158,7 +158,7 @@ public class StorageTTLITCase {
     ) throws InterruptedException {
 
         boolean valid = false;
-        while (!valid) {
+        for (int i = 0; i < 10 && !valid; i++) {
             try {
                 final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
 
@@ -173,11 +173,11 @@ public class StorageTTLITCase {
                     valid = true;
                 } catch (Throwable t) {
                     log.warn("History metrics data are not deleted yet, {}", t.getMessage());
-                    Thread.sleep(10000);
+                    Thread.sleep(60000);
                 }
             } catch (Throwable t) {
                 log.warn("History metrics data are not deleted yet", t);
-                Thread.sleep(10000);
+                Thread.sleep(60000);
             }
         }
     }
@@ -225,27 +225,33 @@ public class StorageTTLITCase {
         final LocalDateTime queryEnd,
         final String step
     ) throws Exception {
+        for (int i = 0; i < 10; i++) {
+            try {
+                final List<Service> services = queryClient.services(
+                    new ServicesQuery()
+                        .start(LocalDateTime.now().minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL))
+                        .end(LocalDateTime.now())
+                );
 
-        final List<Service> services = queryClient.services(
-            new ServicesQuery()
-                .start(LocalDateTime.now().minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL))
-                .end(LocalDateTime.now())
-        );
+                log.info("Services: {}", services);
 
-        log.info("Services: {}", services);
+                assertThat(services).isNotEmpty();
 
-        assertThat(services).isNotEmpty();
+                String serviceId = services.stream().filter(it -> "e2e-test-dest-service".equals(it.getLabel())).findFirst().get().getKey();
 
-        String serviceId = services.stream().filter(it -> "e2e-test-dest-service".equals(it.getLabel())).findFirst().get().getKey();
-
-        return queryClient.metrics(
-            new MetricsQuery()
-                .id(serviceId)
-                .metricsName(SERVICE_P99)
-                .step(step)
-                .start(queryStart)
-                .end(queryEnd)
-        );
+                return queryClient.metrics(
+                    new MetricsQuery()
+                        .id(serviceId)
+                        .metricsName(SERVICE_P99)
+                        .step(step)
+                        .start(queryStart)
+                        .end(queryEnd)
+                );
+            } catch (Throwable ignored) {
+                Thread.sleep(10000);
+            }
+        }
+        return null;
     }
 
     private void sendMetrics(final ServiceMeshMetric metrics) throws InterruptedException {
