@@ -45,10 +45,9 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
-        if (instance != null) {
+        if (objInst != null) {
             ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-            AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
+            AbstractSpan span =ContextManager.activeSpan();
             String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
             if (span != null) {
                 Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
@@ -74,18 +73,5 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-    }
-
-    public static EnhancedInstance getInstance(Object o) {
-        EnhancedInstance instance = null;
-        if (o instanceof ServerWebExchangeDecorator) {
-            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
-            if (delegate instanceof DefaultServerWebExchange) {
-                instance = (EnhancedInstance) delegate;
-            }
-        } else if (o instanceof DefaultServerWebExchange) {
-            instance = (EnhancedInstance) o;
-        }
-        return instance;
     }
 }
