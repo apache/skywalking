@@ -28,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 public abstract class AbstractQuery<T extends AbstractQuery<?>> {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss");
     private static final DateTimeFormatter MINUTE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    private static final DateTimeFormatter DAY_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter MONTH_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
     private String start;
     private String end;
@@ -37,9 +39,19 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
         if (start != null) {
             return start;
         }
-        return "SECOND".equals(step())
-            ? LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(TIME_FORMATTER)
-            : LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(MINUTE_TIME_FORMATTER);
+        if ("SECOND".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(TIME_FORMATTER);
+        }
+        if ("MINUTE".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(MINUTE_TIME_FORMATTER);
+        }
+        if ("DAY".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(DAY_TIME_FORMATTER);
+        }
+        if ("MONTH".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).minusMinutes(15).format(MONTH_TIME_FORMATTER);
+        }
+        return null;
     }
 
     public T start(String start) {
@@ -52,6 +64,10 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
             this.start = start.format(MINUTE_TIME_FORMATTER);
         } else if ("SECOND".equals(step())) {
             this.start = start.format(TIME_FORMATTER);
+        } else if ("DAY".equals(step())) {
+            this.start = start.format(DAY_TIME_FORMATTER);
+        } else if ("MONTH".equals(step())) {
+            this.start = start.format(MONTH_TIME_FORMATTER);
         }
         return (T) this;
     }
@@ -60,9 +76,19 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
         if (end != null) {
             return end;
         }
-        return "SECOND".equals(step())
-            ? LocalDateTime.now(ZoneOffset.UTC).format(TIME_FORMATTER)
-            : LocalDateTime.now(ZoneOffset.UTC).format(MINUTE_TIME_FORMATTER);
+        if ("SECOND".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).format(TIME_FORMATTER);
+        }
+        if ("MINUTE".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).format(MINUTE_TIME_FORMATTER);
+        }
+        if ("DAY".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).format(DAY_TIME_FORMATTER);
+        }
+        if ("MONTH".equals(step())) {
+            return LocalDateTime.now(ZoneOffset.UTC).format(MONTH_TIME_FORMATTER);
+        }
+        return null;
     }
 
     public AbstractQuery end(String end) {
@@ -75,6 +101,10 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
             this.end = end.format(MINUTE_TIME_FORMATTER);
         } else if ("SECOND".equals(step())) {
             this.end = end.format(TIME_FORMATTER);
+        } else if ("DAY".equals(step())) {
+            this.end = end.format(DAY_TIME_FORMATTER);
+        } else if ("MONTH".equals(step())) {
+            this.end = end.format(MONTH_TIME_FORMATTER);
         }
         return (T) this;
     }
@@ -85,6 +115,16 @@ public abstract class AbstractQuery<T extends AbstractQuery<?>> {
 
     public T step(String step) {
         this.step = step;
+        return (T) this;
+    }
+
+    public T stepByMonth() {
+        this.step = "MONTH";
+        return (T) this;
+    }
+
+    public T stepByDay() {
+        this.step = "DAY";
         return (T) this;
     }
 
