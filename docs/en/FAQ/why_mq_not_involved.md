@@ -1,6 +1,9 @@
 # Why doesn't SkyWalking involve MQ in the architecture?
 People usually ask about these questions when they know SkyWalking at the first time.
-They think MQ should be better in the performance and supporting high throughput.
+They think MQ should be better in the performance and supporting high throughput, like the following
+
+<img src="MQ-involved-architecture.png"/>
+
 Here are the reasons the SkyWalking's opinions.
 
 ### Is MQ a good or right way to community with OAP backend?
