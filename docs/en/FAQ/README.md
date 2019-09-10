@@ -1,6 +1,9 @@
 # FAQs
 These are known and common FAQs. We welcome you to contribute yours.
 
+## Design
+* [Why doesn't SkyWalking involve MQ in the architecture?](why_mq_not_involved.md)
+
 ## Compiling
 * [Protoc plugin fails in maven build](Protoc-Plugin-Fails-When-Build.md)
 * [Required items could not be found, when import project into Eclipse](Import-Project-Eclipse-RequireItems-Exception.md)
