@@ -203,7 +203,7 @@ public class CoreModuleProvider extends ModuleProvider {
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
         if (moduleConfig.isEnableDataKeeperExecutor()) {
-            DataTTLKeeperTimer.INSTANCE.start(getManager());
+            DataTTLKeeperTimer.INSTANCE.start(getManager(), moduleConfig);
         }
 
         CacheUpdateTimer.INSTANCE.start(getManager());

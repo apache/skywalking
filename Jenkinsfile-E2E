@@ -44,12 +44,13 @@ pipeline {
                 // we're using them as a barrier here to filter out some invalid PRs (fast-fail)
                 // thus save unnecessary E2E builds(which is expensive)
                 sh './mvnw checkstyle:check apache-rat:check'
-                sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean package'
+                sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install'
                 // Some of the tests will modify files in the distribution folder, e.g. cluster test will modify the application.yml
                 // so we give each test a separate distribution folder here
                 sh 'mkdir -p dist-for-single-node-service && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-single-node-service'
                 sh 'mkdir -p dist-for-cluster && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-cluster'
                 sh 'mkdir -p dist-for-agent-reboot && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-agent-reboot'
+                sh 'mkdir -p dist-for-ttl-es && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-ttl-es'
             }
         }
 
@@ -78,6 +79,12 @@ pipeline {
                         sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-agent-reboot -am verify'
                     }
                 }
+
+                stage('Run TTL Tests') {
+                    steps {
+                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-ttl/e2e-ttl-es -am verify'
+                    }
+                }
             }
         }
     }
@@ -95,7 +102,7 @@ pipeline {
             // inside the container
             //
             // Delete all distribution folder
-            sh 'docker run -v $(pwd):/sw alpine sleep 10 && rm -rf /sw/dist-for-cluster/* /sw/dist-for-single-node-service/* /sw/dist-for-agent-reboot/*'
+            sh 'docker run -v $(pwd):/sw alpine sh -c "sleep 10 && rm -rf /sw/dist-for-cluster/* /sw/dist-for-single-node-service/* /sw/dist-for-agent-reboot/* /sw/dist-for-ttl-es/*"'
             deleteDir()
         }
     }
