@@ -42,3 +42,4 @@ Sharding-Sphere, or implement your own. Of course, we are very appreciated to ha
 
 ## What is next?
 - Learn SkyWalking's [Project Goals](project-goals.md)
+- FAQ, [Why doesn't SkyWalking involve MQ in the architecture?](../FAQ/why_mq_not_involved.md)
