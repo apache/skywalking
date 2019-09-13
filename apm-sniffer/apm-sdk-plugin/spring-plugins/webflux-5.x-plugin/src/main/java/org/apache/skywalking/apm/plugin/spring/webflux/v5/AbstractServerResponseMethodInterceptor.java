@@ -33,7 +33,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.lang.reflect.Method;
 
-public class BodyInserterResponseMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class AbstractServerResponseMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     /**
      * The error reason
@@ -43,22 +43,28 @@ public class BodyInserterResponseMethodInterceptor implements InstanceMethodsAro
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
-        AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
-        if (span == null) {
-            return;
-        }
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        HttpStatus status = exchange.getResponse().getStatusCode();
-        if (status != null && status.value() >= 400) {
-            span.errorOccurred();
-            if (exchange.getAttribute(ERROR_ATTRIBUTE) != null) {
-                span.log((Throwable) exchange.getAttribute(ERROR_ATTRIBUTE));
+        EnhancedInstance instance = DispatcherHandlerHandleMethodInterceptor.getInstance(allArguments[0]);
+        if (instance != null) {
+            AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
+            if (span == null) {
+                return;
             }
-            Tags.STATUS_CODE.set(span, Integer.toString(status.value()));
+            ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+            HttpStatus status = exchange.getResponse().getStatusCode();
+            if (status != null && status.value() >= 400) {
+                span.errorOccurred();
+                if (exchange.getAttribute(ERROR_ATTRIBUTE) != null) {
+                    span.log((Throwable) exchange.getAttribute(ERROR_ATTRIBUTE));
+                }
+                Tags.STATUS_CODE.set(span, Integer.toString(status.value()));
+            }
+            if (ContextManager.isActive()) {
+                ContextManager.stopSpan(span);
+            } else {
+                span.asyncFinish();
+            }
+            ((EnhancedInstance) allArguments[0]).setSkyWalkingDynamicField(null);
         }
-        ContextManager.stopSpan(span);
-        ((EnhancedInstance) allArguments[0]).setSkyWalkingDynamicField(null);
     }
 
     @Override

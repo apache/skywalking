@@ -27,6 +27,8 @@ import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.Consta
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebExchangeDecorator;
+import org.springframework.web.server.adapter.DefaultServerWebExchange;
 
 import java.lang.reflect.Method;
 
@@ -43,16 +45,19 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        AbstractSpan span = (AbstractSpan) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
-        String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
-        if (span != null) {
-            Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
-            operationName = operationName + route.getId();
-            span.setOperationName(operationName);
-            SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(), ContextManager.capture(), operationName);
-            ContextManager.stopSpan(span);
-            ContextManager.getRuntimeContext().put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, transmitter);
+        EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
+        if (instance != null) {
+            ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+            AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
+            String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
+            if (span != null) {
+                Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
+                operationName = operationName + route.getId();
+                span.setOperationName(operationName);
+                SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(), ContextManager.capture(), operationName);
+                ContextManager.stopSpan(span);
+                ContextManager.getRuntimeContext().put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, transmitter);
+            }
         }
     }
 
@@ -69,5 +74,29 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
+    }
+
+    public static EnhancedInstance getInstance(Object o) {
+        EnhancedInstance instance = null;
+        if (o instanceof ServerWebExchangeDecorator) {
+            instance = getEnhancedInstance((ServerWebExchangeDecorator) o);
+        } else if (o instanceof DefaultServerWebExchange) {
+            instance = (EnhancedInstance) o;
+        }
+        return instance;
+    }
+
+
+    private static EnhancedInstance getEnhancedInstance(ServerWebExchangeDecorator serverWebExchangeDecorator) {
+        Object o = serverWebExchangeDecorator.getDelegate();
+        if (o instanceof ServerWebExchangeDecorator) {
+            return getEnhancedInstance((ServerWebExchangeDecorator) o);
+        } else if (o instanceof DefaultServerWebExchange) {
+            return (EnhancedInstance) o;
+        } else if (o == null) {
+            throw new NullPointerException("The expected class DefaultServerWebExchange is null");
+        } else {
+            throw new RuntimeException("Unknown parameter types:" + o.getClass());
+        }
     }
 }

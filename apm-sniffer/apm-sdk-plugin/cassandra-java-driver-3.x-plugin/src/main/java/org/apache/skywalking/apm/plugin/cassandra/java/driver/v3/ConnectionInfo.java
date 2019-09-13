@@ -16,17 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.webflux.v5;
-
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+package org.apache.skywalking.apm.plugin.cassandra.java.driver.v3;
 
 /**
- *
- * @author zhaoyuguang
+ * @author stone.wlg
  */
-public class DefaultServerWebExchangeConstructorInterceptor implements InstanceConstructorInterceptor {
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+public class ConnectionInfo {
+
+    private final String contactPoints;
+    private String keyspace;
+
+    public ConnectionInfo(final String contactPoints) {
+        this.contactPoints = contactPoints;
+    }
+
+    public String getKeyspace() {
+        return this.keyspace;
+    }
+
+    public void setKeyspace(String keyspace) {
+        this.keyspace = keyspace;
+    }
+
+    public String getContactPoints() {
+        return this.contactPoints;
     }
 }
