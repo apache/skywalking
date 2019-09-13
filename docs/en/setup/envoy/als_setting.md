@@ -2,7 +2,7 @@
 Envoy [ALS(access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) provides
 fully logs about RPC routed, including HTTP and TCP.
 
-**If solution initialized and first implemented by Sheng Wu, Hongtao Gao, Lizan Zhou at 17 May. 2019, and presented on KubeCon China 2019.**
+**If solution initialized and first implemented by [Sheng Wu](https://github.com/wu-sheng), [Hongtao Gao](https://github.com/hanahmily), [Lizan Zhou](https://github.com/lizan) and [Dhi Aurrahman](https://github.com/dio) at 17 May. 2019, and presented on [KubeCon China 2019](https://kccncosschn19eng.sched.com/event/NroB/observability-in-service-mesh-powered-by-envoy-and-apache-skywalking-sheng-wu-lizan-zhou-tetrate).**
 
 SkyWalking is the first open source project introducing this ALS based solution to the world. This provides a new way with very low payload to service mesh, but the same observability.
 
