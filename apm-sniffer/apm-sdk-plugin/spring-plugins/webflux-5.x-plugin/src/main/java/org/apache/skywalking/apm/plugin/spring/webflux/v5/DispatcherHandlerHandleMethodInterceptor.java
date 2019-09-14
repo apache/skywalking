@@ -34,6 +34,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebExchangeDecorator;
+import org.springframework.web.server.adapter.DefaultServerWebExchange;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -45,23 +47,25 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
-        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
-        HttpHeaders headers = exchange.getRequest().getHeaders();
-        while (next.hasNext()) {
-            next = next.next();
-            List<String> header = headers.get(next.getHeadKey());
-            if (header != null && header.size() > 0) {
-                next.setHeadValue(header.get(0));
+        EnhancedInstance instance = DispatcherHandlerHandleMethodInterceptor.getInstance(allArguments[0]);
+        if (instance != null) {
+            ContextCarrier contextCarrier = new ContextCarrier();
+            CarrierItem next = contextCarrier.items();
+            ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+            HttpHeaders headers = exchange.getRequest().getHeaders();
+            while (next.hasNext()) {
+                next = next.next();
+                List<String> header = headers.get(next.getHeadKey());
+                if (header != null && header.size() > 0) {
+                    next.setHeadValue(header.get(0));
+                }
             }
+            AbstractSpan span = ContextManager.createEntrySpan(WIP_OPERATION_NAME, contextCarrier);
+            span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
+            SpanLayer.asHttp(span);
+            Tags.URL.set(span, exchange.getRequest().getURI().toString());
+            instance.setSkyWalkingDynamicField(span);
         }
-        AbstractSpan span = ContextManager.createEntrySpan(WIP_OPERATION_NAME, contextCarrier);
-        span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
-        SpanLayer.asHttp(span);
-        Tags.URL.set(span, exchange.getRequest().getURI().toString());
-        instance.setSkyWalkingDynamicField(span);
     }
 
     @Override
@@ -74,4 +78,29 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
     }
+
+    public static EnhancedInstance getInstance(Object o) {
+        EnhancedInstance instance = null;
+        if (o instanceof ServerWebExchangeDecorator) {
+            instance = getEnhancedInstance((ServerWebExchangeDecorator) o);
+        } else if (o instanceof DefaultServerWebExchange) {
+            instance = (EnhancedInstance) o;
+        }
+        return instance;
+    }
+
+
+    private static EnhancedInstance getEnhancedInstance(ServerWebExchangeDecorator serverWebExchangeDecorator) {
+        Object o = serverWebExchangeDecorator.getDelegate();
+        if (o instanceof ServerWebExchangeDecorator) {
+            return getEnhancedInstance((ServerWebExchangeDecorator) o);
+        } else if (o instanceof DefaultServerWebExchange) {
+            return (EnhancedInstance) o;
+        } else if (o == null) {
+            throw new NullPointerException("The expected class DefaultServerWebExchange is null");
+        } else {
+            throw new RuntimeException("Unknown parameter types:" + o.getClass());
+        }
+    }
+
 }

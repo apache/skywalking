@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import java.util.Comparator;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -81,7 +82,12 @@ public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder 
             int roof = Math.round(total * percentileRank * 1.0f / 100);
 
             int count = 0;
-            for (IntKeyLongValue element : detailGroup.values()) {
+            IntKeyLongValue[] sortedData = detailGroup.values().stream().sorted(new Comparator<IntKeyLongValue>() {
+                @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
+                    return o1.getKey() - o2.getKey();
+                }
+            }).toArray(IntKeyLongValue[]::new);
+            for (IntKeyLongValue element : sortedData) {
                 count += element.getValue();
                 if (count >= roof) {
                     value = element.getKey() * precision;

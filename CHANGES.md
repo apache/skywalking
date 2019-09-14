@@ -2,6 +2,64 @@ Changes by Version
 ==================
 Release Notes.
 
+6.4.0
+------------------
+
+#### Project
+* Highly recommend to upgrade due to Pxx metrics calculation bug.
+* Make agent working in JDK9+ Module system.
+
+#### Java Agent
+* Make agent working in JDK9+ Module system.
+* Support Kafka 2.x client libs.
+* Log error in OKHTTP OnFailure callback.
+* Support injecting traceid into logstack appender in logback.
+* Add OperationName(including endpoint name) length max threshold.
+* Support using Regex to group operation name. 
+* Support Undertow routing handler.
+* RestTemplate plugin support operation name grouping.
+* Fix ClassCastException in Webflux plugin.
+* Ordering zookeeper server list, to make it better in topology.
+* Fix a Dubbo plugin incompatible issue.
+* Fix MySQL 5 plugin issue.
+* Make log writer cached.
+* Optimize Spring Cloud Gateway plugin
+* Fix and improve gRPC reconnect mechanism.
+* Remove Disruptor dependency from agent.
+
+#### Backend
+* Fix Pxx(p50,p75,p90,p95,p99) metrics func bug.(Critical)
+* Support Gateway in backend analysis, even when it doesn't have suitable language agent.
+* Support using HTTPs SSL accessing ElasticSearch storage.
+* Support Zookeeper ACL.
+* Make alarm records listed in order.
+* Fix Pxx data persistence failure in some cases.
+* Fix some bugs in MySQL storage.
+* Setup slow SQL length threshold.
+* Fix TTL settings is not working as expected.
+* Remove scope-meta file.
+
+#### UI
+* Enhance alarm page layout.
+* Support trace tree chart resize.
+* Support trace auto completion when partial traces abandoned somehow.
+* Fix dashboard endpoint slow chart.
+* Add radial chart in topology page.
+* Add trace table mode.
+* Fix topology page bug.
+* Fix calender js bug.
+* Fix "The "topo-services" component did not update the data in time after modifying the time range on the topology page.
+
+#### Document
+* Restore the broken Istio setup doc.
+* Add etcd config center document.
+* Correct span_limit_per_segment default value in document.
+* Enhance plugin develop doc.
+* Fix error description in build document.
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/35?closed=1)
+
+
 6.3.0
 ------------------
 

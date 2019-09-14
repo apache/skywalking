@@ -61,6 +61,7 @@ core:
       - Month
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
+    dataKeeperExecutePeriod: ${SW_CORE_DATA_KEEPER_EXECUTE_PERIOD:5} # How often the data keeper executor runs periodically, unit is minute
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: ${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: ${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
@@ -74,6 +75,8 @@ storage:
 #    nameSpace: ${SW_NAMESPACE:""}
 #    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
 #    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
+#    trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
+#    trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
 #    user: ${SW_ES_USER:""}
 #    password: ${SW_ES_PASSWORD:""}
 #    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
