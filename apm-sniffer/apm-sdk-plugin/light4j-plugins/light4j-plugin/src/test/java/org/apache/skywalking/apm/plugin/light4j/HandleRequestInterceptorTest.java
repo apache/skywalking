@@ -18,15 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.light4j;
 
-import com.networknt.handler.LightHttpHandler;
+import com.networknt.exception.ExceptionHandler;
 import io.undertow.server.HttpServerExchange;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.tools.*;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,10 +32,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -81,19 +75,11 @@ public class HandleRequestInterceptorTest {
 
     @Test
     public void testHandleRequest() throws Throwable {
-        Method method = LightHttpHandler.class.getMethod("handleRequest", HttpServerExchange.class);
+        Method method = ExceptionHandler.class.getMethod("handleRequest", HttpServerExchange.class);
 
         handleRequestInterceptor.beforeMethod(enhancedInstance, method, null, null, methodInterceptResult);
         handleRequestInterceptor.afterMethod(enhancedInstance, null, null, null, null);
 
-        assertThat(segmentStorage.getTraceSegments().size(), is(1));
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-        assertNotNull(spans);
-        assertThat(spans.size(), is(1));
-
-        AbstractTracingSpan localSpan = spans.get(0);
-
-        SpanAssert.assertComponent(localSpan, ComponentsDefine.LIGHT_4J);
+        assertThat(segmentStorage.getTraceSegments().size(), is(0));
     }
 }

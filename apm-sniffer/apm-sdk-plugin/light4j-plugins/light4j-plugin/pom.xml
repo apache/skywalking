@@ -41,5 +41,11 @@
             <version>${version.light4j}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>exception</artifactId>
+            <version>${version.light4j}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
