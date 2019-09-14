@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -240,6 +240,7 @@
                         <exclude>datasource-settings.properties</exclude>
                         <exclude>endpoint_naming_rules.properties</exclude>
                         <exclude>official_analysis.oal</exclude>
+                        <exclude>gateways.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>

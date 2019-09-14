@@ -23,12 +23,21 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -44,6 +53,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -84,30 +95,50 @@ public class ElasticSearchClient implements Client {
     public static final String TYPE = "type";
     private final String clusterNodes;
     private final String protocol;
+    private final String trustStorePath;
+    private final String trustStorePass;
     private final String namespace;
     private final String user;
     private final String password;
     protected RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, String protocol, String namespace, String user, String password) {
+    public ElasticSearchClient(String clusterNodes, String protocol, String trustStorePath, String trustStorePass,
+        String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
         this.namespace = namespace;
         this.user = user;
         this.password = password;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePass = trustStorePass;
     }
 
-    @Override public void connect() throws IOException {
+    @Override
+    public void connect() throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
         List<HttpHost> pairsList = parseClusterNodes(clusterNodes);
         RestClientBuilder builder;
         if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
-            builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
-                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+
+            if (StringUtils.isBlank(trustStorePath)) {
+                builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
+                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            } else {
+                KeyStore truststore = KeyStore.getInstance("jks");
+                try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
+                    truststore.load(is, trustStorePass.toCharArray());
+                }
+                SSLContextBuilder sslBuilder = SSLContexts.custom()
+                    .loadTrustMaterial(truststore, null);
+                final SSLContext sslContext = sslBuilder.build();
+                builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
+                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider).setSSLContext(sslContext));
+            }
         } else {
             builder = RestClient.builder(pairsList.toArray(new HttpHost[0]));
         }
+
         client = new RestHighLevelClient(builder);
         client.ping();
     }
@@ -163,9 +194,10 @@ public class ElasticSearchClient implements Client {
     }
 
     /**
-     * If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other method and it already contains namespace.
-     * Then you should delete the index by this method, this method will no longer concatenate namespace.
-     *
+     * If your indexName is retrieved from elasticsearch through {@link #retrievalIndexByAliases(String)} or some other
+     * method and it already contains namespace. Then you should delete the index by this method, this method will no
+     * longer concatenate namespace.
+     * <p>
      * https://github.com/apache/skywalking/pull/3017
      */
     public boolean deleteByIndexName(String indexName) throws IOException {
@@ -173,9 +205,9 @@ public class ElasticSearchClient implements Client {
     }
 
     /**
-     * If your indexName is obtained from metadata or configuration and without namespace.
-     * Then you should delete the index by this method, this method automatically concatenates namespace.
-     *
+     * If your indexName is obtained from metadata or configuration and without namespace. Then you should delete the
+     * index by this method, this method automatically concatenates namespace.
+     * <p>
      * https://github.com/apache/skywalking/pull/3017
      */
     public boolean deleteByModelName(String modelName) throws IOException {
