@@ -134,6 +134,8 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                     case PROCESS_NO:
                         instanceProperties.addProperty(PROCESS_NO, property.getValue());
                         break;
+                    default:
+                        instanceProperties.addProperty(key, property.getValue());
                 }
             }
             instanceProperties.addProperty(IPV4S, ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4s));

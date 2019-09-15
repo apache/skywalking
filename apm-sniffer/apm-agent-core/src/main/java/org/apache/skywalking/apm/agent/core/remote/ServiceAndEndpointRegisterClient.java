@@ -139,8 +139,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID == DictionaryUtil.nullValue()) {
                     if (registerBlockingStub != null) {
                         ServiceRegisterMapping serviceRegisterMapping = registerBlockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).doServiceRegister(
-                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)
-                                .addAllProperties(SERVICE_PROPERTIES)).build());
+                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)).build());
                         if (serviceRegisterMapping != null) {
                             for (KeyIntValuePair registered : serviceRegisterMapping.getServicesList()) {
                                 if (Config.Agent.SERVICE_NAME.equals(registered.getKey())) {
@@ -162,6 +161,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                                         .setInstanceUUID(INSTANCE_UUID)
                                         .setTime(System.currentTimeMillis())
                                         .addAllProperties(OSUtil.buildOSInfo())
+                                        .addAllProperties(SERVICE_PROPERTIES)
                                 ).build());
                             for (KeyIntValuePair serviceInstance : instanceMapping.getServiceInstancesList()) {
                                 if (INSTANCE_UUID.equals(serviceInstance.getKey())) {
