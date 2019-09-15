@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -249,26 +250,32 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             String propertiesString = (String)sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
-                if (properties.has(LANGUAGE)) {
-                    serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(properties.get(LANGUAGE).getAsString()));
-                } else {
-                    serviceInstance.setLanguage(Language.UNKNOWN);
-                }
-
-                if (properties.has(OS_NAME)) {
-                    serviceInstance.getAttributes().add(new Attribute(OS_NAME, properties.get(OS_NAME).getAsString()));
-                }
-                if (properties.has(HOST_NAME)) {
-                    serviceInstance.getAttributes().add(new Attribute(HOST_NAME, properties.get(HOST_NAME).getAsString()));
-                }
-                if (properties.has(PROCESS_NO)) {
-                    serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, properties.get(PROCESS_NO).getAsString()));
-                }
-                if (properties.has(IPV4S)) {
-                    List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
-                    for (String ipv4 : ipv4s) {
-                        serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
+                for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
+                    String key = property.getKey();
+                    String value = property.getValue().getAsString();
+                    if (key.equals(LANGUAGE)) {
+                        serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(value));
+                    } else {
+                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
+
+                    if (key.equals(OS_NAME)) {
+                        serviceInstance.getAttributes().add(new Attribute(OS_NAME, value));
+                    }
+                    if (key.equals(HOST_NAME)) {
+                        serviceInstance.getAttributes().add(new Attribute(HOST_NAME, value));
+                    }
+                    if (key.equals(PROCESS_NO)) {
+                        serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, value));
+                    }
+                    if (key.equals(IPV4S)) {
+                        List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
+                        for (String ipv4 : ipv4s) {
+                            serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
+                        }
+                    }
+
+                    serviceInstance.getAttributes().add(new Attribute(key, value));
                 }
             } else {
                 serviceInstance.setLanguage(Language.UNKNOWN);
