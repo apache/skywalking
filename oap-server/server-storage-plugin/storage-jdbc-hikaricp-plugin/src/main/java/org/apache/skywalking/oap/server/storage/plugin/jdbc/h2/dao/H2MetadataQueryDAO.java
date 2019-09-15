@@ -216,13 +216,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                     Service service = new Service();
                     service.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
                     service.setName(resultSet.getString(ServiceInventory.NAME));
-                    String propertiesString = resultSet.getString(ServiceInventory.PROPERTIES);
-                    if (!Strings.isNullOrEmpty(propertiesString)) {
-                        JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
-                        properties.entrySet().forEach(item -> {
-                            service.getProperties().add(new Attribute(item.getKey(), properties.get(item.getKey()).getAsString()));
-                        });
-                    }
                     return service;
                 }
             }
@@ -339,13 +332,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
             Service service = new Service();
             service.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
             service.setName(resultSet.getString(ServiceInventory.NAME));
-            String propertiesString = resultSet.getString(ServiceInventory.PROPERTIES);
-            if (!Strings.isNullOrEmpty(propertiesString)) {
-                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
-                properties.entrySet().forEach(item -> {
-                    service.getProperties().add(new Attribute(item.getKey(), properties.get(item.getKey()).getAsString()));
-                });
-            }
             services.add(service);
         }
 

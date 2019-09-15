@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,9 +29,4 @@ import lombok.Setter;
 public class Service {
     private int id;
     private String name;
-    private final List<Attribute> properties;
-
-    public Service() {
-        this.properties = new ArrayList<>();
-    }
 }

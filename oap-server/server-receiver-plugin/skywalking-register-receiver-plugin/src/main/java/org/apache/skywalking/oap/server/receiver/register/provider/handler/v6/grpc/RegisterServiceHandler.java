@@ -86,14 +86,10 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         ServiceRegisterMapping.Builder builder = ServiceRegisterMapping.newBuilder();
         request.getServicesList().forEach(service -> {
             String serviceName = service.getServiceName();
-            JsonObject serviceProperties = new JsonObject();
-            for (KeyStringValuePair property : service.getPropertiesList()) {
-                serviceProperties.addProperty(property.getKey(), property.getValue());
-            }
             if (logger.isDebugEnabled()) {
                 logger.debug("Register service, service code: {}", serviceName);
             }
-            int serviceId = serviceInventoryRegister.getOrCreate(serviceName, serviceProperties);
+            int serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
 
             if (serviceId != Const.NONE) {
                 KeyIntValuePair value = KeyIntValuePair.newBuilder().setKey(serviceName).setValue(serviceId).build();
