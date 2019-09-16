@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.light4j.define;
 
+import io.undertow.server.HttpServerExchange;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -28,9 +29,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 /**
- * Since Light4J is a framework built on top of Undertow 2.x, the server-side endpoint is already handled by the
- * Skywalking Undertow plugin. This instrumentation is applied in addition to track the various middleware and
- * business logic handlers that implement {@link com.networknt.handler.LightHttpHandler}.
+ * This instrumentation is applied to {@link com.networknt.handler.LightHttpHandler#handleRequest(HttpServerExchange)}
+ * using {@link org.apache.skywalking.apm.plugin.light4j.HandleRequestInterceptor}.
  *
  * @author tsuilouis
  */
