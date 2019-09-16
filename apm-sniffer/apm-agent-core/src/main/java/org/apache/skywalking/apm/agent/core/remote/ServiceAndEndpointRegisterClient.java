@@ -90,9 +90,9 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
 
         SERVICE_PROPERTIES = new ArrayList<KeyStringValuePair>();
 
-        for (String key : Config.Agent.PROPERTIES.keySet()) {
+        for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
             SERVICE_PROPERTIES.add(KeyStringValuePair.newBuilder()
-                .setKey(key).setValue(Config.Agent.PROPERTIES.get(key)).build());
+                .setKey(key).setValue(Config.Agent.INSTANCE_PROPERTIES.get(key)).build());
         }
     }
 

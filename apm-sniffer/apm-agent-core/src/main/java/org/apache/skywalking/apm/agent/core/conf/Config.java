@@ -89,6 +89,13 @@ public class Config {
          */
         public static String INSTANCE_UUID = "";
 
+        /*
+         * service instance properties
+         * e.g.
+         *   agent.instance_properties[org]=apache
+         */
+        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<String, String>();
+
         /**
          * How depth the agent goes, when log cause exceptions.
          */
@@ -110,13 +117,6 @@ public class Config {
          * Limit the length of the operationName to prevent errors when inserting elasticsearch
          **/
         public static int OPERATION_NAME_THRESHOLD = 500;
-
-        /*
-        * service properties
-        * e.g.
-        *   agent.properties[org]=apache
-        */
-        public static Map<String, String> PROPERTIES = new HashMap<String, String>();
     }
 
     public static class Collector {
