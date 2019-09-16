@@ -41,25 +41,27 @@ public class DispatcherHandlerInvokeHandlerMethodInterceptor implements Instance
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = (EnhancedInstance) allArguments[0];
-        AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
-        if (span == null) {
-            return;
-        }
-        String handleClassName = allArguments[1].getClass().getSimpleName();
-        int index = handleClassName.indexOf(ROUTER_SEARCH);
-        if (index != -1) {
-            String operationName = handleClassName.substring(0, index);
-            try {
-                Field field = allArguments[1].getClass().getDeclaredField(ROUTER_FIELD);
-                field.setAccessible(true);
-                operationName = operationName + DOT + field.get(allArguments[1]).getClass().getName();
-            } catch (NoSuchFieldException ignore) {
+        EnhancedInstance instance = DispatcherHandlerHandleMethodInterceptor.getInstance(allArguments[0]);
+        if (instance != null) {
+            AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
+            if (span == null) {
+                return;
             }
-            span.setOperationName(operationName);
-        } else if (allArguments[1] instanceof HandlerMethod) {
-            HandlerMethod handler = (HandlerMethod) allArguments[1];
-            span.setOperationName(getHandlerMethodOperationName(handler));
+            String handleClassName = allArguments[1].getClass().getSimpleName();
+            int index = handleClassName.indexOf(ROUTER_SEARCH);
+            if (index != -1) {
+                String operationName = handleClassName.substring(0, index);
+                try {
+                    Field field = allArguments[1].getClass().getDeclaredField(ROUTER_FIELD);
+                    field.setAccessible(true);
+                    operationName = operationName + DOT + field.get(allArguments[1]).getClass().getName();
+                } catch (NoSuchFieldException ignore) {
+                }
+                span.setOperationName(operationName);
+            } else if (allArguments[1] instanceof HandlerMethod) {
+                HandlerMethod handler = (HandlerMethod) allArguments[1];
+                span.setOperationName(getHandlerMethodOperationName(handler));
+            }
         }
     }
 

@@ -34,6 +34,10 @@ cluster:
     #Retry Policy
     baseSleepTimeMs: \${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
     maxRetries: \${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+    # Enable ACL
+    enableACL: \${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+    schema: \${SW_ZK_SCHEMA:digest} # only support digest schema
+    expression: \${SW_ZK_EXPRESSION:skywalking:skywalking}
 EOT
 }
 
@@ -78,9 +82,23 @@ EOT
 }
 
 generateStorageElastisearch() {
+if [[ "$SW_RECEIVER_ZIPKIN_ENABLED" = "true" ]]; then
+    cat <<EOT >> ${var_application_file}
+storage:
+  zipkin-elasticsearch:
+EOT
+elif [[ "$SW_RECEIVER_JAEGER_ENABLED" = "true" ]]; then
+    cat <<EOT >> ${var_application_file}
+storage:
+  jaeger-elasticsearch:
+EOT
+else
     cat <<EOT >> ${var_application_file}
 storage:
   elasticsearch:
+EOT
+fi
+cat <<EOT >> ${var_application_file}
     nameSpace: \${SW_NAMESPACE:""}
     clusterNodes: \${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: \${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
@@ -255,6 +273,7 @@ core:
     - Month
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     enableDataKeeperExecutor: \${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
+    dataKeeperExecutePeriod: \${SW_CORE_DATA_KEEPER_EXECUTE_PERIOD:5} # How often the data keeper executor runs periodically, unit is minute
     recordDataTTL: \${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
     minuteMetricsDataTTL: \${SW_CORE_MINUTE_METRIC_DATA_TTL:90} # Unit is minute
     hourMetricsDataTTL: \${SW_CORE_HOUR_METRIC_DATA_TTL:36} # Unit is hour
@@ -275,6 +294,15 @@ EOT
     cat <<EOT >> ${var_application_file}
 receiver-sharing-server:
   default:
+   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.O}
+   restPort: \${SW_RECEIVER_SHARING_REST_PORT:0}
+   restContextPath: \${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
+   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.O}
+   gRPCPort: \${SW_RECEIVER_SHARING_GRPC_PORT:0}
+   maxConcurrentCallsPerConnection: \${SW_RECEIVER_SHARING_MAX_CONCURRENT_CALL:0}
+   maxMessageSize: \${SW_RECEIVER_SHARING_MAX_MESSAGE_SIZE:0}
+   gRPCThreadPoolSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_SIZE:0}
+   gRPCThreadPoolQueueSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_QUEUE_SIZE:0}
 receiver-register:
   default:
 receiver-trace:

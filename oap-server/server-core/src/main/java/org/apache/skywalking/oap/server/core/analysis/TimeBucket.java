@@ -25,7 +25,13 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
  */
 public class TimeBucket {
 
-    public static long getSecondTimeBucket(long time) {
+    /**
+     * Record time bucket format in Second Unit.
+     *
+     * @param time Timestamp
+     * @return time in second format.
+     */
+    public static long getRecordTimeBucket(long time) {
         return getTimeBucket(time, Downsampling.Second);
     }
 

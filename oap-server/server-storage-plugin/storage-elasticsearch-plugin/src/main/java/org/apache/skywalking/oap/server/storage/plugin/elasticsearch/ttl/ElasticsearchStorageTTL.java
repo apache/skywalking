@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.storage.ttl.*;
  */
 public class ElasticsearchStorageTTL implements StorageTTL {
 
-    @Override public TTLCalculator calculator(Downsampling downsampling) {
+    @Override public TTLCalculator metricsCalculator(Downsampling downsampling) {
         switch (downsampling) {
             case Month:
                 return new MonthTTLCalculator();
@@ -36,5 +36,9 @@ public class ElasticsearchStorageTTL implements StorageTTL {
             default:
                 return new DayTTLCalculator();
         }
+    }
+
+    @Override public TTLCalculator recordCalculator() {
+        return new EsRecordTTLCalculator();
     }
 }

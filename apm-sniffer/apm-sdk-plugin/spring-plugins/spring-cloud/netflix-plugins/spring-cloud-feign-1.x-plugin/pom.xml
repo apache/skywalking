@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>netflix-plugins</artifactId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-spring-cloud-feign-1.x-plugin</artifactId>
