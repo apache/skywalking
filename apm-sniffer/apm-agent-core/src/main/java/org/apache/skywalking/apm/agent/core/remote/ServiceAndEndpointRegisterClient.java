@@ -60,7 +60,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class ServiceAndEndpointRegisterClient implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(ServiceAndEndpointRegisterClient.class);
     private static String INSTANCE_UUID;
-    private static List<KeyStringValuePair> SERVICE_PROPERTIES;
+    private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
@@ -88,10 +88,10 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
         INSTANCE_UUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID) ? UUID.randomUUID().toString()
             .replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
 
-        SERVICE_PROPERTIES = new ArrayList<KeyStringValuePair>();
+        SERVICE_INSTANCE_PROPERTIES = new ArrayList<KeyStringValuePair>();
 
         for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
-            SERVICE_PROPERTIES.add(KeyStringValuePair.newBuilder()
+            SERVICE_INSTANCE_PROPERTIES.add(KeyStringValuePair.newBuilder()
                 .setKey(key).setValue(Config.Agent.INSTANCE_PROPERTIES.get(key)).build());
         }
     }
@@ -161,7 +161,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                                         .setInstanceUUID(INSTANCE_UUID)
                                         .setTime(System.currentTimeMillis())
                                         .addAllProperties(OSUtil.buildOSInfo())
-                                        .addAllProperties(SERVICE_PROPERTIES)
+                                        .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                 ).build());
                             for (KeyIntValuePair serviceInstance : instanceMapping.getServiceInstancesList()) {
                                 if (INSTANCE_UUID.equals(serviceInstance.getKey())) {
