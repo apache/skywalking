@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.light4j.define;
 
-import io.undertow.server.HttpServerExchange;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -29,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 /**
- * This instrumentation is applied to {@link com.networknt.handler.LightHttpHandler#handleRequest(HttpServerExchange)}
+ * This instrumentation is applied to the handleRequest method of {@link com.networknt.handler.LightHttpHandler}
  * using {@link org.apache.skywalking.apm.plugin.light4j.HandleRequestInterceptor}.
  *
  * @author tsuilouis
