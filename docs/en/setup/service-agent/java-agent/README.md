@@ -73,6 +73,7 @@ property key | Description | Default |
 `agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder.Skywalking team may ask for these files in order to resolve compatible problem.|Not set|
 `agent.active_v2_header`|Active V2 header in default.|`true`|
 `agent.instance_uuid` |Instance uuid is the identity of an instance, skywalking treat same instance uuid as one instance.if empty, skywalking agent will generate an 32-bit uuid.   |`""`|
+`agent.instance_properties[key]=value` | Add service instance custom properties. | Not set|
 `agent.cause_exception_depth`|How depth the agent goes, when log all cause exceptions.|`5`|
 `agent.active_v1_header `|Deactivate V1 header in default.|`false`|
 `agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
