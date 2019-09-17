@@ -169,6 +169,12 @@ public class Config {
         public static int MAX_FILE_SIZE = 300 * 1024 * 1024;
 
         /**
+         * The max history log files. When rollover happened, if log files exceed this number,
+         * then the oldest file will be delete. Negative or zero means off, by default.
+         */
+        public static int MAX_HISTORY_FILES = -1;
+
+        /**
          * The log level. Default is debug.
          */
         public static LogLevel LEVEL = LogLevel.DEBUG;
