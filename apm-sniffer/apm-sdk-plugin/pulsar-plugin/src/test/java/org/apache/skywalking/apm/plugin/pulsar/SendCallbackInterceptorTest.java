@@ -78,14 +78,14 @@ public class SendCallbackInterceptorTest {
         callbackInterceptor = new SendCallbackInterceptor();
 
         arguments = new Object[] {
-                null
+            null
         };
         argumentsWithException = new Object[] {
-                new RuntimeException()
+            new RuntimeException()
         };
 
         argumentTypes = new Class[] {
-                Exception.class
+            Exception.class
         };
     }
 

@@ -44,34 +44,34 @@ public class PulsarConsumerInstrumentation extends AbstractPulsarInstrumentation
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
-                new ConstructorInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_TYPE);
-                    }
-
-                    @Override public String getConstructorInterceptor() {
-                        return CONSTRUCTOR_INTERCEPTOR_CLASS;
-                    }
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_TYPE);
                 }
+
+                @Override public String getConstructorInterceptor() {
+                    return CONSTRUCTOR_INTERCEPTOR_CLASS;
+                }
+            }
         };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-                new InstanceMethodsInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD);
-                    }
-
-                    @Override public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
-
-                    @Override public boolean isOverrideArgs() {
-                        return false;
-                    }
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD);
                 }
+
+                @Override public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 }
