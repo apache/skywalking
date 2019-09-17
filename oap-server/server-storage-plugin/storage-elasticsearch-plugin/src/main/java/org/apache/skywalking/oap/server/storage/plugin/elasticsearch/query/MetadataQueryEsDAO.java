@@ -255,8 +255,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     if (key.equals(LANGUAGE)) {
                         serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(value));
-                    } else {
-                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
 
                     if (key.equals(OS_NAME)) {
