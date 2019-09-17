@@ -87,6 +87,7 @@ property key | Description | Default |
 `logging.dir`|Log files directory. Default is blank string, means, use "system.out" to output logs.|`""`|
 `logging.pattern `|logging format. There are all conversion specifiers: <br>&nbsp;&nbsp;* `%level` means log level. <br>&nbsp;&nbsp;*  `%timestamp` means now of time with format `yyyy-MM-dd HH:mm:ss:SSS`.<br>&nbsp;&nbsp;*   `%thread` means name of current thread.<br>&nbsp;&nbsp;*   `%msg` means some message which user logged. <br>&nbsp;&nbsp;*  `%class` means SimpleName of TargetClass. <br>&nbsp;&nbsp;*  `%throwable` means a throwable which user called. <br>&nbsp;&nbsp;*  `%agent_name` means `agent.service_name`  |`%level %timestamp %thread %class : %msg %throwable`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
+`logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|
