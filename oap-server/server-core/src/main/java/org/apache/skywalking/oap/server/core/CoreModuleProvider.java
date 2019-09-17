@@ -185,6 +185,12 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+
+        if (CoreModuleConfig.Role.Mixed.name().equalsIgnoreCase(moduleConfig.getRole()) || CoreModuleConfig.Role.Aggregator.name().equalsIgnoreCase(moduleConfig.getRole())) {
+            RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
+            this.getManager().find(ClusterModule.NAME).provider().getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
+        }
+
     }
 
     @Override public void notifyAfterCompleted() throws ModuleStartException {
@@ -193,11 +199,6 @@ public class CoreModuleProvider extends ModuleProvider {
             jettyServer.start();
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
-        }
-
-        if (CoreModuleConfig.Role.Mixed.name().equalsIgnoreCase(moduleConfig.getRole()) || CoreModuleConfig.Role.Aggregator.name().equalsIgnoreCase(moduleConfig.getRole())) {
-            RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
-            this.getManager().find(ClusterModule.NAME).provider().getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
         }
 
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
