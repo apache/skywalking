@@ -287,5 +287,13 @@ public class Config {
                 public static Map<String, String> RULE = new HashMap<String, String>();
             }
         }
+
+        public static class Light4J {
+            /**
+             * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,
+             * generating a local span for each.
+             */
+            public static boolean TRACE_HANDLER_CHAIN = false;
+        }
     }
 }
