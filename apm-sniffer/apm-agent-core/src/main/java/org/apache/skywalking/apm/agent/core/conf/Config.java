@@ -89,6 +89,13 @@ public class Config {
          */
         public static String INSTANCE_UUID = "";
 
+        /*
+         * service instance properties
+         * e.g.
+         *   agent.instance_properties[org]=apache
+         */
+        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<String, String>();
+
         /**
          * How depth the agent goes, when log cause exceptions.
          */
