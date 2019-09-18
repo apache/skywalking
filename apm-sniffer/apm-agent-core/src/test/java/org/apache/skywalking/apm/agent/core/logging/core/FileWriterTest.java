@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.conf.Constants;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
@@ -41,7 +42,8 @@ public class FileWriterTest {
     public static void beforeTestFile() throws IOException {
         Config.Logging.MAX_FILE_SIZE = 10;
         File directory = new File(System.getProperty("java.io.tmpdir", "/tmp"));
-        Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "/log-test/";
+        String dirName4Unique = UUID.randomUUID().toString();
+        Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "log-test_" + dirName4Unique;
     }
 
     @Test
