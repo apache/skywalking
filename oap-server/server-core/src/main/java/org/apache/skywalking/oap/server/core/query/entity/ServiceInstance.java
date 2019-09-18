@@ -29,7 +29,7 @@ public class ServiceInstance {
     @Setter private String id;
     @Setter private String name;
     private final List<Attribute> attributes;
-    @Setter private Language language;
+    @Setter private Language language = Language.UNKNOWN;
 
     public ServiceInstance() {
         this.attributes = new ArrayList<>();

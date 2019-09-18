@@ -307,8 +307,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
                             serviceInstance.getAttributes().add(new Attribute(key, value));
                         }
-                    } else {
-                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
 
                     serviceInstances.add(serviceInstance);
