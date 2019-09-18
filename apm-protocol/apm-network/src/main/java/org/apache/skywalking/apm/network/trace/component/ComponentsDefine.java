@@ -136,6 +136,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(70, "pulsar-producer");
 
-    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(70, "pulsar-consumer");
+    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(71, "pulsar-consumer");
 
 }
