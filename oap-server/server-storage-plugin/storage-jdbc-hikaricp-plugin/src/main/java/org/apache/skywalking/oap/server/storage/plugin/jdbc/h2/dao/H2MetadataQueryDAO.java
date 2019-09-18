@@ -32,7 +32,6 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.query.entity.Attribute;
 import org.apache.skywalking.oap.server.core.query.entity.Database;
 import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
-import org.apache.skywalking.oap.server.core.query.entity.Language;
 import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
 import org.apache.skywalking.oap.server.core.query.entity.Service;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
