@@ -254,25 +254,20 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     String value = property.getValue().getAsString();
                     if (key.equals(LANGUAGE)) {
                         serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(value));
-                    }
-
-                    if (key.equals(OS_NAME)) {
+                    } else if (key.equals(OS_NAME)) {
                         serviceInstance.getAttributes().add(new Attribute(OS_NAME, value));
-                    }
-                    if (key.equals(HOST_NAME)) {
+                    } else if (key.equals(HOST_NAME)) {
                         serviceInstance.getAttributes().add(new Attribute(HOST_NAME, value));
-                    }
-                    if (key.equals(PROCESS_NO)) {
+                    } else if (key.equals(PROCESS_NO)) {
                         serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, value));
-                    }
-                    if (key.equals(IPV4S)) {
+                    } else if (key.equals(IPV4S)) {
                         List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
                         for (String ipv4 : ipv4s) {
                             serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
                         }
+                    } else {
+                        serviceInstance.getAttributes().add(new Attribute(key, value));
                     }
-
-                    serviceInstance.getAttributes().add(new Attribute(key, value));
                 }
             }
 
