@@ -54,8 +54,9 @@ public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor
             Exception exceptions = (Exception) allArguments[0];
             if (exceptions != null) {
                 ContextManager.activeSpan().errorOccurred().log(exceptions);
+            } else {
+                ContextManager.stopSpan();
             }
-            ContextManager.stopSpan();
         }
         return ret;
     }
