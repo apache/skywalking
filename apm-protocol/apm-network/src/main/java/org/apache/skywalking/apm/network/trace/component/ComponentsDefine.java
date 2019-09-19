@@ -136,7 +136,9 @@ public class ComponentsDefine {
   
     public static final OfficialComponent LIGHT_4J = new OfficialComponent(71, "Light4J");
 
-    public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(72, "pulsar-producer");
+    public static final OfficialComponent PULSAR = new OfficialComponent(72, "Pulsar");
 
-    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(73, "pulsar-consumer");
+    public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(73, "pulsar-producer");
+
+    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(74, "pulsar-consumer");
 }
