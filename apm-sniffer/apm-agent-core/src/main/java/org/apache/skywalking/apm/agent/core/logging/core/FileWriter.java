@@ -152,21 +152,20 @@ public class FileWriter implements IWriter {
             }
         });
 
-        if (pathArr != null) {
-            Arrays.sort(pathArr, new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o2.compareTo(o1);
-                }
-            });
-        }
-
         return pathArr;
     }
 
     private void deleteExpiredFiles() {
         String[] historyFileArr = getHistoryFilePath();
         if (historyFileArr != null && historyFileArr.length > Config.Logging.MAX_HISTORY_FILES) {
+
+            Arrays.sort(historyFileArr, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return o2.compareTo(o1);
+                }
+            });
+
             for (int i = Config.Logging.MAX_HISTORY_FILES; i < historyFileArr.length; i++) {
                 File expiredFile = new File(Config.Logging.DIR, historyFileArr[i]);
                 expiredFile.delete();
