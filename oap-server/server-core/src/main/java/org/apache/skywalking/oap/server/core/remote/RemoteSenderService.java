@@ -18,16 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.remote.client.*;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
-import org.apache.skywalking.oap.server.core.remote.selector.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.remote.selector.ForeverFirstSelector;
+import org.apache.skywalking.oap.server.core.remote.selector.HashCodeSelector;
+import org.apache.skywalking.oap.server.core.remote.selector.RollingSelector;
+import org.apache.skywalking.oap.server.core.remote.selector.Selector;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
  */
 public class RemoteSenderService implements Service {
+    private static final Logger logger = LoggerFactory.getLogger(RemoteSenderService.class);
 
     private final ModuleManager moduleManager;
     private final HashCodeSelector hashCodeSelector;
@@ -44,18 +53,24 @@ public class RemoteSenderService implements Service {
     public void send(String nextWorkName, StreamData streamData, Selector selector) {
         RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).provider().getService(RemoteClientManager.class);
 
+        List<RemoteClient> clientList = clientManager.getRemoteClient();
+        if (clientList.size() == 0) {
+            logger.warn("There is no available remote server for now, ignore the streaming data until the cluster metadata initialized.");
+            return;
+        }
+
         RemoteClient remoteClient;
         switch (selector) {
             case HashCode:
-                remoteClient = hashCodeSelector.select(clientManager.getRemoteClient(), streamData);
+                remoteClient = hashCodeSelector.select(clientList, streamData);
                 remoteClient.push(nextWorkName, streamData);
                 break;
             case Rolling:
-                remoteClient = rollingSelector.select(clientManager.getRemoteClient(), streamData);
+                remoteClient = rollingSelector.select(clientList, streamData);
                 remoteClient.push(nextWorkName, streamData);
                 break;
             case ForeverFirst:
-                remoteClient = foreverFirstSelector.select(clientManager.getRemoteClient(), streamData);
+                remoteClient = foreverFirstSelector.select(clientList, streamData);
                 remoteClient.push(nextWorkName, streamData);
                 break;
         }

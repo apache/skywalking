@@ -14,9 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.ControllerInstrumentation
-spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.RestControllerInstrumentation
-spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.HandlerMethodInstrumentation
-spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.InvocableHandlerInstrumentation
-spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.ControllerForLowVersionInstrumentation
-spring-mvc-annotation-4.x=org.apache.skywalking.apm.plugin.spring.mvc.v4.define.RestControllerForLowVersionInstrumentation
+light4j=org.apache.skywalking.apm.plugin.light4j.define.LightInstrumentation

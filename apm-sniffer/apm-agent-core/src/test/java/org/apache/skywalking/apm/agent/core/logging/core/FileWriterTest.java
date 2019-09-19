@@ -26,7 +26,12 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author wusheng
@@ -37,7 +42,8 @@ public class FileWriterTest {
     public static void beforeTestFile() throws IOException {
         Config.Logging.MAX_FILE_SIZE = 10;
         File directory = new File(System.getProperty("java.io.tmpdir", "/tmp"));
-        Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "/log-test/";
+        String dirName4Unique = UUID.randomUUID().toString();
+        Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "log-test_" + dirName4Unique;
     }
 
     @Test
@@ -48,6 +54,27 @@ public class FileWriterTest {
         }
 
         Thread.sleep(10000L);
+    }
+
+    @Test
+    public void testDeleteWhenRollover() throws InterruptedException {
+        Config.Logging.MAX_HISTORY_FILES = 3;
+        FileWriter writer = FileWriter.get();
+        for (int i = 0; i < 4; i++) {
+            writer.write("abcdefghij");
+            Thread.sleep(1000);
+        }
+
+        final Pattern filenamePattern = Pattern.compile(Config.Logging.FILE_NAME + "\\.\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}");
+        File path = new File(Config.Logging.DIR);
+        String[] pathArr = path.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return filenamePattern.matcher(name).matches();
+            }
+        });
+
+        assertEquals(3, pathArr.length);
     }
 
     @AfterClass
