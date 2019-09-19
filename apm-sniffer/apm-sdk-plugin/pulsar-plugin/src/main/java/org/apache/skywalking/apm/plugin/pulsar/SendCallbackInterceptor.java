@@ -63,6 +63,9 @@ public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        SendCallbackEnhanceRequiredInfo requiredInfo = (SendCallbackEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
+        if (null != requiredInfo.getContextSnapshot()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 }

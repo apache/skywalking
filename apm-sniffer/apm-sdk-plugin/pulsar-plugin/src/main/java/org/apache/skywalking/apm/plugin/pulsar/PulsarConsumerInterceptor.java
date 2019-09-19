@@ -42,6 +42,13 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
                              MethodInterceptResult result) throws Throwable {
         ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
         requiredInfo.setStartTime(System.currentTimeMillis());
+        AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
+                requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), null)
+                .start(requiredInfo.getStartTime());
+        activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
+        SpanLayer.asMQ(activeSpan);
+        Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
+        Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopic());
     }
 
     @Override
@@ -50,14 +57,6 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
         if (allArguments.length > 0) {
             Message msg = (Message) allArguments[0];
             if (null != msg) {
-                ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-                AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
-                        requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), null)
-                        .start(requiredInfo.getStartTime());
-                activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
-                SpanLayer.asMQ(activeSpan);
-                Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
-                Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopic());
                 ContextCarrier contextCarrier = new ContextCarrier();
                 CarrierItem next = contextCarrier.items();
                 while (next.hasNext()) {
@@ -66,7 +65,11 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
                 }
                 ContextManager.extract(contextCarrier);
                 ContextManager.stopSpan();
+            } else {
+                ContextManager.activeSpan().errorOccurred().log(new RuntimeException("Processed messages is null!"));
             }
+        } else {
+            ContextManager.activeSpan().errorOccurred().log(new RuntimeException("Call messageProcessed() with 0 arguments!"));
         }
         return ret;
     }
