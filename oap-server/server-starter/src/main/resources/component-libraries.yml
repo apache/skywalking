@@ -239,6 +239,12 @@ cassandra-java-driver:
 Cassandra:
   id: 70
   languages: Java
+pulsar-producer:
+  id: 71
+  languages: Java
+pulsar-consumer:
+  id: 72
+  languages: Java
 
 
 # .NET/.NET Core components

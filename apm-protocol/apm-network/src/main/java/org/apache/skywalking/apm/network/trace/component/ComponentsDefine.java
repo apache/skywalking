@@ -134,8 +134,8 @@ public class ComponentsDefine {
 
     public static final OfficialComponent CASSANDRA_JAVA_DRIVER = new OfficialComponent(69, "cassandra-java-driver");
 
-    public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(70, "pulsar-producer");
+    public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(71, "pulsar-producer");
 
-    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(71, "pulsar-consumer");
+    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(72, "pulsar-consumer");
 
 }

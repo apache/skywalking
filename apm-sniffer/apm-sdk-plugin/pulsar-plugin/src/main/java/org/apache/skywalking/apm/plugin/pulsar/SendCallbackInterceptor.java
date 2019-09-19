@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.pulsar;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -40,6 +41,7 @@ public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor
             AbstractSpan activeSpan = ContextManager.createLocalSpan(OPERATION_NAME);
             activeSpan.setComponent(ComponentsDefine.PULSAR_PRODUCER);
             Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopic());
+            SpanLayer.asMQ(activeSpan);
             ContextManager.continued(requiredInfo.getContextSnapshot());
         }
     }
