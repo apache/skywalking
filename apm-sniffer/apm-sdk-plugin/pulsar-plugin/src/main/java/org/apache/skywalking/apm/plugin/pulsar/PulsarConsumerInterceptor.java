@@ -64,13 +64,13 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
                     next.setHeadValue(msg.getProperty(next.getHeadKey()));
                 }
                 ContextManager.extract(contextCarrier);
-                ContextManager.stopSpan();
             } else {
                 ContextManager.activeSpan().errorOccurred().log(new RuntimeException("Processed messages is null!"));
             }
         } else {
             ContextManager.activeSpan().errorOccurred().log(new RuntimeException("Call messageProcessed() with 0 arguments!"));
         }
+        ContextManager.stopSpan();
         return ret;
     }
 
