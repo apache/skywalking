@@ -239,13 +239,15 @@ cassandra-java-driver:
 Cassandra:
   id: 70
   languages: Java
-pulsar-producer:
+Light4J:
   id: 71
   languages: Java
-pulsar-consumer:
+pulsar-producer:
   id: 72
   languages: Java
-
+pulsar-consumer:
+  id: 73
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
