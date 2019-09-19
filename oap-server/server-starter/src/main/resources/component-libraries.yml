@@ -239,6 +239,9 @@ cassandra-java-driver:
 Cassandra:
   id: 70
   languages: Java
+Light4J:
+  id: 71
+  languages: Java
 
 
 # .NET/.NET Core components
