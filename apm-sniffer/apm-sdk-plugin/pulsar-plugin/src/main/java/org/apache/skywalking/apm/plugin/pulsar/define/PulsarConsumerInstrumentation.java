@@ -31,8 +31,8 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class PulsarConsumerInstrumentation extends AbstractPulsarInstrumentation {
 
     public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.pulsar.client.impl.PulsarClientImpl";
-    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.pulsar.client.impl.ConsumerConstructorInterceptor";
-    public static final String INTERCEPTOR_CLASS = "org.apache.pulsar.client.impl.PulsarConsumerInterceptor";
+    public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.ConsumerConstructorInterceptor";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.PulsarConsumerInterceptor";
     public static final String ENHANCE_METHOD = "messageProcessed";
     public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.ConsumerImpl";
 
