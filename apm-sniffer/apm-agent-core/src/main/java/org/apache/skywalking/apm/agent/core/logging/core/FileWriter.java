@@ -143,6 +143,10 @@ public class FileWriter implements IWriter {
         }
     }
 
+    /**
+     * load history log file name array
+     * @return history log file name array
+     */
     private String[] getHistoryFilePath() {
         File path = new File(Config.Logging.DIR);
         String[] pathArr = path.list(new FilenameFilter() {
@@ -155,6 +159,9 @@ public class FileWriter implements IWriter {
         return pathArr;
     }
 
+    /**
+     * delete expired log files
+     */
     private void deleteExpiredFiles() {
         String[] historyFileArr = getHistoryFilePath();
         if (historyFileArr != null && historyFileArr.length > Config.Logging.MAX_HISTORY_FILES) {
