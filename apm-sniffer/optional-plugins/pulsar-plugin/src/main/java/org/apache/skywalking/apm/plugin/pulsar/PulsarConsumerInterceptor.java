@@ -44,9 +44,6 @@ import java.lang.reflect.Method;
  *  4. Stop the entry span when <code>messageProcessed</code> method finished.
  * </pre>
  *
- * If the processed message is null or arguments length is 0 will record exception for the active span
- * and notify the active span error occurred.
- *
  * @author penghui
  */
 public class PulsarConsumerInterceptor implements InstanceMethodsAroundInterceptor {
