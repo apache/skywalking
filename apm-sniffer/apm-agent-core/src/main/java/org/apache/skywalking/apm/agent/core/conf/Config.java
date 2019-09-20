@@ -132,6 +132,10 @@ public class Config {
          * Collector skywalking trace receiver service addresses.
          */
         public static String BACKEND_SERVICE = "";
+        /**
+         * How long grpc client will timeout in sending data to upstream.
+         */
+        public static int GRPC_UPSTREAM_TIMEOUT = 30;
     }
 
     public static class Jvm {
