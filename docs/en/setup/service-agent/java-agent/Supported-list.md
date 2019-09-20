@@ -13,6 +13,7 @@
   * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
   * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
   * [Play Framework](https://www.playframework.com/) 2.6.x -> 2.7.x (Optional²)
+  * [Light4J Microservices Framework](https://doc.networknt.com/) 1.6.x -> 2.x
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
@@ -56,6 +57,8 @@
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
   * [Solr](https://github.com/apache/lucene-solr/)
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
+  * [Cassandra](https://github.com/apache/cassandra) 3.x
+    * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.6.0-3.7.2
 
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)

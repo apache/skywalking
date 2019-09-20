@@ -20,20 +20,44 @@ package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.g
 
 import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
-import java.util.*;
-import org.apache.skywalking.apm.network.common.*;
-import org.apache.skywalking.apm.network.register.v2.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.apm.network.common.Commands;
+import org.apache.skywalking.apm.network.common.KeyIntValuePair;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.register.v2.EndpointMapping;
+import org.apache.skywalking.apm.network.register.v2.EndpointMappingElement;
+import org.apache.skywalking.apm.network.register.v2.Endpoints;
+import org.apache.skywalking.apm.network.register.v2.NetAddressMapping;
+import org.apache.skywalking.apm.network.register.v2.NetAddresses;
+import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
+import org.apache.skywalking.apm.network.register.v2.ServiceAndNetworkAddressMappings;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstanceRegisterMapping;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstances;
+import org.apache.skywalking.apm.network.register.v2.ServiceRegisterMapping;
+import org.apache.skywalking.apm.network.register.v2.Services;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.*;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.HOST_NAME;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.IPV4S;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.LANGUAGE;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
 /**
  * @author wusheng
@@ -106,6 +130,8 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                     case PROCESS_NO:
                         instanceProperties.addProperty(PROCESS_NO, property.getValue());
                         break;
+                    default:
+                        instanceProperties.addProperty(key, property.getValue());
                 }
             }
             instanceProperties.addProperty(IPV4S, ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4s));
