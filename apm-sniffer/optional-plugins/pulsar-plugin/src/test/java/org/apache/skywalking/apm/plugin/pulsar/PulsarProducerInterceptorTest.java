@@ -96,6 +96,22 @@ public class PulsarProducerInterceptorTest {
         assertMessageSpan(spans.get(0));
     }
 
+    @Test
+    public void testSendWithoutMessage() throws Throwable {
+        producerInterceptor.beforeMethod(pulsarProducerInstance, null, new Object[0], argumentType, null);
+        producerInterceptor.afterMethod(pulsarProducerInstance, null, new Object[0], argumentType, null);
+        List<TraceSegment> traceSegmentList = segmentStorage.getTraceSegments();
+        assertThat(traceSegmentList.size(), is(0));
+    }
+
+    @Test
+    public void testSendWithNullMessage() throws Throwable {
+        producerInterceptor.beforeMethod(pulsarProducerInstance, null, new Object[]{null}, argumentType, null);
+        producerInterceptor.afterMethod(pulsarProducerInstance, null, new Object[]{null}, argumentType, null);
+        List<TraceSegment> traceSegmentList = segmentStorage.getTraceSegments();
+        assertThat(traceSegmentList.size(), is(0));
+    }
+
     private void assertMessageSpan(AbstractTracingSpan span) {
         SpanAssert.assertTag(span, 0, "pulsar://localhost:6650");
         SpanAssert.assertTag(span, 1, "persistent://my-tenant/my-ns/my-topic");
