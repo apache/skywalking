@@ -22,12 +22,26 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.pulsar.SendCallbackEnhanceRequiredInfo;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-public class SendCallbackInstrumentation extends AbstractPulsarInstrumentation {
+/**
+ * Pulsar producer send callback instrumentation.
+ *
+ * The send callback enhanced object will use {@link org.apache.skywalking.apm.plugin.pulsar.SendCallbackEnhanceRequiredInfo}
+ * which {@link org.apache.skywalking.apm.plugin.pulsar.PulsarProducerInterceptor} set by skywalking dynamic field of
+ * enhanced object.
+ *
+ * When a callback is complete, {@link org.apache.skywalking.apm.plugin.pulsar.SendCallbackInterceptor} will continue
+ * the {@link SendCallbackEnhanceRequiredInfo#getContextSnapshot()}.
+ *
+ * @author penghui
+ */
+public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.SendCallback";
     public static final String ENHANCE_METHOD = "sendComplete";

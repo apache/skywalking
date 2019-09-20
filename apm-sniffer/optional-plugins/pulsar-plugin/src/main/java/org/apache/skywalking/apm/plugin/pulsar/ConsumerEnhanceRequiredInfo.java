@@ -18,11 +18,31 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
+/**
+ * Pulsar consumer enhance required info is required by consumer enhanced object method interceptor
+ *
+ * @author penghui
+ */
 public class ConsumerEnhanceRequiredInfo {
 
+    /**
+     * service url of the consumer
+     */
     private String serviceUrl;
+
+    /**
+     * topic name of the consumer
+     */
     private String topic;
+
+    /**
+     * subscription name of the consumer
+     */
     private String subscriptionName;
+
+    /**
+     * start time of message receiving
+     */
     private long startTime;
 
     public String getServiceUrl() {

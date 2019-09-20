@@ -20,9 +20,22 @@ package org.apache.skywalking.apm.plugin.pulsar;
 
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
+/**
+ * Pulsar {@link org.apache.pulsar.client.impl.SendCallback} enhance required info is required by
+ * <code>SendCallback</code> enhanced object method interceptor
+ *
+ * @author penghui
+ */
 public class SendCallbackEnhanceRequiredInfo {
 
+    /**
+     * topic name of the producer
+     */
     private String topic;
+
+    /**
+     * context snapshot
+     */
     ContextSnapshot contextSnapshot;
 
     public String getTopic() {

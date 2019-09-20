@@ -22,13 +22,34 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class PulsarProducerInstrumentation extends AbstractPulsarInstrumentation {
+/**
+ * Pulsar producer instrumentation.
+ *
+ * The pulsar producer instrumentation use {@link org.apache.pulsar.client.impl.ProducerImpl} as an enhanced class.
+ * {@link org.apache.pulsar.client.api.Producer} is a user-oriented interface and the implementations of the Producer
+ * are {@link org.apache.pulsar.client.impl.PartitionedProducerImpl} and {@link org.apache.pulsar.client.impl.ProducerImpl}.
+ *
+ * And the PartitionedProducerImpl is a complex type with multiple ProducerImpl to support uses send messages to
+ * multiple partitions. As each ProducerImpl has it's own topic name and it is the initial unit of a single topic
+ * to send messages, so use ProducerImpl as an enhanced class is an effective way.
+ *
+ * About the enhanced methods, currently use {@link org.apache.pulsar.client.impl.ProducerImpl#sendAsync(
+ * org.apache.pulsar.client.api.Message, org.apache.pulsar.client.impl.SendCallback)} as the enhanced method.
+ * Pulsar provides users with two kinds of methods for sending messages sync methods and async methods. The async method
+ * use {@link java.util.concurrent.CompletableFuture as the method result}, if use this method as the enhanced method
+ * is hard to pass the snapshot of span, because can't ensure that the CompletableFuture is completed after the skywalking
+ * dynamic field was updated. But execution time of sync method will be inaccurate.
+ *
+ * @author penghui
+ */
+public class PulsarProducerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.PulsarProducerInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.ProducerImpl";

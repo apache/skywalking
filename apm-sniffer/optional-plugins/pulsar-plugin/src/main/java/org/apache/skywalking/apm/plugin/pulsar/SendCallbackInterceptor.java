@@ -29,6 +29,19 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
+/**
+ * Interceptor for send callback enhanced instance.
+ *
+ * Here is the intercept process steps:
+ *
+ * <pre>
+ *  1. Get the @{@link SendCallbackEnhanceRequiredInfo} and record the service url, context snapshot
+ *  2. Create the local span when the callback invoke <code>sendComplete</code> method
+ *  3. Stop the local span when <code>sendComplete</code> method finished.
+ * </pre>
+ *
+ * @author penghui
+ */
 public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String OPERATION_NAME = "Pulsar/Producer/Callback";

@@ -76,7 +76,6 @@
         <module>solrj-7.x-plugin</module>
         <module>cassandra-java-driver-3.x-plugin</module>
         <module>light4j-plugins</module>
-        <module>pulsar-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

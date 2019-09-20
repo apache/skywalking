@@ -18,9 +18,21 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
+/**
+ * Pulsar producer enhance required info is required by producer enhanced object method interceptor
+ *
+ * @author penghui
+ */
 public class ProducerEnhanceRequiredInfo {
 
+    /**
+     * service url of the pulsar producer
+     */
     private String serviceUrl;
+
+    /**
+     * topic name of the pulsar producer
+     */
     private String topic;
 
     public String getTopic() {

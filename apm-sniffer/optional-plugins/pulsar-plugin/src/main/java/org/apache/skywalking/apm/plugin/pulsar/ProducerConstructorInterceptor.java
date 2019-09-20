@@ -22,6 +22,15 @@ import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * Interceptor of pulsar producer constructor.
+ *
+ * The interceptor create {@link ProducerEnhanceRequiredInfo} which is required by instance method interceptor,
+ * So use it to update the skywalking dynamic field of pulsar producer enhanced instance.
+ * So that the instance methods can get the {@link ProducerEnhanceRequiredInfo}
+ *
+ * @author penghui
+ */
 public class ProducerConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
@@ -30,6 +39,10 @@ public class ProducerConstructorInterceptor implements InstanceConstructorInterc
         String topic = (String) allArguments[1];
         ProducerEnhanceRequiredInfo producerEnhanceRequiredInfo = new ProducerEnhanceRequiredInfo();
         producerEnhanceRequiredInfo.setTopic(topic);
+        /*
+         * Pulsar url can specify with specific URL or a service url provider, use pulsarClient.getLookup().getServiceUrl()
+         * can handle the service url provider which use a dynamic service url
+         */
         producerEnhanceRequiredInfo.setServiceUrl(pulsarClient.getLookup().getServiceUrl());
         objInst.setSkyWalkingDynamicField(producerEnhanceRequiredInfo);
     }

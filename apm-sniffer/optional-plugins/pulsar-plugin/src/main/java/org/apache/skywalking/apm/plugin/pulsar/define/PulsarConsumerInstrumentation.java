@@ -22,13 +22,30 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class PulsarConsumerInstrumentation extends AbstractPulsarInstrumentation {
+/**
+ * The pulsar consumer instrumentation use {@link org.apache.pulsar.client.impl.ConsumerImpl} as an enhanced class.
+ * {@link org.apache.pulsar.client.api.Consumer} is a user-oriented interface and the implementations are
+ * {@link org.apache.pulsar.client.impl.ConsumerImpl} and {@link org.apache.pulsar.client.impl.MultiTopicsConsumerImpl}
+ *
+ * The MultiTopicsConsumerImpl is a complex type with multiple ConsumerImpl to support uses receive messages from
+ * multiple topics. As each ConsumerImpl has it's own topic name and it is the initial unit of a single topic
+ * to receiving messages, so use ConsumerImpl as an enhanced class is an effective way.
+ *
+ * Use <code>messageProcessed</code> as the enhanced method since pulsar
+ * consumer has multiple ways to receiving messages such as sync method, async method and listeners.
+ * Method messageProcessed is a basic unit of ConsumerImpl, no matter which way uses uses, messageProcessed will always
+ * record the message receiving.
+ *
+ * @author penghui
+ */
+public class PulsarConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String CONSTRUCTOR_INTERCEPT_TYPE = "org.apache.pulsar.client.impl.PulsarClientImpl";
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.ConsumerConstructorInterceptor";
