@@ -62,7 +62,7 @@ public class RemoteClientManager implements Service {
     /**
      * Initial the manager for all remote communication clients.
      * @param moduleDefineHolder for looking up other modules
-     * @param remoteTimeout for cluster internal communication, in seconds.
+     * @param remoteTimeout for cluster internal communication, in second unit.
      */
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
         this.moduleDefineHolder = moduleDefineHolder;
