@@ -57,12 +57,19 @@ public class RemoteClientManager implements Service {
     private final List<RemoteClient> clientsB;
     private volatile List<RemoteClient> usingClients;
     private GaugeMetrics gauge;
+    private int remoteTimeout;
 
-    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder) {
+    /**
+     * Initial the manager for all remote communication clients.
+     * @param moduleDefineHolder for looking up other modules
+     * @param remoteTimeout for cluster internal communication, in second unit.
+     */
+    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
         this.moduleDefineHolder = moduleDefineHolder;
         this.clientsA = new LinkedList<>();
         this.clientsB = new LinkedList<>();
         this.usingClients = clientsA;
+        this.remoteTimeout = remoteTimeout;
     }
 
     public void start() {
@@ -203,7 +210,7 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         getFreeClients().add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000);
+                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout);
                         client.connect();
                         getFreeClients().add(client);
                     }
