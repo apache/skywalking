@@ -48,7 +48,6 @@
         <module>zookeeper-3.4.x-plugin</module>
         <module>customize-enhance-plugin</module>
         <module>play-2.x-plugin</module>
-        <module>pulsar-plugin</module>
     </modules>
 
     <dependencies>

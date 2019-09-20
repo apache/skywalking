@@ -26,7 +26,6 @@ import org.apache.pulsar.shade.io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class MockMessage extends MessageImpl {
 
@@ -50,7 +49,12 @@ public class MockMessage extends MessageImpl {
     public synchronized Map<String, String> getProperties() {
         if (this.properties == null) {
             if (this.msgMetadataBuilder.getPropertiesCount() > 0) {
-                this.properties = Collections.unmodifiableMap((Map)this.msgMetadataBuilder.getPropertiesList().stream().collect(Collectors.toMap(PulsarApi.KeyValue::getKey, PulsarApi.KeyValue::getValue)));
+                Map<String, String> internalProperties = new HashMap<String, String>();
+                for (int i = 0; i < this.msgMetadataBuilder.getPropertiesCount(); i++) {
+                    PulsarApi.KeyValue kv = this.msgMetadataBuilder.getProperties(i);
+                    internalProperties.put(kv.getKey(), kv.getValue());
+                }
+                this.properties = Collections.unmodifiableMap(internalProperties);
             } else {
                 this.properties = Collections.emptyMap();
             }
