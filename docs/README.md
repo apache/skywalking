@@ -10,6 +10,8 @@ several ways to provide observability, including monitoring and alarm of course.
 - [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can know how to contribute from beginning.
 - [Protocols](en/protocols/README.md). Protocols show the communication ways between agents/probes and backend. Anyone, interested
 in uplink telemetry data, definitely should read this.
+- [Apache Committer](en/asf/committer.md). The PMC will assess the contributions of every contributor, including, but not limited to, 
+code contributions, and follow the Apache guides to promote, vote and invite new committer and PMC member.
 - [FAQs](en/FAQ/README.md). Include a manifest, including already known setup problems, secondary developments experiments. When 
 you are facing a problem, check here first.
 
