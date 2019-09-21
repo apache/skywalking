@@ -15,13 +15,17 @@ follow the next step to subscribe.
 - Issue report and discussion also could take place in `dev@skywalking.apache.org`. 
 Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list. 
 
-
 ## Contact Us
 All the following channels are open to the community, you could choose the way you like.
 * Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
+
+## Become official Apache SkyWalking Committer
+The PMC will assess the contributions of every contributor, including, but not limited to, 
+code contributions, and follow the Apache guides to promote, vote and invite new committer and PMC member.
+Read [Become official Apache SkyWalking Committer](asf/committer.md) to get details.
 
 ## For code developer
 For developers, first step, read [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the environment.

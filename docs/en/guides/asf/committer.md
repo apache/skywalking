@@ -127,7 +127,7 @@ SkyWalking project doesn't require the continue contributions after you become a
 Being a committer, you could
 1. Review and merge the pull request to the master branch in the Apache repo. For new committer, we hope you could request some senior committer to recheck the pull request.
 1. Create and push codes to new branch in the Apache repo.
-1. Follow the [Release process](../guides/How-to-release.md) to process new release. Of course, you need to ask committer team
+1. Follow the [Release process](../How-to-release.md) to process new release. Of course, you need to ask committer team
 to confirm it is the right time to release.
 
 The PMC hope the new committer to take part in the release and release vote, even still be consider `+1 no binding`.
