@@ -6,7 +6,7 @@ They think MQ should be better in the performance and supporting high throughput
 
 Here are the reasons the SkyWalking's opinions.
 
-### Is MQ a good or right way to community with OAP backend?
+### Is MQ a good or right way to communicate with OAP backend?
 This question comes out when people think about what happens when the OAP cluster is not powerful enough or offline. 
 But I want to ask the questions before answer this.
 1. Why do you think OAP should be not powerful enough? As it is not, the speed of data analysis wouldn't catch up with producers(agents). Then what is the point of adding new deployment requirement?

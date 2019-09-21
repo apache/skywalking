@@ -21,9 +21,17 @@ package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 public class RestControllerInstrumentation extends AbstractControllerInstrumentation {
 
+    public static final String WITNESS_CLASSES_HIGH_VERSION = "org.springframework.http.HttpRange";
+
     public static final String ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RestController";
 
-    @Override protected String[] getEnhanceAnnotations() {
-        return new String[] {ENHANCE_ANNOTATION};
+    @Override
+    protected String[] getEnhanceAnnotations() {
+        return new String[]{ENHANCE_ANNOTATION};
+    }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator", WITNESS_CLASSES_HIGH_VERSION};
     }
 }

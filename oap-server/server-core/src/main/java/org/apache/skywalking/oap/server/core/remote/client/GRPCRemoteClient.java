@@ -59,12 +59,14 @@ public class GRPCRemoteClient implements RemoteClient {
     private boolean isConnect;
     private CounterMetrics remoteOutCounter;
     private CounterMetrics remoteOutErrorCounter;
+    private int remoteTimeout;
 
     public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address, int channelSize,
-        int bufferSize) {
+        int bufferSize, int remoteTimeout) {
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
+        this.remoteTimeout = remoteTimeout;
 
         remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
@@ -183,7 +185,7 @@ public class GRPCRemoteClient implements RemoteClient {
             }
         }
 
-        return getStub().withDeadlineAfter(10, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
+        return getStub().withDeadlineAfter(remoteTimeout, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
 
