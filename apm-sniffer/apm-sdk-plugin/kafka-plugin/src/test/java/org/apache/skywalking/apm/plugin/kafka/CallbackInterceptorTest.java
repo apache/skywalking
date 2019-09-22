@@ -63,7 +63,9 @@ public class CallbackInterceptorTest {
 
     private EnhancedInstance callBackInstance = new EnhancedInstance() {
         @Override public Object getSkyWalkingDynamicField() {
-            return MockContextSnapshot.INSTANCE.mockContextSnapshot();
+            CallbackCache cache = new CallbackCache();
+            cache.setSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
+            return cache;
         }
 
         @Override public void setSkyWalkingDynamicField(Object value) {
