@@ -16,17 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.oap.query.graphql.type;
 
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 @Setter
-public class Service {
-    private int id;
-    private String name;
+public class TimeInfo {
+    /**
+     * server current timezone, format: +0800
+     */
+    private String timezone;
+    /**
+     * server current timestamp, format: 1569124528392
+     */
+    private Long currentTimestamp;
 }

@@ -53,6 +53,10 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int monthMetricsDataTTL;
     @Setter private int gRPCThreadPoolSize;
     @Setter private int gRPCThreadPoolQueueSize;
+    /**
+     * Timeout for cluster internal communication, in seconds.
+     */
+    @Setter private int remoteTimeout = 20;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

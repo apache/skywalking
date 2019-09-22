@@ -89,6 +89,13 @@ public class Config {
          */
         public static String INSTANCE_UUID = "";
 
+        /*
+         * service instance properties
+         * e.g.
+         *   agent.instance_properties[org]=apache
+         */
+        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<String, String>();
+
         /**
          * How depth the agent goes, when log cause exceptions.
          */
@@ -125,6 +132,10 @@ public class Config {
          * Collector skywalking trace receiver service addresses.
          */
         public static String BACKEND_SERVICE = "";
+        /**
+         * How long grpc client will timeout in sending data to upstream.
+         */
+        public static int GRPC_UPSTREAM_TIMEOUT = 30;
     }
 
     public static class Jvm {
@@ -167,6 +178,12 @@ public class Config {
          * file.
          */
         public static int MAX_FILE_SIZE = 300 * 1024 * 1024;
+
+        /**
+         * The max history log files. When rollover happened, if log files exceed this number,
+         * then the oldest file will be delete. Negative or zero means off, by default.
+         */
+        public static int MAX_HISTORY_FILES = -1;
 
         /**
          * The log level. Default is debug.
@@ -279,6 +296,14 @@ public class Config {
             public static class RestTemplate implements OPGroupDefinition {
                 public static Map<String, String> RULE = new HashMap<String, String>();
             }
+        }
+
+        public static class Light4J {
+            /**
+             * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,
+             * generating a local span for each.
+             */
+            public static boolean TRACE_HANDLER_CHAIN = false;
         }
     }
 }
