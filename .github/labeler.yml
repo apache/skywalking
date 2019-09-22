@@ -8,11 +8,18 @@ agent:
 plugin:
   - "apm-sniffer/apm-sdk-plugin/**"
   - "apm-sniffer/optional-plugins/**"
+  - "oap-server/server-cluster-plugin/**"
+  - "oap-server/configuration/**"
+  - "oap-server/storage-plugin/**"
+  - "oap-server/telemetry/**"
+  - "oap-server/receiver-plugin/**"
 
 core feature:
   - "apm-sniffer/apm-agent-core/**"
   - "oap-server/server-core/**"
   - "oap-server/server-library/**"
+  - "oap-server/oal-grammar/**"
+  - "oap-server/oal-rt/**"
 
 docker:
   - "docker/**"
