@@ -1,0 +1,27 @@
+document:
+  - "**/*.md"
+
+agent:
+  - "apm-sniffer/apm-sdk-plugin/**"
+  - "apm-sniffer/optional-plugins/**"
+
+plugin:
+  - "apm-sniffer/apm-sdk-plugin/**"
+  - "apm-sniffer/optional-plugins/**"
+
+core feature:
+  - "apm-sniffer/apm-agent-core/**"
+  - "oap-server/server-core/**"
+  - "oap-server/server-library/**"
+
+docker:
+  - "docker/**"
+
+OAP-backend:
+  - "oap-server/**"
+
+UI:
+  - "skywalking-ui/**"
+
+test:
+  - "test/**"
