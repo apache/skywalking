@@ -22,3 +22,6 @@ OAP-backend:
 
 UI:
   - "skywalking-ui/**"
+
+test:
+  - "test/**"
