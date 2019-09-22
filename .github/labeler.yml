@@ -29,6 +29,7 @@ OAP-backend:
 
 UI:
   - "oap-server/server-query-plugin/**"
+  - "skywalking-ui/**"
 
 submodule update:
   - ".gitmodules"
