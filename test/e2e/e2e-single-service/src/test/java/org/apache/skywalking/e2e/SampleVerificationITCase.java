@@ -188,7 +188,8 @@ public class SampleVerificationITCase {
         }
     }
 
-    private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+    private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now,
+        Service service) throws Exception {
         InputStream expectedInputStream;
         Instances instances = queryClient.instances(
             new InstancesQuery()
@@ -203,7 +204,8 @@ public class SampleVerificationITCase {
         return instances;
     }
 
-    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now,
+        Service service) throws Exception {
         Endpoints instances = queryClient.endpoints(
             new EndpointQuery().serviceId(service.getKey())
         );
@@ -218,7 +220,7 @@ public class SampleVerificationITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
-                final Metrics instanceRespTime = queryClient.metrics(
+                final Metrics instanceMetrics = queryClient.metrics(
                     new MetricsQuery()
                         .stepByMinute()
                         .metricsName(metricsName)
@@ -228,8 +230,8 @@ public class SampleVerificationITCase {
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
                 instanceRespTimeMatcher.setValue(greaterThanZero);
-                instanceRespTimeMatcher.verify(instanceRespTime);
-                LOGGER.info("{}: {}", metricsName, instanceRespTime);
+                instanceRespTimeMatcher.verify(instanceMetrics);
+                LOGGER.info("{}: {}", metricsName, instanceMetrics);
             }
         }
     }
@@ -252,7 +254,7 @@ public class SampleVerificationITCase {
                 greaterThanZero.setValue("gt 0");
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 instanceRespTimeMatcher.verify(metrics);
-                LOGGER.info("metrics: {}", metrics);
+                LOGGER.info("{}: {}", metricName, metrics);
             }
         }
     }
@@ -260,7 +262,7 @@ public class SampleVerificationITCase {
     private void verifyServiceMetrics(Service service) throws Exception {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
-            final Metrics instanceRespTime = queryClient.metrics(
+            final Metrics serviceMetrics = queryClient.metrics(
                 new MetricsQuery()
                     .stepByMinute()
                     .metricsName(metricName)
@@ -270,8 +272,8 @@ public class SampleVerificationITCase {
             MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
             instanceRespTimeMatcher.setValue(greaterThanZero);
-            instanceRespTimeMatcher.verify(instanceRespTime);
-            LOGGER.info("instanceRespTime: {}", instanceRespTime);
+            instanceRespTimeMatcher.verify(serviceMetrics);
+            LOGGER.info("{}: {}", metricName, serviceMetrics);
         }
     }
 

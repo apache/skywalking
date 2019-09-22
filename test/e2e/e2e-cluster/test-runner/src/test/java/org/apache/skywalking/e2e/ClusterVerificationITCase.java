@@ -227,8 +227,8 @@ public class ClusterVerificationITCase {
 
                 boolean valid = false;
                 while (!valid) {
-                    LOGGER.warn("instanceRespTime is null, will retry to query");
-                    Metrics instanceRespTime = queryClient.metrics(
+                    LOGGER.warn("instanceMetrics is null, will retry to query");
+                    Metrics instanceMetrics = queryClient.metrics(
                             new MetricsQuery()
                                 .stepByMinute()
                                 .metricsName(metricsName)
@@ -241,13 +241,13 @@ public class ClusterVerificationITCase {
                     greaterThanZero.setValue("gt 0");
                     instanceRespTimeMatcher.setValue(greaterThanZero);
                     try {
-                        instanceRespTimeMatcher.verify(instanceRespTime);
+                        instanceRespTimeMatcher.verify(instanceMetrics);
                         valid = true;
                     } catch (Throwable ignored) {
                         generateTraffic();
                         Thread.sleep(retryInterval);
                     }
-                    LOGGER.info("{}: {}", metricsName, instanceRespTime);
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
                 }
             }
         }
