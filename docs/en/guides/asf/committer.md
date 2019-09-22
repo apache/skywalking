@@ -160,7 +160,7 @@ SkyWalking proposes to invite Jane Doe (janedoe) to join the PMC.
 (include if a vote was held) The vote result is available here: https://lists.apache.org/...
 ```
 
-After 72 hours, if the board objects(usually it wouldn't be), send the invitation.
+After 72 hours, if the board doesn't object(usually it wouldn't be), send the invitation.
 
 After the committer accepted the invitation, 
 The PMC member should add the new committer to official PMC list through [roster](https://whimsy.apache.org/roster/committee/skywalking).
