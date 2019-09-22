@@ -24,6 +24,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TimeInfo {
+    /**
+     * server current timezone, format: +0800
+     */
     private String timezone;
-    private Long timestamp;
+    /**
+     * server current timestamp, format: 1569124528392
+     */
+    private Long currentTimestamp;
 }

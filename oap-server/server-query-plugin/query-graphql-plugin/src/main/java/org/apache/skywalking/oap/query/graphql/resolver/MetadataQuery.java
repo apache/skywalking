@@ -101,7 +101,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
         TimeInfo timeInfo = new TimeInfo();
         SimpleDateFormat timezoneFormat = new SimpleDateFormat("ZZZZZZ");
         Date date = new Date();
-        timeInfo.setTimestamp(date.getTime());
+        timeInfo.setCurrentTimestamp(date.getTime());
         timeInfo.setTimezone(timezoneFormat.format(date));
         return timeInfo;
     }
