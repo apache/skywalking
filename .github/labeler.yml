@@ -21,7 +21,18 @@ OAP-backend:
   - "oap-server/**"
 
 UI:
+  - "oap-server/server-query-plugin/**"
   - "skywalking-ui/**"
+
+submodule update:
+  - ".gitmodules"
+
+CI settings:
+  - "appveyor.yml"
+  - "Jenkinsfile"
+  - "Jenkinsfile-E2E"
+  - ".github/**"
+  - "tools/**"
 
 test:
   - "test/**"
