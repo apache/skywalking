@@ -23,6 +23,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Timezone {
+public class TimeInfo {
     private String timezone;
+    private Long timestamp;
 }

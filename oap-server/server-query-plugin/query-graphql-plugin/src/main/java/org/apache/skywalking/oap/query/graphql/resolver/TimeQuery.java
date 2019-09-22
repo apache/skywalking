@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.NowTime;
-import org.apache.skywalking.oap.query.graphql.type.Timezone;
+import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.text.SimpleDateFormat;
@@ -37,16 +36,12 @@ public class TimeQuery implements GraphQLQueryResolver {
         this.moduleManager = moduleManager;
     }
 
-    public NowTime getNowTime() {
-        NowTime nowTime = new NowTime();
-        nowTime.setTime(new Date().getTime());
-        return nowTime;
-    }
-
-    public Timezone getTimezone() {
-        SimpleDateFormat timezoneFormat = new SimpleDateFormat("ZZZZZ");
-        Timezone timezone = new Timezone();
-        timezone.setTimezone(timezoneFormat.format(new Date()));
-        return timezone;
+    public TimeInfo getTimeInfo() {
+        TimeInfo timeInfo = new TimeInfo();
+        SimpleDateFormat timezoneFormat = new SimpleDateFormat("ZZZZZZ");
+        Date date = new Date();
+        timeInfo.setTimestamp(date.getTime());
+        timeInfo.setTimezone(timezoneFormat.format(date));
+        return timeInfo;
     }
 }
