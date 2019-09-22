@@ -204,7 +204,6 @@
         <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
         <jmh.version>1.21</jmh.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
@@ -487,19 +486,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
@@ -519,6 +505,7 @@
                         **/*.xml
                     </resourceIncludes>
                     <excludes>
+                        **/target/generated-test-sources/**,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
                         org/apache/skywalking/apm/network/servicemesh/**/*.java,
