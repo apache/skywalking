@@ -18,23 +18,26 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.util.StringUtil;
-
-import java.util.Map;
 
 /**
+ * intercept Callback set cache
  * @author stalary
- */
-public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
+ **/
+public class CallbackConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Map<String, Object> config = (Map<String, Object>) allArguments[0];
-        // prevent errors caused by secondary interception in kafkaTemplate
-        if (objInst.getSkyWalkingDynamicField() == null) {
-            objInst.setSkyWalkingDynamicField(StringUtil.join(';', ((String) config.get("bootstrap.servers")).split(",")));
+        Callback callback = (Callback) allArguments[0];
+        CallbackCache cache;
+        if (null != objInst.getSkyWalkingDynamicField()) {
+            cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
+        } else {
+            cache = new CallbackCache();
         }
+        cache.setCallback(callback);
+        objInst.setSkyWalkingDynamicField(cache);
     }
 }
