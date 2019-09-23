@@ -54,12 +54,11 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        if (allArguments.length > 0 && allArguments[0] != null) {
+        if (allArguments[0] != null) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-            requiredInfo.setStartTime(System.currentTimeMillis());
             AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
                     requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), null)
-                    .start(requiredInfo.getStartTime());
+                    .start(System.currentTimeMillis());
             activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
             SpanLayer.asMQ(activeSpan);
             Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
@@ -78,7 +77,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (allArguments.length > 0 && allArguments[0] != null) {
+        if (allArguments[0] != null) {
             ContextManager.stopSpan();
         }
         return ret;
@@ -87,7 +86,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        if (allArguments.length > 0 && allArguments[0] != null) {
+        if (allArguments[0] != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }
     }

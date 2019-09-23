@@ -97,14 +97,6 @@ public class PulsarProducerInterceptorTest {
     }
 
     @Test
-    public void testSendWithoutMessage() throws Throwable {
-        producerInterceptor.beforeMethod(pulsarProducerInstance, null, new Object[0], argumentType, null);
-        producerInterceptor.afterMethod(pulsarProducerInstance, null, new Object[0], argumentType, null);
-        List<TraceSegment> traceSegmentList = segmentStorage.getTraceSegments();
-        assertThat(traceSegmentList.size(), is(0));
-    }
-
-    @Test
     public void testSendWithNullMessage() throws Throwable {
         producerInterceptor.beforeMethod(pulsarProducerInstance, null, new Object[]{null}, argumentType, null);
         producerInterceptor.afterMethod(pulsarProducerInstance, null, new Object[]{null}, argumentType, null);

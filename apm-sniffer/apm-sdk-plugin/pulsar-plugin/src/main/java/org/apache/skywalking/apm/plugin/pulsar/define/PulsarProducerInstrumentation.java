@@ -54,6 +54,8 @@ public class PulsarProducerInstrumentation extends ClassInstanceMethodsEnhancePl
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.PulsarProducerInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.ProducerImpl";
     public static final String ENHANCE_METHOD = "sendAsync";
+    public static final String ENHANCE_METHOD_TYPE = "org.apache.pulsar.client.impl.SendCallback";
+
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.ProducerConstructorInterceptor";
     public static final String CONSTRUCTOR_INTERCEPTOR_FLAG = "org.apache.pulsar.client.impl.PulsarClientImpl";
 
@@ -80,7 +82,7 @@ public class PulsarProducerInstrumentation extends ClassInstanceMethodsEnhancePl
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(1, ENHANCE_METHOD_TYPE));
                 }
 
                 @Override

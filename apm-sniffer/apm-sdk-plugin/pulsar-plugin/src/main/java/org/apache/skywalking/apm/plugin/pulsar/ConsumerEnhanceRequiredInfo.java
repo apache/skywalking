@@ -40,11 +40,6 @@ public class ConsumerEnhanceRequiredInfo {
      */
     private String subscriptionName;
 
-    /**
-     * start time of message receiving
-     */
-    private long startTime;
-
     public String getServiceUrl() {
         return serviceUrl;
     }
@@ -69,11 +64,4 @@ public class ConsumerEnhanceRequiredInfo {
         this.subscriptionName = subscriptionName;
     }
 
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
 }

@@ -94,15 +94,6 @@ public class PulsarConsumerInterceptorTest {
     }
 
     @Test
-    public void testConsumerWithoutMessage() throws Throwable {
-        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[0], new Class[0], null);
-        consumerInterceptor.afterMethod(consumerInstance, null, new Object[0], new Class[0], null);
-
-        List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
-        assertThat(traceSegments.size(), is(0));
-    }
-
-    @Test
     public void testConsumerWithNullMessage() throws Throwable {
         consumerInterceptor.beforeMethod(consumerInstance, null, new Object[]{null}, new Class[0], null);
         consumerInterceptor.afterMethod(consumerInstance, null, new Object[]{null}, new Class[0], null);

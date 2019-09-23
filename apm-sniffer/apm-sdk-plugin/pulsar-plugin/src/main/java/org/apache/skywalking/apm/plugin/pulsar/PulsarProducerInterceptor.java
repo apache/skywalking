@@ -59,7 +59,7 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        if (allArguments.length > 0 && allArguments[0] != null) {
+        if (allArguments[0] != null) {
             ProducerEnhanceRequiredInfo requiredInfo = (ProducerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
             ContextCarrier contextCarrier = new ContextCarrier();
             String topicName = requiredInfo.getTopic();
@@ -95,7 +95,7 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        if (allArguments.length > 0 && allArguments[0] != null) {
+        if (allArguments[0] != null) {
             ContextManager.stopSpan();
         }
         return ret;
@@ -103,7 +103,7 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        if (allArguments.length > 0 && allArguments[0] != null) {
+        if (allArguments[0] != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }
     }

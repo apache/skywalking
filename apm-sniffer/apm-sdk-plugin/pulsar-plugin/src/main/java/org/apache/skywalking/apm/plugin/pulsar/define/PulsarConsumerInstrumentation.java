@@ -51,6 +51,7 @@ public class PulsarConsumerInstrumentation extends ClassInstanceMethodsEnhancePl
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.ConsumerConstructorInterceptor";
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.PulsarConsumerInterceptor";
     public static final String ENHANCE_METHOD = "messageProcessed";
+    public static final String ENHANCE_METHOD_TYPE = "org.apache.pulsar.client.api.Message";
     public static final String ENHANCE_CLASS = "org.apache.pulsar.client.impl.ConsumerImpl";
 
     @Override
@@ -78,7 +79,7 @@ public class PulsarConsumerInstrumentation extends ClassInstanceMethodsEnhancePl
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, ENHANCE_METHOD_TYPE));
                 }
 
                 @Override public String getMethodsInterceptor() {
