@@ -57,8 +57,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
         if (allArguments[0] != null) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
             AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
-                    requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), null)
-                    .start(System.currentTimeMillis());
+                    requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), null);
             activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
             SpanLayer.asMQ(activeSpan);
             Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
