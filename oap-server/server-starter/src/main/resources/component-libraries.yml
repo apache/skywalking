@@ -242,7 +242,18 @@ Cassandra:
 Light4J:
   id: 71
   languages: Java
-
+Pulsar:
+  id: 72
+  languages: Java
+pulsar-producer:
+  id: 73
+  languages: Java
+pulsar-consumer:
+  id: 74
+  languages: Java
+Ehcache:
+  id: 75
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -344,3 +355,5 @@ Component-Server-Mappings:
   transport-client: Elasticsearch
   SolrJ: Solr
   cassandra-java-driver: Cassandra
+  pulsar-producer: Pulsar
+  pulsar-consumer: Pulsar

@@ -62,6 +62,7 @@ public class SourceColumn {
             case "String":
                 this.type = String.class;
                 typeName = "String";
+                break;
             default:
                 try {
                     this.type = Class.forName(typeName);

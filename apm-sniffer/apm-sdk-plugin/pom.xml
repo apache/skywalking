@@ -77,6 +77,8 @@
         <module>cassandra-java-driver-3.x-plugin</module>
         <module>light4j-plugins</module>
         <module>ehcache-2.x-plugin</module>
+        <module>pulsar-plugin</module>
+        <module>ehcache-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

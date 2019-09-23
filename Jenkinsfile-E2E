@@ -18,7 +18,12 @@
 
 pipeline {
     agent {
-        label 'xenial'
+        label 'skywalking'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 5, unit: 'HOURS')
     }
 
     tools {
@@ -45,12 +50,6 @@ pipeline {
                 // thus save unnecessary E2E builds(which is expensive)
                 sh './mvnw checkstyle:check apache-rat:check'
                 sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install'
-                // Some of the tests will modify files in the distribution folder, e.g. cluster test will modify the application.yml
-                // so we give each test a separate distribution folder here
-                sh 'mkdir -p dist-for-single-node-service && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-single-node-service'
-                sh 'mkdir -p dist-for-cluster && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-cluster'
-                sh 'mkdir -p dist-for-agent-reboot && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-agent-reboot'
-                sh 'mkdir -p dist-for-ttl-es && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-ttl-es'
             }
         }
 
@@ -62,27 +61,35 @@ pipeline {
 
         stage('Run End-to-End Tests') {
             parallel {
-                stage('Run Single Node Tests') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
+                stage('Group 1') {
+                    stages {
+                        stage('Single Node Tests') {
+                            steps {
+                                sh 'bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Agent Reboot Tests') {
+                            steps {
+                                sh 'bash -x test/e2e/run.sh e2e-agent-reboot'
+                            }
+                        }
                     }
                 }
 
-                stage('Run Cluster Tests (ES/ZK)') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner -am verify'
-                    }
-                }
+                stage('Group 2') {
+                    stages {
+                        stage('Cluster Tests (ES6/ZK)') {
+                            steps {
+                                sh 'bash -x test/e2e/run.sh e2e-cluster/test-runner'
+                            }
+                        }
 
-                stage('Run Agent Reboot Tests') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-agent-reboot -am verify'
-                    }
-                }
-
-                stage('Run TTL Tests') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-ttl/e2e-ttl-es -am verify'
+                        stage('TTL ES Tests') {
+                            steps {
+                                sh 'bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
+                            }
+                        }
                     }
                 }
             }

@@ -1,5 +1,5 @@
 aggs-matrix-stats-client-6.3.2.jar
-animal-sniffer-annotations-1.17.jar
+animal-sniffer-annotations-1.14.jar
 annotations-13.0.jar
 antlr4-runtime-4.7.1.jar
 aopalliance-1.0.jar
@@ -33,7 +33,7 @@ elasticsearch-rest-client-6.3.2.jar
 elasticsearch-rest-high-level-client-6.3.2.jar
 elasticsearch-secure-sm-6.3.2.jar
 elasticsearch-x-content-6.3.2.jar
-error_prone_annotations-2.2.0.jar
+error_prone_annotations-2.0.18.jar
 etcd4j-2.17.0.jar
 fastjson-1.2.47.jar
 freemarker-2.3.28.jar
@@ -47,7 +47,7 @@ grpc-protobuf-1.15.1.jar
 grpc-protobuf-lite-1.15.1.jar
 grpc-stub-1.15.1.jar
 gson-2.8.1.jar
-guava-20.0.jar
+guava-23.1-jre.jar
 guice-4.1.0.jar
 h2-1.4.196.jar
 HdrHistogram-2.1.9.jar

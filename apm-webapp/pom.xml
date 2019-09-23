@@ -37,6 +37,7 @@
         <apache-httpclient.version>4.5.3</apache-httpclient.version>
         <spring-cloud-dependencies.version>Edgware.SR1</spring-cloud-dependencies.version>
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>
@@ -92,6 +93,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring.boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-classic.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
