@@ -27,6 +27,7 @@ or providing commercial products including Apache SkyWalking.
 1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
 1. Dangdang.com. 当当网. http://www.dangdang.com/
 1. DaoCloud. https://www.daocloud.io/
+1. deepblueai.com 深兰科技上海有限公司 https://www.deepblueai.com/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
@@ -91,6 +92,7 @@ or providing commercial products including Apache SkyWalking.
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 1. Wochu. 我厨买菜. https://www.wochu.cn
 1. Xiaomi. 小米. https://www.mi.com/en/
+1. xin.com 优信集团 http://www.xin.com
 1. Xinyebang.com 重庆欣业邦网络技术有限公司 http://www.xinyebang.com
 1. xueqiu.com 雪球财经. https://xueqiu.com/
 1. yibainetwork.com 深圳易佰网络有限公司 http://www.yibainetwork.com/

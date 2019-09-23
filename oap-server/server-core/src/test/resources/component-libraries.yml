@@ -224,6 +224,12 @@ Cassandra:
 Light4J:
   id: 71
   languages: Java
+Ehcache:
+  id: 75
+  languages: Java
+SocketIO:
+  id: 76
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

@@ -19,13 +19,21 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
+import java.util.Objects;
+
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * @author wusheng
  */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
 public class AlarmRule {
@@ -39,4 +47,32 @@ public class AlarmRule {
     private int count;
     private int silencePeriod;
     private String message;
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AlarmRule alarmRule = (AlarmRule) o;
+
+        return period == alarmRule.period
+            && count == alarmRule.count
+            && silencePeriod == alarmRule.silencePeriod
+            && Objects.equals(alarmRuleName, alarmRule.alarmRuleName)
+            && Objects.equals(metricsName, alarmRule.metricsName)
+            && Objects.equals(includeNames, alarmRule.includeNames)
+            && Objects.equals(threshold, alarmRule.threshold)
+            && Objects.equals(op, alarmRule.op)
+            && Objects.equals(message, alarmRule.message);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(alarmRuleName, metricsName, includeNames, threshold, op, period, count, silencePeriod, message);
+    }
 }

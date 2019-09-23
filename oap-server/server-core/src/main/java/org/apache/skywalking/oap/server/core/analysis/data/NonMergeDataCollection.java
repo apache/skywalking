@@ -36,7 +36,7 @@ public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements
         this.reading = false;
     }
 
-    public void finishWriting() {
+    @Override public void finishWriting() {
         writing = false;
     }
 
