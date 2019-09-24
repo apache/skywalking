@@ -76,7 +76,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
-            if (response.getHits().totalHits == 1) {
+            if (response.getHits().getHits().length == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());
             } else {

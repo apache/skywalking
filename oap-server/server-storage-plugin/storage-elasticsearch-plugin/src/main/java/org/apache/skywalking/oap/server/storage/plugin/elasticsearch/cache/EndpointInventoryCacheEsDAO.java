@@ -65,7 +65,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);
-            if (response.getHits().totalHits == 1) {
+            if (response.getHits().getHits().length == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());
             } else {
