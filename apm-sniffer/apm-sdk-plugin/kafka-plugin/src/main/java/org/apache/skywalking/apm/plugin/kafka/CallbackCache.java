@@ -15,26 +15,42 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.apm.plugin.kafka;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.util.StringUtil;
-
-import java.util.Map;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
 /**
+ * cache Callback and ContextSnapshot
  * @author stalary
  */
-public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
+public class CallbackCache {
+
+    private Callback callback;
+
+    private ContextSnapshot snapshot;
+
+    public Callback getCallback() {
+        return callback;
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
+    public ContextSnapshot getSnapshot() {
+        return snapshot;
+    }
+
+    public void setSnapshot(ContextSnapshot snapshot) {
+        this.snapshot = snapshot;
+    }
 
     @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Map<String, Object> config = (Map<String, Object>) allArguments[0];
-        // prevent errors caused by secondary interception in kafkaTemplate
-        if (objInst.getSkyWalkingDynamicField() == null) {
-            objInst.setSkyWalkingDynamicField(StringUtil.join(';', ((String) config.get("bootstrap.servers")).split(",")));
-        }
+    public String toString() {
+        return "CallbackCache{" +
+            "callback=" + callback +
+            ", snapshot=" + snapshot +
+            '}';
     }
 }

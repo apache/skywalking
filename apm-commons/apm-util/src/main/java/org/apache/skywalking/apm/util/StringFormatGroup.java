@@ -41,8 +41,10 @@ public class StringFormatGroup {
      * @param ruleRegex to match target string.
      */
     public void addRule(String name, String ruleRegex) {
-        if (rules.contains(name)) {
-            return;
+        for (PatternRule rule : rules) {
+            if (rule.name.equals(name)) {
+                return;
+            }
         }
         PatternRule rule = new PatternRule(name, ruleRegex);
         rules.add(rule);
@@ -69,7 +71,7 @@ public class StringFormatGroup {
             '}';
     }
 
-    public class FormatResult {
+    public static class FormatResult {
         private boolean match;
         private String name;
 
@@ -87,7 +89,7 @@ public class StringFormatGroup {
         }
     }
 
-    private class PatternRule {
+    private static class PatternRule {
         private String name;
         private Pattern pattern;
 
