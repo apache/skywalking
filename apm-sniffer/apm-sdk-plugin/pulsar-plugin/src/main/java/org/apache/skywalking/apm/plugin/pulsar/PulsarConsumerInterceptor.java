@@ -56,20 +56,19 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
                              MethodInterceptResult result) throws Throwable {
         if (allArguments[0] != null) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
-                    requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), null);
-            activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
-            SpanLayer.asMQ(activeSpan);
-            Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
-            Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopic());
             Message msg = (Message) allArguments[0];
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
+            ContextCarrier carrier = new ContextCarrier();
+            CarrierItem next = carrier.items();
             while (next.hasNext()) {
                 next = next.next();
                 next.setHeadValue(msg.getProperty(next.getHeadKey()));
             }
-            ContextManager.extract(contextCarrier);
+            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
+                    requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), carrier);
+            activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
+            SpanLayer.asMQ(activeSpan);
+            Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
+            Tags.MQ_TOPIC.set(activeSpan, requiredInfo.getTopic());
         }
     }
 
