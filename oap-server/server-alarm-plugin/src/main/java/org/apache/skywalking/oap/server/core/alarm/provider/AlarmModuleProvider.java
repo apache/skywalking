@@ -19,6 +19,10 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -50,7 +54,15 @@ public class AlarmModuleProvider extends ModuleProvider {
         RulesReader reader = new RulesReader(applicationReader);
         Rules rules = reader.readRules();
         notifyHandler = new NotifyHandler(rules);
-        notifyHandler.init(new AlarmStandardPersistence());
+
+        List<AlarmCallback> alarmCallbacks = new ArrayList<>();
+        ServiceLoader<AlarmCallback> callbackLoader = ServiceLoader.load(AlarmCallback.class);
+        for (AlarmCallback alarmCallbackImpl : callbackLoader) {
+            alarmCallbacks.add(alarmCallbackImpl);
+        }
+
+        notifyHandler.init(alarmCallbacks);
+
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 

@@ -18,12 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
+import java.util.List;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -33,10 +45,8 @@ public class NotifyHandler implements MetricsNotify {
     private EndpointInventoryCache endpointInventoryCache;
 
     private final AlarmCore core;
-    private final Rules rules;
 
     public NotifyHandler(Rules rules) {
-        this.rules = rules;
         core = new AlarmCore(rules);
     }
 
@@ -94,12 +104,7 @@ public class NotifyHandler implements MetricsNotify {
         runningRules.forEach(rule -> rule.in(metaInAlarm, metrics));
     }
 
-    public void init(AlarmCallback... callbacks) {
-        List<AlarmCallback> allCallbacks = new ArrayList<>();
-        for (AlarmCallback callback : callbacks) {
-            allCallbacks.add(callback);
-        }
-        allCallbacks.add(new WebhookCallback(rules.getWebhooks()));
+    public void init(List<AlarmCallback> allCallbacks) {
         core.start(allCallbacks);
     }
 

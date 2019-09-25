@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.Collections;
+
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.*;
@@ -199,11 +201,11 @@ public class NotifyHandlerTest {
 
         notifyHandler = new NotifyHandler(rules);
 
-        notifyHandler.init(alarmMessageList -> {
+        notifyHandler.init(Collections.singletonList(alarmMessageList -> {
             for (AlarmMessage message : alarmMessageList) {
                 assertNotNull(message);
             }
-        });
+        }));
 
         moduleManager = mock(ModuleManager.class);
 
