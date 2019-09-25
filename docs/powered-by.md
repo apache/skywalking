@@ -91,6 +91,7 @@ or providing commercial products including Apache SkyWalking.
 1. Weier. 广州文尔软件科技有限公司. https://www.site0.cn
 1. Wochu. 我厨买菜. https://www.wochu.cn
 1. Xiaomi. 小米. https://www.mi.com/en/
+1. xin.com 优信集团 http://www.xin.com
 1. Xinyebang.com 重庆欣业邦网络技术有限公司 http://www.xinyebang.com
 1. xueqiu.com 雪球财经. https://xueqiu.com/
 1. yibainetwork.com 深圳易佰网络有限公司 http://www.yibainetwork.com/
@@ -99,7 +100,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. xin.com 优信集团 http://www.xin.com
 
 # User Cases
 ## Alibaba Cloud
