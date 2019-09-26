@@ -46,7 +46,7 @@ curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.ya
 
 ###
 echo "To validate"
-java -jar -Dv2=true -DtestDate="`date +%Y-%m-%d-%H-%M`" -DtestCasePath=${SCENARIO_HOME}/data/ /skywalking-validator-tools.jar
+java -jar -Dv2=true -DtestDate="`date +%Y-%m-%d-%H-%M`" -DtestCasePath=${SCENARIO_HOME}/data/ ${SCENARIO_HOME}/skywalking-validator-tools.jar
 status=$?
 
 if [[ $status -eq 0 ]]; then

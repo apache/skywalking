@@ -100,7 +100,7 @@ public class ConfigurationImpl implements IConfiguration {
 
     @Override
     public String dockerContainerName() {
-        return "skyapm/" + scenarioName() + "-" + scenarioVersion() + "-" + Long.toHexString(System.nanoTime());
+        return scenarioName() + "-" + scenarioVersion() + "-" + Long.toHexString(System.nanoTime());
     }
 
     @Override public String scenarioHome() {
