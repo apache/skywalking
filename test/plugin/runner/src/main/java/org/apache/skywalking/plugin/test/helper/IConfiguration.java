@@ -40,6 +40,8 @@ public interface IConfiguration {
 
     String dockerImageName();
 
+    String dockerContainerName();
+
     String scenarioHome();
 
     String outputDir();

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.skywalking.plugin.test.agent.tool;
 
 import java.io.File;
@@ -19,26 +36,30 @@ public class Main {
         Report report = new Report();
         String testCasePath = ConfigHelper.testCaseBaseDir();
 
+        boolean success = false;
         if (ConfigHelper.isV2()) {
-            verify(new File(testCasePath), TestCaseDesc.ParserV2.parse(), report);
+            success |= verify(new File(testCasePath), TestCaseDesc.ParserV2.parse(), report).isSuccess();
         } else {
             String[] testCases = ConfigHelper.testCases().split(",");
 
             for (String aCase : testCases) {
                 File casePath = new File(testCasePath, aCase);
                 File descFile = new File(casePath, "testcase.desc");
-                verify(casePath, TestCaseDesc.Parser.parse(descFile), report);
+                success |= verify(casePath, TestCaseDesc.Parser.parse(descFile), report).isSuccess();
             }
         }
 
-        try {
-            report.generateReport(ConfigHelper.reportFilePath());
-        } catch (Exception e) {
-            logger.error("Failed to generate report file", e);
+        if (ConfigHelper.isV2()) {
+            try {
+                report.generateReport(ConfigHelper.reportFilePath());
+            } catch (Exception e) {
+                logger.error("Failed to generate report file", e);
+            }
         }
+        System.exit(success ? 0 : 1);
     }
 
-    static void verify(File casePath, TestCaseDesc testCaseDesc, Report report) {
+    static TestCase verify(File casePath, TestCaseDesc testCaseDesc, Report report) {
         TestCase testCase = new TestCase(testCaseDesc.getTestComponents());
         try {
             logger.info("start to assert data of test case[{}]", testCase.getCaseName());
@@ -60,6 +81,7 @@ public class Main {
             logger.error("assert test case {} failed.", testCase.getCaseName(), e);
         }
         report.addTestCase(testCaseDesc.getProjectName(), testCaseDesc.getTestFramework(), testCase);
+        return testCase;
     }
 
 }

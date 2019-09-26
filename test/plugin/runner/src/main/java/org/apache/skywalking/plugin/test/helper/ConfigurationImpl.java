@@ -19,6 +19,7 @@ package org.apache.skywalking.plugin.test.helper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.UUID;
 
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.util.StringUtils;
@@ -95,6 +96,11 @@ public class ConfigurationImpl implements IConfiguration {
         }
 
         throw new RuntimeException("Illegal type!");
+    }
+
+    @Override
+    public String dockerContainerName() {
+        return "skyapm/" + scenarioName() + "-" + scenarioVersion() + "-" + Long.toHexString(System.nanoTime());
     }
 
     @Override public String scenarioHome() {

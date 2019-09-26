@@ -13,7 +13,7 @@ function healthCheck() {
         sleep 2
     done
 
-    echo -e "\033[31m[WARN] health check failed!\033[0m"
+    echo -e "\033[31m[ERROR] ${SCENARIO_NAME}-${SCENARIO_VERSION} health check failed!\033[0m"
     exit 1
 }
 
@@ -45,12 +45,12 @@ echo "To receive actual data"
 curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
 
 ###
-# for compatible with validator, I will remote it soon.
-desc=${SCENARIO_HOME}/data/testcase.desc && touch ${desc}
-echo "case.testFramework=${SCENARIO_NAME}" > $desc
-echo "case.testComponents=${SCENARIO_VERSION}" > $desc
-echo "case.request_url=${SCENARIO_ENTRY_SERVICE}" > $desc
-echo "case.projectName=" > $desc
-###
+echo "To validate"
+java -jar -Dv2=true -DtestDate="`date +%Y-%m-%d-%H-%M`" -DtestCasePath=${SCENARIO_HOME}/data/ /skywalking-validator-tools.jar
+status=$?
 
-echo "Scenario[${SCENARIO_SUPPORT_FRAMEWORK}, ${SCENARIO_VERSION}] build successfully!"
+if [[ $status -eq 0 ]]; then
+  echo "Scenario[${SCENARIO_SUPPORT_FRAMEWORK}, ${SCENARIO_VERSION}] passed!"
+else
+  echo -e "\033[31mScenario[${SCENARIO_SUPPORT_FRAMEWORK}, ${SCENARIO_VERSION}] failed!\033[0m"
+fi
