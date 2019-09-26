@@ -1,0 +1,12 @@
+docker run -itd  \
+        --name skywalking-agent-test-${scenario_name}-${scenario_version}  \
+        --env SCENARIO_VERSION=${scenario_version}  \
+        --env SCENARIO_SUPPORT_FRAMEWORK=${scenario_name} \
+        --env SCENARIO_ENTRY_SERVICE=${entry_service}  \
+        --env SCENARIO_HEALTH_CHECK_URL=${health_check} \
+        -v ${agent_home}:/usr/local/skywalking-agent-scenario/agent \
+        -v ${scenario_home}/logs:/usr/local/skywalking-agent-scenario/logs \
+        -v ${scenario_home}/reports:/usr/local/skywalking-agent-scenario/reports \
+        -v ${scenario_home}/data:/usr/local/skywalking-agent-scenario/data \
+        -v ${scenario_home}/packages:/usr/local/skywalking-agent-scenario/packages \
+        ${docker_image_name}:latest

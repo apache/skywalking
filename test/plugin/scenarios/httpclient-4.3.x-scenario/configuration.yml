@@ -1,0 +1,4 @@
+type: tomcat
+entryService: http://localhost:8080/httpclient-4.3.x-scenario/case/httpclient
+healthCheck: http://localhost:8080/httpclient-4.3.x-scenario/healthCheck
+framework: httpclient

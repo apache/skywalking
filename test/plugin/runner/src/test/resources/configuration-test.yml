@@ -1,0 +1,12 @@
+type: tomcat
+entryService: http://localhost:8080
+framework: httpclient
+version: 4.0.3
+startScript: ./testcase
+dependencies:
+  mysql:
+    image: xxxx
+    host: xxxx
+    environments:
+      - "test:test"
+      - "test1:test1"
