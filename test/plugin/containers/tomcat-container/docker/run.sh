@@ -54,3 +54,4 @@ if [[ $status -eq 0 ]]; then
 else
   echo -e "\033[31mScenario[${SCENARIO_SUPPORT_FRAMEWORK}, ${SCENARIO_VERSION}] failed!\033[0m"
 fi
+exit $status

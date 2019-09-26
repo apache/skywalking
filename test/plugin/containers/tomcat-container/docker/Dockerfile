@@ -5,6 +5,7 @@ WORKDIR /usr/local/skywalking-agent-scenario
 COPY run.sh /
 COPY catalina.sh /usr/local/tomcat/bin/
 
+COPY skywalking-validator-tools.jar /usr/local/skywalking-agent-scenario
 COPY skywalking-mock-collector.tar.gz /usr/local/skywalking-agent-scenario
 RUN tar -xvf skywalking-mock-collector.tar.gz -C /usr/local/skywalking-agent-scenario
 
