@@ -51,8 +51,14 @@ prepareAndClean() {
 }
 
 waitForAvailable() {
+  if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
+    exit 1
+  fi
   while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt ${_arg_parallel_run_size} ]]
   do
+    if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
+      exit 1
+    fi
     sleep 2
   done
 }
@@ -122,6 +128,10 @@ done
 while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt 0 ]]; do
   sleep 1
 done
+
+if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
+  exit 1
+fi
 
 elapsed=$(( `date +%s` - $start_stamp ))
 num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"

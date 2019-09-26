@@ -46,6 +46,7 @@ public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
         root.put("health_check", configuration.healthCheck());
         root.put("test_framework", configuration.testFramework());
         root.put("docker_image_name", configuration.dockerImageName());
+        root.put("docker_container_name", configuration.dockerContainerName());
         StringWriter out = null;
 
         try {
