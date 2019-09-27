@@ -43,7 +43,7 @@ Note:
 - If set `schema` as `digest`, the password of expression is set in **clear text**. 
 
 In some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
-The following setting are provided to set the hot and port manually, based on your own LAN env.
+The following setting are provided to set the host and port manually, based on your own LAN env.
 - internalComHost, the host registered and other oap node use this to communicate with current node.
 - internalComPort, the port registered and other oap node use this to communicate with current node.
 
@@ -91,7 +91,7 @@ cluster:
 
 Same as Zookeeper coordinator,
 in some cases, oap default gRPC host and port in core are not suitable for internal communication among the oap nodes.
-The following setting are provided to set the hot and port manually, based on your own LAN env.
+The following setting are provided to set the host and port manually, based on your own LAN env.
 - internalComHost, the host registered and other oap node use this to communicate with current node.
 - internalComPort, the port registered and other oap node use this to communicate with current node.
 
