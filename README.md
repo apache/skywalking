@@ -1,5 +1,3 @@
-my skywalking
-
 Apache SkyWalking
 ==========
 
