@@ -1,3 +1,19 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #!/bin/bash
 #
 # ARG_OPTIONAL_BOOLEAN([build_agent],[],[no comment],[off])
@@ -174,8 +190,14 @@ prepareAndClean() {
 }
 
 waitForAvailable() {
+  if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
+    exit 1
+  fi
   while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt ${_arg_parallel_run_size} ]]
   do
+    if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
+      exit 1
+    fi
     sleep 2
   done
 }
@@ -245,6 +267,10 @@ done
 while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt 0 ]]; do
   sleep 1
 done
+
+if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
+  exit 1
+fi
 
 elapsed=$(( `date +%s` - $start_stamp ))
 num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"

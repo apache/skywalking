@@ -49,7 +49,7 @@ public class Main {
             }
         }
 
-        if (ConfigHelper.isV2()) {
+        if (!ConfigHelper.isV2()) {
             try {
                 report.generateReport(ConfigHelper.reportFilePath());
             } catch (Exception e) {
