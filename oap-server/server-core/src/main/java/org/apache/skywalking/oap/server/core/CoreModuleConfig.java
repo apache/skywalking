@@ -45,6 +45,7 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     @Setter private long persistentPeriod = 3;
     @Setter private boolean enableDataKeeperExecutor = true;
+    @Setter private int dataKeeperExecutePeriod = 5;
     @Setter private int recordDataTTL;
     @Setter private int minuteMetricsDataTTL;
     @Setter private int hourMetricsDataTTL;
@@ -52,6 +53,10 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int monthMetricsDataTTL;
     @Setter private int gRPCThreadPoolSize;
     @Setter private int gRPCThreadPoolQueueSize;
+    /**
+     * Timeout for cluster internal communication, in seconds.
+     */
+    @Setter private int remoteTimeout = 20;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
