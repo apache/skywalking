@@ -29,6 +29,7 @@ public class SWTransmitter {
 
     private AbstractSpan spanWebflux;
     private AbstractSpan spanGateway;
+    private AbstractSpan spanFilter;
     private ContextSnapshot snapshot;
     private String operationName;
 
@@ -36,6 +37,14 @@ public class SWTransmitter {
         this.spanWebflux = spanWebflux;
         this.snapshot = snapshot;
         this.operationName = operationName;
+    }
+
+    public AbstractSpan getSpanFilter() {
+        return spanFilter;
+    }
+
+    public void setSpanFilter(AbstractSpan spanFilter) {
+        this.spanFilter = spanFilter;
     }
 
     public AbstractSpan getSpanWebflux() {

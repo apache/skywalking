@@ -19,54 +19,53 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.Constants;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
 
 import java.lang.reflect.Method;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
 
 /**
- * @author zhaoyuguang
+ * @author songxiaoyue
  */
-public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
+public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "FilteringWebHandler";
-
+    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "GATEWAY/";
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
-        if (instance != null) {
-            SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
-            if (swTransmitter != null) {
-                AbstractSpan filteringWebHandler = ContextManager.createLocalSpan(SPRING_CLOUD_GATEWAY_ROUTE_PREFIX);
-                filteringWebHandler.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
-                SpanLayer.asHttp(filteringWebHandler);
-                ContextManager.continued(swTransmitter.getSnapshot());
-                swTransmitter.setSnapshot(ContextManager.capture());
-                swTransmitter.setSpanFilter(filteringWebHandler.prepareForAsync());
-                ContextManager.stopSpan(filteringWebHandler);
-                ContextManager.getRuntimeContext().put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, swTransmitter);
-            }
+        EnhancedInstance instance = getInstance(allArguments[0]);
+        if (instance == null) {
+            return;
         }
+        AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
+        if (span == null) {
+            return;
+        }
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
+        ContextSnapshot capture = ContextManager.capture();
+        Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
+        operationName = operationName + route.getId();
+        span.setOperationName(operationName);
+        SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(),capture,operationName);
+        instance.setSkyWalkingDynamicField(transmitter);
+        ContextManager.stopSpan(span);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (ContextManager.getRuntimeContext().get(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER) != null) {
-            ContextManager.getRuntimeContext().remove(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER);
-        }
         return ret;
     }
 

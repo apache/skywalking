@@ -51,6 +51,7 @@ public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAro
                 Tags.STATUS_CODE.set(transmitter.getSpanWebflux().errorOccurred(), String.valueOf(response.code()));
             }
             transmitter.getSpanGateway().asyncFinish();
+            transmitter.getSpanFilter().asyncFinish();
             transmitter.getSpanWebflux().asyncFinish();
             objInst.setSkyWalkingDynamicField(null);
         }
