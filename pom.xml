@@ -538,6 +538,7 @@
                         <excludes>
                             <exclude>org/apache/skywalking/**/*Test.class</exclude>
                             <exclude>org/apache/skywalking/**/Test*.class</exclude>
+                            <exclude>**/generated-sources/**</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
