@@ -80,7 +80,7 @@ public class RemoteClientManagerTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
+        RemoteClientManager clientManager = new RemoteClientManager(moduleManager, 10);
 
         when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
         clientManager.refresh();

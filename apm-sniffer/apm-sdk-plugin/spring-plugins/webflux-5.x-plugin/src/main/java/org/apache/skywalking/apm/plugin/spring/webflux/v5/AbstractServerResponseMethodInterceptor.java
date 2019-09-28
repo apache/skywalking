@@ -58,7 +58,11 @@ public class AbstractServerResponseMethodInterceptor implements InstanceMethodsA
                 }
                 Tags.STATUS_CODE.set(span, Integer.toString(status.value()));
             }
-            ContextManager.stopSpan(span);
+            if (ContextManager.isActive()) {
+                ContextManager.stopSpan(span);
+            } else {
+                span.asyncFinish();
+            }
             ((EnhancedInstance) allArguments[0]).setSkyWalkingDynamicField(null);
         }
     }

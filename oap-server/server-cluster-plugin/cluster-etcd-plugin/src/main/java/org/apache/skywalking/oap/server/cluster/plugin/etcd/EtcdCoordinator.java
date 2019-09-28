@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
  * @author Alan Lau
@@ -90,6 +91,7 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         }
 
         this.selfAddress = remoteInstance.getAddress();
+        TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
 
         EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceName(serviceName).host(selfAddress.getHost()).port(selfAddress.getPort()).build();
         try {
