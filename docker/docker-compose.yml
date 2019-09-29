@@ -30,7 +30,7 @@ services:
         soft: -1
         hard: -1
   oap:
-    image: skywalking/oap
+    image: apache/skywalking-oap-server
     container_name: oap
     depends_on:
       - elasticsearch
@@ -44,7 +44,7 @@ services:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
   ui:
-    image: skywalking/ui
+    image: apache/skywalking-ui
     container_name: ui
     depends_on:
       - oap
