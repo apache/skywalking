@@ -36,7 +36,7 @@ pipeline {
             parallel {
                 stage('JDK 1.8 on Linux') {
                     agent {
-                        label 'xenial'
+                        label 'skywalking'
                     }
 
                     tools {
@@ -63,7 +63,7 @@ pipeline {
 
                         stage('Test & Report') {
                             steps {
-                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report'
+                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" -DrepoToken=${COVERALLS_REPO_TOKEN} -DpullRequest=${ghprbPullLink} clean cobertura:cobertura verify coveralls:report install'
                                 sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
                             }
                         }
