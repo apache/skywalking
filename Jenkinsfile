@@ -36,7 +36,7 @@ pipeline {
             parallel {
                 stage('JDK 1.8 on Linux') {
                     agent {
-                        label 'xenial'
+                        label 'skywalking'
                     }
 
                     tools {
