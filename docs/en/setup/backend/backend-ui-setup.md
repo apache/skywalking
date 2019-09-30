@@ -9,7 +9,7 @@ server and UI startup.
 1. **Webapp env**, in `webapp` folder. UI frontend jar file is in here and its `webapp.yml` setting file. 
 
 ## Quick start
-Requirement: **JDK8**
+Requirement: **JDK8 to JDK12 are tested**, other versions are not tested and may or may not work.
 
 Before you do quick start, you should know, quick start is to run skywalking backend and UI for preview
 or demonstration. In here, performance and long-term running are not our goals. 
