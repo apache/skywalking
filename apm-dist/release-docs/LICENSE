@@ -231,7 +231,7 @@ The text of each license is the standard Apache 2.0 license.
     Google: grpc 1.15.1: https://grpc.io/ , Apache 2.0
     Google: gprc-java 1.14.0: https://github.com/grpc/grpc-java, Apache 2.0
     Google: gprc-java 1.15.1: https://github.com/grpc/grpc-java, Apache 2.0
-    Google: guava 20.0: https://github.com/google/guava , Apache 2.0
+    Google: guava 23.1: https://github.com/google/guava , Apache 2.0
     Google: guice 4.1.0: https://github.com/google/guice , Apache 2.0
     Google: gson 2.8.1: https://github.com/google/gson , Apache 2.0
     Google: opencensus-java 0.12.3: https://github.com/census-instrumentation/opencensus-java , Apache 2.0
@@ -275,7 +275,7 @@ The text of each license is the standard Apache 2.0 license.
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
     annotations 13.0: http://www.jetbrains.org, Apache 2.0
     compiler 0.9.3: https://github.com/spullara/mustache.java, Apache 2.0
-    error_prone_annotations 2.0.19: https://github.com/google/error-prone, Apache 2.0
+    error_prone_annotations 2.0.18: https://github.com/google/error-prone, Apache 2.0
     hppc 0.7.1: https://github.com/carrotsearch/hppc, Apache 2.0
     instrumentation-api 0.4.3: https://github.com/google/instrumentation-java, Apache 2.0
     jackson-annotations 2.8.0: https://github.com/FasterXML/jackson-annotations, Apache 2.0
