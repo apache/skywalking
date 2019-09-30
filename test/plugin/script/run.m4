@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -13,8 +15,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#!/bin/bash
 #
 # ARG_OPTIONAL_BOOLEAN([build_agent], [], [no comment], [off])
 # ARG_OPTIONAL_BOOLEAN([build_scenario], [], [no comment], [off])
@@ -35,18 +35,14 @@ scenarios_home="${home}/scenarios"
 workspace="${home}/workspace"
 task_state_house="${workspace}/.states"
 
+
 plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
 
 prepareAndClean() {
   echo "prepare and clear"
-  if [[ -f ${task_state_house} ]]; then
-    rm -f ${task_state_house}/* > /dev/null
-  else
-    mkdir -p ${workspace}/.states
-  fi
+  [[ -f ${workspace} ]] && rm -fr ${workspace} > /dev/null
 
-  [[ -f ${workspace}/testcases ]] && rm -rf ${workspace}/testcases
-  mkdir -p ${workspace}/testcases
+  mkdir -p ${workspace}/{.states,testcases}
 
   if [[ ${#_arg_scenarios[@]} -lt 1 ]]; then
     _arg_scenarios=`ls ./scenarios/|sed -e "s/\t/\n/g"`
@@ -98,10 +94,6 @@ do
 
   echo "scenario.name=${scenario_name}"
   num_of_scenarios=$((num_of_scenarios+1))
-  # [[ -f ${testcases_home}/configuration.yml ]] && rm -f ${testcases_home}/configuration.yml
-  # cp -f ${scenario_home}/configuration.yml ${testcases_home} > /dev/null
-  #
-  # testcases_home=${home}/testcases/${scenario_name} && mkdir -p ${testcases_home}
 
   supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
   for version in ${supported_versions}
