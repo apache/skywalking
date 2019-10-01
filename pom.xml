@@ -541,7 +541,15 @@
                         <excludes>
                             <exclude>org/apache/skywalking/**/*Test.class</exclude>
                             <exclude>org/apache/skywalking/**/Test*.class</exclude>
-                            <exclude>**/generated-sources/**</exclude>
+                            <exclude>org/apache/skywalking/apm/network/register/v2/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/common/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/servicemesh/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/network/language/**/*.class</exclude>
+                            <exclude>org/apache/skywalking/oap/server/core/remote/grpc/proto/*.class</exclude>
+                            <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
+                            <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
+                            <exclude>org/apache/skywalking/oap/server/configuration/service/*.class</exclude>
+                            <exclude>grpc/health/v1/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
