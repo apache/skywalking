@@ -18,17 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
-import lombok.*;
+import com.google.gson.Gson;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-public class Rules {
-    private List<AlarmRule> rules;
-    private Map<String, List<String>> webhooks;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new HashMap<>();
+/**
+ * @author muyun12
+ */
+public class DefaultRemoteEndpoint implements RemoteEndpoint {
+
+    private Gson gson = new Gson();
+
+    @Override
+    public String getRemoteEndpointKey() {
+        return "default";
+    }
+
+    @Override
+    public HttpEntity transformAlarmMessage(List<AlarmMessage> alarmMessage) {
+        return new StringEntity(gson.toJson(alarmMessage), StandardCharsets.UTF_8);
     }
 }

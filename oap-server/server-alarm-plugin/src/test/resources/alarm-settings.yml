@@ -39,6 +39,7 @@ rules:
     count: 4
 
 webhooks:
-  - http://127.0.0.1/notify/
-  - http://127.0.0.1/go-wechat/
+  default:
+    - http://127.0.0.1/notify/
+    - http://127.0.0.1/go-wechat/
 

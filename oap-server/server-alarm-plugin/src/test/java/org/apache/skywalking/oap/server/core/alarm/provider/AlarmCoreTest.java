@@ -18,10 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,7 +47,7 @@ public class AlarmCoreTest {
 
         Rules emptyRules = new Rules();
         emptyRules.setRules(new ArrayList<>(0));
-        emptyRules.setWebhooks(new ArrayList<>(0));
+        emptyRules.setWebhooks(new HashMap<>(0));
         AlarmCore core = new AlarmCore(emptyRules);
 
         Map<String, List<RunningRule>> runningContext = Whitebox.getInternalState(core, "runningContext");

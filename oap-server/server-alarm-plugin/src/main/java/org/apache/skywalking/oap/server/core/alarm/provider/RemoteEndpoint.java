@@ -18,17 +18,36 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
-import lombok.*;
+import org.apache.http.HttpEntity;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-public class Rules {
-    private List<AlarmRule> rules;
-    private Map<String, List<String>> webhooks;
+import java.util.List;
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new HashMap<>();
-    }
+/**
+ * @author muyun12
+ */
+public interface RemoteEndpoint {
+
+    /**
+     * webhook remote endpoint key
+     * <pre  class="code">
+     *  webhooks:
+     *     default:
+     *       - http://127.0.0.1/notify/
+     *       - http://127.0.0.1/go-wechat/
+     *     dingtalk:
+     *       - http://127.0.0.1/notify/
+     * </pre>
+     * <b>default</b> and <b>dingtalk</b> is the key.
+     *
+     * @returns
+     */
+    String getRemoteEndpointKey();
+
+    /**
+     * transform alarm message to custom format
+     * @param alarmMessage
+     * @return
+     */
+    HttpEntity transformAlarmMessage(List<AlarmMessage> alarmMessage);
 }

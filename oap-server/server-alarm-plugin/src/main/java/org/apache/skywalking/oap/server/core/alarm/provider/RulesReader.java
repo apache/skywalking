@@ -70,12 +70,9 @@ public class RulesReader {
                     }
                 });
             }
-            List webhooks = (List)yamlData.get("webhooks");
-            if (webhooks != null) {
-                rules.setWebhooks(new ArrayList<>());
-                webhooks.forEach(url -> {
-                    rules.getWebhooks().add((String)url);
-                });
+            Map webhooks = (Map)yamlData.get("webhooks");
+            if (null != webhooks) {
+                rules.setWebhooks(webhooks);
             }
         }
 

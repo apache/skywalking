@@ -39,7 +39,7 @@ public class AlarmRuleInitTest {
         Assert.assertEquals("service_b", ruleList.get(1).getIncludeNames().get(1));
         Assert.assertEquals("Alarm caused by Rule service_percent_rule", ruleList.get(1).getMessage());
 
-        List<String> rulesWebhooks = rules.getWebhooks();
+        List<String> rulesWebhooks = rules.getWebhooks().get("default");
         Assert.assertEquals(2, rulesWebhooks.size());
         Assert.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.get(1));
 

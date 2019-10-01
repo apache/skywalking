@@ -56,8 +56,10 @@ public class WebhookCallbackTest implements Servlet {
 
     @Test
     public void testWebhook() {
-        List<String> remoteEndpoints = new ArrayList<>();
-        remoteEndpoints.add("http://127.0.0.1:8778/webhook/receiveAlarm");
+        Map<String, List<String>> remoteEndpoints = new HashMap<>();
+        List<String> remoteEndpoint = new ArrayList<>();
+        remoteEndpoint.add("http://127.0.0.1:8778/webhook/receiveAlarm");
+        remoteEndpoints.put("default", remoteEndpoint);
         WebhookCallback webhookCallback = new WebhookCallback(remoteEndpoints);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

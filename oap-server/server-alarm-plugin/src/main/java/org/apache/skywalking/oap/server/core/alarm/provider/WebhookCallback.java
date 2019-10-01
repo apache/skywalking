@@ -18,12 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import com.google.gson.Gson;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import io.netty.handler.codec.http.HttpHeaderValues;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -32,13 +26,19 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * Use SkyWalking alarm webhook API call a remote endpoints.
@@ -51,16 +51,22 @@ public class WebhookCallback implements AlarmCallback {
     private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 1000;
     private static final int HTTP_SOCKET_TIMEOUT = 10000;
 
-    private List<String> remoteEndpoints;
+    private Map<String, List<String>> remoteEndpoints;
     private RequestConfig requestConfig;
-    private Gson gson = new Gson();
+    private Map<String, RemoteEndpoint> remoteEndpointMap;
 
-    public WebhookCallback(List<String> remoteEndpoints) {
+    public WebhookCallback(Map<String, List<String>> remoteEndpoints) {
         this.remoteEndpoints = remoteEndpoints;
         requestConfig = RequestConfig.custom()
             .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
             .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
             .setSocketTimeout(HTTP_SOCKET_TIMEOUT).build();
+        remoteEndpointMap = new HashMap<>();
+        ServiceLoader.load(RemoteEndpoint.class).forEach(s -> remoteEndpointMap.put(s.getRemoteEndpointKey(), s));
+    }
+
+    private RemoteEndpoint getRemoteEndpoint(String remoteEndpointKey) {
+        return remoteEndpointMap.get(remoteEndpointKey);
     }
 
     @Override
@@ -71,28 +77,31 @@ public class WebhookCallback implements AlarmCallback {
 
         CloseableHttpClient httpClient = HttpClients.custom().build();
         try {
-            remoteEndpoints.forEach(url -> {
-                HttpPost post = new HttpPost(url);
-                post.setConfig(requestConfig);
-                post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
-                post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
-
-                StringEntity entity;
-                try {
-                    entity = new StringEntity(gson.toJson(alarmMessage), StandardCharsets.UTF_8);
-                    post.setEntity(entity);
-                    CloseableHttpResponse httpResponse = httpClient.execute(post);
-                    StatusLine statusLine = httpResponse.getStatusLine();
-                    if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                        logger.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    logger.error("Alarm to JSON error, " + e.getMessage(), e);
-                } catch (ClientProtocolException e) {
-                    logger.error("send alarm to " + url + " failure.", e);
-                } catch (IOException e) {
-                    logger.error("send alarm to " + url + " failure.", e);
+            remoteEndpoints.forEach((key, value) ->  {
+                RemoteEndpoint remoteEndpoint = getRemoteEndpoint(key);
+                if (null == remoteEndpoint) {
+                    logger.error("send alarm to failure. No remote endpoint service with key: " +  key);
                 }
+                value.forEach(url -> {
+                    HttpPost post = new HttpPost(url);
+                    post.setConfig(requestConfig);
+                    post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
+                    post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
+                    try {
+                        post.setEntity(remoteEndpoint.transformAlarmMessage(alarmMessage));
+                        CloseableHttpResponse httpResponse = httpClient.execute(post);
+                        StatusLine statusLine = httpResponse.getStatusLine();
+                        if (statusLine != null && statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                            logger.error("send alarm to " + url + " failure. Response code: " + statusLine.getStatusCode());
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                        logger.error("Alarm to JSON error, " + e.getMessage(), e);
+                    } catch (ClientProtocolException e) {
+                        logger.error("send alarm to " + url + " failure.", e);
+                    } catch (IOException e) {
+                        logger.error("send alarm to " + url + " failure.", e);
+                    }
+                });
             });
         } finally {
             try {
