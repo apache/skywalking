@@ -31,7 +31,6 @@ public class ApplicationContextTest {
 
     @Test
     public void contextShouldLoad() {
-        // Simply load the application context
     }
 
 }
