@@ -46,10 +46,12 @@ public class AlarmRulesWatcherTest {
     private AlarmRule.AlarmRuleBuilder rulePrototypeBuilder = AlarmRule.builder()
         .alarmRuleName("name1")
         .count(1)
-        .includeNames(new ArrayList<String>() {{
-              add("1");
-              add("2");
-        }})
+        .includeNames(new ArrayList<String>() {
+            {
+                add("1");
+                add("2");
+            }
+        })
         .message("test")
         .metricsName("metrics1")
         .op(">")
