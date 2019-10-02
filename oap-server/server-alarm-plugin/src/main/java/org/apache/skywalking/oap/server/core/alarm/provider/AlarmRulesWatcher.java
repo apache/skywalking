@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
@@ -36,14 +35,14 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
  */
 public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
-    private Map<String, List<RunningRule>> runningContext;
-    private Rules rules;
-    private AtomicReference<String> settingsString;
+    private volatile Map<String, List<RunningRule>> runningContext;
+    private volatile Rules rules;
+    private volatile String settingsString;
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
-        this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
+        this.settingsString = Const.EMPTY_STRING;
 
         notify(defaultRules);
     }
@@ -51,10 +50,10 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Override
     public void notify(ConfigChangeEvent value) {
         if (value.getEventType() == EventType.DELETE) {
-            settingsString.set(Const.EMPTY_STRING);
+            settingsString = Const.EMPTY_STRING;
             notify(new Rules());
         } else {
-            settingsString.set(value.getNewValue());
+            settingsString = value.getNewValue();
             RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()));
             Rules rules = rulesReader.readRules();
             notify(rules);
@@ -80,7 +79,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     @Override
     public String value() {
-        return settingsString.get();
+        return settingsString;
     }
 
     public List<AlarmRule> getRules() {
