@@ -47,8 +47,8 @@ public class AlarmRulesWatcherTest {
         .alarmRuleName("name1")
         .count(1)
         .includeNames(new ArrayList<String>() {{
-            add("1");
-            add("2");
+              add("1");
+              add("2");
         }})
         .message("test")
         .metricsName("metrics1")
