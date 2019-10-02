@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest
 @RunWith(SpringRunner.class)
-public class WebAppITCase {
+public class WebAppTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
