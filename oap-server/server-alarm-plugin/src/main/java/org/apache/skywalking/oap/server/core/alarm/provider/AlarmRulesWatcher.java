@@ -18,17 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author kezhenxu94
@@ -36,12 +36,15 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
     private volatile Map<String, List<RunningRule>> runningContext;
+    private volatile Map<AlarmRule, RunningRule> alarmRuleRunningRuleMap;
     private volatile Rules rules;
     private volatile String settingsString;
+
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
+        this.alarmRuleRunningRuleMap = new HashMap<>();
         this.settingsString = Const.EMPTY_STRING;
 
         notify(defaultRules);
@@ -60,11 +63,14 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         }
     }
 
-    private void notify(Rules newRules) {
+    void notify(Rules newRules) {
+        Map<AlarmRule, RunningRule> newAlarmRuleRunningRuleMap = new HashMap<>();
         Map<String, List<RunningRule>> newRunningContext = new HashMap<>();
 
         newRules.getRules().forEach(rule -> {
-            RunningRule runningRule = new RunningRule(rule);
+            RunningRule runningRule = alarmRuleRunningRuleMap.getOrDefault(rule, new RunningRule(rule));
+
+            newAlarmRuleRunningRuleMap.put(rule, runningRule);
 
             String metricsName = rule.getMetricsName();
 
@@ -75,6 +81,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
         this.rules = newRules;
         this.runningContext = newRunningContext;
+        this.alarmRuleRunningRuleMap = newAlarmRuleRunningRuleMap;
     }
 
     @Override
