@@ -64,7 +64,7 @@ public class WebhookCallback implements AlarmCallback {
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
-        if (alarmRulesWatcher.getRules().size() == 0) {
+        if (alarmRulesWatcher.getWebHooks().size() == 0) {
             return;
         }
 
