@@ -107,7 +107,5 @@ configuration:
     period: 60
 ```
 
-## 3rd party Configuration Center
-We are welcome contributions to implement this module provider to support popular configuration center. Submit issue to discuss.
 
 

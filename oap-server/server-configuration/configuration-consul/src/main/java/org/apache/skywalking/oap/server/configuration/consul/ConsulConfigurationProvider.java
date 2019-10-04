@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Get configuration from Consul.
+ *
  * @author kezhenxu94
  */
 public class ConsulConfigurationProvider extends AbstractConfigurationProvider {
