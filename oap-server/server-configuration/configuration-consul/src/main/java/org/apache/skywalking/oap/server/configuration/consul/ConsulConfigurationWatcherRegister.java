@@ -98,7 +98,7 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
             cache.addListener(newValues -> {
                 Optional<Value> value = newValues.values().stream().filter(it -> key.equals(it.getKey())).findAny();
                 if (value.isPresent()) {
-                    onKeyValueChanged(key, value.get().getValueAsString().orElse(null));
+                    onKeyValueChanged(key, value.get().getValue().orElse(null));
                 } else {
                     onKeyValueChanged(key, null);
                 }
