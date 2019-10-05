@@ -1,5 +1,5 @@
 # Alarm
-Alarm core is driven a collection of rules, which are defined in `config/alarm-settings.yml`.
+Alarm core is driven by a collection of rules, which are defined in `config/alarm-settings.yml`.
 There are two parts in alarm rule definition.
 1. [Alarm rules](#rules). They define how metrics alarm should be triggered, what conditions should be considered.
 1. [Webhooks](#webhook). The list of web service endpoint, which should be called after the alarm is triggered.
@@ -90,3 +90,11 @@ Example as following
 	"startTime": 1560524171000
 }]
 ```
+
+## Update the settings dynamically
+Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
+which will override the settings in `alarm-settings.yml`.
+
+In order to determine that whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
+each alarm rule, if any of the attributes (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
+the sliding window will be destroyed and re-created, causing the alarm of this specific rule to restart again.

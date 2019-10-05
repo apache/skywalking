@@ -31,7 +31,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Alarm rules' settings can be dynamically updated via configuration center(s),
+ * this class is responsible for monitoring the configuration and parsing them
+ * into {@link Rules} and {@link #runningContext}.
+ *
  * @author kezhenxu94
+ * @since 6.5.0
  */
 public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
@@ -39,7 +44,6 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     private volatile Map<AlarmRule, RunningRule> alarmRuleRunningRuleMap;
     private volatile Rules rules;
     private volatile String settingsString;
-
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
@@ -68,6 +72,10 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         Map<String, List<RunningRule>> newRunningContext = new HashMap<>();
 
         newRules.getRules().forEach(rule -> {
+            /*
+             * If there is already an alarm rule that is the same as the new one, we'll reuse its
+             * corresponding runningRule, to keep its history metrics
+             */
             RunningRule runningRule = alarmRuleRunningRuleMap.getOrDefault(rule, new RunningRule(rule));
 
             newAlarmRuleRunningRuleMap.put(rule, runningRule);

@@ -8,6 +8,7 @@ Right now, SkyWalking supports following dynamic configurations.
 |:----:|:----:|:----:|
 |receiver-trace.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `applciation.yml`. | default:200,mongodb:50|
 |receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | not set |
+|alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | not set |
 
 
 This feature depends on upstream service, so it is **OFF** as default.
