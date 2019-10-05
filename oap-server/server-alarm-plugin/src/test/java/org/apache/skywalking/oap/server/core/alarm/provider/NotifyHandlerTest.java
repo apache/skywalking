@@ -197,7 +197,7 @@ public class NotifyHandlerTest {
 
         Rules rules = new Rules();
 
-        notifyHandler = new NotifyHandler(rules);
+        notifyHandler = new NotifyHandler(new AlarmRulesWatcher(rules, null));
 
         notifyHandler.init(alarmMessageList -> {
             for (AlarmMessage message : alarmMessageList) {
