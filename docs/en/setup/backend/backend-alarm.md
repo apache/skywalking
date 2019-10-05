@@ -96,5 +96,5 @@ Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynami
 which will override the settings in `alarm-settings.yml`.
 
 In order to determine that whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
-each alarm rule, if any of the attributes (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
+each alarm rule, if any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
 the sliding window will be destroyed and re-created, causing the alarm of this specific rule to restart again.
