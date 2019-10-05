@@ -550,6 +550,17 @@
                             <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/configuration/service/*.class</exclude>
                             <exclude>grpc/health/v1/*.class</exclude>
+
+                            <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>
+
+                            <exclude>com/google/api/**/*.class</exclude>
+                            <exclude>io/envoyproxy//**/*.class</exclude>
+                            <exclude>io/istio/**/*.class</exclude>
+                            <exclude>io/prometheus/**/*.class</exclude>
+                            <exclude>io/jaegertracing/**/*.class</exclude>
+                            <exclude>com/lyft/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
