@@ -188,6 +188,17 @@ configuration:
 EOT
 }
 
+generateConfigurationConsul() {
+    cat <<EOT >> ${var_application_file}
+configuration:
+  consul:
+    # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
+    hostAndPorts: \${SW_CONFIGURATION_CONSUL_ADDRESS:127.0.0.1:8500}
+    # Sync period in seconds. Defaults to 60 seconds.
+    period: \${SW_CONFIGURATION_CONSUL_PERIOD:60}
+EOT
+}
+
 generateTelemetryNone() {
     cat <<EOT >> ${var_application_file}
 telemetry:
@@ -346,6 +357,7 @@ EOT
     apollo) generateConfigurationApollo;;
     nacos) generateConfigurationNacos;;
     zookeeper) generateConfigurationZookeeper;;
+    consul) generateConfigurationConsul;;
     esac
 
     cat <<EOT >> ${var_application_file}
