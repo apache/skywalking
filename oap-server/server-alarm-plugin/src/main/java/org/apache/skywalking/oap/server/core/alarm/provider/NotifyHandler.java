@@ -33,11 +33,11 @@ public class NotifyHandler implements MetricsNotify {
     private EndpointInventoryCache endpointInventoryCache;
 
     private final AlarmCore core;
-    private final Rules rules;
+    private final AlarmRulesWatcher alarmRulesWatcher;
 
-    public NotifyHandler(Rules rules) {
-        this.rules = rules;
-        core = new AlarmCore(rules);
+    public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher) {
+        this.alarmRulesWatcher = alarmRulesWatcher;
+        core = new AlarmCore(alarmRulesWatcher);
     }
 
     @Override public void notify(Metrics metrics) {
@@ -95,11 +95,8 @@ public class NotifyHandler implements MetricsNotify {
     }
 
     public void init(AlarmCallback... callbacks) {
-        List<AlarmCallback> allCallbacks = new ArrayList<>();
-        for (AlarmCallback callback : callbacks) {
-            allCallbacks.add(callback);
-        }
-        allCallbacks.add(new WebhookCallback(rules.getWebhooks()));
+        List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
+        allCallbacks.add(new WebhookCallback(alarmRulesWatcher));
         core.start(allCallbacks);
     }
 

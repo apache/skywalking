@@ -21,6 +21,11 @@ pipeline {
         label 'skywalking'
     }
 
+    options {
+        timestamps()
+        timeout(time: 5, unit: 'HOURS')
+    }
+
     tools {
         jdk 'JDK 1.8 (latest)'
     }

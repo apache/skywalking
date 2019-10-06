@@ -17,6 +17,7 @@
  */
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -63,11 +64,6 @@ public class AlarmModuleProviderTest {
     }
 
     @Test
-    public void start() throws Exception {
-        moduleProvider.start();
-    }
-
-    @Test
     public void notifyAfterCompleted() throws Exception {
 
         NotifyHandler handler = mock(NotifyHandler.class);
@@ -81,6 +77,6 @@ public class AlarmModuleProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = moduleProvider.requiredModules();
-        assertArrayEquals(new String[]{CoreModule.NAME}, modules);
+        assertArrayEquals(new String[]{CoreModule.NAME, ConfigurationModule.NAME}, modules);
     }
 }
