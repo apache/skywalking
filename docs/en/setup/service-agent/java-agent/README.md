@@ -32,7 +32,7 @@ The agent release dist is included in Apache [official release](http://skywalkin
 
 - Start your application.
 
-## Supported middlewares, frameworks and libraries
+## Supported middleware, framework and library
 SkyWalking agent has supported various middlewares, frameworks and libraries.
 Read [supported list](Supported-list.md) to get them and supported version.
 If the plugin is in **Optional²** catalog, go to [optional plugins](#optional-plugins) section to learn how to active it.
