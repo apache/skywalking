@@ -21,7 +21,18 @@ import java.util.List;
 public class DependencyComponent implements DockerServiceReader {
     private String image;
     private String host;
+    private String version;
+    private List<String> expose;
+    private List<String> volumes;
     private List<String> environments;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     public String getImage() {
         return image;
@@ -53,5 +64,21 @@ public class DependencyComponent implements DockerServiceReader {
 
     @Override public String image() {
         return host;
+    }
+
+    public List<String> getExpose() {
+        return expose;
+    }
+
+    public void setExpose(List<String> expose) {
+        this.expose = expose;
+    }
+
+    public List<String> getVolumes() {
+        return volumes;
+    }
+
+    public void setVolumes(List<String> volumes) {
+        this.volumes = volumes;
     }
 }

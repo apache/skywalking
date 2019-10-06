@@ -45,4 +45,6 @@ public interface IConfiguration {
     String scenarioHome();
 
     String outputDir();
+
+    String serverAddr();
 }

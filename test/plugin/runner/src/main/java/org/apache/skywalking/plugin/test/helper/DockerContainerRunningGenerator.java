@@ -16,15 +16,16 @@
  */
 package org.apache.skywalking.plugin.test.helper;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
-
-    private Logger logger = LoggerFactory.getLogger(DockerContainerRunningGenerator.class);
+    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     protected DockerContainerRunningGenerator() {
     }
@@ -53,7 +54,7 @@ public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
             out = new StringWriter();
             cfg.getTemplate("container-start-script.template").process(root, out);
         } catch (Exception e) {
-            logger.debug("Failed to generate running script.", e);
+            logger.error("Failed to generate running script.", e);
         }
         return out.toString();
     }

@@ -1,4 +1,5 @@
-<#--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
   ~ this work for additional information regarding copyright ownership.
@@ -13,29 +14,24 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
--->
+  ~
+  -->
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="console_out" target="SYSTEM_OUT">
+            <ThresholdFilter level="INFO"/>
+            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n" />
+        </Console>
 
-docker run \
-        --name ${docker_container_name} \
-        --env SCENARIO_NAME=${scenario_name} \
-        --env SCENARIO_VERSION=${scenario_version}  \
-        --env SCENARIO_SUPPORT_FRAMEWORK=${scenario_name} \
-        --env SCENARIO_ENTRY_SERVICE=${entry_service}  \
-        --env SCENARIO_HEALTH_CHECK_URL=${health_check} \
-        -v ${agent_home}:/usr/local/skywalking-agent-scenario/agent \
-        -v ${scenario_home}:/usr/local/skywalking-agent-scenario \
-        ${docker_image_name}:latest 1>${scenario_home}/logs/container.log 2>&1
-
-status="$?"
-
-container_name=`docker ps -aqf "name=${docker_container_name}"`
-
-<#noparse>
-if [[ -z ${container_name} ]]; then
-  status=1
-else
-  docker container rm -f $container_name
-  docker volume prune -f
-  docker network prune -f
-fi
-</#noparse>
+        <Console name="console_err" target="SYSTEM_ERR">
+            <ThresholdFilter level="ERROR"/>
+            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="console_err" />
+            <AppenderRef ref="console_out" />
+        </Root>
+    </Loggers>
+</Configuration>

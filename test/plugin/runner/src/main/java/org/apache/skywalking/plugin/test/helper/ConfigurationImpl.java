@@ -55,7 +55,7 @@ public class ConfigurationImpl implements IConfiguration {
     @Override public ScenarioRunningScriptGenerator scenarioGenerator() {
         switch (runningType()) {
             case DockerCompose:
-                return new DockerComposeRunningGenerator();
+                return new DockerComposeV2RunningGenerator();
             case Container:
                 return new DockerContainerRunningGenerator();
             default:
@@ -109,5 +109,10 @@ public class ConfigurationImpl implements IConfiguration {
 
     @Override public String outputDir(){
         return System.getProperty("output.dir");
+    }
+
+    @Override
+    public String serverAddr() {
+        return System.getProperty("server.addr");
     }
 }

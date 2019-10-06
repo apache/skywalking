@@ -59,7 +59,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         configuration.caseConfiguration().getDependencies().forEach((name, dependencyComponent) -> {
             DockerService dockerService = new DockerService();
             DockerServiceReader serviceReader = dependencyComponent;
-            dockerService.setEnvironment(serviceReader.environment());
+            dockerService.setEnvironments(serviceReader.environment());
             dockerService.setImage(serviceReader.image());
             dockerServices.put(name, dockerService);
         });
@@ -76,7 +76,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         volumes.add(String.format("%s:/usr/local/skywalking-agent-scenario/agent", configuration.agentHome()));
 
         container.setVolumes(volumes);
-        container.setEnvironment(environment);
+        container.setEnvironments(environment);
 
         dockerServices.put(String.format("skywalking-agent-test-%s-%s", configuration.testFramework(),
             configuration.scenarioVersion())

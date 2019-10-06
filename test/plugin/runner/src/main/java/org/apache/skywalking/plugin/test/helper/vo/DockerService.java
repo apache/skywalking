@@ -16,15 +16,37 @@
  */
 package org.apache.skywalking.plugin.test.helper.vo;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 public class DockerService {
+    private String name;
+    private String version;
     private String image;
-    private List<String> expose;
-    private List<String> ports;
-    private List<String> environment;
-    private List<String> volumes;
-    private List<String> links;
+    private String host;
+    private List<String> expose = Lists.newArrayList();
+    @Deprecated private List<String> ports;
+    private List<String> environments = Lists.newArrayList();
+    private List<String> volumes = Lists.newArrayList();
+
+    @Deprecated private List<String> links;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     public String getImage() {
         return image;
@@ -50,12 +72,12 @@ public class DockerService {
         this.ports = ports;
     }
 
-    public List<String> getEnvironment() {
-        return environment;
+    public List<String> getEnvironments() {
+        return environments;
     }
 
-    public void setEnvironment(List<String> environment) {
-        this.environment = environment;
+    public void setEnvironments(List<String> environments) {
+        this.environments = environments;
     }
 
     public List<String> getVolumes() {
@@ -72,5 +94,13 @@ public class DockerService {
 
     public void setLinks(List<String> links) {
         this.links = links;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 }
