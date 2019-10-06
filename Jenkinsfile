@@ -25,6 +25,7 @@ pipeline {
         ))
         timestamps()
         skipStagesAfterUnstable()
+        timeout(time: 5, unit: 'HOURS')
     }
 
     environment {
