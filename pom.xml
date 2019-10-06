@@ -532,12 +532,15 @@
                     <aggregate>true</aggregate>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <quiet>true</quiet>
-                    <format>xml</format>
+                    <format>html</format>
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>
                         <ignoreMethodAnnotations>
                             <ignoreMethodAnnotation>lombok.Generated</ignoreMethodAnnotation>
                         </ignoreMethodAnnotations>
+                        <includes>
+                            <include>org/apache/skywalking/**/*.class</include>
+                        </includes>
                         <excludes>
                             <exclude>org/apache/skywalking/**/*Test.class</exclude>
                             <exclude>org/apache/skywalking/**/Test*.class</exclude>
@@ -549,18 +552,10 @@
                             <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/configuration/service/*.class</exclude>
-                            <exclude>grpc/health/v1/*.class</exclude>
 
                             <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
                             <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
                             <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>
-
-                            <exclude>com/google/api/**/*.class</exclude>
-                            <exclude>io/envoyproxy//**/*.class</exclude>
-                            <exclude>io/istio/**/*.class</exclude>
-                            <exclude>io/prometheus/**/*.class</exclude>
-                            <exclude>io/jaegertracing/**/*.class</exclude>
-                            <exclude>com/lyft/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
