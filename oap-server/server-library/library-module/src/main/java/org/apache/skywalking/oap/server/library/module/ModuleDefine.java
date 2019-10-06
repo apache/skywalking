@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
+import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration.ModuleConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ServiceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A module definition.
@@ -87,13 +89,22 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
 
         logger.info("Prepare the {} provider in {} module.", loadedProvider.name(), this.name());
         try {
-            copyProperties(loadedProvider.createConfigBeanIfAbsent(), configuration.getProviderConfiguration(loadedProvider.name()), this.name(), loadedProvider.name());
+            copyProperties(configuration);
         } catch (IllegalAccessException e) {
             throw new ModuleConfigException(this.name() + " module config transport to config bean failure.", e);
         }
         loadedProvider.prepare();
     }
-
+    
+    private void copyProperties(final ModuleConfiguration configuration) throws IllegalAccessException {
+        ModuleConfig moduleConfig = loadedProvider.createConfigBeanIfAbsent();
+        if (moduleConfig instanceof DynamicModuleConfig) {
+            ((DynamicModuleConfig) moduleConfig).setProperties(configuration.getProviderConfiguration(loadedProvider.name()));
+        } else {
+            copyProperties(moduleConfig, configuration.getProviderConfiguration(loadedProvider.name()), this.name(), loadedProvider.name());
+        }
+    }
+    
     private void copyProperties(ModuleConfig dest, Properties src, String moduleName,
         String providerName) throws IllegalAccessException {
         if (dest == null) {
@@ -103,7 +114,6 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
         while (propertyNames.hasMoreElements()) {
             String propertyName = (String)propertyNames.nextElement();
             Class<? extends ModuleConfig> destClass = dest.getClass();
-
             try {
                 Field field = getDeclaredField(destClass, propertyName);
                 field.setAccessible(true);

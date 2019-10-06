@@ -159,10 +159,15 @@ Please download MySQL driver by yourself. Copy the connection driver jar to `oap
 ```yaml
 storage:
   mysql:
+    jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+    dataSource.user: ${SW_DATA_SOURCE_USER:root}
+    dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+    dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+    dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+    dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+    dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 ```
-
-All connection related settings including link url, username and password
-are in `datasource-settings.properties`. 
 This setting file follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document.
 
 ## TiDB
@@ -172,10 +177,17 @@ Active TiDB as storage, set storage provider to **mysql**.
 ```yaml
 storage:
   mysql:
+    jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+    dataSource.user: ${SW_DATA_SOURCE_USER:root}
+    dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+    dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+    dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+    dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+    dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 ```
 
-All connection related settings including link url, username and password
-are in `datasource-settings.properties`. And these settings can refer to the configuration of *MySQL* above.
+These settings can refer to the configuration of *MySQL* above.
 
 ## ElasticSearch 5
 ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
