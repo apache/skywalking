@@ -17,7 +17,6 @@
 package org.apache.skywalking.plugin.test.helper;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
@@ -29,7 +28,6 @@ import org.apache.skywalking.plugin.test.helper.vo.DockerService;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +92,7 @@ public class DockerComposeV2RunningGenerator extends AbstractRunningGenerator {
             service.setHost(dependency.getHost());
             service.setExpose(nullToEmpty(dependency.getExpose()));
             service.setVolumes(nullToEmpty(dependency.getVolumes()));
-            service.setEnvironments(nullToEmpty(dependency.getEnvironments()));
+            service.setEnvironments(nullToEmpty(dependency.getEnvironment()));
             services.add(service);
         });
         return services;

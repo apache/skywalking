@@ -24,7 +24,7 @@ docker run \
         --env SCENARIO_HEALTH_CHECK_URL=${health_check} \
         -v ${agent_home}:/usr/local/skywalking-agent-scenario/agent \
         -v ${scenario_home}:/usr/local/skywalking-agent-scenario \
-        ${docker_image_name}:latest 1>${scenario_home}/logs/container.log 2>&1
+        ${docker_image_name}:latest 1>${scenario_home}/logs/container.log 2>&2
 
 status="$?"
 

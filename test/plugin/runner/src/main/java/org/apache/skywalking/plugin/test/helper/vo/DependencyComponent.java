@@ -24,7 +24,8 @@ public class DependencyComponent implements DockerServiceReader {
     private String version;
     private List<String> expose;
     private List<String> volumes;
-    private List<String> environments;
+    private List<String> entrypoint;
+    private List<String> environment;
 
     public String getVersion() {
         return version;
@@ -50,16 +51,16 @@ public class DependencyComponent implements DockerServiceReader {
         this.host = host;
     }
 
-    public List<String> getEnvironments() {
-        return environments;
+    public List<String> getEnvironment() {
+        return environment;
     }
 
-    public void setEnvironments(List<String> environments) {
-        this.environments = environments;
+    public void setEnvironment(List<String> environment) {
+        this.environment = environment;
     }
 
     @Override public List<String> environment() {
-        return environments;
+        return environment;
     }
 
     @Override public String image() {
@@ -72,6 +73,14 @@ public class DependencyComponent implements DockerServiceReader {
 
     public void setExpose(List<String> expose) {
         this.expose = expose;
+    }
+
+    public List<String> getEntrypoint() {
+        return entrypoint;
+    }
+
+    public void setEntrypoint(List<String> entrypoint) {
+        this.entrypoint = entrypoint;
     }
 
     public List<String> getVolumes() {

@@ -1,4 +1,4 @@
-# Licensed to the Apache Software Foundation (ASF) under one or more
+# Licensed to the Apache 5Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
@@ -14,14 +14,17 @@
 # limitations under the License.
 
 type: tomcat
-entryService: http://localhost:8080/httpclient-4.3.x-scenario/case/httpclient
-healthCheck: http://localhost:8080/httpclient-4.3.x-scenario/healthCheck
-framework: httpclient
+entryService: http://localhost:8080/solrj-7.x-scenario/case
+framework: solrj
 dependencies:
-  mysql:
-    image: xxxx
-    version: 223
-    host: xxxx
-    environments:
-      - "test:test"
-      - "test1:test1"
+  solr:
+    image: solr:${CASE_SERVER_IMAGE_VERSION}
+    host: solr-server
+    environment:
+      - a:b
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - mycore
+    volumes:
+      - c:d

@@ -13,76 +13,93 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 registryItems:
   applications:
-  - {httpclient-case: nq 0}
+    - {httpclient-4.3.x-scenario: 2}
   instances:
-  - {httpclient-case: 1}
+    - {httpclient-4.3.x-scenario: 1}
   operationNames:
-  - httpclient-case: [/httpclient-case/case/httpclient,/httpclient-case/case/context-propagate]
+    - httpclient-4.3.x-scenario: [/httpclient-4.3.x-scenario/case/httpclient,
+                                  /httpclient-4.3.x-scenario/healthCheck,
+                                  /httpclient-4.3.x-scenario/case/context-propagate]
+  heartbeat: []
 segmentItems:
-- applicationCode: httpclient-case
-  segmentSize: 2
-  segments:
-    - segmentId: not null
-      spans:
-        -
-          operationName: /httpclient-case/case/context-propagate
-          operationId: eq 0
-          parentSpanId: 0
-          spanId: 1
-          startTime: nq 0
-          endTime: nq 0
-          isError: false
-          spanLayer: Http
-          spanType: Exit
-          componentName: null
-          componentId: eq 2
-          tags:
-            - {key: url, value: 'http://localhost:8080/httpclient-case/case/context-propagate'}
-            - {key: http.method, value: GET}
-          logs: []
-          peer: null
-          peerId: eq 0
-        -
-          operationName: /httpclient-case/case/httpclient
-          operationId: eq 0
-          parentSpanId: -1
-          spanId: 0
-          startTime: nq 0
-          endTime: nq 0
-          spanLayer: Http
-          isError: false
-          spanType: Entry
-          componentName: null
-          componentId: 1
-          tags:
-            - {key: url, value: 'http://localhost:8080/httpclient-case/case/httpclient'}
-            - {key: http.method, value: GET}
-          logs: []
-          peer: null
-          peerId: eq 0
-      
-    - segmentId: not null
-      spans:
-        -
-          operationName: /httpclient-case/case/context-propagate
-          operationId: eq 0
-          parentSpanId: -1
-          spanId: 0
-          tags: 
-            - {key: url, value: 'http://localhost:8080/httpclient-case/case/context-propagate'}
-            - {key: http.method, value: GET}
-          logs: []
-          startTime: nq 0
-          endTime: nq 0
-          spanLayer: Http
-          isError: false
-          spanType: Entry
-          componentName: null
-          componentId: 1
-          peer: null
-          peerId: eq 0
-          refs: 
-            - {parentSpanId: 1, parentTraceSegmentId: "${httpclient-case[0]}", entryEndpoint: "/httpclient-case/case/httpclient", networkAddress: "127.0.0.1:8080",parentEndpoint: "/httpclient-case/case/httpclient",entryServiceInstanceId: nq 0 }
+  - applicationCode: httpclient-4.3.x-scenario
+    segmentSize: 3
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: /httpclient-4.3.x-scenario/healthCheck
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/httpclient-4.3.x-scenario/healthCheck'}
+              - {key: http.method, value: HEAD}
+      - segmentId: not null
+        spans:
+          - operationName: /httpclient-4.3.x-scenario/case/context-propagate
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/httpclient-4.3.x-scenario/case/context-propagate'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /httpclient-4.3.x-scenario/case/httpclient,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
+                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+                 networkAddress: 'localhost:8080', entryEndpoint: /httpclient-4.3.x-scenario/case/httpclient,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /httpclient-4.3.x-scenario/case/context-propagate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/httpclient-4.3.x-scenario/case/context-propagate'}
+              - {key: http.method, value: GET}
+          - operationName: /httpclient-4.3.x-scenario/case/httpclient
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/httpclient-4.3.x-scenario/case/httpclient'}
+              - {key: http.method, value: GET}

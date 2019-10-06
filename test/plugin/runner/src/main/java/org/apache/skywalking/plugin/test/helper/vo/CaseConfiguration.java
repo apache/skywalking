@@ -16,6 +16,7 @@
  */
 package org.apache.skywalking.plugin.test.helper.vo;
 
+import java.util.List;
 import java.util.Map;
 
 public class CaseConfiguration {
@@ -26,6 +27,7 @@ public class CaseConfiguration {
     @Deprecated private String version;
     private String startScript;
     private Map<String, DependencyComponent> dependencies;
+    private List<String> environment;
 
     public String getType() {
         return type;
@@ -81,5 +83,13 @@ public class CaseConfiguration {
 
     public void setHealthCheck(String healthCheck) {
         this.healthCheck = healthCheck;
+    }
+
+    public List<String> getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(List<String> environment) {
+        this.environment = environment;
     }
 }

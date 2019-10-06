@@ -40,7 +40,7 @@ plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
 
 prepareAndClean() {
   echo "prepare and clear"
-  [[ -f ${workspace} ]] && rm -fr ${workspace} > /dev/null
+  [[ -d ${workspace} ]] && rm -fr ${workspace}
 
   mkdir -p ${workspace}/{.states,testcases}
 
@@ -52,7 +52,7 @@ prepareAndClean() {
   docker container prune -f
   docker network   prune -f
   docker volume    prune -f
-  docker image     prune -f
+#  docker image     prune -f
 
   # build plugin/test
   ${mvnw} clean package -DskipTests docker:build
@@ -84,6 +84,7 @@ echo "start submit job"
 num_of_scenarios=0
 for scenario_name in ${_arg_scenarios}
 do
+  waitForAvailable
   scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 
   supported_version_file=${scenario_home}/support-version.list
@@ -120,13 +121,12 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${agent_home} \
-        -jar ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&1
+        -jar ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&2
 
     [[ $? -ne 0 ]] && echo -e "\033[31m[ERROR] ${testcase_name}, generate script failure! \033[0m" && continue # ]]
 
-    waitForAvailable
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log 2>&1 &
+    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log 2>&2 &
   done
 
   echo -e "\033[33m${scenario_name} has already sumbitted\033[0m" # to escape ]]

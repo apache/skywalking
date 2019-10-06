@@ -17,8 +17,7 @@
 # limitations under the License.
 
 function exitOnError() {
-    echo -e "$1">${ERROR_LOG}
-    echo -e "\033[31m[ERROR] $1\033[0m"
+    echo -e "\033[31m[ERROR] $1\033[0m">&2
     exit 1
 }
 
@@ -39,7 +38,6 @@ function healthCheck() {
 }
 
 SCENARIO_HOME=/usr/local/skywalking-agent-scenario/
-ERROR_LOG=${SCENARIO_HOME}/logs/container.err
 
 # Speed up launch tomcat
 rm /usr/local/tomcat/webapps/* -rf # remove needn't app
@@ -51,11 +49,11 @@ cp ${SCENARIO_HOME}/packages/*.war /usr/local/tomcat/webapps/
 # start mock collector
 echo "To start mock collector"
 ${SCENARIO_HOME}/skywalking-mock-collector/bin/collector-startup.sh \
-  1>${SCENARIO_HOME}/logs/collector.log 2>${ERROR_LOG} &
+  1>${SCENARIO_HOME}/logs/collector.out 2>${SCENARIO_HOME}/logs/collector.err &
 healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
-/usr/local/tomcat/bin/catalina.sh start 1>${SCENARIO_HOME}/logs/catalina.log 2>&1 &
+/usr/local/tomcat/bin/catalina.sh start 1>${SCENARIO_HOME}/logs/catalina.out 2>${SCENARIO_HOME}/logs/catalina.err &
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -66,7 +64,11 @@ echo "To receive actual data"
 curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
 
 echo "To validate"
-java -jar -Dv2=true -DtestDate="`date +%Y-%m-%d-%H-%M`" -DtestCasePath=${SCENARIO_HOME}/data/ ${SCENARIO_HOME}/skywalking-validator-tools.jar
+java -jar \
+  -Dv2=true \
+  -DtestDate="`date +%Y-%m-%d-%H-%M`" \
+  -DtestCasePath=${SCENARIO_HOME}/data/ \
+  ${SCENARIO_HOME}/skywalking-validator-tools.jar 1>${SCENARIO_HOME}/logs/validate.log 2>&2
 status=$?
 
 if [[ $status -eq 0 ]]; then
