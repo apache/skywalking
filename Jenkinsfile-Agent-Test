@@ -57,7 +57,7 @@ pipeline {
 
         stage('Run httpclient-scneario Tests') {
             steps {
-                sh './test/plugin/run.sh httpclient-4.3.x-scneario'
+                sh 'bash test/plugin/run.sh httpclient-4.3.x-scenario'
             }
         }
     }
