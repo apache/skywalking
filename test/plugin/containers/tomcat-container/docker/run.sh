@@ -57,7 +57,7 @@ echo "To start tomcat"
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-curl ${SCENARIO_ENTRY_SERVICE}
+curl -s ${SCENARIO_ENTRY_SERVICE}
 sleep 5
 
 echo "To receive actual data"
