@@ -104,7 +104,7 @@
 #                   case the default is "true"
 # -----------------------------------------------------------------------------
 
-export AGENT_FILE_PATH=/usr/local/skywalking-agent-scenario/agent
+export AGENT_FILE_PATH=/usr/local/skywalking/scenario/agent
 echo "${AGENT_FILE_PATH}/skywalking-agent.jar"
 if [ -f "${AGENT_FILE_PATH}/skywalking-agent.jar" ]; then
     CATALINA_OPTS="$CATALINA_OPTS -javaagent:${AGENT_FILE_PATH}/skywalking-agent.jar
@@ -113,7 +113,7 @@ if [ -f "${AGENT_FILE_PATH}/skywalking-agent.jar" ]; then
     -Dskywalking.collector.discovery_check_interval=2
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
-    -Dskywalking.logging.dir=/usr/local/skywalking-agent-scenario/logs
+    -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
     -Xms256m -Xmx256m -XX:PermSize=64M -XX:MaxPermSize=64"
 fi
 
@@ -220,7 +220,7 @@ fi
 CLASSPATH="$CLASSPATH""$CATALINA_HOME"/bin/bootstrap.jar
 
 if [ -z "$CATALINA_OUT" ] ; then
-  CATALINA_OUT=/usr/local/skywalking-agent-scenario/logs/catalina.out
+  CATALINA_OUT=/usr/local/skywalking/scenario/logs/catalina.out
 fi
 
 if [ -z "$CATALINA_TMPDIR" ] ; then

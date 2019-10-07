@@ -22,8 +22,8 @@ docker run \
         --env SCENARIO_SUPPORT_FRAMEWORK=${scenario_name} \
         --env SCENARIO_ENTRY_SERVICE=${entry_service}  \
         --env SCENARIO_HEALTH_CHECK_URL=${health_check} \
-        -v ${agent_home}:/usr/local/skywalking-agent-scenario/agent \
-        -v ${scenario_home}:/usr/local/skywalking-agent-scenario \
+        -v ${agent_home}:/usr/local/skywalking/scenario/agent \
+        -v ${scenario_home}:/usr/local/skywalking/scenario \
         ${docker_image_name}:latest 1>${scenario_home}/logs/container.log 2>&2
 
 status="$?"

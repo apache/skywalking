@@ -31,9 +31,6 @@ public class Main {
     private static Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        logger.info("Begin to validate data.");
-        logger.error("error");
-
         Report report = new Report();
         String testCasePath = ConfigHelper.testCaseBaseDir();
 

@@ -37,7 +37,8 @@ function healthCheck() {
     exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION} health check failed!"
 }
 
-SCENARIO_HOME=/usr/local/skywalking-agent-scenario/
+TOOLS_HOME=/usr/local/skywalking/tools
+SCENARIO_HOME=/usr/local/skywalking/scenario
 
 # Speed up launch tomcat
 rm /usr/local/tomcat/webapps/* -rf # remove needn't app
@@ -48,8 +49,7 @@ cp ${SCENARIO_HOME}/packages/*.war /usr/local/tomcat/webapps/
 
 # start mock collector
 echo "To start mock collector"
-${SCENARIO_HOME}/skywalking-mock-collector/bin/collector-startup.sh \
-  1>${SCENARIO_HOME}/logs/collector.out 2>${SCENARIO_HOME}/logs/collector.err &
+${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>${SCENARIO_HOME}/logs/collector.out 2>${SCENARIO_HOME}/logs/collector.err &
 healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
@@ -68,7 +68,7 @@ java -jar \
   -Dv2=true \
   -DtestDate="`date +%Y-%m-%d-%H-%M`" \
   -DtestCasePath=${SCENARIO_HOME}/data/ \
-  ${SCENARIO_HOME}/skywalking-validator-tools.jar 1>${SCENARIO_HOME}/logs/validate.log 2>&2
+  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>${SCENARIO_HOME}/logs/validate.log 2>&2
 status=$?
 
 if [[ $status -eq 0 ]]; then
