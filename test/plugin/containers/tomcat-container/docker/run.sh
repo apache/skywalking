@@ -18,6 +18,10 @@
 
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
+
+    [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
+    [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
+    [[ -d ${SCENARIO_HOME}/agent ]] && rm -rf ${SCENARIO_HOME}/agent
     exit 1
 }
 
@@ -49,11 +53,11 @@ cp ${SCENARIO_HOME}/packages/*.war /usr/local/tomcat/webapps/
 
 # start mock collector
 echo "To start mock collector"
-${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>${SCENARIO_HOME}/logs/collector.out 2>${SCENARIO_HOME}/logs/collector.err &
+${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null 2>&2 &
 healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
-/usr/local/tomcat/bin/catalina.sh start 1>${SCENARIO_HOME}/logs/catalina.out 2>${SCENARIO_HOME}/logs/catalina.err &
+/usr/local/tomcat/bin/catalina.sh start 1>/dev/null 2>&2 &
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -68,7 +72,7 @@ java -jar \
   -Dv2=true \
   -DtestDate="`date +%Y-%m-%d-%H-%M`" \
   -DtestCasePath=${SCENARIO_HOME}/data/ \
-  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>${SCENARIO_HOME}/logs/validate.log 2>&2
+  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null 2>&2
 status=$?
 
 if [[ $status -eq 0 ]]; then
