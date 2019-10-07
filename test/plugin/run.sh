@@ -141,7 +141,7 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${agent_home} \
-        -Dbuild.id=${build_id} \
+        -Ddocker.image.version=${build_id} \
         -jar ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&2
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"

@@ -79,7 +79,7 @@ java -jar \
 status=$?
 
 if [[ $status -eq 0 ]]; then
-  echo "Scenario[${SCENARIO_NAME}-${SCENARIO_VERSION}] passed!"
+  echo "Scenario[${SCENARIO_NAME}-${SCENARIO_VERSION}] passed!" >&2
 else
   cat ${SCENARIO_HOME}/data/actualData.yaml >&2
   exitOnError "Scenario[${SCENARIO_NAME}-${SCENARIO_VERSION}] failed!"
