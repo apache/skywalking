@@ -90,12 +90,17 @@ public class ConfigurationImpl implements IConfiguration {
     @Override public String dockerImageName() {
         switch (this.configuration.getType().toLowerCase()) {
         case "tomcat" :
-            return "skyapm/agent-test-tomcat";
+            return "skywalking/agent-test-tomcat";
         case "jvm" :
-            return "skyapm/agent-test-jvm";
+            return "skywalking/agent-test-jvm";
         }
 
         throw new RuntimeException("Illegal type!");
+    }
+
+    @Override
+    public String dockerImageVersion() {
+        return System.getProperty("docker.image.version", "latest");
     }
 
     @Override
@@ -109,10 +114,5 @@ public class ConfigurationImpl implements IConfiguration {
 
     @Override public String outputDir(){
         return System.getProperty("output.dir");
-    }
-
-    @Override
-    public String serverAddr() {
-        return System.getProperty("server.addr");
     }
 }

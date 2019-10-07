@@ -22,7 +22,7 @@
 
     <parent>
         <groupId>org.apache.skywalking.plugin</groupId>
-        <artifactId>test</artifactId>
+        <artifactId>apache-skywalking-test-plugin</artifactId>
         <version>1.0.0</version>
     </parent>
 

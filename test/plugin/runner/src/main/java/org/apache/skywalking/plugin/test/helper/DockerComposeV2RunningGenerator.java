@@ -52,9 +52,8 @@ public class DockerComposeV2RunningGenerator extends AbstractRunningGenerator {
         root.put("health_check", configuration.healthCheck());
         root.put("test_framework", configuration.testFramework());
         root.put("docker_image_name", configuration.dockerImageName());
+        root.put("docker_image_version", configuration.dockerImageVersion());
         root.put("docker_container_name", configuration.dockerContainerName());
-
-        root.put("server_addr", configuration.serverAddr());
 
         ArrayList<String> links = Lists.newArrayList();
         configuration.caseConfiguration().getDependencies().forEach((k, service) -> {

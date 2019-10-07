@@ -25,7 +25,6 @@ services:
         </#list>
         </#if>
         environment:
-            - SERVER_ADDR:${server_addr}
             - SCENARIO_NAME:${scenario_name}
             - SCENARIO_VERSION:${scenario_version}
             - SCENARIO_ENTRY_SERVICE:${entry_service}

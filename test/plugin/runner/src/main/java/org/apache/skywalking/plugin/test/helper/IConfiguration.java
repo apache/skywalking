@@ -42,9 +42,9 @@ public interface IConfiguration {
 
     String dockerContainerName();
 
+    String dockerImageVersion();
+
     String scenarioHome();
 
     String outputDir();
-
-    String serverAddr();
 }

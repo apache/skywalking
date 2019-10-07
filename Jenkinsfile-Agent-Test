@@ -18,7 +18,7 @@
 
 pipeline {
     agent {
-        label 'skywalking'
+        label 'jenkins-skywalking1'
     }
 
     options {
@@ -51,13 +51,13 @@ pipeline {
 
         stage('Compile plugin-test tools Codes') {
             steps {
-                sh './mvnw -f test/plugin/pom.xml -Pagent clean package -DskipTests'
+                sh './mvnw -f test/plugin/pom.xml -Pagent clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
 
         stage('Run httpclient-scneario Tests') {
             steps {
-                sh 'bash test/plugin/run.sh httpclient-4.3.x-scenario'
+                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
             }
         }
     }

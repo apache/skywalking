@@ -18,11 +18,13 @@
 
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
+    exitAndClean 1
+}
 
+function exitAndClean() {
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
     [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
-    [[ -d ${SCENARIO_HOME}/agent ]] && rm -rf ${SCENARIO_HOME}/agent
-    exit 1
+    exit $1
 }
 
 function healthCheck() {
@@ -49,7 +51,7 @@ rm /usr/local/tomcat/webapps/* -rf # remove needn't app
 sed -i "s%securerandom.source=file:/dev/random%securerandom.source=file:/dev/urandom%g" $JAVA_HOME/jre/lib/security/java.security
 
 # To deploy testcase
-cp ${SCENARIO_HOME}/packages/*.war /usr/local/tomcat/webapps/
+cp ${SCENARIO_HOME}/*.war /usr/local/tomcat/webapps/
 
 # start mock collector
 echo "To start mock collector"
@@ -66,6 +68,7 @@ sleep 5
 
 echo "To receive actual data"
 curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
+[[ ! -f ${SCENARIO_HOME}/data/actualData.yaml ]] && exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION}, 'actualData.yaml' Not Found!"
 
 echo "To validate"
 java -jar \
@@ -76,8 +79,9 @@ java -jar \
 status=$?
 
 if [[ $status -eq 0 ]]; then
-  echo "Scenario[${SCENARIO_SUPPORT_FRAMEWORK}, ${SCENARIO_VERSION}] passed!"
+  echo "Scenario[${SCENARIO_NAME}-${SCENARIO_VERSION}] passed!"
 else
-  exitOnError "Scenario[${SCENARIO_SUPPORT_FRAMEWORK}, ${SCENARIO_VERSION}] failed!"
+  cat ${SCENARIO_HOME}/data/actualData.yaml >&2
+  exitOnError "Scenario[${SCENARIO_NAME}-${SCENARIO_VERSION}] failed!"
 fi
-exit $status
+exitAndClean $status

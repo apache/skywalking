@@ -24,7 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking.plugin</groupId>
-    <artifactId>test</artifactId>
+    <artifactId>apache-skywalking-test-plugin</artifactId>
     <version>1.0.0</version>
 
     <name>SkyWalking Plugins Tests</name>
@@ -52,10 +52,6 @@
 
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
-
-        <docker.image.version>1.0.0</docker.image.version>
-        <skipSurefire>true</skipSurefire>
-        <skip.docker>true</skip.docker>
     </properties>
 
     <dependencies>
@@ -100,39 +96,6 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.source}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-<!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
-                <configuration>
-                    <skip>${skipSurefire}</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker-maven-plugin.version}</version>
-                <configuration>
-                    <imageName>skyapm/${project.name}</imageName>
-                    <dockerDirectory>${project.basedir}/docker</dockerDirectory>
-                    <skipDocker>${skip.docker}</skipDocker>
                 </configuration>
             </plugin>
         </plugins>
