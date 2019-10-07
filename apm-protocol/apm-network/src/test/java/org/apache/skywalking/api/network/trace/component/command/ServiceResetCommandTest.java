@@ -30,7 +30,7 @@ import org.junit.Test;
 public class ServiceResetCommandTest {
 
     @Test
-    public void test_serialize() throws Exception {
+    public void serialize_Serialize_SerialNumberIsaa() throws Exception {
         ServiceResetCommand command = new ServiceResetCommand("aa");
         Command.Builder builder = command.serialize();
 
@@ -39,9 +39,8 @@ public class ServiceResetCommandTest {
     }
 
     @Test
-    public void test_deserialize() throws Exception {
+    public void deserialize_NullPointerException_CommandKeyIsNotSerialNumber() throws Exception {
         ServiceResetCommand command = new ServiceResetCommand("aa");
-
 
         Command command1 = Command.newBuilder()
                 .addArgs(KeyStringValuePair.newBuilder().setKey("aa").setValue("aa").build())
@@ -53,15 +52,22 @@ public class ServiceResetCommandTest {
             exception = true;
         }
         Assert.assertEquals(true, exception);
+    }
 
+    @Test
+    public void deserialize_SerialNumberCompare_CommandKeyIsSerialNumberValueIsaa() throws Exception {
+        ServiceResetCommand command = new ServiceResetCommand("aa");
 
         Command command2 = Command.newBuilder()
                 .addArgs(KeyStringValuePair.newBuilder().setKey("SerialNumber").setValue("aa").build())
                 .build();
         ServiceResetCommand deserialize2 = command.deserialize(command2);
         Assert.assertEquals("aa", deserialize2.getSerialNumber());
+    }
 
-
+    @Test
+    public void deserialize_SerializeAndDeserialize_SerialNumberValueIsaa() throws Exception {
+        ServiceResetCommand command = new ServiceResetCommand("aa");
         Command.Builder builder = command.serialize();
         Command command3 = builder.build();
         ServiceResetCommand deserialize3 = command.deserialize(command3);
