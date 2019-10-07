@@ -532,12 +532,18 @@
                     <aggregate>true</aggregate>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <quiet>true</quiet>
-                    <format>xml</format>
+                    <formats>
+                      <format>html</format>
+                      <format>xml</format>
+                    </formats>
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>
                         <ignoreMethodAnnotations>
                             <ignoreMethodAnnotation>lombok.Generated</ignoreMethodAnnotation>
                         </ignoreMethodAnnotations>
+                        <includes>
+                            <include>org/apache/skywalking/**/*.class</include>
+                        </includes>
                         <excludes>
                             <exclude>org/apache/skywalking/**/*Test.class</exclude>
                             <exclude>org/apache/skywalking/**/Test*.class</exclude>
@@ -549,7 +555,10 @@
                             <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/configuration/service/*.class</exclude>
-                            <exclude>grpc/health/v1/*.class</exclude>
+
+                            <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
