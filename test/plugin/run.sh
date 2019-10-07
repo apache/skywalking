@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -157,18 +158,14 @@ scenarios_home="${home}/scenarios"
 workspace="${home}/workspace"
 task_state_house="${workspace}/.states"
 
+
 plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
 
 prepareAndClean() {
   echo "prepare and clear"
-  if [[ -f ${task_state_house} ]]; then
-    rm -f ${task_state_house}/* > /dev/null
-  else
-    mkdir -p ${workspace}/.states
-  fi
+  [[ -d ${workspace} ]] && rm -fr ${workspace}
 
-  [[ -f ${workspace}/testcases ]] && rm -rf ${workspace}/testcases
-  mkdir -p ${workspace}/testcases
+  mkdir -p ${workspace}/{.states,testcases}
 
   if [[ ${#_arg_scenarios[@]} -lt 1 ]]; then
     _arg_scenarios=`ls ./scenarios/|sed -e "s/\t/\n/g"`
@@ -178,7 +175,7 @@ prepareAndClean() {
   docker container prune -f
   docker network   prune -f
   docker volume    prune -f
-  docker image     prune -f
+#  docker image     prune -f
 
   # build plugin/test
   ${mvnw} clean package -DskipTests docker:build
@@ -189,16 +186,14 @@ prepareAndClean() {
 }
 
 waitForAvailable() {
+  while [[ `ls -l ${task_state_house} |grep -c RUNNING` -ge ${_arg_parallel_run_size} ]]
+  do
+    sleep 2
+  done
+
   if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
     exit 1
   fi
-  while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt ${_arg_parallel_run_size} ]]
-  do
-    if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
-      exit 1
-    fi
-    sleep 2
-  done
 }
 
 ################################################
@@ -220,10 +215,6 @@ do
 
   echo "scenario.name=${scenario_name}"
   num_of_scenarios=$((num_of_scenarios+1))
-  # [[ -f ${testcases_home}/configuration.yml ]] && rm -f ${testcases_home}/configuration.yml
-  # cp -f ${scenario_home}/configuration.yml ${testcases_home} > /dev/null
-  #
-  # testcases_home=${home}/testcases/${scenario_name} && mkdir -p ${testcases_home}
 
   supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
   for version in ${supported_versions}
@@ -239,7 +230,7 @@ do
     # copy expectedData.yml
     cp ./config/expectedData.yaml ${case_work_base}/data
 
-    echo "build ${testcase_name}"
+#    echo "build ${testcase_name}"
     ${mvnw} clean package -P${testcase_name} > ${case_work_logs_dir}/build.log
 
     mv ./target/${scenario_name}.war ${case_work_base}/packages
@@ -250,13 +241,13 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${agent_home} \
-        -jar ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&1
+        -jar ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&2
 
     [[ $? -ne 0 ]] && echo -e "\033[31m[ERROR] ${testcase_name}, generate script failure! \033[0m" && continue # ]]
 
     waitForAvailable
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log 2>&1 &
+    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log 2>&2 &
   done
 
   echo -e "\033[33m${scenario_name} has already sumbitted\033[0m" # to escape ]]

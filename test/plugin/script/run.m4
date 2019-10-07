@@ -63,16 +63,14 @@ prepareAndClean() {
 }
 
 waitForAvailable() {
+  while [[ `ls -l ${task_state_house} |grep -c RUNNING` -ge ${_arg_parallel_run_size} ]]
+  do
+    sleep 2
+  done
+
   if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
     exit 1
   fi
-  while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt ${_arg_parallel_run_size} ]]
-  do
-    if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
-      exit 1
-    fi
-    sleep 2
-  done
 }
 
 ################################################
@@ -84,7 +82,6 @@ echo "start submit job"
 num_of_scenarios=0
 for scenario_name in ${_arg_scenarios}
 do
-  waitForAvailable
   scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 
   supported_version_file=${scenario_home}/support-version.list
@@ -110,7 +107,7 @@ do
     # copy expectedData.yml
     cp ./config/expectedData.yaml ${case_work_base}/data
 
-    echo "build ${testcase_name}"
+#    echo "build ${testcase_name}"
     ${mvnw} clean package -P${testcase_name} > ${case_work_logs_dir}/build.log
 
     mv ./target/${scenario_name}.war ${case_work_base}/packages
@@ -125,6 +122,7 @@ do
 
     [[ $? -ne 0 ]] && echo -e "\033[31m[ERROR] ${testcase_name}, generate script failure! \033[0m" && continue # ]]
 
+    waitForAvailable
     echo "start container of testcase.name=${testcase_name}"
     bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log 2>&2 &
   done
