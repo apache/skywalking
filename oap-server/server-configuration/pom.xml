@@ -27,6 +27,7 @@
 
     <artifactId>server-configuration</artifactId>
     <packaging>pom</packaging>
+
     <modules>
         <module>configuration-api</module>
         <module>grpc-configuration-sync</module>
@@ -34,6 +35,7 @@
         <module>configuration-nacos</module>
         <module>configuration-zookeeper</module>
         <module>configuration-etcd</module>
+        <module>configuration-consul</module>
     </modules>
 
 </project>

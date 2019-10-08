@@ -61,12 +61,13 @@ public class KafkaProducerInterceptor implements InstanceMethodsAroundIntercepto
             next = next.next();
             record.headers().add(next.getHeadKey(), next.getHeadValue().getBytes());
         }
-
         EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
-        if (callbackInstance != null) {
+        if (null != callbackInstance) {
             ContextSnapshot snapshot = ContextManager.capture();
             if (null != snapshot) {
-                callbackInstance.setSkyWalkingDynamicField(snapshot);
+                CallbackCache cache = new CallbackCache();
+                cache.setSnapshot(snapshot);
+                callbackInstance.setSkyWalkingDynamicField(cache);
             }
         }
     }

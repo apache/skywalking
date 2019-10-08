@@ -233,12 +233,3 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
    proto files from gogo: https://github.com/gogo/protobuf  BSD-2
    proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
 
-
-========================================================================
-MIT licenses
-========================================================================
-
-The following components are provided under the MIT License. See project link for details.
-The text of each license is also included at licenses/LICENSE-[project].txt.
-
-   iconfont(from antd): https://github.com/ant-design/antd-init/tree/master/examples/local-iconfont   MIT
