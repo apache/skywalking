@@ -55,7 +55,7 @@ pipeline {
             }
         }
 
-        stage('Run httpclient-scneario Tests') {
+        stage('httpclient 4.3.x-4.5.x') {
             steps {
                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
             }
