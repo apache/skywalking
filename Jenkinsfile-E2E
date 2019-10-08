@@ -18,7 +18,12 @@
 
 pipeline {
     agent {
-        label 'xenial'
+        label 'skywalking'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 5, unit: 'HOURS')
     }
 
     tools {

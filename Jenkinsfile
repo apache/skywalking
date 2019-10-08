@@ -25,6 +25,7 @@ pipeline {
         ))
         timestamps()
         skipStagesAfterUnstable()
+        timeout(time: 5, unit: 'HOURS')
     }
 
     environment {
@@ -36,7 +37,7 @@ pipeline {
             parallel {
                 stage('JDK 1.8 on Linux') {
                     agent {
-                        label 'xenial'
+                        label 'skywalking || skywalking-se'
                     }
 
                     tools {
