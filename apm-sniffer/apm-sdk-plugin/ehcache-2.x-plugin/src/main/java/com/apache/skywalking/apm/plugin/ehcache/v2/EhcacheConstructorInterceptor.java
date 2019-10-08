@@ -12,7 +12,7 @@ public class EhcacheConstructorInterceptor implements InstanceConstructorInterce
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         CacheConfiguration cacheConfiguration = (CacheConfiguration) allArguments[0];
 
-        // 获取缓存名称
+        // get cache name
         if (cacheConfiguration != null) {
             objInst.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(cacheConfiguration.getName()));
         }
