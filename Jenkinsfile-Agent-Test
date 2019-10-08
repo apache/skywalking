@@ -18,7 +18,7 @@
 
 pipeline {
     agent {
-        label 'jenkins-skywalking1'
+        label 'skywalking'
     }
 
     options {

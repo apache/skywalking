@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -13,8 +15,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#!/usr/bin/env bash
 
 echo "replace GRPC_BIND_HOST with $GRPC_BIND_HOST"
 eval sed -i -e 's/\{GRPC_BIND_HOST\}/$GRPC_BIND_HOST/' /usr/local/skywalking-mock-collector/config/config.properties

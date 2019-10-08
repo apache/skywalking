@@ -55,11 +55,11 @@ cp ${SCENARIO_HOME}/*.war /usr/local/tomcat/webapps/
 
 # start mock collector
 echo "To start mock collector"
-${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null 2>&2 &
+${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null &
 healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
-/usr/local/tomcat/bin/catalina.sh start 1>/dev/null 2>&2 &
+/usr/local/tomcat/bin/catalina.sh start 1>/dev/null &
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -76,7 +76,7 @@ java -jar \
   -Xmx256m -Xms256m \
   -DtestDate="`date +%Y-%m-%d-%H-%M`" \
   -DtestCasePath=${SCENARIO_HOME}/data/ \
-  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null 2>&2
+  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
 status=$?
 
 if [[ $status -eq 0 ]]; then

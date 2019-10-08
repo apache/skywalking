@@ -144,12 +144,12 @@ do
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${agent_home} \
         -Ddocker.image.version=${build_id} \
-        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&2
+        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log 2>&2 &
+    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log &
     sleep 3
 done
 
