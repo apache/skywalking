@@ -139,6 +139,12 @@ telemetry:
   none:
 configuration:
   none:
+#  apollo:
+#    apolloMeta: http://106.12.25.204:8080
+#    apolloCluster: default
+#    # apolloEnv: # defaults to null
+#    appId: skywalking
+#    period: 5
 #  nacos:
 #    # Nacos Server Host
 #    serverAddr: 127.0.0.1
@@ -162,6 +168,12 @@ configuration:
 #    group :  'skywalking'
 #    serverAddr: localhost:2379
 #    clusterName: "default"
+#  consul:
+#    # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
+#    hostAndPorts: ${consul.address}
+#    # Sync period in seconds. Defaults to 60 seconds.
+#    period: 1
+
 #exporter:
 #  grpc:
 #    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
