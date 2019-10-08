@@ -19,7 +19,7 @@
 package com.apache.skywalking.apm.plugin.ehcache.v2;
 
 /**
- * @Author MrPro
+ * @author MrPro
  */
 public class EhcacheEnhanceInfo {
 

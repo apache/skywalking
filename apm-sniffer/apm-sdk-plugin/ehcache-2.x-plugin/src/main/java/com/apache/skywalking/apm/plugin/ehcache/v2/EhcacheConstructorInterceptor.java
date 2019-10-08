@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * @Author MrPro
+ * @author MrPro
  */
 public class EhcacheConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
