@@ -65,7 +65,7 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
             properties.put(PropertyKeyConst.SERVER_ADDR, config.getHostPort());
             properties.put(PropertyKeyConst.NAMESPACE, config.getNamespace());
             namingService = NamingFactory.createNamingService(properties);
-        } catch (NacosException e) {
+        } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
         NacosCoordinator coordinator = new NacosCoordinator(namingService, config);
