@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 import static com.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.LOCK_ENHANCE_METHOD_SUFFIX;
 
 /**
- * @Author MrPro
+ * @author MrPro
  */
 public class EhcacheLockInterceptor implements InstanceMethodsAroundInterceptor {
 

@@ -47,7 +47,7 @@ import static com.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginIn
 import static org.hamcrest.CoreMatchers.is;
 
 /**
- * @Author MrPro
+ * @author MrPro
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
