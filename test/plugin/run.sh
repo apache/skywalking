@@ -135,14 +135,16 @@ do
 
     mv ./target/${scenario_name}.war ${case_work_base}
 
-    java -Dconfigure.file=${scenario_home}/configuration.yml \
+    java -jar \
+        -Xmx256m -Xms256m \
+        -Dconfigure.file=${scenario_home}/configuration.yml \
         -Dscenario.home=${case_work_base} \
         -Dscenario.name=${scenario_name} \
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${agent_home} \
         -Ddocker.image.version=${build_id} \
-        -jar ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&2
+        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 2>&2
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 

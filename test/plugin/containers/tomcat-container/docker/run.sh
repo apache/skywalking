@@ -73,6 +73,7 @@ curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.ya
 echo "To validate"
 java -jar \
   -Dv2=true \
+  -Xmx256m -Xms256m \
   -DtestDate="`date +%Y-%m-%d-%H-%M`" \
   -DtestCasePath=${SCENARIO_HOME}/data/ \
   ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null 2>&2

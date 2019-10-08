@@ -29,6 +29,7 @@ do
     CLASSPATH="$i:$CLASSPATH"
 done
 
+JAVA_OPTS="${JAVA_OPTS} -Xmx256m -Xms256m"
 JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 "
 
 $_RUNJAVA ${JAVA_OPTS}  -classpath $CLASSPATH org.apache.skywalking.plugin.test.mockcollector.Main

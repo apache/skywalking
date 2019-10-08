@@ -16,6 +16,7 @@
 -->
 
 docker run \
+        --memory=1024m \
         --name ${docker_container_name} \
         --env SCENARIO_NAME=${scenario_name} \
         --env SCENARIO_VERSION=${scenario_version}  \
