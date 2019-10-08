@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
+import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -26,6 +27,8 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.library.module.*;
+
+import java.util.Properties;
 
 /**
  * @author caoyixiong
@@ -58,7 +61,10 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            namingService = NamingFactory.createNamingService(config.getHostPort());
+            Properties properties = new Properties();
+            properties.put(PropertyKeyConst.SERVER_ADDR, config.getHostPort());
+            properties.put(PropertyKeyConst.NAMESPACE, config.getNamespace());
+            namingService = NamingFactory.createNamingService(properties);
         } catch (NacosException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

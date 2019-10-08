@@ -106,6 +106,8 @@ cluster:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     # Nacos cluster nodes, example: 10.0.0.1:8848,10.0.0.2:8848,10.0.0.3:8848
     hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
+    # Nacos Configuration namespace
+    namespace: ${SW_CLUSTER_NACOS_NAMESPACE:public}
 ```
 
 ## Etcd
