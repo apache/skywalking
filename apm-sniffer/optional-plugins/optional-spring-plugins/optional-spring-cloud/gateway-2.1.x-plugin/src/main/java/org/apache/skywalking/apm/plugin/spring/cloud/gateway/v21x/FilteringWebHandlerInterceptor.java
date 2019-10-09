@@ -20,17 +20,24 @@ package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 import org.springframework.cloud.gateway.route.Route;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
@@ -66,7 +73,32 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return ret;
+        EnhancedInstance instance = getInstance(allArguments[0]);
+        if (instance == null) {
+            return ret;
+        }
+        final SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
+        if (swTransmitter == null) {
+            return ret;
+        }
+        final ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        Mono<Void> mono = (Mono) ret;
+        return mono.doFinally(new Consumer<SignalType>() {
+            @Override
+            public void accept(SignalType signalType) {
+                HttpStatus statusCode = exchange.getResponse().getStatusCode();
+                if (statusCode == HttpStatus.TOO_MANY_REQUESTS) {
+                    AbstractSpan localSpan = ContextManager.createLocalSpan(swTransmitter.getOperationName());
+                    Tags.STATUS_CODE.set(localSpan,statusCode.toString());
+                    SpanLayer.asHttp(localSpan);
+                    localSpan.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
+                    ContextManager.continued(swTransmitter.getSnapshot());
+                    ContextManager.stopSpan(localSpan);
+                    AbstractSpan spanWebflux = swTransmitter.getSpanWebflux();
+                    spanWebflux.asyncFinish();
+                }
+            }
+        });
     }
 
 

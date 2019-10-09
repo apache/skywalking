@@ -19,12 +19,10 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.RuntimeContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.Constants;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
 import org.springframework.web.server.ServerWebExchange;
@@ -40,24 +38,14 @@ import java.lang.reflect.Method;
  */
 public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "FilteringWebHandler";
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance != null) {
             SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
-            if (swTransmitter != null) {
-                AbstractSpan filteringWebHandler = ContextManager.createLocalSpan(SPRING_CLOUD_GATEWAY_ROUTE_PREFIX);
-                filteringWebHandler.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
-                SpanLayer.asHttp(filteringWebHandler);
-                ContextManager.continued(swTransmitter.getSnapshot());
-                swTransmitter.setSnapshot(ContextManager.capture());
-                swTransmitter.setSpanFilter(filteringWebHandler.prepareForAsync());
-                ContextManager.stopSpan(filteringWebHandler);
-                ContextManager.getRuntimeContext().put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, swTransmitter);
-            }
+            RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
+            runtimeContext.put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, swTransmitter);
         }
     }
 
@@ -79,24 +67,13 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     public static EnhancedInstance getInstance(Object o) {
         EnhancedInstance instance = null;
         if (o instanceof ServerWebExchangeDecorator) {
-            instance = getEnhancedInstance((ServerWebExchangeDecorator) o);
+            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
+            if (delegate instanceof DefaultServerWebExchange) {
+                instance = (EnhancedInstance) delegate;
+            }
         } else if (o instanceof DefaultServerWebExchange) {
             instance = (EnhancedInstance) o;
         }
         return instance;
-    }
-
-
-    private static EnhancedInstance getEnhancedInstance(ServerWebExchangeDecorator serverWebExchangeDecorator) {
-        Object o = serverWebExchangeDecorator.getDelegate();
-        if (o instanceof ServerWebExchangeDecorator) {
-            return getEnhancedInstance((ServerWebExchangeDecorator) o);
-        } else if (o instanceof DefaultServerWebExchange) {
-            return (EnhancedInstance) o;
-        } else if (o == null) {
-            throw new NullPointerException("The expected class DefaultServerWebExchange is null");
-        } else {
-            throw new RuntimeException("Unknown parameter types:" + o.getClass());
-        }
     }
 }
