@@ -51,7 +51,7 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = getInstance(allArguments[0]);
+        EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance == null) {
             return;
         }
@@ -73,7 +73,7 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        EnhancedInstance instance = getInstance(allArguments[0]);
+        EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance == null) {
             return ret;
         }
@@ -103,17 +103,5 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
     }
-
-    public static EnhancedInstance getInstance(Object o) {
-        EnhancedInstance instance = null;
-        if (o instanceof ServerWebExchangeDecorator) {
-            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
-            if (delegate instanceof DefaultServerWebExchange) {
-                instance = (EnhancedInstance) delegate;
-            }
-        } else if (o instanceof DefaultServerWebExchange) {
-            instance = (EnhancedInstance) o;
-        }
-        return instance;
-    }
+    
 }
