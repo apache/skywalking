@@ -51,7 +51,7 @@ pipeline {
 
         stage('Compile plugin-test tools Codes') {
             steps {
-                sh './mvnw -f test/plugin/pom.xml -Pagent clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
 
