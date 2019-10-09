@@ -17,7 +17,7 @@
  */
 
 
-package com.apache.skywalking.aom.plugin.ehcache.v2;
+package com.apache.skywalking.apm.plugin.ehcache.v2;
 
 import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheEnhanceInfo;
 import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheLockInterceptor;
@@ -25,6 +25,7 @@ import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateElementIntercep
 import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateObjectInterceptor;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
@@ -63,14 +64,19 @@ public class EhcacheInterceptorTest {
 
     private EhcacheOperateObjectInterceptor operateObjectInterceptor;
     private EhcacheOperateElementInterceptor operateElementInterceptor;
+    private EhcacheOperateAllInterceptor operateAllInterceptor;
     private EhcacheLockInterceptor lockInterceptor;
+    private EhcacheConstructorInterceptor constructorInterceptor;
     private Object[] operateObjectArguments;
     private Object[] operateElementArguments;
     private Object[] tryLockArguments;
     private Object[] releaseLockArguments;
 
+    private Exception exception;
+
     private Method putCacheMethod;
     private Method getCacheMethod;
+    private Method getAllMethod;
 
     private Method tryReadLockMethod;
     private Method tryWriteLockMethod;
@@ -92,7 +98,11 @@ public class EhcacheInterceptorTest {
     public void setUp() throws NoSuchMethodException {
         operateObjectInterceptor = new EhcacheOperateObjectInterceptor();
         operateElementInterceptor = new EhcacheOperateElementInterceptor();
+        operateAllInterceptor = new EhcacheOperateAllInterceptor();
+        constructorInterceptor = new EhcacheConstructorInterceptor();
         lockInterceptor = new EhcacheLockInterceptor();
+
+        exception = new Exception();
 
         operateObjectArguments = new Object[] {
                 "dataKey"
@@ -109,6 +119,7 @@ public class EhcacheInterceptorTest {
 
         putCacheMethod = Whitebox.getMethods(Cache.class, PUT_CACHE_ENHANCE_METHOD)[0];
         getCacheMethod = Whitebox.getMethods(Cache.class, GET_CACHE_ENHANCE_METHOD)[0];
+        getAllMethod = Whitebox.getMethods(Cache.class, GET_ALL_CACHE_ENHANCE_METHOD)[0];
 
         tryReadLockMethod = Whitebox.getMethods(Cache.class, READ_LOCK_TRY_ENHANCE_METHOD)[0];
         tryWriteLockMethod = Whitebox.getMethods(Cache.class, WRITE_LOCK_TRY_ENHANCE_METHOD)[0];
@@ -117,9 +128,17 @@ public class EhcacheInterceptorTest {
     }
 
     @Test
+    public void assertConstruct() throws Throwable {
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {
+                new CacheConfiguration(CACHE_NAME, 20)
+        });
+    }
+
+    @Test
     public void assertPutSuccess() throws Throwable {
         // put arguments
         operateElementInterceptor.beforeMethod(enhancedInstance, putCacheMethod, operateElementArguments, null, null);
+        operateElementInterceptor.handleMethodException(enhancedInstance, putCacheMethod, null, null, exception);
         operateElementInterceptor.afterMethod(enhancedInstance, putCacheMethod, operateElementArguments, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
@@ -129,6 +148,7 @@ public class EhcacheInterceptorTest {
     @Test
     public void assertGetSuccess() throws Throwable {
         operateObjectInterceptor.beforeMethod(enhancedInstance, getCacheMethod, operateObjectArguments, null, null);
+        operateObjectInterceptor.handleMethodException(enhancedInstance, getCacheMethod, null, null, exception);
         operateObjectInterceptor.afterMethod(enhancedInstance, getCacheMethod, operateObjectArguments, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
@@ -136,8 +156,20 @@ public class EhcacheInterceptorTest {
     }
 
     @Test
+    public void assertGetAllSuccess() throws Throwable {
+        operateAllInterceptor.beforeMethod(enhancedInstance, getAllMethod, null, null, null);
+        operateAllInterceptor.handleMethodException(enhancedInstance, getAllMethod, null, null, exception);
+        operateAllInterceptor.afterMethod(enhancedInstance, getAllMethod, null, null, null);
+
+        List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
+        Assert.assertThat(traceSegments.size(), is(1));
+    }
+
+
+    @Test
     public void assertLockSuccess() throws Throwable {
         lockInterceptor.beforeMethod(enhancedInstance, tryReadLockMethod, tryLockArguments, null, null);
+        lockInterceptor.handleMethodException(enhancedInstance, tryReadLockMethod, null, null, exception);
         lockInterceptor.afterMethod(enhancedInstance, tryReadLockMethod, tryLockArguments, null, null);
 
         lockInterceptor.beforeMethod(enhancedInstance, tryWriteLockMethod, tryLockArguments, null, null);
