@@ -79,8 +79,7 @@ public class TopologyQueryService implements Service {
         return endpointInventoryCache;
     }
 
-    public Topology getGlobalTopology(final Downsampling downsampling, final long startTB, final long endTB, final long startTimestamp,
-        final long endTimestamp) throws IOException {
+    public Topology getGlobalTopology(final Downsampling downsampling, final long startTB, final long endTB) throws IOException {
         logger.debug("Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", downsampling, startTB, endTB);
         List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(downsampling, startTB, endTB);
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(downsampling, startTB, endTB);
