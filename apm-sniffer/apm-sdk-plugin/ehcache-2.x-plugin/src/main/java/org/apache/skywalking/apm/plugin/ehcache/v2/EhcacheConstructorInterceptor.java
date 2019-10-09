@@ -16,7 +16,7 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

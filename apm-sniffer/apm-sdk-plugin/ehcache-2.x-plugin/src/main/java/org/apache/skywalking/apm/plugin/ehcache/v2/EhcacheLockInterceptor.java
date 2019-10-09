@@ -16,7 +16,7 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-import static com.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.LOCK_ENHANCE_METHOD_SUFFIX;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.LOCK_ENHANCE_METHOD_SUFFIX;
 
 /**
  * @author MrPro

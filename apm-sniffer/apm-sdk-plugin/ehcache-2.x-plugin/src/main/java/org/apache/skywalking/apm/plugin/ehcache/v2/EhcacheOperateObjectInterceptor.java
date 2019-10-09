@@ -16,9 +16,8 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
-import net.sf.ehcache.Element;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -33,7 +32,7 @@ import java.lang.reflect.Method;
 /**
  * @author MrPro
  */
-public class EhcacheOperateElementInterceptor implements InstanceMethodsAroundInterceptor {
+public class EhcacheOperateObjectInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
@@ -43,9 +42,9 @@ public class EhcacheOperateElementInterceptor implements InstanceMethodsAroundIn
         span.setComponent(ComponentsDefine.EHCACHE);
         SpanLayer.asCache(span);
 
-        Element element = ((Element) allArguments[0]);
-        if (element != null && element.getObjectKey() != null) {
-            Tags.DB_STATEMENT.set(span, element.getObjectKey().toString());
+        Object element = allArguments[0];
+        if (element != null) {
+            Tags.DB_STATEMENT.set(span, element.toString());
         }
     }
 

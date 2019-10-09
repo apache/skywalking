@@ -16,7 +16,7 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2.define;
+package org.apache.skywalking.apm.plugin.ehcache.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;

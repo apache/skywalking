@@ -16,10 +16,9 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -32,20 +31,15 @@ import java.lang.reflect.Method;
 /**
  * @author MrPro
  */
-public class EhcacheOperateObjectInterceptor implements InstanceMethodsAroundInterceptor {
+public class EhcacheOperateAllInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         EhcacheEnhanceInfo enhanceInfo = (EhcacheEnhanceInfo) objInst.getSkyWalkingDynamicField();
 
-        AbstractSpan span = ContextManager.createLocalSpan("Ehcache/"+method.getName()+"/" + enhanceInfo.getCacheName());
+        AbstractSpan span = ContextManager.createLocalSpan("Ehcache/" + method.getName() + "/" + enhanceInfo.getCacheName());
         span.setComponent(ComponentsDefine.EHCACHE);
         SpanLayer.asCache(span);
-
-        Object element = allArguments[0];
-        if (element != null) {
-            Tags.DB_STATEMENT.set(span, element.toString());
-        }
     }
 
     @Override

@@ -16,7 +16,7 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
 /**
  * @author MrPro

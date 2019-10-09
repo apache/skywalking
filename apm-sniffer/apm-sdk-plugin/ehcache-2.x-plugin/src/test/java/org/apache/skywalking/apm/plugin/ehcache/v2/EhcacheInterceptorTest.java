@@ -17,12 +17,8 @@
  */
 
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
-import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheEnhanceInfo;
-import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheLockInterceptor;
-import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateElementInterceptor;
-import com.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateObjectInterceptor;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -44,7 +40,7 @@ import org.powermock.reflect.Whitebox;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static com.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.*;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.*;
 import static org.hamcrest.CoreMatchers.is;
 
 /**
