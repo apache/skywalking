@@ -77,26 +77,23 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         if (instance == null) {
             return ret;
         }
-        final SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
+        SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
         if (swTransmitter == null) {
             return ret;
         }
-        final ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         Mono<Void> mono = (Mono) ret;
-        return mono.doFinally(new Consumer<SignalType>() {
-            @Override
-            public void accept(SignalType signalType) {
-                HttpStatus statusCode = exchange.getResponse().getStatusCode();
-                if (statusCode == HttpStatus.TOO_MANY_REQUESTS) {
-                    AbstractSpan localSpan = ContextManager.createLocalSpan(swTransmitter.getOperationName());
-                    Tags.STATUS_CODE.set(localSpan,statusCode.toString());
-                    SpanLayer.asHttp(localSpan);
-                    localSpan.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
-                    ContextManager.continued(swTransmitter.getSnapshot());
-                    ContextManager.stopSpan(localSpan);
-                    AbstractSpan spanWebflux = swTransmitter.getSpanWebflux();
-                    spanWebflux.asyncFinish();
-                }
+        return mono.doFinally(d -> {
+            ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+            HttpStatus statusCode = exchange.getResponse().getStatusCode();
+            if (statusCode == HttpStatus.TOO_MANY_REQUESTS) {
+                AbstractSpan localSpan = ContextManager.createLocalSpan(swTransmitter.getOperationName());
+                Tags.STATUS_CODE.set(localSpan,statusCode.toString());
+                SpanLayer.asHttp(localSpan);
+                localSpan.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
+                ContextManager.continued(swTransmitter.getSnapshot());
+                ContextManager.stopSpan(localSpan);
+                AbstractSpan spanWebflux = swTransmitter.getSpanWebflux();
+                spanWebflux.asyncFinish();
             }
         });
     }

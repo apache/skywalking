@@ -19,16 +19,13 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.RuntimeContext;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.Constants;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
-import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
-
 import java.lang.reflect.Method;
 
 
@@ -38,14 +35,14 @@ import java.lang.reflect.Method;
  */
 public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
 
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance != null) {
             SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
-            RuntimeContext runtimeContext = ContextManager.getRuntimeContext();
-            runtimeContext.put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, swTransmitter);
+            ContextManager.getRuntimeContext().put(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER, swTransmitter);
         }
     }
 
@@ -67,13 +64,24 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     public static EnhancedInstance getInstance(Object o) {
         EnhancedInstance instance = null;
         if (o instanceof ServerWebExchangeDecorator) {
-            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
-            if (delegate instanceof DefaultServerWebExchange) {
-                instance = (EnhancedInstance) delegate;
-            }
+            instance = getEnhancedInstance((ServerWebExchangeDecorator) o);
         } else if (o instanceof DefaultServerWebExchange) {
             instance = (EnhancedInstance) o;
         }
         return instance;
+    }
+
+
+    private static EnhancedInstance getEnhancedInstance(ServerWebExchangeDecorator serverWebExchangeDecorator) {
+        Object o = serverWebExchangeDecorator.getDelegate();
+        if (o instanceof ServerWebExchangeDecorator) {
+            return getEnhancedInstance((ServerWebExchangeDecorator) o);
+        } else if (o instanceof DefaultServerWebExchange) {
+            return (EnhancedInstance) o;
+        } else if (o == null) {
+            throw new NullPointerException("The expected class DefaultServerWebExchange is null");
+        } else {
+            throw new RuntimeException("Unknown parameter types:" + o.getClass());
+        }
     }
 }
