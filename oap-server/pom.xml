@@ -201,6 +201,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>org.elasticsearch</artifactId>
+                        <groupId>elasticsearch</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
