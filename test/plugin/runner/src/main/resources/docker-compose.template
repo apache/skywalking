@@ -25,6 +25,11 @@ services:
         </#list>
         </#if>
         environment:
+        <#if environments?size \gt 0>
+        <#list environments as env>
+            - ${env}
+        </#list>
+        </#if>
             - SCENARIO_NAME:${scenario_name}
             - SCENARIO_VERSION:${scenario_version}
             - SCENARIO_ENTRY_SERVICE:${entry_service}

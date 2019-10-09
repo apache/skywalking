@@ -105,7 +105,7 @@ waitForAvailable() {
     fi
 }
 
-start_stamp=`date +%s` ### start
+start_stamp=`date +%s`
 parse_commandline "$@"
 
 if [[ ! -d ${agent_home} ]]; then
@@ -151,7 +151,7 @@ do
     # echo "build ${testcase_name}"
     ${mvnw} clean package -P${testcase_name}
 
-    mv ./target/${scenario_name}.war ${case_work_base}
+    mv ./target/${scenario_name}.* ${case_work_base}
 
     java -jar \
         -Xmx256m -Xms256m \
