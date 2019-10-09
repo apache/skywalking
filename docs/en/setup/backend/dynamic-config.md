@@ -60,6 +60,8 @@ configuration:
     port: 8848
     # Nacos Configuration Group
     group: 'skywalking'
+    # Nacos Configuration namespace
+    namespace: ''
     # Unit seconds, sync period. Default fetch every 60 seconds.
     period : 60
     # the name of current cluster, set the name if you want to upstream system known.
