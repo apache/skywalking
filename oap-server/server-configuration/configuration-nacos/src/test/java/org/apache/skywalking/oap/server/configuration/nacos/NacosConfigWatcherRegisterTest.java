@@ -45,6 +45,7 @@ public class NacosConfigWatcherRegisterTest {
 
         final NacosServerSettings mockSettings = mock(NacosServerSettings.class);
         when(mockSettings.getGroup()).thenReturn(group);
+        when(mockSettings.getNamespace()).thenReturn("public");
 
         final NacosConfigWatcherRegister mockRegister = spy(new NacosConfigWatcherRegister(mockSettings));
         final ConfigService mockConfigService = mock(ConfigService.class);
