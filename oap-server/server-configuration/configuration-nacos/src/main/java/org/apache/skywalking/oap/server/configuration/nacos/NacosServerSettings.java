@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @ToString
 public class NacosServerSettings extends ModuleConfig {
     private String clusterName = "default";
-    private String namespace = "public";
+    private String namespace = "";
     private String serverAddr;
     private int port = 8848;
     private String group;

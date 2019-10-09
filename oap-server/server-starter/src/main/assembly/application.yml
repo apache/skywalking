@@ -41,7 +41,7 @@ cluster:
 #    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
 #    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
 #  # Nacos Configuration namespace
-#    namespace: 'public'
+#    namespace: ''
 #  etcd:
 #    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
 #     etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
@@ -155,7 +155,7 @@ configuration:
 #    # Nacos Configuration Group
 #    group: 'skywalking'
 #    # Nacos Configuration namespace
-#    namespace: 'public'
+#    namespace: ''
 #    # Unit seconds, sync period. Default fetch every 60 seconds.
 #    period : 60
 #    # the name of current cluster, set the name if you want to upstream system known.

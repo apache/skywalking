@@ -86,7 +86,6 @@ public class ClusterModuleNacosProviderTest {
 
         Properties properties = new Properties();
         properties.put(PropertyKeyConst.SERVER_ADDR, "10.0.0.1:1000,10.0.0.2:1001");
-        properties.put(PropertyKeyConst.NAMESPACE, "public");
 
         PowerMockito.when(NamingFactory.createNamingService(properties)).thenReturn(namingService);
         provider.prepare();
