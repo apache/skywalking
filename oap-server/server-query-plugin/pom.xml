@@ -31,4 +31,10 @@
         <module>query-graphql-plugin</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-afterburner</artifactId>
+        </dependency>
+    </dependencies>
 </project>
