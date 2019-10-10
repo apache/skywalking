@@ -15,3 +15,5 @@
 # limitations under the License.
 
 mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.MongoDBInstrumentation
+mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.MongoDBClientDelegateInstrumentation
+mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.MongoDBOperationExecutorInstrumentation

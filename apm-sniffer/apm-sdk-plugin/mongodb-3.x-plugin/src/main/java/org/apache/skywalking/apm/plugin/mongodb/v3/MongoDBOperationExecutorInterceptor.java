@@ -19,44 +19,34 @@
 
 package org.apache.skywalking.apm.plugin.mongodb.v3;
 
-import com.mongodb.ReadPreference;
-import com.mongodb.connection.Cluster;
-import com.mongodb.operation.ReadOperation;
-import com.mongodb.operation.WriteOperation;
+import com.mongodb.client.internal.OperationExecutor;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoRemotePeerHelper;
 import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoSpanHelper;
+import org.apache.skywalking.apm.plugin.mongodb.v3.support.OperationExecutorContext;
 
 import java.lang.reflect.Method;
 
 /**
- * {@link MongoDBMethodInterceptor} intercept method of {@link com.mongodb.Mongo#execute(ReadOperation, ReadPreference)}
- * or {@link com.mongodb.Mongo#execute(WriteOperation)}. record the mongoDB host, operation name and the key of the
- * operation.
- * <p>
- * only supported: 3.x-3.5.x
- *
- * @author baiyang
+ * @author scolia
  */
-@SuppressWarnings({"JavadocReference", "deprecation"})
-public class MongoDBMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+public class MongoDBOperationExecutorInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) {
         String executeMethod = allArguments[0].getClass().getSimpleName();
-        String remotePeer = (String) objInst.getSkyWalkingDynamicField();
+        OperationExecutor executor = (OperationExecutor) objInst;
+        String remotePeer = OperationExecutorContext.getInstance().getRemotePeerMapping(executor);
         MongoSpanHelper.createExitSpan(executeMethod, remotePeer, allArguments[0]);
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
@@ -69,10 +59,5 @@ public class MongoDBMethodInterceptor implements InstanceMethodsAroundIntercepto
         activeSpan.log(t);
     }
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Cluster cluster = (Cluster) allArguments[0];
-        String peers = MongoRemotePeerHelper.getRemotePeer(cluster);
-        objInst.setSkyWalkingDynamicField(peers);
-    }
+
 }
