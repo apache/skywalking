@@ -16,18 +16,21 @@
   ~ limitations under the License.
   ~
   -->
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+       
+   <diskStore path="java.io.tmpdir/ehcache"/>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>oap-server</artifactId>
-        <groupId>org.apache.skywalking</groupId>
-        <version>6.5.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+   <defaultCache
+        maxEntriesLocalHeap="10000"
+        eternal="false"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        maxEntriesLocalDisk="10000000"
+        diskExpiryThreadIntervalSeconds="120"
+        memoryStoreEvictionPolicy="LRU">
 
-    <artifactId>server-query-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>query-graphql-plugin</module>
-    </modules>
-</project>
+       <persistence strategy="localTempSwap"/>
+   </defaultCache>
+    ​
+    <cache name="testCache" maxElementsInMemory="1000" overflowToDisk="false" memoryStoreEvictionPolicy="LRU"/>
+</ehcache>
