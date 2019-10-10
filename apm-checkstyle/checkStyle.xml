@@ -82,7 +82,9 @@
         <module name="MethodTypeParameterName">
             <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
         </module>
-        <module name="PackageName"/>
+        <module name="PackageName">
+            <property name="format" value="^org\.apache\.skywalking(\.[a-zA-Z][a-zA-Z0-9]*)+$"/>
+        </module>
         <module name="ParameterName"/>
         <module name="StaticVariableName">
             <property name="format" value="(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
