@@ -53,7 +53,7 @@ TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
 
 unzip -q ${SCENARIO_HOME}/*.zip -d /var/run/
-if [[ ! -f $/var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
+if [[ ! -f /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
     exitOnError "The required startup script not exists!"
 fi
 
@@ -70,7 +70,7 @@ export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
     -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
     -Xms256m -Xmx256m ${agent_opts}"
-exec /var/run/${SCENARIO_START_SCRIPT} 1>/dev/null &
+exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>/dev/null &
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
