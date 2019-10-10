@@ -26,13 +26,6 @@ import org.junit.Test;
 public class AlarmModuleTest {
 
     @Test
-    public void verifyName() throws Exception {
-        AlarmModule alarmModule = new AlarmModule();
-        String name = alarmModule.name();
-        Assert.assertEquals(AlarmModule.NAME, name);
-    }
-
-    @Test
     public void servicesVerifyClass() throws Exception {
         AlarmModule alarmModule = new AlarmModule();
         Class[] services = alarmModule.services();

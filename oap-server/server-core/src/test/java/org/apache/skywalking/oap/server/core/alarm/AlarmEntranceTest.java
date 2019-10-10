@@ -18,19 +18,17 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.library.module.DuplicateProviderException;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.library.module.ModuleNotFoundRuntimeException;
-import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
-import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
-import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
-import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
-import java.lang.reflect.Field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author jsbxyyx
@@ -40,119 +38,33 @@ public class AlarmEntranceTest {
 
     @Test
     public void forwardVerifyDoNotInitMethod() throws Exception {
-        ModuleDefineHolder holder = mockModuleDefineHolder(false);
-        AlarmEntrance alarmEntrance = new AlarmEntrance(holder);
-        alarmEntrance.forward(new AlarmEntranceMetrics());
-        Field metricsNotify = alarmEntrance.getClass().getDeclaredField("metricsNotify");
-        metricsNotify.setAccessible(true);
-        Object o = metricsNotify.get(alarmEntrance);
-        Assert.assertEquals(null, o);
+
+        ModuleDefineHolder moduleDefineHolder = mock(ModuleDefineHolder.class);
+        doReturn(false).when(moduleDefineHolder).has(AlarmModule.NAME);
+
+        AlarmEntrance alarmEntrance = new AlarmEntrance(moduleDefineHolder);
+        alarmEntrance.forward(mock(Metrics.class));
+
+        Object o = Whitebox.getInternalState(alarmEntrance, "metricsNotify");
+        Assert.assertNull(o);
     }
 
 
     @Test
     public void forwardVerifyDoInitMethod() throws Exception {
-        ModuleDefineHolder holder = mockModuleDefineHolder(true);
-        AlarmEntrance alarmEntrance = new AlarmEntrance(holder);
-        alarmEntrance.forward(new AlarmEntranceMetrics());
-        Field metricsNotify = alarmEntrance.getClass().getDeclaredField("metricsNotify");
-        metricsNotify.setAccessible(true);
-        Object o = metricsNotify.get(alarmEntrance);
-        Assert.assertEquals(true, o != null);
-    }
 
+        ModuleDefineHolder moduleDefineHolder = mock(ModuleDefineHolder.class, RETURNS_DEEP_STUBS);
+        when(moduleDefineHolder.has(AlarmModule.NAME)).thenReturn(true);
 
-    private ModuleDefineHolder mockModuleDefineHolder(boolean has) {
-        return new AlarmEntranceModuleDefineHolder(has);
-    }
+        MetricsNotify metricsNotify = mock(MetricsNotify.class);
+        when(moduleDefineHolder.find(AlarmModule.NAME).provider().getService(MetricsNotify.class)).thenReturn(metricsNotify);
 
-    private static class AlarmEntranceModuleDefineHolder implements ModuleDefineHolder {
+        AlarmEntrance alarmEntrance = new AlarmEntrance(moduleDefineHolder);
+        alarmEntrance.forward(mock(Metrics.class));
+        verify(metricsNotify).notify(any());
 
-        private boolean has;
-
-        public AlarmEntranceModuleDefineHolder(boolean has) {
-            this.has = has;
-        }
-
-        @Override
-        public boolean has(String moduleName) {
-            return has;
-        }
-
-        @Override
-        public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
-            ModuleProviderHolder holder = new ModuleProviderHolder() {
-                @Override
-                public ModuleServiceHolder provider() throws DuplicateProviderException, ProviderNotFoundException {
-                    ModuleServiceHolder holder1 = new ModuleServiceHolder() {
-                        @Override
-                        public void registerServiceImplementation(Class<? extends Service> serviceType, Service service) throws ServiceNotProvidedException {
-
-                        }
-
-                        @Override
-                        public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
-                            return (T) new MetricsNotify() {
-                                @Override
-                                public void notify(Metrics metrics) {
-
-                                }
-                            };
-                        }
-                    };
-                    return holder1;
-                }
-            };
-            return holder;
-        }
-    }
-
-    private static class AlarmEntranceMetrics extends Metrics {
-
-        @Override
-        public String id() {
-            return null;
-        }
-
-        @Override
-        public void combine(Metrics metrics) {
-
-        }
-
-        @Override
-        public void calculate() {
-
-        }
-
-        @Override
-        public Metrics toHour() {
-            return null;
-        }
-
-        @Override
-        public Metrics toDay() {
-            return null;
-        }
-
-        @Override
-        public Metrics toMonth() {
-            return null;
-        }
-
-        @Override
-        public int remoteHashCode() {
-            return 0;
-        }
-
-        @Override
-        public void deserialize(RemoteData remoteData) {
-
-        }
-
-        @Override
-        public RemoteData.Builder serialize() {
-            return null;
-        }
+        Object o = Whitebox.getInternalState(alarmEntrance, "metricsNotify");
+        Assert.assertNotNull(o);
     }
 
 }

@@ -17,34 +17,22 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordPersistentWorker;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
-import org.apache.skywalking.oap.server.library.module.DuplicateProviderException;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.library.module.ModuleNotFoundRuntimeException;
-import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
-import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
-import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
-import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author jsbxyyx
@@ -56,100 +44,45 @@ public class AlarmStandardPersistenceTest {
         AlarmStandardPersistence persistence = new AlarmStandardPersistence();
         try {
             persistence.doAlarm(null);
+            Assert.fail("Should throws NPE");
         } catch (NullPointerException e) {
-            Assert.assertFalse(false);
         }
     }
 
     @Test
     public void doAlarmVerify() throws Exception {
+
+        RecordPersistentWorker recordPersistentWorker = mock(RecordPersistentWorker.class);
+
+        Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
+        workers.put(AlarmRecord.class, recordPersistentWorker);
+        Field field = RecordStreamProcessor.class.getDeclaredField("workers");
+        field.setAccessible(true);
+        field.set(RecordStreamProcessor.getInstance(), workers);
+
         List<AlarmMessage> alarmMessageList = new ArrayList<>();
-        final AlarmMessage alarmMessage = new AlarmMessage();
+        AlarmMessage alarmMessage = new AlarmMessage();
+        alarmMessage.setScopeId(1);
+        alarmMessage.setAlarmMessage("");
+        alarmMessage.setId0(0);
+        alarmMessage.setId1(1);
+        alarmMessage.setName("name");
+        alarmMessage.setStartTime(1L);
         alarmMessageList.add(alarmMessage);
-        mockRecordStreamProcessor(new Callback() {
-            @Override
-            public void call(Object... arguments) {
-                AlarmRecord record = (AlarmRecord) arguments[1];
-                Assert.assertEquals(alarmMessage.getScopeId(), record.getScope());
-                Assert.assertEquals(alarmMessage.getId0(), record.getId0());
-                Assert.assertEquals(alarmMessage.getId1(), record.getId1());
-                Assert.assertEquals(alarmMessage.getName(), record.getName());
-                Assert.assertEquals(alarmMessage.getAlarmMessage(), record.getAlarmMessage());
-                Assert.assertEquals(alarmMessage.getStartTime(), record.getStartTime());
-                Assert.assertEquals(TimeBucket.getRecordTimeBucket(alarmMessage.getStartTime()), record.getTimeBucket());
-            }
-        });
 
         AlarmStandardPersistence persistence = new AlarmStandardPersistence();
         persistence.doAlarm(alarmMessageList);
-    }
 
-    private void mockRecordStreamProcessor(final Callback recordDaoCallback) throws Exception {
-        ModuleDefineHolder holder = new ModuleDefineHolder() {
-            @Override
-            public boolean has(String moduleName) {
-                return false;
-            }
+        ArgumentCaptor<AlarmRecord> argumentCaptor = ArgumentCaptor.forClass(AlarmRecord.class);
+        verify(recordPersistentWorker).in(argumentCaptor.capture());
 
-            @Override
-            public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
-                return new ModuleProviderHolder() {
-                    @Override
-                    public ModuleServiceHolder provider() throws DuplicateProviderException, ProviderNotFoundException {
-                        return new ModuleServiceHolder() {
-                            @Override
-                            public void registerServiceImplementation(Class<? extends Service> serviceType, Service service) throws ServiceNotProvidedException {
-
-                            }
-
-                            @Override
-                            public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
-                                return (T) new IBatchDAO() {
-                                    @Override
-                                    public void asynchronous(InsertRequest insertRequest) {
-
-                                    }
-
-                                    @Override
-                                    public void synchronous(List<PrepareRequest> prepareRequests) {
-
-                                    }
-                                };
-                            }
-                        };
-                    }
-                };
-            }
-        };
-
-        Model model = new Model("name", new ArrayList<>(),
-                true, true, 0, Downsampling.None, true);
-
-        IRecordDAO dao = new IRecordDAO() {
-            @Override
-            public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-                recordDaoCallback.call(model, record);
-                return null;
-            }
-        };
-
-        Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
-        Constructor<RecordPersistentWorker> constructor = RecordPersistentWorker.class.getDeclaredConstructor(
-                ModuleDefineHolder.class, Model.class, IRecordDAO.class);
-        constructor.setAccessible(true);
-        RecordPersistentWorker worker = constructor.newInstance(holder, model, dao);
-        workers.put(Record.class, worker);
-
-        RecordStreamProcessor instance = RecordStreamProcessor.getInstance();
-        Field workers1 = instance.getClass().getDeclaredField("workers");
-        workers1.setAccessible(true);
-        workers1.set(instance, workers);
-    }
-
-    private interface Callback {
-
-        void call(Object... arguments);
-
+        Assert.assertEquals(alarmMessage.getScopeId(), argumentCaptor.getValue().getScope());
+        Assert.assertEquals(alarmMessage.getAlarmMessage(), argumentCaptor.getValue().getAlarmMessage());
+        Assert.assertEquals(alarmMessage.getId0(), argumentCaptor.getValue().getId0());
+        Assert.assertEquals(alarmMessage.getId1(), argumentCaptor.getValue().getId1());
+        Assert.assertEquals(alarmMessage.getName(), argumentCaptor.getValue().getName());
+        Assert.assertEquals(alarmMessage.getStartTime(), argumentCaptor.getValue().getStartTime());
+        Assert.assertEquals(TimeBucket.getRecordTimeBucket(alarmMessage.getStartTime()), argumentCaptor.getValue().getTimeBucket());
     }
 
 }

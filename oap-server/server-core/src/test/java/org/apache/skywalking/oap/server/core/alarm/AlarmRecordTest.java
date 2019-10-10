@@ -51,6 +51,7 @@ public class AlarmRecordTest {
         Assert.assertEquals(true, map.containsKey(AlarmRecord.ALARM_MESSAGE));
         Assert.assertEquals(true, map.containsKey(AlarmRecord.START_TIME));
         Assert.assertEquals(true, map.containsKey(AlarmRecord.TIME_BUCKET));
+        Assert.assertEquals(7, map.size());
     }
 
     @Test
@@ -59,15 +60,15 @@ public class AlarmRecordTest {
 
         try {
             builder.map2Data(null);
+            Assert.fail("Should throws NPE");
         } catch (NullPointerException e) {
-            Assert.assertFalse(false);
         }
 
         Map<String, Object> dbMap = new HashMap<>();
         try {
             builder.map2Data(dbMap);
+            Assert.fail("Should throws NPE");
         } catch (NullPointerException e) {
-            Assert.assertFalse(false);
         }
     }
 
