@@ -82,7 +82,7 @@ exitWithMessage() {
 }
 
 exitAndClean() {
-    if [[ "${build_id}" =~ "latest" ]]; then
+    if [[ "${build_id}" != "latest" ]]; then
         docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
     fi
 
@@ -149,9 +149,8 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -Dtest.framework.version=${version}
-
-    mv ./target/${scenario_name}.* ${case_work_base}
+    ${mvnw} clean package -Dtest.framework.version=${version} && \
+        mv ./target/${scenario_name}.* ${case_work_base}
 
     java -jar \
         -Xmx256m -Xms256m \

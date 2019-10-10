@@ -52,8 +52,8 @@ fi
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
 
-unzip -q ${SCENARIO_HOME}/*.zip -d ${SCENARIO_HOME}/package
-if [[ ! -f ${SCENARIO_HOME}/package/${SCENARIO_START_SCRIPT} ]]; then
+unzip -q ${SCENARIO_HOME}/*.zip -d /var/run/
+if [[ ! -f $/var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
     exitOnError "The required startup script not exists!"
 fi
 
@@ -62,7 +62,15 @@ ${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null &
 healthCheck http://localhost:12800/receiveData
 
 # start applications
-exec ${SCENARIO_HOME}/package/${SCENARIO_START_SCRIPT} 1>/dev/null &
+export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
+    -Dskywalking.collector.grpc_channel_check_interval=2
+    -Dskywalking.collector.app_and_service_register_check_interval=2
+    -Dskywalking.collector.discovery_check_interval=2
+    -Dskywalking.collector.backend_service=localhost:19876
+    -Dskywalking.agent.service_name=${SCENARIO_NAME}
+    -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
+    -Xms256m -Xmx256m ${agent_opts}"
+exec /var/run/${SCENARIO_START_SCRIPT} 1>/dev/null &
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -75,11 +83,11 @@ curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.ya
 
 echo "To validate"
 java -jar \
-  -Dv2=true \
-  -Xmx256m -Xms256m \
-  -DtestDate="`date +%Y-%m-%d-%H-%M`" \
-  -DtestCasePath=${SCENARIO_HOME}/data/ \
-  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
+    -Dv2=true \
+    -Xmx256m -Xms256m \
+    -DtestDate="`date +%Y-%m-%d-%H-%M`" \
+    -DtestCasePath=${SCENARIO_HOME}/data/ \
+    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
 status=$?
 
 if [[ $status -eq 0 ]]; then
