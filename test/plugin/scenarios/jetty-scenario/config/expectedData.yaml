@@ -1,0 +1,71 @@
+registryItems:
+  applications:
+  - {jettyserver-scenario: nq 0}
+  - {jettyclient-scenario: nq 0}
+  instances:
+  - {jettyserver-scenario: 1}
+  - {jettyclient-scenario: 1}
+  operationNames:
+  - jettyserver-scenario: [/jettyserver-case/case/receiveContext-0]
+  - jettyclient-scenario: [/jettyserver-case/case/receiveContext-0, /case/jettyclient-case]
+segmentItems:
+- applicationCode: jettyserver-scenario
+  segmentSize: 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /jettyserver-case/case/receiveContext-0
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 19
+      componentName: ''
+      isError: false
+      spanType: Entry
+      peer: ''
+      peerId: 0
+      tags:
+      - {key: url, value: 'http://localhost:18080/jettyserver-case/case/receiveContext-0'}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpointId: 0, parentEndpoint: /case/jettyclient-case, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: "${jettyclient-scenario[0]}", parentServiceInstanceId: nq 0, networkAddress: 'localhost:18080', entryEndpoint: /case/jettyclient-case, entryServiceInstanceId: nq 0 }
+- applicationCode: jettyclient-scenario
+  segmentSize: 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /jettyserver-case/case/receiveContext-0
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 18
+      componentName: null
+      isError: false
+      spanType: Exit
+      peer: localhost:18080
+      peerId: 0
+      tags:
+      - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:18080/jettyserver-case/case/receiveContext-0'}
+    - operationName: /case/jettyclient-case
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 14
+      componentName: ''
+      isError: false
+      spanType: Entry
+      peer: null
+      peerId: 0
+      tags:
+      - {key: url, value: 'http://localhost:8080/jettyclient-case/case/jettyclient-case'}
+      - {key: http.method, value: GET}

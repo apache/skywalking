@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.apache.skywalking</groupId>
+    <artifactId>jetty-scenario</artifactId>
+    <packaging>pom</packaging>
+    <version>5.0.0</version>
+    <modules>
+        <module>jettyclient-scenario</module>
+        <module>jettyserver-scenario</module>
+        <module>jetty-dist</module>
+    </modules>
+
+    <name>skywalking-jetty-scenario</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <test.framework.version>9.0.0.v20130308</test.framework.version>
+
+        <jettyserver.version>${test.framework.version}</jettyserver.version>
+        <jettyclient.version>${test.framework.version}</jettyclient.version>
+
+        <log4j.version>2.6.2</log4j.version>
+    </properties>
+
+    <build>
+        <finalName>jetty-scenario</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
