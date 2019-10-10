@@ -28,4 +28,4 @@ RUN tar -xvf skywalking-mock-collector.tar.gz -C /usr/local/skywalking/tools
 
 WORKDIR /usr/local/skywalking/scenario
 
-RUN ["/run.sh"]
+CMD ["/run.sh"]
