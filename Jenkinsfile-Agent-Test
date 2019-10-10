@@ -60,6 +60,12 @@ pipeline {
                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
             }
         }
+
+        stage('jetty 9.x') {
+            steps {
+                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+            }
+        }
     }
 
     post {
