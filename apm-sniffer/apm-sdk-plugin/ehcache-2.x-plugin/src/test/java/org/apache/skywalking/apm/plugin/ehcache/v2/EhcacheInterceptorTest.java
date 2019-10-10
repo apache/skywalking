@@ -100,18 +100,10 @@ public class EhcacheInterceptorTest {
 
         exception = new Exception();
 
-        operateObjectArguments = new Object[] {
-                "dataKey"
-        };
-        operateElementArguments = new Element[] {
-                new Element("dataKey", 1)
-        };
-        tryLockArguments = new Object[] {
-                "dataKey", 3000
-        };
-        releaseLockArguments = new Object[] {
-                "dataKey"
-        };
+        operateObjectArguments = new Object[] {"dataKey"};
+        operateElementArguments = new Element[] {new Element("dataKey", 1)};
+        tryLockArguments = new Object[] {"dataKey", 3000};
+        releaseLockArguments = new Object[] {"dataKey"};
 
         putCacheMethod = Whitebox.getMethods(Cache.class, PUT_CACHE_ENHANCE_METHOD)[0];
         getCacheMethod = Whitebox.getMethods(Cache.class, GET_CACHE_ENHANCE_METHOD)[0];
@@ -125,9 +117,7 @@ public class EhcacheInterceptorTest {
 
     @Test
     public void assertConstruct() throws Throwable {
-        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {
-                new CacheConfiguration(CACHE_NAME, 20)
-        });
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {new CacheConfiguration(CACHE_NAME, 20)});
     }
 
     @Test
