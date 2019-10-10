@@ -26,9 +26,11 @@
 
     <dubbo:protocol name="dubbo" port="20080"/>
 
+    <dubbo:registry address="N/A" />
+
     <bean id="greetService" class="org.apache.skywalking.apm.testcase.dubbo.services.impl.GreetServiceImpl"/>
     <dubbo:service id="greetProvider" interface="org.apache.skywalking.apm.testcase.dubbo.services.GreetService" ref="greetService"
-                   timeout="5000" register="false"/>
+                   timeout="5000"/>
 
     <dubbo:reference id="greetConsumer" interface="org.apache.skywalking.apm.testcase.dubbo.services.GreetService"
                      url="dubbo://localhost:20080"/>
