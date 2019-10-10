@@ -15,19 +15,21 @@
 # limitations under the License.
 registryItems:
   applications:
-    - {dubbo-scenario: 2}
+    - {dubbo-2.7.x-scenario: 2}
   instances:
-    - {dubbo-scenario: 1}
+    - {dubbo-2.7.x-scenario: 1}
   operationNames:
-    - dubbo-scenario: [/dubbo-scenario/healthCheck, /dubbo-scenario/case/dubbo, org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()]
+    - dubbo-2.7.x-scenario: [/dubbo-2.7.x-scenario/healthCheck,
+                             /dubbo-2.7.x-scenario/case/dubbo,
+                             org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()]
   heartbeat: []
 segmentItems:
-  - applicationCode: dubbo-scenario
+  - applicationCode: dubbo-2.7.x-scenario
     segmentSize: 3
     segments:
       - segmentId: not null
         spans:
-          - operationName: /dubbo-scenario/healthCheck
+          - operationName: /dubbo-2.7.x-scenario/healthCheck
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -41,7 +43,7 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/dubbo-scenario/healthCheck'}
+              - {key: url, value: 'http://localhost:8080/dubbo-2.7.x-scenario/healthCheck'}
               - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
@@ -61,9 +63,9 @@ segmentItems:
             tags:
               - {key: url, value: not null}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /dubbo-scenario/case/dubbo, networkAddressId: 0,
+              - {parentEndpointId: 0, parentEndpoint: /dubbo-2.7.x-scenario/case/dubbo, networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: 1, networkAddress: 'localhost:20080', entryEndpoint: /dubbo-scenario/case/dubbo,
+                 parentServiceInstanceId: 1, networkAddress: 'localhost:20080', entryEndpoint: /dubbo-2.7.x-scenario/case/dubbo,
                  entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
@@ -82,7 +84,7 @@ segmentItems:
             peerId: 0
             tags:
               - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()'}
-          - operationName: /dubbo-scenario/case/dubbo
+          - operationName: /dubbo-2.7.x-scenario/case/dubbo
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -96,5 +98,5 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/dubbo-scenario/case/dubbo'}
+              - {key: url, value: 'http://localhost:8080/dubbo-2.7.x-scenario/case/dubbo'}
               - {key: http.method, value: GET}

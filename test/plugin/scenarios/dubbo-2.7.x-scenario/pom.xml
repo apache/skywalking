@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>dubbo-scenario</artifactId>
+    <artifactId>dubbo-2.7.x-scenario</artifactId>
     <version>5.0.0</version>
     <packaging>war</packaging>
 
@@ -31,10 +31,10 @@
         <compiler.version>1.8</compiler.version>
 
         <test.framework>dubbo</test.framework>
-        <test.framework.version>2.5.5</test.framework.version>
+        <test.framework.version>2.7.0</test.framework.version>
     </properties>
 
-    <name>skywalking-dubbo-scenario</name>
+    <name>skywalking-dubbo-2.7.x-scenario</name>
 
     <dependencies>
         <dependency>
@@ -56,53 +56,14 @@
 
         <!--     dubbo   -->
         <dependency>
-            <groupId>com.alibaba</groupId>
+            <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
             <version>${test.framework.version}</version>
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>dubbo-scenario-2.5.4</id>
-            <properties>
-                <test.framework.version>2.5.4</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>dubbo-scenario-2.5.5</id>
-            <properties>
-                <test.framework.version>2.5.5</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>dubbo-scenario-2.5.6</id>
-            <properties>
-                <test.framework.version>2.5.6</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>dubbo-scenario-2.5.7</id>
-            <properties>
-                <test.framework.version>2.5.7</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>dubbo-scenario-2.5.8</id>
-            <properties>
-                <test.framework.version>2.5.8</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>dubbo-scenario-2.6.0</id>
-            <properties>
-                <test.framework.version>2.6.0</test.framework.version>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
-        <finalName>dubbo-scenario</finalName>
+        <finalName>dubbo-2.7.x-scenario</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
