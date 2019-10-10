@@ -77,6 +77,7 @@ generateClusterNacos() {
 cluster:
   nacos:
     serviceName: \${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    namespace: \${SW_CLUSTER_NACOS_NAMESPACE:""}
     hostPort: \${SW_CLUSTER_NACOS_HOST_PORT:nacos:8848}
 EOT
 }
@@ -163,15 +164,17 @@ generateConfigurationNacos() {
 configuration:
   nacos:
     # Nacos Server Host
-    serverAddr: \${SW_CONFIGURATION_NACO_SERVER_ADDR:naco}
+    serverAddr: \${SW_CONFIGURATION_NACOS_SERVER_ADDR:nacos}
     # Nacos Server Port
-    port: \${SW_CONFIGURATION_NACO_PORT:8848}
+    port: \${SW_CONFIGURATION_NACOS_PORT:8848}
     # Nacos Configuration Group
-    group: \${SW_CONFIGURATION_NACO_GROUP:skywalking}
+    group: \${SW_CONFIGURATION_NACOS_GROUP:skywalking}
+    # Nacos Configuration namespace
+    namespace: \${SW_CONFIGURATION_NACOS_NAMESPACE:""}
     # Unit seconds, sync period. Default fetch every 60 seconds.
-    period : \${SW_CONFIGURATION_NACO_PERIOD:5}
+    period : \${SW_CONFIGURATION_NACOS_PERIOD:5}
     # the name of current cluster, set the name if you want to upstream system known.
-    clusterName: \${SW_CONFIGURATION_NACO_CLUSTER_NAME:default}
+    clusterName: \${SW_CONFIGURATION_NACOS_CLUSTER_NAME:default}
 EOT
 }
 

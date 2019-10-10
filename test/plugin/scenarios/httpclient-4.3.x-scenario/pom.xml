@@ -30,7 +30,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
 
-
         <test.framework>Httpclient</test.framework>
         <test.framework.version>4.3</test.framework.version>
     </properties>
@@ -60,93 +59,6 @@
             <version>${test.framework.version}</version>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3</id>
-            <properties>
-                <test.framework.version>4.3</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.5.3</id>
-            <properties>
-                <test.framework.version>4.5.3</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.5.4</id>
-            <properties>
-                <test.framework.version>4.5.4</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.5.2</id>
-            <properties>
-                <test.framework.version>4.5.2</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.5.1</id>
-            <properties>
-                <test.framework.version>4.5.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.5</id>
-            <properties>
-                <test.framework.version>4.5</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.4.1</id>
-            <properties>
-                <test.framework.version>4.4.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.4</id>
-            <properties>
-                <test.framework.version>4.4</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3.6</id>
-            <properties>
-                <test.framework.version>4.3.6</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3.5</id>
-            <properties>
-                <test.framework.version>4.3.5</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3.4</id>
-            <properties>
-                <test.framework.version>4.3.4</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3.3</id>
-            <properties>
-                <test.framework.version>4.3.3</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3.2</id>
-            <properties>
-                <test.framework.version>4.3.2</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>httpclient-4.3.x-scenario-4.3.1</id>
-            <properties>
-                <test.framework.version>4.3.1</test.framework.version>
-            </properties>
-        </profile>
-    </profiles>
 
     <build>
         <finalName>httpclient-4.3.x-scenario</finalName>

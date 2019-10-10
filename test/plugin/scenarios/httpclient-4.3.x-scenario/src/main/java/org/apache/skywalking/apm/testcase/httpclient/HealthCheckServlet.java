@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package test.apache.skywalking.apm.testcase.httpclient;
+package org.apache.skywalking.apm.testcase.httpclient;
 
 import java.io.IOException;
 import java.io.PrintWriter;

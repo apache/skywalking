@@ -17,24 +17,35 @@
 # limitations under the License.
 
 home="$(cd "$(dirname $0)"; pwd)"
-scenario_name="empty"
+scenario_name=""
 parallel_run_size=1
+force_build="off"
 build_id="latest"
-
 
 mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
 scenarios_home="${home}/scenarios"
 
-_positionals=()
+
+print_help() {
+    echo  "Usage: run.sh [OPTION] SCENARIO [SCENARIO]"
+    echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
+    echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
+    echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
+}
+
 parse_commandline() {
     _positionals_count=0
     while test $# -gt 0
     do
         _key="$1"
         case "$_key" in
+            -f|--force_build)
+                force_build="on"
+                shift
+                ;;
             --build_id)
-                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
                 build_id="$2"
                 shift
                 ;;
@@ -42,7 +53,7 @@ parse_commandline() {
                 build_id="${_key##--build_id=}"
                 ;;
             --parallel_run_size)
-                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
                 parallel_run_size="$2"
                 shift
                 ;;
@@ -93,9 +104,15 @@ waitForAvailable() {
         exitAndClean 1
     fi
 }
-parse_commandline "$@"
 
 start_stamp=`date +%s` ### start
+parse_commandline "$@"
+
+if [[ ! -d ${agent_home} ]]; then
+    echo "[WARN] SkyWalking Agent not exists"
+    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package 
+fi
+[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -Dbuild_id=${build_id} docker:build
 
 workspace="${home}/workspace/${scenario_name}"
 task_state_house="${workspace}/.states"
@@ -104,7 +121,8 @@ mkdir -p ${task_state_house}
 
 plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
 if [[ ! -f ${plugin_autotest_helper} ]]; then
-    exitWithMessage "plugin autotest helper not exist!"
+    exitWithMessage "Plugin autotest tools not exists, Please re-try it with '-f'"
+    print_helper
 fi
 
 echo "start submit job"
@@ -131,7 +149,7 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -P${testcase_name}
+    ${mvnw} clean package -Dtest.framework.version=${version}
 
     mv ./target/${scenario_name}.war ${case_work_base}
 
