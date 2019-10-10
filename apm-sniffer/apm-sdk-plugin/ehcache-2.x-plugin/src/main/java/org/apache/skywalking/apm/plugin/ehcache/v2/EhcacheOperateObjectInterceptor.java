@@ -38,7 +38,7 @@ public class EhcacheOperateObjectInterceptor implements InstanceMethodsAroundInt
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         EhcacheEnhanceInfo enhanceInfo = (EhcacheEnhanceInfo) objInst.getSkyWalkingDynamicField();
 
-        AbstractSpan span = ContextManager.createLocalSpan("Ehcache/"+method.getName()+"/" + enhanceInfo.getCacheName());
+        AbstractSpan span = ContextManager.createLocalSpan("Ehcache/" + method.getName() + "/" + enhanceInfo.getCacheName());
         span.setComponent(ComponentsDefine.EHCACHE);
         SpanLayer.asCache(span);
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package test.apache.skywalking.apm.testcase.ehcache.v2;
+package org.apache.skywalking.apm.testcase.ehcache.v2;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

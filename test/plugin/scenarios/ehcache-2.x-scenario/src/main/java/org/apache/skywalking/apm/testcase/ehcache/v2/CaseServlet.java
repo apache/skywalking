@@ -16,7 +16,7 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.ehcache.v2;
+package org.apache.skywalking.apm.testcase.ehcache.v2;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.List;
 
 public class CaseServlet extends HttpServlet {
 
