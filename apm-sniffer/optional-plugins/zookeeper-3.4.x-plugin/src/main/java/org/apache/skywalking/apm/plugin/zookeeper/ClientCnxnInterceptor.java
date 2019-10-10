@@ -37,6 +37,8 @@ import org.apache.zookeeper.proto.RequestHeader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -82,9 +84,14 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
             field.setAccessible(true);
             @SuppressWarnings("unchecked")
             List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
-            StringBuilder peer = new StringBuilder();
+            List<String> addresses = new ArrayList<String>();
             for (InetSocketAddress address : serverAddresses) {
-                peer.append(address.getHostName()).append(":").append(address.getPort()).append(";");
+                addresses.add(address.getHostName() + ":" + address.getPort());
+            }
+            Collections.sort(addresses);
+            StringBuilder peer = new StringBuilder();
+            for (String address : addresses) {
+                peer.append(address).append(";");
             }
             objInst.setSkyWalkingDynamicField(peer.toString());
         } catch (NoSuchFieldException e) {

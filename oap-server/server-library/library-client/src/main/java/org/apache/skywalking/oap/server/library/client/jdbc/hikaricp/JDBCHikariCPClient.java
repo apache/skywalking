@@ -31,7 +31,7 @@ import org.slf4j.*;
  * @author wusheng
  */
 public class JDBCHikariCPClient implements Client {
-    private final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
 
     private HikariDataSource dataSource;
     private HikariConfig hikariConfig;
@@ -86,22 +86,7 @@ public class JDBCHikariCPClient implements Client {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
-            if (params != null) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String) {
-                        statement.setString(i + 1, (String)param);
-                    } else if (param instanceof Integer) {
-                        statement.setInt(i + 1, (int)param);
-                    } else if (param instanceof Double) {
-                        statement.setDouble(i + 1, (double)param);
-                    } else if (param instanceof Long) {
-                        statement.setLong(i + 1, (long)param);
-                    } else {
-                        throw new JDBCClientException("Unsupported data type, type=" + param.getClass().getName());
-                    }
-                }
-            }
+            setStatementParam(statement, params);
             result = statement.execute();
             statement.closeOnCompletion();
         } catch (SQLException e) {
@@ -123,22 +108,7 @@ public class JDBCHikariCPClient implements Client {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
-            if (params != null) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String) {
-                        statement.setString(i + 1, (String)param);
-                    } else if (param instanceof Integer) {
-                        statement.setInt(i + 1, (int)param);
-                    } else if (param instanceof Double) {
-                        statement.setDouble(i + 1, (double)param);
-                    } else if (param instanceof Long) {
-                        statement.setLong(i + 1, (long)param);
-                    } else {
-                        throw new JDBCClientException("Unsupported data type, type=" + param.getClass().getName());
-                    }
-                }
-            }
+            setStatementParam(statement, params);
             rs = statement.executeQuery();
             statement.closeOnCompletion();
         } catch (SQLException e) {
@@ -152,5 +122,26 @@ public class JDBCHikariCPClient implements Client {
         }
 
         return rs;
+    }
+
+    private void setStatementParam(PreparedStatement statement, Object[] params)
+        throws SQLException, JDBCClientException {
+        if (params != null) {
+            for (int i = 0; i < params.length; i++) {
+                Object param = params[i];
+                if (param instanceof String) {
+                    statement.setString(i + 1, (String) param);
+                } else if (param instanceof Integer) {
+                    statement.setInt(i + 1, (int) param);
+                } else if (param instanceof Double) {
+                    statement.setDouble(i + 1, (double) param);
+                } else if (param instanceof Long) {
+                    statement.setLong(i + 1, (long) param);
+                } else {
+                    throw new JDBCClientException(
+                        "Unsupported data type, type=" + param.getClass().getName());
+                }
+            }
+        }
     }
 }

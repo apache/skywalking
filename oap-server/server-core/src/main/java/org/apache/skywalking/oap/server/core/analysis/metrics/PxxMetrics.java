@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.*;
+import java.util.Comparator;
 import lombok.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -33,36 +33,34 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  *
  * @author wusheng, peng-yongsheng
  */
-public abstract class PxxMetrics extends Metrics implements IntValueHolder {
+public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder {
+
     protected static final String DETAIL_GROUP = "detail_group";
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
     @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
     @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup;
+    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueHashMap detailGroup;
 
     private final int percentileRank;
-    private Map<Integer, IntKeyLongValue> detailIndex;
+    private boolean isCalculated;
 
     public PxxMetrics(int percentileRank) {
         this.percentileRank = percentileRank;
-        detailGroup = new IntKeyLongValueArray(30);
+        detailGroup = new IntKeyLongValueHashMap(30);
     }
 
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int precision) {
+        this.isCalculated = false;
         this.precision = precision;
 
-        this.indexCheckAndInit();
-
         int index = value / precision;
-        IntKeyLongValue element = detailIndex.get(index);
+        IntKeyLongValue element = detailGroup.get(index);
         if (element == null) {
-            element = new IntKeyLongValue();
-            element.setKey(index);
-            element.setValue(1);
-            addElement(element);
+            element = new IntKeyLongValue(index, 1);
+            detailGroup.put(element.getKey(), element);
         } else {
             element.addValue(1);
         }
@@ -70,48 +68,32 @@ public abstract class PxxMetrics extends Metrics implements IntValueHolder {
 
     @Override
     public void combine(Metrics metrics) {
-        PxxMetrics pxxMetrics = (PxxMetrics)metrics;
-        this.indexCheckAndInit();
-        pxxMetrics.indexCheckAndInit();
+        this.isCalculated = false;
 
-        pxxMetrics.detailIndex.forEach((key, element) -> {
-            IntKeyLongValue existingElement = this.detailIndex.get(key);
-            if (existingElement == null) {
-                existingElement = new IntKeyLongValue();
-                existingElement.setKey(key);
-                existingElement.setValue(element.getValue());
-                addElement(element);
-            } else {
-                existingElement.addValue(element.getValue());
-            }
-        });
+        PxxMetrics pxxMetrics = (PxxMetrics)metrics;
+        combine(pxxMetrics.getDetailGroup(), this.detailGroup);
     }
 
     @Override
     public final void calculate() {
-        Collections.sort(detailGroup);
-        int total = detailGroup.stream().mapToInt(element -> (int)element.getValue()).sum();
-        int roof = Math.round(total * percentileRank * 1.0f / 100);
 
-        int count = 0;
-        for (IntKeyLongValue element : detailGroup) {
-            count += element.getValue();
-            if (count >= roof) {
-                value = element.getKey() * precision;
-                return;
+        if (!isCalculated) {
+            int total = detailGroup.values().stream().mapToInt(element -> (int)element.getValue()).sum();
+            int roof = Math.round(total * percentileRank * 1.0f / 100);
+
+            int count = 0;
+            IntKeyLongValue[] sortedData = detailGroup.values().stream().sorted(new Comparator<IntKeyLongValue>() {
+                @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
+                    return o1.getKey() - o2.getKey();
+                }
+            }).toArray(IntKeyLongValue[]::new);
+            for (IntKeyLongValue element : sortedData) {
+                count += element.getValue();
+                if (count >= roof) {
+                    value = element.getKey() * precision;
+                    return;
+                }
             }
-        }
-    }
-
-    private void addElement(IntKeyLongValue element) {
-        detailGroup.add(element);
-        detailIndex.put(element.getKey(), element);
-    }
-
-    private void indexCheckAndInit() {
-        if (detailIndex == null) {
-            detailIndex = new HashMap<>();
-            detailGroup.forEach(element -> detailIndex.put(element.getKey(), element));
         }
     }
 }

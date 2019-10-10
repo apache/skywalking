@@ -18,19 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import com.google.gson.*;
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.elasticsearch.common.Strings;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 
@@ -51,8 +57,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String PROPERTIES = "properties";
     private static final Gson GSON = new Gson();
 
-    @Setter @Getter @Column(columnName = INSTANCE_UUID, matchQuery = true)
-    private String instanceUUID = Const.EMPTY_STRING;
+    @Setter @Getter @Column(columnName = INSTANCE_UUID, matchQuery = true) private String instanceUUID = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = NAME) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
@@ -133,6 +138,7 @@ public class ServiceInstanceInventory extends RegisterSource {
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
+        remoteBuilder.addDataLongs(getLastUpdateTime());
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(instanceUUID) ? Const.EMPTY_STRING : instanceUUID);
@@ -148,6 +154,7 @@ public class ServiceInstanceInventory extends RegisterSource {
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
+        setLastUpdateTime(remoteData.getDataLongs(2));
 
         setName(remoteData.getDataStrings(0));
         setInstanceUUID(remoteData.getDataStrings(1));
@@ -162,13 +169,14 @@ public class ServiceInstanceInventory extends RegisterSource {
 
         @Override public ServiceInstanceInventory map2Data(Map<String, Object> dbMap) {
             ServiceInstanceInventory inventory = new ServiceInstanceInventory();
-            inventory.setSequence((Integer)dbMap.get(SEQUENCE));
-            inventory.setServiceId((Integer)dbMap.get(SERVICE_ID));
-            inventory.setIsAddress((Integer)dbMap.get(IS_ADDRESS));
-            inventory.setAddressId((Integer)dbMap.get(ADDRESS_ID));
+            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
+            inventory.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
+            inventory.setIsAddress(((Number)dbMap.get(IS_ADDRESS)).intValue());
+            inventory.setAddressId(((Number)dbMap.get(ADDRESS_ID)).intValue());
 
-            inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
 
             inventory.setName((String)dbMap.get(NAME));
             inventory.setInstanceUUID((String)dbMap.get(INSTANCE_UUID));
@@ -185,6 +193,7 @@ public class ServiceInstanceInventory extends RegisterSource {
 
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
+            map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
 
             map.put(NAME, storageData.getName());
             map.put(INSTANCE_UUID, storageData.getInstanceUUID());

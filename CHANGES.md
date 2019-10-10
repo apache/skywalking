@@ -2,6 +2,133 @@ Changes by Version
 ==================
 Release Notes.
 
+6.4.0
+------------------
+
+#### Project
+* Highly recommend to upgrade due to Pxx metrics calculation bug.
+* Make agent working in JDK9+ Module system.
+
+#### Java Agent
+* Make agent working in JDK9+ Module system.
+* Support Kafka 2.x client libs.
+* Log error in OKHTTP OnFailure callback.
+* Support injecting traceid into logstack appender in logback.
+* Add OperationName(including endpoint name) length max threshold.
+* Support using Regex to group operation name. 
+* Support Undertow routing handler.
+* RestTemplate plugin support operation name grouping.
+* Fix ClassCastException in Webflux plugin.
+* Ordering zookeeper server list, to make it better in topology.
+* Fix a Dubbo plugin incompatible issue.
+* Fix MySQL 5 plugin issue.
+* Make log writer cached.
+* Optimize Spring Cloud Gateway plugin
+* Fix and improve gRPC reconnect mechanism.
+* Remove Disruptor dependency from agent.
+
+#### Backend
+* Fix Pxx(p50,p75,p90,p95,p99) metrics func bug.(Critical)
+* Support Gateway in backend analysis, even when it doesn't have suitable language agent.
+* Support using HTTPs SSL accessing ElasticSearch storage.
+* Support Zookeeper ACL.
+* Make alarm records listed in order.
+* Fix Pxx data persistence failure in some cases.
+* Fix some bugs in MySQL storage.
+* Setup slow SQL length threshold.
+* Fix TTL settings is not working as expected.
+* Remove scope-meta file.
+
+#### UI
+* Enhance alarm page layout.
+* Support trace tree chart resize.
+* Support trace auto completion when partial traces abandoned somehow.
+* Fix dashboard endpoint slow chart.
+* Add radial chart in topology page.
+* Add trace table mode.
+* Fix topology page bug.
+* Fix calender js bug.
+* Fix "The "topo-services" component did not update the data in time after modifying the time range on the topology page.
+
+#### Document
+* Restore the broken Istio setup doc.
+* Add etcd config center document.
+* Correct span_limit_per_segment default value in document.
+* Enhance plugin develop doc.
+* Fix error description in build document.
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/35?closed=1)
+
+
+6.3.0
+------------------
+
+#### Project
+* e2e tests have been added, and verify every pull request.
+* Use ArrayList to replace LinkedList in DataCarrier for much better performance.
+* Add plugin instrumentation definition check in CI.
+* DataCarrier performance improvement by avoiding false-sharing.
+
+#### Java Agent
+* Java agent supports JDK 9 - 12, but don't support Java Module yet.
+* Support JVM class auto instrumentation, cataloged as bootstrap plugin.
+* Support JVM HttpClient and HttpsClient plugin.[Optional]
+* Support backend upgrade without rebooting required.
+* Open Redefine and Retransform by other agents.
+* Support Servlet 2.5 in Jetty, Tomcat and SpringMVC plugins.
+* Support Spring @Async plugin.
+* Add new config item to restrict the length of span#peer.
+* Refactor `ContextManager#stopSpan`.
+* Add gRPC timeout.
+* Support Logback AsyncAppender print tid 
+* Fix gRPC reconnect bug.
+* Fix trace segment service doesn't report `onComplete`.
+* Fix wrong logger class name.
+* Fix gRPC plugin bug.
+* Fix `ContextManager.activeSpan()` API usage error.
+
+#### Backend
+* Support agent reset command downstream when the storage is erased, mostly because of backend upgrade.
+* Backend stream flow refactor.
+* High dimensionality metrics(Hour/Day/Month) are changed to lower priority, to ease the storage payload.
+* Add OAP metrics cache to ease the storage query payload and improve performance.
+* Remove DataCarrier in trace persistent of ElasticSearch storage, by leveraging the elasticsearch bulk queue.
+* OAP internal communication protocol changed. Don't be compatible with old releases.
+* Improve ElasticSearch storage bulk performance.
+* Support etcd as dynamic configuration center.
+* Simplify the PxxMetrics and ThermodynamicMetrics functions for better performance and GC.
+* Support JVM metrics self observability.
+* Add the new OAL runtime engine.
+* Add gRPC timeout.
+* Add Charset in the alarm web hook.
+* Fix buffer lost.
+* Fix dirty read in ElasticSearch storage.
+* Fix bug of cluster management plugins in un-Mixed mode.
+* Fix wrong logger class name.
+* Fix delete bug in ElasticSearch when using namespace.
+* Fix MySQL TTL failure.
+* Totally remove `IDs can't be null` log, to avoid misleading.
+* Fix provider has been initialized repeatedly.
+* Adjust providers conflict log message.
+* Fix using wrong gc time metrics in OAL.
+
+#### UI
+* Fix refresh is not working after endpoint and instance changed.
+* Fix endpoint selector but.
+* Fix wrong copy value in slow traces.
+* Fix can't show trace when it is broken partially(Because of agent sampling or fail safe).
+* Fix database and response time graph bugs.
+
+#### Document
+* Add bootstrap plugin development document.
+* Alarm documentation typo fixed.
+* Clarify the Docker file purpose.
+* Fix a license typo.
+
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/34?closed=1)
+
+
 6.2.0
 ------------------
 
@@ -16,7 +143,7 @@ Release Notes.
 * Support collect SQL parameter in MySQL plugin.[Optional]
 * Support SolrJ plugin.
 * Support RESTEasy plugin.
-* Support Spring Gateway plugin for 2.1.x
+* Support Spring Gateway plugin for 2.1.x[Optional]
 * TracingContext performance improvement.
 * Support Apache ShardingSphere(incubating) plugin.
 * Support `span#error` in application toolkit.

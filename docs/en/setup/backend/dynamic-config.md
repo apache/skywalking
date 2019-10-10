@@ -7,6 +7,8 @@ Right now, SkyWalking supports following dynamic configurations.
 | Config Key | Value Description | Value Format Example |
 |:----:|:----:|:----:|
 |receiver-trace.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `applciation.yml`. | default:200,mongodb:50|
+|receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
+|alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
 
 
 This feature depends on upstream service, so it is **OFF** as default.
@@ -58,6 +60,8 @@ configuration:
     port: 8848
     # Nacos Configuration Group
     group: 'skywalking'
+    # Nacos Configuration namespace
+    namespace: ''
     # Unit seconds, sync period. Default fetch every 60 seconds.
     period : 60
     # the name of current cluster, set the name if you want to upstream system known.
@@ -80,8 +84,31 @@ configuration:
     maxRetries: 3 # max number of times to retry
 ```
 
-## 3rd party Configuration Center
-We are welcome contributions to implement this module provider to support popular configuration center, 
-such as Consul. Submit issue to discuss.
+## Dynamic Configuration Etcd Implementation
+
+[Etcd](https://github.com/etcd-io/etcd) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+
+```yaml
+configuration:
+  etcd:
+    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    group :  'skywalking'
+    serverAddr: localhost:2379
+    clusterName: "default"
+```
+
+## Dynamic Configuration Consul Implementation
+
+[Consul](https://github.com/rickfast/consul-client) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
+
+```yaml
+configuration:
+  consul:
+    # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
+    hostAndPorts: 127.0.0.1:8500
+    # Sync period in seconds. Defaults to 60 seconds.
+    period: 60
+```
+
 
 

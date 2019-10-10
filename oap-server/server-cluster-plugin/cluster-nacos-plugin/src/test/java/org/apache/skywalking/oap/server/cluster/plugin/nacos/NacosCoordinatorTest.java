@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -85,7 +84,7 @@ public class NacosCoordinatorTest {
         List<Instance> instances = mockInstance();
         when(namingService.selectInstances(anyString(), anyBoolean())).thenReturn(instances);
         List<RemoteInstance> remoteInstances = coordinator.queryRemoteNodes();
-        assertTrue(remoteInstances.isEmpty());
+        assertEquals(remoteInstances.size(), instances.size());
     }
 
     @Test

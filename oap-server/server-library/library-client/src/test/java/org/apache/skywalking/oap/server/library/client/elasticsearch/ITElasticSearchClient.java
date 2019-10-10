@@ -20,6 +20,12 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -41,13 +47,6 @@ import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author peng-yongsheng
  */
@@ -68,9 +67,10 @@ public class ITElasticSearchClient {
     }
 
     @Before
-    public void before() throws IOException {
+    public void before() throws Exception {
         final String esAddress = System.getProperty("elastic.search.address");
-        client = new ElasticSearchClient(esAddress, namespace, "test", "test");
+        final String esProtocol = System.getProperty("elastic.search.protocol");
+        client = new ElasticSearchClient(esAddress, esProtocol, "", "", namespace, "test", "test");
         client.connect();
     }
 
@@ -188,7 +188,7 @@ public class ITElasticSearchClient {
 
     @Test
     public void bulk() throws InterruptedException {
-        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 200, 10, 2);
+        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2);
 
         Map<String, String> source = new HashMap<>();
         source.put("column1", "value1");
@@ -246,7 +246,7 @@ public class ITElasticSearchClient {
     }
 
     private RestHighLevelClient getRestHighLevelClient() {
-        return (RestHighLevelClient) Whitebox.getInternalState(client, "client");
+        return (RestHighLevelClient)Whitebox.getInternalState(client, "client");
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {

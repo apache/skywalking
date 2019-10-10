@@ -24,10 +24,10 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author caoyixiong
@@ -50,13 +50,11 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
             List<Instance> instances = namingService.selectInstances(config.getServiceName(), true);
             if (CollectionUtils.isNotEmpty(instances)) {
                 instances.forEach(instance -> {
-                    if (Objects.nonNull(selfAddress)) {
-                        if (selfAddress.getHost().equals(instance.getIp()) && selfAddress.getPort() == instance.getPort()) {
-                            result.add(new RemoteInstance(new Address(instance.getIp(), instance.getPort(), true)));
-                        } else {
-                            result.add(new RemoteInstance(new Address(instance.getIp(), instance.getPort(), false)));
-                        }
+                    Address address = new Address(instance.getIp(), instance.getPort(), false);
+                    if (address.equals(selfAddress)) {
+                        address.setSelf(true);
                     }
+                    result.add(new RemoteInstance(address));
                 });
             }
         } catch (NacosException e) {
@@ -75,5 +73,6 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
             throw new ServiceRegisterException(e.getMessage());
         }
         this.selfAddress = remoteInstance.getAddress();
+        TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
     }
 }

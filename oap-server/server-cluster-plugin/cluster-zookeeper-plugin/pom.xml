@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>server-cluster-plugin</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -51,4 +51,99 @@
             <artifactId>curator-test</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>CI-with-IT</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <sourceMode>all</sourceMode>
+                            <logDate>default</logDate>
+                            <verbose>true</verbose>
+                            <showLogs>true</showLogs>
+                            <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>prepare-zookeeper</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                                <configuration>
+                                    <images>
+                                        <image>
+                                            <name>zookeeper:${zookeeper.image.version}</name>
+                                            <alias>cluster-zookeeper-plugin-integration-test-zookeeper</alias>
+                                            <run>
+                                                <ports>
+                                                    <port>zk-port:2181</port>
+                                                </ports>
+                                                <wait>
+                                                    <log>binding to port</log>
+                                                    <time>30000</time>
+                                                </wait>
+                                            </run>
+                                        </image>
+                                    </images>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>prepare-zookeeper-start</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>gmaven-plugin</artifactId>
+                        <version>${gmaven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>add-default-properties</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <providerSelection>2.0</providerSelection>
+                                    <source>
+                                        project.properties.setProperty('docker.hostname', 'localhost')
+
+                                        log.info("Docker hostname is " + project.properties['docker.hostname'])
+                                    </source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <zk.address>
+                                    ${docker.hostname}:${zk-port}
+                                </zk.address>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

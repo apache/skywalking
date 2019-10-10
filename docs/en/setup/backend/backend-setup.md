@@ -9,7 +9,7 @@ of starting backend.
 
 
 ## application.yml
-The core concept behind this setting file is, SkyWalking collector is based on pure modulization design. 
+The core concept behind this setting file is, SkyWalking collector is based on pure modularization design. 
 End user can switch or assemble the collector features by their own requirements.
 
 So, in `application.yml`, there are three levels.
@@ -32,7 +32,7 @@ core:
 1. `restHost`, `restPort`, ... `gRPCHost` are all setting items of the implementor.
 
 At the same time, modules includes required and optional, the required modules provide the skeleton of backend,
-even modulization supported pluggable, remove those modules are meanless. We highly recommend you don't try to
+even modularization supported pluggable, remove those modules are meaningless. We highly recommend you don't try to
 change APIs of those modules, unless you understand SkyWalking project and its codes very well.
 
 List the required modules here
@@ -83,11 +83,26 @@ system.
 set the expired time for each dimension.
 1. [Dynamic Configuration](dynamic-config.md). Make configuration of OAP changed dynamic, from remote service
 or 3rd party configuration management system.
+1. [Uninstrumented Gateways](uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
+to reflect the delegation in topology graph.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
 we provide the telemetry for OAP backend itself. Follow [document](backend-telemetry.md) to use it.
 
+## Agent hot reboot trigger mechanism in OAP server upgrade
+**IMPORTANT**: Agent hot reboot requires both of the OAP nodes and agents to be version 6.3.0 or higher.
+The reboot procedure works by the heartbeat between OAP nodes and the agents:
+1. The agent sends a heartbeat package to the OAP server;
+1. The OAP server just restarted and found no metadata for this agent, then it sends a reset command to the specific agent;
+1. The agent received the reset command and re-register itself to the OAP node.
+
+The agent reboot mechanism is not designed for every scenarios where agent need to reboot, but only the scenario where
+the backend servers are to be upgraded with all storage data deleted/erased, therefore, there're some noteworthy limitations:
+1. Partially deleting the storage data may not work as expected, you **MUST** delete all the storage data.
+1. Set an appropriate threshold of config `agent.cool_down_threshold` to wait before the agents re-registering themselves to backend 
+to avoid "dirty data", see [`agent.cool_down_threshold`](../service-agent/java-agent/README.md#table-of-agent-configuration-properties)
+for more detail.
 
 ## FAQs
 #### When and why do we need to set Timezone?

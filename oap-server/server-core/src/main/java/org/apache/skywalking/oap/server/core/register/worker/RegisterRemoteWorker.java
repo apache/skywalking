@@ -33,18 +33,18 @@ public class RegisterRemoteWorker extends AbstractWorker<RegisterSource> {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterRemoteWorker.class);
 
-    private final AbstractWorker<RegisterSource> nextWorker;
+    private final String remoteReceiverWorkerName;
     private final RemoteSenderService remoteSender;
 
-    RegisterRemoteWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<RegisterSource> nextWorker) {
+    RegisterRemoteWorker(ModuleDefineHolder moduleDefineHolder, String remoteReceiverWorkerName) {
         super(moduleDefineHolder);
         this.remoteSender = moduleDefineHolder.find(CoreModule.NAME).provider().getService(RemoteSenderService.class);
-        this.nextWorker = nextWorker;
+        this.remoteReceiverWorkerName = remoteReceiverWorkerName;
     }
 
     @Override public final void in(RegisterSource registerSource) {
         try {
-            remoteSender.send(nextWorker.getWorkerId(), registerSource, Selector.ForeverFirst);
+            remoteSender.send(remoteReceiverWorkerName, registerSource, Selector.ForeverFirst);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

@@ -34,6 +34,9 @@
     <modules>
         <module>e2e-base</module>
         <module>e2e-single-service</module>
+        <module>e2e-cluster</module>
+        <module>e2e-agent-reboot</module>
+        <module>e2e-ttl</module>
     </modules>
 
     <properties>
@@ -44,18 +47,22 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring.boot.version>2.1.5.RELEASE</spring.boot.version>
+        <spring.cloud.version>2.1.2.RELEASE</spring.cloud.version>
         <faster.jackson.version>2.9.7</faster.jackson.version>
         <junit.version>4.12</junit.version>
         <jackson.version>2.9.7</jackson.version>
-        <guava.version>28.0-jre</guava.version>
+        <guava.version>20.0</guava.version>
         <snake.version>1.23</snake.version>
         <gson.version>2.8.5</gson.version>
         <h2.version>1.4.199</h2.version>
+        <elasticsearch.version>6.3.2</elasticsearch.version>
+        <zookeeper.image.version>3.5</zookeeper.image.version>
+        <lombok.version>1.18.4</lombok.version>
 
         <!-- build.id is an available environment variable in Jenkins to
              distinguish the different build jobs, once Jenkins job is aborted,
              we will use this build.id to stop all containers that are started
-             during this specific build, see Jenkins-E2E (post stage) for detail
+             during this specific build, see Jenkins-E2E (cleanup stage) for detail
          -->
         <build.id>local</build.id>
 
@@ -64,6 +71,9 @@
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
+        <surefire.version>2.12.4</surefire.version>
+
+        <skipSurefire>true</skipSurefire>
     </properties>
 
     <dependencies>
@@ -91,6 +101,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -148,6 +164,14 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <skip>${skipSurefire}</skip>
                 </configuration>
             </plugin>
             <plugin>

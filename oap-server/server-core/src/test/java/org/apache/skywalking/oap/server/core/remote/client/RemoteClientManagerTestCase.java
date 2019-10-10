@@ -18,16 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.*;
-import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
+import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.apache.skywalking.oap.server.testing.module.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
+import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
+import org.junit.Assert;
+import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author peng-yongsheng
@@ -46,8 +53,6 @@ public class RemoteClientManagerTestCase {
         ClusterNodesQuery clusterNodesQuery = mock(ClusterNodesQuery.class);
         clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
 
-        StreamDataMappingGetter streamDataMappingGetter = mock(StreamDataMappingGetter.class);
-        coreModuleDefine.provider().registerServiceImplementation(StreamDataMappingGetter.class, streamDataMappingGetter);
 
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
         when(metricsCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetrics() {
@@ -75,7 +80,7 @@ public class RemoteClientManagerTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        RemoteClientManager clientManager = new RemoteClientManager(moduleManager);
+        RemoteClientManager clientManager = new RemoteClientManager(moduleManager, 10);
 
         when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
         clientManager.refresh();

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-library</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -87,7 +87,7 @@
                                                 </ports>
                                                 <wait>
                                                     <log>started</log>
-                                                    <time>30000</time>
+                                                    <time>60000</time>
                                                 </wait>
                                                 <env>
                                                     <discovery.type>single-node</discovery.type>
@@ -134,6 +134,9 @@
                                 <elastic.search.address>
                                     ${docker.hostname}:${es-port}
                                 </elastic.search.address>
+                                <elastic.search.protocol>
+                                    http
+                                </elastic.search.protocol>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>

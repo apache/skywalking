@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
@@ -28,15 +29,18 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private String nameSpace;
     @Setter private String clusterNodes;
-    @Setter private int indexShardsNumber;
-    @Setter private int indexReplicasNumber;
-    @Setter private boolean highPerformanceMode;
+    @Getter @Setter String protocol = "http";
+    @Setter private int indexShardsNumber = 2;
+    @Setter private int indexReplicasNumber = 0;
+    @Setter private int indexRefreshInterval = 2;
     @Setter private int bulkActions = 2000;
-    @Setter private int bulkSize = 20;
     @Setter private int flushInterval = 10;
     @Setter private int concurrentRequests = 2;
+    @Setter private int syncBulkActions = 3;
     @Setter private String user;
     @Setter private String password;
+    @Getter @Setter String trustStorePath;
+    @Getter @Setter String trustStorePass;
     @Setter private int metadataQueryMaxSize = 5000;
     @Setter private int segmentQueryMaxSize = 200;
     @Setter private int recordDataTTL = 7;
@@ -46,11 +50,24 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int otherMetricsDataTTL = 0;
     @Setter private int monthMetricsDataTTL = 18;
 
-    public void setOtherMetricsDataTTL(int otherMetricsDataTTL) {
+    public int getMinuteMetricsDataTTL() {
         if (otherMetricsDataTTL > 0) {
-            minuteMetricsDataTTL = otherMetricsDataTTL;
-            hourMetricsDataTTL = otherMetricsDataTTL;
-            dayMetricsDataTTL = otherMetricsDataTTL;
+            return otherMetricsDataTTL;
         }
+        return minuteMetricsDataTTL;
+    }
+
+    public int getHourMetricsDataTTL() {
+        if (otherMetricsDataTTL > 0) {
+            return otherMetricsDataTTL;
+        }
+        return hourMetricsDataTTL;
+    }
+
+    public int getDayMetricsDataTTL() {
+        if (otherMetricsDataTTL > 0) {
+            return otherMetricsDataTTL;
+        }
+        return dayMetricsDataTTL;
     }
 }

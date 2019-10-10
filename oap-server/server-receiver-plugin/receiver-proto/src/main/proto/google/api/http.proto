@@ -110,7 +110,7 @@ message Http {
 //     }
 //
 //
-// This enables a HTTP JSON to RPC mapping as below:
+// This enables an HTTP JSON to RPC mapping as below:
 //
 // HTTP | RPC
 // -----|-----

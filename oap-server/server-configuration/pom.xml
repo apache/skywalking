@@ -21,18 +21,21 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>server-configuration</artifactId>
     <packaging>pom</packaging>
+
     <modules>
         <module>configuration-api</module>
         <module>grpc-configuration-sync</module>
         <module>configuration-apollo</module>
         <module>configuration-nacos</module>
         <module>configuration-zookeeper</module>
+        <module>configuration-etcd</module>
+        <module>configuration-consul</module>
     </modules>
 
 </project>

@@ -42,6 +42,7 @@
                 <include>*.yml</include>
                 <include>*.xml</include>
                 <include>*.properties</include>
+                <include>*.oal</include>
             </includes>
         </fileSet>
         <fileSet>

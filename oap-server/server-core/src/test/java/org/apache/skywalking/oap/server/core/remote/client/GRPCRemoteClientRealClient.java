@@ -19,17 +19,21 @@
 package org.apache.skywalking.oap.server.core.remote.client;
 
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.core.remote.define.StreamDataMappingGetter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.apache.skywalking.oap.server.testing.module.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
+import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 import org.junit.Assert;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author peng-yongsheng
@@ -53,27 +57,15 @@ public class GRPCRemoteClientRealClient {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, new TestMappingGetter(), address, 1, 10));
+        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10, 10));
         remoteClient.connect();
 
         for (int i = 0; i < 10000; i++) {
-            remoteClient.push(1, new TestStreamData());
+            remoteClient.push("mock_remote", new TestStreamData());
             TimeUnit.SECONDS.sleep(1);
         }
 
         TimeUnit.MINUTES.sleep(10);
-    }
-
-    public static class TestMappingGetter implements StreamDataMappingGetter {
-
-        @Override public int findIdByClass(Class streamDataClass) {
-            return 1;
-        }
-
-        @Override public Class<StreamData> findClassById(int id) {
-            Class<?> clazz = TestStreamData.class;
-            return (Class<StreamData>)clazz;
-        }
     }
 
     public static class TestStreamData extends StreamData {

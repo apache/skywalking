@@ -65,6 +65,8 @@ a oap image with name `bar/oap:foo`, run the following command
 > HUB=bar TAG=foo make docker.oap
 
 ## Setup your IntelliJ IDEA
+**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
+
 1. Import the project as a maven project
 1. Run `./mvnw compile -Dmaven.test.skip=true` to compile project and generate source codes. Because we use gRPC and protobuf.
 1. Set **Generated Source Codes** folders.
@@ -73,10 +75,11 @@ a oap image with name `bar/oap:foo`, run the following command
     * `grpc-java` and `java` folders in **oap-server/server-receiver-plugin/receiver-proto/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/exporter/target/generated-sources/protobuf**
     * `grpc-java` and `java` folders in **oap-server/server-configuration/grpc-configuration-sync/target/generated-sources/protobuf**
-    * `antlr4` folder in **oap-server/generate-tool-grammar/target/generated-sources**
-    * `oal` folder in **oap-server/generated-analysis/target/generated-sources**
+    * `antlr4` folder in **oap-server/oal-grammar/target/generated-sources**
     
 ## Setup your Eclipse IDE
+**NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
+
 1. Import the project as a maven project
 2. For supporting multiple source directories, you need to add the following configuration in `skywalking/pom.xml` file:
 ```
