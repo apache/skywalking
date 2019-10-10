@@ -80,6 +80,8 @@
   * Vert.x Web 3.x
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
+* Cache
+  * [Ehcache](https://www.ehcache.org/) 2.x
 
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 

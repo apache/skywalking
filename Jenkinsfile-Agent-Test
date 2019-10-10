@@ -61,6 +61,7 @@ pipeline {
             }
         }
 
+
         stage('dubbo 2.5.x-2.6.x (7)') {
             steps {
                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
@@ -70,6 +71,12 @@ pipeline {
         stage('dubbo 2.7.x (4)') {
             steps {
                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+            }
+        }
+        
+        stage('ehcache 2.8.x-2.10.x (19)') {
+            steps {
+                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
             }
         }
     }
