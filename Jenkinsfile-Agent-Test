@@ -60,6 +60,11 @@ pipeline {
                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
             }
         }
+        stage('dubbo 2.5.x-2.6.0') {
+            steps {
+                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-scenario'
+            }
+        }
     }
 
     post {
