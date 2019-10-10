@@ -60,8 +60,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQue
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
-
 /**
  * MySQL storage provider should be secondary choice for production usage as SkyWalking storage solution. It enhanced
  * and came from H2StorageProvider, but consider more in using in production.
@@ -97,7 +95,7 @@ public class MySQLStorageProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException {
-        mysqlClient = new JDBCHikariCPClient(getConfigProperties());
+        mysqlClient = new JDBCHikariCPClient(config.getProperties());
 
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(mysqlClient));
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(mysqlClient));
@@ -112,7 +110,7 @@ public class MySQLStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(mysqlClient));
         this.registerServiceImplementation(ITraceQueryDAO.class, new MySQLTraceQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(mysqlClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new MySQLAggregationQueryDAO(mysqlClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new MySQLAlarmQueryDAO(mysqlClient));
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(getManager(), mysqlClient, new GeneralStorageTTL()));
@@ -139,16 +137,5 @@ public class MySQLStorageProvider extends ModuleProvider {
 
     @Override public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
-    }
-    
-    private Properties getConfigProperties() {
-        Properties properties = new Properties(config.getProperties());
-        properties.remove("metadataQueryMaxSize");
-        return properties;
-    }
-    
-    private int getMetadataQueryMaxSize() {
-        String result = config.getProperties().getProperty("metadataQueryMaxSize", "5000");
-        return Integer.valueOf(result);
     }
 }

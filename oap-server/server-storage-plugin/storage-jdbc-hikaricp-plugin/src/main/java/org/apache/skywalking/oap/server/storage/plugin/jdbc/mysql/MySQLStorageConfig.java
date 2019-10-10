@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.DynamicModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import java.util.Properties;
@@ -31,6 +30,8 @@ import java.util.Properties;
  */
 @Setter
 @Getter
-public final class MySQLStorageConfig extends ModuleConfig implements DynamicModuleConfig {
+public final class MySQLStorageConfig extends ModuleConfig {
+    
+    private int metadataQueryMaxSize = 5000;
     private Properties properties;
 }
