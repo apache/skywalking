@@ -28,9 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/**
- * @author zhangwei
- */
 public class CaseServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7718003516483404165L;

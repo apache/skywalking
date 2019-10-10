@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.dubbo.services;
 
-/**
- * @author zhangwei
- */
 public interface GreetService {
     String doBusiness();
 }
