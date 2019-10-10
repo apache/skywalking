@@ -149,7 +149,7 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -P${testcase_name}
+    ${mvnw} clean package -Dtest.framework.version=${version}
 
     mv ./target/${scenario_name}.* ${case_work_base}
 
