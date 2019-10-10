@@ -31,13 +31,8 @@ import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTran
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.ServerWebExchangeDecorator;
-import org.springframework.web.server.adapter.DefaultServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SignalType;
-
 import java.lang.reflect.Method;
-import java.util.function.Consumer;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
@@ -103,5 +98,5 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
     }
-    
+
 }
