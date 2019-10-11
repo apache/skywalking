@@ -55,23 +55,29 @@ pipeline {
             }
         }
         stage ('Run Agent Plugin Tests') {
-            parallel group1 : {
-                stage('httpclient 4.3.x-4.5.x') {
-                    steps {
-                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
-                    }
-                }
+            parallel {
+                stage ('Run Agent Plugin Tests G1') {
+                    stages {
+                        stage('httpclient 4.3.x-4.5.x') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
+                            }
+                        }
 
-                stage('ehcache 2.8.x-2.10.x') {
-                    steps {
-                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                        stage('ehcache 2.8.x-2.10.x') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                            }
+                        }
                     }
                 }
-            },
-            group2 : {
-                stage('jetty 9.x') {
-                    steps {
-                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                stage ('Run Agent Plugin Tests G2') {
+                    stages {
+                        stage('jetty 9.x') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                            }
+                        }
                     }
                 }
             }
