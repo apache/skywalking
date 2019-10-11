@@ -44,7 +44,7 @@ public class GetPropertyDescriptorsInterceptor implements InstanceMethodsAroundI
         if (EnhancedInstance.class.isAssignableFrom(((BeanWrapperImpl)objInst).getRootClass())) {
             List<PropertyDescriptor> newPropertyDescriptors = new ArrayList<PropertyDescriptor>();
             for (PropertyDescriptor descriptor : propertyDescriptors) {
-                if (!descriptor.getName().equals("skyWalkingDynamicField")) {
+                if (!"skyWalkingDynamicField".equals(descriptor.getName())) {
                     newPropertyDescriptors.add(descriptor);
                 }
             }

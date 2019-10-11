@@ -16,3 +16,4 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [EnhanceRequireObjectCache class cast exception](EnhanceRequireObjectCache-Cast-Exception.md)
 * [ElasticSearch server performance FAQ, including ERROR CODE:429](ES-Server-FAQ.md)
 * [IllegalStateException when install Java agent on WebSphere 7](install_agent_on_websphere.md)
+* ["FORBIDDEN/12/index read-only / allow delete (api)" appears in the log](https://discuss.elastic.co/t/forbidden-12-index-read-only-allow-delete-api/110282)
