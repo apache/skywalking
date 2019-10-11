@@ -169,7 +169,8 @@ storage:
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 ```
-This setting file follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document.
+All connection related settings including link url, username and password are in `application.yml`. 
+Here are some of the settings, please follow [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for all the settings.
 
 ## TiDB
 Currently tested TiDB in version 2.0.9, and Mysql Client driver in version 8.0.13.
@@ -188,7 +189,7 @@ storage:
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 ```
-
+All connection related settings including link url, username and password are in `application.yml`. 
 These settings can refer to the configuration of *MySQL* above.
 
 ## ElasticSearch 5

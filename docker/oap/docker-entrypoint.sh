@@ -136,7 +136,7 @@ generateStorageMySQL() {
     cat <<EOT >> ${var_application_file}
 storage:
   mysql:
-    metadataQueryMaxSize: \${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+    metadataQueryMaxSize: \${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 EOT
 }
 
