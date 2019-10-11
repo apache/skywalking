@@ -16,41 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
-import com.google.common.base.Strings;
+import net.sf.ehcache.config.CacheConfiguration;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * The running mode of the OAP server.
- *
- * @author wusheng
+ * @author MrPro
  */
-public class RunningMode {
-    private static String MODE = "";
+public class EhcacheConstructorInterceptor implements InstanceConstructorInterceptor {
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        CacheConfiguration cacheConfiguration = (CacheConfiguration) allArguments[0];
 
-    private RunningMode() {
-    }
-
-    public static void setMode(String mode) {
-        if (Strings.isNullOrEmpty(mode)) {
-            return;
+        // get cache name
+        if (cacheConfiguration != null) {
+            objInst.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(cacheConfiguration.getName()));
         }
-        RunningMode.MODE = mode.toLowerCase();
-    }
-
-    /**
-     * Init mode, do all initialization things, and process should exit.
-     * @return true if in this status
-     */
-    public static boolean isInitMode() {
-        return "init".equals(MODE);
-    }
-
-    /**
-     * No-init mode, the oap just starts up, but wouldn't do storage init.
-     * @return true if in this status.
-     */
-    public static boolean isNoInitMode() {
-        return "no-init".equals(MODE);
     }
 }

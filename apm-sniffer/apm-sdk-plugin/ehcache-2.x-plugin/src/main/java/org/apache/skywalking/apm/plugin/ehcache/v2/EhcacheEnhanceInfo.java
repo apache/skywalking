@@ -16,41 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
-
-import com.google.common.base.Strings;
+package org.apache.skywalking.apm.plugin.ehcache.v2;
 
 /**
- * The running mode of the OAP server.
- *
- * @author wusheng
+ * @author MrPro
  */
-public class RunningMode {
-    private static String MODE = "";
+public class EhcacheEnhanceInfo {
 
-    private RunningMode() {
+    private String cacheName;
+
+    public EhcacheEnhanceInfo() {
     }
 
-    public static void setMode(String mode) {
-        if (Strings.isNullOrEmpty(mode)) {
-            return;
-        }
-        RunningMode.MODE = mode.toLowerCase();
+    public EhcacheEnhanceInfo(String cacheName) {
+        this.cacheName = cacheName;
     }
 
-    /**
-     * Init mode, do all initialization things, and process should exit.
-     * @return true if in this status
-     */
-    public static boolean isInitMode() {
-        return "init".equals(MODE);
+    public String getCacheName() {
+        return cacheName;
     }
 
-    /**
-     * No-init mode, the oap just starts up, but wouldn't do storage init.
-     * @return true if in this status.
-     */
-    public static boolean isNoInitMode() {
-        return "no-init".equals(MODE);
+    public void setCacheName(String cacheName) {
+        this.cacheName = cacheName;
     }
 }
