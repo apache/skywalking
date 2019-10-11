@@ -22,7 +22,9 @@ registryItems:
   - {jettyclient-scenario: 1}
   operationNames:
   - jettyserver-scenario: [/jettyserver-case/case/receiveContext-0]
-  - jettyclient-scenario: [/jettyserver-case/case/receiveContext-0, /case/jettyclient-case]
+  - jettyclient-scenario: [/jettyserver-case/case/receiveContext-0,
+                           /jettyclient-case/case/jettyclient-case,
+                           /jettyclient-case/case/healthCheck]
 segmentItems:
 - applicationCode: jettyserver-scenario
   segmentSize: 1
@@ -46,7 +48,7 @@ segmentItems:
       - {key: url, value: 'http://localhost:18080/jettyserver-case/case/receiveContext-0'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpointId: 0, parentEndpoint: /case/jettyclient-case, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: "${jettyclient-scenario[0]}", parentServiceInstanceId: nq 0, networkAddress: 'localhost:18080', entryEndpoint: /case/jettyclient-case, entryServiceInstanceId: nq 0 }
+      - {parentEndpointId: 0, parentEndpoint: /jettyclient-case/case/jettyclient-case, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: "${jettyclient-scenario[0]}", parentServiceInstanceId: nq 0, networkAddress: 'localhost:18080', entryEndpoint: /jettyclient-case/case/jettyclient-case, entryServiceInstanceId: nq 0 }
 - applicationCode: jettyclient-scenario
   segmentSize: 2
   segments:
@@ -68,14 +70,14 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:18080/jettyserver-case/case/receiveContext-0'}
-    - operationName: /case/jettyclient-case
+    - operationName: /jettyclient-case/case/jettyclient-case
       operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
       startTime: nq 0
       endTime: nq 0
-      componentId: 14
+      componentId: gt 0
       componentName: ''
       isError: false
       spanType: Entry
@@ -84,3 +86,4 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/jettyclient-case/case/jettyclient-case'}
       - {key: http.method, value: GET}
+
