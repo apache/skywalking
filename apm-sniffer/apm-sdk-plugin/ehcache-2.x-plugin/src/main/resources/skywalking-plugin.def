@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ehcache-2.x=com.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation
+ehcache-2.x=org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation

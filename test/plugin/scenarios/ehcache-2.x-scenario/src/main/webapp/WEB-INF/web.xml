@@ -24,7 +24,7 @@
 
     <servlet>
         <servlet-name>caseServlet</servlet-name>
-        <servlet-class>test.apache.skywalking.apm.testcase.ehcache.v2.CaseServlet</servlet-class>
+        <servlet-class>org.apache.skywalking.apm.testcase.ehcache.v2.CaseServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>caseServlet</servlet-name>
@@ -33,7 +33,7 @@
 
     <servlet>
         <servlet-name>healthCheck</servlet-name>
-        <servlet-class>test.apache.skywalking.apm.testcase.ehcache.v2.HealthCheckServlet</servlet-class>
+        <servlet-class>org.apache.skywalking.apm.testcase.ehcache.v2.HealthCheckServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>healthCheck</servlet-name>

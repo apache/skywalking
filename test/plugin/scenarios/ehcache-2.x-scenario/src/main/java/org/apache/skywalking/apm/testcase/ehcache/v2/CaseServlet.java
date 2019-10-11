@@ -16,26 +16,58 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.httpclient;
+package org.apache.skywalking.apm.testcase.ehcache.v2;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
-public class ServletForContextPropagate extends HttpServlet {
+public class CaseServlet extends HttpServlet {
+
+    CacheManager cacheManager = CacheManager.create(CaseServlet.class.getResource("/cache.xml"));
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-        out.print("{'test':'test'}");
-        out.flush();
+        Cache cache = cacheManager.getCache("testCache");
+
+        String objectKey = "dataKey";
+
+        Element el = new Element(objectKey, "2");
+
+        // EhcacheOperateElementInterceptor
+        cache.put(el);
+
+        // EhcacheOperateObjectInterceptor
+        cache.get(objectKey);
+
+        // EhcacheOperateAllInterceptor
+        cache.putAll(Arrays.asList(new Element[] {el}));
+
+        // EhcacheLockInterceptor
+        try {
+            boolean success = cache.tryReadLockOnKey(objectKey, 300);
+        } catch (InterruptedException e) {
+        } finally {
+            cache.releaseReadLockOnKey(objectKey);
+        }
+
+        PrintWriter printWriter = resp.getWriter();
+        printWriter.write("success");
+        printWriter.flush();
+        printWriter.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
+
 }
