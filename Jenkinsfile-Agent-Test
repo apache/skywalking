@@ -18,7 +18,7 @@
 
 pipeline {
     agent {
-        label 'jenkins-skywalking1'
+        label 'skywalking'
     }
 
     options {
@@ -56,7 +56,7 @@ pipeline {
         }
         stage ('Run Agent Plugin Tests') {
             parallel {
-                stage ('Run Agent Plugin Tests G1') {
+                stage ('Group1') {
                     stages {
                         stage('httpclient 4.3.x-4.5.x') {
                             steps {
@@ -71,7 +71,7 @@ pipeline {
                         }
                     }
                 }
-                stage ('Run Agent Plugin Tests G2') {
+                stage ('Group2') {
                     stages {
                         stage('jetty 9.x') {
                             steps {
