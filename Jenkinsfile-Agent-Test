@@ -54,35 +54,51 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
+        stage('Run Agent Plugin Tests') {
+            parallel {
+                stage('Group1') {
+                    stages {
+                        stage('httpclient 4.3.x-4.5.x (14)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
+                            }
+                        }
 
-        stage('httpclient 4.3.x-4.5.x (14)') {
-            steps {
-                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
-            }
-        }
+                        stage('ehcache 2.8.x-2.10.x (19)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                            }
+                        }
 
+                        stage('dubbo 2.5.x-2.6.x (7)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
+                            }
+                        }
 
-        stage('dubbo 2.5.x-2.6.x (7)') {
-            steps {
-                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
-            }
-        }
-
-        stage('dubbo 2.7.x (4)') {
-            steps {
-                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
-            }
-        }
-        
-        stage('ehcache 2.8.x-2.10.x (19)') {
-            steps {
-                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                        stage('dubbo 2.7.x (4)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+                            }
+                        }
+                    }
+                }
+                stage('Group2') {
+                    stages {
+                        stage('jetty 9.x') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
     post {
         always {
+            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} --cleanup'
             deleteDir()
         }
     }

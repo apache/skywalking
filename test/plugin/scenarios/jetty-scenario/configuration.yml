@@ -14,18 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8
-MAINTAINER zhangxin@apache.org
-
-WORKDIR /usr/local/skywalking/tools
-
-COPY run.sh /
-RUN chmod +x /run.sh
-
-COPY skywalking-validator-tools.jar /usr/local/skywalking/tools
-COPY skywalking-mock-collector.tar.gz /usr/local/skywalking/tools
-RUN tar -xvf skywalking-mock-collector.tar.gz -C /usr/local/skywalking/tools
-
-WORKDIR /usr/local/skywalking/scenario
-
-CMD ["/run.sh"]
+type: jvm
+entryService: http://localhost:8080/jettyclient-case/case/jettyclient-case
+healthCheck: http://localhost:8080/jettyclient-case/case/healthCheck
+startScript: ./bin/startup.sh
+framework: jettyclient

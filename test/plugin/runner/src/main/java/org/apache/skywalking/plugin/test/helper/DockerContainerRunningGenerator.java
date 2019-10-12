@@ -43,8 +43,9 @@ public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
 
         root.put("scenario_name", configuration.scenarioName());
         root.put("scenario_version", configuration.scenarioVersion());
-        root.put("entry_service", configuration.entryService());
         root.put("health_check", configuration.healthCheck());
+        root.put("start_script", configuration.startScript());
+        root.put("entry_service", configuration.entryService());
         root.put("test_framework", configuration.testFramework());
         root.put("docker_image_name", configuration.dockerImageName());
         root.put("docker_image_version", configuration.dockerImageVersion());

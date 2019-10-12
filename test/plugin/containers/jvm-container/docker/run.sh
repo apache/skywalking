@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
     exitAndClean 1
@@ -24,6 +25,7 @@ function exitOnError() {
 function exitAndClean() {
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
     [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
+    [[ -d ${SCENARIO_HOME}/package ]] && rm -rf ${SCENARIO_HOME}/package
     exit $1
 }
 
@@ -43,23 +45,32 @@ function healthCheck() {
     exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION} health check failed!"
 }
 
+if [[ -z "${SCENARIO_START_SCRIPT}" ]]; then
+    exitOnError "The name of startup script cannot be empty!"
+fi
+
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
 
-# Speed up launch tomcat
-rm /usr/local/tomcat/webapps/* -rf # remove needn't app
-sed -i "s%securerandom.source=file:/dev/random%securerandom.source=file:/dev/urandom%g" $JAVA_HOME/jre/lib/security/java.security
+unzip -q ${SCENARIO_HOME}/*.zip -d /var/run/
+if [[ ! -f /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
+    exitOnError "The required startup script not exists!"
+fi
 
-# To deploy testcase
-cp ${SCENARIO_HOME}/*.war /usr/local/tomcat/webapps/
-
-# start mock collector
 echo "To start mock collector"
 ${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null &
 healthCheck http://localhost:12800/receiveData
 
-echo "To start tomcat"
-/usr/local/tomcat/bin/catalina.sh start 1>/dev/null &
+# start applications
+export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
+    -Dskywalking.collector.grpc_channel_check_interval=2
+    -Dskywalking.collector.app_and_service_register_check_interval=2
+    -Dskywalking.collector.discovery_check_interval=2
+    -Dskywalking.collector.backend_service=localhost:19876
+    -Dskywalking.agent.service_name=${SCENARIO_NAME}
+    -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
+    -Xms256m -Xmx256m ${agent_opts}"
+exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>/dev/null &
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -72,11 +83,11 @@ curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.ya
 
 echo "To validate"
 java -jar \
-  -Dv2=true \
-  -Xmx256m -Xms256m \
-  -DtestDate="`date +%Y-%m-%d-%H-%M`" \
-  -DtestCasePath=${SCENARIO_HOME}/data/ \
-  ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
+    -Dv2=true \
+    -Xmx256m -Xms256m \
+    -DtestDate="`date +%Y-%m-%d-%H-%M`" \
+    -DtestCasePath=${SCENARIO_HOME}/data/ \
+    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
 status=$?
 
 if [[ $status -eq 0 ]]; then
