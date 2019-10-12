@@ -10,7 +10,6 @@ or providing commercial products including Apache SkyWalking.
 1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
 1. Alibaba Cloud, 阿里云, http://aliyun.com 
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
-1. deepblueai.com 深兰科技上海有限公司 https://www.deepblueai.com/
 1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
@@ -28,6 +27,7 @@ or providing commercial products including Apache SkyWalking.
 1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
 1. Dangdang.com. 当当网. http://www.dangdang.com/
 1. DaoCloud. https://www.daocloud.io/
+1. deepblueai.com 深兰科技上海有限公司 https://www.deepblueai.com/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
