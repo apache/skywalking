@@ -12,6 +12,7 @@ import io.socket.emitter.Emitter;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author MrPro
@@ -71,7 +72,7 @@ public class SocketIOStarter {
         client.connect();
 
         // wait connect to server
-        connected.take();
+        connected.poll(5, TimeUnit.SECONDS);
     }
 
 }
