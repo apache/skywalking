@@ -21,6 +21,7 @@ scenario_name=""
 parallel_run_size=1
 force_build="off"
 build_id="latest"
+cleanup="off"
 
 mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
@@ -32,6 +33,7 @@ print_help() {
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
     echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
+    echo -e "\t--cleanup, \t\t\t remove the related images and directories"
 }
 
 parse_commandline() {
@@ -42,6 +44,10 @@ parse_commandline() {
         case "$_key" in
             -f|--force_build)
                 force_build="on"
+                shift
+                ;;
+            --cleanup)
+                cleanup="on"
                 shift
                 ;;
             --build_id)
@@ -82,10 +88,6 @@ exitWithMessage() {
 }
 
 exitAndClean() {
-    if [[ "${build_id}" =~ "latest" ]]; then
-        docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
-    fi
-
     elapsed=$(( `date +%s` - $start_stamp ))
     num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
     printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
@@ -105,8 +107,19 @@ waitForAvailable() {
     fi
 }
 
-start_stamp=`date +%s` ### start
+do_cleanup() {
+    docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
+    [[ -d ${home}/dist ]] && rm -rf ${home}/dist
+    [[ -d ${home}/workspce ]] && rm -rf ${home}/workspace
+}
+
+start_stamp=`date +%s`
 parse_commandline "$@"
+
+if [[ "$cleanup" == "on" ]]; then
+    do_cleanup
+    exit 0
+fi
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
@@ -149,9 +162,8 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -Dtest.framework.version=${version}
-
-    mv ./target/${scenario_name}.war ${case_work_base}
+    ${mvnw} clean package -Dtest.framework.version=${version} && \
+        mv ./target/${scenario_name}.* ${case_work_base}
 
     java -jar \
         -Xmx256m -Xms256m \
