@@ -34,9 +34,11 @@ public interface IConfiguration {
     @Deprecated
     String testFramework();
 
-    String entryService();
-
     String healthCheck();
+
+    String startScript();
+
+    String entryService();
 
     String dockerImageName();
 
