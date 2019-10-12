@@ -87,6 +87,11 @@ public class ConfigurationImpl implements IConfiguration {
         return this.configuration.getHealthCheck();
     }
 
+    @Override
+    public String startScript() {
+        return this.configuration.getStartScript();
+    }
+
     @Override public String dockerImageName() {
         switch (this.configuration.getType().toLowerCase()) {
         case "tomcat" :
