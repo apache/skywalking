@@ -35,7 +35,7 @@
         <test.framework.version>1.7.12</test.framework.version>
     </properties>
 
-    <name>skywalking-ehcache-2.x-scenario</name>
+    <name>skywalking-netty-socketio-scenario</name>
 
     <dependencies>
         <dependency>
