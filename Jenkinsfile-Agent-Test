@@ -70,7 +70,7 @@ pipeline {
                             }
                         }
 
-                        stage('dubbo 2.5.x-2.6.x (7)') {
+                        stage('dubbo 2.5.x-2.6.x (10)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
                             }
@@ -85,7 +85,7 @@ pipeline {
                 }
                 stage('Group2') {
                     stages {
-                        stage('jetty 9.x') {
+                        stage('jetty 9.x (63)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
                             }

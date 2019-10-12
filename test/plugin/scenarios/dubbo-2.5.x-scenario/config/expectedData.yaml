@@ -19,7 +19,7 @@ registryItems:
   instances:
     - {dubbo-2.5.x-scenario: 1}
   operationNames:
-    - dubbo-2.5.x-scenario: [/dubbo-2.5.x-scenario/healthCheck, /dubbo-2.5.x-scenario/case/dubbo, org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()]
+    - dubbo-2.5.x-scenario: [/dubbo-2.5.x-scenario/case/healthCheck, /dubbo-2.5.x-scenario/case/dubbo, org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()]
   heartbeat: []
 segmentItems:
   - applicationCode: dubbo-2.5.x-scenario
@@ -27,7 +27,7 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: /dubbo-2.5.x-scenario/healthCheck
+          - operationName: /dubbo-2.5.x-scenario/case/healthCheck
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -41,7 +41,7 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/dubbo-2.5.x-scenario/healthCheck'}
+              - {key: url, value: 'http://localhost:8080/dubbo-2.5.x-scenario/case/healthCheck'}
               - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:

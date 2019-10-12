@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.testcase.dubbo.services;
 
+/**
+ * @author ascrutae
+ */
 public interface GreetService {
     String doBusiness();
 }

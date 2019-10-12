@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,8 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/dubbo-2.5.x-scenario/case/dubbo
-healthCheck: http://localhost:8080/dubbo-2.5.x-scenario/case/healthCheck
-startScript: ./bin/startup.sh
-framework: dubbo
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=dubbo-2.5.x-scenario" ${home}/../libs/dubbo-2.5.x-scenario.jar &

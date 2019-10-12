@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/dubbo-2.5.x-scenario/case/dubbo
-healthCheck: http://localhost:8080/dubbo-2.5.x-scenario/case/healthCheck
-startScript: ./bin/startup.sh
-framework: dubbo
+server:
+  port: 8080
+  servlet:
+    context-path: /dubbo-2.5.x-scenario
+
