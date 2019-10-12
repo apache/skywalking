@@ -78,6 +78,12 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
                             }
                         }
+
+                        stage('spring-cloud-gateway 2.1.x') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} gateway-scenario'
+                            }
+                        }
                     }
                 }
             }
