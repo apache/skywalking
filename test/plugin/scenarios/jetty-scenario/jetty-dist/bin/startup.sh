@@ -1,5 +1,5 @@
-#!/bin/sh
-
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,13 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-/usr/local/skywalking-agent-scenario/skywalking-mock-collector/collector-startup.sh &
-sleep 30
-# start applications
-exec "$@" &
-sleep 60
-curl ${SCENARIO_ENTRY_SERVICE}
-sleep 40
-curl http://localhost:12800/receiveData > ${SCENARIO_DATA}/${SCENARIO_NAME}_${SCENARIO_VERSION}/actualData.yaml
-#
-echo "Scenario[${SCENARIO_NAME}, ${SCENARIO_VERSION}] build successfully!"
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyserver-scenario" ${home}/../libs/jettyserver-scenario.jar &
+sleep 1
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyclient-scenario"  ${home}/../libs/jettyclient-scenario.jar &
