@@ -16,8 +16,9 @@
  *
  */
 
-package com.apache.skywalking.apm.plugin.ehcache.v2;
+package org.apache.skywalking.apm.plugin.netty.socketio;
 
+import com.corundumstudio.socketio.protocol.Packet;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -31,15 +32,17 @@ import java.lang.reflect.Method;
 /**
  * @author MrPro
  */
-public class EhcacheOperateAllInterceptor implements InstanceMethodsAroundInterceptor {
+public class NettySocketIOSendInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        EhcacheEnhanceInfo enhanceInfo = (EhcacheEnhanceInfo) objInst.getSkyWalkingDynamicField();
 
-        AbstractSpan span = ContextManager.createLocalSpan("Ehcache/" + method.getName() + "/" + enhanceInfo.getCacheName());
-        span.setComponent(ComponentsDefine.EHCACHE);
-        SpanLayer.asCache(span);
+        NettySocketIOClientInfo clientInfo = (NettySocketIOClientInfo) objInst.getSkyWalkingDynamicField();
+        Packet packet = (Packet) allArguments[0];
+
+        AbstractSpan span = ContextManager.createExitSpan(NettySocketIOConstants.SPAN_PREFIX + packet.getName() + "/send", clientInfo.getClientAddress());
+        span.setComponent(ComponentsDefine.SOCKET_IO);
+        SpanLayer.asHttp(span);
     }
 
     @Override

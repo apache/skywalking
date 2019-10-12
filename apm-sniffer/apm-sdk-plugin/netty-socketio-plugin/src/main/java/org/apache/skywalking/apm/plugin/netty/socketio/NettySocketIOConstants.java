@@ -13,28 +13,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package test.apache.skywalking.apm.testcase.ehcache.v2;
+package org.apache.skywalking.apm.plugin.netty.socketio;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 
-public class HealthCheckServlet extends HttpServlet {
+/**
+ * @author MrPro
+ */
+public class NettySocketIOConstants {
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        PrintWriter writer = resp.getWriter();
-        writer.write("Success");
-        writer.flush();
-    }
+    public static final String SPAN_PREFIX = "SocketIO/";
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
-    }
+    public static StringTag TAG_FROM = new StringTag("from");
 }

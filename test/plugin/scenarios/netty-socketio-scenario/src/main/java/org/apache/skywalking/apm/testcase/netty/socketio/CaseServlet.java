@@ -16,11 +16,9 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.ehcache.v2;
+package org.apache.skywalking.apm.testcase.netty.socketio;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import com.corundumstudio.socketio.SocketIOClient;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,37 +26,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
 public class CaseServlet extends HttpServlet {
 
-    CacheManager cacheManager = CacheManager.create(CaseServlet.class.getResource("/cache.xml"));
+    static {
+        // start socket io server
+        SocketIOStarter.startServer();
+
+        // start client
+        try {
+            SocketIOStarter.startClientAndWaitConnect();
+        } catch (Exception e) {
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Cache cache = cacheManager.getCache("testCache");
+        // create socket io client and send data
+        // test send message interceptor
+        SocketIOClient client = SocketIOStarter.server.getAllClients().iterator().next();
+        client.sendEvent(SocketIOStarter.SEND_EVENT_NAME, "data");
 
-        String objectKey = "dataKey";
-
-        Element el = new Element(objectKey, "2");
-
-        // EhcacheOperateElementInterceptor
-        cache.put(el);
-
-        // EhcacheOperateObjectInterceptor
-        cache.get(objectKey);
-
-        // EhcacheOperateAllInterceptor
-        cache.putAll(Arrays.asList(new Element[] {el}));
-
-        // EhcacheLockInterceptor
-        try {
-            boolean success = cache.tryReadLockOnKey(objectKey, 300);
-        } catch (InterruptedException e) {
-        } finally {
-            cache.releaseReadLockOnKey(objectKey);
-        }
+        // client send message to server
+        // test for get message from client interceptor
+        SocketIOStarter.client.emit(SocketIOStarter.LISTEN_EVENT_NAME, "hello");
 
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("success");
