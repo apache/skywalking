@@ -27,7 +27,7 @@ public class Instance {
     private String key;
     private String label;
     private List<Attribute> attributes;
-    private instanceUUID string;
+    private string instanceUUID;
 
     public String getKey() {
         return key;
