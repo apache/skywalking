@@ -24,10 +24,6 @@ pipeline {
         timeout(time: 5, unit: 'HOURS')
     }
 
-    tools {
-        jdk 'JDK 1.8 (latest)'
-    }
-
     environment {
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
@@ -66,28 +62,32 @@ pipeline {
                         }
 
                         stage('Run Agent Plugin Tests') {
-                            parallel {
-                                stage('Group 1') {
-                                    stages {
-                                        stage('httpclient 4.3.x-4.5.x (14)') {
-                                            steps {
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
+                            steps {
+                                script {
+                                    parallel {
+                                        stage('Group 1') {
+                                            stages {
+                                                stage('httpclient 4.3.x-4.5.x (14)') {
+                                                    steps {
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
+                                                    }
+                                                }
+
+                                                stage('ehcache 2.8.x-2.10.x (19)') {
+                                                    steps {
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                                                    }
+                                                }
                                             }
                                         }
 
-                                        stage('ehcache 2.8.x-2.10.x (19)') {
-                                            steps {
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
-                                            }
-                                        }
-                                    }
-                                }
-
-                                stage('Group 2') {
-                                    stages {
-                                        stage('jetty 9.x (63)') {
-                                            steps {
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                                        stage('Group 2') {
+                                            stages {
+                                                stage('jetty 9.x (63)') {
+                                                    steps {
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -134,34 +134,38 @@ pipeline {
                             }
                         }
                         stage('Run Agent Plugin Tests') {
-                            parallel {
-                                stage('Group 1') {
-                                    stages {
-                                        stage('dubbo 2.7.x (4)') {
-                                            steps {
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+                            steps {
+                                script {
+                                    parallel {
+                                        stage('Group 1') {
+                                            stages {
+                                                stage('dubbo 2.7.x (4)') {
+                                                    steps {
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+                                                    }
+                                                }
+
+                                                stage('spring async 4.3.x-5.1.x (35)'){
+                                                    steps{
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
+                                                    }
+                                                }
                                             }
                                         }
 
-                                        stage('spring async 4.3.x-5.1.x (35)'){
-                                            steps{
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
-                                            }
-                                        }
-                                    }
-                                }
+                                        stage ('Group 2') {
+                                            stages {
+                                                stage('dubbo 2.5.x-2.6.x (10)') {
+                                                    steps {
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
+                                                    }
+                                                }
 
-                                stage ('Group 2') {
-                                    stages {
-                                        stage('dubbo 2.5.x-2.6.x (10)') {
-                                            steps {
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
-                                            }
-                                        }
-
-                                        stage('solrj 7.x (12)') {
-                                            steps {
-                                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} solrj-7.x-scenario'
+                                                stage('solrj 7.x (12)') {
+                                                    steps {
+                                                        sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} solrj-7.x-scenario'
+                                                    }
+                                                }
                                             }
                                         }
                                     }
