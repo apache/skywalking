@@ -14,12 +14,12 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/solrj-7.x-scenario/case/solrj
-healthCheck: http://localhost:8080/solrj-7.x-scenario/heathcheck
+entryService: http://localhost:8080/solrj-scenario/case/solrj
+healthCheck: http://localhost:8080/solrj-scenario/case/healthcheck
 startScript: ./bin/startup.sh
 framework: solrj
 environment:
-  - SOLR_SERVER=http://solr-server:8983
+  - SOLR_SERVER=solr-server:8983
 dependencies:
   solr-server:
     image: solr:${CASE_SERVER_IMAGE_VERSION}
