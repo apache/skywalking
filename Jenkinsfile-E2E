@@ -69,9 +69,15 @@ pipeline {
                             }
                         }
 
-                        stage('Agent Reboot Tests') {
+                        stage('TTL ES6 Tests') {
                             steps {
-                                sh 'bash -x test/e2e/run.sh e2e-agent-reboot'
+                                sh 'bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
+                            }
+                        }
+
+                        stage('Cluster Tests (ES7/ZK)') {
+                            steps {
+                                sh 'bash -x test/e2e/run.sh e2e-cluster/test-runner-es7'
                             }
                         }
                     }
@@ -85,9 +91,15 @@ pipeline {
                             }
                         }
 
-                        stage('TTL ES Tests') {
+                        stage('Agent Reboot Tests') {
                             steps {
-                                sh 'bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
+                                sh 'bash -x test/e2e/run.sh e2e-agent-reboot'
+                            }
+                        }
+
+                        stage('TTL ES7 Tests') {
+                            steps {
+                                sh 'bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es7'
                             }
                         }
                     }
