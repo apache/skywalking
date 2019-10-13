@@ -18,13 +18,17 @@
 package org.apache.skywalking.apm.testcase.spring.async;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * @author zhaoyuguang
  */
+@ComponentScan(basePackages = "org.apache.skywalking.apm.testcase.spring.async")
+@EnableAsync
 @Configuration
 public class AsyncConfig {
 
@@ -36,15 +40,5 @@ public class AsyncConfig {
         taskExecutor.setThreadNamePrefix("customize-async-thread-pool");
         taskExecutor.initialize();
         return taskExecutor;
-    }
-
-    @Bean
-    public AsyncBean asyncBean() {
-        return new AsyncBean();
-    }
-
-    @Bean
-    public HttpBean httpBean() {
-        return new HttpBean();
     }
 }

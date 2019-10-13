@@ -23,12 +23,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 /**
  * @author zhaoyuguang
  */
+@Component
 public class HttpBean {
 
     public String visit(String url) throws IOException {

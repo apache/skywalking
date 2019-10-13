@@ -20,11 +20,11 @@ registryItems:
     - {spring-async-scenario: 1}
   operationNames:
     - spring-async-scenario: [/spring-async-scenario/case/healthCheck, /spring-async-scenario/case/spring-async,
-                              /]
+                              /zh/team/]
   heartbeat: []
 segmentItems:
   - applicationCode: spring-async-scenario
-    segmentSize: 2
+    segmentSize: 4
     segments:
       - segmentId: not null
         spans:
@@ -46,38 +46,6 @@ segmentItems:
               - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
-          - operationName: /
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 2
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: skywalking.apache.org:80
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://skywalking.apache.org/?k=v'}
-              - {key: http.method, value: GET}
-          - operationName: /
-            operationId: 0
-            parentSpanId: 0
-            spanId: 2
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 2
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: skywalking.apache.org:80
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://skywalking.apache.org/?k=v'}
-              - {key: http.method, value: GET}
           - operationName: /spring-async-scenario/case/spring-async
             operationId: 0
             parentSpanId: -1
@@ -94,3 +62,78 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/spring-async'}
               - {key: http.method, value: GET}
+      - segmentId: not null
+        spans:
+          - operationName: /zh/team/
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: skywalking.apache.org:80
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://skywalking.apache.org/zh/team/?k1=v'}
+              - {key: http.method, value: GET}
+          - operationName: SpringAsync
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 65
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /spring-async-scenario/case/spring-async,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 0,
+                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+                 networkAddress: '', entryEndpoint: /spring-async-scenario/case/spring-async,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /zh/team/
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: skywalking.apache.org:80
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://skywalking.apache.org/zh/team/?k2=v'}
+              - {key: http.method, value: GET}
+          - operationName: SpringAsync
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 65
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /spring-async-scenario/case/spring-async,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 0,
+                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+                 networkAddress: '', entryEndpoint: /spring-async-scenario/case/spring-async,
+                 entryServiceInstanceId: 1}
+
