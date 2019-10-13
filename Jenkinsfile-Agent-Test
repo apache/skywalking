@@ -64,8 +64,8 @@ pipeline {
                         stage('Run Agent Plugin Tests') {
                             steps {
                                 script {
-                                    parallel {
-                                        stage('Group 1') {
+                                    parallel(
+                                        "Group 1" : {
                                             stages {
                                                 stage('httpclient 4.3.x-4.5.x (14)') {
                                                     steps {
@@ -79,9 +79,8 @@ pipeline {
                                                     }
                                                 }
                                             }
-                                        }
-
-                                        stage('Group 2') {
+                                        },
+                                        "Group 2" {
                                             stages {
                                                 stage('jetty 9.x (63)') {
                                                     steps {
@@ -90,7 +89,7 @@ pipeline {
                                                 }
                                             }
                                         }
-                                    }
+                                    )
                                 }
                             }
                         }
@@ -136,8 +135,8 @@ pipeline {
                         stage('Run Agent Plugin Tests') {
                             steps {
                                 script {
-                                    parallel {
-                                        stage('Group 1') {
+                                    parallel(
+                                        "Group 1" {
                                             stages {
                                                 stage('dubbo 2.7.x (4)') {
                                                     steps {
@@ -151,9 +150,8 @@ pipeline {
                                                     }
                                                 }
                                             }
-                                        }
-
-                                        stage ('Group 2') {
+                                        },
+                                        "Group 2" {
                                             stages {
                                                 stage('dubbo 2.5.x-2.6.x (10)') {
                                                     steps {
@@ -168,7 +166,7 @@ pipeline {
                                                 }
                                             }
                                         }
-                                    }
+                                    )
                                 }
                             }
                         }
