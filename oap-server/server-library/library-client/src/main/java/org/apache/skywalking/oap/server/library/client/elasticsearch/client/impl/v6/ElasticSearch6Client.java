@@ -55,7 +55,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchInsertRequest;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchUpdateRequest;
