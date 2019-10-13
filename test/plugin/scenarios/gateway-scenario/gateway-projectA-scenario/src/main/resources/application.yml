@@ -22,6 +22,6 @@ spring:
     gateway:
       routes:
       - id: provider_route
-        uri: http://localhost:18080
+        uri: http://localhost:18070
         predicates:
         - Path=/provider/b/*

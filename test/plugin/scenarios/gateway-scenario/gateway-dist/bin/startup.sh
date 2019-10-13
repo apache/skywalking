@@ -18,7 +18,9 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
+cp /usr/local/skywalking/scenario/agent/optional-plugins/apm-spring-cloud-gateway-2.x-plugin-*.jar /usr/local/skywalking/scenario/agent/plugins
+
 java -jar ${agent_opts} "-Dskywalking.agent.service_name=gateway-projectA-scenario" ${home}/../libs/gateway-projectA-scenario.jar &
-sleep 1
+sleep 10
 
 java -jar ${agent_opts} "-Dskywalking.agent.service_name=gateway-projectB-scenario"  ${home}/../libs/gateway-projectB-scenario.jar &

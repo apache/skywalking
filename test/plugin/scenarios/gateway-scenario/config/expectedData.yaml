@@ -16,17 +16,17 @@
 
 registryItems:
   applications:
-    - {gateway-projectB: nq 0}
-    - {gateway-projectA: nq 0}
+    - {gateway-projectB-scenario: nq 0}
+    - {gateway-projectA-scenario: nq 0}
   instances:
-    - {gateway-projectB: 1}
-    - {gateway-projectA: 1}
+    - {gateway-projectB-scenario: 1}
+    - {gateway-projectA-scenario: 1}
   operationNames:
-    - gateway-projectB: [/provider/b/testcase]
-    - gateway-projectA: [GATEWAY/provider_route]
+    - gateway-projectB-scenario: [/provider/b/testcase]
+    - gateway-projectA-scenario: [org.apache.skywalking.apm.testcase.sc.gateway.projectA.TestController.ping, GATEWAY/provider_route]
   heartbeat: []
 segmentItems:
-  - applicationCode: gateway-projectB
+  - applicationCode: gateway-projectB-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null
@@ -47,7 +47,7 @@ segmentItems:
             tags:
               - {key: url, value: not null}
               - {key: http.method, value: GET}
-  - applicationCode: gateway-projectA
+  - applicationCode: gateway-projectA-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null

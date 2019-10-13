@@ -19,8 +19,10 @@ package org.apache.skywalking.apm.testcase.sc.gateway.projectB;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ComponentScan(value = {"org.apache.skywalking.apm.testcase.sc.gateway.projectB.controller"})
 public class Application {
 
     public static void main(String[] args) {
