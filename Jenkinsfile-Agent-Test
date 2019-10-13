@@ -17,9 +17,7 @@
  */
 
 pipeline {
-    agent {
-        label 'skywalking'
-    }
+    agent none
 
     options {
         timestamps()
@@ -37,10 +35,11 @@ pipeline {
     stages {
         stage("Distribution Agent Plugin Tests") {
             parallel {
-                stage ("Workload 1") {
+                stage("Workload 1") {
                     agent {
                         label 'skywalking'
                     }
+
                     stage('Checkout Source Code') {
                         steps {
                             deleteDir()
@@ -61,9 +60,9 @@ pipeline {
                         }
                     }
 
-                    stage ('Run Agent Plugin Tests') {
+                    stage('Run Agent Plugin Tests') {
                         parallel {
-                            stage('Group1') {
+                            stage('Group 1') {
                                 stages {
                                     stage('httpclient 4.3.x-4.5.x (14)') {
                                         steps {
@@ -78,7 +77,8 @@ pipeline {
                                     }
                                 }
                             }
-                            stage('Group2') {
+
+                            stage('Group 2') {
                                 stages {
                                     stage('jetty 9.x (63)') {
                                         steps {
@@ -89,11 +89,20 @@ pipeline {
                             }
                         }
                     }
+
+                    post {
+                        always {
+                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} --cleanup'
+                            deleteDir()
+                        }
+                    }
                 }
-                stage ("Workload 1") {
+
+                stage ("Workload 2") {
                     agent {
                         label 'skywalking'
                     }
+
                     stage('Checkout Source Code') {
                         steps {
                             deleteDir()
@@ -113,9 +122,9 @@ pipeline {
                             sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
                         }
                     }
-                    stage ('Run Agent Plugin Tests') {
+                    stage('Run Agent Plugin Tests') {
                         parallel {
-                            stage ('Group1') {
+                            stage('Group 1') {
                                 stages {
                                     stage('dubbo 2.7.x (4)') {
                                         steps {
@@ -130,13 +139,15 @@ pipeline {
                                     }
                                 }
                             }
-                            stage ('Group2') {
+
+                            stage ('Group 2') {
                                 stages {
                                     stage('dubbo 2.5.x-2.6.x (10)') {
                                         steps {
                                             sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
                                         }
                                     }
+
                                     stage('solrj 7.x (12)') {
                                         steps {
                                             sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} solrj-7.x-scenario'
@@ -146,16 +157,16 @@ pipeline {
                             }
                         }
                     }
+
+                    post {
+                        always {
+                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} --cleanup'
+                            deleteDir()
+                        }
+                    }
                 }
             }
         }
 
-    }
-
-    post {
-        always {
-            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} --cleanup'
-            deleteDir()
-        }
     }
 }
