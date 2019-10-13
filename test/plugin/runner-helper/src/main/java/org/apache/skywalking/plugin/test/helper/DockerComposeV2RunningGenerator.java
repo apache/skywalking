@@ -28,6 +28,7 @@ import org.apache.skywalking.plugin.test.helper.vo.DockerService;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,7 +110,23 @@ public class DockerComposeV2RunningGenerator extends AbstractRunningGenerator {
 
     @Override
     public String runningScript(IConfiguration configuration) {
-        return String.format("docker-compose -f %s up", configuration.outputDir() + File.separator +
-                "docker-compose.yml");
+        String docker_compose_file = configuration.outputDir() + File.separator + "docker-compose.yml";
+
+        Map<String, Object> root = new HashMap<>();
+        root.put("scenario_name", configuration.scenarioName());
+        root.put("scenario_home", configuration.scenarioHome());
+        root.put("scenario_version", configuration.scenarioVersion());
+        root.put("docker_compose_file", docker_compose_file);
+        root.put("build_id", configuration.dockerImageVersion());
+        root.put("docker_container_name", configuration.dockerContainerName());
+        StringWriter out = null;
+
+        try {
+            out = new StringWriter();
+            cfg.getTemplate("compose-start-script.template").process(root, out);
+        } catch (Exception e) {
+            logger.error("Failed to generate running script.", e);
+        }
+        return out.toString();
     }
 }

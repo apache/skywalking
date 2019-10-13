@@ -107,9 +107,10 @@ public class ConfigurationImpl implements IConfiguration {
         return System.getProperty("docker.image.version", "latest");
     }
 
+
     @Override
     public String dockerContainerName() {
-        return scenarioName() + "-" + scenarioVersion() + "-" + Long.toHexString(System.nanoTime());
+        return scenarioName() + "-" + scenarioVersion() + "-" + dockerImageVersion();
     }
 
     @Override public String scenarioHome() {

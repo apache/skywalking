@@ -110,7 +110,7 @@ waitForAvailable() {
 do_cleanup() {
     docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
-    [[ -d ${home}/workspce ]] && rm -rf ${home}/workspace
+    [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
 
 start_stamp=`date +%s`
