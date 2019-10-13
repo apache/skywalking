@@ -35,71 +35,121 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Source Code') {
-            steps {
-                deleteDir()
-                checkout scm
-                sh 'git submodule update --init'
-            }
-        }
-
-        stage('Compile agent Codes') {
-            steps {
-                sh './mvnw -Pagent clean package -DskipTests'
-            }
-        }
-
-        stage('Compile plugin-test tools Codes') {
-            steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
-            }
-        }
-        stage('Run Agent Plugin Tests') {
+        stage("Distribution Agent Plugin Tests") {
             parallel {
-                stage('Group1') {
-                    stages {
-                        stage('httpclient 4.3.x-4.5.x (14)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
-                            }
+                stage ("Workload 1") {
+                    agent {
+                        label 'skywalking'
+                    }
+                    stage('Checkout Source Code') {
+                        steps {
+                            deleteDir()
+                            checkout scm
+                            sh 'git submodule update --init'
                         }
+                    }
 
-                        stage('ehcache 2.8.x-2.10.x (19)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
-                            }
+                    stage('Compile agent Codes') {
+                        steps {
+                            sh './mvnw -Pagent clean package -DskipTests'
                         }
+                    }
 
-                        stage('dubbo 2.5.x-2.6.x (10)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
-                            }
+                    stage('Compile plugin-test tools Codes') {
+                        steps {
+                            sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
                         }
+                    }
 
-                        stage('dubbo 2.7.x (4)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+                    stage ('Run Agent Plugin Tests') {
+                        parallel {
+                            stage('Group1') {
+                                stages {
+                                    stage('httpclient 4.3.x-4.5.x (14)') {
+                                        steps {
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
+                                        }
+                                    }
+
+                                    stage('ehcache 2.8.x-2.10.x (19)') {
+                                        steps {
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                                        }
+                                    }
+                                }
                             }
-                        }
-
-                        stage('spring async 4.3.x-5.1.x (35)'){
-                            steps{
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
+                            stage('Group2') {
+                                stages {
+                                    stage('jetty 9.x (63)') {
+                                        steps {
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                stage('Group2') {
-                    stages {
-                        stage('jetty 9.x (63)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                stage ("Workload 1") {
+                    agent {
+                        label 'skywalking'
+                    }
+                    stage('Checkout Source Code') {
+                        steps {
+                            deleteDir()
+                            checkout scm
+                            sh 'git submodule update --init'
+                        }
+                    }
+
+                    stage('Compile agent Codes') {
+                        steps {
+                            sh './mvnw -Pagent clean package -DskipTests'
+                        }
+                    }
+
+                    stage('Compile plugin-test tools Codes') {
+                        steps {
+                            sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
+                        }
+                    }
+                    stage ('Run Agent Plugin Tests') {
+                        parallel {
+                            stage ('Group1') {
+                                stages {
+                                    stage('dubbo 2.7.x (4)') {
+                                        steps {
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+                                        }
+                                    }
+
+                                    stage('spring async 4.3.x-5.1.x (35)'){
+                                        steps{
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
+                                        }
+                                    }
+                                }
+                            }
+                            stage ('Group2') {
+                                stages {
+                                    stage('dubbo 2.5.x-2.6.x (10)') {
+                                        steps {
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
+                                        }
+                                    }
+                                    stage('solrj 7.x (12)') {
+                                        steps {
+                                            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} solrj-7.x-scenario'
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
     }
 
     post {
