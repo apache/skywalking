@@ -39,7 +39,6 @@
                 <include>application.yml</include>
                 <include>alarm-settings.yml</include>
                 <include>alarm-settings-sample.yml</include>
-                <include>datasource-settings.properties</include>
                 <include>gateways.yml</include>
             </includes>
         </fileSet>

@@ -114,15 +114,9 @@
                                 </links>
                                 <volumes>
                                     <bind>
-                                        <volume>
-                                            ../../../../${e2e.dist.directory}/apache-skywalking-apm-bin:/sw
-                                        </volume>
-                                        <volume>
-                                            ${project.basedir}/src/docker/rc.d:/rc.d:ro
-                                        </volume>
-                                        <volume>
-                                            ${project.basedir}/src/docker/es_storage.awk:/es_storage.awk
-                                        </volume>
+                                        <volume>${sw.home}:/sw</volume>
+                                        <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
+                                        <volume>${project.basedir}/src/docker/es_storage.awk:/es_storage.awk</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
