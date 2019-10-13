@@ -1,0 +1,3 @@
+server:
+  port: 8080
+  contextPath: /solrj-scenario

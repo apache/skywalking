@@ -1,0 +1,148 @@
+registryItems:
+  applications:
+  - {solrj-scenario: nq 0}
+  instances:
+  - {solrj-scenario: nq 0}
+  operationNames:
+  - solrj-scenario: [/solrj-scenario/case/solrj, solrJ/mycore/update/COMMIT, solrJ/mycore/update/DELETE_BY_IDS,
+      solrJ/mycore/select, solrJ/mycore/update/DELETE_BY_QUERY, solrJ/mycore/get,
+      solrJ/mycore/update/OPTIMIZE, solrJ/mycore/update/ADD]
+  heartbeat: []
+segmentItems:
+- applicationCode: solrj-scenario
+  segmentSize: 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: solrJ/mycore/update/ADD
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: QTime, value: ge 0}
+    - operationName: solrJ/mycore/update/COMMIT
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: QTime, value: ge 0}
+    - operationName: solrJ/mycore/update/OPTIMIZE
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: QTime, value: gt 0}
+    - operationName: solrJ/mycore/select
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: start, value: ge 0}
+      - {key: qt, value: /select}
+      - {key: numFound, value: ge 0}
+    - operationName: solrJ/mycore/get
+      operationId: 0
+      parentSpanId: 0
+      spanId: 5
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: start, value: ge 0}
+      - {key: qt, value: /get}
+      - {key: numFound, value: ge 0}
+    - operationName: solrJ/mycore/update/DELETE_BY_IDS
+      operationId: 0
+      parentSpanId: 0
+      spanId: 6
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: QTime, value: ge 0}
+    - operationName: solrJ/mycore/update/DELETE_BY_QUERY
+      operationId: 0
+      parentSpanId: 0
+      spanId: 7
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 63
+      componentName: ''
+      isError: false
+      spanType: Exit
+      peer: solr-server:8983
+      peerId: 0
+      tags:
+      - {key: db.type, value: eq Solr}
+      - {key: QTime, value: gt 0}
+    - operationName: /solrj-scenario/case/solrj
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 14
+      componentName: ''
+      isError: false
+      spanType: Entry
+      peer: ''
+      peerId: 0
+      tags:
+      - {key: url, value: 'http://localhost:{SERVER_OUTPUT_PORT}/solrj-scenario/case/solrj'}
+      - {key: http.method, value: GET}
