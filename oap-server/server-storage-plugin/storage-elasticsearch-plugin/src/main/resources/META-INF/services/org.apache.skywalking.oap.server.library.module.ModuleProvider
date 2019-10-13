@@ -16,4 +16,5 @@
 #
 #
 
-org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider
+org.apache.skywalking.oap.server.storage.plugin.elasticsearch.v6.StorageModuleElasticsearch6Provider
+org.apache.skywalking.oap.server.storage.plugin.elasticsearch.v7.StorageModuleElasticsearch7Provider

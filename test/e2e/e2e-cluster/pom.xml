@@ -35,5 +35,6 @@
         <module>consumer</module>
         <module>gateway</module>
         <module>test-runner</module>
+        <module>test-runner-es7</module>
     </modules>
 </project>

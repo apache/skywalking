@@ -17,3 +17,4 @@
 #
 
 org.apache.skywalking.oap.server.storage.plugin.jaeger.elasticsearch.JaegerStorageModuleElasticsearchProvider
+org.apache.skywalking.oap.server.storage.plugin.jaeger.elasticsearch.JaegerStorageModuleElasticsearch7Provider

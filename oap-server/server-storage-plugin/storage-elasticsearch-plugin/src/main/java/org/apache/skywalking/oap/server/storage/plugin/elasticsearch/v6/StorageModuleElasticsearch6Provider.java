@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.v6;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -44,12 +44,13 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.client.impl.v6.ElasticSearch6Client;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsDAO;
@@ -73,12 +74,12 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.Elastic
 /**
  * @author peng-yongsheng
  */
-public class StorageModuleElasticsearchProvider extends ModuleProvider {
+public class StorageModuleElasticsearch6Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearchConfig config;
-    protected ElasticSearchClient elasticSearchClient;
+    protected ElasticSearch6Client elasticSearchClient;
 
-    public StorageModuleElasticsearchProvider() {
+    public StorageModuleElasticsearch6Provider() {
         super();
         this.config = new StorageModuleElasticsearchConfig();
     }
@@ -103,7 +104,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         if (!StringUtil.isEmpty(config.getNameSpace())) {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
-        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config.getTrustStorePass(), config.getNameSpace(), config.getUser(), config.getPassword());
+        elasticSearchClient = new ElasticSearch6Client(config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config.getTrustStorePass(), config.getNameSpace(), config.getUser(), config.getPassword());
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config.getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));

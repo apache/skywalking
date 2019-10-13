@@ -31,6 +31,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>e2e-ttl-es</module>
+        <module>e2e-ttl-es7</module>
     </modules>
 
 </project>

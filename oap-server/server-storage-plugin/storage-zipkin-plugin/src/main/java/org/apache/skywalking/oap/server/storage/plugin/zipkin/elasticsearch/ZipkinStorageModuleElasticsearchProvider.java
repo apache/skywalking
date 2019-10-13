@@ -22,13 +22,13 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.v6.StorageModuleElasticsearch6Provider;
 import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
  */
-public class ZipkinStorageModuleElasticsearchProvider extends StorageModuleElasticsearchProvider {
+public class ZipkinStorageModuleElasticsearchProvider extends StorageModuleElasticsearch6Provider {
 
     private static final Logger logger = LoggerFactory.getLogger(ZipkinStorageModuleElasticsearchProvider.class);
     private ZipkinTraceQueryEsDAO traceQueryEsDAO;

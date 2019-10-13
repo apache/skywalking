@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.*;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.client.impl.v6.ElasticSearch6Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.*;
@@ -108,9 +109,9 @@ public class StorageEsInstaller extends ModelInstaller {
 
     private JsonObject createMapping(Model model) {
         JsonObject mapping = new JsonObject();
-        mapping.add(ElasticSearchClient.TYPE, new JsonObject());
+        mapping.add(ElasticSearch6Client.TYPE, new JsonObject());
 
-        JsonObject type = mapping.get(ElasticSearchClient.TYPE).getAsJsonObject();
+        JsonObject type = mapping.get(ElasticSearch6Client.TYPE).getAsJsonObject();
 
         JsonObject properties = new JsonObject();
         type.add("properties", properties);

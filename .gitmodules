@@ -10,3 +10,6 @@
 [submodule "test/e2e/e2e-ttl/e2e-ttl-es/src/main/proto"]
 	path = test/e2e/e2e-ttl/e2e-ttl-es/src/main/proto
 	url = https://github.com/apache/skywalking-data-collect-protocol.git
+[submodule "test/e2e/e2e-ttl/e2e-ttl-es7/src/main/proto"]
+	path = test/e2e/e2e-ttl/e2e-ttl-es7/src/main/proto
+	url = https://github.com/apache/skywalking-data-collect-protocol.git

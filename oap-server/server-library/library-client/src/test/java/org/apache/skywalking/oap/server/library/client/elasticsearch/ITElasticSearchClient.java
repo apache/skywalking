@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.client.impl.v6.ElasticSearch6Client;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
@@ -70,7 +71,7 @@ public class ITElasticSearchClient {
     public void before() throws Exception {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
-        client = new ElasticSearchClient(esAddress, esProtocol, "", "", namespace, "test", "test");
+        client = new ElasticSearch6Client(esAddress, esProtocol, "", "", namespace, "test", "test");
         client.connect();
     }
 

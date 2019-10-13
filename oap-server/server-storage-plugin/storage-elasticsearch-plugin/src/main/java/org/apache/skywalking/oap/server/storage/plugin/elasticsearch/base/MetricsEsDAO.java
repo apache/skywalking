@@ -42,8 +42,9 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     @Override public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
         SearchResponse response = getClient().ids(model.getName(), ids.toArray(new String[0]));
 
-        List<Metrics> result = new ArrayList<>((int)response.getHits().totalHits);
-        for (int i = 0; i < response.getHits().totalHits; i++) {
+        int totalHits = response.getHits().getHits() == null ? 0 : response.getHits().getHits().length;
+        List<Metrics> result = new ArrayList<>(totalHits);
+        for (int i = 0; i < totalHits; i++) {
             Metrics source = storageBuilder.map2Data(response.getHits().getAt(i).getSourceAsMap());
             result.add(source);
         }

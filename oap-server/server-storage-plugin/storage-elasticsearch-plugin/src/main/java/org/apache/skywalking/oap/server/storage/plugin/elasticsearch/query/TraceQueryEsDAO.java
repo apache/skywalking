@@ -107,7 +107,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal((int)response.getHits().totalHits);
+        int totalHits = response.getHits().getHits() == null ? 0 : response.getHits().getHits().length;
+        traceBrief.setTotal(totalHits);
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();

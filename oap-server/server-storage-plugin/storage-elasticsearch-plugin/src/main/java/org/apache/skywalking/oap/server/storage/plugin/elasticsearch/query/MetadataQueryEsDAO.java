@@ -81,7 +81,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
-        return (int)response.getHits().getTotalHits();
+        return response.getHits().getHits() == null ? 0 : response.getHits().getHits().length;
     }
 
     @Override public int numOfEndpoint(long startTimestamp, long endTimestamp) throws IOException {
@@ -95,7 +95,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
-        return (int)response.getHits().getTotalHits();
+        return response.getHits().getHits() == null ? 0 : response.getHits().getHits().length;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
-        return (int)response.getHits().getTotalHits();
+        return response.getHits().getHits() == null ? 0 : response.getHits().getHits().length;
     }
 
     @Override
