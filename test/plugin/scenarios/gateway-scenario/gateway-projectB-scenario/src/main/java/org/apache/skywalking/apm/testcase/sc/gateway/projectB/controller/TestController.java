@@ -28,4 +28,9 @@ public class TestController {
         System.out.println(1);
         return "1";
     }
+
+    @RequestMapping("/healthCheck")
+    public String healthCheck() {
+        return "Success";
+    }
 }

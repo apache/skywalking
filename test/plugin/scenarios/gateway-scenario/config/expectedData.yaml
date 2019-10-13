@@ -22,8 +22,8 @@ registryItems:
     - {gateway-projectB-scenario: 1}
     - {gateway-projectA-scenario: 1}
   operationNames:
-    - gateway-projectB-scenario: [/provider/b/testcase]
-    - gateway-projectA-scenario: [org.apache.skywalking.apm.testcase.sc.gateway.projectA.TestController.ping, GATEWAY/provider_route]
+    - gateway-projectB-scenario: [/healthCheck, /provider/b/testcase]
+    - gateway-projectA-scenario: [GATEWAY/provider_route]
   heartbeat: []
 segmentItems:
   - applicationCode: gateway-projectB-scenario
