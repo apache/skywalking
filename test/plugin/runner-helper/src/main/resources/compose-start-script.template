@@ -28,5 +28,5 @@ docker wait ${container}
 docker logs ${container} 1>/dev/null
 
 docker-compose -p ${project_name} -f ${compose_file} kill
-docker-compose -p ${project_name} -f ${compose_file} rm
+docker-compose -p ${project_name} -f ${compose_file} rm -f
 </#noparse>
