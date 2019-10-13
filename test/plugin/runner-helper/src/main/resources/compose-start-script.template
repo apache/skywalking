@@ -23,12 +23,10 @@ docker_container_name="${docker_container_name}_1"
 container_name="${project_name}_${docker_container_name}"
 docker-compose -p ${project_name} -f ${compose_file} up -d
 
-for ((i=0; i<30; i++)); do
-    container=`docker ps -qf "name=${container_name}"`
-    [[ -z "${container}" ]] && break;
-    sleep 2
-done
+container=`docker ps -qf "name=${container_name}"`
+docker wait ${container}
+docker logs ${container} 1>/dev/null
 
-docker-compose -p ${project_name} kill
-docker-compose -p ${project_name} rm
+docker-compose -p ${project_name} -f ${compose_file} kill
+docker-compose -p ${project_name} -f ${compose_file} rm
 </#noparse>

@@ -35,10 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DockerComposeV2RunningGenerator extends AbstractRunningGenerator {
+public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
     private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
-    protected DockerComposeV2RunningGenerator() {
+    protected DockerComposeRunningGenerator() {
     }
 
     @Override
@@ -102,7 +102,9 @@ public class DockerComposeV2RunningGenerator extends AbstractRunningGenerator {
             service.setLinks(dependency.getDepends_on());
             service.setHostname(dependency.getHostname());
             service.setDepends_on(dependency.getDepends_on());
-            service.setEnvironments(dependency.getEnvironment());
+            service.setEntrypoint(dependency.getEntrypoint());
+            service.setHealthcheck(dependency.getHealthcheck());
+            service.setEnvironment(dependency.getEnvironment());
             services.add(service);
         });
         return services;

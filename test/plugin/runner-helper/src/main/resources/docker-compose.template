@@ -75,6 +75,12 @@ services:
             - ${item}
         </#list>
         </#if>
+        <#if service.entrypoint??>
+        entrypoint:
+        <#list service.entrypoint as item>
+            - ${item}
+        </#list>
+        </#if>
         <#if service.healthcheck??>
         healthcheck:
         <#list service.healthcheck as item>

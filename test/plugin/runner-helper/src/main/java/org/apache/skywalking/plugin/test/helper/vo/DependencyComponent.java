@@ -18,25 +18,16 @@ package org.apache.skywalking.plugin.test.helper.vo;
 
 import java.util.List;
 
-public class DependencyComponent implements DockerServiceReader {
+public class DependencyComponent {
     private String image;
     private String hostname;
     private String version;
     private List<String> links;
     private List<String> expose;
-    private List<String> volumes;
     private List<String> entrypoint;
     private List<String> environment;
     private List<String> depends_on;
     private List<String> healthcheck;
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
 
     public String getImage() {
         return image;
@@ -54,20 +45,12 @@ public class DependencyComponent implements DockerServiceReader {
         this.hostname = hostname;
     }
 
-    public List<String> getEnvironment() {
-        return environment;
+    public String getVersion() {
+        return version;
     }
 
-    public void setEnvironment(List<String> environment) {
-        this.environment = environment;
-    }
-
-    @Override public List<String> environment() {
-        return environment;
-    }
-
-    @Override public String image() {
-        return hostname;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public List<String> getLinks() {
@@ -94,12 +77,12 @@ public class DependencyComponent implements DockerServiceReader {
         this.entrypoint = entrypoint;
     }
 
-    public List<String> getVolumes() {
-        return volumes;
+    public List<String> getEnvironment() {
+        return environment;
     }
 
-    public void setVolumes(List<String> volumes) {
-        this.volumes = volumes;
+    public void setEnvironment(List<String> environment) {
+        this.environment = environment;
     }
 
     public List<String> getDepends_on() {

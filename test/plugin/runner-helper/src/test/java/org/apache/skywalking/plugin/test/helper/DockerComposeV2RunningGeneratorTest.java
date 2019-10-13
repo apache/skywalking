@@ -28,7 +28,7 @@ import java.io.FileNotFoundException;
 import static org.junit.Assert.assertTrue;
 
 public class DockerComposeV2RunningGeneratorTest {
-    private DockerComposeV2RunningGenerator dockerComposeRunningGenerator;
+    private DockerComposeRunningGenerator dockerComposeRunningGenerator;
 
     private IConfiguration configuration;
 
@@ -36,7 +36,7 @@ public class DockerComposeV2RunningGeneratorTest {
 
     @Before
     public void setUp() throws FileNotFoundException, ConfigureFileNotFoundException {
-        dockerComposeRunningGenerator = new DockerComposeV2RunningGenerator();
+        dockerComposeRunningGenerator = new DockerComposeRunningGenerator();
 
         System.setProperty("configure.file", TARGET_DIR + "configuration-test.yml");
         System.setProperty("scenario.home", "/solrj-scenario");

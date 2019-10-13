@@ -19,7 +19,6 @@ package org.apache.skywalking.plugin.test.helper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.UUID;
 
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.util.StringUtils;
@@ -54,7 +53,7 @@ public class ConfigurationImpl implements IConfiguration {
     @Override public ScenarioRunningScriptGenerator scenarioGenerator() {
         switch (runningType()) {
             case DockerCompose:
-                return new DockerComposeV2RunningGenerator();
+                return new DockerComposeRunningGenerator();
             case Container:
                 return new DockerContainerRunningGenerator();
             default:
