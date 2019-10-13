@@ -32,7 +32,7 @@ public class CaseIConfigurationTest {
 
     @Before
     public void setUp() {
-        configurationFile = CaseIConfigurationTest.class.getResourceAsStream("/configuration-test.yml.bk");
+        configurationFile = CaseIConfigurationTest.class.getResourceAsStream("/configuration-test.yml");
         assertNotNull(configurationFile);
     }
 
@@ -42,8 +42,7 @@ public class CaseIConfigurationTest {
         CaseConfiguration caseConfiguration = yaml.loadAs(configurationFile, CaseConfiguration.class);
         assertNotNull(caseConfiguration);
 
-//        assertThat(caseConfiguration.getVersion(), is("4.0.3"));
-        assertThat(caseConfiguration.getFramework(), is("httpclient"));
+        assertThat(caseConfiguration.getFramework(), is("solrj"));
         assertThat(caseConfiguration.getDependencies().size(), is(1));
     }
 }
