@@ -30,5 +30,4 @@
     <modules>
         <module>query-graphql-plugin</module>
     </modules>
-
 </project>

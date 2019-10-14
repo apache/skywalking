@@ -77,6 +77,7 @@ generateClusterNacos() {
 cluster:
   nacos:
     serviceName: \${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    namespace: \${SW_CLUSTER_NACOS_NAMESPACE:""}
     hostPort: \${SW_CLUSTER_NACOS_HOST_PORT:nacos:8848}
 EOT
 }
@@ -135,7 +136,15 @@ generateStorageMySQL() {
     cat <<EOT >> ${var_application_file}
 storage:
   mysql:
-    metadataQueryMaxSize: \${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+    properties:
+        jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+        dataSource.user: ${SW_DATA_SOURCE_USER:root}
+        dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+        dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+        dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+        dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+        dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: \${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 EOT
 }
 
@@ -163,15 +172,17 @@ generateConfigurationNacos() {
 configuration:
   nacos:
     # Nacos Server Host
-    serverAddr: \${SW_CONFIGURATION_NACO_SERVER_ADDR:naco}
+    serverAddr: \${SW_CONFIGURATION_NACOS_SERVER_ADDR:nacos}
     # Nacos Server Port
-    port: \${SW_CONFIGURATION_NACO_PORT:8848}
+    port: \${SW_CONFIGURATION_NACOS_PORT:8848}
     # Nacos Configuration Group
-    group: \${SW_CONFIGURATION_NACO_GROUP:skywalking}
+    group: \${SW_CONFIGURATION_NACOS_GROUP:skywalking}
+    # Nacos Configuration namespace
+    namespace: \${SW_CONFIGURATION_NACOS_NAMESPACE:""}
     # Unit seconds, sync period. Default fetch every 60 seconds.
-    period : \${SW_CONFIGURATION_NACO_PERIOD:5}
+    period : \${SW_CONFIGURATION_NACOS_PERIOD:5}
     # the name of current cluster, set the name if you want to upstream system known.
-    clusterName: \${SW_CONFIGURATION_NACO_CLUSTER_NAME:default}
+    clusterName: \${SW_CONFIGURATION_NACOS_CLUSTER_NAME:default}
 EOT
 }
 

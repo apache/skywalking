@@ -492,7 +492,10 @@
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <failsOnError>true</failsOnError>
-                    <includes>org/apache/skywalking/**/*.java</includes>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
                     <resourceIncludes>
                         **/*.properties,
                         **/*.sh,
