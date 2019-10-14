@@ -87,6 +87,12 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
                             }
                         }
+
+                        stage('netty-socketio 1.x') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} netty-socketio-scenario'
+                            }
+                        }
                     }
                 }
                 stage('Group2') {
