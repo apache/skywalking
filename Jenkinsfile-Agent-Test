@@ -58,12 +58,6 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
-                        stage('spring-cloud-gateway 2.1.x (3)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} gateway-scenario'
-                            }
-                        }
-
                         stage('httpclient 4.3.x-4.5.x (14)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
