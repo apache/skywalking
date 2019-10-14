@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -29,6 +25,11 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
@@ -61,21 +62,25 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                     if (providerConfig.size() > 0) {
                         logger.info("Get a module define from application.yml, module name: {}", moduleName);
                         ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
-                        providerConfig.forEach((name, propertiesConfig) -> {
-                            logger.info("Get a provider define belong to {} module, provider name: {}", moduleName, name);
+                        providerConfig.forEach((providerName, propertiesConfig) -> {
+                            logger.info("Get a provider define belong to {} module, provider name: {}", moduleName, providerName);
                             Properties properties = new Properties();
                             if (propertiesConfig != null) {
-                                propertiesConfig.forEach((key, value) -> {
-                                    properties.put(key, value);
-                                    final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE
-                                        .replacePlaceholders(value + "", properties));
-                                    if (replaceValue != null) {
-                                        properties.replace(key, replaceValue);
+                                propertiesConfig.forEach((propertyName, propertyValue) -> {
+                                    if (propertyValue instanceof Map) {
+                                        Properties subProperties = new Properties();
+                                        ((Map) propertyValue).forEach((key, value) -> {
+                                            subProperties.put(key, value);
+                                            replacePropertyAndLog(key, value, subProperties, providerName);
+                                        });
+                                        properties.put(propertyName, subProperties);
+                                    } else {
+                                        properties.put(propertyName, propertyValue);
+                                        replacePropertyAndLog(propertyName, propertyValue, properties, providerName);
                                     }
-                                    logger.info("The property with key: {}, value: {}, in {} provider", key, replaceValue.toString(), name);
                                 });
                             }
-                            moduleConfiguration.addProviderConfiguration(name, properties);
+                            moduleConfiguration.addProviderConfiguration(providerName, properties);
                         });
                     } else {
                         logger.warn("Get a module define from application.yml, but no provider define, use default, module name: {}", moduleName);
@@ -84,6 +89,14 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             }
         } catch (FileNotFoundException e) {
             throw new ConfigFileNotFoundException(e.getMessage(), e);
+        }
+    }
+    
+    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target, final Object providerName) {
+        final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(propertyValue + "", target));
+        if (replaceValue != null) {
+            target.replace(propertyName, replaceValue);
+            logger.info("The property with key: {}, value: {}, in {} provider", propertyName, replaceValue.toString(), providerName);
         }
     }
 
