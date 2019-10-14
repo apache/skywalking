@@ -99,7 +99,7 @@ pipeline {
                     stages {
                         stage('jetty 9.x (63)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=test_201910121736 jetty-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
                             }
                         }
                     }
