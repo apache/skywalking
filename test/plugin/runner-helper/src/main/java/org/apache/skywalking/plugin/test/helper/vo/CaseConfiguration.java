@@ -30,6 +30,7 @@ public class CaseConfiguration {
     private List<String> environment;
     private List<String> expose;
     private List<String> depends_on;
+    private String runningMode;
 
     public String getType() {
         return type;
@@ -109,5 +110,13 @@ public class CaseConfiguration {
 
     public void setDepends_on(List<String> depends_on) {
         this.depends_on = depends_on;
+    }
+
+    public String getRunningMode() {
+        return runningMode;
+    }
+
+    public void setRunningMode(String runningMode) {
+        this.runningMode = runningMode;
     }
 }
