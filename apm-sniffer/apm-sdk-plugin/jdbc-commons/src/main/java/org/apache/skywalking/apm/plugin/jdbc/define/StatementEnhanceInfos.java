@@ -73,6 +73,22 @@ public class StatementEnhanceInfos {
         parameters[index] = parameter;
     }
 
+    public String getFullSql() {
+        StringBuilder resultSql = new StringBuilder();
+        int index = 0;
+        int startPos = 0;
+        int findPos = 0;
+        while ((findPos = sql.indexOf("?", startPos)) > 0) {
+            resultSql.append(sql.substring(startPos, findPos));
+            resultSql.append("'");
+            resultSql.append(parameters[index++]);
+            resultSql.append("'");
+            startPos = findPos + 1;
+        }
+        resultSql.append(sql.substring(startPos));
+        return resultSql.toString();
+    }
+
     public Object[] getParameters() {
         return parameters;
     }

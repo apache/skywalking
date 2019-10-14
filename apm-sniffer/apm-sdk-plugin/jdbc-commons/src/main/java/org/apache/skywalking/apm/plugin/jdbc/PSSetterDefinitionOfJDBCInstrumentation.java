@@ -52,6 +52,13 @@ public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsI
             }
         }
 
+        if (Config.Plugin.PostgreSQL.TRACE_SQL_PARAMETERS) {
+            final Set<String> setters = ignorable ? PS_IGNORABLE_SETTERS : PS_SETTERS;
+            for (String setter : setters) {
+                matcher = matcher.or(named(setter));
+            }
+        }
+
         return matcher;
     }
 

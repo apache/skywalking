@@ -45,7 +45,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
-        Tags.DB_STATEMENT.set(span, cacheObject.getSql());
+        Tags.DB_STATEMENT.set(span, cacheObject.getFullSql());
         span.setComponent(connectInfo.getComponent());
 
         SpanLayer.asDB(span);
