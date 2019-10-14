@@ -31,6 +31,7 @@ function exitAndClean() {
 
 function healthCheck() {
     HEALTH_CHECK_URL=$1
+    STATUS_CODE="-1"
 
     for ((i=1; i<=30; i++));
     do
@@ -42,7 +43,7 @@ function healthCheck() {
         sleep 2
     done
 
-    exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION} health check failed!"
+    exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION} url=${HEALTH_CHECK_URL}, status=${STATUS_CODE} health check failed!"
 }
 
 if [[ -z "${SCENARIO_START_SCRIPT}" ]]; then

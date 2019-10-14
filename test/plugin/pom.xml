@@ -31,7 +31,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>runner</module>
+        <module>runner-helper</module>
         <module>validator</module>
         <module>mock-collector</module>
         <module>containers</module>
