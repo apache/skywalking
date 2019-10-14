@@ -91,12 +91,8 @@
                                 </ports>
                                 <volumes>
                                     <bind>
-                                        <volume>
-                                            ${project.basedir}/../../../dist-for-single-node-service/apache-skywalking-apm-bin:/skywalking
-                                        </volume>
-                                        <volume>
-                                            ${project.build.directory}:/home
-                                        </volume>
+                                        <volume>${sw.home}:/skywalking</volume>
+                                        <volume>${project.build.directory}:/home</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
