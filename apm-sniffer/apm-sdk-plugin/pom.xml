@@ -79,6 +79,7 @@
         <module>ehcache-2.x-plugin</module>
         <module>pulsar-plugin</module>
         <module>ehcache-2.x-plugin</module>
+        <module>netty-socketio-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
