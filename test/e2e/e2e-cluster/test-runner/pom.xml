@@ -159,9 +159,7 @@
                                 </links>
                                 <volumes>
                                     <bind>
-                                        <volume>
-                                            ../../../../dist-for-cluster/apache-skywalking-apm-bin:/sw
-                                        </volume>
+                                        <volume>${sw.home}:/sw</volume>
                                         <volume>
                                             ../${gateway.name}/target/${gateway.name}-${project.version}.jar:/home/${gateway.name}-${project.version}.jar
                                         </volume>
