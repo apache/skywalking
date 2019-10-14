@@ -16,6 +16,6 @@
 
 type: jvm
 entryService: http://localhost:8080/provider/b/testcase
-healthCheck: http://localhost:18070/healthCheck
+healthCheck: http://localhost:8080/provider/b/healthCheck
 startScript: ./bin/startup.sh
 framework: spring-cloud-gateway

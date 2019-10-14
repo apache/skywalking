@@ -29,7 +29,7 @@ public class TestController {
         return "1";
     }
 
-    @RequestMapping("/healthCheck")
+    @RequestMapping("/provider/b/healthCheck")
     public String healthCheck() {
         return "Success";
     }

@@ -22,7 +22,7 @@ registryItems:
     - {gateway-projectB-scenario: 1}
     - {gateway-projectA-scenario: 1}
   operationNames:
-    - gateway-projectB-scenario: [/healthCheck, /provider/b/testcase]
+    - gateway-projectB-scenario: [/provider/b/healthCheck, /provider/b/testcase]
     - gateway-projectA-scenario: [GATEWAY/provider_route]
   heartbeat: []
 segmentItems:
