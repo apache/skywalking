@@ -110,7 +110,7 @@ waitForAvailable() {
 do_cleanup() {
     docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
-    [[ -d ${home}/workspce ]] && rm -rf ${home}/workspace
+    [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
 
 start_stamp=`date +%s`
@@ -132,9 +132,9 @@ task_state_house="${workspace}/.states"
 [[ -d ${workspace} ]] && rm -rf $workspace
 mkdir -p ${task_state_house}
 
-plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
-if [[ ! -f ${plugin_autotest_helper} ]]; then
-    exitWithMessage "Plugin autotest tools not exists, Please re-try it with '-f'"
+plugin_runner_helper="${home}/dist/plugin-runner-helper.jar"
+if [[ ! -f ${plugin_runner_helper} ]]; then
+    exitWithMessage "Plugin Runner tools not exists, Please re-try it with '-f'"
     print_helper
 fi
 
@@ -174,7 +174,7 @@ do
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${agent_home} \
         -Ddocker.image.version=${build_id} \
-        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 
+        ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
