@@ -107,12 +107,6 @@ pipeline {
             }
         }
 
-        stage('ehcache 2.8.x-2.10.x') {
-            steps {
-                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
-            }
-        }
-
     }
 
     post {
