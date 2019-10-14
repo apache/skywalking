@@ -316,10 +316,10 @@ EOT
     cat <<EOT >> ${var_application_file}
 receiver-sharing-server:
   default:
-   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.O}
+   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
    restPort: \${SW_RECEIVER_SHARING_REST_PORT:0}
    restContextPath: \${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
-   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.O}
+   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.0}
    gRPCPort: \${SW_RECEIVER_SHARING_GRPC_PORT:0}
    maxConcurrentCallsPerConnection: \${SW_RECEIVER_SHARING_MAX_CONCURRENT_CALL:0}
    maxMessageSize: \${SW_RECEIVER_SHARING_MAX_MESSAGE_SIZE:0}
