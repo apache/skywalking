@@ -97,7 +97,7 @@ pipeline {
     }
 
     post {
-        always {
+        cleanup {
             // "Abort old build on update" will interrupt the job completely,
             // we need to clean up when there are containers started by the e2e tests
             sh 'docker ps'
