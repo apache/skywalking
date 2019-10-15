@@ -29,6 +29,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.ImmutableList;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -128,7 +130,7 @@ public class RemoteClientManager implements Service {
     private void printRemoteClientList() {
         if (logger.isDebugEnabled()) {
             StringBuilder addresses = new StringBuilder();
-            getRemoteClient().forEach(client -> addresses.append(client.getAddress().toString()).append(","));
+            this.usingClients.forEach(client -> addresses.append(client.getAddress().toString()).append(","));
             logger.debug("Remote client list: {}", addresses);
         }
     }
@@ -154,7 +156,7 @@ public class RemoteClientManager implements Service {
     }
 
     public List<RemoteClient> getRemoteClient() {
-        return usingClients;
+        return ImmutableList.copyOf(usingClients);
     }
 
     private List<RemoteClient> getFreeClients() {
@@ -185,10 +187,10 @@ public class RemoteClientManager implements Service {
         getFreeClients().clear();
 
         Map<Address, RemoteClient> remoteClients = new HashMap<>();
-        getRemoteClient().forEach(client -> remoteClients.put(client.getAddress(), client));
+        this.usingClients.forEach(client -> remoteClients.put(client.getAddress(), client));
 
         Map<Address, Action> tempRemoteClients = new HashMap<>();
-        getRemoteClient().forEach(client -> tempRemoteClients.put(client.getAddress(), Action.Close));
+        this.usingClients.forEach(client -> tempRemoteClients.put(client.getAddress(), Action.Close));
 
         remoteInstances.forEach(remoteInstance -> {
             if (tempRemoteClients.containsKey(remoteInstance.getAddress())) {
