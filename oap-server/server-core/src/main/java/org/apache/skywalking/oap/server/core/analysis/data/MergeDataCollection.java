@@ -36,7 +36,7 @@ public class MergeDataCollection<STREAM_DATA extends StreamData> implements SWCo
         this.reading = false;
     }
 
-    public void finishWriting() {
+    @Override public void finishWriting() {
         writing = false;
     }
 

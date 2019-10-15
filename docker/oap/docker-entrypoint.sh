@@ -136,7 +136,15 @@ generateStorageMySQL() {
     cat <<EOT >> ${var_application_file}
 storage:
   mysql:
-    metadataQueryMaxSize: \${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+    properties:
+        jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+        dataSource.user: ${SW_DATA_SOURCE_USER:root}
+        dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+        dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+        dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+        dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+        dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: \${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 EOT
 }
 
@@ -308,10 +316,10 @@ EOT
     cat <<EOT >> ${var_application_file}
 receiver-sharing-server:
   default:
-   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.O}
+   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
    restPort: \${SW_RECEIVER_SHARING_REST_PORT:0}
    restContextPath: \${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
-   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.O}
+   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.0}
    gRPCPort: \${SW_RECEIVER_SHARING_GRPC_PORT:0}
    maxConcurrentCallsPerConnection: \${SW_RECEIVER_SHARING_MAX_CONCURRENT_CALL:0}
    maxMessageSize: \${SW_RECEIVER_SHARING_MAX_MESSAGE_SIZE:0}

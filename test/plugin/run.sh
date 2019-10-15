@@ -21,6 +21,7 @@ scenario_name=""
 parallel_run_size=1
 force_build="off"
 build_id="latest"
+cleanup="off"
 
 mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
@@ -32,6 +33,7 @@ print_help() {
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
     echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
+    echo -e "\t--cleanup, \t\t\t remove the related images and directories"
 }
 
 parse_commandline() {
@@ -42,6 +44,10 @@ parse_commandline() {
         case "$_key" in
             -f|--force_build)
                 force_build="on"
+                shift
+                ;;
+            --cleanup)
+                cleanup="on"
                 shift
                 ;;
             --build_id)
@@ -82,10 +88,6 @@ exitWithMessage() {
 }
 
 exitAndClean() {
-    if [[ "${build_id}" =~ "latest" ]]; then
-        docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
-    fi
-
     elapsed=$(( `date +%s` - $start_stamp ))
     num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
     printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
@@ -105,8 +107,19 @@ waitForAvailable() {
     fi
 }
 
-start_stamp=`date +%s` ### start
+do_cleanup() {
+    docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
+    [[ -d ${home}/dist ]] && rm -rf ${home}/dist
+    [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
+}
+
+start_stamp=`date +%s`
 parse_commandline "$@"
+
+if [[ "$cleanup" == "on" ]]; then
+    do_cleanup
+    exit 0
+fi
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
@@ -119,9 +132,9 @@ task_state_house="${workspace}/.states"
 [[ -d ${workspace} ]] && rm -rf $workspace
 mkdir -p ${task_state_house}
 
-plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
-if [[ ! -f ${plugin_autotest_helper} ]]; then
-    exitWithMessage "Plugin autotest tools not exists, Please re-try it with '-f'"
+plugin_runner_helper="${home}/dist/plugin-runner-helper.jar"
+if [[ ! -f ${plugin_runner_helper} ]]; then
+    exitWithMessage "Plugin Runner tools not exists, Please re-try it with '-f'"
     print_helper
 fi
 
@@ -131,6 +144,26 @@ scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
     exitWithMessage "cannot found 'support-version.list' in directory ${scenario_name}"
+fi
+
+_agent_home=${agent_home}
+mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/\s//g" |awk -F: '{print $2}'`
+if [[ "$mode" == "with_optional" ]]; then
+    agent_with_optional_home=${home}/workspace/agent_with_optional
+    if [[ ! -d ${agent_with_optional_home} ]]; then
+        mkdir -p ${agent_with_optional_home}
+        cp -r ${agent_home}/* ${agent_with_optional_home}
+        mv ${agent_with_optional_home}/optional-plugins/* ${agent_with_optional_home}/plugins/
+    fi
+    _agent_home=${agent_with_optional_home}
+elif [[ "$mode" == "with_bootstrap" ]]; then
+    agent_with_bootstrap_home=${home}/workspace/agent_with_bootstrap
+    if [[ ! -d ${agent_with_bootstrap_home} ]]; then
+        mkdir -p ${agent_with_bootstrap_home}
+        cp -r ${agent_home}/* ${agent_with_bootstrap_home}
+        mv ${agent_with_bootstrap_home}/bootstrap-plugins/* ${agent_with_bootstrap_home}/plugins/
+    fi
+    _agent_home=${agent_with_bootstrap_home}
 fi
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
@@ -149,9 +182,8 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -Dtest.framework.version=${version}
-
-    mv ./target/${scenario_name}.war ${case_work_base}
+    ${mvnw} clean package -Dtest.framework.version=${version} && \
+        mv ./target/${scenario_name}.* ${case_work_base}
 
     java -jar \
         -Xmx256m -Xms256m \
@@ -160,9 +192,9 @@ do
         -Dscenario.name=${scenario_name} \
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
-        -Dagent.dir=${agent_home} \
+        -Dagent.dir=${_agent_home} \
         -Ddocker.image.version=${build_id} \
-        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 
+        ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
