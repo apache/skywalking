@@ -146,7 +146,7 @@ public class RemoteClientManagerTestCase {
         this.refresh(); //guarantee has any client in clientManager
 
         CyclicBarrier cyclicBarrier = new CyclicBarrier(3, () -> {
-            log.debug("finish test");
+            log.debug("begin concurrency test");
         });
 
         final ExecutorService executorService = Executors.newFixedThreadPool(3);
