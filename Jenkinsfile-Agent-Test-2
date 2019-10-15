@@ -58,6 +58,12 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
+                        stage('spring-cloud-gateway 2.1.x (3)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} gateway-scenario'
+                            }
+                        }
+
                         stage('dubbo 2.5.x-2.6.x (10)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.5.x-scenario'
