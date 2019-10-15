@@ -18,18 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -41,6 +34,17 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
@@ -74,7 +78,7 @@ public class RemoteClientManager implements Service {
     }
 
     public void start() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::refresh, 1, 5, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::refresh, 1, 5, TimeUnit.SECONDS);
     }
 
     /**
@@ -182,29 +186,27 @@ public class RemoteClientManager implements Service {
      *
      * @param remoteInstances Remote instance collection by query cluster config.
      */
-    private synchronized void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
-        getFreeClients().clear();
+    private void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
+        final Map<Address, RemoteClientAction> closeRemoteClient = this.usingClients.stream()
+                .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
 
-        Map<Address, RemoteClient> remoteClients = new HashMap<>();
-        this.usingClients.forEach(client -> remoteClients.put(client.getAddress(), client));
+        final Map<Address, RemoteClientAction> createRemoteClient = remoteInstances.stream()
+                .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
 
-        Map<Address, Action> tempRemoteClients = new HashMap<>();
-        this.usingClients.forEach(client -> tempRemoteClients.put(client.getAddress(), Action.Close));
+        final Set<Address> unChangeAddresses = Sets.intersection(closeRemoteClient.keySet(), createRemoteClient.entrySet());
 
-        remoteInstances.forEach(remoteInstance -> {
-            if (tempRemoteClients.containsKey(remoteInstance.getAddress())) {
-                tempRemoteClients.put(remoteInstance.getAddress(), Action.Leave);
-            } else {
-                tempRemoteClients.put(remoteInstance.getAddress(), Action.Create);
-            }
-        });
+        unChangeAddresses.stream()
+                .filter(closeRemoteClient::containsKey)
+                .forEach(unChangeAddress->closeRemoteClient.get(unChangeAddress).setAction(Action.Unchanged));
 
-        tempRemoteClients.forEach((address, action) -> {
-            switch (action) {
-                case Leave:
-                    if (remoteClients.containsKey(address)) {
-                        getFreeClients().add(remoteClients.get(address));
-                    }
+        unChangeAddresses.forEach(createRemoteClient::remove);
+        closeRemoteClient.putAll(createRemoteClient);
+
+        getFreeClients().clear(); //clean free client list, for build a new list
+        closeRemoteClient.forEach((address, clientAction) -> {
+            switch (clientAction.getAction()) {
+                case Unchanged:
+                    getFreeClients().add(clientAction.getRemoteClient());
                     break;
                 case Create:
                     if (address.isSelf()) {
@@ -219,16 +221,14 @@ public class RemoteClientManager implements Service {
             }
         });
 
+        //for stable ordering for rolling selector
         Collections.sort(getFreeClients());
         switchCurrentClients();
 
-        tempRemoteClients.forEach((address, action) -> {
-            if (Action.Close.equals(action) && remoteClients.containsKey(address)) {
-                remoteClients.get(address).close();
-            }
-        });
-
-        getFreeClients().clear();
+        closeRemoteClient.values()
+                .stream()
+                .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
+                .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
     }
 
     private boolean compare(List<RemoteInstance> remoteInstances) {
@@ -245,6 +245,15 @@ public class RemoteClientManager implements Service {
     }
 
     enum Action {
-        Close, Leave, Create
+        Close, Unchanged, Create
+    }
+
+    @Getter
+    @AllArgsConstructor
+    static private class RemoteClientAction {
+        private RemoteClient remoteClient;
+
+        @Setter
+        private Action action;
     }
 }
