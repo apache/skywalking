@@ -27,7 +27,6 @@ mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
 scenarios_home="${home}/scenarios"
 
-
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
@@ -80,9 +79,6 @@ parse_commandline() {
     done
 }
 
-
-
-
 exitWithMessage() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
     exitAndClean 1
@@ -117,12 +113,12 @@ do_cleanup() {
 start_stamp=`date +%s`
 parse_commandline "$@"
 
-test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
-
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
     exit 0
 fi
+
+test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
