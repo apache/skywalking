@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.verification.AtLeast;
 
 import java.util.ArrayList;
@@ -159,7 +158,7 @@ public class RemoteClientManagerTestCase {
             }
         });
 
-        final Future<?> getRemoteClientFuture1 = executorService.submit(() -> {
+        executorService.submit(() -> {
             try {
                 int i = 0;
                 cyclicBarrier.await();
@@ -172,22 +171,31 @@ public class RemoteClientManagerTestCase {
             }
         });
 
-        final Future<?> getRemoteClientFuture2 = executorService.submit(() -> {
-            try {
-                int i = 0;
-                cyclicBarrier.await();
-                while (!refreshFuture.isDone()) {
-                    Assert.assertFalse(this.clientManager.getRemoteClient().isEmpty());
-                    log.debug("thread {} invoke {} times", Thread.currentThread().getName(), i++);
-                }
-            } catch (InterruptedException | BrokenBarrierException e) {
-                e.printStackTrace();
+        try {
+            int i = 0;
+            cyclicBarrier.await();
+            while (!refreshFuture.isDone()) {
+                Assert.assertFalse(this.clientManager.getRemoteClient().isEmpty());
+                log.debug("thread {} invoke {} times", Thread.currentThread().getName(), i++);
             }
-        });
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+        }
 
-        getRemoteClientFuture1.get();
-        getRemoteClientFuture2.get();
+        verify(this.clientManager, new AtLeast(2)).getRemoteClient();
+    }
 
-        Mockito.verify(this.clientManager, new AtLeast(2)).getRemoteClient();
+    @Test
+    public void testGetRemoteClientAndNeverChange() {
+        when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
+        this.clientManager.refresh();
+        final List<RemoteClient> gotGroupOneInstances = this.clientManager.getRemoteClient();
+
+        when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupTwoInstances());
+        this.clientManager.refresh();
+        final List<RemoteClient> gotGroupTwoInstances = this.clientManager.getRemoteClient();
+
+        Assert.assertEquals(gotGroupOneInstances.size(), groupOneInstances().size());
+        Assert.assertEquals(gotGroupTwoInstances.size(), groupTwoInstances().size());
     }
 }

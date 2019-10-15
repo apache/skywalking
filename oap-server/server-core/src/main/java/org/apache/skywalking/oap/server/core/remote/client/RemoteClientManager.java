@@ -58,8 +58,6 @@ public class RemoteClientManager implements Service {
 
     private final ModuleDefineHolder moduleDefineHolder;
     private ClusterNodesQuery clusterNodesQuery;
-    private final List<RemoteClient> clientsA;
-    private final List<RemoteClient> clientsB;
     private volatile List<RemoteClient> usingClients;
     private GaugeMetrics gauge;
     private int remoteTimeout;
@@ -71,9 +69,7 @@ public class RemoteClientManager implements Service {
      */
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
         this.moduleDefineHolder = moduleDefineHolder;
-        this.clientsA = new LinkedList<>();
-        this.clientsB = new LinkedList<>();
-        this.usingClients = clientsA;
+        this.usingClients = ImmutableList.of();
         this.remoteTimeout = remoteTimeout;
     }
 
@@ -159,23 +155,7 @@ public class RemoteClientManager implements Service {
     }
 
     public List<RemoteClient> getRemoteClient() {
-        return ImmutableList.copyOf(usingClients);
-    }
-
-    private List<RemoteClient> getFreeClients() {
-        if (usingClients.equals(clientsA)) {
-            return clientsB;
-        } else {
-            return clientsA;
-        }
-    }
-
-    private void switchCurrentClients() {
-        if (usingClients.equals(clientsA)) {
-            usingClients = clientsB;
-        } else {
-            usingClients = clientsA;
-        }
+        return usingClients;
     }
 
     /**
@@ -202,28 +182,28 @@ public class RemoteClientManager implements Service {
         unChangeAddresses.forEach(createRemoteClient::remove);
         closeRemoteClient.putAll(createRemoteClient);
 
-        getFreeClients().clear(); //clean free client list, for build a new list
+        final List<RemoteClient> newRemoteClients = new LinkedList<>();
         closeRemoteClient.forEach((address, clientAction) -> {
             switch (clientAction.getAction()) {
                 case Unchanged:
-                    getFreeClients().add(clientAction.getRemoteClient());
+                    newRemoteClients.add(clientAction.getRemoteClient());
                     break;
                 case Create:
                     if (address.isSelf()) {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
-                        getFreeClients().add(client);
+                        newRemoteClients.add(client);
                     } else {
                         RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout);
                         client.connect();
-                        getFreeClients().add(client);
+                        newRemoteClients.add(client);
                     }
                     break;
             }
         });
 
         //for stable ordering for rolling selector
-        Collections.sort(getFreeClients());
-        switchCurrentClients();
+        Collections.sort(newRemoteClients);
+        this.usingClients = ImmutableList.copyOf(newRemoteClients);
 
         closeRemoteClient.values()
                 .stream()
