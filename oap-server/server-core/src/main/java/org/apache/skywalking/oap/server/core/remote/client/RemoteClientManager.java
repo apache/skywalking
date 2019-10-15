@@ -197,7 +197,7 @@ public class RemoteClientManager implements Service {
 
         unChangeAddresses.stream()
                 .filter(closeRemoteClient::containsKey)
-                .forEach(unChangeAddress->closeRemoteClient.get(unChangeAddress).setAction(Action.Unchanged));
+                .forEach(unChangeAddress -> closeRemoteClient.get(unChangeAddress).setAction(Action.Unchanged));
 
         unChangeAddresses.forEach(createRemoteClient::remove);
         closeRemoteClient.putAll(createRemoteClient);
