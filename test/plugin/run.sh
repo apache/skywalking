@@ -29,7 +29,7 @@ scenarios_home="${home}/scenarios"
 
 
 print_help() {
-    echo  "Usage: run.sh [OPTION] SCENARIO [SCENARIO]"
+    echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
     echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
@@ -44,11 +44,9 @@ parse_commandline() {
         case "$_key" in
             -f|--force_build)
                 force_build="on"
-                shift
                 ;;
             --cleanup)
                 cleanup="on"
-                shift
                 ;;
             --build_id)
                 test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
@@ -82,6 +80,9 @@ parse_commandline() {
     done
 }
 
+
+
+
 exitWithMessage() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
     exitAndClean 1
@@ -113,8 +114,17 @@ do_cleanup() {
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
 
+check_scenario_name_param() {
+    if test -z "$scenario_name"; then
+        echo "Missing value for the scenario argument"
+        exit 0
+    fi
+}
+
 start_stamp=`date +%s`
 parse_commandline "$@"
+check_scenario_name_param()
+
 
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
@@ -140,6 +150,7 @@ fi
 
 echo "start submit job"
 scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
+
 
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
