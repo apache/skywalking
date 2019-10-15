@@ -197,5 +197,6 @@ public class RemoteClientManagerTestCase {
 
         Assert.assertEquals(gotGroupOneInstances.size(), groupOneInstances().size());
         Assert.assertEquals(gotGroupTwoInstances.size(), groupTwoInstances().size());
+        Assert.assertNotEquals(gotGroupOneInstances.size(), gotGroupTwoInstances.size());
     }
 }
