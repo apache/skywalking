@@ -114,17 +114,10 @@ do_cleanup() {
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
 
-check_scenario_name_param() {
-    if test -z "$scenario_name"; then
-        echo "Missing value for the scenario argument"
-        exit 0
-    fi
-}
-
 start_stamp=`date +%s`
 parse_commandline "$@"
-check_scenario_name_param()
 
+test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
 
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
