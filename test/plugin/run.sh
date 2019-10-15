@@ -110,7 +110,7 @@ waitForAvailable() {
 do_cleanup() {
     docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
-    [[ -d ${home}/workspce ]] && rm -rf ${home}/workspace
+    [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
 
 start_stamp=`date +%s`
@@ -132,9 +132,9 @@ task_state_house="${workspace}/.states"
 [[ -d ${workspace} ]] && rm -rf $workspace
 mkdir -p ${task_state_house}
 
-plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
-if [[ ! -f ${plugin_autotest_helper} ]]; then
-    exitWithMessage "Plugin autotest tools not exists, Please re-try it with '-f'"
+plugin_runner_helper="${home}/dist/plugin-runner-helper.jar"
+if [[ ! -f ${plugin_runner_helper} ]]; then
+    exitWithMessage "Plugin Runner tools not exists, Please re-try it with '-f'"
     print_helper
 fi
 
@@ -144,6 +144,26 @@ scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
     exitWithMessage "cannot found 'support-version.list' in directory ${scenario_name}"
+fi
+
+_agent_home=${agent_home}
+mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/\s//g" |awk -F: '{print $2}'`
+if [[ "$mode" == "with_optional" ]]; then
+    agent_with_optional_home=${home}/workspace/agent_with_optional
+    if [[ ! -d ${agent_with_optional_home} ]]; then
+        mkdir -p ${agent_with_optional_home}
+        cp -r ${agent_home}/* ${agent_with_optional_home}
+        mv ${agent_with_optional_home}/optional-plugins/* ${agent_with_optional_home}/plugins/
+    fi
+    _agent_home=${agent_with_optional_home}
+elif [[ "$mode" == "with_bootstrap" ]]; then
+    agent_with_bootstrap_home=${home}/workspace/agent_with_bootstrap
+    if [[ ! -d ${agent_with_bootstrap_home} ]]; then
+        mkdir -p ${agent_with_bootstrap_home}
+        cp -r ${agent_home}/* ${agent_with_bootstrap_home}
+        mv ${agent_with_bootstrap_home}/bootstrap-plugins/* ${agent_with_bootstrap_home}/plugins/
+    fi
+    _agent_home=${agent_with_bootstrap_home}
 fi
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
@@ -172,9 +192,9 @@ do
         -Dscenario.name=${scenario_name} \
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
-        -Dagent.dir=${agent_home} \
+        -Dagent.dir=${_agent_home} \
         -Ddocker.image.version=${build_id} \
-        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 
+        ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
