@@ -81,7 +81,6 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
                             }
                         }
-
                     }
                 }
                 stage('Group2') {

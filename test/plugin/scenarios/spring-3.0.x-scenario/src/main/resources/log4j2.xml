@@ -16,19 +16,14 @@
   ~ limitations under the License.
   ~
   -->
-<Configuration status="debug">
+<Configuration status="WARN">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="Console" target="SYSTEM_ERR">
             <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <logger name="com.a.eye.skywalking.ui" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
-        </logger>
-        <!--<logger name="org.skywalking.apm.dependencies" level="off">-->
-        <!--</logger>-->
-        <Root level="debug">
+        <Root level="WARN">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
