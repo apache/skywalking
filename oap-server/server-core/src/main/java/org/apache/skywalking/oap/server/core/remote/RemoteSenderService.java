@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.remote;
 
 import java.util.List;
-
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
