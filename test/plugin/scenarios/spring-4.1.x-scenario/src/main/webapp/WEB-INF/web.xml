@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -16,20 +15,23 @@
   ~ limitations under the License.
   ~
   -->
-<Configuration status="debug">
-    <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
-        </Console>
-    </Appenders>
-    <Loggers>
-        <logger name="com.a.eye.skywalking.ui" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
-        </logger>
-        <!--<logger name="org.skywalking.apm.dependencies" level="off">-->
-        <!--</logger>-->
-        <Root level="debug">
-            <AppenderRef ref="Console"/>
-        </Root>
-    </Loggers>
-</Configuration>
+
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <display-name>skywalking-spring-4.1.x-scenario</display-name>
+
+    <servlet>
+        <servlet-name>spring-mvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>spring-mvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>

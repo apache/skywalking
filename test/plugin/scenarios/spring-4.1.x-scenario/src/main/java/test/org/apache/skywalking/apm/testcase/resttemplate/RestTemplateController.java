@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 package test.org.apache.skywalking.apm.testcase.resttemplate;
 
 import okhttp3.OkHttpClient;
@@ -39,7 +38,7 @@ public class RestTemplateController {
 
     private Logger logger = LogManager.getLogger(RestTemplateController.class);
 
-    private static final String url = "http://localhost:8080/spring-3.1.x-scenario";
+    private static final String url = "http://localhost:8080/spring-4.1.x-scenario";
 
     @RequestMapping("/case/resttemplate")
     @ResponseBody
