@@ -147,7 +147,7 @@ if [[ ! -f $supported_version_file ]]; then
 fi
 
 _agent_home=${agent_home}
-mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/\s//g" |awk -F: '{print $2}'`
+mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}'`
 if [[ "$mode" == "with_optional" ]]; then
     agent_with_optional_home=${home}/workspace/agent_with_optional
     if [[ ! -d ${agent_with_optional_home} ]]; then

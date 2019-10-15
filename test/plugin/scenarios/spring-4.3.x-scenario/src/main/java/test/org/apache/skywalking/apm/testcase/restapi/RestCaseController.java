@@ -18,56 +18,62 @@
 
 package test.org.apache.skywalking.apm.testcase.restapi;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import test.org.apache.skywalking.apm.testcase.entity.User;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Controller
+@RestController
 public class RestCaseController {
 
     private static final Map<Integer, User> users = new ConcurrentHashMap<Integer, User>();
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/get/{id}")
     @ResponseBody
-    private User getUser(@PathVariable("id") int id) throws InterruptedException {
-        return new User(id, "a");
+    private ResponseEntity<User> getUser(@PathVariable("id") int id) throws InterruptedException {
+        User currentUser = new User(id, "a");
+        return ResponseEntity.ok(currentUser);
     }
 
-    @RequestMapping(value = "/create/", method = RequestMethod.POST)
+    @PostMapping(value = "/create/")
     @ResponseBody
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@RequestBody User user,
-                           HttpServletResponse response, UriComponentsBuilder ucBuilder) throws InterruptedException {
+    public ResponseEntity<Void> createUser(@RequestBody User user,
+                                           UriComponentsBuilder ucBuilder) throws InterruptedException {
         users.put(user.getId(), user);
-        response.setHeader("Location", ucBuilder.path("/get/{id}").buildAndExpand(user.getId()).toUri().toASCIIString());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(ucBuilder.path("/get/{id}").buildAndExpand(user.getId()).toUri());
+        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
+    @PutMapping(value = "/update/{id}")
     @ResponseBody
-    public User updateUser(@PathVariable("id") int id,
+    public ResponseEntity<User> updateUser(@PathVariable("id") int id,
                                            @RequestBody User user) throws InterruptedException {
-        return new User(id, user.getUserName());
+        User currentUser = new User(id, user.getUserName());
+        return ResponseEntity.ok(currentUser);
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/delete/{id}")
     @ResponseBody
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable("id") int id) throws InterruptedException {
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") int id) throws InterruptedException {
         User currentUser = users.get(id);
         if (currentUser == null) {
-           return;
+            return ResponseEntity.noContent().build();
         }
         users.remove(id);
+        return ResponseEntity.noContent().build();
     }
 }
+
