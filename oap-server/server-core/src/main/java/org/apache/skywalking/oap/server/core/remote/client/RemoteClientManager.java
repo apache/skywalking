@@ -173,7 +173,7 @@ public class RemoteClientManager implements Service {
         final Map<Address, RemoteClientAction> createRemoteClient = remoteInstances.stream()
                 .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
 
-        final Set<Address> unChangeAddresses = Sets.intersection(closeRemoteClient.keySet(), createRemoteClient.entrySet());
+        final Set<Address> unChangeAddresses = Sets.intersection(closeRemoteClient.keySet(), createRemoteClient.keySet());
 
         unChangeAddresses.stream()
                 .filter(closeRemoteClient::containsKey)

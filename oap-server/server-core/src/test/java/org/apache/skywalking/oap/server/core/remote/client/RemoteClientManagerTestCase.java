@@ -199,4 +199,39 @@ public class RemoteClientManagerTestCase {
         Assert.assertEquals(gotGroupTwoInstances.size(), groupTwoInstances().size());
         Assert.assertNotEquals(gotGroupOneInstances.size(), gotGroupTwoInstances.size());
     }
+
+    @Test
+    public void testCompare() {
+        when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
+        clientManager.refresh();
+
+        List<RemoteClient> groupOneRemoteClients = clientManager.getRemoteClient();
+
+
+        when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
+        clientManager.refresh();
+
+        List<RemoteClient> newGroupOneRemoteClients = clientManager.getRemoteClient();
+
+        Assert.assertArrayEquals(groupOneRemoteClients.toArray(), newGroupOneRemoteClients.toArray());
+    }
+
+    @Test
+    public void testUnChangeRefresh() {
+        final List<RemoteInstance> groupOneInstances = groupOneInstances();
+        when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances);
+        clientManager.refresh();
+
+        List<RemoteClient> groupOneRemoteClients = clientManager.getRemoteClient();
+
+        groupOneInstances.add(new RemoteInstance(new Address("host4", 100, false)));
+        when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances);
+        clientManager.refresh();
+
+        List<RemoteClient> newGroupOneRemoteClients = clientManager.getRemoteClient();
+
+
+        Assert.assertEquals(groupOneRemoteClients.get(0).getAddress(), newGroupOneRemoteClients.get(0).getAddress());
+        Assert.assertEquals(newGroupOneRemoteClients.get(3).getAddress().getHost(), "host4");
+    }
 }
