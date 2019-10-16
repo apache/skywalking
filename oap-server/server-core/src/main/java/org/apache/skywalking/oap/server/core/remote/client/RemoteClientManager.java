@@ -20,6 +20,17 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,17 +45,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
@@ -64,8 +64,9 @@ public class RemoteClientManager implements Service {
 
     /**
      * Initial the manager for all remote communication clients.
+     *
      * @param moduleDefineHolder for looking up other modules
-     * @param remoteTimeout for cluster internal communication, in second unit.
+     * @param remoteTimeout      for cluster internal communication, in second unit.
      */
     public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
         this.moduleDefineHolder = moduleDefineHolder;
@@ -161,29 +162,30 @@ public class RemoteClientManager implements Service {
     /**
      * Compare clients between exist clients and remote instance collection. Move the clients into new client collection
      * which are alive to avoid create a new channel. Shutdown the clients which could not find in cluster config.
-     *
+     * <p>
      * Create a gRPC client for remote instance except for self-instance.
      *
      * @param remoteInstances Remote instance collection by query cluster config.
      */
     private void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
-        final Map<Address, RemoteClientAction> closeRemoteClient = this.usingClients.stream()
-                .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
+        final Map<Address, RemoteClientAction> remoteClientCollection = this.usingClients.stream()
+            .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
 
-        final Map<Address, RemoteClientAction> createRemoteClient = remoteInstances.stream()
-                .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
+        final Map<Address, RemoteClientAction> latestRemoteClients = remoteInstances.stream()
+            .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
 
-        final Set<Address> unChangeAddresses = Sets.intersection(closeRemoteClient.keySet(), createRemoteClient.keySet());
+        final Set<Address> unChangeAddresses = Sets.intersection(remoteClientCollection.keySet(), latestRemoteClients.keySet());
 
         unChangeAddresses.stream()
-                .filter(closeRemoteClient::containsKey)
-                .forEach(unChangeAddress -> closeRemoteClient.get(unChangeAddress).setAction(Action.Unchanged));
+            .filter(remoteClientCollection::containsKey)
+            .forEach(unChangeAddress -> remoteClientCollection.get(unChangeAddress).setAction(Action.Unchanged));
 
-        unChangeAddresses.forEach(createRemoteClient::remove);
-        closeRemoteClient.putAll(createRemoteClient);
+        // make the latestRemoteClients including the new clients only
+        unChangeAddresses.forEach(latestRemoteClients::remove);
+        remoteClientCollection.putAll(latestRemoteClients);
 
         final List<RemoteClient> newRemoteClients = new LinkedList<>();
-        closeRemoteClient.forEach((address, clientAction) -> {
+        remoteClientCollection.forEach((address, clientAction) -> {
             switch (clientAction.getAction()) {
                 case Unchanged:
                     newRemoteClients.add(clientAction.getRemoteClient());
@@ -205,10 +207,10 @@ public class RemoteClientManager implements Service {
         Collections.sort(newRemoteClients);
         this.usingClients = ImmutableList.copyOf(newRemoteClients);
 
-        closeRemoteClient.values()
-                .stream()
-                .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
-                .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
+        remoteClientCollection.values()
+            .stream()
+            .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
+            .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
     }
 
     private boolean compare(List<RemoteInstance> remoteInstances) {
