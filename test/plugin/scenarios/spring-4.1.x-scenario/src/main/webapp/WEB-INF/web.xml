@@ -15,28 +15,23 @@
   ~ limitations under the License.
   ~
   -->
+
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
 		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
-    <display-name>skywalking-spring-async-scenario</display-name>
+    <display-name>skywalking-spring-4.1.x-scenario</display-name>
 
     <servlet>
-        <servlet-name>caseServlet</servlet-name>
-        <servlet-class>org.apache.skywalking.apm.testcase.spring.async.CaseServlet</servlet-class>
+        <servlet-name>spring-mvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>caseServlet</servlet-name>
-        <url-pattern>/case/spring-async</url-pattern>
+        <servlet-name>spring-mvc</servlet-name>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>healthCheck</servlet-name>
-        <servlet-class>org.apache.skywalking.apm.testcase.spring.async.HealthCheckServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>healthCheck</servlet-name>
-        <url-pattern>/case/healthCheck</url-pattern>
-    </servlet-mapping>
+
 </web-app>
