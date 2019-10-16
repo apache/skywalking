@@ -72,7 +72,10 @@ export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
     -Xms256m -Xmx256m ${agent_opts}"
 exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>/dev/null &
-healthCheck ${SCENARIO_HEALTH_CHECK_URL}
+for HEALTH_CHECK_URL in ${SCENARIO_HEALTH_CHECK_URL};
+do
+    healthCheck $HEALTH_CHECK_URL
+done
 
 echo "To visit entry service"
 curl -s ${SCENARIO_ENTRY_SERVICE}
