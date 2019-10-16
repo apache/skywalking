@@ -52,27 +52,24 @@ public class RemoteSenderService implements Service {
 
     public void send(String nextWorkName, StreamData streamData, Selector selector) {
         RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).provider().getService(RemoteClientManager.class);
+        RemoteClient remoteClient = null;
 
         List<RemoteClient> clientList = clientManager.getRemoteClient();
         if (clientList.size() == 0) {
             logger.warn("There is no available remote server for now, ignore the streaming data until the cluster metadata initialized.");
             return;
         }
-
-        RemoteClient remoteClient;
         switch (selector) {
             case HashCode:
                 remoteClient = hashCodeSelector.select(clientList, streamData);
-                remoteClient.push(nextWorkName, streamData);
                 break;
             case Rolling:
                 remoteClient = rollingSelector.select(clientList, streamData);
-                remoteClient.push(nextWorkName, streamData);
                 break;
             case ForeverFirst:
                 remoteClient = foreverFirstSelector.select(clientList, streamData);
-                remoteClient.push(nextWorkName, streamData);
                 break;
         }
+        remoteClient.push(nextWorkName, streamData);
     }
 }
