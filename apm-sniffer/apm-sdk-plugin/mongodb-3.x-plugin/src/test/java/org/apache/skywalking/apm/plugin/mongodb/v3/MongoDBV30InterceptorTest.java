@@ -38,6 +38,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v30.MongoDBV30Interceptor;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
@@ -58,7 +59,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class MongoDBMethodInterceptorTest {
+public class MongoDBV30InterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -66,7 +67,7 @@ public class MongoDBMethodInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private MongoDBMethodInterceptor interceptor;
+    private MongoDBV30Interceptor interceptor;
 
     @Mock
     private EnhancedInstance enhancedInstance;
@@ -78,7 +79,7 @@ public class MongoDBMethodInterceptorTest {
     @Before
     public void setUp() throws Exception {
 
-        interceptor = new MongoDBMethodInterceptor();
+        interceptor = new MongoDBV30Interceptor();
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 

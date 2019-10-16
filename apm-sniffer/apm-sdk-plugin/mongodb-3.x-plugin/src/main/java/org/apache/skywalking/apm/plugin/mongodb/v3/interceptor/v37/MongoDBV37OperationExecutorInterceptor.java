@@ -17,30 +17,37 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3;
+package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37;
 
-import com.mongodb.client.internal.OperationExecutor;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoSpanHelper;
-import org.apache.skywalking.apm.plugin.mongodb.v3.support.OperationExecutorContext;
 
 import java.lang.reflect.Method;
 
 /**
  * @author scolia
  */
-public class MongoDBOperationExecutorInterceptor implements InstanceMethodsAroundInterceptor {
+@SuppressWarnings("Duplicates")
+public class MongoDBV37OperationExecutorInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static final ILog logger = LogManager.getLogger(MongoDBV37OperationExecutorInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
         String executeMethod = allArguments[0].getClass().getSimpleName();
-        OperationExecutor executor = (OperationExecutor) objInst;
-        String remotePeer = OperationExecutorContext.getInstance().getRemotePeerMapping(executor);
+        // OperationExecutor has be mark it's remotePeer
+        // @see: MongoDBV37ClientDelegateInterceptor.afterMethod
+        String remotePeer = (String) objInst.getSkyWalkingDynamicField();
+        if (logger.isDebugEnable()) {
+            logger.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
+        }
         MongoSpanHelper.createExitSpan(executeMethod, remotePeer, allArguments[0]);
     }
 

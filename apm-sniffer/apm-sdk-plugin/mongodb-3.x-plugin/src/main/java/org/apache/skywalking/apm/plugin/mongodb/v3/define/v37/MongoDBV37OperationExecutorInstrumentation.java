@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.define;
+package org.apache.skywalking.apm.plugin.mongodb.v3.define.v37;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -25,20 +25,31 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37OperationExecutorInterceptor;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
 /**
- * {@link com.mongodb.client.internal.OperationExecutor}, this interface maybe change.
+ * {@link com.mongodb.client.internal.OperationExecutor} which is unified entrance of execute mongo command.
+ * so we can intercept {@link com.mongodb.client.internal.OperationExecutor#execute(...)} method
+ * to known what command will be execute.
+ * <p>
+ * support: 3.7.x or higher
  *
  * @author scolia
+ * @see MongoDBV37OperationExecutorInterceptor
  */
-public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+@SuppressWarnings({"JavadocReference", "Duplicates"})
+public class MongoDBV37OperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    private static final String ENHANCE_CLASS = "com.mongodb.client.internal.OperationExecutor";
+
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37OperationExecutorInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byHierarchyMatch(new String[]{"com.mongodb.client.internal.OperationExecutor"});
+        return byHierarchyMatch(new String[]{ENHANCE_CLASS});
     }
 
     @Override
@@ -48,23 +59,22 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.mongodb.v3.MongoDBOperationExecutorInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
+        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
+            @Override
+            public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                return named("execute");
             }
+
+            @Override
+            public String getMethodsInterceptor() {
+                return INTERCEPTOR_CLASS;
+            }
+
+            @Override
+            public boolean isOverrideArgs() {
+                return false;
+            }
+        }
         };
     }
 }
