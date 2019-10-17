@@ -17,48 +17,36 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v30;
+package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v36;
 
-import com.mongodb.connection.Cluster;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoRemotePeerHelper;
+import org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37OperationExecutorInterceptor;
 import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoSpanHelper;
 
 import java.lang.reflect.Method;
 
 /**
- * Intercept method of {@code com.mongodb.Mongo#execute(ReadOperation, ReadPreference)} or
- * {@code com.mongodb.Mongo#execute(WriteOperation)}. record the MongoDB host, operation name and the key of the
- * operation.
- * <p>
- * only supported: 3.0.x-3.5.x
+ * Same with {@link MongoDBV37OperationExecutorInterceptor}.
  *
- * @author baiyang
+ * @author scolia
  */
-@SuppressWarnings({"deprecation", "Duplicates"})
-public class MongoDBV30Interceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+@SuppressWarnings("Duplicates")
+public class MongoDBV36OperationExecutorInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(MongoDBV30Interceptor.class);
-
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Cluster cluster = (Cluster) allArguments[0];
-        String peers = MongoRemotePeerHelper.getRemotePeer(cluster);
-        objInst.setSkyWalkingDynamicField(peers);
-    }
-
+    private static final ILog logger = LogManager.getLogger(MongoDBV36OperationExecutorInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) {
         String executeMethod = allArguments[0].getClass().getSimpleName();
+        // OperationExecutor has be mark it's remotePeer
+        // @see: MongoDBV36Interceptor.afterMethod
         String remotePeer = (String) objInst.getSkyWalkingDynamicField();
         if (logger.isDebugEnable()) {
             logger.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);

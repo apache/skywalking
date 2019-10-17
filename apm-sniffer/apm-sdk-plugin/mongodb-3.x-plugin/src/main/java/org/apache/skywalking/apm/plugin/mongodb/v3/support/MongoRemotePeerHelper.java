@@ -35,7 +35,7 @@ public class MongoRemotePeerHelper {
 
     public static String getRemotePeer(Cluster cluster) {
         StringBuilder peersBuilder = new StringBuilder();
-        for (ServerDescription description : cluster.getDescription().getServerDescriptions()) {
+        for (ServerDescription description : cluster.getDescription().getAll()) {
             ServerAddress address = description.getAddress();
             peersBuilder.append(address.getHost()).append(":").append(address.getPort()).append(";");
         }

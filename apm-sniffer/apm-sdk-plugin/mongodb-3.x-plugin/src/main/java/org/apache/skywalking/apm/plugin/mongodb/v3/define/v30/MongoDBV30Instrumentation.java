@@ -32,7 +32,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * Enhance {@link com.mongodb.Mongo} instance, and intercept {@link com.mongodb.Mongo#execute(...)} method,
+ * Enhance {@code com.mongodb.Mongo} instance, and intercept {@code com.mongodb.Mongo#execute(...)} method,
  * this method is a unified entrance of execute mongo command.
  * <p>
  * support: 3.0.x~3.5.x
@@ -40,7 +40,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
  * @author scolia
  * @see MongoDBV30Interceptor
  */
-@SuppressWarnings({"JavadocReference", "Duplicates"})
+@SuppressWarnings({"Duplicates"})
 public class MongoDBV30Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String WITNESS_CLASS = "com.mongodb.connection.WriteCommandProtocol";

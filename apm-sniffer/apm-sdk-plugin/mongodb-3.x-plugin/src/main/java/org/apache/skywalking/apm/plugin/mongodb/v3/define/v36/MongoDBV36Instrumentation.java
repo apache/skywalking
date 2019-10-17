@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.define.v37;
+package org.apache.skywalking.apm.plugin.mongodb.v3.define.v36;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -25,37 +25,35 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Enhance {@code com.mongodb.client.internal.MongoClientDelegate} instance, and intercept
- * {@code com.mongodb.client.internal.MongoClientDelegate#getOperationExecutor()}, this is the only way to
- * get OperationExecutor which is unified entrance of execute mongo command. we can mark OperationExecutor
- * which connection belongs to.
+ * Enhance {@code com.mongodb.Mongo} instance,  and intercept {@code com.mongodb.Mongo#createOperationExecutor()} method,
+ * this method is a unified entrance of get OperationExecutor, will can mark it's remotePeer.
  * <p>
- * support: 3.7.x or higher
+ * support: 3.6.x
  *
  * @author scolia
- * @see MongoDBV37OperationExecutorInstrumentation
- * @see org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37ClientDelegateInterceptor
  */
-public class MongoDBV37ClientDelegateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MongoDBV36Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate";
+    private static final String WITNESS_CLASS = "com.mongodb.OperationExecutor";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37ClientDelegateInterceptor";
+    private static final String ENHANCE_CLASS = "com.mongodb.Mongo";
+
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v36.MongoDBV36Interceptor";
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{ENHANCE_CLASS};
+        return new String[]{WITNESS_CLASS};
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 
     @Override
@@ -79,7 +77,7 @@ public class MongoDBV37ClientDelegateInstrumentation extends ClassInstanceMethod
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("getOperationExecutor");
+                return named("createOperationExecutor");
             }
 
             @Override
@@ -94,6 +92,4 @@ public class MongoDBV37ClientDelegateInstrumentation extends ClassInstanceMethod
         }
         };
     }
-
-
 }

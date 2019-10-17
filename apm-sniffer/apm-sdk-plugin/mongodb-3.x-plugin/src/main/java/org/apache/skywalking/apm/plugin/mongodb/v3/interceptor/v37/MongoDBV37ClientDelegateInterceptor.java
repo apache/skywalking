@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 /**
  * @author scolia
  */
+@SuppressWarnings("Duplicates")
 public class MongoDBV37ClientDelegateInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
     private static final ILog logger = LogManager.getLogger(MongoDBV37ClientDelegateInterceptor.class);

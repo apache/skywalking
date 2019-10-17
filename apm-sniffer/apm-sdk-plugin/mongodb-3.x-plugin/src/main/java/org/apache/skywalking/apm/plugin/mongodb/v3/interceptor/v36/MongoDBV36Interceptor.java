@@ -17,35 +17,29 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v30;
+package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v36;
 
 import com.mongodb.connection.Cluster;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37ClientDelegateInterceptor;
 import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoRemotePeerHelper;
-import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoSpanHelper;
 
 import java.lang.reflect.Method;
 
 /**
- * Intercept method of {@code com.mongodb.Mongo#execute(ReadOperation, ReadPreference)} or
- * {@code com.mongodb.Mongo#execute(WriteOperation)}. record the MongoDB host, operation name and the key of the
- * operation.
- * <p>
- * only supported: 3.0.x-3.5.x
+ * Same with {@link MongoDBV37ClientDelegateInterceptor}, mark remotePeer of OperationExecutor when it was created.
  *
- * @author baiyang
+ * @author scolia
  */
 @SuppressWarnings({"deprecation", "Duplicates"})
-public class MongoDBV30Interceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+public class MongoDBV36Interceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(MongoDBV30Interceptor.class);
+    private static final ILog logger = LogManager.getLogger(MongoDBV36Interceptor.class);
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -54,30 +48,30 @@ public class MongoDBV30Interceptor implements InstanceMethodsAroundInterceptor, 
         objInst.setSkyWalkingDynamicField(peers);
     }
 
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        String executeMethod = allArguments[0].getClass().getSimpleName();
-        String remotePeer = (String) objInst.getSkyWalkingDynamicField();
-        if (logger.isDebugEnable()) {
-            logger.debug("Mongo execute: [executeMethod: {}, remotePeer: {}]", executeMethod, remotePeer);
-        }
-        MongoSpanHelper.createExitSpan(executeMethod, remotePeer, allArguments[0]);
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                               Class<?>[] argumentsTypes, Object ret) {
-        ContextManager.stopSpan();
+        if (ret instanceof EnhancedInstance) {
+            // pass remotePeer to OperationExecutor, which will be wrapper as EnhancedInstance
+            // @see: org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v36.MongoDBV36OperationExecutorInterceptor
+            EnhancedInstance retInstance = (EnhancedInstance) ret;
+            String remotePeer = (String) objInst.getSkyWalkingDynamicField();
+            if (logger.isDebugEnable()) {
+                logger.debug("Mark OperationExecutor remotePeer: {}", remotePeer);
+            }
+            retInstance.setSkyWalkingDynamicField(remotePeer);
+        }
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
-        AbstractSpan activeSpan = ContextManager.activeSpan();
-        activeSpan.errorOccurred();
-        activeSpan.log(t);
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+
     }
 }
