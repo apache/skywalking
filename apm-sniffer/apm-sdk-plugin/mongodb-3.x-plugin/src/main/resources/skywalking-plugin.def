@@ -16,9 +16,6 @@
 
 # v3.0.x~v3.5.x
 mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.v30.MongoDBV30Instrumentation
-# v3.6.x
-mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.v36.MongoDBV36Instrumentation
-mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.v36.MongoDBV36OperationExecutorInstrumentation
 # v3.7.x~
 mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBV37ClientDelegateInstrumentation
 mongodb-3.x=org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBV37OperationExecutorInstrumentation
