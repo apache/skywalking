@@ -27,9 +27,8 @@ mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
 scenarios_home="${home}/scenarios"
 
-
 print_help() {
-    echo  "Usage: run.sh [OPTION] SCENARIO [SCENARIO]"
+    echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
     echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
@@ -44,11 +43,9 @@ parse_commandline() {
         case "$_key" in
             -f|--force_build)
                 force_build="on"
-                shift
                 ;;
             --cleanup)
                 cleanup="on"
-                shift
                 ;;
             --build_id)
                 test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
@@ -121,6 +118,8 @@ if [[ "$cleanup" == "on" ]]; then
     exit 0
 fi
 
+test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
+
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package 
@@ -141,13 +140,14 @@ fi
 echo "start submit job"
 scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 
+
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
     exitWithMessage "cannot found 'support-version.list' in directory ${scenario_name}"
 fi
 
 _agent_home=${agent_home}
-mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/\s//g" |awk -F: '{print $2}'`
+mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}'`
 if [[ "$mode" == "with_optional" ]]; then
     agent_with_optional_home=${home}/workspace/agent_with_optional
     if [[ ! -d ${agent_with_optional_home} ]]; then
