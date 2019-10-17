@@ -25,3 +25,6 @@ spring:
         uri: http://localhost:18070
         predicates:
         - Path=/provider/b/*
+endpoints:
+  refresh:
+    sensitive: false
