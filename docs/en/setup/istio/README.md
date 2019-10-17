@@ -20,3 +20,5 @@ Follow the [deploying backend in kubernetes](../backend/backend-k8s.md) to insta
 2. Install SkyWalking adapter
 
 `kubectl apply -f ./yaml/skywalkingadapter.yml`
+
+Find the `skywalkingadapter.yml` at [here](yaml/skywalkingadapter.yml).
