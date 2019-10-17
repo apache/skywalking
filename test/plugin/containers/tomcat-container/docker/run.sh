@@ -30,7 +30,7 @@ function exitAndClean() {
 function healthCheck() {
     HEALTH_CHECK_URL=$1
 
-    for ((i=1; i<=30; i++));
+    for ((i=1; i<=150; i++));
     do
         STATUS_CODE="$(curl -Is ${HEALTH_CHECK_URL} | head -n 1)"
         if [[ $STATUS_CODE == *"200"* ]]; then
