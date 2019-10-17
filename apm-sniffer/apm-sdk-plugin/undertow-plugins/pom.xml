@@ -29,6 +29,7 @@
     <artifactId>undertow-plugins</artifactId>
     <modules>
         <module>undertow-2.x-plugin</module>
+        <module>undertow-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
