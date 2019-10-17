@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-            <version>${test.framework.version}</version>
+            <version>2.1.2.RELEASE</version>
         </dependency>
     </dependencies>
 
