@@ -35,6 +35,4 @@ public class MongoConstants {
 
     public static final String EMPTY = "";
 
-    public static final String UNKNOWN_REMOTE_PEER = "UNKNOWN";
-
 }
