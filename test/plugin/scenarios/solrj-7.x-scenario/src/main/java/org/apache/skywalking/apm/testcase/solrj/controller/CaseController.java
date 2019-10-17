@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/solrj-scenario/case")
@@ -48,7 +49,20 @@ public class CaseController {
 
     @GetMapping("/healthcheck")
     public String healthcheck() throws Exception {
-        return "Success";
+        ModifiableSolrParams params = new ModifiableSolrParams();
+        params.set(CommonParams.Q, "*:*");
+        params.set(CommonParams.OMIT_HEADER, true);
+
+        HttpSolrClient client = getClient();
+        try {
+            QueryResponse response = client.query(collection, params);
+            if (response.getStatus() == 0) {
+                return "Success";
+            }
+            throw new Exception(response.toString());
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 
