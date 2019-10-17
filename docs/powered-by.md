@@ -4,6 +4,7 @@ or providing commercial products including Apache SkyWalking.
 
 
 1. 300.cn 中企动力科技股份有限公司 http://www.300.cn/
+1. 360jinrong.net 360金融 https://www.360jinrong.net/
 1. 4399.com 四三九九网络股份有限公司. http://www.4399.com/
 1. 51mydao.com 买道传感科技（上海）有限公司 https://www.51mydao.com/
 1. 5i5j. 上海我爱我家房地产经纪有限公司 https://sh.5i5j.com/about/
@@ -101,7 +102,6 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. 360jinrong.net 360金融 https://www.360jinrong.net/
 
 # User Cases
 ## Alibaba Cloud
