@@ -56,11 +56,10 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         }
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
-        ContextSnapshot capture = ContextManager.capture();
         Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
         operationName = operationName + route.getId();
         span.setOperationName(operationName);
-        SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(),capture,operationName);
+        SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(),ContextManager.capture(),operationName);
         instance.setSkyWalkingDynamicField(transmitter);
         ContextManager.stopSpan(span);
     }
