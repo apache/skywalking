@@ -1,4 +1,4 @@
-undertow 1.x 插件
-拷贝skywalking 6.0.0 的undertow-2.x-plugin 插件
+# undertow 1.x plugin
+Copy the undertow-2.x-plugin plugin from skywalking 6.0.0
 
-在skywalking 6.5.0-SNAPSHOT版本 undertow 1.4.27版本测试通过
+Passed the test in skywalking 6.5.0-SNAPSHOT version and undertow 1.4.27 version
