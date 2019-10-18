@@ -110,6 +110,40 @@ do_cleanup() {
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
 
+agent_home_selector() {
+    runningMode=$1
+    with_plugins=$2
+
+    [[ -z "${runningMode}" ]] && return 0
+
+    plugin_dir="optional-plugins"
+    target_agent_dir="agent_with_optional"
+    if [[ "runningMode" != "optional_plugins" ]]; then
+        plugin_dir="bootstrap-plugins"
+        target_agent_dir="agent_with_bootstrap"
+    fi
+
+    if [[ -n "${with_plugins}" ]]; then
+        target_agent_home=${workspace}/${target_agent_dir}
+        mkdir -p ${target_agent_home}
+        cp -fur ${agent_home}/* ${target_agent_home}
+
+        for plugin in ${with_plugins};
+        do
+            mv ${target_agent_home}/${plugin_dir}/$plugin ${target_agent_home}/plugins/
+            [[ $? -ne 0 ]] && exitAndClean 1
+        done
+    else
+        target_agent_home=${home}/workspace/${target_agent_dir}
+        if [[ ! -d ${target_agent_home} ]]; then
+            mkdir -p ${target_agent_home}
+            cp -r ${agent_home}/* ${target_agent_home}
+            mv ${target_agent_home}/${plugin_dir}/* ${target_agent_home}/plugins/
+        fi
+    fi
+    _agent_home=${target_agent_home}
+}
+
 start_stamp=`date +%s`
 parse_commandline "$@"
 
@@ -147,24 +181,10 @@ if [[ ! -f $supported_version_file ]]; then
 fi
 
 _agent_home=${agent_home}
-mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}'`
-if [[ "$mode" == "with_optional" ]]; then
-    agent_with_optional_home=${home}/workspace/agent_with_optional
-    if [[ ! -d ${agent_with_optional_home} ]]; then
-        mkdir -p ${agent_with_optional_home}
-        cp -r ${agent_home}/* ${agent_with_optional_home}
-        mv ${agent_with_optional_home}/optional-plugins/* ${agent_with_optional_home}/plugins/
-    fi
-    _agent_home=${agent_with_optional_home}
-elif [[ "$mode" == "with_bootstrap" ]]; then
-    agent_with_bootstrap_home=${home}/workspace/agent_with_bootstrap
-    if [[ ! -d ${agent_with_bootstrap_home} ]]; then
-        mkdir -p ${agent_with_bootstrap_home}
-        cp -r ${agent_home}/* ${agent_with_bootstrap_home}
-        mv ${agent_with_bootstrap_home}/bootstrap-plugins/* ${agent_with_bootstrap_home}/plugins/
-    fi
-    _agent_home=${agent_with_bootstrap_home}
-fi
+runningMode=$(grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+with_plugins=$(grep "withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+
+agent_home_selector ${runningMode} ${with_plugins}
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
 for version in ${supported_versions}
