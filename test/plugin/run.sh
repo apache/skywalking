@@ -111,37 +111,26 @@ do_cleanup() {
 }
 
 agent_home_selector() {
-    runningMode=$1
+    running_mode=$1
     with_plugins=$2
-
-    [[ -z "${runningMode}" ]] && return 0
 
     plugin_dir="optional-plugins"
     target_agent_dir="agent_with_optional"
-    if [[ "runningMode" != "optional_plugins" ]]; then
+    if [[ "${running_mode}" != "with_optional" ]]; then
         plugin_dir="bootstrap-plugins"
         target_agent_dir="agent_with_bootstrap"
     fi
 
-    if [[ -n "${with_plugins}" ]]; then
-        target_agent_home=${workspace}/${target_agent_dir}
-        mkdir -p ${target_agent_home}
-        cp -fur ${agent_home}/* ${target_agent_home}
+    target_agent_home=${workspace}/${target_agent_dir}
+    mkdir -p ${target_agent_home}
+    cp -fur ${agent_home}/* ${target_agent_home}
 
-        with_plugins=`echo $with_plugins |awk -e "s/;/g"`
-        for plugin in ${with_plugins};
-        do
-            mv ${target_agent_home}/${plugin_dir}/$plugin ${target_agent_home}/plugins/
-            [[ $? -ne 0 ]] && exitAndClean 1
-        done
-    else
-        target_agent_home=${home}/workspace/${target_agent_dir}
-        if [[ ! -d ${target_agent_home} ]]; then
-            mkdir -p ${target_agent_home}
-            cp -r ${agent_home}/* ${target_agent_home}
-            mv ${target_agent_home}/${plugin_dir}/* ${target_agent_home}/plugins/
-        fi
-    fi
+    with_plugins=`echo $with_plugins |sed -e "s/;/ /g"`
+    for plugin in ${with_plugins};
+    do
+        mv ${target_agent_home}/${plugin_dir}/${plugin} ${target_agent_home}/plugins/
+        [[ $? -ne 0 ]] && exitAndClean 1
+    done
     _agent_home=${target_agent_home}
 }
 
@@ -182,10 +171,14 @@ if [[ ! -f $supported_version_file ]]; then
 fi
 
 _agent_home=${agent_home}
-runningMode=$(grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
-with_plugins=$(grep "withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+running_mode=$(grep "^runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+with_plugins=$(grep "^withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
 
-agent_home_selector ${runningMode} ${with_plugins}
+if [[ -n "${running_mode}" ]]; then
+    [[ -z "${with_plugins}" ]] && exitWithMessage \
+        "'withPlugins' has required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
+    agent_home_selector ${running_mode} ${with_plugins}
+fi
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
 for version in ${supported_versions}
