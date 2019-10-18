@@ -128,6 +128,7 @@ agent_home_selector() {
         mkdir -p ${target_agent_home}
         cp -fur ${agent_home}/* ${target_agent_home}
 
+        with_plugins=`echo $with_plugins |awk -e "s/;/g"`
         for plugin in ${with_plugins};
         do
             mv ${target_agent_home}/${plugin_dir}/$plugin ${target_agent_home}/plugins/
