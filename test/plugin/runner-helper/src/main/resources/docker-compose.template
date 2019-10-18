@@ -57,9 +57,9 @@ services:
             - ${volume}
         </#list>
         </#if>
-        <#if service.environments??>
+        <#if service.environment??>
         environment:
-        <#list service.environments as environment>
+        <#list service.environment as environment>
             - ${environment}
         </#list>
         </#if>
