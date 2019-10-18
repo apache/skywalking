@@ -20,7 +20,7 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,12 +30,22 @@
     <name>resttemplate-4.3.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <spring-web.version>4.3.10.RELEASE</spring-web.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>4.3.10.RELEASE</version>
+            <version>${spring-web.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>spring-commons</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

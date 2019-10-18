@@ -20,7 +20,7 @@
     <parent>
         <artifactId>spring-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,23 +30,29 @@
     <name>mvc-annotation-3.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <spring-core.version>3.2.18.RELEASE</spring-core.version>
+        <spring-webmvc.version>3.2.18.RELEASE</spring-webmvc.version>
+        <javax-servlet-api.version>3.0.1</javax-servlet-api.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>3.2.18.RELEASE</version>
+            <version>${spring-core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>3.2.18.RELEASE</version>
+            <version>${spring-webmvc.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+            <version>${javax-servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

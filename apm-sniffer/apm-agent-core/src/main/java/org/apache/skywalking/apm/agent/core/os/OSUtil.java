@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.os;
 
 import java.lang.management.ManagementFactory;
@@ -25,10 +24,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.OSInfo;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 
 /**
  * @author wusheng
@@ -95,21 +95,25 @@ public class OSUtil {
         return PROCESS_NO;
     }
 
-    public static OSInfo buildOSInfo() {
-        OSInfo.Builder builder = OSInfo.newBuilder();
+    public static List<KeyStringValuePair> buildOSInfo() {
+        List<KeyStringValuePair> osInfo = new ArrayList<KeyStringValuePair>();
+
         String osName = getOsName();
         if (osName != null) {
-            builder.setOsName(osName);
+            osInfo.add(KeyStringValuePair.newBuilder().setKey("os_name").setValue(osName).build());
         }
         String hostName = getHostName();
         if (hostName != null) {
-            builder.setHostname(hostName);
+            osInfo.add(KeyStringValuePair.newBuilder().setKey("host_name").setValue(hostName).build());
         }
         List<String> allIPV4 = getAllIPV4();
         if (allIPV4.size() > 0) {
-            builder.addAllIpv4S(allIPV4);
+            for (String ipv4 : allIPV4) {
+                osInfo.add(KeyStringValuePair.newBuilder().setKey("ipv4").setValue(ipv4).build());
+            }
         }
-        builder.setProcessNo(getProcessNo());
-        return builder.build();
+        osInfo.add(KeyStringValuePair.newBuilder().setKey("process_no").setValue(getProcessNo() + "").build());
+        osInfo.add(KeyStringValuePair.newBuilder().setKey("language").setValue("java").build());
+        return osInfo;
     }
 }

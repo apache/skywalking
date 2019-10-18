@@ -129,8 +129,8 @@ public class ConsumerTest {
     }
 
     private IConsumer getConsumer(DataCarrier<SampleData> carrier) throws IllegalAccessException {
-        ConsumerPool pool = (ConsumerPool)MemberModifier.field(DataCarrier.class, "consumerPool").get(carrier);
-        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumerPool.class, "consumerThreads").get(pool);
+        ConsumeDriver pool = (ConsumeDriver)MemberModifier.field(DataCarrier.class, "driver").get(carrier);
+        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumeDriver.class, "consumerThreads").get(pool);
 
         return (IConsumer)MemberModifier.field(ConsumerThread.class, "consumer").get(threads[0]);
     }

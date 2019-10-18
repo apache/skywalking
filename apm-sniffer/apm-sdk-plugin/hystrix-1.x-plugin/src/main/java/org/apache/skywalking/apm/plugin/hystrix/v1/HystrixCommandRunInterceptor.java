@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.hystrix.v1;
 
-import com.netflix.hystrix.HystrixCommand;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
@@ -27,8 +26,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-
-import static org.apache.skywalking.apm.plugin.hystrix.v1.Constants.ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT;
 
 public class HystrixCommandRunInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -46,8 +43,6 @@ public class HystrixCommandRunInterceptor implements InstanceMethodsAroundInterc
         }
         // Because of `fall back` method running in other thread. so we need capture concurrent span for tracing.
         enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
-
-        ContextManager.getRuntimeContext().put(ISOLATE_STRATEGY_KEY_IN_RUNNING_CONTEXT, ((HystrixCommand)objInst).getProperties().executionIsolationStrategy().get().name().toUpperCase());
     }
 
     @Override

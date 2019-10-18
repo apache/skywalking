@@ -21,41 +21,22 @@
     <parent>
         <artifactId>apm-application-toolkit</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>apm-toolkit-log4j-2.x</artifactId>
 
+    <properties>
+        <log4j-core.version>2.7</log4j-core.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
+            <version>${log4j-core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- 源码插件 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <!-- 发布时自动将源码同时发布的配置 -->
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <version>2.4</version>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

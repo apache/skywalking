@@ -18,9 +18,9 @@
 
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
-COLLECTOR_EXE=collectorService.sh
+OAP_EXE=oapService.sh
 WEBAPP_EXE=webappService.sh
 
-"$PRGDIR"/"$COLLECTOR_EXE"
+"$PRGDIR"/"$OAP_EXE"
 
 "$PRGDIR"/"$WEBAPP_EXE"

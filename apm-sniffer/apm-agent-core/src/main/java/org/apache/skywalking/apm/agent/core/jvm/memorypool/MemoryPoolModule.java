@@ -16,20 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm.memorypool;
 
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryUsage;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.apm.network.proto.MemoryPool;
-import org.apache.skywalking.apm.network.proto.PoolType;
+import java.lang.management.*;
+import java.util.*;
+import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng
  */
-public abstract class MemoryPoolModule implements MemoryPoolMetricAccessor {
+public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
     private List<MemoryPoolMXBean> beans;
 
     public MemoryPoolModule(List<MemoryPoolMXBean> beans) {
@@ -37,7 +33,7 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricAccessor {
     }
 
     @Override
-    public List<MemoryPool> getMemoryPoolMetricList() {
+    public List<MemoryPool> getMemoryPoolMetricsList() {
         List<MemoryPool> poolList = new LinkedList<MemoryPool>();
         for (MemoryPoolMXBean bean : beans) {
             String name = bean.getName();

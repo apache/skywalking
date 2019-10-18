@@ -20,7 +20,7 @@
     <parent>
         <artifactId>jetty-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,11 +30,15 @@
     <name>jetty-client-9.0-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <jetty-client.version>9.0.0.v20130308</jetty-client.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>9.0.0.v20130308</version>
+            <version>${jetty-client.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

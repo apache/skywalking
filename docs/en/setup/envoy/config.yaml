@@ -1,0 +1,105 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address:
+      protocol: TCP
+      address: 127.0.0.1
+      port_value: 9901
+
+stats_sinks:
+  - name: envoy.metrics_service
+    config:
+      grpc_service:
+        envoy_grpc:
+          cluster_name: service_skywalking
+
+node:
+  id: ingress
+  cluster: card-api-cluster
+  locality:
+    region: ap-southeast-1
+    zone: zone1
+    sub_zone: subzone1
+  metadata:
+    skywalking: iscool
+    envoy: isawesome
+
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          protocol: TCP
+          address: 0.0.0.0
+          port_value: 10000
+      filter_chains:
+        - filters:
+            - name: envoy.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_service
+                      domains: ["*"]
+                      routes:
+                        - match:
+                            prefix: "/"
+                          route:
+                            host_rewrite: www.google.com
+                            cluster: service_google
+                http_filters:
+                  - name: envoy.router
+  clusters:
+    - name: service_skywalking
+      connect_timeout: 5s
+      type: LOGICAL_DNS
+      http2_protocol_options: {}
+      # Comment out the following line to test on v6 networks
+      dns_lookup_family: V4_ONLY
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: service_skywalking
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: skywalking
+                      # This is the port where SkyWalking serving the Envoy Metrics Service gRPC stream.
+                      port_value: 11800
+
+    - name: service_google
+      connect_timeout: 5s
+      type: LOGICAL_DNS
+      # Comment out the following line to test on v6 networks
+      dns_lookup_family: V4_ONLY
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: service_google
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: www.google.com
+                      port_value: 443
+      tls_context:
+        sni: www.google.com

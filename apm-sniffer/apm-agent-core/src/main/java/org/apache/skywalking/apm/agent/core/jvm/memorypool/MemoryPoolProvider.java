@@ -19,10 +19,9 @@
 
 package org.apache.skywalking.apm.agent.core.jvm.memorypool;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.*;
 import java.util.List;
-import org.apache.skywalking.apm.network.proto.MemoryPool;
+import org.apache.skywalking.apm.network.language.agent.MemoryPool;
 
 /**
  * @author wusheng
@@ -30,14 +29,14 @@ import org.apache.skywalking.apm.network.proto.MemoryPool;
 public enum MemoryPoolProvider {
     INSTANCE;
 
-    private MemoryPoolMetricAccessor metricAccessor;
+    private MemoryPoolMetricsAccessor metricAccessor;
     private List<MemoryPoolMXBean> beans;
 
     MemoryPoolProvider() {
         beans = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean bean : beans) {
             String name = bean.getName();
-            MemoryPoolMetricAccessor accessor = findByBeanName(name);
+            MemoryPoolMetricsAccessor accessor = findByBeanName(name);
             if (accessor != null) {
                 metricAccessor = accessor;
                 break;
@@ -48,11 +47,11 @@ public enum MemoryPoolProvider {
         }
     }
 
-    public List<MemoryPool> getMemoryPoolMetricList() {
-        return metricAccessor.getMemoryPoolMetricList();
+    public List<MemoryPool> getMemoryPoolMetricsList() {
+        return metricAccessor.getMemoryPoolMetricsList();
     }
 
-    private MemoryPoolMetricAccessor findByBeanName(String name) {
+    private MemoryPoolMetricsAccessor findByBeanName(String name) {
         if (name.indexOf("PS") > -1) {
             //Parallel (Old) collector ( -XX:+UseParallelOldGC )
             return new ParallelCollectorModule(beans);

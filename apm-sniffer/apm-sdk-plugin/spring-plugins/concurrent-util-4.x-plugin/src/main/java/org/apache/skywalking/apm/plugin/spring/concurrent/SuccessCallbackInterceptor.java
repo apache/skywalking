@@ -16,47 +16,48 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.concurrent;
 
 import java.lang.reflect.Method;
-import java.net.URI;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.spring.commons.EnhanceCacheObjects;
 
 public class SuccessCallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
         if (cacheValues == null) {
             return;
         }
 
-        URI uri = (URI)cacheValues[0];
-        AbstractSpan span = ContextManager.createLocalSpan("future/successCallback:" + uri.getPath());
-        span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE).setLayer(SpanLayer.HTTP);
-        Tags.URL.set(span, uri.getPath());
-        ContextManager.continued((ContextSnapshot)cacheValues[2]);
+        AbstractSpan span = ContextManager.createLocalSpan("future/successCallback:" + cacheValues.getOperationName());
+        span.setComponent(cacheValues.getComponent()).setLayer(cacheValues.getSpanLayer());
+        ContextManager.continued(cacheValues.getContextSnapshot());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
+        if (cacheValues == null) {
+            return ret;
+        }
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
+        if (cacheValues == null) {
+            return;
+        }
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

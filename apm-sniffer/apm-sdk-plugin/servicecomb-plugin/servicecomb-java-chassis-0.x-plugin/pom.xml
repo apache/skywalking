@@ -21,7 +21,7 @@
     <parent>
         <artifactId>servicecomb-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,32 +30,17 @@
 
     <name>servicecomb-java-chassis-0.x-plugin</name>
     <url>http://maven.apache.org</url>
+
+    <properties>
+        <java-chassis-core.version>0.5.0</java-chassis-core.version>
+    </properties>
     
     <dependencies>
         <dependency>
             <groupId>io.servicecomb</groupId>
             <artifactId>java-chassis-core</artifactId>
-            <version>0.5.0</version>
+            <version>${java-chassis-core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <!-- 源码插件 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <!-- 发布时自动将源码同时发布的配置 -->
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

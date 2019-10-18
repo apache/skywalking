@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -45,7 +45,7 @@ public class AsyncCallInstrumentation extends ClassInstanceMethodsEnhancePluginD
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

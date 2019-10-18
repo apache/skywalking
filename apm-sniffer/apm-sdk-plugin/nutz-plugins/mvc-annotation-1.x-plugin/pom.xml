@@ -20,7 +20,7 @@
     <parent>
         <artifactId>nutz-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,17 +30,22 @@
     <name>mvc-annotation-1.x-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <nutz.version>1.r.62</nutz.version>
+        <javax-servlet-api.version>3.1.0</javax-servlet-api.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.nutz</groupId>
             <artifactId>nutz</artifactId>
-            <version>1.r.62</version>
+            <version>${nutz.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>${javax-servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

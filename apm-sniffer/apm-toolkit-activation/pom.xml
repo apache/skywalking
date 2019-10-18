@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-sniffer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -39,6 +39,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+
+        <ant-contrib.version>1.0b3</ant-contrib.version>
+        <ant-nodeps.version>1.8.1</ant-nodeps.version>
     </properties>
 
     <dependencies>
@@ -65,9 +68,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -103,7 +104,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -130,7 +130,7 @@
                     <dependency>
                         <groupId>ant-contrib</groupId>
                         <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
+                        <version>${ant-contrib.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>ant</groupId>
@@ -141,7 +141,7 @@
                     <dependency>
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant-nodeps</artifactId>
-                        <version>1.8.1</version>
+                        <version>${ant-nodeps.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

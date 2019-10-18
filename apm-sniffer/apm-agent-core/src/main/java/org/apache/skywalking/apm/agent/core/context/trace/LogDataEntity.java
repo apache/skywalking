@@ -16,17 +16,16 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
-import org.apache.skywalking.apm.network.proto.LogMessage;
+import org.apache.skywalking.apm.network.language.agent.v2.Log;
 
 /**
- * The <code>LogDataEntity</code> represents a collection of {@link KeyValuePair},
- * contains several fields of a logging operation.
+ * The <code>LogDataEntity</code> represents a collection of {@link KeyValuePair}, contains several fields of a logging
+ * operation.
  *
  * @author wusheng
  */
@@ -62,8 +61,8 @@ public class LogDataEntity {
         }
     }
 
-    public LogMessage transform() {
-        LogMessage.Builder logMessageBuilder = LogMessage.newBuilder();
+    public Log transform() {
+        Log.Builder logMessageBuilder = Log.newBuilder();
         for (KeyValuePair log : logs) {
             logMessageBuilder.addData(log.transform());
         }

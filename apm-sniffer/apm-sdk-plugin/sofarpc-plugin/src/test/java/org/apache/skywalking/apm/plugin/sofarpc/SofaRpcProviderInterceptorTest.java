@@ -23,13 +23,14 @@ import com.alipay.sofa.rpc.context.RpcInternalContext;
 import com.alipay.sofa.rpc.core.request.SofaRequest;
 import com.alipay.sofa.rpc.core.response.SofaResponse;
 import com.alipay.sofa.rpc.filter.ProviderInvoker;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
@@ -40,6 +41,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,8 +51,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -81,17 +81,18 @@ public class SofaRpcProviderInterceptorTest {
     @Mock
     private ProviderInvoker invoker;
 
-    private SofaRequest           sofaRequest = PowerMockito.mock(SofaRequest.class);
+    private SofaRequest sofaRequest = PowerMockito.mock(SofaRequest.class);
     @Mock
     private MethodInterceptResult methodInterceptResult;
 
     private SofaResponse sofaResponse = PowerMockito.mock(SofaResponse.class);
 
     private Object[] allArguments;
-    private Class[]  argumentTypes;
+    private Class[] argumentTypes;
 
     @Before
     public void setUp() throws Exception {
+        Config.Agent.ACTIVE_V1_HEADER = true;
         sofaRpcProviderInterceptor = new SofaRpcProviderInterceptor();
 
         PowerMockito.mockStatic(RpcInternalContext.class);
@@ -108,14 +109,19 @@ public class SofaRpcProviderInterceptorTest {
         when(rpcContext.getProviderInfo()).thenReturn(providerInfo);
         allArguments = new Object[] {sofaRequest};
         argumentTypes = new Class[] {sofaRequest.getClass()};
-        Config.Agent.APPLICATION_CODE = "SOFARPC-TestCases-APP";
+        Config.Agent.SERVICE_NAME = "SOFARPC-TestCases-APP";
+    }
+
+    @After
+    public void clear() {
+        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
         when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW3CarrierItem.HEADER_NAME)).thenReturn(
-                "1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+            "1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
 
         sofaRpcProviderInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         sofaRpcProviderInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, sofaResponse);
@@ -131,7 +137,7 @@ public class SofaRpcProviderInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(actual), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
         assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
     }
 
@@ -141,7 +147,7 @@ public class SofaRpcProviderInterceptorTest {
     }
 
     private void assertCommonsAttribute(AbstractTracingSpan span) {
-        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.size(), is(0));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.RPC_FRAMEWORK));
         assertThat(SpanHelper.getComponentId(span), is(43));

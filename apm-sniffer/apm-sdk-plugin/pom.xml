@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -32,6 +32,7 @@
         <module>jdbc-commons</module>
         <module>httpClient-4.x-plugin</module>
         <module>jedis-2.x-plugin</module>
+        <module>redisson-3.x-plugin</module>
         <module>tomcat-7.x-8.x-plugin</module>
         <module>motan-plugin</module>
         <module>mongodb-3.x-plugin</module>
@@ -43,9 +44,14 @@
         <module>jetty-plugin</module>
         <module>spymemcached-2.x-plugin</module>
         <module>sharding-jdbc-1.5.x-plugin</module>
+        <module>sharding-sphere-3.x-plugin</module>
+        <module>sharding-sphere-4.x-plugin</module>
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
         <module>mysql-5.x-plugin</module>
+        <module>mysql-6.x-plugin</module>
+        <module>mysql-8.x-plugin</module>
+        <module>mysql-common</module>
         <module>h2-1.x-plugin</module>
         <module>postgresql-8.x-plugin</module>
         <module>rocketMQ-3.x-plugin</module>
@@ -53,11 +59,26 @@
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
-        <module>kafka-v1-plugin</module>
+        <module>kafka-plugin</module>
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
         <module>sofarpc-plugin</module>
-		<module>aliyun-rocketMQ-plugin</module>
+        <module>activemq-5.x-plugin</module>
+        <module>elasticsearch-5.x-plugin</module>
+        <module>undertow-plugins</module>
+        <module>rabbitmq-5.x-plugin</module>
+        <module>dubbo-conflict-patch</module>
+        <module>canal-1.x-plugin</module>
+        <module>dubbo-2.7.x-plugin</module>
+        <module>dubbo-2.7.x-conflict-patch</module>
+        <module>vertx-plugins</module>
+        <module>resteasy-plugin</module>
+        <module>solrj-7.x-plugin</module>
+        <module>cassandra-java-driver-3.x-plugin</module>
+        <module>light4j-plugins</module>
+        <module>ehcache-2.x-plugin</module>
+        <module>pulsar-plugin</module>
+        <module>aliyun-rocketMQ-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -70,8 +91,12 @@
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
 
-        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent
+        </agent.package.dest.dir>
         <plugin.dest.dir>${agent.package.dest.dir}/plugins</plugin.dest.dir>
+
+        <ant-contrib.version>1.0b3</ant-contrib.version>
+        <ant-nodeps.version>1.8.1</ant-nodeps.version>
     </properties>
 
     <dependencies>
@@ -98,9 +123,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -123,30 +146,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- 源码插件 -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <!-- 发布时自动将源码同时发布的配置 -->
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -173,7 +172,7 @@
                     <dependency>
                         <groupId>ant-contrib</groupId>
                         <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
+                        <version>${ant-contrib.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>ant</groupId>
@@ -184,49 +183,10 @@
                     <dependency>
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant-nodeps</artifactId>
-                        <version>1.8.1</version>
+                        <version>${ant-nodeps.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <!-- ojdbc is not Apache license compatible, so it must be manually downloaded first -->
-            <id>include-ojdbc</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/../../ci-dependencies/ojdbc14-10.2.0.4.0.jar</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>oracle-10.x-plugin</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- resin-3 is not Apache license compatible, so it must be manually downloaded first -->
-            <id>include-resin-3</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/../../ci-dependencies/resin-3.0.9.jar</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>resin-3.x-plugin</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- resin-4 is not Apache license compatible, so it must be manually downloaded first -->
-            <id>include-resin-4</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/../../ci-dependencies/resin-4.0.41.jar</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>resin-4.x-plugin</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

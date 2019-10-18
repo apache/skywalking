@@ -43,13 +43,13 @@ import org.apache.skywalking.apm.agent.core.context.util.SpanHelper;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.network.proto.KeyWithStringValue;
-import org.apache.skywalking.apm.network.proto.LogMessage;
-import org.apache.skywalking.apm.network.proto.SpanObject;
-import org.apache.skywalking.apm.network.proto.SpanType;
-import org.apache.skywalking.apm.network.proto.TraceSegmentObject;
-import org.apache.skywalking.apm.network.proto.TraceSegmentReference;
-import org.apache.skywalking.apm.network.proto.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
+import org.apache.skywalking.apm.network.language.agent.LogMessage;
+import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -68,8 +68,8 @@ public class ContextManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = 1;
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
     }
 
     @AfterClass
@@ -80,7 +80,7 @@ public class ContextManagerTest {
 
     @Test
     public void createSpanWithInvalidateContextCarrier() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=", ContextCarrier.HeaderVersion.v1);
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testEntrySpan", contextCarrier);
         firstEntrySpan.setComponent(ComponentsDefine.TOMCAT);
@@ -104,7 +104,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.2343.234234234|1|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.2343.234234234|1|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -137,8 +137,8 @@ public class ContextManagerTest {
 
         TraceSegmentRef ref = actualSegment.getRefs().get(0);
         MatcherAssert.assertThat(TraceSegmentRefHelper.getPeerHost(ref), is("127.0.0.1:8080"));
-        assertThat(ref.getEntryOperationName(), is("/portal/"));
-        assertThat(ref.getEntryOperationId(), is(0));
+        assertThat(ref.getEntryEndpointName(), is("/portal/"));
+        assertThat(ref.getEntryEndpointId(), is(0));
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
         assertThat(spanList.size(), is(2));
@@ -160,7 +160,7 @@ public class ContextManagerTest {
         assertThat(logs.get(0).getLogs().size(), is(4));
 
         assertThat(injectContextCarrier.getSpanId(), is(1));
-        assertThat(injectContextCarrier.getEntryOperationName(), is("#/portal/"));
+        assertThat(injectContextCarrier.getEntryEndpointName(), is("#/portal/"));
         assertThat(injectContextCarrier.getPeerHost(), is("#127.0.0.1:12800"));
     }
 
@@ -211,23 +211,23 @@ public class ContextManagerTest {
 
         assertThat(firstExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
         assertThat(firstExitSpanContextCarrier.getSpanId(), is(1));
-        assertThat(firstExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
+        assertThat(firstExitSpanContextCarrier.getEntryEndpointName(), is("#/testEntrySpan"));
 
         assertThat(secondExitSpanContextCarrier.getPeerHost(), is("#127.0.0.1:8080"));
         assertThat(secondExitSpanContextCarrier.getSpanId(), is(1));
-        assertThat(secondExitSpanContextCarrier.getEntryOperationName(), is("#/testEntrySpan"));
+        assertThat(secondExitSpanContextCarrier.getEntryEndpointName(), is("#/testEntrySpan"));
 
     }
 
     @After
     public void tearDown() throws Exception {
-        RemoteDownstreamConfig.Agent.APPLICATION_ID = DictionaryUtil.nullValue();
-        RemoteDownstreamConfig.Agent.APPLICATION_INSTANCE_ID = DictionaryUtil.nullValue();
+        RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();
+        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
     }
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.234.1983829|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234");
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.234.1983829|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);

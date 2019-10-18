@@ -55,7 +55,7 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
      * @return null, no need to intercept constructor of enhance class.
      */
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
@@ -64,7 +64,7 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
      * interceptors.
      */
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

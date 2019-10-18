@@ -16,106 +16,64 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.remote;
 
-import io.grpc.NameResolver;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.netty.NettyChannelBuilder;
-import io.grpc.testing.GrpcServerRule;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import io.grpc.Server;
+import io.grpc.netty.NettyServerBuilder;
+import io.grpc.stub.StreamObserver;
+import java.net.InetSocketAddress;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.network.register.v2.*;
+import org.junit.*;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({GRPCChannelManager.class, NettyChannelBuilder.class})
 public class GRPCChannelManagerTest {
-
-    @Rule
-    private GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
-
-    @Spy
-    private GRPCChannelManager grpcChannelManager = new GRPCChannelManager();
-
-    @Mock
-    private NettyChannelBuilder mock;
-
-    @Spy
-    private MockGRPCChannelListener listener = new MockGRPCChannelListener();
-
-    @Before
-    public void setUp() throws Throwable {
-        List<String> grpcServers = new ArrayList<String>();
-        grpcServers.add("127.0.0.1:2181");
-        RemoteDownstreamConfig.Collector.GRPC_SERVERS = grpcServers;
-        Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL = 1;
-
-        mockStatic(NettyChannelBuilder.class);
-        when(NettyChannelBuilder.forAddress(anyString(), anyInt())).thenReturn(mock);
-        when(mock.nameResolverFactory(any(NameResolver.Factory.class))).thenReturn(mock);
-        when(mock.maxInboundMessageSize(anyInt())).thenReturn(mock);
-        when(mock.usePlaintext(true)).thenReturn(mock);
-        when(mock.build()).thenReturn(grpcServerRule.getChannel());
-
-        grpcChannelManager.addChannelListener(listener);
+    @BeforeClass
+    public static void setup() {
+        Config.Collector.BACKEND_SERVICE = "127.0.0.1:8080";
     }
 
-    @Test
-    public void changeStatusToConnectedWithReportError() throws Throwable {
-        grpcChannelManager.reportError(new StatusRuntimeException(Status.ABORTED));
-        grpcChannelManager.run();
-
-        verify(listener, times(1)).statusChanged(GRPCChannelStatus.CONNECTED);
-        assertThat(listener.status, is(GRPCChannelStatus.CONNECTED));
+    @AfterClass
+    public static void clear() {
+        Config.Collector.BACKEND_SERVICE = "";
     }
 
-    @Test
-    public void changeStatusToDisConnectedWithReportError() throws Throwable {
-        doThrow(new RuntimeException()).when(mock).nameResolverFactory(any(NameResolver.Factory.class));
-        grpcChannelManager.run();
+    //@Test
+    public void testConnected() throws Throwable {
+        GRPCChannelManager manager = new GRPCChannelManager();
+        manager.addChannelListener(new GRPCChannelListener() {
+            @Override public void statusChanged(GRPCChannelStatus status) {
+            }
+        });
 
-        verify(listener, times(1)).statusChanged(GRPCChannelStatus.DISCONNECT);
-        assertThat(listener.status, is(GRPCChannelStatus.DISCONNECT));
-    }
+        manager.boot();
+        Thread.sleep(1000);
 
-    @Test
-    public void reportErrorWithoutChangeStatus() throws Throwable {
-        grpcChannelManager.run();
-        grpcChannelManager.reportError(new RuntimeException());
-        grpcChannelManager.run();
-
-        verify(listener, times(1)).statusChanged(GRPCChannelStatus.CONNECTED);
-        assertThat(listener.status, is(GRPCChannelStatus.CONNECTED));
-    }
-
-    private class MockGRPCChannelListener implements GRPCChannelListener {
-        private GRPCChannelStatus status;
-
-        @Override
-        public void statusChanged(GRPCChannelStatus status) {
-            this.status = status;
+        RegisterGrpc.RegisterBlockingStub stub = RegisterGrpc.newBlockingStub(manager.getChannel());
+        try {
+            stub.doServiceRegister(Services.newBuilder().addServices(Service.newBuilder().setServiceName("abc")).build());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
 
+        NettyServerBuilder nettyServerBuilder = NettyServerBuilder.forAddress(new InetSocketAddress("127.0.0.1", 8080));
+        nettyServerBuilder.addService(new RegisterGrpc.RegisterImplBase() {
+            @Override
+            public void doServiceRegister(Services request, StreamObserver<ServiceRegisterMapping> responseObserver) {
+            }
+        });
+        Server server = nettyServerBuilder.build();
+        server.start();
+        Thread.sleep(1000);
+
+        boolean registerSuccess = false;
+        try {
+            stub.doServiceRegister(Services.newBuilder().addServices(Service.newBuilder().setServiceName("abc")).build());
+            registerSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(registerSuccess);
+        server.shutdownNow();
+    }
 }

@@ -155,7 +155,7 @@ public class RequestMappingMethodInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryApplicationInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.444.555"));
     }
@@ -174,9 +174,7 @@ public class RequestMappingMethodInterceptorTest {
 
         @Override
         public Object getSkyWalkingDynamicField() {
-
             value.setPathMappingCache(new PathMappingCache("/test"));
-
             return value;
         }
 

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.patch;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -23,9 +22,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@link AopExpressionMatchInterceptor} check if the method is match the enhanced method
@@ -34,12 +30,6 @@ import java.util.List;
  * @author lican
  */
 public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterceptor {
-
-    private List<Method> methods = new ArrayList<Method>(2);
-
-    public AopExpressionMatchInterceptor() {
-        methods.addAll(Arrays.asList(EnhancedInstance.class.getDeclaredMethods()));
-    }
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
@@ -50,37 +40,16 @@ public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterce
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
         Method targetAopMethod = (Method) allArguments[1];
         Class<?> targetAopClass = (Class<?>) allArguments[2];
-        if (EnhancedInstance.class.isAssignableFrom(targetAopClass) && isEnhancedMethod(targetAopMethod)) {
+        if (targetAopClass != null && EnhancedInstance.class.isAssignableFrom(targetAopClass) && MatchUtil.isEnhancedMethod(targetAopMethod)) {
             return false;
         }
         return ret;
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                                      Throwable t) {
 
     }
 
-    private boolean isEnhancedMethod(Method targetMethod) {
-        for (Method method : methods) {
-            if (method.getName().equals(targetMethod.getName())
-                    && method.getReturnType().equals(targetMethod.getReturnType())
-                    && equalParamTypes(method.getParameterTypes(), targetMethod.getParameterTypes())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean equalParamTypes(Class<?>[] params1, Class<?>[] params2) {
-        if (params1.length != params2.length) {
-            return false;
-        }
-        for (int i = 0; i < params1.length; i++) {
-            if (!params1[i].equals(params2[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
 }

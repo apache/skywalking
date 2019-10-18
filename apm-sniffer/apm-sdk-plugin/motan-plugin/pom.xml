@@ -20,7 +20,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>5.0.0-RC-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,31 +30,36 @@
     <name>motan-plugin</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <motan.version>0.2.1</motan.version>
+        <spring-context.version>4.2.4.RELEASE</spring-context.version>
+    </properties>
+
     <dependencies>
         <!-- Motan -->
         <dependency>
             <groupId>com.weibo</groupId>
             <artifactId>motan-core</artifactId>
-            <version>0.2.1</version>
+            <version>${motan.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.weibo</groupId>
             <artifactId>motan-transport-netty</artifactId>
-            <version>0.2.1</version>
+            <version>${motan.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.weibo</groupId>
             <artifactId>motan-springsupport</artifactId>
-            <version>0.2.1</version>
+            <version>${motan.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>4.2.4.RELEASE</version>
+            <version>${spring-context.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

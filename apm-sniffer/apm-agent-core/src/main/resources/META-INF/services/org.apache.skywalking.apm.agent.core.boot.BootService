@@ -18,9 +18,11 @@
 
 org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient
 org.apache.skywalking.apm.agent.core.context.ContextManager
-org.apache.skywalking.apm.agent.core.remote.CollectorDiscoveryService
 org.apache.skywalking.apm.agent.core.sampling.SamplingService
 org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager
 org.apache.skywalking.apm.agent.core.jvm.JVMService
-org.apache.skywalking.apm.agent.core.remote.AppAndServiceRegisterClient
+org.apache.skywalking.apm.agent.core.remote.ServiceAndEndpointRegisterClient
 org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService
+org.apache.skywalking.apm.agent.core.commands.CommandService
+org.apache.skywalking.apm.agent.core.commands.CommandExecutorService
+org.apache.skywalking.apm.agent.core.context.OperationNameFormatService

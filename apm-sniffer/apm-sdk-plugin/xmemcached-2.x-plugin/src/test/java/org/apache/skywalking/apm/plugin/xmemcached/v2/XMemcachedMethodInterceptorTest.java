@@ -19,19 +19,15 @@
 
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
-
 import java.lang.reflect.Method;
 import java.util.List;
-
 import junit.framework.TestCase;
+import net.rubyeye.xmemcached.XMemcachedClient;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
@@ -49,7 +45,9 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import net.rubyeye.xmemcached.XMemcachedClient;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
@@ -116,7 +114,7 @@ public class XMemcachedMethodInterceptorTest {
         assertThat(span.getOperationName(), is("XMemcached/set"));
         assertThat(span.isExit(), is(true));
         assertThat(SpanHelper.getComponentId(span), is(36));
-        List<KeyValuePair> tags = SpanHelper.getTags(span);
+        List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("Xmemcached"));
         assertThat(tags.get(1).getValue(), is("set OperationKey"));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.CACHE));
