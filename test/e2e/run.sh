@@ -76,17 +76,18 @@ do
   
   sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
   
-  # Download MySQL connector.
-  [ ${use_mysql} -eq 1 ] \
-  && echo "MySQL database is storage provider..." \
-  && curl ${MYSQL_URL} > "${sky_home_dir}/oap-libs/${MYSQL_DRIVER}"
-  
-  [ $? -ne 0 ] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
-  
-  # Modify application.yml to set MySQL as storage provider.
-  cat "${sky_home_dir}/conf/application.yml" | sed '/elasticsearch/,/mysql/d' | sed "/storage:/a \  mysql:" | sed "/storage:/,/receiver-sharing-server:/s/#//" > ${TMP_APP_YML}
-  cat ${TMP_APP_YML} > "${sky_home_dir}/conf/application.yml"
-  rm -f ${TMP_APP_YML}
+  if ${use_mysql} -eq 1; then
+      echo "MySQL database is storage provider..."
+      
+      # Download MySQL connector.
+      curl ${MYSQL_URL} > "${sky_home_dir}/oap-libs/${MYSQL_DRIVER}"
+      [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
+      
+      # Modify application.yml to set MySQL as storage provider.
+      cat "${sky_home_dir}/conf/application.yml" | sed '/elasticsearch/,/mysql/d' | sed "/storage:/a \  mysql:" | sed "/storage:/,/receiver-sharing-server:/s/#//" > ${TMP_APP_YML}
+      cat ${TMP_APP_YML} > "${sky_home_dir}/conf/application.yml"
+      rm -f ${TMP_APP_YML}
+  fi
   
   ./mvnw -Dbuild.id="${BUILD_ID:-local}" -Dsw.home="${sky_home_dir}" -f test/e2e/pom.xml -pl "$test_case" -am verify
 
