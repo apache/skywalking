@@ -39,7 +39,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 public class ConsumeMessageConcurrentlyInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.aliyun.openservices.shade.com.alibaba.rocketmq.client.consumer.listener.MessageListenerConcurrently";
     private static final String CONSUMER_MESSAGE_METHOD = "consumeMessage";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ons.MessageConcurrentlyConsumeInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.rocketMQ.aliyun.MessageConcurrentlyConsumeInterceptor";
 
     @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
