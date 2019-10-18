@@ -47,8 +47,7 @@ segmentItems:
       - {key: http.method, value: HEAD}
   - segmentId: not null
     spans:
-    -
-        operationName: PostgreSQL/JDBI/PreparedStatement/execute
+      - operationName: PostgreSQL/JDBI/PreparedStatement/execute
         operationId: eq 0
         parentSpanId: 0
         spanId: 1
@@ -65,8 +64,7 @@ segmentItems:
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
-    -
-        operationName: PostgreSQL/JDBI/CallableStatement/execute
+      - operationName: PostgreSQL/JDBI/CallableStatement/execute
         operationId: eq 0
         parentSpanId: 0
         spanId: 2
@@ -83,8 +81,7 @@ segmentItems:
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
-    -
-        operationName: PostgreSQL/JDBI/Statement/execute
+      - operationName: PostgreSQL/JDBI/Statement/execute
         operationId: eq 0
         parentSpanId: 0
         spanId: 3
@@ -101,8 +98,7 @@ segmentItems:
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
-    -
-        operationName: PostgreSQL/JDBI/Connection/close
+      - operationName: PostgreSQL/JDBI/Connection/close
         operationId: eq 0
         parentSpanId: 0
         spanId: 4
@@ -119,8 +115,7 @@ segmentItems:
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
-    -
-        operationName: PostgreSQL/JDBI/Connection/close
+      - operationName: PostgreSQL/JDBI/Connection/close
         operationId: eq 0
         parentSpanId: 0
         spanId: 5
@@ -137,8 +132,7 @@ segmentItems:
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
-    -
-        operationName: /postgresql-scenario/case/postgres
+      - operationName: /postgresql-scenario/case/postgres
         operationId: eq 0
         parentSpanId: -1
         spanId: 0
