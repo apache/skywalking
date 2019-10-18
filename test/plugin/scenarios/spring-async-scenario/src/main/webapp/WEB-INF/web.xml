@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
 		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
-    <display-name>skywalking-ehcache-2.x-scenario</display-name>
+    <display-name>skywalking-spring-async-scenario</display-name>
 
     <servlet>
         <servlet-name>caseServlet</servlet-name>

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import com.google.common.base.Strings;
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.util.StringUtils;
 import org.apache.skywalking.plugin.test.helper.vo.CaseConfiguration;
@@ -37,6 +38,12 @@ public class ConfigurationImpl implements IConfiguration {
 
         this.configuration = new Yaml().loadAs(new FileReader(new File(configureFile)), CaseConfiguration.class);
         this.scenarioHome = System.getProperty("scenario.home");
+        if (!Strings.isNullOrEmpty(this.configuration.getRunningMode())) {
+            String runningMode = this.configuration.getRunningMode();
+            if (!runningMode.matches("default|with_optional|with_bootstrap")) {
+                throw new RuntimeException("RunningMode (" + runningMode + ") is not defined.");
+            }
+        }
     }
 
     @Override
