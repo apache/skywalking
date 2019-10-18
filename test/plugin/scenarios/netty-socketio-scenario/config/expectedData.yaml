@@ -21,8 +21,7 @@ registryItems:
     - {netty-socketio-scenario: 1}
   operationNames:
     - netty-socketio-scenario: [/netty-socketio-scenario/case/netty-socketio, /socket.io/,
-                                /netty-socketio-scenario/healthCheck, SocketIO/onConnect, SocketIO/get_data/send,
-                                SocketIO/send_data/receive]
+                                /netty-socketio-scenario/healthCheck, SocketIO/onConnect, SocketIO/send_data/receive]
   heartbeat: []
 segmentItems:
   - applicationCode: netty-socketio-scenario
@@ -65,19 +64,6 @@ segmentItems:
               - {key: from, value: not null}
       - segmentId: not null
         spans:
-          - operationName: SocketIO/get_data/send
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 76
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
           - operationName: /netty-socketio-scenario/case/netty-socketio
             operationId: 0
             parentSpanId: -1
