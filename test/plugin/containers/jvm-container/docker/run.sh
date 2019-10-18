@@ -25,7 +25,6 @@ function exitOnError() {
 function exitAndClean() {
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
     [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
-    [[ -d ${SCENARIO_HOME}/package ]] && rm -rf ${SCENARIO_HOME}/package
     exit $1
 }
 
