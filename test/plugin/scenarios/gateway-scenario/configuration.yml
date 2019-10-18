@@ -20,3 +20,4 @@ healthCheck: http://localhost:8080/provider/b/healthCheck
 startScript: ./bin/startup.sh
 framework: spring-cloud-gateway
 runningMode: with_optional
+with_plugins: apm-spring-cloud-gateway-2.x-plugin-*.jar
