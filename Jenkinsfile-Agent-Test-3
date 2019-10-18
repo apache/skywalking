@@ -58,9 +58,9 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
-                        stage('reserve stages') {
+                        stage('kafka 0.11.0.0-2.3.0 (16)') {
                             steps {
-                                echo "reserve."
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} kafka-scenario'
                             }
                         }
                     }
