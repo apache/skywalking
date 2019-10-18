@@ -60,7 +60,6 @@ public class NettySocketIOTest {
 
     private NettySocketIOConnectionInterceptor connectionInterceptor;
     private NettySocketIOOnEventInterceptor onEventInterceptor;
-    private NettySocketIOSendInterceptor sendInterceptor;
     private NettySocketIORoomInterceptor roomInterceptor;
 
     @Mock
@@ -94,7 +93,6 @@ public class NettySocketIOTest {
 
         connectionInterceptor = new NettySocketIOConnectionInterceptor();
         onEventInterceptor = new NettySocketIOOnEventInterceptor();
-        sendInterceptor = new NettySocketIOSendInterceptor();
         roomInterceptor = new NettySocketIORoomInterceptor();
 
         // work for connection
@@ -122,15 +120,6 @@ public class NettySocketIOTest {
     public void assertOnEvent() throws Throwable {
         onEventInterceptor.beforeMethod(null, null, new Object[]{null, "test"}, null, null);
         onEventInterceptor.afterMethod(null, null, new Object[]{null, "test"}, null, null);
-
-        List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
-        Assert.assertThat(traceSegments.size(), is(1));
-    }
-
-    @Test
-    public void assertSend() throws Throwable {
-        sendInterceptor.beforeMethod(enhancedInstance, null, new Object[]{sendPacket}, null, null);
-        sendInterceptor.afterMethod(enhancedInstance, null, new Object[]{sendPacket}, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
