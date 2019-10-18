@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.netty.socketio;
 
 import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.handler.ClientHead;
 import com.corundumstudio.socketio.namespace.Namespace;
 import com.corundumstudio.socketio.protocol.Packet;
 import com.corundumstudio.socketio.transport.NamespaceClient;
@@ -61,11 +62,16 @@ public class NettySocketIOTest {
     private NettySocketIOConnectionInterceptor connectionInterceptor;
     private NettySocketIOOnEventInterceptor onEventInterceptor;
     private NettySocketIORoomInterceptor roomInterceptor;
+    private NettySocketIOConstructorInterceptor constructorInterceptor;
 
     @Mock
     private SocketIOClient socketIOClient;
     @Mock
     private Packet sendPacket;
+    @Mock
+    private ClientHead clientHead;
+    @Mock
+    private Namespace namespace;
 
     private Method connectOnConnectMethod;
     private Method connectOnDisConnectMethod;
@@ -88,12 +94,15 @@ public class NettySocketIOTest {
 
     @Before
     public void setUp() {
-        when(socketIOClient.getRemoteAddress()).thenReturn(new InetSocketAddress("127.0.0.1", 9092));
+        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 9092);
+        when(socketIOClient.getRemoteAddress()).thenReturn(addr);
         when(sendPacket.getName()).thenReturn("test");
+        when(clientHead.getRemoteAddress()).thenReturn(addr);
 
         connectionInterceptor = new NettySocketIOConnectionInterceptor();
         onEventInterceptor = new NettySocketIOOnEventInterceptor();
         roomInterceptor = new NettySocketIORoomInterceptor();
+        constructorInterceptor = new NettySocketIOConstructorInterceptor();
 
         // work for connection
         connectOnConnectMethod = Whitebox.getMethods(Namespace.class, "onConnect")[0];
@@ -123,6 +132,11 @@ public class NettySocketIOTest {
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
+    }
+
+    @Test
+    public void assertConstructor() throws Throwable {
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {clientHead, namespace});
     }
 
     @Test
