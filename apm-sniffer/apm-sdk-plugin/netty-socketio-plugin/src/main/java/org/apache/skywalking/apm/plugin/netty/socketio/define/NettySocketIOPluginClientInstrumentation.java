@@ -63,23 +63,6 @@ public class NettySocketIOPluginClientInstrumentation extends ClassInstanceMetho
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("send").and(takesArguments(1)).and(takesArgument(0, named("com.corundumstudio.socketio.protocol.Packet")));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.netty.socketio.NettySocketIOSendInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("joinRoom").or(named("leaveRoom"));
                 }
 
