@@ -123,7 +123,7 @@ agent_home_selector() {
 
     target_agent_home=${workspace}/${target_agent_dir}
     mkdir -p ${target_agent_home}
-    cp -fur ${agent_home}/* ${target_agent_home}
+    cp -fr ${agent_home}/* ${target_agent_home}
 
     with_plugins=`echo $with_plugins |sed -e "s/;/ /g"`
     for plugin in ${with_plugins};
