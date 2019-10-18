@@ -57,6 +57,7 @@
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
         <module>sofarpc-plugin</module>
+		<module>aliyun-rocketMQ-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
