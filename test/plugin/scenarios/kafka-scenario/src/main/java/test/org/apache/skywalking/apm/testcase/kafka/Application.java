@@ -13,31 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.plugin.test.agent.tool.report.entity;
+package test.org.apache.skywalking.apm.testcase.kafka;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class CaseVersionCategory {
-    private String name;
-    private List<TestCase> testCases;
+/**
+ * @author zhangwei
+ */
+@SpringBootApplication
+public class Application {
 
-    public CaseVersionCategory(String versionName) {
-        this.name = versionName;
-        testCases = new ArrayList<>();
-    }
-
-    public void addTestCases(TestCase testCase) {
-        this.testCases.add(testCase);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<TestCase> getTestCases() {
-        return testCases;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 }

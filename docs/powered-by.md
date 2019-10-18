@@ -103,7 +103,7 @@ or providing commercial products including Apache SkyWalking.
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
 
-# User Cases
+# Use Cases
 ## Alibaba Cloud
 Support SkyWalking agents and formats in Tracing Analysis cloud service.
 
@@ -119,6 +119,12 @@ Deploy SkyWalking in production environments.
 - Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
 
 Support 60+ Instances, Over 300k Calls Per Minute, Over 50k Spans Per Second
+
+## guazi.com
+Guazi.com uses SkyWalking monitoring 270+ services, 
+including topology + metrics analysis, and collecting 1.1+ billion traces per day with 100% sampling. 
+
+Plan is 1k+ services and 5 billion traces per day.
 
 ## Oscart
 Use multiple language agents from SkyWalking and its ecosystem, including SkyWalking Javaagent and [SkyAPM nodejs agent](https://github.com/SkyAPM/SkyAPM-nodejs). SkyWalking OAP platform acts as backend and visualization.
