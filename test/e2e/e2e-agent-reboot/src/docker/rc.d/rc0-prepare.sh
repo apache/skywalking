@@ -20,7 +20,7 @@
 # we'll expose a tcp port and whenever we receive a message on that port, we'll restart the OAP server,
 # socat will help on this to execute the script when receiving a message on that port
 
-apk update && apk add socat
+apt-get update && apt-get -y install socat
 
 # socat will execute the command in a new shell, thus won't catch the original functions' declarations
 # so we'll put the restart command in a script file
