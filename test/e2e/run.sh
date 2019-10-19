@@ -64,7 +64,7 @@ do
 
   status_code=$?
 
-  if ${status_code} -ne 0; then
+  if [[ ${status_code} -ne 0 ]]; then
     echo "Fast failing due to previous failure: ${test_case}, exit status code: ${status_code}" && exit ${status_code}
   fi
 done
