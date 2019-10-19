@@ -17,4 +17,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 ${agent_opts} ${home}/../libs/postgresql-scenario.jar &
+java -jar ${agent_opts} ${home}/../libs/postgresql-scenario.jar &
