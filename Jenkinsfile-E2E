@@ -69,7 +69,25 @@ pipeline {
                             }
                         }
 
-                        stage('Agent Reboot Tests') {
+                        stage('Single Node Tests(JDK9)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk9-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Single Node Tests(JDK11)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk11-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Single Node Tests(JDK12)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk12-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Agent Reboot Tests(JDK8)') {
                             steps {
                                 sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-agent-reboot'
                             }
@@ -79,21 +97,15 @@ pipeline {
 
                 stage('Group 2') {
                     stages {
-                        stage('Cluster Tests (ES6/ZK)') {
+                        stage('Cluster Tests (ES6/ZK/JDK8)') {
                             steps {
                                 sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-cluster/test-runner'
                             }
                         }
 
-                        stage('TTL ES Tests') {
+                        stage('TTL ES Tests(JDK8)') {
                             steps {
                                 sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
-                            }
-                        }
-
-                        stage('Single Node Tests(JDK9)') {
-                            steps {
-                                sh 'E2E_VERSION=jdk9-1.3 bash -x test/e2e/run.sh e2e-single-service'
                             }
                         }
                     }
