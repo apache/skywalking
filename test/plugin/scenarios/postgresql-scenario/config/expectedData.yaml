@@ -19,66 +19,14 @@ registryItems:
     instances:
     - {postgresql-scenario: 1}
     operationNames:
-    - postgresql-scenario: [/postgresql-scenario/case/healthcheck, /postgresql-scenario/case/postgres,
-                            PostgreSQL/JDBI/PreparedStatement/execute, PostgreSQL/JDBI/CallableStatement/execute,
-                            PostgreSQL/JDBI/Statement/execute, PostgreSQL/JDBI/Connection/close]
+    - postgresql-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/execute,
+                            PostgreSQL/JDBI/CallableStatement/execute, PostgreSQL/JDBI/Statement/execute,
+                            PostgreSQL/JDBI/Connection/close]
     heartbeat: []
 segmentItems:
 - applicationCode: postgresql-scenario
   segmentSize: ge 1
   segments:
-  - segmentId: not null
-    spans:
-    - operationName: PostgreSQL/JDBI/Statement/execute
-      operationId: eq 0
-      parentSpanId: 0
-      spanId: 1
-      tags:
-      - {key: "db.type", value: "sql"}
-      - {key: "db.instance", value: "postgres"}
-      - {key: "db.statement", value: "SELECT 1"}
-      startTime: nq 0
-      endTime: nq 0
-      isError: false
-      spanLayer: Database
-      spanType: Exit
-      componentName: ''
-      componentId: 37
-      peer: postgresql-server:5432
-      peerId: eq 0
-    - operationName: PostgreSQL/JDBI/Connection/close
-      operationId: eq 0
-      parentSpanId: 0
-      spanId: 2
-      tags:
-      - {key: "db.type", value: "sql"}
-      - {key: "db.instance", value: "postgres"}
-      - {key: "db.statement", value: ""}
-      startTime: nq 0
-      endTime: nq 0
-      isError: false
-      spanLayer: Database
-      spanType: Exit
-      componentName: ''
-      componentId: 37
-      peer: postgresql-server:5432
-      peerId: eq 0
-    - operationName: /postgresql-scenario/case/healthcheck
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: gt 0
-      endTime: gt 0
-      componentId: 1
-      componentName: ''
-      isError: false
-      spanType: Entry
-      peer: ''
-      peerId: 0
-      tags:
-      - {key: url, value: 'http://localhost:8080/postgresql-scenario/case/healthcheck'}
-      - {key: http.method, value: HEAD}
   - segmentId: not null
     spans:
       - operationName: PostgreSQL/JDBI/PreparedStatement/execute
