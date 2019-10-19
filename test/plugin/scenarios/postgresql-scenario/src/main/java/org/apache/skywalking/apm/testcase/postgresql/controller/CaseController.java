@@ -24,8 +24,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/postgresql-scenario/case")
 public class CaseController {
-    private Logger logger = LogManager.getLogger(CaseController.class);
+
+    private Logger logger = LoggerFactory.getLogger(CaseController.class);
 
     @Autowired
     PostgresqlConfig postgresqlConfig;
