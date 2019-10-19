@@ -18,6 +18,7 @@
 package org.apache.skywalking.apm.testcase.postgresql.controller;
 
 public class ConstSql {
+    public static final String TEST_SQL = "SELECT 1";
     public static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
         "id VARCHAR(1) PRIMARY KEY, \n" +
         "value VARCHAR(1) NOT NULL)";

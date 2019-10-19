@@ -38,6 +38,11 @@ public class SQLExecutor {
         connection = DriverManager.getConnection(postgresqlConfig.getUrl(), postgresqlConfig.getUserName(), postgresqlConfig.getPassword());
     }
 
+    public void checkPG(String sql) throws SQLException {
+        Statement preparedStatement = connection.createStatement();
+        preparedStatement.execute(sql);
+    }
+
     public void createTable(String sql) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.execute();
@@ -60,12 +65,5 @@ public class SQLExecutor {
         if (this.connection != null) {
             this.connection.close();
         }
-    }
-
-    public void queryData(String sql) throws SQLException {
-        ResultSet resultSet = ((BaseConnection)connection).execSQLQuery(sql);
-        resultSet.next();
-        System.out.println(resultSet.getString("id"));
-
     }
 }

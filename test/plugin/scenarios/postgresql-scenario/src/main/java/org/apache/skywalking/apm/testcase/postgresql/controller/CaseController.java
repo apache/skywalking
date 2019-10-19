@@ -42,6 +42,22 @@ public class CaseController {
 
     @GetMapping("/healthcheck")
     public String healthcheck() throws Exception {
+        SQLExecutor sqlExecute = null;
+        try {
+            sqlExecute = new SQLExecutor(postgresqlConfig);
+            sqlExecute.checkPG(ConstSql.TEST_SQL);
+        } catch (SQLException e) {
+            logger.error("Failed to execute sql.", e);
+            throw e;
+        } finally {
+            if (sqlExecute != null) {
+                try {
+                    sqlExecute.closeConnection();
+                } catch (SQLException e) {
+                    logger.error("Failed to close connection.", e);
+                }
+            }
+        }
         return "Success";
     }
 
