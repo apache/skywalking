@@ -90,6 +90,11 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
                             }
                         }
+                        stage('postgresql 9.2.x-9.4.x (36)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-scenario'
+                            }
+                        }
                     }
                 }
             }
