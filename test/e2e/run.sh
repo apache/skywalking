@@ -65,7 +65,7 @@ do
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
 
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
+  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${JDK_VERSION}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
 
   status_code=$?
 
