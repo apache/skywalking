@@ -38,4 +38,3 @@ Now, let's continue with the backend and UI setting documents.
 - [Backend setup document](backend-setup.md)
 - [UI setup document](ui-setup.md)
 
-Also, we provide [k8s settings](https://github.com/apache/skywalking-kubernetes#deploy-skywalking-backend-to-kubernetes-cluster) for convenience. 

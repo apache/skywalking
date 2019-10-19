@@ -25,7 +25,6 @@ function exitOnError() {
 function exitAndClean() {
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
     [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
-    [[ -d ${SCENARIO_HOME}/package ]] && rm -rf ${SCENARIO_HOME}/package
     exit $1
 }
 
@@ -33,7 +32,7 @@ function healthCheck() {
     HEALTH_CHECK_URL=$1
     STATUS_CODE="-1"
 
-    for ((i=1; i<=30; i++));
+    for ((i=1; i<=150; i++));
     do
         STATUS_CODE="$(curl -Is ${HEALTH_CHECK_URL} | head -n 1)"
         if [[ $STATUS_CODE == *"200"* ]]; then
@@ -72,6 +71,7 @@ export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
     -Xms256m -Xmx256m ${agent_opts}"
 exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>/dev/null &
+
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -84,9 +84,8 @@ curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.ya
 
 echo "To validate"
 java -jar \
-    -Dv2=true \
     -Xmx256m -Xms256m \
-    -DtestDate="`date +%Y-%m-%d-%H-%M`" \
+    -DcaseName="${SCENARIO_NAME}-${SCENARIO_VERSION}" \
     -DtestCasePath=${SCENARIO_HOME}/data/ \
     ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
 status=$?
