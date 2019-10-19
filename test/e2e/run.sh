@@ -20,20 +20,15 @@ export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:
 
 base_dir=$(pwd)
 build=0
-fast_fail=0
 cases=()
 
 # Parse the arguments
 # --build-dist: build the distribution package ignoring the existance of `dist` folder, useful when running e2e locally
-# --fast-fail: when testing multiple cases, skip following cases when a previous one failed
 
-while [ $# -gt 0 ]; do
+while [[ $# -gt 0 ]]; do
   case "$1" in
     --build)
       build=1
-      ;;
-    --fast-fail)
-      fast_fail=1
       ;;
     *)
       cases+=($1)
@@ -41,15 +36,15 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-[ ! -f "$base_dir/mvnw" ] \
+[[ ! -f "${base_dir}/mvnw" ]] \
   && echo 'Please run run.sh in the root directory of SkyWalking' \
   && exit 1
 
-[ ${#cases[@]} -le 0 ] \
+[[ ${#cases[@]} -le 0 ]] \
   && echo 'Usage: sh test/e2e/run.sh [--build-dist] [--fast-fail] <case1 maven module>[<case2 maven module>...<caseN maven module>]' \
   && exit 1
 
-[ $build -eq 1 ] \
+[[ ${build} -eq 1 ]] \
   && echo 'Building distribution package...' \
   && ./mvnw -q -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -DskipTests clean install
 
@@ -59,20 +54,19 @@ for test_case in "${cases[@]}"
 do
   echo "Running case: $test_case"
 
-  [ -d "$base_dir/$test_case" ] && rm -rf "$base_dir/$test_case"
+  [[ -d "$base_dir/$test_case" ]] && rm -rf "$base_dir/$test_case"
 
   # Some of the tests will modify files in the distribution folder, e.g. cluster test will modify the application.yml
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
 
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${JDK_VERSION}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
+  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
 
   status_code=$?
 
-  [ $status_code -ne 0 ] \
-    && [ $fast_fail -eq 1 ] \
-    && echo "Fast failing due to previous failure: $test_case, exit status code: $status_code" \
-    && exit $status_code
+  if ${status_code} -ne 0; then
+    echo "Fast failing due to previous failure: ${test_case}, exit status code: ${status_code}" && exit ${status_code}
+  fi
 done
 
 exit 0

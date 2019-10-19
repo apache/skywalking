@@ -65,13 +65,13 @@ pipeline {
                     stages {
                         stage('Single Node Tests(JDK8)') {
                             steps {
-                                sh 'JDK_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-single-service'
+                                sh 'E2E_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-single-service'
                             }
                         }
 
                         stage('Agent Reboot Tests') {
                             steps {
-                                sh 'JDK_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-agent-reboot'
+                                sh 'E2E_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-agent-reboot'
                             }
                         }
                     }
@@ -81,19 +81,19 @@ pipeline {
                     stages {
                         stage('Single Node Tests(JDK9)') {
                             steps {
-                                sh 'JDK_VERSION=jdk9-1.0 bash -x test/e2e/run.sh e2e-single-service'
+                                sh 'E2E_VERSION=jdk9-1.0 bash -x test/e2e/run.sh e2e-single-service'
                             }
                         }
 
                         stage('Cluster Tests (ES6/ZK)') {
                             steps {
-                                sh 'JDK_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-cluster/test-runner'
+                                sh 'E2E_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-cluster/test-runner'
                             }
                         }
 
                         stage('TTL ES Tests') {
                             steps {
-                                sh 'JDK_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
+                                sh 'E2E_VERSION=jdk8-1.0 bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
                             }
                         }
                     }
