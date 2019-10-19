@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Licensed to the SkyAPM under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -13,8 +14,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#!/usr/bin/env bash
 
 # in order to make it easier to restart the OAP (by executing the restart script) from outside (container),
 # we'll expose a tcp port and whenever we receive a message on that port, we'll restart the OAP server,
