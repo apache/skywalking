@@ -15,15 +15,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apt-get update && apt-get install -y gawk
+echo 'starting OAP server...' && start_oap 'init'
 
-original_wd=$(pwd)
+echo 'starting Web app...' && start_webapp '0.0.0.0' 8081
 
-# substitute application.yml to be capable of es mode
-cd ${SW_HOME}/config \
-    && gawk -f /es_storage.awk application.yml > es_storage_app.yml \
-    && mv es_storage_app.yml application.yml \
-    && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.storage" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
-    && mv log4j2debuggable.xml log4j2.xml
+echo 'starting instrumented services...' && start_instrumented_services
 
-cd ${original_wd}
+check_tcp 127.0.0.1 \
+          9090 \
+          60 \
+          10 \
+          "waiting for the instrumented service to be ready"
+
+if [[ $? -ne 0 ]]; then
+    echo "instrumented service 0 failed to start in 30 * 10 seconds: "
+    cat ${SERVICE_LOG}/*
+    exit 1
+fi
+
+echo "SkyWalking e2e container is ready for tests"
+
+tail -f ${OAP_LOG_DIR}/* \
+        ${WEBAPP_LOG_DIR}/* \
+        ${SERVICE_LOG}/*
