@@ -23,6 +23,7 @@
         name
         value
       }
+      instanceUUID
     }
   }",
   "variables": {
