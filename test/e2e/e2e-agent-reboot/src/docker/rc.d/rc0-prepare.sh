@@ -26,7 +26,7 @@ apt-get update && apt-get -y install socat
 # so we'll put the restart command in a script file
 
 echo '
-    ps -ef | grep -v grep | grep oap.logDir | awk '"'"'{print $1}'"'"' | xargs --no-run-if-empty kill -9
+    ps -ef | grep -v grep | grep oap.logDir | awk '"'"'{print $2}'"'"' | xargs --no-run-if-empty kill -9
     rm -rf /tmp/oap/trace_buffer1
     rm -rf /tmp/oap/mesh_buffer1
     echo "restarting OAP server..." \
