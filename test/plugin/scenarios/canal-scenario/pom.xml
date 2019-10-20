@@ -87,7 +87,10 @@
                     <artifactId>spring-orm</artifactId>
                 </exclusion>
 
-
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
             </exclusions>
             <version>${test.framework.version}</version>
         </dependency>
