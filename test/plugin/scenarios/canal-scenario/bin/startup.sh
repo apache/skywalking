@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -Dcanal.host=${CANAL_HOST} -Dcanal.port=${CANAL_PORT} -jar ${agent_opts} "-Dskywalking.agent.service_name=canal-scenario" ${home}/../libs/canal-scenario.jar &
+java -Dcanal.host=${CANAL_HOST} -Dcanal.port=${CANAL_PORT} -jar ${agent_opts} ${home}/../libs/canal-scenario.jar &
