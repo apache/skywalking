@@ -82,7 +82,7 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-scenario'
                             }
                         }
-                        stage('postgresql-above9.4.1207 (16)') {
+                        stage('postgresql-9.4.1207+ (16)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-above9.4.1207-scenario'
                             }
