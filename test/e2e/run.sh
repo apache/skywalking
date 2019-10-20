@@ -69,10 +69,10 @@ do
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
   
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
+   sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
   
-  sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
-  
+  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${sky_home_dir}" -f test/e2e/pom.xml -pl "$test_case" -am verify
+    
   if ${use_mysql} -eq 1; then
       echo "MySQL database is storage provider..."
       
