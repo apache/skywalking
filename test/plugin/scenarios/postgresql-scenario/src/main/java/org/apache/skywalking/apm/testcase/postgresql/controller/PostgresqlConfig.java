@@ -17,15 +17,11 @@
  */
 package org.apache.skywalking.apm.testcase.postgresql.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PostgresqlConfig {
-
-    private static Logger logger = LoggerFactory.getLogger(PostgresqlConfig.class);
 
     @Value("${POSTGRESQL_SERVER}")
     private String host;

@@ -21,12 +21,11 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.postgresql.core.BaseConnection;
 
 public class SQLExecutor {
+
     private Connection connection;
 
     public SQLExecutor(PostgresqlConfig postgresqlConfig) throws SQLException {
@@ -58,7 +57,6 @@ public class SQLExecutor {
     public void dropTable(String sql) throws SQLException {
         Statement preparedStatement = connection.createStatement();
         preparedStatement.execute(sql);
-        closeConnection();
     }
 
     public void closeConnection() throws SQLException {

@@ -36,7 +36,7 @@
 
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
         <lombok.version>1.16.20</lombok.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <log4j.version>2.8.1</log4j.version>
     </properties>
 
     <dependencies>
@@ -44,12 +44,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${test.framework.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- spring boot -->
         <dependency>
@@ -58,12 +52,8 @@
             <version>${spring-boot.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>logback-classic</artifactId>
-                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                    <groupId>org.springframework.boot</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -73,9 +63,14 @@
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
     </dependencies>
 
