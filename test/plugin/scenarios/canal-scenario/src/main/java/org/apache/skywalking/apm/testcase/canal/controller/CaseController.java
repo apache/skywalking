@@ -22,8 +22,8 @@ package org.apache.skywalking.apm.testcase.canal.controller;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.protocol.Message;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
@@ -41,7 +41,7 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private Logger logger = LogManager.getLogger(CaseController.class);
+    private Logger logger = LoggerFactory.getLogger(CaseController.class);
 
     @Value(value = "${canal.host}")
     private String address;
@@ -60,7 +60,7 @@ public class CaseController {
                 connector.rollback();
                 Message message = connector.getWithoutAck(batchSize);
                 long batchId = message.getId();
-                logger.info(message.getEntries());
+                logger.info(message.getEntries().toString());
                 connector.ack(batchId);
             } catch (Exception ex) {
                 logger.error(ex.toString());
