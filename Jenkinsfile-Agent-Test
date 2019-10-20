@@ -54,9 +54,9 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report') {
+        stage('Test Cases Report (135)') {
             steps {
-                echo "total test cases: 135"
+                echo "reserve."
             }
         }
         stage('Run Agent Plugin Tests') {
