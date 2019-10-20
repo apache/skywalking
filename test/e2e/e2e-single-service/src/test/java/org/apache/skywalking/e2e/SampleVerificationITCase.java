@@ -101,6 +101,7 @@ public class SampleVerificationITCase {
                     user,
                     String.class
                 );
+                LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
                 final List<Trace> traces = queryClient.traces(
                     new TracesQuery()
@@ -150,6 +151,7 @@ public class SampleVerificationITCase {
                 .start(minutesAgo.minusDays(1))
                 .end(now)
         );
+        LOGGER.info("topoData: {}", topoData);
 
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml").getInputStream();
@@ -166,6 +168,7 @@ public class SampleVerificationITCase {
                 .start(minutesAgo)
                 .end(now)
         );
+        LOGGER.info("services: {}", services);
 
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.services.yml").getInputStream();
@@ -197,6 +200,7 @@ public class SampleVerificationITCase {
                 .start(minutesAgo)
                 .end(now)
         );
+        LOGGER.info("instances: {}", instances);
         expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml").getInputStream();
         final InstancesMatcher instancesMatcher = new Yaml().loadAs(expectedInputStream, InstancesMatcher.class);
@@ -209,6 +213,7 @@ public class SampleVerificationITCase {
         Endpoints instances = queryClient.endpoints(
             new EndpointQuery().serviceId(service.getKey())
         );
+        LOGGER.info("instances: {}", instances);
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.endpoints.yml").getInputStream();
         final EndpointsMatcher endpointsMatcher = new Yaml().loadAs(expectedInputStream, EndpointsMatcher.class);
@@ -226,6 +231,7 @@ public class SampleVerificationITCase {
                         .metricsName(metricsName)
                         .id(instance.getKey())
                 );
+                LOGGER.info("instanceMetrics: {}", instanceMetrics);
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -249,6 +255,7 @@ public class SampleVerificationITCase {
                         .metricsName(metricName)
                         .id(endpoint.getKey())
                 );
+                LOGGER.info("metrics: {}", metrics);
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -268,6 +275,7 @@ public class SampleVerificationITCase {
                     .metricsName(metricName)
                     .id(service.getKey())
             );
+            LOGGER.info("serviceMetrics: {}", serviceMetrics);
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
@@ -286,6 +294,7 @@ public class SampleVerificationITCase {
                 .end(now)
                 .orderByDuration()
         );
+        LOGGER.info("traces: {}", traces);
 
         InputStream expectedInputStream =
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
