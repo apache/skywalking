@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.pgcase.postgresql.controller;
+package org.apache.skywalking.apm.testcase.postgresql.controller;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

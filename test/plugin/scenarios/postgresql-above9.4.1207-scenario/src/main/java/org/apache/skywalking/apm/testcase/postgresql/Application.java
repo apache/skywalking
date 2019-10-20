@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,20 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.pgcase.postgresql.controller;
 
-public class ConstSql {
-    public static final String TEST_SQL = "SELECT 1";
-    public static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
-        "id VARCHAR(1) PRIMARY KEY, \n" +
-        "value VARCHAR(1) NOT NULL)";
-    public static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
-    public static final String DROP_TABLE_SQL = "DROP table test_007";
+package org.apache.skywalking.apm.testcase.postgresql;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
+    }
 }

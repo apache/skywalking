@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,20 +15,35 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.apm.testcase.postgresql.controller;
 
-package org.apache.skywalking.apm.pgcase.postgresql;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+@Configuration
+public class PostgresqlConfig {
 
-@SpringBootApplication
-public class Application {
+    @Value("${POSTGRESQL_SERVER}")
+    private String host;
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(Application.class, args);
-        } catch (Exception e) {
-            // Never do this
-        }
+    @Value("${POSTGRES_DB}")
+    private String db;
+
+    @Value("${POSTGRES_USER}")
+    private String user;
+
+    @Value("${POSTGRES_PASSWORD}")
+    private String password;
+
+    public String getUrl() {
+        return "jdbc:postgresql://" + host + "/" + db;
+    }
+
+    public String getUserName() {
+        return user;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

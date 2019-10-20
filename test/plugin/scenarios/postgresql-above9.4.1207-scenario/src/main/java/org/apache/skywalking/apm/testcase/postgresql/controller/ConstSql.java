@@ -15,35 +15,13 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.pgcase.postgresql.controller;
+package org.apache.skywalking.apm.testcase.postgresql.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-public class PostgresqlConfig {
-
-    @Value("${POSTGRESQL_SERVER}")
-    private String host;
-
-    @Value("${POSTGRES_DB}")
-    private String db;
-
-    @Value("${POSTGRES_USER}")
-    private String user;
-
-    @Value("${POSTGRES_PASSWORD}")
-    private String password;
-
-    public String getUrl() {
-        return "jdbc:postgresql://" + host + "/" + db;
-    }
-
-    public String getUserName() {
-        return user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
+public class ConstSql {
+    public static final String TEST_SQL = "SELECT 1";
+    public static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
+        "id VARCHAR(1) PRIMARY KEY, \n" +
+        "value VARCHAR(1) NOT NULL)";
+    public static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
+    public static final String DROP_TABLE_SQL = "DROP table test_007";
 }
