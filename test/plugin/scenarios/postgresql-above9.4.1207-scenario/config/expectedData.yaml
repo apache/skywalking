@@ -15,15 +15,15 @@
 # limitations under the License.
 registryItems:
     applications:
-    - {postgresql-9.4-scenario: nq 0}
+    - {postgresql-above9.4.1207-scenario: nq 0}
     instances:
-    - {postgresql-9.4-scenario: 1}
+    - {postgresql-above9.4.1207-scenario: 1}
     operationNames:
-    - postgresql-9.4-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/executeWithFlags,
+    - postgresql-above9.4.1207-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/executeWithFlags,
                             PostgreSQL/JDBI/CallableStatement/executeWithFlags, PostgreSQL/JDBI/Statement/execute,
                             PostgreSQL/JDBI/Connection/close]
 segmentItems:
-- applicationCode: postgresql-9.4-scenario
+- applicationCode: postgresql-above9.4.1207-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

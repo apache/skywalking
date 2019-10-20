@@ -22,10 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>postgresql-9.4-scenario</artifactId>
+    <artifactId>postgresql-above9.4.1207-scenario</artifactId>
     <version>5.0.0</version>
 
-    <name>skywalking-postgresql-9.4-scenario</name>
+    <name>skywalking-postgresql-above9.4.1207-scenario</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -75,7 +75,7 @@
     </dependencies>
 
     <build>
-        <finalName>postgresql-9.4-scenario</finalName>
+        <finalName>postgresql-above9.4.1207-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
