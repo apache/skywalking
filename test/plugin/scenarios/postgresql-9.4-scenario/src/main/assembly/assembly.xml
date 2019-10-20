@@ -33,7 +33,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/postgresql-scenario.jar</source>
+            <source>${project.build.directory}/postgresql-9.4-scenario.jar</source>
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>

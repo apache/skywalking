@@ -15,21 +15,20 @@
 # limitations under the License.
 registryItems:
     applications:
-    - {postgresql-scenario: nq 0}
+    - {postgresql-9.4-scenario: nq 0}
     instances:
-    - {postgresql-scenario: 1}
+    - {postgresql-9.4-scenario: 1}
     operationNames:
-    - postgresql-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/execute,
-                            PostgreSQL/JDBI/CallableStatement/execute, PostgreSQL/JDBI/Statement/execute,
+    - postgresql-9.4-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/executeWithFlags,
+                            PostgreSQL/JDBI/CallableStatement/executeWithFlags, PostgreSQL/JDBI/Statement/execute,
                             PostgreSQL/JDBI/Connection/close]
-    heartbeat: []
 segmentItems:
-- applicationCode: postgresql-scenario
+- applicationCode: postgresql-9.4-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null
     spans:
-      - operationName: PostgreSQL/JDBI/PreparedStatement/execute
+      - operationName: PostgreSQL/JDBI/PreparedStatement/executeWithFlags
         operationId: eq 0
         parentSpanId: 0
         spanId: 1
@@ -42,11 +41,11 @@ segmentItems:
         isError: false
         spanLayer: Database
         spanType: Exit
-        componentName: ''
+        componentName: null
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
-      - operationName: PostgreSQL/JDBI/CallableStatement/execute
+      - operationName: PostgreSQL/JDBI/CallableStatement/executeWithFlags
         operationId: eq 0
         parentSpanId: 0
         spanId: 2
@@ -59,7 +58,7 @@ segmentItems:
         isError: false
         spanLayer: Database
         spanType: Exit
-        componentName: ''
+        componentName: null
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
@@ -76,7 +75,7 @@ segmentItems:
         isError: false
         spanLayer: Database
         spanType: Exit
-        componentName: ''
+        componentName: null
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
@@ -93,7 +92,7 @@ segmentItems:
         isError: false
         spanLayer: Database
         spanType: Exit
-        componentName: ''
+        componentName: null
         componentId: 37
         peer: postgresql-server:5432
         peerId: eq 0
@@ -106,7 +105,7 @@ segmentItems:
         spanLayer: Http
         isError: false
         spanType: Entry
-        componentName: ''
+        componentName: null
         componentId: 1
         tags:
         - {key: url, value: 'http://localhost:8080/postgresql-scenario/case/postgres'}

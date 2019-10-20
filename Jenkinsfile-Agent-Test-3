@@ -54,7 +54,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (57)') {
+        stage('Test Cases Report (73)') {
             steps {
                 echo "reserve."
             }
@@ -80,6 +80,11 @@ pipeline {
                         stage('postgresql 9.2.x-9.4.x (36)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-scenario'
+                            }
+                        }
+                        stage('postgresql-9.4 (16)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-9.4-scenario'
                             }
                         }
                     }

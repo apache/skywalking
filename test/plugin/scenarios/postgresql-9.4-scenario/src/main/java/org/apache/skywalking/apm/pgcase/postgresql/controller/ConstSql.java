@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.testcase.postgresql.controller;
+package org.apache.skywalking.apm.pgcase.postgresql.controller;
 
 public class ConstSql {
     public static final String TEST_SQL = "SELECT 1";

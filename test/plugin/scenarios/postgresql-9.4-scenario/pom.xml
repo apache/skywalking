@@ -22,16 +22,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>postgresql-scenario</artifactId>
+    <artifactId>postgresql-9.4-scenario</artifactId>
     <version>5.0.0</version>
 
-    <name>skywalking-postgresql-scenario</name>
+    <name>skywalking-postgresql-9.4-scenario</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
 
-        <test.framework.version>9.4-1200-jdbc41</test.framework.version>
+        <test.framework.version>9.4-1206-jdbc42</test.framework.version>
         <docker.image.version>${test.framework.version}</docker.image.version>
 
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
@@ -75,7 +75,7 @@
     </dependencies>
 
     <build>
-        <finalName>postgresql-scenario</finalName>
+        <finalName>postgresql-9.4-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
