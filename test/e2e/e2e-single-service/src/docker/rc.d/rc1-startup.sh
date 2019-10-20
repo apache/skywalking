@@ -1,4 +1,5 @@
-# Licensed to the Apache Software Foundation (ASF) under one
+#!/usr/bin/env bash
+# Licensed to the SkyAPM under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
@@ -14,9 +15,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: tomcat
-entryService: http://localhost:8080/spring-3.1.x-scenario/case/resttemplate
-healthCheck: http://localhost:8080/spring-3.1.x-scenario/healthCheck
-runningMode: with_optional
-withPlugins: apm-spring-annotation-plugin-*.jar
-framework: spring
+echo 'starting OAP server...' && start_oap 'init'
+
+echo 'starting Web app...' && start_webapp '0.0.0.0' 8081
+
+echo 'starting instrumented services...' && start_instrumented_services
+
+check_tcp 127.0.0.1 \
+          9090 \
+          60 \
+          10 \
+          "waiting for the instrumented service to be ready"
+
+if [[ $? -ne 0 ]]; then
+    echo "instrumented service 0 failed to start in 30 * 10 seconds: "
+    cat ${SERVICE_LOG}/*
+    exit 1
+fi
+
+echo "SkyWalking e2e container is ready for tests"
+
+tail -f ${OAP_LOG_DIR}/* \
+        ${WEBAPP_LOG_DIR}/* \
+        ${SERVICE_LOG}/*

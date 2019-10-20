@@ -31,6 +31,7 @@ public class CaseConfiguration {
     private List<String> expose;
     private List<String> depends_on;
     private String runningMode;
+    private String withPlugins;
 
     public String getType() {
         return type;
@@ -118,5 +119,13 @@ public class CaseConfiguration {
 
     public void setRunningMode(String runningMode) {
         this.runningMode = runningMode;
+    }
+
+    public String getWithPlugins() {
+        return withPlugins;
+    }
+
+    public void setWithPlugins(String withPlugins) {
+        this.withPlugins = withPlugins;
     }
 }
