@@ -52,7 +52,7 @@ pipeline {
 
         stage('Compile plugin-test tools Codes') {
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl1_${BUILD_ID} docker:build'
             }
         }
         stage('Test Cases Report (135)') {
@@ -66,25 +66,25 @@ pipeline {
                     stages {
                         stage('httpclient 4.3.x-4.5.x (14)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} httpclient-4.3.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} httpclient-4.3.x-scenario'
                             }
                         }
 
                         stage('ehcache 2.8.x-2.10.x (19)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} ehcache-2.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} ehcache-2.x-scenario'
                             }
                         }
 
                         stage('dubbo 2.7.x (4)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} dubbo-2.7.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} dubbo-2.7.x-scenario'
                             }
                         }
 
                         stage('spring async 4.3.x-5.1.x (35)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} spring-async-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} spring-async-scenario'
                             }
                         }
                     }
@@ -93,7 +93,7 @@ pipeline {
                     stages {
                         stage('jetty 9.x (63)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} jetty-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} jetty-scenario'
                             }
                         }
                     }
@@ -104,7 +104,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} --cleanup'
+            sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} --cleanup'
             deleteDir()
         }
     }
