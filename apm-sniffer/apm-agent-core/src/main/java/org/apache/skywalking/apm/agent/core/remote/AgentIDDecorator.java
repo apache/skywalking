@@ -57,7 +57,7 @@ public class AgentIDDecorator implements ChannelDecorator {
                     Attributes mainAttribs = manifest.getMainAttributes();
                     String projectName = mainAttribs.getValue("Implementation-Vendor-Id");
                     if (projectName != null) {
-                        if (projectName.equals("org.apache.skywalking")) {
+                        if ("org.apache.skywalking".equals(projectName)) {
                             version = mainAttribs.getValue("Implementation-Version");
                         }
                     }

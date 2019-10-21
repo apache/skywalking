@@ -86,17 +86,14 @@
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
                                 </env>
                                 <ports>
-                                    <port>+webapp.host:webapp.port:8080</port>
+                                    <port>+webapp.host:webapp.port:8081</port>
                                     <port>+client.host:client.port:9090</port>
                                 </ports>
                                 <volumes>
                                     <bind>
-                                        <volume>
-                                            ${project.basedir}/../../../dist-for-single-node-service/apache-skywalking-apm-bin:/skywalking
-                                        </volume>
-                                        <volume>
-                                            ${project.build.directory}:/home
-                                        </volume>
+                                        <volume>${sw.home}:/sw</volume>
+                                        <volume>${project.build.directory}:/home</volume>
+                                        <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                     </bind>
                                 </volumes>
                                 <wait>

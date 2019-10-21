@@ -1,0 +1,104 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+pipeline {
+    agent {
+        label 'skywalking'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 5, unit: 'HOURS')
+        parallelsAlwaysFailFast()
+    }
+
+    tools {
+        jdk 'JDK 1.8 (latest)'
+    }
+
+    environment {
+        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+    }
+
+    stages {
+        stage('Checkout Source Code') {
+            steps {
+                sh 'bash ./test/plugin/script/systeminfo.sh'
+                deleteDir()
+                checkout scm
+                sh 'git submodule update --init'
+            }
+        }
+
+        stage('Compile agent Codes') {
+            steps {
+                sh './mvnw -Pagent clean package -DskipTests'
+            }
+        }
+
+        stage('Compile plugin-test tools Codes') {
+            steps {
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl3_${BUILD_ID} docker:build'
+            }
+        }
+        stage('Test Cases Report (106)') {
+            steps {
+                echo "reserve."
+            }
+        }
+        stage('Run Agent Plugin Tests') {
+            parallel {
+                stage('Group1') {
+                    stages {
+                        stage('kafka 0.11.0.0-2.3.0 (16)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} kafka-scenario'
+                            }
+                        }
+                        stage('canal 1.0.24-1.1.2 (5)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} canal-scenario'
+                            }
+                        }
+                    }
+                }
+                stage('Group2') {
+                    stages {
+                        stage('postgresql 9.2.x-9.4.x (36)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} postgresql-scenario'
+                            }
+                        }
+                        stage('postgresql-9.4.1207+ (49)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} postgresql-above9.4.1207-scenario'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        cleanup {
+            sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} --cleanup'
+            deleteDir()
+        }
+    }
+}
