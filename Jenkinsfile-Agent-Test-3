@@ -24,6 +24,7 @@ pipeline {
     options {
         timestamps()
         timeout(time: 5, unit: 'HOURS')
+        parallelsAlwaysFailFast()
     }
 
     tools {
@@ -37,6 +38,7 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
+                sh 'bash ./test/plugin/script/systeminfo.sh'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
@@ -51,7 +53,7 @@ pipeline {
 
         stage('Compile plugin-test tools Codes') {
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl3_${BUILD_ID} docker:build'
             }
         }
         stage('Test Cases Report (106)') {
@@ -65,12 +67,12 @@ pipeline {
                     stages {
                         stage('kafka 0.11.0.0-2.3.0 (16)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} kafka-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} kafka-scenario'
                             }
                         }
                         stage('canal 1.0.24-1.1.2 (5)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} canal-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} canal-scenario'
                             }
                         }
                     }
@@ -79,12 +81,12 @@ pipeline {
                     stages {
                         stage('postgresql 9.2.x-9.4.x (36)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} postgresql-scenario'
                             }
                         }
                         stage('postgresql-9.4.1207+ (49)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-above9.4.1207-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} postgresql-above9.4.1207-scenario'
                             }
                         }
                     }
@@ -95,7 +97,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} --cleanup'
+            sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} --cleanup'
             deleteDir()
         }
     }
