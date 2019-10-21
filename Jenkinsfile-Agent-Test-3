@@ -62,7 +62,7 @@ pipeline {
         }
         stage('Run Agent Plugin Tests') {
             environment {
-                BUILD_NO='wl3_${BUILD_ID}'
+                BUILD_NO=wl3_${BUILD_ID}
             }
 
             parallel {
