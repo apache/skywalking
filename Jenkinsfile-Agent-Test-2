@@ -24,6 +24,7 @@ pipeline {
     options {
         timestamps()
         timeout(time: 5, unit: 'HOURS')
+        parallelsAlwaysFailFast()
     }
 
     tools {
