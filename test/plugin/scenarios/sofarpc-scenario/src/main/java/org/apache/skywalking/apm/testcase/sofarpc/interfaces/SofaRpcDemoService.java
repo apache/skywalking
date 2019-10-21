@@ -16,16 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.sofarpc.service;
+package org.apache.skywalking.apm.testcase.sofarpc.interfaces;
 
-import org.apache.skywalking.apm.testcase.sofarpc.SofaRpcDemoService;
-import org.springframework.stereotype.Component;
+public interface SofaRpcDemoService {
 
-@Component
-public class SofaRpcDemoServiceImpl implements SofaRpcDemoService {
-
-    @Override
-    public String hello(String name) {
-        return "hello, " + name;
-    }
+    String hello(String name);
 }

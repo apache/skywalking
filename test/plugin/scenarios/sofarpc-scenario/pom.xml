@@ -23,40 +23,42 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>sofarpc-scenario</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>5.0.0</version>
-    <modules>
-        <module>sofarpc-interface</module>
-        <module>sofarpc-provider</module>
-        <module>sofarpc-consumer</module>
-    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
 
+        <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
         <test.framework>sofarpc</test.framework>
         <test.framework.version>5.4.0</test.framework.version>
     </properties>
 
     <name>skywalking-sofarpc-scenario</name>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <!--     sofarpc   -->
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>rpc-sofa-boot-starter</artifactId>
-            <version>${test.framework.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-rpc-all</artifactId>
             <version>${test.framework.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>runtime-sofa-boot-starter</artifactId>
-            <version>2.3.2</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
 

@@ -16,9 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.sofarpc;
+package org.apache.skywalking.apm.testcase.sofarpc.service;
 
-public interface SofaRpcDemoService {
+import org.apache.skywalking.apm.testcase.sofarpc.interfaces.SofaRpcDemoService;
 
-    String hello(String name);
+public class SofaRpcDemoServiceImpl implements SofaRpcDemoService {
+    @Override
+    public String hello(String name) {
+        return "hello, " + name;
+    }
 }
