@@ -78,7 +78,7 @@ public class NettySocketIOTest {
     private Method roomLeaveMethod;
     private Method roomJoinMethod;
 
-    private NettySocketIOClientInfo socketIOClientInfo = new NettySocketIOClientInfo(null, null, "127.0.0.1:9092");
+    private NettySocketIOClientInfo socketIOClientInfo = new NettySocketIOClientInfo(null, null, "127.0.0.1:0");
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         @Override
@@ -94,7 +94,7 @@ public class NettySocketIOTest {
 
     @Before
     public void setUp() {
-        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 9092);
+        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 0);
         when(socketIOClient.getRemoteAddress()).thenReturn(addr);
         when(sendPacket.getName()).thenReturn("test");
         when(clientHead.getRemoteAddress()).thenReturn(addr);
