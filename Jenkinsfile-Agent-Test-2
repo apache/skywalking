@@ -32,7 +32,6 @@ pipeline {
     }
 
     environment {
-        BUILD_NO='wl2_${BUILD_ID}'
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
@@ -54,7 +53,7 @@ pipeline {
 
         stage('Compile plugin-test tools Codes') {
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl2_${BUILD_ID} docker:build'
             }
         }
         stage('Test Cases Report (132)') {
@@ -63,6 +62,10 @@ pipeline {
             }
         }
         stage('Run Agent Plugin Tests') {
+            environment {
+                BUILD_NO='wl2_${BUILD_ID}'
+            }
+
             parallel {
                 stage('Group1') {
                     stages {
@@ -118,7 +121,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --cleanup'
+            sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} --cleanup'
             deleteDir()
         }
     }

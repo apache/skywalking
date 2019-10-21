@@ -32,14 +32,12 @@ pipeline {
     }
 
     environment {
-        BUILD_NO='wl3_${BUILD_ID}'
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
-                sh 'bash ./test/plugin/script/systeminfo.sh'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
@@ -54,15 +52,19 @@ pipeline {
 
         stage('Compile plugin-test tools Codes') {
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl3_${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (73)') {
+        stage('Test Cases Report (106)') {
             steps {
                 echo "reserve."
             }
         }
         stage('Run Agent Plugin Tests') {
+            environment {
+                BUILD_NO='wl3_${BUILD_ID}'
+            }
+
             parallel {
                 stage('Group1') {
                     stages {
@@ -85,7 +87,7 @@ pipeline {
                                 sh 'bash test/plugin/run.sh postgresql-scenario'
                             }
                         }
-                        stage('postgresql-9.4.1207+ (16)') {
+                        stage('postgresql-9.4.1207+ (49)') {
                             steps {
                                 sh 'bash test/plugin/run.sh postgresql-above9.4.1207-scenario'
                             }
@@ -98,7 +100,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --cleanup'
+            sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} --cleanup'
             deleteDir()
         }
     }
