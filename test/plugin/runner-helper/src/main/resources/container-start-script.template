@@ -36,8 +36,9 @@ container_name=`docker ps -aqf "name=${docker_container_name}"`
 
 <#noparse>
 if [[ -z ${container_name} ]]; then
-  status=1
+    echo "docker startup failure!" >&2
+    status=1
 else
-  docker container rm -f $container_name
+    docker container rm -f $container_name
 fi
 </#noparse>
