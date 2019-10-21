@@ -70,8 +70,6 @@ do
   mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
   
    sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
-  
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${sky_home_dir}" -f test/e2e/pom.xml -pl "$test_case" -am verify
     
   if ${use_mysql} -eq 1; then
       echo "MySQL database is storage provider..."
@@ -86,7 +84,7 @@ do
       rm -f ${TMP_APP_YML}
   fi
   
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -Dsw.home="${sky_home_dir}" -f test/e2e/pom.xml -pl "$test_case" -am verify
+  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${sky_home_dir}" -f test/e2e/pom.xml -pl "$test_case" -am verify
 
   status_code=$?
 
