@@ -54,6 +54,11 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
+        stage('Test Cases Report (73)') {
+            steps {
+                echo "reserve."
+            }
+        }
         stage('Run Agent Plugin Tests') {
             parallel {
                 stage('Group1') {
@@ -63,13 +68,23 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} kafka-scenario'
                             }
                         }
+                        stage('canal 1.0.24-1.1.2 (5)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} canal-scenario'
+                            }
+                        }
                     }
                 }
                 stage('Group2') {
                     stages {
-                        stage('reserve stages') {
+                        stage('postgresql 9.2.x-9.4.x (36)') {
                             steps {
-                                echo "reserve."
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-scenario'
+                            }
+                        }
+                        stage('postgresql-9.4.1207+ (16)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} postgresql-above9.4.1207-scenario'
                             }
                         }
                     }
