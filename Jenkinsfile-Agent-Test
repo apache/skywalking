@@ -17,86 +17,33 @@
  */
 
 pipeline {
-    agent {
-        label 'skywalking'
-    }
-
-    options {
-        timestamps()
-        timeout(time: 5, unit: 'HOURS')
-        parallelsAlwaysFailFast()
-    }
-
-    tools {
-        jdk 'JDK 1.8 (latest)'
-    }
-
-    environment {
-        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-    }
+    agent none
 
     stages {
-        stage('Checkout Source Code') {
-            steps {
-                sh 'bash ./test/plugin/script/systeminfo.sh'
-                deleteDir()
-                checkout scm
-                sh 'git submodule update --init'
-            }
-        }
-
-        stage('Compile agent Codes') {
-            steps {
-                sh './mvnw -Pagent clean package -DskipTests'
-            }
-        }
-
-        stage('Compile plugin-test tools Codes') {
-            steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl1_${BUILD_ID} docker:build'
-            }
-        }
-        stage('Test Cases Report (135)') {
-            steps {
-                echo "reserve."
-            }
-        }
-        stage('Run Agent Plugin Tests') {
+        stage('cleaner') {
             parallel {
-                stage('Group1') {
-                    stages {
-                        stage('httpclient 4.3.x-4.5.x (14)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} httpclient-4.3.x-scenario'
-                            }
-                        }
-
-                        stage('ehcache 2.8.x-2.10.x (19)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} ehcache-2.x-scenario'
-                            }
-                        }
-
-                        stage('dubbo 2.7.x (4)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} dubbo-2.7.x-scenario'
-                            }
-                        }
-
-                        stage('spring async 4.3.x-5.1.x (35)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} spring-async-scenario'
-                            }
-                        }
+                stage('skywalking1') {
+                    agent {
+                        label 'skywalking1'
+                    }
+                    steps {
+                        sh 'docker volume ls'
                     }
                 }
-                stage('Group2') {
-                    stages {
-                        stage('jetty 9.x (63)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} jetty-scenario'
-                            }
-                        }
+                stage('skywalking2') {
+                    agent {
+                        label 'skywalking2'
+                    }
+                    steps {
+                        sh 'docker volume ls'
+                    }
+                }
+                stage('skywalking3') {
+                    agent {
+                        label 'skywalking3'
+                    }
+                    steps {
+                        sh 'docker volume ls'
                     }
                 }
             }
@@ -105,7 +52,6 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} --cleanup'
             deleteDir()
         }
     }
