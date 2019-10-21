@@ -78,6 +78,7 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} mongodb-3.x-scenario'
                             }
                         }
+                    }
                 }
                 stage('Group2') {
                     stages {
