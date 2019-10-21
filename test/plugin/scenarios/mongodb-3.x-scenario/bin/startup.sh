@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts}  "-Dskywalking.agent.service_name=mongodb-3.x-scenario" ${home}/../libs/mongodb-3.x-scenario.jar &
+java -jar ${agent_opts} ${home}/../libs/mongodb-3.x-scenario.jar &

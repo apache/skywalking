@@ -22,8 +22,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,45 +35,49 @@ import static com.mongodb.client.model.Filters.eq;
 @RequestMapping("/case")
 public class CaseController {
 
-    private Logger logger = LogManager.getLogger(CaseController.class);
-
     @Value(value = "${mongodb.host}")
     private String host;
 
-    @Value(value = "${mongodb.port:27017}")
+    @Value(value = "${mongodb.port}")
     private Integer port;
 
     @GetMapping("/healthCheck")
     public String health() {
-        return "success";
+        // check connect to mongodb server
+        try (MongoClient mongoClient = new MongoClient(host, port)) {
+            return "success";
+        }
     }
 
     @RequestMapping("/mongodb")
     public String mongoDBCase() {
-        logger.info("mongodb host: {} ", host);
-        MongoClient mongoClient = new MongoClient(host, port);
-        MongoDatabase db = mongoClient.getDatabase("test-database");
-        db.createCollection("testCollection");
-        try {
+        try ( MongoClient mongoClient = new MongoClient(host, port)) {
+            MongoDatabase db = mongoClient.getDatabase("test-database");
+            // CreateCollectionOperation
+            db.createCollection("testCollection");
+
             MongoCollection<Document> collection = db.getCollection("testCollection");
             Document document = Document.parse("{id: 1, name: \"test\"}");
+            // MixedBulkWriteOperation
             collection.insertOne(document);
 
+            // FindOperation
             FindIterable<Document> findIterable = collection.find(eq("name", "org"));
-            Document findDocument = findIterable.first();
-            logger.info("find id[{}] document, and the name is {}", findDocument.get("id"), findDocument.get("name"));
+            findIterable.first();
 
+            // MixedBulkWriteOperation
             collection.updateOne(eq("name", "org"), BsonDocument.parse("{ $set : { \"name\": \"testA\"} }"));
 
+            // FindOperation
             findIterable = collection.find(eq("name", "testA"));
-            findDocument = findIterable.first();
-            logger.info("find id[{}] document, and the name is {}", findDocument.get("id"), findDocument.get("name"));
+            findIterable.first();
 
+            // MixedBulkWriteOperation
             collection.deleteOne(eq("id", "1"));
-        } finally {
+
+            // DropDatabaseOperation
             mongoClient.dropDatabase("test-database");
         }
-
         return "success";
     }
 }

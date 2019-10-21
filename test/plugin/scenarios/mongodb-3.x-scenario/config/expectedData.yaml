@@ -20,32 +20,14 @@ registryItems:
   instances:
     - {mongodb-3.x-scenario: 1}
   operationNames:
-    - mongodb-3.x-scenario: [/case/healthCheck, /case/mongodb, MongoDB/DropDatabaseOperation, MongoDB/FindOperation,
+    - mongodb-3.x-scenario: [/mongodb-case/case/mongodb, MongoDB/DropDatabaseOperation, MongoDB/FindOperation,
                              MongoDB/CreateCollectionOperation, MongoDB/MixedBulkWriteOperation]
   heartbeat: []
 
 segmentItems:
 - applicationCode: mongodb-3.x-scenario
-  segmentSize: 2
+  segmentSize: ge 2
   segments:
-  - segmentId: not null
-    spans:
-    - operationName: /case/healthCheck
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 14
-      componentName: ''
-      isError: false
-      spanType: Entry
-      peer: ''
-      peerId: 0
-      tags:
-      - {key: url, value: 'http://localhost:8080/mongodb-case/case/healthCheck'}
-      - {key: http.method, value: HEAD}
   - segmentId: not null
     spans:
     - operationName: MongoDB/CreateCollectionOperation
@@ -153,14 +135,14 @@ segmentItems:
       peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
-    - operationName: /case/mongodb
+    - operationName: /mongodb-case/case/mongodb
       operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
       startTime: nq 0
       endTime: nq 0
-      componentId: 14
+      componentId: 1
       componentName: ''
       isError: false
       spanType: Entry
