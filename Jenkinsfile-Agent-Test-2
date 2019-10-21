@@ -38,7 +38,7 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
-                sh 'bash ./test/pugin/script/systeminfo.sh'
+                sh 'bash ./test/plugin/script/systeminfo.sh'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
