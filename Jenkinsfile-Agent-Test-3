@@ -73,7 +73,11 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} canal-scenario'
                             }
                         }
-                    }
+                        stage('mongodb 3.0-3.11.1 (17)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} mongodb-3.x-scenario'
+                            }
+                        }
                 }
                 stage('Group2') {
                     stages {
