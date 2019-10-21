@@ -38,7 +38,6 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
-                sh 'docker volume prune -f'
                 sh 'bash ./test/plugin/script/systeminfo.sh'
                 deleteDir()
                 checkout scm
