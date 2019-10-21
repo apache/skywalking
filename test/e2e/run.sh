@@ -69,7 +69,7 @@ do
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
   
-   sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
+  sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
     
   if ${use_mysql} -eq 1; then
       echo "MySQL database is storage provider..."
