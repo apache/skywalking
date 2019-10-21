@@ -38,6 +38,7 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
+                sh 'bash ./test/plugin/script/systeminfo.sh'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
@@ -61,21 +62,17 @@ pipeline {
             }
         }
         stage('Run Agent Plugin Tests') {
-            environment {
-                BUILD_NO=wl3_${BUILD_ID}
-            }
-
             parallel {
                 stage('Group1') {
                     stages {
                         stage('kafka 0.11.0.0-2.3.0 (16)') {
                             steps {
-                                sh 'bash test/plugin/run.sh kafka-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} kafka-scenario'
                             }
                         }
                         stage('canal 1.0.24-1.1.2 (5)') {
                             steps {
-                                sh 'bash test/plugin/run.sh canal-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} canal-scenario'
                             }
                         }
                     }
@@ -84,12 +81,12 @@ pipeline {
                     stages {
                         stage('postgresql 9.2.x-9.4.x (36)') {
                             steps {
-                                sh 'bash test/plugin/run.sh postgresql-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} postgresql-scenario'
                             }
                         }
                         stage('postgresql-9.4.1207+ (49)') {
                             steps {
-                                sh 'bash test/plugin/run.sh postgresql-above9.4.1207-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} postgresql-above9.4.1207-scenario'
                             }
                         }
                     }

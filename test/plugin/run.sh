@@ -20,7 +20,7 @@ home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
 force_build="off"
-build_id=${BUILD_NO:=local}
+build_id="local"
 cleanup="off"
 
 mvnw=${home}/../../mvnw

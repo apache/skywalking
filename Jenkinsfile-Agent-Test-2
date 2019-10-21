@@ -62,40 +62,36 @@ pipeline {
             }
         }
         stage('Run Agent Plugin Tests') {
-            environment {
-                BUILD_NO=wl2_${BUILD_ID}
-            }
-
             parallel {
                 stage('Group1') {
                     stages {
                         stage('spring-cloud-gateway 2.1.x (3)') {
                             steps {
-                                sh 'bash test/plugin/run.sh gateway-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} gateway-scenario'
                             }
                         }
 
                         stage('dubbo 2.5.x-2.6.x (10)') {
                             steps {
-                                sh 'bash test/plugin/run.sh dubbo-2.5.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} dubbo-2.5.x-scenario'
                             }
                         }
 
                         stage('spring 3.0.x (8)') {
                             steps {
-                                sh 'bash test/plugin/run.sh spring-3.0.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-3.0.x-scenario'
                             }
                         }
 
                         stage('spring 3.1.x-4.0.x (25)') {
                             steps {
-                                sh 'bash test/plugin/run.sh spring-3.1.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-3.1.x-scenario'
                             }
                         }
 
                         stage('spring 4.1.x-4.2.x (20)') {
                             steps {
-                                sh 'bash test/plugin/run.sh spring-4.1.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-4.1.x-scenario'
                             }
                         }
                     }
@@ -104,13 +100,13 @@ pipeline {
                     stages {
                         stage('solrj 7.x (12)') {
                             steps {
-                                sh 'bash test/plugin/run.sh solrj-7.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} solrj-7.x-scenario'
                             }
                         }
 
                         stage('spring 4.3.x-5.2.x (54)') {
                             steps {
-                                sh 'bash test/plugin/run.sh spring-4.3.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-4.3.x-scenario'
                             }
                         }
                     }
