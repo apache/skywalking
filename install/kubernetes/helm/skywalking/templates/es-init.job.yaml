@@ -38,7 +38,7 @@ spec:
       {{- include "skywalking.containers.wait-for-es" . | nindent 6 }}
       containers:
       - name: {{ .Values.oap.name }}
-        image: "{{ .Values.oap.image.repository }}:{{ .Values.oap.image.tag }}"
+        image: "{{ .Values.oap.image.repository }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.oap.image.pullPolicy }}
 {{- if .Values.oap.resources }}
         resources:

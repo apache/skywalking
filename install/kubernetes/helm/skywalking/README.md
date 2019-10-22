@@ -228,4 +228,4 @@ oap:
 ```
 
 When envoy als ,will give ServiceAccount clusterrole permission.
-More envoy als ,please refer to https://github.com/apache/skywalking/blob/master/docs/en/setup/envoy/als_setting.md#observe-service-mesh-through-als
+More envoy als ,please refer to [als_setting](../../../../docs/en/setup/envoy/als_setting.md)
