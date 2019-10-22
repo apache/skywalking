@@ -24,11 +24,16 @@ container_name="${project_name}_${docker_container_name}"
 docker-compose -p ${project_name} -f ${compose_file} up -d
 
 container=`docker ps -qf "name=${container_name}"`
-status=`docker wait ${container}`
-if [[ $status -ne 0 ]]; then
-    docker logs ${container} >&2
-fi
+if [[ -z "${container}" ]]; then
+    echo "docker startup failure!" >&2
+    status=1
+else
+    status=`docker wait ${container}`
+    if [[ $status -ne 0 ]]; then
+        docker logs ${container} >&2
+    fi
 
-docker-compose -p ${project_name} -f ${compose_file} kill
-docker-compose -p ${project_name} -f ${compose_file} rm -f
+    docker-compose -p ${project_name} -f ${compose_file} kill
+    docker-compose -p ${project_name} -f ${compose_file} rm -f
+fi
 </#noparse>
