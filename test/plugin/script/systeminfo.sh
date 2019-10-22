@@ -25,11 +25,12 @@ load_average=$(uptime |grep -o --color=never "load average:.*")
 
 echo -e "CPU usage rate: ${cpu_usage_rate}, ${load_average} \n"
 
-running=$(docker ps -q |wc -l)
+runnings=$(docker ps -q |wc -l)
 all=$(docker ps -aq |wc -l)
 volumes=$(docker volume ls |wc -l)
+danglings=$(docker images -qf dangling=true |wc -l)
 
-echo -e "docker stats: running=${running:=0}, all=${all:=0}, volumes=${volumes:=0}\n"
+echo -e "docker stats: runnings=${runnings:=0}, all=${all:=0}, volumes=${volumes:=0}, dangling images:${danglings}\n"
 
 echo -e "Memory usage:"
 free -m
