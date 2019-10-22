@@ -36,6 +36,7 @@ public class AlarmMessage {
     private String name;
     private int id0;
     private int id1;
+    private String ruleName;
     private String alarmMessage;
     private long startTime;
 

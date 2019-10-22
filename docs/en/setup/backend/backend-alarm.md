@@ -80,6 +80,7 @@ Example as following
         "name": "serviceA", 
 	"id0": 12,  
 	"id1": 0,  
+    "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage xxxx",
 	"startTime": 1560524171000
 }, {
@@ -88,6 +89,7 @@ Example as following
         "name": "serviceB",
 	"id0": 23,
 	"id1": 0,
+    "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage yyy",
 	"startTime": 1560524171000
 }]
