@@ -91,7 +91,7 @@ pipeline {
 
                         stage('netty-socketio 1.x (4)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} netty-socketio-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} netty-socketio-scenario'
                             }
                         }
                     }
