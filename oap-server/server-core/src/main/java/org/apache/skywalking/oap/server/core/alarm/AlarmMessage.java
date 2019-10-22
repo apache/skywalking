@@ -32,6 +32,7 @@ public class AlarmMessage {
     public static AlarmMessage NONE = new NoAlarm();
 
     private int scopeId;
+    private String scope;
     private String name;
     private int id0;
     private int id1;
