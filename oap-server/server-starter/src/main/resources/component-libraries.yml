@@ -369,3 +369,6 @@ Component-Server-Mappings:
   cassandra-java-driver: Cassandra
   pulsar-producer: Pulsar
   pulsar-consumer: Pulsar
+  servicecomb-java-chassis: ServiceCombJavaChassis
+  servicecomb-mesher: ServiceCombMesher
+  servicecomb-service-center: ServiceCombServiceCenter
