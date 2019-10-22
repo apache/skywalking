@@ -17,3 +17,4 @@
 spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.DefaultHttpHeadersInstrumentation
 spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.HttpClientOperationsInstrumentation
 spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.NettyRoutingFilterInstrumentation
+spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.FilteringWebHandlerInstrumentation
