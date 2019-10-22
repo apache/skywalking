@@ -183,6 +183,10 @@ public class RunningRuleTest {
 
     private MetaInAlarm getMetaInAlarm(int id) {
         return new MetaInAlarm() {
+            @Override public String getScope() {
+                return "SERVICE";
+            }
+
             @Override public int getScopeId() {
                 return DefaultScopeDefine.SERVICE;
             }
