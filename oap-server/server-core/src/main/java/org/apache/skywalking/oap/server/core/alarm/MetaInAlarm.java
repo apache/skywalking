@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.core.alarm;
 import java.util.Objects;
 
 public abstract class MetaInAlarm {
+
+    public abstract String getScope();
+
     public abstract int getScopeId();
 
     public abstract String getName();

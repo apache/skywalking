@@ -148,9 +148,11 @@ public class RunningRule {
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
                 alarmMessage.setScopeId(meta.getScopeId());
+                alarmMessage.setScope(meta.getScope());
                 alarmMessage.setName(meta.getName());
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
+                alarmMessage.setRuleName(this.ruleName);
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);

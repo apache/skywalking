@@ -15,35 +15,20 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.apm.testcase.sc.gateway.projectA;
 
-package org.apache.skywalking.oap.server.core.alarm;
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+/**
+ * @author songxiaoyue
+ */
+@Component
+public class ApiKeyResolver implements KeyResolver{
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
-public class ServiceMetaInAlarm extends MetaInAlarm {
-    private String metricsName;
-
-    private int id;
-    private String name;
-    private String[] tags;
-    private String[] properties;
-
-    @Override public String getScope() {
-        return DefaultScopeDefine.SERVICE_CATALOG_NAME;
-    }
-
-    @Override public int getScopeId() {
-        return DefaultScopeDefine.SERVICE;
-    }
-
-    @Override public int getId0() {
-        return id;
-    }
-
-    @Override public int getId1() {
-        return 0;
+    public Mono<String> resolve(ServerWebExchange exchange) {
+        return Mono.just(exchange.getRequest().getPath().value());
     }
 }
