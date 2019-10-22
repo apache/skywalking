@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "skywalking.oap.fullname" . }}
+  labels:
+    app: {{ template "skywalking.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.oap.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.oap.service.type }}
+  ports:
+  - port: {{ .Values.oap.ports.rest }}
+    name: rest
+  - port: {{ .Values.oap.ports.grpc }}
+    name: grpc
+  selector:
+    app: {{ template "skywalking.name" . }}
+    component: "{{ .Values.oap.name }}"
+    release: {{ .Release.Name }}

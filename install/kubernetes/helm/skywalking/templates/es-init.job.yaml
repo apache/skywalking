@@ -1,0 +1,38 @@
+# https://docs.sentry.io/server/installation/docker/#running-migrations
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-es-init"
+  labels:
+    app: {{ template "skywalking.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ template "skywalking.fullname" . }}-job"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}-es-init"
+      labels:
+        app: {{ template "skywalking.name" . }}
+        component: "{{ template "skywalking.fullname" . }}-job"
+        release: {{ .Release.Name }}
+    spec:
+      restartPolicy: Never
+      initContainers:
+      {{- include "skywalking.containers.wait-for-es" . | nindent 6 }}
+      containers:
+      - name: {{ .Values.oap.name }}
+        image: "{{ .Values.oap.image.repository }}:{{ .Values.oap.image.tag }}"
+        imagePullPolicy: {{ .Values.oap.image.pullPolicy }}
+{{- if .Values.oap.resources }}
+        resources:
+{{ toYaml .Values.oap.resources | indent 10 }}
+{{- end }}
+        env:
+        - name: JAVA_OPTS
+          value: "{{ .Values.oap.javaOpts }} -Dmode=init"
+        - name: SW_STORAGE
+          value: elasticsearch
+        - name: SW_STORAGE_ES_CLUSTER_NODES
+          value: "{{ include "call-nested" (list . "elasticsearch" "elasticsearch.client.fullname") }}:9200"

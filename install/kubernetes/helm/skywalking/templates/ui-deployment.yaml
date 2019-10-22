@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "skywalking.ui.fullname" . }}
+  labels:
+    app: {{ template "skywalking.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.ui.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.ui.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "skywalking.name" . }}
+      component: "{{ .Values.ui.name }}"
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "skywalking.name" . }}
+        component: "{{ .Values.ui.name }}"
+        release: {{ .Release.Name }}
+        {{- if .Values.ui.podAnnotations }}
+      annotations:
+{{ toYaml .Values.ui.podAnnotations | indent 8 }}
+        {{- end }}
+    spec:
+      containers:
+      - name: {{ .Values.ui.name }}
+        image: {{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag }}
+        imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.ui.service.internalPort }}
+          name: page
+{{- if .Values.ui.resources }}
+        resources:
+{{ toYaml .Values.ui.resources | indent 10 }}
+{{- end }}
+        env:
+        - name: SW_OAP_ADDRESS
+          value: {{ template "skywalking.oap.fullname" . }}:{{ .Values.oap.ports.rest }}
