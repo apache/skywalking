@@ -17,6 +17,7 @@
 package org.apache.skywalking.plugin.test.helper.vo;
 
 import java.util.List;
+import java.util.Map;
 
 public class DependencyComponent {
     private String image;
@@ -28,6 +29,7 @@ public class DependencyComponent {
     private List<String> environment;
     private List<String> depends_on;
     private List<String> healthcheck;
+    private Map<String, Map<String, String>> ulimits;
 
     public String getImage() {
         return image;
@@ -99,5 +101,14 @@ public class DependencyComponent {
 
     public void setHealthcheck(List<String> healthcheck) {
         this.healthcheck = healthcheck;
+    }
+
+    public Map<String, Map<String, String>> getUlimits() {
+        return ulimits;
+    }
+
+    public void setUlimits(
+        Map<String, Map<String, String>> ulimits) {
+        this.ulimits = ulimits;
     }
 }

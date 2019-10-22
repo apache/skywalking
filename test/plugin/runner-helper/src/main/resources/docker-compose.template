@@ -69,6 +69,16 @@ services:
             - ${expose}
         </#list>
         </#if>
+        <#if service.ulimits??>
+        ulimits:
+        <#list service.ulimits?keys as key>
+            ${key}:
+                <#list service.ulimits[key]?keys as item>
+                ${item}: ${service.ulimits[key][item]}
+                </#list>
+        </#list>
+        </#if>
+
         <#if service.depends_on??>
         depends_on:
         <#list service.depends_on as item>

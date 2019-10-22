@@ -17,6 +17,7 @@
 package org.apache.skywalking.plugin.test.helper.vo;
 
 import java.util.List;
+import java.util.Map;
 
 public class DockerService {
     private String name;
@@ -28,6 +29,7 @@ public class DockerService {
     private List<String> healthcheck;
     private List<String> depends_on;
     private List<String> environment;
+    private Map<String, Map<String, String>> ulimits;
 
     public String getName() {
         return name;
@@ -99,5 +101,14 @@ public class DockerService {
 
     public void setEnvironment(List<String> environment) {
         this.environment = environment;
+    }
+
+    public Map<String, Map<String, String>> getUlimits() {
+        return ulimits;
+    }
+
+    public void setUlimits(
+        Map<String, Map<String, String>> ulimits) {
+        this.ulimits = ulimits;
     }
 }

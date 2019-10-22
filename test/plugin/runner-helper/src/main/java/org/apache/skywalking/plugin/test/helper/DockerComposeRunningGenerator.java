@@ -105,6 +105,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             service.setEntrypoint(dependency.getEntrypoint());
             service.setHealthcheck(dependency.getHealthcheck());
             service.setEnvironment(dependency.getEnvironment());
+            service.setUlimits(dependency.getUlimits());
             services.add(service);
         });
         return services;
