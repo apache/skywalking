@@ -20,22 +20,44 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.*;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import static junit.framework.TestCase.*;
-import static org.mockito.Mockito.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by dengming, 2019.04.22
@@ -97,6 +119,7 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof EndpointMetaInAlarm);
         assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals(DefaultScopeDefine.ENDPOINT_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(endpointInventoryName + " in " + serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.ENDPOINT, metaInAlarm.getScopeId());
@@ -129,6 +152,7 @@ public class NotifyHandlerTest {
         assertTrue(metaInAlarm instanceof ServiceInstanceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(instanceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE, metaInAlarm.getScopeId());
     }
@@ -157,6 +181,7 @@ public class NotifyHandlerTest {
         assertTrue(metaInAlarm instanceof ServiceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals(DefaultScopeDefine.SERVICE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE, metaInAlarm.getScopeId());
     }
