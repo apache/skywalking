@@ -254,14 +254,8 @@ pulsar-consumer:
 Ehcache:
   id: 75
   languages: Java
-servicecomb-mesher:
-  id: 76
-  languages: Golang
-servicecomb-service-center:
-  id: 77
-  languages: Golang
 servicecomb-java-chassis:
-  id: 78
+  id: 76
   languages: Java
 
 # .NET/.NET Core components
@@ -329,6 +323,15 @@ Egg:
 Koa:
   id: 4004
   languages: Node.js
+
+# Golang components
+# [5000, 6000) for Golang agent
+servicecomb-mesher:
+  id: 5001
+  languages: Golang
+servicecomb-service-center:
+  id: 5002
+  languages: Golang
 
 # Component Server mapping defines the server display names of some components
 # e.g.
