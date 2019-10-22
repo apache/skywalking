@@ -76,16 +76,16 @@ Example as following
 ```json
 [{
 	"scopeId": 1, 
-    "scope": "SERVICE",
-    "name": "serviceA", 
+        "scope": "SERVICE",
+        "name": "serviceA", 
 	"id0": 12,  
 	"id1": 0,  
 	"alarmMessage": "alarmMessage xxxx",
 	"startTime": 1560524171000
 }, {
 	"scopeId": 1,
-    "scope": "SERVICE",
-    "name": "serviceB",
+        "scope": "SERVICE",
+        "name": "serviceB",
 	"id0": 23,
 	"id1": 0,
 	"alarmMessage": "alarmMessage yyy",
