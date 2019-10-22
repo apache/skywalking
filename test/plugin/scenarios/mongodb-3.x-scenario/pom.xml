@@ -32,8 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
 
-        <test.framework.version>3.3.0</test.framework.version>
-        <docker.image.version>${test.framework.version}</docker.image.version>
+        <test.framework.version>3.4.0</test.framework.version>
 
         <log4j.version>2.6.2</log4j.version>
         <spring.version>4.3.8.RELEASE</spring.version>
@@ -83,117 +82,6 @@
             <version>${spring-boot-version}</version>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>mongodb-3.x-scenario-3.3.0</id>
-            <properties>
-                <test.framework.version>3.3.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.4.0</id>
-            <properties>
-                <test.framework.version>3.4.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.4.1</id>
-            <properties>
-                <test.framework.version>3.4.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.4.2</id>
-            <properties>
-                <test.framework.version>3.4.2</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.4.3</id>
-            <properties>
-                <test.framework.version>3.4.3</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.5.0</id>
-            <properties>
-                <test.framework.version>3.5.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.7.0</id>
-            <properties>
-                <test.framework.version>3.7.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.7.1</id>
-            <properties>
-                <test.framework.version>3.7.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.8.0</id>
-            <properties>
-                <test.framework.version>3.8.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.8.1</id>
-            <properties>
-                <test.framework.version>3.8.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.8.2</id>
-            <properties>
-                <test.framework.version>3.8.2</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.9.0</id>
-            <properties>
-                <test.framework.version>3.9.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.9.1</id>
-            <properties>
-                <test.framework.version>3.9.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.10.0</id>
-            <properties>
-                <test.framework.version>3.10.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.10.1</id>
-            <properties>
-                <test.framework.version>3.10.1</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.10.2</id>
-            <properties>
-                <test.framework.version>3.10.2</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.11.0</id>
-            <properties>
-                <test.framework.version>3.11.0</test.framework.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>mongodb-3.x-scenario-3.11.1</id>
-            <properties>
-                <test.framework.version>3.11.1</test.framework.version>
-            </properties>
-        </profile>
-    </profiles>
 
     <build>
         <finalName>mongodb-3.x-scenario</finalName>

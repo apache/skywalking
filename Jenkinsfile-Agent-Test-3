@@ -54,7 +54,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (73)') {
+        stage('Test Cases Report (78)') {
             steps {
                 echo "reserve."
             }
@@ -73,9 +73,9 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} canal-scenario'
                             }
                         }
-                        stage('mongodb 3.0-3.11.1 (17)') {
+                        stage('mongodb 3.0-3.5.0 (5)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=${BUILD_ID} mongodb-3.x-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} mongodb-3.x-scenario'
                             }
                         }
                     }
