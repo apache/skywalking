@@ -105,7 +105,14 @@ waitForAvailable() {
 }
 
 do_cleanup() {
-    docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
+    images=$(docker images -q "skywalking/agent-test-*:${build_id}")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+    images=$(docker images -qf "dangling=true")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+
+    docker volume prune -f
+    docker image prune -f
+
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }
