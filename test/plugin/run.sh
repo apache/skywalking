@@ -20,7 +20,7 @@ home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
 force_build="off"
-build_id="latest"
+build_id="local"
 cleanup="off"
 
 mvnw=${home}/../../mvnw
@@ -105,7 +105,14 @@ waitForAvailable() {
 }
 
 do_cleanup() {
-    docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
+    images=$(docker images -q "skywalking/agent-test-*:${build_id}")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+    images=$(docker images -qf "dangling=true")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+
+    docker network prune -f
+    docker volume prune -f
+
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
 }

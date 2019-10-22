@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+registryItems:
+  applications:
+    - {sofarpc-scenario: 2}
+  instances:
+    - {sofarpc-scenario: 1}
+  operationNames:
+    - sofarpc-scenario: [org.apache.skywalking.apm.testcase.sofarpc.interfaces.SofaRpcDemoService.hello(java.lang.String),
+                         /sofarpc-scenario/case/sofarpc]
+  heartbeat: []
+segmentItems:
+  - applicationCode: sofarpc-scenario
+    segmentSize: gt 2
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: org.apache.skywalking.apm.testcase.sofarpc.interfaces.SofaRpcDemoService.hello(java.lang.String)
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 43
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /sofarpc-scenario/case/sofarpc, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: '127.0.0.1:12200', entryEndpoint: /sofarpc-scenario/case/sofarpc,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: org.apache.skywalking.apm.testcase.sofarpc.interfaces.SofaRpcDemoService.hello(java.lang.String)
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 43
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: 127.0.0.1:12200
+            peerId: 0
+            tags:
+              - {key: url, value: 'bolt://127.0.0.1:12200/org.apache.skywalking.apm.testcase.sofarpc.interfaces.SofaRpcDemoService.hello(java.lang.String)'}
+          - operationName: /sofarpc-scenario/case/sofarpc
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/sofarpc-scenario/case/sofarpc'}
+              - {key: http.method, value: GET}
+
+
+
+
+
+
+

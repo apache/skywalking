@@ -114,7 +114,7 @@ class SourceBuilder {
         serviceInstanceRelation.setSourceServiceId(sourceServiceId);
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
-        serviceInstanceRelation.setSourceServiceId(destServiceId);
+        serviceInstanceRelation.setDestServiceId(destServiceId);
         serviceInstanceRelation.setDestServiceInstanceId(destServiceInstanceId);
         serviceInstanceRelation.setDestServiceName(destServiceName);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
