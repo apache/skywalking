@@ -254,9 +254,6 @@ pulsar-consumer:
 Ehcache:
   id: 75
   languages: Java
-servicecomb-java-chassis:
-  id: 76
-  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -326,10 +323,10 @@ Koa:
 
 # Golang components
 # [5000, 6000) for Golang agent
-servicecomb-mesher:
+ServiceCombMesher:
   id: 5001
   languages: Golang
-servicecomb-service-center:
+ServiceCombServiceCenter:
   id: 5002
   languages: Golang
 
@@ -369,6 +366,3 @@ Component-Server-Mappings:
   cassandra-java-driver: Cassandra
   pulsar-producer: Pulsar
   pulsar-consumer: Pulsar
-  servicecomb-java-chassis: ServiceCombJavaChassis
-  servicecomb-mesher: ServiceCombMesher
-  servicecomb-service-center: ServiceCombServiceCenter
