@@ -71,7 +71,7 @@ do
   
   sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
     
-  if ${use_mysql} -eq 1; then
+  if [[ ${use_mysql} -eq 1 ]]; then
       echo "MySQL database is storage provider..."
       
       # Download MySQL connector.
