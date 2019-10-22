@@ -111,6 +111,7 @@ do_cleanup() {
     [[ -n "${images}" ]] && docker rmi -f ${images}
 
     docker network prune -f
+    docker volume prune -f
 
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
