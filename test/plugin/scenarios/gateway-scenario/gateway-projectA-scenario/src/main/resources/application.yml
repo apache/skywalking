@@ -25,3 +25,12 @@ spring:
         uri: http://localhost:18070
         predicates:
         - Path=/provider/b/*
+        filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 1
+            redis-rate-limiter.burstCapacity: 1
+            key-resolver: "#{@apiKeyResolver}"
+  redis:
+    host: 127.0.0.1
+    port:  6379
