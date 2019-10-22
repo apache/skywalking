@@ -110,7 +110,6 @@ do_cleanup() {
     images=$(docker images -qf "dangling=true")
     [[ -n "${images}" ]] && docker rmi -f ${images}
 
-    docker volume prune -f
     docker network prune -f
 
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
