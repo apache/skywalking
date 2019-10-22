@@ -254,6 +254,15 @@ pulsar-consumer:
 Ehcache:
   id: 75
   languages: Java
+servicecomb-mesher:
+  id: 76
+  languages: Golang
+servicecomb-service-center:
+  id: 77
+  languages: Golang
+servicecomb-java-chassis:
+  id: 78
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
