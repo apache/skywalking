@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
+import java.io.IOException;
 import java.util.*;
+
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.*;
@@ -27,6 +29,10 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.*;
 
 /**
@@ -42,9 +48,10 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
+    private HistogramMetrics histogram;
 
     RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
-        IRegisterDAO registerDAO, int scopeId) {
+                             IRegisterDAO registerDAO, int scopeId) {
         super(moduleDefineHolder);
         this.modelName = modelName;
         this.sources = new HashMap<>();
@@ -52,6 +59,10 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
         this.scopeId = scopeId;
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+
+        histogram = metricsCreator.createHistogramMetric("register_persistent_worker_latency", "The process latency of register persistent worker",
+                new MetricsTag.Keys("module"), new MetricsTag.Values(modelName));
 
         String name = "REGISTER_L2";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -80,39 +91,43 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
 
-        if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
-            sources.values().forEach(source -> {
-                try {
-                    RegisterSource dbSource = registerDAO.get(modelName, source.id());
-                    if (Objects.nonNull(dbSource)) {
-                        if (dbSource.combine(source)) {
-                            registerDAO.forceUpdate(modelName, dbSource);
-                        }
-                    } else {
-                        int sequence;
-                        if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
-                            try {
-                                dbSource = registerDAO.get(modelName, source.id());
-                                if (Objects.nonNull(dbSource)) {
-                                    if (dbSource.combine(source)) {
-                                        registerDAO.forceUpdate(modelName, dbSource);
-                                    }
-                                } else {
-                                    source.setSequence(sequence);
-                                    registerDAO.forceInsert(modelName, source);
-                                }
-                            } catch (Throwable t) {
-                                logger.error(t.getMessage(), t);
+        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+            if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
+                sources.values().forEach(source -> {
+                    try {
+                        RegisterSource dbSource = registerDAO.get(modelName, source.id());
+                        if (Objects.nonNull(dbSource)) {
+                            if (dbSource.combine(source)) {
+                                registerDAO.forceUpdate(modelName, dbSource);
                             }
                         } else {
-                            logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
+                            int sequence;
+                            if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
+                                try {
+                                    dbSource = registerDAO.get(modelName, source.id());
+                                    if (Objects.nonNull(dbSource)) {
+                                        if (dbSource.combine(source)) {
+                                            registerDAO.forceUpdate(modelName, dbSource);
+                                        }
+                                    } else {
+                                        source.setSequence(sequence);
+                                        registerDAO.forceInsert(modelName, source);
+                                    }
+                                } catch (Throwable t) {
+                                    logger.error(t.getMessage(), t);
+                                }
+                            } else {
+                                logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
+                            }
                         }
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
                     }
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
-                }
-            });
-            sources.clear();
+                });
+                sources.clear();
+            }
+        } catch (IOException e) {
+            logger.error("not except exception happen", e);
         }
     }
 
