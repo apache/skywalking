@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
@@ -56,10 +57,9 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             span.setComponent(connectInfo.getComponent());
 
             if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
-                final Object[] parameters = cacheObject.getParameters();
-                if (parameters != null && parameters.length > 0) {
-                    int maxIndex = cacheObject.getMaxIndex();
-                    String parameterString = buildParameterString(parameters, maxIndex);
+                List<Object> parameters = cacheObject.getParameters();
+                if (parameters != null && parameters.size() > 0) {
+                    String parameterString = buildParameterString(parameters);
                     int sqlParametersMaxLength = Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH;
                     if (sqlParametersMaxLength > 0 && parameterString.length() > sqlParametersMaxLength) {
                         parameterString = parameterString.substring(0, sqlParametersMaxLength) + "...";
@@ -95,11 +95,11 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
     }
 
-    private String buildParameterString(Object[] parameters, int maxIndex) {
+    private String buildParameterString(List<Object> parameters) {
         String parameterString = "[";
         boolean first = true;
-        for (int i = 0; i < maxIndex; i++) {
-            Object parameter = parameters[i];
+        for (int i = 0; i < parameters.size(); i++) {
+            Object parameter = parameters.get(i);
             if (!first) {
                 parameterString += ",";
             }
