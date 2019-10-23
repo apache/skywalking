@@ -34,6 +34,7 @@
     <modules>
         <module>e2e-base</module>
         <module>e2e-single-service</module>
+        <module>e2e-mysql</module>
         <module>e2e-cluster</module>
         <module>e2e-agent-reboot</module>
         <module>e2e-ttl</module>

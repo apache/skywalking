@@ -18,26 +18,17 @@
 
 export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
 
-MYSQL_URL="http://central.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
-MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
-TMP_APP_YML="tmp_app.yml"
-
 base_dir=$(pwd)
 build=0
-use_mysql=0
 cases=()
 
 # Parse the arguments
 # --build-dist: build the distribution package ignoring the existance of `dist` folder, useful when running e2e locally
-# --use-mysql: use MySQL as storage provider or not
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --build)
       build=1
-      ;;
-    --use-mysql)
-      use_mysql=1
       ;;
     *)
       cases+=($1)
@@ -69,22 +60,7 @@ do
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
   
-  sky_home_dir="${base_dir}/$test_case/apache-skywalking-apm-bin"
-    
-  if [[ ${use_mysql} -eq 1 ]]; then
-      echo "MySQL database is storage provider..."
-      
-      # Download MySQL connector.
-      curl ${MYSQL_URL} > "${sky_home_dir}/oap-libs/${MYSQL_DRIVER}"
-      [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
-      
-      # Modify application.yml to set MySQL as storage provider.
-      cat "${sky_home_dir}/conf/application.yml" | sed '/elasticsearch/,/mysql/d' | sed "/storage:/a \  mysql:" | sed "/storage:/,/receiver-sharing-server:/s/#//" > ${TMP_APP_YML}
-      cat ${TMP_APP_YML} > "${sky_home_dir}/config/application.yml"
-      rm -f ${TMP_APP_YML}
-  fi
-  
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${sky_home_dir}" -f test/e2e/pom.xml -pl "$test_case" -am verify
+  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
 
   status_code=$?
 
