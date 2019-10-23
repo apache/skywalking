@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
-import java.util.Arrays;
-
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
  * <code>sql</code> for trace mysql.
