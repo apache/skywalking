@@ -19,7 +19,9 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
+import com.google.common.base.Joiner;
 import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -46,8 +48,13 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
         Tags.DB_STATEMENT.set(span, cacheObject.getSql());
-        span.setComponent(connectInfo.getComponent());
 
+        List<Object> parameters = cacheObject.getParameters();
+        if (!parameters.isEmpty()) {
+            Tags.DB_BIND_VARIABLES.set(span, Joiner.on(",").join(parameters));
+        }
+
+        span.setComponent(connectInfo.getComponent());
         SpanLayer.asDB(span);
     }
 

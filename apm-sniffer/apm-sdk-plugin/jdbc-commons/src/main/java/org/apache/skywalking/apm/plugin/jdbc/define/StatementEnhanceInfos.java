@@ -19,6 +19,8 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.define;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.util.Arrays;
@@ -33,8 +35,7 @@ public class StatementEnhanceInfos {
     private ConnectionInfo connectionInfo;
     private String statementName;
     private String sql;
-    private Object[] parameters;
-    private int maxIndex = 0;
+    private List<Object> parameters = new ArrayList<Object>();
 
     public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
         this.connectionInfo = connectionInfo;
@@ -55,29 +56,14 @@ public class StatementEnhanceInfos {
     }
 
     public void setParameter(int index, final Object parameter) {
-        maxIndex = maxIndex > index ? maxIndex : index;
-        index--; // start from 1
-        if (parameters == null) {
-            final int initialSize = Math.max(20, maxIndex);
-            parameters = new Object[initialSize];
-            Arrays.fill(parameters, null);
+        // start from 1
+        index--;
+        if (index >= 0) {
+            parameters.set(index, parameter);
         }
-        int length = parameters.length;
-        if (index >= length) {
-            int newSize = Math.max(index + 1, length * 2);
-            Object[] newParameters = new Object[newSize];
-            System.arraycopy(parameters, 0, newParameters, 0, length);
-            Arrays.fill(newParameters, length, newSize, null);
-            parameters = newParameters;
-        }
-        parameters[index] = parameter;
     }
 
-    public Object[] getParameters() {
+    public List<Object> getParameters() {
         return parameters;
-    }
-
-    public int getMaxIndex() {
-        return maxIndex;
     }
 }
