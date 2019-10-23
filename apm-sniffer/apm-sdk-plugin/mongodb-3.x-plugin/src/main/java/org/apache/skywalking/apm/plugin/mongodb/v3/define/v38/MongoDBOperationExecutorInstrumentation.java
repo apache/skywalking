@@ -28,22 +28,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBV37OperationExecutorInstrumentation;
 
 /**
- * same whit {@link MongoDBV37OperationExecutorInstrumentation}
+ * same whit {@link org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation}
  * <p>
  * support: 3.8.x or higher
  *
  * @author scolia
  */
-public class MongoDBV38OperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String WITNESS_CLASS = "com.mongodb.client.ClientSession";
 
     private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate$DelegateOperationExecutor";
 
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37OperationExecutorInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBOperationExecutorInterceptor";
 
     private static final String METHOD_NAME = "execute";
 

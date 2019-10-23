@@ -33,9 +33,9 @@ import static org.mockito.Mockito.when;
  * @author scolia
  */
 @RunWith(PowerMockRunner.class)
-public class MongoDBV37ClientDelegateInterceptorTest {
+public class MongoDBClientDelegateInterceptorTest {
 
-    private MongoDBV37ClientDelegateInterceptor interceptor;
+    private MongoDBClientDelegateInterceptor interceptor;
 
     @Mock
     private EnhancedInstance clientDelegateEnhancedInstance;
@@ -46,7 +46,7 @@ public class MongoDBV37ClientDelegateInterceptorTest {
 
     @Before
     public void setUp() {
-        interceptor = new MongoDBV37ClientDelegateInterceptor();
+        interceptor = new MongoDBClientDelegateInterceptor();
         retEnhancedInstance = new FieldEnhancedInstance();
         when(clientDelegateEnhancedInstance.getSkyWalkingDynamicField()).thenReturn(REMOTE_PEER);
     }

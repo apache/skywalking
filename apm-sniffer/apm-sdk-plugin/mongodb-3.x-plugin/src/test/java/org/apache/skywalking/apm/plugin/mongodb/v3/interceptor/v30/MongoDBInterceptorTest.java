@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class MongoDBV30InterceptorTest {
+public class MongoDBInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -63,7 +63,7 @@ public class MongoDBV30InterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private MongoDBV30Interceptor interceptor;
+    private MongoDBInterceptor interceptor;
 
     @Mock
     private EnhancedInstance enhancedInstance;
@@ -75,7 +75,7 @@ public class MongoDBV30InterceptorTest {
     @Before
     public void setUp() throws Exception {
 
-        interceptor = new MongoDBV30Interceptor();
+        interceptor = new MongoDBInterceptor();
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 

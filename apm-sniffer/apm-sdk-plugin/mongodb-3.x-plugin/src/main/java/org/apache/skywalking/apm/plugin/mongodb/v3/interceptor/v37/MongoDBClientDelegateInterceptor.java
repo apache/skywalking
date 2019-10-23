@@ -34,9 +34,9 @@ import java.lang.reflect.Method;
  * @author scolia
  */
 @SuppressWarnings("Duplicates")
-public class MongoDBV37ClientDelegateInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
+public class MongoDBClientDelegateInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
-    private static final ILog logger = LogManager.getLogger(MongoDBV37ClientDelegateInterceptor.class);
+    private static final ILog logger = LogManager.getLogger(MongoDBClientDelegateInterceptor.class);
 
     @SuppressWarnings("deprecation")
     @Override
@@ -57,7 +57,7 @@ public class MongoDBV37ClientDelegateInterceptor implements InstanceConstructorI
                               Class<?>[] argumentsTypes, Object ret) {
         if (ret instanceof EnhancedInstance) {
             // pass remotePeer to OperationExecutor, which will be wrapper as EnhancedInstance
-            // @see: org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBV37OperationExecutorInstrumentation
+            // @see: org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation
             EnhancedInstance retInstance = (EnhancedInstance) ret;
             String remotePeer = (String) objInst.getSkyWalkingDynamicField();
             if (logger.isDebugEnable()) {

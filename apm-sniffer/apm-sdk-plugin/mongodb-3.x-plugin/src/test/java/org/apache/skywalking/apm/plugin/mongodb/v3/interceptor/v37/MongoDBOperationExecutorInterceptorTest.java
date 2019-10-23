@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class MongoDBV37OperationExecutorInterceptorTest {
+public class MongoDBOperationExecutorInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -71,7 +71,7 @@ public class MongoDBV37OperationExecutorInterceptorTest {
     @Mock
     private EnhancedInstance enhancedInstance;
 
-    private MongoDBV37OperationExecutorInterceptor interceptor;
+    private MongoDBOperationExecutorInterceptor interceptor;
 
     private Object[] arguments;
 
@@ -80,7 +80,7 @@ public class MongoDBV37OperationExecutorInterceptorTest {
     @Before
     public void setUp() {
 
-        interceptor = new MongoDBV37OperationExecutorInterceptor();
+        interceptor = new MongoDBOperationExecutorInterceptor();
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
