@@ -20,18 +20,19 @@ home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
 force_build="off"
-build_id="latest"
+build_id="local"
+cleanup="off"
 
 mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
 scenarios_home="${home}/scenarios"
 
-
 print_help() {
-    echo  "Usage: run.sh [OPTION] SCENARIO [SCENARIO]"
+    echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
     echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
+    echo -e "\t--cleanup, \t\t\t remove the related images and directories"
 }
 
 parse_commandline() {
@@ -42,7 +43,9 @@ parse_commandline() {
         case "$_key" in
             -f|--force_build)
                 force_build="on"
-                shift
+                ;;
+            --cleanup)
+                cleanup="on"
                 ;;
             --build_id)
                 test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
@@ -82,10 +85,6 @@ exitWithMessage() {
 }
 
 exitAndClean() {
-    if [[ "${build_id}" =~ "latest" ]]; then
-        docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
-    fi
-
     elapsed=$(( `date +%s` - $start_stamp ))
     num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
     printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
@@ -105,8 +104,52 @@ waitForAvailable() {
     fi
 }
 
-start_stamp=`date +%s` ### start
+do_cleanup() {
+    images=$(docker images -q "skywalking/agent-test-*:${build_id}")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+    images=$(docker images -qf "dangling=true")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+
+    docker network prune -f
+    docker volume prune -f
+
+    [[ -d ${home}/dist ]] && rm -rf ${home}/dist
+    [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
+}
+
+agent_home_selector() {
+    running_mode=$1
+    with_plugins=$2
+
+    plugin_dir="optional-plugins"
+    target_agent_dir="agent_with_optional"
+    if [[ "${running_mode}" != "with_optional" ]]; then
+        plugin_dir="bootstrap-plugins"
+        target_agent_dir="agent_with_bootstrap"
+    fi
+
+    target_agent_home=${workspace}/${target_agent_dir}
+    mkdir -p ${target_agent_home}
+    cp -fr ${agent_home}/* ${target_agent_home}
+
+    with_plugins=`echo $with_plugins |sed -e "s/;/ /g"`
+    for plugin in ${with_plugins};
+    do
+        mv ${target_agent_home}/${plugin_dir}/${plugin} ${target_agent_home}/plugins/
+        [[ $? -ne 0 ]] && exitAndClean 1
+    done
+    _agent_home=${target_agent_home}
+}
+
+start_stamp=`date +%s`
 parse_commandline "$@"
+
+if [[ "$cleanup" == "on" ]]; then
+    do_cleanup
+    exit 0
+fi
+
+test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
@@ -119,18 +162,30 @@ task_state_house="${workspace}/.states"
 [[ -d ${workspace} ]] && rm -rf $workspace
 mkdir -p ${task_state_house}
 
-plugin_autotest_helper="${home}/dist/plugin-autotest-helper.jar"
-if [[ ! -f ${plugin_autotest_helper} ]]; then
-    exitWithMessage "Plugin autotest tools not exists, Please re-try it with '-f'"
+plugin_runner_helper="${home}/dist/plugin-runner-helper.jar"
+if [[ ! -f ${plugin_runner_helper} ]]; then
+    exitWithMessage "Plugin Runner tools not exists, Please re-try it with '-f'"
     print_helper
 fi
 
 echo "start submit job"
 scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 
+
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
     exitWithMessage "cannot found 'support-version.list' in directory ${scenario_name}"
+fi
+
+_agent_home=${agent_home}
+running_mode=$(grep "^runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+with_plugins=$(grep "^withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+
+if [[ -n "${running_mode}" ]]; then
+    # [[ -z "${with_plugins}" ]] ; then&& exitWithMessage \
+    #    "'withPlugins' has required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
+    [[ -z "${with_plugins}" ]] && with_plugins="*.jar"
+    agent_home_selector ${running_mode} ${with_plugins}
 fi
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
@@ -149,9 +204,8 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -Dtest.framework.version=${version}
-
-    mv ./target/${scenario_name}.war ${case_work_base}
+    ${mvnw} clean package -Dtest.framework.version=${version} && \
+        mv ./target/${scenario_name}.* ${case_work_base}
 
     java -jar \
         -Xmx256m -Xms256m \
@@ -160,9 +214,9 @@ do
         -Dscenario.name=${scenario_name} \
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
-        -Dagent.dir=${agent_home} \
+        -Dagent.dir=${_agent_home} \
         -Ddocker.image.version=${build_id} \
-        ${plugin_autotest_helper} 1>${case_work_logs_dir}/helper.log 
+        ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 

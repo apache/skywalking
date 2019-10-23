@@ -50,7 +50,7 @@
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
     * [Redisson](https://github.com/redisson/redisson) Easy Java Redis client 3.5.2+
     * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x (Optional²)
-  * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.3+
+  * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.4.0-3.5.0
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
@@ -60,7 +60,6 @@
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
     * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.6.0-3.7.2
-
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
@@ -80,6 +79,8 @@
   * Vert.x Web 3.x
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
+* Cache
+  * [Ehcache](https://www.ehcache.org/) 2.x
 
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
