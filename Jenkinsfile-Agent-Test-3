@@ -40,14 +40,14 @@ pipeline {
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
-                sh 'bash tools/conditional/agent-build-condition.sh || exit 0'
+                sh 'bash tools/ci/agent-build-condition.sh || exit 0'
             }
         }
 
         stage('Compile agent Codes') {
             when {
                 expression {
-                    return sh(returnStatus: true, script: 'bash tools/conditional/agent-build-condition.sh')
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
                 }
             }
             steps {
@@ -58,7 +58,7 @@ pipeline {
         stage('Compile plugin-test tools Codes') {
             when {
                 expression {
-                    return sh(returnStatus: true, script: 'bash tools/conditional/agent-build-condition.sh')
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
                 }
             }
             steps {
@@ -69,7 +69,7 @@ pipeline {
         stage('Run Agent Plugin Tests') {
             when {
                 expression {
-                    return sh(returnStatus: true, script: 'bash tools/conditional/agent-build-condition.sh')
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
                 }
             }
             parallel {

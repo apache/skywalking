@@ -17,12 +17,11 @@
 # limitations under the License.
 
 bash -x $(dirname "$0")/changed.sh --any-of '^pom.xml$' \
-  '^Jenkinsfile-E2E$' \
+  '^Jenkinsfile-Agent-.*$' \
+  '^apm-application-toolkit/.*$' \
   '^apm-commons/.*$' \
   '^apm-protocol/.*$' \
   '^apm-sniffer/.*$' \
-  '^apm-webapp/.*$' \
-  '^oap-server/.*$' \
-  '^test/e2e/.*$' \
-  '^tools/conditional/e2e-build-condition.sh$' \
-  '^tools/conditional/changed.sh$'
+  '^test/plugin/.*$' \
+  '^tools/ci/agent-build-condition.sh$' \
+  '^tools/ci/changed.sh$'
