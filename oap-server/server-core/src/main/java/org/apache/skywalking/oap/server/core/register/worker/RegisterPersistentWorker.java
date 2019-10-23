@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.io.IOException;
 import java.util.*;
 
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -48,7 +47,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
-    private HistogramMetrics histogram;
+    private HistogramMetrics workerLatencyHistogram;
 
     RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
                              IRegisterDAO registerDAO, int scopeId) {
@@ -61,7 +60,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
 
-        histogram = metricsCreator.createHistogramMetric("register_persistent_worker_latency", "The process latency of register persistent worker",
+        workerLatencyHistogram = metricsCreator.createHistogramMetric("register_persistent_worker_latency", "The process latency of register persistent worker",
                 new MetricsTag.Keys("module"), new MetricsTag.Values(modelName));
 
         String name = "REGISTER_L2";
@@ -91,7 +90,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
 
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+        try (HistogramMetrics.Timer timer = workerLatencyHistogram.createTimer()) {
             if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
                 sources.values().forEach(source -> {
                     try {
@@ -126,8 +125,6 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
                 });
                 sources.clear();
             }
-        } catch (IOException e) {
-            logger.error("not except exception happen", e);
         }
     }
 
