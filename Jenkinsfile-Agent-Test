@@ -56,7 +56,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl1_${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (135)') {
+        stage('Test Cases Report (139)') {
             steps {
                 echo "reserve."
             }
@@ -86,6 +86,12 @@ pipeline {
                         stage('spring async 4.3.x-5.1.x (35)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} spring-async-scenario'
+                            }
+                        }
+
+                        stage('netty-socketio 1.x (4)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} netty-socketio-scenario'
                             }
                         }
                     }
