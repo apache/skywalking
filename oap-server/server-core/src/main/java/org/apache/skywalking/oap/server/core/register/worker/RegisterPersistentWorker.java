@@ -47,7 +47,7 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
-    private HistogramMetrics workerLatencyHistogram;
+    private final HistogramMetrics workerLatencyHistogram;
 
     RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
                              IRegisterDAO registerDAO, int scopeId) {
