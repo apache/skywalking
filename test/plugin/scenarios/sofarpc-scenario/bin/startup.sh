@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.DefaultHttpHeadersInstrumentation
-spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.HttpClientOperationsInstrumentation
-spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.NettyRoutingFilterInstrumentation
-spring-cloud-gateway-2.1.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.FilteringWebHandlerInstrumentation
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/sofarpc-scenario.jar &
