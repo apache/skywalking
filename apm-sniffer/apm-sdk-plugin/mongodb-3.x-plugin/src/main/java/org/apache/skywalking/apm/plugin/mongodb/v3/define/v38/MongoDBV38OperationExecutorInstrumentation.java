@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.define.v37;
+package org.apache.skywalking.apm.plugin.mongodb.v3.define.v38;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -28,22 +28,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBV37OperationExecutorInterceptor;
+import org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBV37OperationExecutorInstrumentation;
 
 /**
- * {@code com.mongodb.client.internal.OperationExecutor} which is unified entrance of execute mongo command.
- * so we can intercept {@code com.mongodb.client.internal.OperationExecutor#execute(...)} method
- * to known which command will be execute.
+ * same whit {@link MongoDBV37OperationExecutorInstrumentation}
  * <p>
- * support: 3.7.x
+ * support: 3.8.x or higher
  *
  * @author scolia
- * @see MongoDBV37OperationExecutorInterceptor
  */
-@SuppressWarnings({"Duplicates"})
-public class MongoDBV37OperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class MongoDBV38OperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String WITNESS_CLASS = "com.mongodb.client.internal.MongoClientDelegate";
+    private static final String WITNESS_CLASS = "com.mongodb.client.ClientSession";
 
     private static final String ENHANCE_CLASS = "com.mongodb.client.internal.MongoClientDelegate$DelegateOperationExecutor";
 
@@ -51,7 +47,7 @@ public class MongoDBV37OperationExecutorInstrumentation extends ClassInstanceMet
 
     private static final String METHOD_NAME = "execute";
 
-    private static final String ARGUMENT_TYPE = "com.mongodb.session.ClientSession";
+    private static final String ARGUMENT_TYPE = "com.mongodb.client.ClientSession";
 
     @Override
     protected String[] witnessClasses() {
@@ -74,10 +70,10 @@ public class MongoDBV37OperationExecutorInstrumentation extends ClassInstanceMet
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
                 return ElementMatchers
-                        // 3.7.x
-                        .named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(1, ARGUMENT_TYPE))
+                        // 3.8.x~3.11.x
+                        .named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
                         .or(ElementMatchers.<MethodDescription>named(METHOD_NAME)
-                                .and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
+                                .and(ArgumentTypeNameMatch.takesArgumentWithType(3, ARGUMENT_TYPE))
                         );
             }
 

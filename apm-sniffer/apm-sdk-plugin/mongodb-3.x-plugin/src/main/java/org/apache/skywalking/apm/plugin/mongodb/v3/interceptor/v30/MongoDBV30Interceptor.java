@@ -40,7 +40,7 @@ import java.lang.reflect.Method;
  * <p>
  * only supported: 3.0.x-3.5.x
  *
- * @author baiyang
+ * @author scolia
  */
 @SuppressWarnings({"deprecation", "Duplicates"})
 public class MongoDBV30Interceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {

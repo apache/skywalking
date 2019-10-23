@@ -56,7 +56,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl3_${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (137)') {
+        stage('Test Cases Report (149)') {
             steps {
                 echo "reserve."
             }
@@ -80,7 +80,7 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} sofarpc-scenario'
                             }
                         }
-                        stage('mongodb 3.0-3.5.0 (5)') {
+                        stage('mongodb 3.0-3.5.0 (17)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} mongodb-3.x-scenario'
                             }
