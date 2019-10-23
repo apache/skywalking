@@ -40,8 +40,6 @@ public class NettySocketIOOnEventInterceptor implements InstanceMethodsAroundInt
 
         // no place to get context carrier
         ContextCarrier contextCarrier = new ContextCarrier();
-        contextCarrier.items();
-
         AbstractSpan span = ContextManager.createEntrySpan("SocketIO/" + eventName + "/receive", contextCarrier);
         span.setComponent(ComponentsDefine.SOCKET_IO);
         SpanLayer.asHttp(span);
