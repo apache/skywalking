@@ -37,13 +37,9 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
-                sh 'printenv'
                 deleteDir()
                 checkout scm
-                echo currentBuild.getBuildCauses().toString()
-                echo currentBuild.getBuildCauses()[0].toString()
                 sh 'git submodule update --init'
-                sh 'bash tools/ci/e2e-build-condition.sh || exit 0'
             }
         }
 
