@@ -80,7 +80,7 @@ do
       
       # Modify application.yml to set MySQL as storage provider.
       cat "${sky_home_dir}/conf/application.yml" | sed '/elasticsearch/,/mysql/d' | sed "/storage:/a \  mysql:" | sed "/storage:/,/receiver-sharing-server:/s/#//" > ${TMP_APP_YML}
-      cat ${TMP_APP_YML} > "${sky_home_dir}/conf/application.yml"
+      cat ${TMP_APP_YML} > "${sky_home_dir}/config/application.yml"
       rm -f ${TMP_APP_YML}
   fi
   
