@@ -37,9 +37,11 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
+                sh 'printenv'
                 deleteDir()
                 checkout scm
                 sh 'git submodule update --init'
+                sh 'bash tools/conditional/e2e-build-condition.sh || exit 0'
             }
         }
 

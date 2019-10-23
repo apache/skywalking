@@ -51,7 +51,7 @@ IFS=$'\n' ; echo "${test_results[*]}"
 
 if [[ ${any_of} -eq 1 ]]; then
   for test_result in ${test_results[@]}; do
-    [[ ${test_result} =~ ^Hit:$ ]] && echo ${test_result} && exit 1
+    [[ ${test_result} =~ ^Hit:.+$ ]] && echo ${test_result} && exit 1
   done
 fi
 
