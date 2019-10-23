@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,34 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm;
+package org.apache.skywalking.apm.testcase.mongodb;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
-public class ServiceMetaInAlarm extends MetaInAlarm {
-    private String metricsName;
+@SpringBootApplication
+public class Application {
 
-    private int id;
-    private String name;
-    private String[] tags;
-    private String[] properties;
-
-    @Override public String getScope() {
-        return DefaultScopeDefine.SERVICE_CATALOG_NAME;
-    }
-
-    @Override public int getScopeId() {
-        return DefaultScopeDefine.SERVICE;
-    }
-
-    @Override public int getId0() {
-        return id;
-    }
-
-    @Override public int getId1() {
-        return 0;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 }
