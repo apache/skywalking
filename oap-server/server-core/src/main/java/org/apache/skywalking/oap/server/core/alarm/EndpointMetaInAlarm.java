@@ -33,6 +33,10 @@ public class EndpointMetaInAlarm extends MetaInAlarm {
     private String[] tags;
     private String[] properties;
 
+    @Override public String getScope() {
+        return DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
+    }
+
     @Override public int getScopeId() {
         return DefaultScopeDefine.ENDPOINT;
     }
