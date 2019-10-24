@@ -106,11 +106,9 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} elasticsearch-5.x-scenario'
                             }
                         }
-                        stages {
-                            stage('undertow-scenario 1.3.0-2.0.27 (23)') {
-                                steps {
-                                    sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} undertow-scenario'
-                                }
+                        stage('undertow-scenario 1.3.0-2.0.27 (23)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} undertow-scenario'
                             }
                         }
                     }
