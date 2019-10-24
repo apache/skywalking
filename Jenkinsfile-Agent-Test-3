@@ -80,7 +80,7 @@ pipeline {
                                 sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} sofarpc-scenario'
                             }
                         }
-                        stage('mongodb 3.0-3.11.1 (17)') {
+                        stage('mongodb 3.4.0-3.11.1 (17)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} mongodb-3.x-scenario'
                             }
