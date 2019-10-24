@@ -1,8 +1,10 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version
+# to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
 #
@@ -14,26 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-1.3.0.Final
-1.3.17.Final
-1.3.33.Final
-1.4.0.Final
-1.4.12.Final
-1.4.27.Final
-2.0.0.Final
-2.0.3.Final
-2.0.4.Final
-2.0.8.Final
-2.0.9.Final
-2.0.11.Final
-2.0.13.Final
-2.0.15.Final
-2.0.16.Final
-2.0.17.Final
-2.0.19.Final
-2.0.20.Final
-2.0.21.Final
-2.0.22.Final
-2.0.23.Final
-2.0.26.Final
-2.0.27.Final
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/undertow-routing-scenario.jar &

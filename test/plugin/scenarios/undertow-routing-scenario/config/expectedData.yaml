@@ -16,19 +16,19 @@
 
 registryItems:
   applications:
-    - {undertow-scenario: 2}
+    - {undertow-routing-scenario: 2}
   instances:
-    - {undertow-scenario: 1}
+    - {undertow-routing-scenario: 1}
   operationNames:
-    - undertow-scenario: [/undertow-scenario/case/undertow]
+    - undertow-routing-scenario: ['/undertow-routing-scenario/case/{context}']
   heartbeat: []
 segmentItems:
-  - applicationCode: undertow-scenario
+  - applicationCode: undertow-routing-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null
         spans:
-          - operationName: /undertow-scenario/case/undertow
+          - operationName: /undertow-routing-scenario/case/{context}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -42,5 +42,5 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow'}
+              - {key: url, value: 'http://localhost:8080/undertow-routing-scenario/case/undertow'}
               - {key: http.method, value: GET}

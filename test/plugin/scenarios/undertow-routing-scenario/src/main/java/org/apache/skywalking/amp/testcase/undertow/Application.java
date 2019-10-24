@@ -20,21 +20,25 @@ package org.apache.skywalking.amp.testcase.undertow;
 
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
+import io.undertow.server.RoutingHandler;
 import io.undertow.util.Headers;
+import io.undertow.util.Methods;
 
 public class Application {
 
+    private static final String template = "/undertow-routing-scenario/case/{context}";
+
     public static void main(String[] args) throws InterruptedException {
+        HttpHandler httpHandler = exchange -> {
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+            exchange.getResponseSender().send("Success");
+        };
+        RoutingHandler handler = new RoutingHandler();
+        handler.add(Methods.GET, template, httpHandler);
+        handler.add(Methods.HEAD, template, httpHandler);
         Undertow server = Undertow.builder()
-            .addHttpListener(8080, "127.0.0.1")
-            .setHandler(new HttpHandler() {
-                @Override
-                public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-                    exchange.getResponseSender().send("Success");
-                }
-            }).build();
+            .addHttpListener(8080, "0.0.0.0")
+            .setHandler(handler).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         // Waiting for service register, please do not delete.
         Thread.sleep(5000);

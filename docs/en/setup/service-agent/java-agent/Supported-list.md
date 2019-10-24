@@ -10,7 +10,7 @@
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
   * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
-  * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
+  * [Undertow](http://undertow.io/)  1.3.0.Final -> 2.0.27.Final
   * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
   * [Play Framework](https://www.playframework.com/) 2.6.x -> 2.7.x (Optional²)
   * [Light4J Microservices Framework](https://doc.networknt.com/) 1.6.x -> 2.x
