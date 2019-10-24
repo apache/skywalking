@@ -31,7 +31,7 @@
     <artifactId>e2e-mysql</artifactId>
 
     <properties>
-        <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-single-node</e2e.container.name.prefix>
+        <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-single-node-mysql</e2e.container.name.prefix>
     </properties>
 
     <dependencies>
@@ -78,6 +78,16 @@
                 <configuration>
                     <containerNamePattern>%a-%t-%i</containerNamePattern>
                     <images>
+                        <image>
+                            <name>mysql/mysql-server:${mysql.version}</name>
+                            <alias>${e2e.container.name.prefix}-mysql</alias>
+                            <run>
+                                <wait>
+                                    <log>database system is ready to accept connections</log>
+                                    <time>20000</time>
+                                </wait>
+                            </run>
+                        </image>
                         <image>
                             <name>skyapm/e2e-container:${e2e.container.version}</name>
                             <alias>${e2e.container.name.prefix}</alias>
