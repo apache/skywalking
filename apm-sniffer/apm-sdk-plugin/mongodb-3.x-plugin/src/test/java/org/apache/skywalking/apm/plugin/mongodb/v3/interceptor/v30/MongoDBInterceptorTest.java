@@ -17,13 +17,11 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.mongodb.v3;
+package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v30;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoNamespace;
 import com.mongodb.operation.FindOperation;
-import java.lang.reflect.Method;
-import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -33,11 +31,7 @@ import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
-import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
-import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.agent.test.tools.*;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
@@ -52,13 +46,16 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-public class MongoDBMethodInterceptorTest {
+public class MongoDBInterceptorTest {
 
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
@@ -66,7 +63,7 @@ public class MongoDBMethodInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-    private MongoDBMethodInterceptor interceptor;
+    private MongoDBInterceptor interceptor;
 
     @Mock
     private EnhancedInstance enhancedInstance;
@@ -78,7 +75,7 @@ public class MongoDBMethodInterceptorTest {
     @Before
     public void setUp() throws Exception {
 
-        interceptor = new MongoDBMethodInterceptor();
+        interceptor = new MongoDBInterceptor();
 
         Config.Plugin.MongoDB.TRACE_PARAM = true;
 
@@ -91,8 +88,8 @@ public class MongoDBMethodInterceptorTest {
         FindOperation findOperation = new FindOperation(mongoNamespace, decoder);
         findOperation.filter(document);
 
-        arguments = new Object[] {findOperation};
-        argumentTypes = new Class[] {findOperation.getClass()};
+        arguments = new Object[]{findOperation};
+        argumentTypes = new Class[]{findOperation.getClass()};
     }
 
     @Test
@@ -125,7 +122,7 @@ public class MongoDBMethodInterceptorTest {
         assertThat(span.getOperationName(), is("MongoDB/FindOperation"));
         assertThat(SpanHelper.getComponentId(span), is(42));
         List<TagValuePair> tags = SpanHelper.getTags(span);
-        assertThat(tags.get(1).getValue(), is("FindOperation { \"name\" : \"by\" }"));
+        assertThat(tags.get(1).getValue(), is("FindOperation {\"name\": \"by\"}"));
         assertThat(tags.get(0).getValue(), is("MongoDB"));
         assertThat(span.isExit(), is(true));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.DB));

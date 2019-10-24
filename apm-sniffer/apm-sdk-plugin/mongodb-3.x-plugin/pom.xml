@@ -32,7 +32,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongo-java-driver.version>3.4.2</mongo-java-driver.version>
+        <mongo-java-driver.version>3.11.0</mongo-java-driver.version>
     </properties>
 
     <dependencies>
