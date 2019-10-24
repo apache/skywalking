@@ -44,6 +44,11 @@ pipeline {
         }
 
         stage('Prepare Distribution Package') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/e2e-build-condition.sh')
+                }
+            }
             steps {
                 // although these checks are done in ci-it, since they are lightweight/cheap
                 // we're using them as a barrier here to filter out some invalid PRs (fast-fail)
@@ -54,12 +59,22 @@ pipeline {
         }
 
         stage('Compile Test Codes') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/e2e-build-condition.sh')
+                }
+            }
             steps {
                 sh './mvnw -f test/e2e/pom.xml -pl e2e-base clean install'
             }
         }
 
         stage('Run End-to-End Tests') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/e2e-build-condition.sh')
+                }
+            }
             parallel {
                 stage('Group 1') {
                     stages {
