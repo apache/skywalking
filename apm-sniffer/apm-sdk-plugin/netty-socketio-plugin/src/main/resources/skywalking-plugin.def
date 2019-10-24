@@ -16,4 +16,3 @@
 
 netty-socketio=org.apache.skywalking.apm.plugin.netty.socketio.define.NettySocketIOPluginClientInstrumentation
 netty-socketio=org.apache.skywalking.apm.plugin.netty.socketio.define.NettySocketIOPluginNameSpaceInstrumentation
-netty-socketio=org.apache.skywalking.apm.plugin.netty.socketio.define.NettySocketIOPluginConnectionInstrumentation
