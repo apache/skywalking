@@ -24,7 +24,7 @@ registryItems:
   heartbeat: []
 segmentItems:
   - applicationCode: spring-async-scenario
-    segmentSize: 4
+    segmentSize: ge 4
     segments:
       - segmentId: not null
         spans:
