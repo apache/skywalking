@@ -127,7 +127,7 @@ pipeline {
                         }
                         stage('undertow-scenario 1.3.0-2.0.27 (23)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} undertow-scenario'
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} undertow-scenario'
                             }
                         }
                     }
