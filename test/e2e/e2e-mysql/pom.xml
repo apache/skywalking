@@ -83,8 +83,8 @@
                             <alias>${e2e.container.name.prefix}-mysql</alias>
                             <run>
                                 <wait>
-                                    <log>database system is ready to accept connections</log>
-                                    <time>20000</time>
+                                    <log>Socket: '/var/run/mysqld/mysqlx.sock' bind-address: '::' port: 3306</log>
+                                    <time>120000</time>
                                 </wait>
                                 <env>
                                     <MYSQL_ROOT_PASSWORD>root@1234</MYSQL_ROOT_PASSWORD>
@@ -101,7 +101,14 @@
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
+                                    <SW_JDBC_URL>jdbc:mysql://${e2e.container.name.prefix}-mysql:3306/swtest</SW_JDBC_URL>
                                 </env>
+                                <dependsOn>
+                                     <container>${e2e.container.name.prefix}-mysql</container>
+                                 </dependsOn>
+                                 <links>
+                                     <link>${e2e.container.name.prefix}-mysql</link>
+                                 </links>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8081</port>
                                     <port>+client.host:client.port:9090</port>
