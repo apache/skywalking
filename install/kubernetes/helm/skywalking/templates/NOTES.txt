@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */}}
 
+
 Thank you for installing {{ .Chart.Name }}.
 
 Your release is named {{ .Release.Name }}.
