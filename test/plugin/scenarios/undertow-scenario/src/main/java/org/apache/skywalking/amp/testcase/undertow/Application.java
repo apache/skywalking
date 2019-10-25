@@ -19,25 +19,47 @@
 package org.apache.skywalking.amp.testcase.undertow;
 
 import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
 
 public class Application {
+
+    private static final String CASE_URL = "/undertow-scenario/case/undertow";
 
     public static void main(String[] args) throws InterruptedException {
         Undertow server = Undertow.builder()
             .addHttpListener(8080, "127.0.0.1")
-            .setHandler(new HttpHandler() {
-                @Override
-                public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-                    exchange.getResponseSender().send("Success");
+            .setHandler(exchange -> {
+                if (CASE_URL.equals(exchange.getRequestPath())) {
+                    visit("http://localhost:8080/undertow-scenario/case/undertow1");
                 }
+                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+                exchange.getResponseSender().send("Success");
             }).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         // Waiting for service register, please do not delete.
         Thread.sleep(5000);
         server.start();
+    }
+
+    private static void visit(String url) throws IOException {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            HttpGet httpget = new HttpGet(url);
+            ResponseHandler<String> responseHandler = response -> {
+                HttpEntity entity = response.getEntity();
+                return entity != null ? EntityUtils.toString(entity) : null;
+            };
+            httpclient.execute(httpget, responseHandler);
+        } finally {
+            httpclient.close();
+        }
     }
 }

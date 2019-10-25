@@ -20,14 +20,53 @@ registryItems:
   instances:
     - {undertow-scenario: 1}
   operationNames:
-    - undertow-scenario: [/undertow-scenario/case/undertow]
+    - undertow-scenario: [/undertow-scenario/case/undertow1, /undertow-scenario/case/undertow]
   heartbeat: []
 segmentItems:
   - applicationCode: undertow-scenario
-    segmentSize: gt 1
+    segmentSize: gt 2
     segments:
       - segmentId: not null
         spans:
+          - operationName: /undertow-scenario/case/undertow1
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 49
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /undertow-scenario/case/undertow, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /undertow-scenario/case/undertow,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /undertow-scenario/case/undertow1
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1'}
+              - {key: http.method, value: GET}
           - operationName: /undertow-scenario/case/undertow
             operationId: 0
             parentSpanId: -1
