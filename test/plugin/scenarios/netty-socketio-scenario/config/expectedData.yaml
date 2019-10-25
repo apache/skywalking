@@ -77,3 +77,21 @@ segmentItems:
             spanType: Entry
             peer: ''
             peerId: 0
+      - segmentId: not null
+        spans:
+          - operationName: /socket.io/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: not null}
