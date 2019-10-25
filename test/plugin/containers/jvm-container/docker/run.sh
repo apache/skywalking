@@ -31,8 +31,8 @@ function exitAndClean() {
 function healthCheck() {
     HEALTH_CHECK_URL=$1
     STATUS_CODE="-1"
-
-    for ((i=1; i<=150; i++));
+    TIMES=${TIMES:-150}
+    for ((i=1; i<=${TIMES}; i++));
     do
         STATUS_CODE="$(curl --connect-timeout 2 --max-time 2 -Is ${HEALTH_CHECK_URL} | head -n 1)"
         if [[ $STATUS_CODE == *"200"* ]]; then
@@ -76,11 +76,11 @@ healthCheck http://localhost:12800/status
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-curl -s ${SCENARIO_ENTRY_SERVICE}
+curl -s --connect-timeout 2 --max-time 2 ${SCENARIO_ENTRY_SERVICE}
 sleep 5
 
 echo "To receive actual data"
-curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
+curl -s --connect-timeout 2 --max-time 2 http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
 [[ ! -f ${SCENARIO_HOME}/data/actualData.yaml ]] && exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION}, 'actualData.yaml' Not Found!"
 
 echo "To validate"
