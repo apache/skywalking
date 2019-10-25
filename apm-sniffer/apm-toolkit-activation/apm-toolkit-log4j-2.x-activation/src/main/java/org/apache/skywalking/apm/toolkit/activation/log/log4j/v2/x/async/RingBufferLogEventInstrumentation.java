@@ -45,22 +45,22 @@ public class RingBufferLogEventInstrumentation extends ClassInstanceMethodsEnhan
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD);
-                    }
-
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return INTERCEPT_CLASS;
-                    }
-
-                    @Override
-                    public boolean isOverrideArgs() {
-                        return false;
-                    }
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD);
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 
