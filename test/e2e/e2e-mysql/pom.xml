@@ -91,7 +91,7 @@
                                     <MYSQL_DATABASE>swtest</MYSQL_DATABASE>
                                 </env>
                                 <ports>
-                                    <port>3306:3306</port>
+                                    <port>mysql.port:3306</port>
                                 </ports>
                             </run>
                         </image>
