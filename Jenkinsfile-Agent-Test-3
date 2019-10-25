@@ -46,23 +46,38 @@ pipeline {
         }
 
         stage('Compile agent Codes') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
+                }
+            }
             steps {
                 sh './mvnw -Pagent clean package -DskipTests'
             }
         }
 
         stage('Compile plugin-test tools Codes') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
+                }
+            }
             steps {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl3_${BUILD_ID} docker:build'
             }
         }
-
-        stage('Test Cases Report (129)') {
+        stage('Test Cases Report (149)') {
             steps {
                 echo "reserve."
             }
         }
+
         stage('Run Agent Plugin Tests') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
+                }
+            }
             parallel {
                 stage('Group1') {
                     stages {
@@ -79,6 +94,16 @@ pipeline {
                         stage('sofarpc 5.4.0-5.6.2 (23)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} sofarpc-scenario'
+                            }
+                        }
+                        stage('mongodb 3.4.0-3.11.1 (17)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} mongodb-3.x-scenario'
+                            }
+                        }
+                        stage('elasticsearch 5.x (3)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} elasticsearch-5.x-scenario'
                             }
                         }
                     }

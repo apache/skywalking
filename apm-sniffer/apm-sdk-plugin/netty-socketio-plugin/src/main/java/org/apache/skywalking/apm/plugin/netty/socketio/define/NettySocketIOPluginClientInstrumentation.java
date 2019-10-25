@@ -16,25 +16,29 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.mongodb.v3.define;
+package org.apache.skywalking.apm.plugin.netty.socketio.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static net.bytebuddy.matcher.ElementMatchers.*;
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+/**
+ * enhance operate client
+ *
+ * @author MrPro
+ */
+public class NettySocketIOPluginClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "com.mongodb.Mongo";
-
-    private static final String MONGDB_METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.MongoDBMethodInterceptor";
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName("com.corundumstudio.socketio.transport.NamespaceClient");
+    }
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -42,12 +46,12 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
+                    return takesArguments(2);
                 }
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
+                    return "org.apache.skywalking.apm.plugin.netty.socketio.NettySocketIOConstructorInterceptor";
                 }
             }
         };
@@ -55,29 +59,24 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
+                    return named("joinRoom").or(named("leaveRoom"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
+                    return "org.apache.skywalking.apm.plugin.netty.socketio.NettySocketIORoomInterceptor";
                 }
 
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
                 }
+
             }
         };
     }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
-    }
-
 }

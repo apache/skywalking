@@ -14,6 +14,7 @@
   * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
   * [Play Framework](https://www.playframework.com/) 2.6.x -> 2.7.x (Optional²)
   * [Light4J Microservices Framework](https://doc.networknt.com/) 1.6.x -> 2.x
+  * [Netty SocketIO](https://github.com/mrniko/netty-socketio) 1.x
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
@@ -50,7 +51,7 @@
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
     * [Redisson](https://github.com/redisson/redisson) Easy Java Redis client 3.5.2+
     * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x (Optional²)
-  * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14,3.3+
+  * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14, 3.4.0-3.5.0, 3.7.x-3.11.1
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
