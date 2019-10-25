@@ -86,6 +86,13 @@
                                     <log>database system is ready to accept connections</log>
                                     <time>20000</time>
                                 </wait>
+                                <env>
+                                    <MYSQL_ROOT_PASSWORD>root@1234</MYSQL_ROOT_PASSWORD>
+                                    <MYSQL_DATABASE>swtest</MYSQL_DATABASE>
+                                </env>
+                                <ports>
+                                    <port>3306:3306</port>
+                                </ports>
                             </run>
                         </image>
                         <image>
