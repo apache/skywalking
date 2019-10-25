@@ -32,7 +32,7 @@ function healthCheck() {
 
     for ((i=1; i<=150; i++));
     do
-        STATUS_CODE="$(curl -Is ${HEALTH_CHECK_URL} | head -n 1)"
+        STATUS_CODE="$(curl --connect-timeout 2 --max-time 2 -Is ${HEALTH_CHECK_URL} | head -n 1)"
         if [[ $STATUS_CODE == *"200"* ]]; then
           echo "${HEALTH_CHECK_URL}: ${STATUS_CODE}"
           return 0
@@ -60,6 +60,8 @@ healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
 /usr/local/tomcat/bin/catalina.sh start 1>/dev/null &
+
+healthCheck http://localhost:12800/status
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
