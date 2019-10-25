@@ -66,7 +66,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl2_${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (132)') {
+        stage('Test Cases Report (155)') {
             steps {
                 echo "reserve."
             }
@@ -123,6 +123,11 @@ pipeline {
                         stage('spring 4.3.x-5.2.x (54)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-4.3.x-scenario'
+                            }
+                        }
+                        stage('undertow-scenario 1.3.0-2.0.27 (23)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl3_${BUILD_ID} undertow-scenario'
                             }
                         }
                     }
