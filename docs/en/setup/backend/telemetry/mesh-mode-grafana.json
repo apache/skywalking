@@ -1074,6 +1074,77 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "cards": {
+        "cardPadding": null,
+        "cardRound": null
+      },
+      "color": {
+        "cardColor": "#aea2e0",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateOranges",
+        "exponent": 0.5,
+        "mode": "opacity"
+      },
+      "dataFormat": "tsbuckets",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 27
+      },
+      "heatmap": {},
+      "highlightCards": true,
+      "id": 24,
+      "legend": {
+        "show": false
+      },
+      "links": [],
+      "repeat": "module",
+      "repeatDirection": "h",
+      "scopedVars": {
+        "module": {
+          "selected": false,
+          "text": "endpoint_inventory",
+          "value": "endpoint_inventory"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(register_persistent_worker_latency_bucket{module=\"[[module]]\"}[10m])) by (le)",
+          "format": "heatmap",
+          "hide": false,
+          "instant": false,
+          "interval": "15s",
+          "intervalFactor": 1,
+          "legendFormat": "{{le}}",
+          "refId": "A"
+        }
+      ],
+      "title": "register worker latency-$module",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "xBucketNumber": null,
+      "xBucketSize": null,
+      "yAxis": {
+        "decimals": null,
+        "format": "s",
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true,
+        "splitFactor": null
+      },
+      "yBucketBound": "auto",
+      "yBucketNumber": null,
+      "yBucketSize": null
     }
   ],
   "refresh": false,
@@ -1081,7 +1152,34 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "Prometheus",
+        "hide": 0,
+        "includeAll": true,
+        "label": "module",
+        "multi": true,
+        "name": "module",
+        "options": [],
+        "query": "label_values(register_persistent_worker_latency_bucket,module)",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
   },
   "time": {
     "from": "now-30m",
