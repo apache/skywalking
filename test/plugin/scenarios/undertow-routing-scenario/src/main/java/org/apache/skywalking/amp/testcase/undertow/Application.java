@@ -38,7 +38,7 @@ public class Application {
 
     private static final String CASE_URL = "/undertow-routing-scenario/case/undertow";
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         HttpHandler httpHandler = exchange -> {
             if (CASE_URL.equals(exchange.getRequestPath())) {
                 visit("http://localhost:8080/undertow-routing-scenario/case/undertow1");
@@ -50,7 +50,8 @@ public class Application {
         handler.add(Methods.GET, TEMPLATE, httpHandler);
         handler.add(Methods.HEAD, TEMPLATE, httpHandler);
         Undertow server = Undertow.builder()
-            .addHttpListener(8080, "127.0.0.1")
+            .addHttpListener(8080, "0.0.0.0")
+            .setIoThreads(4)
             .setHandler(handler).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         server.start();

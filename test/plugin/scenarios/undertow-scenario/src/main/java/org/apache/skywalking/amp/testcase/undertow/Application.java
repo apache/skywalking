@@ -35,7 +35,8 @@ public class Application {
 
     public static void main(String[] args) throws InterruptedException {
         Undertow server = Undertow.builder()
-            .addHttpListener(8080, "127.0.0.1")
+            .addHttpListener(8080, "0.0.0.0")
+            .setIoThreads(4)
             .setHandler(exchange -> {
                 if (CASE_URL.equals(exchange.getRequestPath())) {
                     visit("http://localhost:8080/undertow-scenario/case/undertow1");
@@ -43,6 +44,7 @@ public class Application {
                 exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                 exchange.getResponseSender().send("Success");
             }).build();
+        Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         server.start();
     }
 
