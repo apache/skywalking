@@ -27,7 +27,7 @@ registryItems:
   heartbeat: []
 segmentItems:
   - applicationCode: spring-4.3.x-scenario
-    segmentSize: 8
+    segmentSize: ge 8
     segments:
       - segmentId: not null
         spans:
