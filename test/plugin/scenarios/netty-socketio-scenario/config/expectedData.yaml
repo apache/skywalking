@@ -29,23 +29,6 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: SocketIO/onConnect
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 76
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: from, value: not null}
-      - segmentId: not null
-        spans:
           - operationName: /netty-socketio-scenario/case/netty-socketio
             operationId: 0
             parentSpanId: -1
@@ -62,6 +45,23 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/netty-socketio-scenario/case/netty-socketio'}
               - {key: http.method, value: GET}
+      - segmentId: not null
+        spans:
+          - operationName: SocketIO/onConnect
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 76
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: from, value: not null}
       - segmentId: not null
         spans:
           - operationName: SocketIO/send_data/receive
