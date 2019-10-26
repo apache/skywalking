@@ -43,9 +43,6 @@ public class Application {
                 exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                 exchange.getResponseSender().send("Success");
             }).build();
-        Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
-        // Waiting for service register, please do not delete.
-        Thread.sleep(5000);
         server.start();
     }
 

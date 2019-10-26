@@ -53,8 +53,6 @@ public class Application {
             .addHttpListener(8080, "127.0.0.1")
             .setHandler(handler).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
-        // Waiting for service register, please do not delete.
-        Thread.sleep(5000);
         server.start();
     }
 
