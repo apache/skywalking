@@ -6,30 +6,33 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package org.apache.skywalking.plugin.test.mockcollector.service;
 
-import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricCollection;
-import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricReportServiceGrpc;
+
+package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
 /**
- * Author Daming
- * Email zteny@foxmail.com
- **/
-public class MockCLRMetricReportService extends CLRMetricReportServiceGrpc.CLRMetricReportServiceImplBase {
+ * @author scolia
+ */
+public class MongoConstants {
 
-    @Override
-    public void collect(CLRMetricCollection request, StreamObserver<Commands> responseObserver) {
-        responseObserver.onNext(Commands.newBuilder().build());
-        responseObserver.onCompleted();
+    private MongoConstants() {
     }
+
+    public static final String DB_TYPE = "MongoDB";
+
+    public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
+
+    public static final int FILTER_LENGTH_LIMIT = 256;
+
+    public static final String EMPTY = "";
+
 }

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,5 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-netty-socketio=org.apache.skywalking.apm.plugin.netty.socketio.define.NettySocketIOPluginClientInstrumentation
-netty-socketio=org.apache.skywalking.apm.plugin.netty.socketio.define.NettySocketIOPluginNameSpaceInstrumentation
+bash -x $(dirname "$0")/changed.sh --any-of '^pom.xml$' \
+  '^Jenkinsfile-Agent-.*$' \
+  '^apm-application-toolkit/.*$' \
+  '^apm-commons/.*$' \
+  '^apm-protocol/.*$' \
+  '^apm-sniffer/.*$' \
+  '^test/plugin/.*$' \
+  '^tools/ci/agent-build-condition.sh$' \
+  '^tools/ci/changed.sh$'

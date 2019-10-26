@@ -46,12 +46,22 @@ pipeline {
         }
 
         stage('Compile agent Codes') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
+                }
+            }
             steps {
                 sh './mvnw -Pagent clean package -DskipTests'
             }
         }
 
         stage('Compile plugin-test tools Codes') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
+                }
+            }
             steps {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl1_${BUILD_ID} docker:build'
             }
@@ -61,7 +71,13 @@ pipeline {
                 echo "reserve."
             }
         }
+
         stage('Run Agent Plugin Tests') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
+                }
+            }
             parallel {
                 stage('Group1') {
                     stages {
@@ -86,12 +102,6 @@ pipeline {
                         stage('spring async 4.3.x-5.1.x (35)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} spring-async-scenario'
-                            }
-                        }
-
-                        stage('netty-socketio 1.x (4)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} netty-socketio-scenario'
                             }
                         }
                     }
