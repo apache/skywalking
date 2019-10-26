@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
 
+/**
+ * @author aderm
+ */
 public class PgPreparedStatementSetterInstrumentation extends PgPreparedStatementInstrumentation {
 
     @Override

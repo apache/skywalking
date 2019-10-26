@@ -20,7 +20,12 @@
 package org.apache.skywalking.apm.plugin.jdbc.define;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
@@ -33,7 +38,9 @@ public class StatementEnhanceInfos {
     private ConnectionInfo connectionInfo;
     private String statementName;
     private String sql;
-    private List<Object> parameters = new ArrayList<Object>();
+    private Object[] parameters;
+    private Map<Integer, Object> parameterMap = new TreeMap<Integer, Object>();
+    private int maxIndex = 0;
 
     public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
         this.connectionInfo = connectionInfo;
@@ -54,14 +61,45 @@ public class StatementEnhanceInfos {
     }
 
     public void setParameter(int index, final Object parameter) {
-        // start from 1
-        index--;
-        if (index >= 0) {
-            parameters.set(index, parameter);
+        maxIndex = maxIndex > index ? maxIndex : index;
+        index--; // start from 1
+        if (parameters == null) {
+            final int initialSize = Math.max(20, maxIndex);
+            parameters = new Object[initialSize];
+            Arrays.fill(parameters, null);
         }
+        int length = parameters.length;
+        if (index >= length) {
+            int newSize = Math.max(index + 1, length * 2);
+            Object[] newParameters = new Object[newSize];
+            System.arraycopy(parameters, 0, newParameters, 0, length);
+            Arrays.fill(newParameters, length, newSize, null);
+            parameters = newParameters;
+        }
+        parameters[index] = parameter;
+        parameterMap.put(index, parameter);
     }
 
-    public List<Object> getParameters() {
+    public Object[] getParameters() {
+        return parameters;
+    }
+
+    public int getMaxIndex() {
+        return maxIndex;
+    }
+
+    public Map<Integer, Object> getParameterMap() {
+        return parameterMap;
+    }
+
+    public List<Object> getSortParameters() {
+        List<Object> parameters = new ArrayList<Object>();
+        if (parameterMap.size() > 0) {
+            Iterator<Entry<Integer,Object>> iterator = parameterMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                parameters.add(iterator.next().getValue());
+            }
+        }
         return parameters;
     }
 }
