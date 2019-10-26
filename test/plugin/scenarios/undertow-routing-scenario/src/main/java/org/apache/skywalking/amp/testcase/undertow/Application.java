@@ -41,7 +41,7 @@ public class Application {
     public static void main(String[] args) {
         HttpHandler httpHandler = exchange -> {
             if (CASE_URL.equals(exchange.getRequestPath())) {
-                visit("http://localhost:8080/undertow-routing-scenario/case/undertow1");
+                exchange.dispatch(httpServerExchange -> visit("http://localhost:8080/undertow-routing-scenario/case/undertow1?send=httpHandler"));
             }
             exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
             exchange.getResponseSender().send("Success");
@@ -51,7 +51,6 @@ public class Application {
         handler.add(Methods.HEAD, TEMPLATE, httpHandler);
         Undertow server = Undertow.builder()
             .addHttpListener(8080, "0.0.0.0")
-            .setIoThreads(4)
             .setHandler(handler).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         server.start();

@@ -24,8 +24,26 @@ registryItems:
   heartbeat: []
 segmentItems:
   - applicationCode: undertow-scenario
-    segmentSize: gt 2
+    segmentSize: gt 3
     segments:
+      - segmentId: not null
+        spans:
+          - operationName: /undertow-scenario/case/undertow
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 49
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow'}
+              - {key: http.method, value: GET}
       - segmentId: not null
         spans:
           - operationName: /undertow-scenario/case/undertow1
@@ -45,7 +63,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /undertow-scenario/case/undertow, networkAddressId: 0,
+              - {parentEndpointId: 0, parentEndpoint: UndertowDispatch, networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /undertow-scenario/case/undertow,
                  entryServiceInstanceId: 1}
@@ -65,21 +83,23 @@ segmentItems:
             peer: localhost:8080
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1'}
+              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1?send=runnable'}
               - {key: http.method, value: GET}
-          - operationName: /undertow-scenario/case/undertow
+          - operationName: UndertowDispatch
             operationId: 0
             parentSpanId: -1
             spanId: 0
-            spanLayer: Http
+            spanLayer: Unknown
             startTime: nq 0
             endTime: nq 0
             componentId: 49
             componentName: ''
             isError: false
-            spanType: Entry
+            spanType: Local
             peer: ''
             peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow'}
-              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /undertow-scenario/case/undertow, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /undertow-scenario/case/undertow,
+                 entryServiceInstanceId: 1}
