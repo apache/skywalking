@@ -41,6 +41,7 @@ public class ParameterUtil {
         String paramStr = Joiner.on(",").join(params.subList(0, actualCnt));
         if (paramStr.length() > limitLength) {
             overLoad = true;
+            paramStr = paramStr.substring(0, limitLength);
         }
 
         if (overLoad) {
