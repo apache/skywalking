@@ -89,6 +89,7 @@
                                 <env>
                                     <MYSQL_ROOT_PASSWORD>root@1234</MYSQL_ROOT_PASSWORD>
                                     <MYSQL_DATABASE>swtest</MYSQL_DATABASE>
+                                    <MYSQL_ROOT_HOST>%</MYSQL_ROOT_HOST>
                                 </env>
                                 <ports>
                                     <port>mysql.port:3306</port>
