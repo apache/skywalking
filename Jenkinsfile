@@ -53,16 +53,12 @@ pipeline {
                             }
                         }
 
-                        stage('Check environment') {
-                            steps {
-                                sh 'env'
-                                sh 'pwd'
-                                sh 'ls'
-                                sh 'git status'
-                            }
-                        }
-
                         stage('Test & Report') {
+                            when {
+                                expression {
+                                    return sh(returnStatus: true, script: 'bash tools/ci/ci-build-condition.sh')
+                                }
+                            }
                             steps {
                                 sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" -DrepoToken=${COVERALLS_REPO_TOKEN} -DpullRequest=${ghprbPullLink} clean cobertura:cobertura verify coveralls:report install'
                                 sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
@@ -70,6 +66,11 @@ pipeline {
                         }
 
                         stage('Check Dependencies Licenses') {
+                            when {
+                                expression {
+                                    return sh(returnStatus: true, script: 'bash tools/ci/ci-build-condition.sh')
+                                }
+                            }
                             steps {
                                 sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
                                 sh 'tools/dependencies/check-LICENSE.sh'
