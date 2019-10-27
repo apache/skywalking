@@ -66,11 +66,11 @@ healthCheck http://localhost:12800/status 10
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-curl -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}
+curl -s --max-time 60 ${SCENARIO_ENTRY_SERVICE}
 sleep 5
 
 echo "To receive actual data"
-curl -s --max-time 3 http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
+curl -s --max-time 60 http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
 [[ ! -f ${SCENARIO_HOME}/data/actualData.yaml ]] && exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION}, 'actualData.yaml' Not Found!"
 
 echo "To validate"
