@@ -16,43 +16,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-patterns=()
-any_of=0
+# Detect files' changed set
+# --includes: includes these files when detecting changed file sets, defaults to ^.*$, meaning all files will be checked
+# --excludes: excludes these files when detecting changed file sets
+# exit with status code 0 if no changed file matches the patterns, otherwise exit with status code non 0
+
+includes=('^.*$')
+excludes=()
+
+including=0
+excluding=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --any-of)
-      any_of=1
+    --includes)
+      including=1
+      excluding=0
+      includes=()
+      ;;
+    --excludes)
+      including=0
+      excluding=1
       ;;
     *)
-      patterns+=($1)
+      if [[ ${including} -eq 1 ]]; then
+        includes+=($1)
+      elif [[ ${excluding} -eq 1 ]]; then
+        excludes+=($1)
+      fi
       ;;
   esac
   shift
 done
 
-[[ ${#patterns[@]} -eq 0 ]] && echo 'No file pattern is specified, exiting' && exit 1
-
 changed_files=$(git diff --name-only origin/${ghprbTargetBranch:-master}..${ghprbActualCommit:-HEAD})
 
-test_results=()
-
 for file in ${changed_files}; do
-  for pattern in ${patterns[@]}; do
-    if [[ ${file} =~ ${pattern} ]]; then
-      test_results+=("Hit: ${file} matches pattern ${pattern}")
-    else
-      test_results+=("Miss: ${file} does not match pattern ${pattern}")
+  excluded=0
+  for exclude in ${excludes[@]}; do
+    if [[ ${file} =~ ${exclude} ]]; then
+      excluded=1
+      break
+    fi
+  done
+  if [[ ${excluded} -eq 1 ]]; then
+    echo "${file} is excluded"
+    continue
+  fi
+  for include in ${includes[@]}; do
+    if [[ ${file} =~ ${include} ]]; then
+      echo "${file} is changed"
+      exit 1
     fi
   done
 done
-
-IFS=$'\n' ; echo "${test_results[*]}"
-
-if [[ ${any_of} -eq 1 ]]; then
-  for test_result in ${test_results[@]}; do
-    [[ ${test_result} =~ ^Hit:.+$ ]] && echo ${test_result} && exit 1
-  done
-fi
 
 exit 0
