@@ -16,13 +16,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bash -x $(dirname "$0")/changed.sh --includes '^pom.xml$' \
-  '^Jenkinsfile-E2E$' \
-  '^apm-commons/.*$' \
-  '^apm-protocol/.*$' \
-  '^apm-sniffer/.*$' \
-  '^apm-webapp/.*$' \
-  '^oap-server/.*$' \
-  '^test/e2e/.*$' \
-  '^tools/ci/e2e-build-condition.sh$' \
-  '^tools/ci/changed.sh$'
+bash -x $(dirname "$0")/changed.sh --excludes '.*.md$'
