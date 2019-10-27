@@ -53,6 +53,7 @@ segmentItems:
         - {key: "db.type", value: "sql"}
         - {key: "db.instance", value: "postgres"}
         - {key: "db.statement", value: "INSERT INTO test_007(id, value) VALUES(?,?)"}
+        - {key: "db.bind_vars", value: "[1,1]"}
         startTime: nq 0
         endTime: nq 0
         isError: false
