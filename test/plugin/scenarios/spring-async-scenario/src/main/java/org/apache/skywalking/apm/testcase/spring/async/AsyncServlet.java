@@ -17,28 +17,29 @@
 
 package org.apache.skywalking.apm.testcase.spring.async;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
- * @author zhaoyuguang
+ * @author zhangwei
  */
-@Component
-public class AsyncBean {
+public class AsyncServlet extends HttpServlet {
 
-    @Autowired
-    private HttpBean httpBean;
+    private static final long serialVersionUID = 4644954650555106445L;
 
-    @Async
-    public void sendVisitBySystem() throws IOException {
-        httpBean.visit("http://localhost:8080/spring-async-scenario/case/asyncVisit?by=system");
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.write("Success");
+        writer.flush();
     }
 
-    @Async("customizeAsync")
-    public void sendVisitByCustomize() throws IOException {
-        httpBean.visit("http://localhost:8080/spring-async-scenario/case/asyncVisit?by=customize");
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.doGet(req, resp);
     }
 }
