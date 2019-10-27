@@ -16,41 +16,39 @@
  *
  */
 
-
-package org.apache.skywalking.apm.plugin.mongodb.v3.define;
+package org.apache.skywalking.apm.plugin.undertow.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 
+import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
-public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "com.mongodb.Mongo";
+/**
+ * @author zhangwei
+ */
+public class HttpServerExchangeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String MONGDB_METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.MongoDBMethodInterceptor";
+    private static final String ENHANCE_METHOD = "dispatch";
+
+    private static final String ENHANCE_CLASS = "io.undertow.server.HttpServerExchange";
+
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.HttpServerExchangeInterceptor";
+
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
+    }
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
-                }
-
-                @Override
-                public String getConstructorInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
-                }
-            }
-        };
+        return new ConstructorInterceptPoint[0];
     }
 
     @Override
@@ -59,25 +57,21 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
+                    return named(ENHANCE_METHOD)
+                        .and(takesArgumentWithType(0, "java.util.concurrent.Executor"))
+                        .and(takesArgumentWithType(1, "java.lang.Runnable"));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return MONGDB_METHOD_INTERCET_CLASS;
+                    return INTERCEPTOR_CLASS;
                 }
 
                 @Override
                 public boolean isOverrideArgs() {
-                    return false;
+                    return true;
                 }
             }
         };
     }
-
-    @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
-    }
-
 }

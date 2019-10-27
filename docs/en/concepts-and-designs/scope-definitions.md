@@ -5,11 +5,13 @@ By using Aggregation Function, the requests will group by time and **Group Key(s
 
 | Name | Remarks | Group Key | Type | 
 |---|---|---|---|
+| name  | Represent the service name of each request.  |   | string |
+| serviceInstanceName  | Represent the name of the service instance id referred.  |   | string |
 | endpoint  | Represent the endpoint path of each request.  |   | string |
 | latency  | Represent how much time of each request. |   |  int(in ms)  |
 | status  | Represent whether success or fail of the request.  |   | bool(true for success)  |
 | responseCode | Represent the response code of HTTP response, if this request is the HTTP call. e.g. 200, 404, 302| | int |
-
+| type | Represent the type of each request. Such as: Database, HTTP, RPC, gRPC. | | enum |
 
 ### SCOPE `Service`
 
