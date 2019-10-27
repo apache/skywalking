@@ -39,7 +39,6 @@ public class StatementEnhanceInfos {
     private String statementName;
     private String sql;
     private Object[] parameters;
-    private Map<Integer, Object> parameterMap = new TreeMap<Integer, Object>();
     private int maxIndex = 0;
 
     public StatementEnhanceInfos(ConnectionInfo connectionInfo, String sql, String statementName) {
@@ -64,7 +63,7 @@ public class StatementEnhanceInfos {
         maxIndex = maxIndex > index ? maxIndex : index;
         index--; // start from 1
         if (parameters == null) {
-            final int initialSize = Math.max(20, maxIndex);
+            final int initialSize = Math.max(16, maxIndex);
             parameters = new Object[initialSize];
             Arrays.fill(parameters, null);
         }
@@ -77,7 +76,6 @@ public class StatementEnhanceInfos {
             parameters = newParameters;
         }
         parameters[index] = parameter;
-        parameterMap.put(index, parameter);
     }
 
     public Object[] getParameters() {
@@ -86,20 +84,5 @@ public class StatementEnhanceInfos {
 
     public int getMaxIndex() {
         return maxIndex;
-    }
-
-    public Map<Integer, Object> getParameterMap() {
-        return parameterMap;
-    }
-
-    public List<Object> getSortParameters() {
-        List<Object> parameters = new ArrayList<Object>();
-        if (parameterMap.size() > 0) {
-            Iterator<Entry<Integer,Object>> iterator = parameterMap.entrySet().iterator();
-            while (iterator.hasNext()) {
-                parameters.add(iterator.next().getValue());
-            }
-        }
-        return parameters;
     }
 }

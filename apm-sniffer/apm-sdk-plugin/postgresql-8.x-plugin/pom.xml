@@ -33,7 +33,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <postgresql.version>42.0.0</postgresql.version>
-        <guava.version>20.0</guava.version>
     </properties>
 
     <dependencies>
@@ -48,11 +47,6 @@
             <artifactId>apm-jdbc-commons</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

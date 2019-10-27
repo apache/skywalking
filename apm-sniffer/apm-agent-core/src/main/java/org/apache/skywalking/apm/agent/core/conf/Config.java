@@ -278,12 +278,7 @@ public class Config {
              * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
              * collected.
              */
-            public static boolean TRACE_SQL_PARAMETERS = true;
-
-            /**
-             * For the sake of performance, limit the max number of parameter
-             */
-            public static int SQL_PARAMETERS_MAX_COUNT = 20;
+            public static boolean TRACE_SQL_PARAMETERS = false;
 
             /**
              * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
