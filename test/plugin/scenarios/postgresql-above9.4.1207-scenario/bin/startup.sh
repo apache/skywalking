@@ -17,4 +17,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} -Dskywalking.plugin.postgresql.trace_sql_parameters=true ${home}/../libs/postgresql-above9.4.1207-scenario.jar &
+java -jar -Dskywalking.plugin.postgresql.trace_sql_parameters=true ${agent_opts}  ${home}/../libs/postgresql-above9.4.1207-scenario.jar &
