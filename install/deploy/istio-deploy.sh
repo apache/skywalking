@@ -67,7 +67,9 @@ create_crd() {
 # Deploy istio related components
 deploy_istio() {
   NAMESPACE=$1
-  helm install istio istio/istio -n ${NAMESPACE}
+  VERSION=$2
+  helm pull istio/istio && tar zxvf istio-${VERSION}.tgz && rm istio-${VERSION}.tgz
+  helm install istio istio -n ${NAMESPACE}
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
@@ -79,14 +81,16 @@ deploy_istio() {
 
   echo "Istio is deployed successful"
 }
-o
+
 main(){
   ISTIO_VERSION="1.3.3"
   ISTIO_NAMESPACE="istio-system"
   add_repo $ISTIO_VERSION
-  create_namespace $ISTIO_NAMESPACE
+  if [[ `kubectl get ns | grep $ISTIO_NAMESPACE | wc -l ` == 0 && `kubectl get ns $ISTIO_NAMESPACE | grep -v NAME | wc -l` == 0 ]] ;then
+    create_namespace $ISTIO_NAMESPACE
+  fi
   create_crd $ISTIO_NAMESPACE
-  deploy_istio $ISTIO_NAMESPACE
+  deploy_istio $ISTIO_NAMESPACE $ISTIO_VERSION
 }
 
 main
