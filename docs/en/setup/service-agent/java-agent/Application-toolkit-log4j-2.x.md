@@ -37,7 +37,7 @@
 
     Log4j-2.9 and higher require disruptor-3.3.4.jar or higher on the classpath. Prior to Log4j-2.9, disruptor-3.0.0.jar or higher was required.
     This is simplest to configure and gives the best performance. To make all loggers asynchronous, add the disruptor jar to the classpath and 
-    set the system property log4j2.contextSelector to org.apache.logging.log4j.core.async.AsyncLoggerContextSelector.
+    set the system property `log4j2.contextSelector` to `org.apache.logging.log4j.core.async.AsyncLoggerContextSelector`.
     ```xml
     <Configuration status="WARN">
       <Appenders>
@@ -56,8 +56,9 @@
     </Configuration>
     ```
     For details: [Mixed Sync & Async](https://logging.apache.org/log4j/2.x/manual/async.html#MixedSync-Async)
+    
     Log4j-2.9 and higher require disruptor-3.3.4.jar or higher on the classpath. Prior to Log4j-2.9, disruptor-3.0.0.jar or higher was required. 
-    There is no need to set system property "Log4jContextSelector" to any value.
+    There is no need to set system property `Log4jContextSelector` to any value.
     
     ```xml
     <Configuration status="WARN">
