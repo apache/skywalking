@@ -97,7 +97,6 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
         SpanAssert.assertTag(span, 0, "sql");
         SpanAssert.assertTag(span, 1, "test");
         SpanAssert.assertTag(span, 2, "SELECT * FROM test WHERE item1=? and item2=?");
-        SpanAssert.assertTag(span, 3, "[abc,def]");
     }
 
 }
