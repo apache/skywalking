@@ -26,9 +26,9 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 /**
- * <p>Pass the global trace Id into the _sw field of Lo4jLogEvent instance after enhancing</p>
+ * <p>Pass the global trace Id into the _sw field of RingBufferLogEvent instance after enhancing</p>
  *
- * @author xuhe
+ * @author songxiaoyue
  */
 
 public class RingBufferLogEventMethodInterceptor implements InstanceMethodsAroundInterceptor {
@@ -37,10 +37,7 @@ public class RingBufferLogEventMethodInterceptor implements InstanceMethodsAroun
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        if (objInst instanceof EnhancedInstance) {
-            EnhancedInstance instances = objInst;
-            instances.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
-        }
+        objInst.setSkyWalkingDynamicField(ContextManager.getGlobalTraceId());
     }
 
     @Override
