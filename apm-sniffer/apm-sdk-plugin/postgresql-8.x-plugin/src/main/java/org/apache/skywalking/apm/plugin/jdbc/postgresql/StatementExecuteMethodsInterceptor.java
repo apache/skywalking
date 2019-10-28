@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.postgresql.interceptor;
+package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
