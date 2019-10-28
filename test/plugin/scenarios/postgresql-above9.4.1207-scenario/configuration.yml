@@ -24,6 +24,6 @@ environment:
   - POSTGRES_PASSWORD=postgres
 dependencies:
   postgresql-server:
-    image: postgres:9.3-alpine
+    image: postgres:10.5-alpine
     hostname: postgresql-server
 
