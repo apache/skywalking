@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,10 +16,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.RoutingHandlerInstrumentation
-undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.RequestDispatcherImplInstrumentation
-undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowRootHandlerInstrumentation
-undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowAddListenerInstrumentation
-undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowListenerConfigInstrumentation
-undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.HttpServerExchangeInstrumentation
-
+bash -x $(dirname "$0")/changed.sh --excludes '.*.md$'
