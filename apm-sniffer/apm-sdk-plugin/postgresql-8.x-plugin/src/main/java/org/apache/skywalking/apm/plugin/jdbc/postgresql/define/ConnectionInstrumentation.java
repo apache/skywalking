@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.postgresql.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
@@ -49,7 +48,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
  */
 public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String PREPARE_STATEMENT_METHOD_WITH_STRING_ARRAY_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.interceptor.JDBCPrepareStatementWithStringArrayInterceptor";
+    private static final String PREPARE_STATEMENT_METHOD_WITH_STRING_ARRAY_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.JDBCPrepareStatementWithStringArrayInterceptor";
     public static final String PG_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc.PgConnection";
     public static final String STRING_ARRAY_ARGUMENT_TYPE = "java.lang.String[]";
     public static final String PG_JDBC42_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc42.Jdbc42Connection";
