@@ -22,3 +22,4 @@ postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.AbstractJ
 postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgCallableStatementInstrumentation
 postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgPreparedStatementInstrumentation
 postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgStatementInstrumentation
+postgresql-8.x=org.apache.skywalking.apm.plugin.jdbc.postgresql.define.PgPreparedStatementSetterInstrumentation
