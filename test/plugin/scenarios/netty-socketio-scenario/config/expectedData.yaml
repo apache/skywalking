@@ -93,5 +93,5 @@ segmentItems:
             peer: not null
             peerId: 0
             tags:
-              - {key: http.method, value: GET}
+              - {key: http.method, value: not null}
               - {key: url, value: not null}

@@ -47,34 +47,12 @@ public class SocketIOStarter {
         Configuration config = new Configuration();
         config.setHostname("localhost");
         config.setPort(SERVER_PORT);
+        config.setBossThreads(1);
+        config.setWorkerThreads(1);
 
         server = new SocketIOServer(config);
-        server.addEventListener(LISTEN_EVENT_NAME, String.class, new DataListener<String>() {
-            @Override
-            public void onData(SocketIOClient client, String data, AckRequest ackRequest) {
-                // get message
-            }
-        });
-
-        server.addConnectListener(new ConnectClientListener());
 
         server.start();
-
-        // close server on kill signal
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                server.stop();
-            }
-        });
-    }
-
-    private static class ConnectClientListener implements ConnectListener {
-
-        @Override
-        public void onConnect(SocketIOClient client) {
-            // connect client
-        }
     }
 
     public static void startClientAndWaitConnect() throws URISyntaxException, InterruptedException {
