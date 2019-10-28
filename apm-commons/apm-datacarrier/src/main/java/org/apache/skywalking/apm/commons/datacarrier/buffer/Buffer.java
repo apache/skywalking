@@ -18,23 +18,25 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
-import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
+import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 
 /**
  * Created by wusheng on 2016/10/25.
  */
 public class Buffer<T> {
-    private final Object[] buffer;
+    private final BufferItem[] buffer;
     private BufferStrategy strategy;
     private AtomicRangeInteger index;
     private List<QueueBlockingCallback<T>> callbacks;
 
     Buffer(int bufferSize, BufferStrategy strategy) {
-        buffer = new Object[bufferSize];
+        buffer = new BufferItem[bufferSize];
+        for (int i = 0; i < bufferSize; i++) {
+            buffer[i] = new BufferItem();
+        }
         this.strategy = strategy;
         index = new AtomicRangeInteger(0, bufferSize);
         callbacks = new LinkedList<QueueBlockingCallback<T>>();
@@ -50,11 +52,12 @@ public class Buffer<T> {
 
     boolean save(T data) {
         int i = index.getAndIncrement();
-        if (buffer[i] != null) {
+        BufferItem bufferItem = buffer[i];
+        if (bufferItem.hasData()) {
             switch (strategy) {
                 case BLOCKING:
                     boolean isFirstTimeBlocking = true;
-                    while (buffer[i] != null) {
+                    while (bufferItem.hasData()) {
                         if (isFirstTimeBlocking) {
                             isFirstTimeBlocking = false;
                             for (QueueBlockingCallback<T> callback : callbacks) {
@@ -73,7 +76,7 @@ public class Buffer<T> {
                 default:
             }
         }
-        buffer[i] = data;
+        bufferItem.setItem(data);
         return true;
     }
 
@@ -87,9 +90,10 @@ public class Buffer<T> {
 
     public void obtain(List<T> consumeList, int start, int end) {
         for (int i = start; i < end; i++) {
-            if (buffer[i] != null) {
-                consumeList.add((T)buffer[i]);
-                buffer[i] = null;
+            Object dataItem = buffer[i].getItem();
+            if (dataItem != null) {
+                consumeList.add((T)dataItem);
+                buffer[i].clear();
             }
         }
     }
