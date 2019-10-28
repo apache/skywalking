@@ -24,15 +24,16 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-postgresql-8.x-plugin</artifactId>
+    <artifactId>apm-postgresql-commons</artifactId>
     <packaging>jar</packaging>
 
-    <name>postgresql-8.x-plugin</name>
+    <name>apm-postgresql-commons</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <postgresql.version>42.0.0</postgresql.version>
+        <guava.version>20.0</guava.version>
     </properties>
 
     <dependencies>
@@ -40,17 +41,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-jdbc-commons</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-postgresql-commons</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
