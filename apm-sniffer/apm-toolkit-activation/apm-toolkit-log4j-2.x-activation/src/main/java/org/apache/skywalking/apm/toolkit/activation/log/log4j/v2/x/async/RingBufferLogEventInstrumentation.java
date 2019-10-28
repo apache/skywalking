@@ -16,7 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
+
+package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,37 +25,48 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.jdbc.postgresql.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class PgCallableStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+
+/**
+ * @author songxiaoyue
+ */
+public class RingBufferLogEventInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.RingBufferLogEventMethodInterceptor";
+    private static final String ENHANCE_CLASS = "org.apache.logging.log4j.core.async.RingBufferLogEvent";
+    private static final String ENHANCE_METHOD = "setMessage";
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("executeWithFlags").and(takesArgumentWithType(0, "int"))
-                        .or(named("executeUpdate"));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
-                    return Constants.PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
-        return byName("org.postgresql.jdbc.PgCallableStatement");
+    @Override
+    protected ClassMatch enhanceClass() {
+        return byName(ENHANCE_CLASS);
     }
 }
+

@@ -15,18 +15,21 @@
  * limitations under the License.
  *
  */
-
-
 package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
 
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
+
 /**
- * Interceptor class name constant variable
- *
- * @author zhangxin
+ * @author aderm
  */
-public class Constants {
-    public static final String CREATE_STATEMENT_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.CreateStatementInterceptor";
-    public static final String CREATE_PREPARED_STATEMENT_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.CreatePreparedStatementInterceptor";
-    public static final String CREATE_CALLABLE_STATEMENT_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.CreateCallableStatementInterceptor";
+public class PgPreparedStatementSetterInstrumentation extends PgPreparedStatementInstrumentation {
+
+    @Override
+    public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
+            new PSSetterDefinitionOfJDBCInstrumentation(false)
+        };
+    }
 
 }
