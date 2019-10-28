@@ -86,7 +86,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public int numOfEndpoint(long startTimestamp, long endTimestamp) throws IOException {
+    public int numOfEndpoint() throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(EndpointInventory.INDEX_NAME).append(" where ");
@@ -106,8 +106,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public int numOfConjectural(long startTimestamp, long endTimestamp,
-        int nodeTypeValue) throws IOException {
+    public int numOfConjectural(int nodeTypeValue) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(ServiceInventory.INDEX_NAME).append(" where ");
