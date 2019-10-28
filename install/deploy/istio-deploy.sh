@@ -17,7 +17,8 @@
 
 # Add istio official repo
 add_repo(){
-  REPO="https://storage.googleapis.com/istio-release/releases/1.3.3/charts/"
+  VERSION=$1
+  REPO="https://storage.googleapis.com/istio-release/releases/${VERSION}/charts/"
   helm repo add istio $REPO
 
   STATUS_CMD=`echo $?`
@@ -36,21 +37,23 @@ add_repo(){
 
 # Create istio-system namespace
 create_namespace() {
-  kubectl create ns istio-system
+  NAMESPACE=$1
+  kubectl create ns ${NAMESPACE}
 
   STATUS_CMD=`echo $?`
   while [[ $STATUS_CMD != 0 ]]
   do
     sleep 5
-    kubectl create ns istio-system
+    kubectl create ns ${NAMESPACE}
     STATUS_CMD=`echo $?`
   done
 }
 
 # Create CRD need for istio
 create_crd() {
-  helm install istio-init istio/istio-init -n istio-sytem
-  CRD_COUNT=`kubectl get crds | grep 'istio.io' | wc -l`
+  NAMESPACE=$1
+  helm install istio-init istio/istio-init -n ${NAMESPACE}
+  CRD_COUNT=`kubectl get crds | grep 'istio.i' | wc -l`
 
   while [[ ${CRD_COUNT} != 23 ]]
   do
@@ -63,24 +66,27 @@ create_crd() {
 
 # Deploy istio related components
 deploy_istio() {
-  helm install istio istio/istio -n istio-system
+  NAMESPACE=$1
+  helm install istio istio/istio -n ${NAMESPACE}
 
   check() {
-     kubectl -n istio-system  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
+     kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
      do
-       kubectl rollout status $line -n istio-system;
+       kubectl rollout status $line -n ${NAMESPACE};
      done
   }
   check
 
   echo "Istio is deployed successful"
 }
-
+o
 main(){
-  add_repo
-  create_namespace
-  create_crd
-  deploy_istio
+  ISTIO_VERSION="1.3.3"
+  ISTIO_NAMESPACE="istio-system"
+  add_repo $ISTIO_VERSION
+  create_namespace $ISTIO_NAMESPACE
+  create_crd $ISTIO_NAMESPACE
+  deploy_istio $ISTIO_NAMESPACE
 }
 
 main
