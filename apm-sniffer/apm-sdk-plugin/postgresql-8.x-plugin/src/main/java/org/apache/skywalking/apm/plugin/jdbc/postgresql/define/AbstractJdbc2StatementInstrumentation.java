@@ -24,12 +24,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.jdbc.postgresql.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
-import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
-import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
 
 public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -49,7 +48,7 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
+                    return Constants.PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {
@@ -64,7 +63,7 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
+                    return Constants.PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {
