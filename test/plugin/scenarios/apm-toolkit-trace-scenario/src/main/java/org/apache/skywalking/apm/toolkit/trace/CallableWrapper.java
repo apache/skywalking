@@ -6,52 +6,36 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
+package org.apache.skywalking.apm.toolkit.trace;
 
-import java.util.List;
+import java.util.concurrent.Callable;
 
-public interface Span {
-    String operationName();
+/**
+ * @author carlvine500
+ */
+@TraceCrossThread
+public class CallableWrapper<V> implements Callable<V> {
+    final Callable<V> callable;
 
-    String operationId();
+    public static <V> CallableWrapper of(Callable<V> r) {
+        return new CallableWrapper<V>(r);
+    }
 
-    String parentSpanId();
+    public CallableWrapper(Callable<V> callable) {
+        this.callable = callable;
+    }
 
-    String spanId();
-
-    String spanLayer();
-
-    List<KeyValuePair> tags();
-
-    List<LogEvent> logs();
-
-    String startTime();
-
-    String endTime();
-
-    String componentId();
-
-    String componentName();
-
-    String error();
-
-    String spanType();
-
-    String peer();
-
-    String peerId();
-
-    List<SegmentRef> refs();
-
-    void setActualRefs(List<SegmentRef> refs);
-
-    List<SegmentRef> actualRefs();
+    @Override
+    public V call() throws Exception {
+        return callable.call();
+    }
 }

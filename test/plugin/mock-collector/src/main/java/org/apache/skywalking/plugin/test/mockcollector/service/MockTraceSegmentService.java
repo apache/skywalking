@@ -46,7 +46,7 @@ public class MockTraceSegmentService extends TraceSegmentReportServiceGrpc.Trace
                     for (SpanObjectV2 spanObject : traceSegmentObject.getSpansList()) {
                         Span.SpanBuilder spanBuilder = Span.builder().operationName(spanObject.getOperationName()).parentSpanId(spanObject.getParentSpanId())
                                 .spanId(spanObject.getSpanId()).componentId(spanObject.getComponentId()).componentName(spanObject.getComponent())
-                                .spanLayer(spanObject.getSpanLayer().toString()).endTime(spanObject.getEndTime())
+                                .spanLayer(spanObject.getSpanLayer().toString()).endTime(spanObject.getEndTime()).isError(spanObject.getIsError())
                                 .startTime(spanObject.getStartTime()).spanType(spanObject.getSpanType().toString())
                                 .peer(spanObject.getPeer()).peerId(spanObject.getPeerId()).operationId(spanObject.getOperationNameId());
 
