@@ -24,6 +24,7 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +39,8 @@ public class SocketIOStarter {
 
     public static SocketIOServer server;
     public static Socket client;
+
+    private static CountDownLatch connectedCountDownLatch = new CountDownLatch(1);
 
     public static void startServer() {
         if (server != null) {
@@ -56,6 +59,9 @@ public class SocketIOStarter {
 
     public static void startClientAndWaitConnect() throws URISyntaxException, InterruptedException {
         if (client != null) {
+            // check client is connected again
+            // if this method invoke on multi thread, client will return but not connected
+            connectedCountDownLatch.await(5, TimeUnit.SECONDS);
             return;
         }
         client = IO.socket("http://localhost:" + SERVER_PORT);
@@ -63,13 +69,13 @@ public class SocketIOStarter {
         client.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
             @Override
             public void call(Object... objects) {
-                connected.add(true);
+                connectedCountDownLatch.countDown();
             }
         });
         client.connect();
 
         // wait connect to server
-        connected.poll(5, TimeUnit.SECONDS);
+        connectedCountDownLatch.await(5, TimeUnit.SECONDS);
     }
 
 }
