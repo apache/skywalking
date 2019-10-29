@@ -119,6 +119,7 @@
                                         <volume>${sw.home}:/sw</volume>
                                         <volume>${project.build.directory}:/home</volume>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
+                                        <volume>${project.basedir}/src/docker/application.yml:/application.yml</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
