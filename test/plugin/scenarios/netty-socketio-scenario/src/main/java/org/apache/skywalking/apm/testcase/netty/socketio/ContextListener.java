@@ -13,35 +13,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.skywalking.apm.testcase.netty.socketio;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
-public class HealthCheckServlet extends HttpServlet {
+/**
+ * @author MrPro
+ */
+public class ContextListener implements ServletContextListener {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // start socket io server and client on heath check
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        // start socket io server on tomcat start
         SocketIOStarter.startServer();
+
+        // start client
         try {
             SocketIOStarter.startClientAndWaitConnect();
         } catch (Exception e) {
         }
-
-        PrintWriter writer = resp.getWriter();
-        writer.write("Success");
-        writer.flush();
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doGet(req, resp);
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        SocketIOStarter.server.stop();
     }
 }
