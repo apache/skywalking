@@ -22,10 +22,6 @@
          version="3.1">
     <display-name>skywalking-netty-socketio-scenario</display-name>
 
-    <listener>
-        <listener-class>org.apache.skywalking.apm.testcase.netty.socketio.ContextListener</listener-class>
-    </listener>
-
     <servlet>
         <servlet-name>caseServlet</servlet-name>
         <servlet-class>org.apache.skywalking.apm.testcase.netty.socketio.CaseServlet</servlet-class>
