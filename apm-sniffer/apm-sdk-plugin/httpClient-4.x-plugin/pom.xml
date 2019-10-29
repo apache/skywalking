@@ -33,7 +33,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <apache-httpclient.version>4.3</apache-httpclient.version>
+        <apache-httpclient.version>4.3.6</apache-httpclient.version>
         <junit.version>4.12</junit.version>
     </properties>
 
