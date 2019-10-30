@@ -6,52 +6,43 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
-import java.util.List;
+package org.apache.skywalking.apm.toolkit.trace;
 
-public interface Span {
-    String operationName();
+/**
+ * provide custom api that set tag for current active span.
+ *
+ * @author zhangxin
+ */
+public class ActiveSpan {
+    /**
+     * @param key   tag key
+     * @param value tag value
+     */
+    public static void tag(String key, String value) {
+    }
 
-    String operationId();
+    public static void error() {
+    }
 
-    String parentSpanId();
+    public static void error(String errorMsg) {
+    }
 
-    String spanId();
+    public static void error(Throwable throwable) {
+    }
 
-    String spanLayer();
+    public static void debug(String debugMsg) {
+    }
 
-    List<KeyValuePair> tags();
-
-    List<LogEvent> logs();
-
-    String startTime();
-
-    String endTime();
-
-    String componentId();
-
-    String componentName();
-
-    String error();
-
-    String spanType();
-
-    String peer();
-
-    String peerId();
-
-    List<SegmentRef> refs();
-
-    void setActualRefs(List<SegmentRef> refs);
-
-    List<SegmentRef> actualRefs();
+    public static void info(String infoMsg) {
+    }
 }

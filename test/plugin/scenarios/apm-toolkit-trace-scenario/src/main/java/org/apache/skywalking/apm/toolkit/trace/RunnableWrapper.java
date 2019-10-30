@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,44 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
+package org.apache.skywalking.apm.toolkit.trace;
 
-import java.util.List;
+/**
+ * @author lican
+ */
+@TraceCrossThread
+public class RunnableWrapper implements Runnable {
+    final Runnable runnable;
 
-public interface Span {
-    String operationName();
+    public RunnableWrapper(Runnable runnable) {
+        this.runnable = runnable;
+    }
 
-    String operationId();
+    public static RunnableWrapper of(Runnable r) {
+        return new RunnableWrapper(r);
+    }
 
-    String parentSpanId();
 
-    String spanId();
-
-    String spanLayer();
-
-    List<KeyValuePair> tags();
-
-    List<LogEvent> logs();
-
-    String startTime();
-
-    String endTime();
-
-    String componentId();
-
-    String componentName();
-
-    String error();
-
-    String spanType();
-
-    String peer();
-
-    String peerId();
-
-    List<SegmentRef> refs();
-
-    void setActualRefs(List<SegmentRef> refs);
-
-    List<SegmentRef> actualRefs();
+    @Override
+    public void run() {
+        this.runnable.run();
+    }
 }
