@@ -18,7 +18,12 @@
 
 pipeline {
     agent {
-        label 'xenial'
+        label 'skywalking'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 5, unit: 'HOURS')
     }
 
     tools {
@@ -39,50 +44,91 @@ pipeline {
         }
 
         stage('Prepare Distribution Package') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/e2e-build-condition.sh')
+                }
+            }
             steps {
                 // although these checks are done in ci-it, since they are lightweight/cheap
                 // we're using them as a barrier here to filter out some invalid PRs (fast-fail)
                 // thus save unnecessary E2E builds(which is expensive)
                 sh './mvnw checkstyle:check apache-rat:check'
                 sh './mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install'
-                // Some of the tests will modify files in the distribution folder, e.g. cluster test will modify the application.yml
-                // so we give each test a separate distribution folder here
-                sh 'mkdir -p dist-for-single-node-service && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-single-node-service'
-                sh 'mkdir -p dist-for-cluster && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-cluster'
-                sh 'mkdir -p dist-for-agent-reboot && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-agent-reboot'
-                sh 'mkdir -p dist-for-ttl-es && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist-for-ttl-es'
             }
         }
 
         stage('Compile Test Codes') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/e2e-build-condition.sh')
+                }
+            }
             steps {
                 sh './mvnw -f test/e2e/pom.xml -pl e2e-base clean install'
             }
         }
 
         stage('Run End-to-End Tests') {
+            when {
+                expression {
+                    return sh(returnStatus: true, script: 'bash tools/ci/e2e-build-condition.sh')
+                }
+            }
             parallel {
-                stage('Run Single Node Tests') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-single-service -am verify'
+                stage('Group 1') {
+                    stages {
+                        stage('Single Node Tests(JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+                        
+                        stage('Single Node Tests(MySQL/JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-mysql'
+                            }
+                        }                        
+
+                        stage('Single Node Tests(JDK9)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk9-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Single Node Tests(JDK11)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk11-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Single Node Tests(JDK12)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk12-1.3 bash -x test/e2e/run.sh e2e-single-service'
+                            }
+                        }
+
+                        stage('Agent Reboot Tests(JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-agent-reboot'
+                            }
+                        }
                     }
                 }
 
-                stage('Run Cluster Tests (ES/ZK)') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-cluster/test-runner -am verify'
-                    }
-                }
+                stage('Group 2') {
+                    stages {
+                        stage('Cluster Tests (ES6/ZK/JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-cluster/test-runner'
+                            }
+                        }
 
-                stage('Run Agent Reboot Tests') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-agent-reboot -am verify'
-                    }
-                }
-
-                stage('Run TTL Tests') {
-                    steps {
-                        sh './mvnw -Dbuild.id=${BUILD_ID} -f test/e2e/pom.xml -pl e2e-ttl/e2e-ttl-es -am verify'
+                        stage('TTL ES Tests(JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
+                            }
+                        }
                     }
                 }
             }
@@ -90,7 +136,7 @@ pipeline {
     }
 
     post {
-        always {
+        cleanup {
             // "Abort old build on update" will interrupt the job completely,
             // we need to clean up when there are containers started by the e2e tests
             sh 'docker ps'

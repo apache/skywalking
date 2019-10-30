@@ -1,5 +1,5 @@
 # Alarm
-Alarm core is driven a collection of rules, which are defined in `config/alarm-settings.yml`.
+Alarm core is driven by a collection of rules, which are defined in `config/alarm-settings.yml`.
 There are two parts in alarm rule definition.
 1. [Alarm rules](#rules). They define how metrics alarm should be triggered, what conditions should be considered.
 1. [Webhooks](#webhook). The list of web service endpoint, which should be called after the alarm is triggered.
@@ -65,10 +65,11 @@ Submit issue or pull request if you want to support any other scope in alarm.
 
 ## Webhook
 Webhook requires the peer is a web container. The alarm message will send through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage` with following key information.
-- **scopeId**. All scopes are defined in org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.
+- **scopeId**, **scope**. All scopes are defined in org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.
 - **name**. Target scope entity name.
 - **id0**. The ID of scope entity, matched the name.
 - **id1**. Not used today.
+- **ruleName**. The rule name you configured in `alarm-settings.yml`.
 - **alarmMessage**. Alarm text message.
 - **startTime**. Alarm time measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
 
@@ -76,17 +77,29 @@ Example as following
 ```json
 [{
 	"scopeId": 1, 
+        "scope": "SERVICE",
         "name": "serviceA", 
 	"id0": 12,  
 	"id1": 0,  
+        "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage xxxx",
 	"startTime": 1560524171000
 }, {
 	"scopeId": 1,
+        "scope": "SERVICE",
         "name": "serviceB",
 	"id0": 23,
 	"id1": 0,
+        "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage yyy",
 	"startTime": 1560524171000
 }]
 ```
+
+## Update the settings dynamically
+Since 6.5.0, the alarm settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
+which will override the settings in `alarm-settings.yml`.
+
+In order to determine that whether an alarm rule is triggered or not, SkyWalking needs to cache the metrics of a time window for
+each alarm rule, if any attribute (`metrics-name`, `op`, `threshold`, `period`, `count`, etc.) of a rule is changed,
+the sliding window will be destroyed and re-created, causing the alarm of this specific rule to restart again.

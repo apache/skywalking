@@ -28,9 +28,13 @@ import java.util.Map;
  * @author stalary
  */
 public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         Map<String, Object> config = (Map<String, Object>) allArguments[0];
-        objInst.setSkyWalkingDynamicField(StringUtil.join(';', ((String) config.get("bootstrap.servers")).split(",")));
+        // prevent errors caused by secondary interception in kafkaTemplate
+        if (objInst.getSkyWalkingDynamicField() == null) {
+            objInst.setSkyWalkingDynamicField(StringUtil.join(';', ((String) config.get("bootstrap.servers")).split(",")));
+        }
     }
 }

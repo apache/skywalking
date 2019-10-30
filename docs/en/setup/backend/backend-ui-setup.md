@@ -9,7 +9,7 @@ server and UI startup.
 1. **Webapp env**, in `webapp` folder. UI frontend jar file is in here and its `webapp.yml` setting file. 
 
 ## Quick start
-Requirement: **JDK8**
+Requirement: **JDK8 to JDK12 are tested**, other versions are not tested and may or may not work.
 
 Before you do quick start, you should know, quick start is to run skywalking backend and UI for preview
 or demonstration. In here, performance and long-term running are not our goals. 
@@ -38,4 +38,3 @@ Now, let's continue with the backend and UI setting documents.
 - [Backend setup document](backend-setup.md)
 - [UI setup document](ui-setup.md)
 
-Also, we provide [k8s settings](https://github.com/apache/skywalking-kubernetes#deploy-skywalking-backend-to-kubernetes-cluster) for convenience. 

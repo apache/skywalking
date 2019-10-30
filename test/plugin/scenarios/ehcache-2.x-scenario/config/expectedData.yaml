@@ -1,0 +1,118 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+registryItems:
+  applications:
+    - {ehcache-2.x-scenario: 2}
+  instances:
+    - {ehcache-2.x-scenario: 1}
+  operationNames:
+    - ehcache-2.x-scenario: [/ehcache-2.x-scenario/case/ehcache, /ehcache-2.x-scenario/healthCheck]
+  heartbeat: []
+segmentItems:
+  - applicationCode: ehcache-2.x-scenario
+    segmentSize: ge 2
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: Ehcache/put/testCache
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Cache
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 75
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: dataKey}
+          - operationName: Ehcache/get/testCache
+            operationId: 0
+            parentSpanId: 0
+            spanId: 2
+            spanLayer: Cache
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 75
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: dataKey}
+          - operationName: Ehcache/putAll/testCache
+            operationId: 0
+            parentSpanId: 0
+            panId: 3
+            spanLayer: Cache
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 75
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+          - operationName: Ehcache/tryRead/testCache
+            operationId: 0
+            parentSpanId: 0
+            spanId: 4
+            spanLayer: Cache
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 75
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: dataKey}
+          - operationName: Ehcache/releaseRead/testCache
+            operationId: 0
+            parentSpanId: 0
+            spanId: 5
+            spanLayer: Cache
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 75
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: dataKey}
+          - operationName: /ehcache-2.x-scenario/case/ehcache
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/ehcache-2.x-scenario/case/ehcache'}
+              - {key: http.method, value: GET}

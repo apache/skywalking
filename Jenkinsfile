@@ -25,6 +25,7 @@ pipeline {
         ))
         timestamps()
         skipStagesAfterUnstable()
+        timeout(time: 5, unit: 'HOURS')
     }
 
     environment {
@@ -36,7 +37,7 @@ pipeline {
             parallel {
                 stage('JDK 1.8 on Linux') {
                     agent {
-                        label 'xenial'
+                        label 'skywalking || skywalking-se'
                     }
 
                     tools {
@@ -52,23 +53,24 @@ pipeline {
                             }
                         }
 
-                        stage('Check environment') {
-                            steps {
-                                sh 'env'
-                                sh 'pwd'
-                                sh 'ls'
-                                sh 'git status'
-                            }
-                        }
-
                         stage('Test & Report') {
+                            when {
+                                expression {
+                                    return sh(returnStatus: true, script: 'bash tools/ci/ci-build-condition.sh')
+                                }
+                            }
                             steps {
-                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" org.jacoco:jacoco-maven-plugin:0.8.3:prepare-agent clean install org.jacoco:jacoco-maven-plugin:0.8.3:report'
+                                sh './mvnw -P"agent,backend,ui,dist,CI-with-IT" -DrepoToken=${COVERALLS_REPO_TOKEN} -DpullRequest=${ghprbPullLink} clean cobertura:cobertura verify coveralls:report install'
                                 sh './mvnw javadoc:javadoc -Dmaven.test.skip=true'
                             }
                         }
 
                         stage('Check Dependencies Licenses') {
+                            when {
+                                expression {
+                                    return sh(returnStatus: true, script: 'bash tools/ci/ci-build-condition.sh')
+                                }
+                            }
                             steps {
                                 sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
                                 sh 'tools/dependencies/check-LICENSE.sh'
@@ -77,10 +79,6 @@ pipeline {
                     }
 
                     post {
-                        success {
-                            junit '**/target/surefire-reports/*.xml'
-                        }
-
                         cleanup {
                             deleteDir()
                         }
