@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- if .Values.oap.envoy.als.enabled }}
+{{- if .Values.oap.istio.adapter.enabled }}
 apiVersion: "config.istio.io/v1alpha2"
 kind: handler
 metadata:

@@ -74,6 +74,7 @@ The following table lists the configurable parameters of the Skywalking chart an
 | `oap.tolerations`                     | OAP tolerations                                                    | `[]`                                |
 | `oap.resources`                       | OAP node resources requests & limits                               | `{} - cpu limit must be an integer` |
 | `oap.envoy.als.enabled`               | Open envoy als                                                     | `false`                             |
+| `oap.istio.adapter.enabled`           | Open istio adapter                                                 | `false`                             |
 | `oap.env`                             | OAP environment variables                                          | `[]`                                |
 | `ui.name`                             | Web UI deployment name                                             | `ui`                                |
 | `ui.replicas`                         | Web UI k8s deployment replicas                                     | `1`                                 |
