@@ -84,7 +84,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
-            searchSourceBuilder.size(500);
+            searchSourceBuilder.size(Integer.MAX_VALUE);
 
             SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
 
