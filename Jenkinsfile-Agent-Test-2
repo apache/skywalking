@@ -66,7 +66,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl2_${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (155)') {
+        stage('Test Cases Report (156)') {
             steps {
                 echo "reserve."
             }
@@ -108,6 +108,12 @@ pipeline {
                         stage('spring 4.1.x-4.2.x (20)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-4.1.x-scenario'
+                            }
+                        }
+
+                        stage('apm-toolkit-trace (1)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} apm-toolkit-trace-scenario'
                             }
                         }
                     }

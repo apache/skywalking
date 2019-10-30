@@ -184,7 +184,7 @@ public class SegmentForRead implements Segment {
         private String endTime;
         private String componentId;
         private String componentName;
-        private boolean isError;
+        private String isError;
         private String spanType;
         private String peer;
         private String peerId;
@@ -233,7 +233,7 @@ public class SegmentForRead implements Segment {
             this.componentName = componentName;
         }
 
-        public void setError(boolean error) {
+        public void setError(String error) {
             isError = error;
         }
 
@@ -318,7 +318,7 @@ public class SegmentForRead implements Segment {
             return componentName;
         }
 
-        @Override public boolean error() {
+        @Override public String error() {
             return isError;
         }
 
