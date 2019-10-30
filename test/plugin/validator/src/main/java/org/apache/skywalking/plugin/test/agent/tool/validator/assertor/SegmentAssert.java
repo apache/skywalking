@@ -104,6 +104,8 @@ public class SegmentAssert {
         ExpressParser.parse(excepted.peer()).assertValue("peer", actualSpan.peer());
         ExpressParser.parse(excepted.spanLayer()).assertValue("span layer", actualSpan.spanLayer());
         ExpressParser.parse(excepted.peerId()).assertValue("peer id", actualSpan.peerId());
+        ExpressParser.parse(excepted.error()).assertValue("is error", actualSpan.error());
+        ExpressParser.parse(excepted.spanType()).assertValue("span type", actualSpan.spanType());
         tagsEquals(excepted.tags(), actualSpan.tags());
         logsEquals(excepted.logs(), actualSpan.logs());
         refEquals(excepted.refs(), actualSpan.refs());

@@ -6,52 +6,35 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
-import java.util.List;
 
-public interface Span {
-    String operationName();
+package org.apache.skywalking.apm.toolkit.trace;
 
-    String operationId();
+/**
+ * Try to access the sky-walking tracer context.
+ * The context is not existed, always.
+ * only the middleware, component, or rpc-framework are supported in the current invoke stack, in the same thread,
+ * the context will be available.
+ * <p>
+ * Created by xin on 2016/12/15.
+ */
+public class TraceContext {
 
-    String parentSpanId();
-
-    String spanId();
-
-    String spanLayer();
-
-    List<KeyValuePair> tags();
-
-    List<LogEvent> logs();
-
-    String startTime();
-
-    String endTime();
-
-    String componentId();
-
-    String componentName();
-
-    String error();
-
-    String spanType();
-
-    String peer();
-
-    String peerId();
-
-    List<SegmentRef> refs();
-
-    void setActualRefs(List<SegmentRef> refs);
-
-    List<SegmentRef> actualRefs();
+    /**
+     * Try to get the traceId of current trace context.
+     *
+     * @return traceId, if it exists, or empty {@link String}.
+     */
+    public static String traceId() {
+        return "";
+    }
 }
