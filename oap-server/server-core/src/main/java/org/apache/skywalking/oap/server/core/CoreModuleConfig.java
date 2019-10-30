@@ -58,6 +58,14 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     @Setter private int remoteTimeout = 20;
 
+    /**
+     * Following are cache settings for inventory(s)
+     */
+    private long maxSizeOfServiceInventory = 10_000L;
+    private long maxSizeOfServiceInstanceInventory = 1_000_000L;
+    private long maxSizeOfEndpointInventory = 1_000_000L;
+    private long maxSizeOfNetworkInventory = 1_000_000L;
+
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
