@@ -82,6 +82,11 @@ deploy_istio() {
   echo "Istio is deployed successful"
 }
 
+add_mixer_template() {
+  VERSION=$1
+  kubectl apply -f https://raw.githubusercontent.com/istio/istio/$VERSION/mixer/template/metric/template.yaml
+}
+
 main(){
   ISTIO_VERSION="1.3.3"
   ISTIO_NAMESPACE="istio-system"
@@ -91,6 +96,7 @@ main(){
   fi
   create_crd $ISTIO_NAMESPACE
   deploy_istio $ISTIO_NAMESPACE $ISTIO_VERSION
+  add_mixer_template $ISTIO_VERSION
 }
 
 main
