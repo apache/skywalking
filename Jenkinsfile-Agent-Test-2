@@ -87,6 +87,12 @@ pipeline {
                             }
                         }
 
+                        stage('spring-webflux 2.x (18)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} webflux-scenario'
+                            }
+                        }
+
                         stage('dubbo 2.5.x-2.6.x (10)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} dubbo-2.5.x-scenario'
