@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.ActualSegmentRefIsEmptyException;
+import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.SegmentRefAssertFailedException;
+import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.SegmentRefNotFoundException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.exception.AssertFailedException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.KeyValueNotEqualsException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.LogEventKeyNotEqualsException;
@@ -125,6 +127,10 @@ public class SegmentAssert {
         if (excepted.size() != actual.size()) {
             throw new RefSizeNotEqualsException(excepted.size(), actual.size());
         }
+
+        for (SegmentRef ref : excepted) {
+            findSegmentRef(actual, ref);
+        }
     }
 
     private static void tagsEquals(List<KeyValuePair> excepted, List<KeyValuePair> actual) {
@@ -189,4 +195,28 @@ public class SegmentAssert {
         }
     }
 
+    private static SegmentRef findSegmentRef(List<SegmentRef> actual, SegmentRef expected) {
+        List<SegmentRefAssertFailedCause> causes = new ArrayList<>();
+        for (SegmentRef segmentRef : actual) {
+            try {
+                if (simpleSegmentRefEquals(expected, segmentRef)) {
+                    return segmentRef;
+                }
+            } catch (SegmentRefAssertFailedException e) {
+                causes.add(new SegmentRefAssertFailedCause(e, segmentRef));
+            }
+        }
+        throw new SegmentRefNotFoundException(expected, causes);
+    }
+
+    private static boolean simpleSegmentRefEquals(SegmentRef expected, SegmentRef actual) {
+        try {
+            ExpressParser.parse(expected.entryServiceName()).assertValue("entry service name", actual.entryServiceName());
+            ExpressParser.parse(expected.parentServiceName()).assertValue("parent service name", actual.parentServiceName());
+            ExpressParser.parse(expected.refType()).assertValue("ref type", actual.refType());
+            return true;
+        } catch (ValueAssertFailedException e) {
+            throw new SegmentRefAssertFailedException(e, expected, actual);
+        }
+    }
 }
