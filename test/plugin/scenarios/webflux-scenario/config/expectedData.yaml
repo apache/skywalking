@@ -37,28 +37,6 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: org.apache.skywalking.apm.testcase.sc.webflux.projectB.controller.TestAnnotationController.healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 67
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: not null}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: /projectA/healthCheck, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: not null, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: not null, entryEndpoint: /projectA/healthCheck,
-                 entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
           - operationName: org.apache.skywalking.apm.testcase.sc.webflux.projectB.controller.TestAnnotationController.success
             operationId: 0
             parentSpanId: -1
@@ -108,7 +86,7 @@ segmentItems:
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: not null, parentTraceSegmentId: not null,
                  parentServiceInstanceId: not null, networkAddress: not null, entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
-      - segmentId: 2.29.15724313010190000
+      - segmentId: not null
         spans:
           - operationName: RoutingConfiguration.org.apache.skywalking.apm.testcase.sc.webflux.projectB.route.TestHandler
             operationId: 0
@@ -181,7 +159,7 @@ segmentItems:
               - logEvent:
                   - {key: event, value: error}
                   - {key: error.kind, value: org.springframework.web.server.ResponseStatusException}
-                  - {key: message, value: 404 NOT_FOUND}
+                  - {key: message, value: not null}
                   - {key: stack, value: not null}
             refs:
               - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
