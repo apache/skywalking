@@ -22,7 +22,7 @@ registryItems:
     - httpasyncclient-scenario: [/httpasyncclient/case/httpasyncclient, /httpasyncclient/back]
 segmentItems:
 - applicationCode: httpasyncclient-scenario
-  segmentSize: 4
+  segmentSize: ge 4
   segments:
   - segmentId: not null
     spans:
