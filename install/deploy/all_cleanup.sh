@@ -16,15 +16,6 @@
 # limitations under the License.
 
 set -e
-# cleanup
-BOOKINFO_VERSION="1.3"
-MIXER_VERSION="1.3.3"
-NAMESPACE="istio-system"
+# cleanup files
 
-for release in istio istio-init skywalking ; do
-  helm -n $NAMESPACE uninstall ${release}
-done
-kubectl delete crd `kubectl get crd | grep istio | awk '{print $1}'`
-kubectl delete ns istio-system
-kubectl delete -f https://raw.githubusercontent.com/istio/istio/release-${BOOKINFO_VERSION}/samples/bookinfo/platform/kube/bookinfo.yaml
-kubectl delete -f https://raw.githubusercontent.com/istio/istio/${MIXER_VERSION}/mixer/template/metric/template.yaml
+rm -fr istio/

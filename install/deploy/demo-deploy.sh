@@ -29,4 +29,17 @@ do
 done
 
 # request
-kubectl exec -it $(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}') -c ratings -- curl productpage:9080/productpage | grep -o "<title>.*</title>"
+start=$(date "+%M")
+while true
+do
+  REQUEST_STATUS=$(kubectl exec -it $(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}') -c ratings -- curl -m 10 productpage:9080/productpage | grep -o "<title>.*</title>" | wc -l)
+  if [ $REQUEST_STATUS == 1 ]; then
+      break
+  fi
+  end=$(date "+%M")
+  time=$(($end - $start))
+  if [ $time -ge 3 ]; then
+      echo "Request timeout"
+      break
+  fi
+done
