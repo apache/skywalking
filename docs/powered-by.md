@@ -63,6 +63,7 @@ or providing commercial products including Apache SkyWalking.
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
+1. NetEase 网易 https://www.163.com/
 1. Osacart in WeChat app 广州美克曼尼电子商务有限公司
 1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com 
 1. qiniu.com 七牛云 http://qiniu.com 
@@ -101,9 +102,10 @@ or providing commercial products including Apache SkyWalking.
 1. Yinji(shenzhen)Network Technology Co.,Ltd. 印记. http://www.yinjiyun.cn/
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
+1. zhaopin.com 智联招聘 https://www.zhaopin.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
 
-# User Cases
+# Use Cases
 ## Alibaba Cloud
 Support SkyWalking agents and formats in Tracing Analysis cloud service.
 
@@ -119,6 +121,12 @@ Deploy SkyWalking in production environments.
 - Three ElasticSearch(Version 6.4.2, 40 CPUs, 96G RAM, 7T Disk) Nodes for Storage
 
 Support 60+ Instances, Over 300k Calls Per Minute, Over 50k Spans Per Second
+
+## guazi.com
+Guazi.com uses SkyWalking monitoring 270+ services, 
+including topology + metrics analysis, and collecting 1.1+ billion traces per day with 100% sampling. 
+
+Plan is 1k+ services and 5 billion traces per day.
 
 ## Oscart
 Use multiple language agents from SkyWalking and its ecosystem, including SkyWalking Javaagent and [SkyAPM nodejs agent](https://github.com/SkyAPM/SkyAPM-nodejs). SkyWalking OAP platform acts as backend and visualization.

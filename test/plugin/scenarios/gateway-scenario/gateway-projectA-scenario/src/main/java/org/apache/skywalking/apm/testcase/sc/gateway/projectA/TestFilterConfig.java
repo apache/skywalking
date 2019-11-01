@@ -18,7 +18,9 @@
 package org.apache.skywalking.apm.testcase.sc.gateway.projectA;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class TestFilterConfig {
 
     @Bean

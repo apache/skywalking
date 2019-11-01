@@ -99,7 +99,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
 
             searchSourceBuilder.query(boolQuery);
-            searchSourceBuilder.size(500);
+            searchSourceBuilder.size(Integer.MAX_VALUE);
 
             SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
 

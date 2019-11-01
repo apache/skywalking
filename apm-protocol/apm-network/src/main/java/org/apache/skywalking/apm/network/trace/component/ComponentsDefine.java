@@ -141,4 +141,6 @@ public class ComponentsDefine {
     public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(74, "pulsar-consumer");
 
     public static final OfficialComponent EHCACHE = new OfficialComponent(75, "Ehcache");
+
+    public static final OfficialComponent SOCKET_IO = new OfficialComponent(76, "SocketIO");
 }

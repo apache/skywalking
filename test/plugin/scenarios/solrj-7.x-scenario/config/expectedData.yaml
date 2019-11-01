@@ -21,30 +21,12 @@ registryItems:
   operationNames:
     - solrj-7.x-scenario: [/solrj-scenario/case/solrj, solrJ/mycore/update/COMMIT, solrJ/mycore/update/DELETE_BY_IDS,
                            solrJ/mycore/select, solrJ/mycore/update/DELETE_BY_QUERY, solrJ/mycore/get,
-                           /solrj-scenario/case/healthcheck, solrJ/mycore/update/OPTIMIZE, solrJ/mycore/update/ADD]
+                           solrJ/mycore/update/OPTIMIZE, solrJ/mycore/update/ADD]
   heartbeat: []
 segmentItems:
   - applicationCode: solrj-7.x-scenario
-    segmentSize: 2
+    segmentSize: gt 1
     segments:
-      - segmentId: not null
-        spans:
-          - operationName: /solrj-scenario/case/healthcheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/solrj-scenario/case/healthcheck'}
-              - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
           - operationName: solrJ/mycore/update/ADD

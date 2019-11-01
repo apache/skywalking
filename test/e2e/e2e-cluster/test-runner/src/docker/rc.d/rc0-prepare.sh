@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Licensed to the SkyAPM under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,14 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env bash
+apt-get update && apt-get install -y gawk
 
 if test "${MODE}" = "cluster"; then
     original_wd=$(pwd)
 
     # substitute application.yml to be capable of cluster mode
     cd ${SW_HOME}/config \
-        && awk -f /clusterize.awk application.yml > clusterized_app.yml \
+        && gawk -f /clusterize.awk application.yml > clusterized_app.yml \
         && mv clusterized_app.yml application.yml \
         && echo '
 gateways:
@@ -35,7 +36,7 @@ gateways:
         && mv log4j2debuggable.xml log4j2.xml
 
     cd ${SW_HOME}/webapp \
-        && awk '/^\s+listOfServers:/ {gsub("listOfServers:.*", "listOfServers: 127.0.0.1:12800,127.0.0.1:12801", $0)} {print}' webapp.yml > clusterized_webapp.yml \
+        && gawk '/^\s+listOfServers:/ {gsub("listOfServers:.*", "listOfServers: 127.0.0.1:12800,127.0.0.1:12801", $0)} {print}' webapp.yml > clusterized_webapp.yml \
         && mv clusterized_webapp.yml webapp.yml
 
     cd ${original_wd}
