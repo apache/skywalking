@@ -34,21 +34,23 @@ import java.lang.reflect.Method;
 public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static ThreadLocal<HttpContext> CONTEXT_LOCAL = new ThreadLocal<HttpContext>();
+    public static ThreadLocal<Boolean> CONTEXT_LOCAL_NOT_EXIT = new ThreadLocal<Boolean>();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Object[] array = (Object[]) objInst.getSkyWalkingDynamicField();
         if (array == null || array.length == 0) {
+            CONTEXT_LOCAL_NOT_EXIT.set(false);
             return;
         }
+
         ContextSnapshot snapshot = (ContextSnapshot) array[0];
         ContextManager.createLocalSpan("httpasyncclient/local");
         if (snapshot != null) {
             ContextManager.continued(snapshot);
         }
         CONTEXT_LOCAL.set((HttpContext) array[1]);
-
-
+        CONTEXT_LOCAL_NOT_EXIT.set(true);
     }
 
     @Override

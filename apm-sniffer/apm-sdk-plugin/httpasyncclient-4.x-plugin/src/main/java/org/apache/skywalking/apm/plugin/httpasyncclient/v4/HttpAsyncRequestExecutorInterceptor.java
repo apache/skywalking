@@ -37,13 +37,13 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_NOT_EXIT;
 
 /**
  * the actual point request begin fetch the request from thread local .
  * @author lican
  */
 public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroundInterceptor {
-
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
@@ -52,23 +52,28 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
         if (context == null) {
             return;
         }
-        final ContextCarrier contextCarrier = new ContextCarrier();
-        HttpRequestWrapper requestWrapper = (HttpRequestWrapper) context.getAttribute(HttpClientContext.HTTP_REQUEST);
-        HttpHost httpHost = (HttpHost) context.getAttribute(HttpClientContext.HTTP_TARGET_HOST);
 
-        RequestLine requestLine = requestWrapper.getRequestLine();
-        String uri = requestLine.getUri();
-        String operationName = uri.startsWith("http") ? new URL(uri).getPath() : uri;
-        int port = httpHost.getPort();
-        AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, httpHost.getHostName() + ":" + (port == -1 ? 80 : port));
-        span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT);
-        Tags.URL.set(span, requestWrapper.getOriginal().getRequestLine().getUri());
-        Tags.HTTP.METHOD.set(span, requestLine.getMethod());
-        SpanLayer.asHttp(span);
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            requestWrapper.setHeader(next.getHeadKey(), next.getHeadValue());
+        if (CONTEXT_LOCAL_NOT_EXIT.get()) {
+            final ContextCarrier contextCarrier = new ContextCarrier();
+            HttpRequestWrapper requestWrapper = (HttpRequestWrapper) context.getAttribute(HttpClientContext.HTTP_REQUEST);
+            HttpHost httpHost = (HttpHost) context.getAttribute(HttpClientContext.HTTP_TARGET_HOST);
+
+            RequestLine requestLine = requestWrapper.getRequestLine();
+            String uri = requestLine.getUri();
+            String operationName = uri.startsWith("http") ? new URL(uri).getPath() : uri;
+            int port = httpHost.getPort();
+
+            AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier,
+                httpHost.getHostName() + ":" + (port == -1 ? 80 : port));
+            span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT);
+            Tags.URL.set(span, requestWrapper.getOriginal().getRequestLine().getUri());
+            Tags.HTTP.METHOD.set(span, requestLine.getMethod());
+            SpanLayer.asHttp(span);
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                requestWrapper.setHeader(next.getHeadKey(), next.getHeadValue());
+            }
         }
     }
 

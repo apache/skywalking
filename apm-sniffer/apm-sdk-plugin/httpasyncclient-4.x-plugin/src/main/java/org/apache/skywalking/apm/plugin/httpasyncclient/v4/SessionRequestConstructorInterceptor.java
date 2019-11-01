@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 public class SessionRequestConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (ContextManager.isActive()) {
+        if (ContextManager.isActive() && !ContextManager.activeSpan().isExit()) {
             ContextSnapshot snapshot = ContextManager.capture();
             objInst.setSkyWalkingDynamicField(new Object[]{snapshot, CONTEXT_LOCAL.get()});
         }
