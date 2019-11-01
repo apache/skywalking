@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 # Add istio official repo
 add_repo(){
   VERSION=$1
@@ -74,7 +76,7 @@ deploy_istio() {
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
      do
-       kubectl rollout status $line -n ${NAMESPACE};
+       kubectl rollout status $line -n ${NAMESPACE} --timeout 3m
      done
   }
   check

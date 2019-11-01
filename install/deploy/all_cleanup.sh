@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
 # cleanup
 BOOKINFO_VERSION="1.3"
 MIXER_VERSION="1.3.3"
