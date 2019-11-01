@@ -21,6 +21,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_NOT_EXIT;
 
 /**
  * a wrapper for {@link FutureCallback} so we can be notified when the hold response
@@ -49,6 +50,7 @@ public class FutureCallbackWrapper<T> implements FutureCallback<T> {
     @Override
     public void failed(Exception e) {
         CONTEXT_LOCAL.remove();
+        CONTEXT_LOCAL_NOT_EXIT.remove();
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(e);
             ContextManager.stopSpan();
@@ -61,6 +63,7 @@ public class FutureCallbackWrapper<T> implements FutureCallback<T> {
     @Override
     public void cancelled() {
         CONTEXT_LOCAL.remove();
+        CONTEXT_LOCAL_NOT_EXIT.remove();
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred();
             ContextManager.stopSpan();

@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_NOT_EXIT;
 
 /**
  * when request fail to ready we should remove thread local in case of memory leak;
@@ -37,6 +38,7 @@ public class SessionRequestFailInterceptor implements InstanceMethodsAroundInter
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         //this means actual request will not started. so the span has not been created,we cannot log the status.
         CONTEXT_LOCAL.remove();
+        CONTEXT_LOCAL_NOT_EXIT.remove();
         objInst.setSkyWalkingDynamicField(null);
     }
 

@@ -48,12 +48,14 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         HttpContext context = CONTEXT_LOCAL.get();
+        Boolean isOutNotExit = CONTEXT_LOCAL_NOT_EXIT.get();
         CONTEXT_LOCAL.remove();
+        CONTEXT_LOCAL_NOT_EXIT.remove();
         if (context == null) {
             return;
         }
 
-        if (CONTEXT_LOCAL_NOT_EXIT.get()) {
+        if (isOutNotExit) {
             final ContextCarrier contextCarrier = new ContextCarrier();
             HttpRequestWrapper requestWrapper = (HttpRequestWrapper) context.getAttribute(HttpClientContext.HTTP_REQUEST);
             HttpHost httpHost = (HttpHost) context.getAttribute(HttpClientContext.HTTP_TARGET_HOST);
