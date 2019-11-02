@@ -15,6 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */}}
 
+
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+Learn more, please visit https://skywalking.apache.org/
+
 Get the UI URL by running these commands:
 {{- if .Values.ui.ingress.enabled }}
 {{- range .Values.ui.ingress.hosts }}

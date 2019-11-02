@@ -30,6 +30,6 @@ maintainers:
 
 dependencies:
   - name: elasticsearch
-    version: ~1.28.2
+    version: ~1.32.0
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: elasticsearch.enabled
