@@ -138,7 +138,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh -Dbuild_id=${BUILD_NO} --cleanup'
+            sh 'bash test/plugin/run.sh --cleanup'
             deleteDir()
         }
     }
