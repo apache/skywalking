@@ -146,7 +146,6 @@ parse_commandline "$@"
 
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
-    exit 0
 fi
 
 test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
