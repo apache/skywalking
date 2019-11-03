@@ -146,6 +146,7 @@ parse_commandline "$@"
 
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
+    [[ -z "${scenario_name}" ]] && exit 0
 fi
 
 test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
@@ -154,7 +155,7 @@ if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
     ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package 
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -Dbuild_id=${build_id} docker:build
+[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests docker:build
 
 workspace="${home}/workspace/${scenario_name}"
 task_state_house="${workspace}/.states"

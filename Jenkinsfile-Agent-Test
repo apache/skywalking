@@ -64,7 +64,7 @@ pipeline {
                 }
             }
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=${BUILD_NO} docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
         stage('Test Cases Report (169)') {
