@@ -116,7 +116,7 @@ public class ConfigurationImpl implements IConfiguration {
 
     @Override
     public String dockerContainerName() {
-        return scenarioName() + "-" + scenarioVersion() + "-" + dockerImageVersion();
+        return (scenarioName() + "-" + scenarioVersion() + "-" + dockerImageVersion()).toLowerCase();
     }
 
     @Override public String scenarioHome() {

@@ -32,7 +32,7 @@ pipeline {
     }
 
     environment {
-        BUILD_NO="WL2_${BUILD_ID}"
+        BUILD_NO="wl2_${BUILD_ID}"
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
@@ -146,7 +146,7 @@ pipeline {
 
                         stage('customize-scenario (1)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} customize-scenario'
+                                sh 'bash test/plugin/run.sh customize-scenario'
                             }
                         }
                     }

@@ -16,11 +16,11 @@
 -->
 
 compose_file="${docker_compose_file}"
-project_name="${build_id}"
+project_name=$(echo "$" |awk '{print tolower($0)}')
 docker_container_name="${docker_container_name}_1"
 
 <#noparse>
-container_name=$(echo "${project_name}_${docker_container_name}" |awk '{print tolower($0)}')
+container_name="${project_name}_${docker_container_name}"
 docker-compose -p ${project_name} -f ${compose_file} up -d
 
 container=`docker ps -qf "name=${container_name}"`
