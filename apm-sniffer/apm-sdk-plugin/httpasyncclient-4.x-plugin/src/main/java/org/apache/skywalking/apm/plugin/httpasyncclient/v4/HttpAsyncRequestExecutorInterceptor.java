@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
-import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_NOT_EXIT;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_EXIT;
 
 /**
  * the actual point request begin fetch the request from thread local .
@@ -45,26 +45,26 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
  */
 public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroundInterceptor {
 
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         HttpContext context = CONTEXT_LOCAL.get();
-        Boolean isOutNotExit = CONTEXT_LOCAL_NOT_EXIT.get();
         CONTEXT_LOCAL.remove();
-        CONTEXT_LOCAL_NOT_EXIT.remove();
         if (context == null) {
             return;
         }
 
-        if (isOutNotExit) {
+        boolean isOutExit = CONTEXT_LOCAL_EXIT.get();
+        if (!isOutExit) {
             final ContextCarrier contextCarrier = new ContextCarrier();
-            HttpRequestWrapper requestWrapper = (HttpRequestWrapper) context.getAttribute(HttpClientContext.HTTP_REQUEST);
+            HttpRequestWrapper requestWrapper = (HttpRequestWrapper) context
+                .getAttribute(HttpClientContext.HTTP_REQUEST);
             HttpHost httpHost = (HttpHost) context.getAttribute(HttpClientContext.HTTP_TARGET_HOST);
 
             RequestLine requestLine = requestWrapper.getRequestLine();
             String uri = requestLine.getUri();
             String operationName = uri.startsWith("http") ? new URL(uri).getPath() : uri;
             int port = httpHost.getPort();
-
             AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier,
                 httpHost.getHostName() + ":" + (port == -1 ? 80 : port));
             span.setComponent(ComponentsDefine.HTTP_ASYNC_CLIENT);

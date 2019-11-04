@@ -30,7 +30,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import java.io.IOException;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
-import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_NOT_EXIT;
 
 /**
  * a wrapper for {@link HttpAsyncResponseConsumer} so we can be notified when the
@@ -72,7 +71,6 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
     @Override
     public void failed(Exception ex) {
         CONTEXT_LOCAL.remove();
-        CONTEXT_LOCAL_NOT_EXIT.remove();
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(ex);
             ContextManager.stopSpan();
@@ -104,7 +102,6 @@ public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseCon
     @Override
     public boolean cancel() {
         CONTEXT_LOCAL.remove();
-        CONTEXT_LOCAL_NOT_EXIT.remove();
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred();
             ContextManager.stopSpan();

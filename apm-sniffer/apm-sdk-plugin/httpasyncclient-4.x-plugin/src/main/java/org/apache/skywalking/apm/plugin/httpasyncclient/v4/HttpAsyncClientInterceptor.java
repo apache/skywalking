@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.protocol.HttpContext;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -29,6 +31,8 @@ import org.apache.skywalking.apm.plugin.httpasyncclient.v4.wrapper.HttpAsyncResp
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_EXIT;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_SPAN;
 
 /**
  * in main thread,hold the context in thread local so we can read in the same thread.
@@ -46,6 +50,18 @@ public class HttpAsyncClientInterceptor implements InstanceMethodsAroundIntercep
         allArguments[1] = new HttpAsyncResponseConsumerWrapper(consumer);
         allArguments[3] = new FutureCallbackWrapper(callback);
         CONTEXT_LOCAL.set(context);
+
+        if (ContextManager.isActive() && ContextManager.activeSpan().isExit()) {
+            AbstractSpan span = ContextManager.createExitSpan("exit span for merge.", "");
+            span.prepareForAsync();
+            CONTEXT_LOCAL_EXIT.set(true);
+            CONTEXT_LOCAL_SPAN.set(span);
+
+            ContextManager.stopSpan();
+        } else {
+            CONTEXT_LOCAL_EXIT.set(false);
+            CONTEXT_LOCAL_SPAN.set(null);
+        }
     }
 
     @Override

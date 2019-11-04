@@ -20,11 +20,13 @@ package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
 import org.apache.http.protocol.HttpContext;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.plugin.httpasyncclient.v4.context.Transmitter;
 
 /**
  * request ready(completed) so we can start our local thread span;
@@ -34,23 +36,32 @@ import java.lang.reflect.Method;
 public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static ThreadLocal<HttpContext> CONTEXT_LOCAL = new ThreadLocal<HttpContext>();
-    public static ThreadLocal<Boolean> CONTEXT_LOCAL_NOT_EXIT = new ThreadLocal<Boolean>();
+    public static ThreadLocal<Boolean> CONTEXT_LOCAL_EXIT = new ThreadLocal<Boolean>();
+    public static ThreadLocal<AbstractSpan> CONTEXT_LOCAL_SPAN = new ThreadLocal<AbstractSpan>();
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Object[] array = (Object[]) objInst.getSkyWalkingDynamicField();
-        if (array == null || array.length == 0) {
-            CONTEXT_LOCAL_NOT_EXIT.set(false);
+        Transmitter transmitter = (Transmitter) objInst.getSkyWalkingDynamicField();
+        if (transmitter == null) {
+            CONTEXT_LOCAL_EXIT.set(false);
+            CONTEXT_LOCAL_SPAN.set(null);
             return;
         }
 
-        ContextSnapshot snapshot = (ContextSnapshot) array[0];
-        ContextManager.createLocalSpan("httpasyncclient/local");
-        if (snapshot != null) {
-            ContextManager.continued(snapshot);
+        Boolean isOutExit = transmitter.getOutExit();
+        if (!isOutExit) {
+            ContextSnapshot snapshot = transmitter.getSnapshot();
+            ContextManager.createLocalSpan("httpasyncclient/local");
+            if (snapshot != null) {
+                ContextManager.continued(snapshot);
+            }
         }
-        CONTEXT_LOCAL.set((HttpContext) array[1]);
-        CONTEXT_LOCAL_NOT_EXIT.set(true);
+
+        CONTEXT_LOCAL.set(transmitter.getHttpContext());
+        CONTEXT_LOCAL_EXIT.set(isOutExit);
+        if (isOutExit) {
+            CONTEXT_LOCAL_SPAN.set(transmitter.getExitSpan());
+        }
     }
 
     @Override

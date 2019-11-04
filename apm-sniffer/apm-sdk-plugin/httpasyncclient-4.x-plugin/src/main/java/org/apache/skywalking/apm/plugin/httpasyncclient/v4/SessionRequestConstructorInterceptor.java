@@ -21,8 +21,11 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import org.apache.skywalking.apm.plugin.httpasyncclient.v4.context.Transmitter;
 
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_EXIT;
+import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL_SPAN;
 
 /**
  * hold the snapshot in SkyWalkingDynamicField
@@ -31,10 +34,12 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 public class SessionRequestConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (ContextManager.isActive() && !ContextManager.activeSpan().isExit()) {
+        if (ContextManager.isActive()) {
             ContextSnapshot snapshot = ContextManager.capture();
-            objInst.setSkyWalkingDynamicField(new Object[]{snapshot, CONTEXT_LOCAL.get()});
+            objInst.setSkyWalkingDynamicField(new Transmitter(snapshot, CONTEXT_LOCAL.get(), CONTEXT_LOCAL_EXIT.get(), CONTEXT_LOCAL_SPAN.get()));
         }
         CONTEXT_LOCAL.remove();
+        CONTEXT_LOCAL_EXIT.remove();
+        CONTEXT_LOCAL_SPAN.remove();
     }
 }
