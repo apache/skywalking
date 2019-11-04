@@ -15,20 +15,18 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.redisson.v3;
+package org.apache.skywalking.apm.plugin.redisson.v3.util;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+import java.lang.reflect.Field;
 
 /**
- * RedisClient is the link between RedisConnection and ConnectionManager.
- * to enhance RedisClient for bring peer(the cluster configuration information) in ConnectionManager to RedisConnection.
- *
  * @author zhaoyuguang
  */
-public class RedisClientConstructorInterceptor implements InstanceConstructorInterceptor {
+public class ClassUtil {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    public static Object getObjectField(Object obj, String name) throws NoSuchFieldException, IllegalAccessException {
+        Field field = obj.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(obj);
     }
 }
