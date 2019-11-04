@@ -15,8 +15,6 @@
  * limitations under the License.
  *
  */
-
-
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
 import io.netty.buffer.ByteBuf;
@@ -25,11 +23,14 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.redisson.v3.util.ClassUtil;
 import org.redisson.client.RedisClient;
 import org.redisson.client.RedisConnection;
 import org.redisson.client.protocol.CommandData;
@@ -42,6 +43,8 @@ import java.net.InetSocketAddress;
  * @author zhaoyuguang
  */
 public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+
+    private static final ILog logger = LogManager.getLogger(RedisConnectionMethodInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -106,7 +109,19 @@ public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundIn
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         String peer = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
         if (peer == null) {
-            peer = ((RedisClient) allArguments[0]).getConfig().getAddress().getAuthority();
+            try {
+                /*
+                  In some high versions of redisson, such as 3.11.1.
+                  The attribute address in the RedisClientConfig class changed from a lower version of the URI to a RedisURI.
+                  But they all have the host and port attributes, so use the following code for compatibility.
+                 */
+                Object address = ClassUtil.getObjectField(((RedisClient) allArguments[0]).getConfig(), "address");
+                String host = (String) ClassUtil.getObjectField(address, "host");
+                String port = String.valueOf(ClassUtil.getObjectField(address, "port"));
+                peer = host + ":" + port;
+            } catch (Exception e) {
+                logger.warn("RedisConnection create peer error: ", e);
+            }
         }
         objInst.setSkyWalkingDynamicField(peer);
     }
