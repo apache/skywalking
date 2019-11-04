@@ -17,7 +17,7 @@
 version: '2.1'
 services:
     ${docker_container_name}:
-        image: ${docker_image_name}:latest
+        image: ${docker_image_name}:${docker_image_version}
         <#if hostname??>
         hostname: ${hostname}
         </#if>
