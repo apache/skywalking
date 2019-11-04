@@ -29,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
         <spring-boot-version>1.5.2.RELEASE</spring-boot-version>
-        <test.framework.version>3.6.0</test.framework.version>
+        <test.framework.version>3.11.5</test.framework.version>
         <docker.image.version>${test.framework.version}</docker.image.version>
     </properties>
 
