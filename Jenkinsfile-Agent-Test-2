@@ -84,7 +84,7 @@ pipeline {
                     stages {
                         stage('redisson-scenario 3.x (23)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} redisson-scenario'
+                                sh 'bash test/plugin/run.sh redisson-scenario'
                             }
                         }
 
