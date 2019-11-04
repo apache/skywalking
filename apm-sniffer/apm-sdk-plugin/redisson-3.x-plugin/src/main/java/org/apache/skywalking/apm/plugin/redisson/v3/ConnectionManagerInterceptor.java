@@ -50,10 +50,10 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
             ConnectionManager connectionManager = (ConnectionManager) objInst;
             Config config = connectionManager.getCfg();
 
-            SentinelServersConfig sentinelServersConfig = (SentinelServersConfig) ClassUtil.getObjectField(config, "sentinelServersConfig");
-            MasterSlaveServersConfig masterSlaveServersConfig = (MasterSlaveServersConfig) ClassUtil.getObjectField(config, "masterSlaveServersConfig");
-            ClusterServersConfig clusterServersConfig = (ClusterServersConfig) ClassUtil.getObjectField(config, "clusterServersConfig");
-            ReplicatedServersConfig replicatedServersConfig = (ReplicatedServersConfig) ClassUtil.getObjectField(config, "replicatedServersConfig");
+            Object sentinelServersConfig = ClassUtil.getObjectField(config, "sentinelServersConfig");
+            Object masterSlaveServersConfig = ClassUtil.getObjectField(config, "masterSlaveServersConfig");
+            Object clusterServersConfig = ClassUtil.getObjectField(config, "clusterServersConfig");
+            Object replicatedServersConfig = ClassUtil.getObjectField(config, "replicatedServersConfig");
 
             StringBuilder peer = new StringBuilder();
             EnhancedInstance retInst = (EnhancedInstance) ret;
@@ -66,7 +66,7 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
             if (masterSlaveServersConfig != null) {
                 Object masterAddress = ClassUtil.getObjectField(masterSlaveServersConfig, "masterAddress");
                 peer.append(getPeer(masterAddress));
-                appendAddresses(peer, masterSlaveServersConfig.getSlaveAddresses());
+                appendAddresses(peer, (Collection) ClassUtil.getObjectField(masterSlaveServersConfig, "slaveAddresses"));
                 retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }
