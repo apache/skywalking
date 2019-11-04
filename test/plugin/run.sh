@@ -143,7 +143,7 @@ test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argu
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
-    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package 
+    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests -DBUILD_NO=${BUILD_NO:=local} clean package
 fi
 [[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests docker:build
 
@@ -172,7 +172,7 @@ running_mode=$(grep "^runningMode" ${scenario_home}/configuration.yml |sed -e "s
 with_plugins=$(grep "^withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
 
 if [[ -n "${running_mode}" ]]; then
-    [[ -z "${with_plugins}" ]]  && exitWithMessage \
+    [[ -z "${with_plugins}" ]] && exitWithMessage \
        "'withPlugins' has required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
     agent_home_selector ${running_mode} ${with_plugins}
 fi

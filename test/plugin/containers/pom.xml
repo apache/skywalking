@@ -36,7 +36,6 @@
     </modules>
 
     <properties>
-        <BUILD_NO>local</BUILD_NO>
         <skip.docker>true</skip.docker>
     </properties>
 
