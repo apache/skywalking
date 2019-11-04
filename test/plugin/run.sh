@@ -172,9 +172,8 @@ running_mode=$(grep "^runningMode" ${scenario_home}/configuration.yml |sed -e "s
 with_plugins=$(grep "^withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
 
 if [[ -n "${running_mode}" ]]; then
-    # [[ -z "${with_plugins}" ]] ; then&& exitWithMessage \
-    #    "'withPlugins' has required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
-    [[ -z "${with_plugins}" ]] && with_plugins="*.jar"
+    [[ -z "${with_plugins}" ]]  && exitWithMessage \
+       "'withPlugins' has required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
     agent_home_selector ${running_mode} ${with_plugins}
 fi
 
