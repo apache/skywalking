@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -Dredis.servers=${REDIS_SERVERS} -jar ${agent_opts} "-Dskywalking.agent.service_name=redisson-scenario" ${home}/../libs/redisson-scenario.jar &
+java -Dredis.servers=${REDIS_SERVERS} -jar "-Dskywalking.agent.service_name=redisson-scenario" ${home}/../libs/redisson-scenario.jar &
