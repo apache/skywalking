@@ -121,7 +121,7 @@ File Name | Descriptions
 | with_optional | Active `default` and plugins in `optional-plugin` by the give selector.
 | with_bootstrap | Active `default` and plugins in `bootstrap-plugin` by the give selector.
 
-with_optional/with_bootstap supports multiple selectors, separated by `;`.
+with_optional/with_bootstrap supports multiple selectors, separated by `;`.
 
 **File Format**
 
