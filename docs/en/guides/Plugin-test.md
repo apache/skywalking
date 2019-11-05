@@ -358,8 +358,8 @@ java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyclient-scenario"  
 * [webflux](../../../test/plugin/scenarios/webflux-scenario/webflux-dist/bin/startup.sh)
 
 
-### Best Practices
-1. Recommendations for pom
+## Best Practices
+### Recommendations for pom
 
 ```xml
     <properties>
