@@ -177,7 +177,10 @@ healthcheck:
   - "retries: 3"
   - "start_period: 40s"
 ```
-* 如果第三依赖的服务需要与插件的版本一致时，可以${CASE_SERVER_IMAGE_VERSION}在运行时会替换为${test.framework.version}（用例测试插件的版本号）。
+
+In some cases, the dependency service, mostly 3rd party server like SolrJ server, is required to keep the same version
+as client lib version, which defined as `${test.framework.version}` in pom. Could use `${CASE_SERVER_IMAGE_VERSION}`
+as the version number, it will be changed in the test for every version.
 
 > Don't support resource related configurations, such as volumes, ports and ulimits. Because in test scenarios, 
 > don't need mapping any port to the host VM, or mount any folder.
