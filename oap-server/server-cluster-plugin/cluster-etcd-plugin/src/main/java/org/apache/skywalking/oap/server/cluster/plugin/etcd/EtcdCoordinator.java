@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import mousio.client.retry.RetryNTimes;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -113,7 +114,13 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             try {
                 client.refresh(key, KEY_TTL).send().get();
             } catch (Exception e) {
-
+                try {
+                    client.put(key, json).ttl(KEY_TTL)
+                        .setRetryPolicy(new RetryNTimes(1, 10))
+                        .send()
+                        .get();
+                } catch (Exception ee) {
+                }
             }
         }, 5 * 1000, 30 * 1000, TimeUnit.MILLISECONDS);
     }
