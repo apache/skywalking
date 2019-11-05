@@ -450,7 +450,7 @@ By following the flow of HttpClient case, there should be two segments created.
 ```yml
 segments:
   - applicationCode: httpclient-case
-    segmentSize: ge 2 # healthcheck可能有多个
+    segmentSize: ge 2 # Could have more than one health check segments, because, the dependency is not standby.
 ```
 
 Because Tomcat plugin is a default plugin of SkyWalking, so, in SegmentA, there are two spans
