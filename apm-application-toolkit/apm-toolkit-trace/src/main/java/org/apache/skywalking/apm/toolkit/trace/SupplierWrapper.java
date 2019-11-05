@@ -17,7 +17,6 @@
  */
 package org.apache.skywalking.apm.toolkit.trace;
 
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 /**
