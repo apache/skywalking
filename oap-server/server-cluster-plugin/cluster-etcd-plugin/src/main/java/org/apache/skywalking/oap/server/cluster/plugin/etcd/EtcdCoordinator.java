@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import mousio.client.retry.RetryNTimes;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -40,6 +39,7 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  * @author Alan Lau
  */
 public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
+    private static final Logger logger = LoggerFactory.getLogger(EtcdCoordinator.class);
 
     private ClusterModuleEtcdConfig config;
 
@@ -114,12 +114,11 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             try {
                 client.refresh(key, KEY_TTL).send().get();
             } catch (Exception e) {
+                logger.error(e.getMessage(), e);
                 try {
-                    client.put(key, json).ttl(KEY_TTL)
-                        .setRetryPolicy(new RetryNTimes(1, 10))
-                        .send()
-                        .get();
+                    client.put(key, json).ttl(KEY_TTL).send().get();
                 } catch (Exception ee) {
+                    logger.error(ee.getMessage(), ee);
                 }
             }
         }, 5 * 1000, 30 * 1000, TimeUnit.MILLISECONDS);
