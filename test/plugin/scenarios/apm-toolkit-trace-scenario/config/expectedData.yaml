@@ -22,7 +22,7 @@ registryItems:
   operationNames:
     - apm-toolkit-trace-scenario: [/apm-toolkit-trace-scenario/case/asyncVisit/runnable,
                                    /case/asyncVisit/runnable, /case/asyncVisit/callable, /apm-toolkit-trace-scenario/case/asyncVisit/callable,
-                                   /case/tool-kit]
+                                   /case/tool-kit,/apm-toolkit-trace-scenario/case/asyncVisit/supplier,/case/asyncVisit/supplier]
   heartbeat: []
 segmentItems:
   - applicationCode: apm-toolkit-trace-scenario
@@ -259,6 +259,65 @@ segmentItems:
               - {key: http.method, value: GET}
             refs:
               - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.RunnableWrapper/run,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
+                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+                 networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/supplier
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier'}
+              - {key: http.method, value: GET}
+          - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 0
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /case/tool-kit, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /case/tool-kit,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /case/asyncVisit/supplier
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 14
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}
