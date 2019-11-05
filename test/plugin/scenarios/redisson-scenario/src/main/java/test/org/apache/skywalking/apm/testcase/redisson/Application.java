@@ -15,20 +15,19 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.redisson.v3;
 
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
+package test.org.apache.skywalking.apm.testcase.redisson;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * RedisClient is the link between RedisConnection and ConnectionManager.
- * to enhance RedisClient for bring peer(the cluster configuration information) in ConnectionManager to RedisConnection.
- *
  * @author zhaoyuguang
  */
-public class RedisClientConstructorInterceptor implements InstanceConstructorInterceptor {
+@SpringBootApplication
+public class Application {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 }
