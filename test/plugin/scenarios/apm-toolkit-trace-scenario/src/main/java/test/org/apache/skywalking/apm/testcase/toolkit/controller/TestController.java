@@ -64,7 +64,7 @@ public class TestController {
         });
         testService.asyncSupplier(()->{
         	try {
-				visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/runnable");
+				visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier");
 			} catch (IOException e) {
 				 // ignore
 			}
