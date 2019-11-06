@@ -594,3 +594,63 @@ stage('Run Agent Plugin Tests') {
     }
 }
 ```
+
+
+## The elapsed time list of plugins 
+### Workload-1 Goup1:
+scenario name | versions | elapsed time (sec)
+---|---|---
+apm-toolkit-trace | 1 | 21.17
+jetty 9.x | 63 | 492.72
+netty-socketio 1.x | 4 | 27.17
+
+### Workload-1 Group2:
+scenario name | versions | elapsed time (sec)
+---|---|---
+wl group2 | customize | 1 | 21.41
+wl group2 | postgresql 9.4.1207+ | 62 | 455.07
+wl group2 | canal 1.0.24-1.1.2 | 5 | 53.51
+
+### Workload-2 Group1:
+scenario name | versions | elapsed time (sec)
+---|---|---
+spring 3.1.x-4.0.x | 25 | 190.05
+dubbo 2.5.x-2.6.x | 10 | 91.80
+dubbo 2.7.x | 4 | 53.74
+
+### Workload-2 Group2:
+scenario name | versions | elapsed time (sec)
+---|---|---
+redisson 3.x | 37 | 364.44
+spring 4.3.x-5.2.x | 54 | 442.33
+spring-cloud-gateway 2.1.x | 3 | 47.63
+elasticsearch 5.x | 3 | 35.53
+
+### Workload-3 Group1:
+scenario name | versions | elapsed time (sec)
+---|---|---
+postgresql 9.2.x-9.4.x | 36 | 310.75
+sofarpc 5.4.0-5.6.2 | 23 | 204.44
+spring 3.0.x | 8 | 57.77
+
+### Workload-3 Group2:
+scenario name | versions | elapsed time (sec)
+---|---|---
+spring async 4.3.x-5.1.x | 35 | 241.92
+mongodb 3.4.0-3.11.1 | 17 | 366.40
+
+### Workload-4 Group1:
+scenario name | versions | elapsed time (sec)
+---|---|---
+kafka 0.11.0.0-2.3.0 | 16 | 176.18
+ehcache 2.8.x-2.10.x | 19 | 110.17
+undertow 1.3.0-2.0.27 | 23 | 151.05
+
+### Workload-4 Group2:
+scenario name | versions | elapsed time (sec)
+---|---|---
+spring-webflux 2.x | 18 | 176.40
+spring 4.1.x-4.2.x | 20 | 143.68
+solrj 7.x | 12 | 91.76
+httpclient 4.3.x-4.5.x | 14 | 75.15
+httpasyncclient 4.0-4.1.3 | 7 | 50.02
