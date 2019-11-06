@@ -32,7 +32,7 @@ pipeline {
     }
 
     environment {
-        BUILD_NO="wl3_${BUILD_ID}"
+        BUILD_NO="wl4_${BUILD_ID}"
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
@@ -67,7 +67,8 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (135)') {
+
+        stage('Test Cases Report (142)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -79,46 +80,59 @@ pipeline {
                     return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
                 }
             }
+
             parallel {
                 stage('Group1') {
                     stages {
-                        stage('postgresql 9.2.x-9.4.x (36)') {
+                        stage('undertow-routing 1.3.0-2.0.27 (23)') {
                             steps {
-                                sh 'bash test/plugin/run.sh postgresql-scenario'
+                                sh 'bash test/plugin/run.sh undertow-routing-scenario'
                             }
                         }
 
-                        stage('sofarpc 5.4.0-5.6.2 (23)') {
+                        stage('ehcache 2.8.x-2.10.x (19)') {
                             steps {
-                                sh 'bash test/plugin/run.sh sofarpc-scenario'
+                                sh 'bash test/plugin/run.sh ehcache-2.x-scenario'
                             }
                         }
 
-                        stage('spring 3.0.x (8)') {
+                        stage('undertow 1.3.0-2.0.27 (23)') {
                             steps {
-                                sh 'bash test/plugin/run.sh spring-3.0.x-scenario'
+                                sh 'bash test/plugin/run.sh undertow-scenario'
                             }
                         }
                     }
                 }
-
+                
                 stage('Group2') {
                     stages {
-                        stage('spring async 4.3.x-5.1.x (35)') {
+                        stage('spring-webflux 2.x (18)') {
                             steps {
-                                sh 'bash test/plugin/run.sh spring-async-scenario'
+                                sh 'bash test/plugin/run.sh webflux-scenario'
                             }
                         }
 
-                        stage('kafka 0.11.0.0-2.3.0 (16)') {
+                        stage('spring 4.1.x-4.2.x (20)') {
                             steps {
-                                sh 'bash test/plugin/run.sh kafka-scenario'
+                                sh 'bash test/plugin/run.sh spring-4.1.x-scenario'
                             }
                         }
 
-                        stage('mongodb 3.4.0-3.11.1 (17)') {
+                        stage('solrj 7.x (12)') {
                             steps {
-                                sh 'bash test/plugin/run.sh mongodb-3.x-scenario'
+                                sh 'bash test/plugin/run.sh solrj-7.x-scenario'
+                            }
+                        }
+
+                        stage('httpclient 4.3.x-4.5.x (14)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh httpclient-4.3.x-scenario'
+                            }
+                        }
+
+                        stage('httpasyncclient 4.0-4.1.3 (7)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh httpasyncclient-scenario'
                             }
                         }
                     }
