@@ -89,9 +89,9 @@ pipeline {
                         }
 
                         stage('jetty 9.x (63)') {
-                        	steps {
+                            steps {
                                 sh 'bash test/plugin/run.sh jetty-scenario'
-                        	}
+                            }
                         }
 
                         stage('netty-socketio 1.x (4)') {

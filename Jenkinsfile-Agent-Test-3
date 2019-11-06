@@ -69,7 +69,7 @@ pipeline {
         }
         stage('Test Cases Report (135)') {
             steps {
-                echo "reserve."
+                echo "Test Cases Report"
             }
         }
 
@@ -83,21 +83,21 @@ pipeline {
                 stage('Group1') {
                     stages {
                         stage('postgresql 9.2.x-9.4.x (36)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh postgresql-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh postgresql-scenario'
+                            }
                         }
 
                         stage('sofarpc 5.4.0-5.6.2 (23)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh sofarpc-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh sofarpc-scenario'
+                            }
                         }
 
                         stage('spring 3.0.x (8)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh spring-3.0.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh spring-3.0.x-scenario'
+                            }
                         }
                     }
                 }
@@ -105,21 +105,21 @@ pipeline {
                 stage('Group2') {
                     stages {
                         stage('spring async 4.3.x-5.1.x (35)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh spring-async-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh spring-async-scenario'
+                            }
                         }
 
                         stage('kafka 0.11.0.0-2.3.0 (16)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh kafka-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh kafka-scenario'
+                            }
                         }
 
                         stage('mongodb 3.4.0-3.11.1 (17)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh mongodb-3.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh mongodb-3.x-scenario'
+                            }
                         }
                     }
                 }

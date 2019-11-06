@@ -83,48 +83,49 @@ pipeline {
                 stage('Group1') {
                     stages {
                         stage('spring 4.3.x-5.2.x (54)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh spring-4.3.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh spring-4.3.x-scenario'
+                            }
                         }
 
                         stage('dubbo 2.5.x-2.6.x (10)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh dubbo-2.5.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh dubbo-2.5.x-scenario'
+                            }
                         }
 
                         stage('dubbo 2.7.x (4)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh dubbo-2.7.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh dubbo-2.7.x-scenario'
+                            }
                         }
                     }
                 }
+
                 stage('Group2') {
                     stages {
                         stage('redisson 3.x (37)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh redisson-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh redisson-scenario'
+                            }
                         }
 
                         stage('spring 3.1.x-4.0.x (25)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh spring-3.1.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh spring-3.1.x-scenario'
+                            }
                         }
 
                         stage('spring-cloud-gateway 2.1.x (3)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh gateway-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh gateway-scenario'
+                            }
                         }
 
                         stage('elasticsearch 5.x (3)') {
-                        	steps {
-                        		sh 'bash test/plugin/run.sh elasticsearch-5.x-scenario'
-                        	}
+                            steps {
+                                sh 'bash test/plugin/run.sh elasticsearch-5.x-scenario'
+                            }
                         }
                     }
                 }
