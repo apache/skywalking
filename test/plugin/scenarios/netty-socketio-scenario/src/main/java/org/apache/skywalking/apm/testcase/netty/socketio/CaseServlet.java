@@ -29,17 +29,6 @@ import java.io.PrintWriter;
 
 public class CaseServlet extends HttpServlet {
 
-    static {
-        // start socket io server
-        SocketIOStarter.startServer();
-
-        // start client
-        try {
-            SocketIOStarter.startClientAndWaitConnect();
-        } catch (Exception e) {
-        }
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // create socket io client and send data
