@@ -50,7 +50,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -323,33 +322,33 @@ public class SWConnectionTest extends AbstractStatementTest {
         swConnection.setTransactionIsolation(1);
         swConnection.setTypeMap(new HashMap<String, Class<?>>());
 
-        verify(jdbcConnection, times(1)).createBlob();
-        verify(jdbcConnection, times(1)).createClob();
-        verify(jdbcConnection, times(1)).createNClob();
-        verify(jdbcConnection, times(1)).createSQLXML();
-        verify(jdbcConnection, times(1)).nativeSQL(anyString());
-        verify(jdbcConnection, times(1)).setAutoCommit(anyBoolean());
-        verify(jdbcConnection, times(1)).getAutoCommit();
-        verify(jdbcConnection, times(1)).setCatalog(anyString());
-        verify(jdbcConnection, times(1)).getCatalog();
-        verify(jdbcConnection, times(1)).setClientInfo(anyString(), anyString());
-        verify(jdbcConnection, times(1)).setHoldability(anyInt());
-        verify(jdbcConnection, times(1)).getHoldability();
-        verify(jdbcConnection, times(1)).setReadOnly(anyBoolean());
-        verify(jdbcConnection, times(1)).getClientInfo();
-        verify(jdbcConnection, times(1)).getClientInfo(anyString());
-        verify(jdbcConnection, times(1)).setSavepoint(anyString());
-        verify(jdbcConnection, times(1)).setSavepoint();
-        verify(jdbcConnection, times(1)).getMetaData();
-        verify(jdbcConnection, times(1)).getTransactionIsolation();
-        verify(jdbcConnection, times(1)).getTypeMap();
-        verify(jdbcConnection, times(1)).getWarnings();
-        verify(jdbcConnection, times(1)).setTransactionIsolation(anyInt());
-        verify(jdbcConnection, times(1)).getTransactionIsolation();
-        verify(jdbcConnection, times(1)).isClosed();
-        verify(jdbcConnection, times(1)).isReadOnly();
-        verify(jdbcConnection, times(1)).isValid(anyInt());
-        verify(jdbcConnection, times(1)).setTypeMap(any(HashMap.class));
+        verify(jdbcConnection).createBlob();
+        verify(jdbcConnection).createClob();
+        verify(jdbcConnection).createNClob();
+        verify(jdbcConnection).createSQLXML();
+        verify(jdbcConnection).nativeSQL(anyString());
+        verify(jdbcConnection).setAutoCommit(anyBoolean());
+        verify(jdbcConnection).getAutoCommit();
+        verify(jdbcConnection).setCatalog(anyString());
+        verify(jdbcConnection).getCatalog();
+        verify(jdbcConnection).setClientInfo(anyString(), anyString());
+        verify(jdbcConnection).setHoldability(anyInt());
+        verify(jdbcConnection).getHoldability();
+        verify(jdbcConnection).setReadOnly(anyBoolean());
+        verify(jdbcConnection).getClientInfo();
+        verify(jdbcConnection).getClientInfo(anyString());
+        verify(jdbcConnection).setSavepoint(anyString());
+        verify(jdbcConnection).setSavepoint();
+        verify(jdbcConnection).getMetaData();
+        verify(jdbcConnection).getTransactionIsolation();
+        verify(jdbcConnection).getTypeMap();
+        verify(jdbcConnection).getWarnings();
+        verify(jdbcConnection).setTransactionIsolation(anyInt());
+        verify(jdbcConnection).getTransactionIsolation();
+        verify(jdbcConnection).isClosed();
+        verify(jdbcConnection).isReadOnly();
+        verify(jdbcConnection).isValid(anyInt());
+        verify(jdbcConnection).setTypeMap(any(HashMap.class));
 
     }
 }

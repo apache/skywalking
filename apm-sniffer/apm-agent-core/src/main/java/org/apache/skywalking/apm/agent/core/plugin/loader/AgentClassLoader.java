@@ -89,10 +89,9 @@ public class AgentClassLoader extends ClassLoader {
     /**
      * Init the default
      *
-     * @return
      * @throws AgentPackageNotFoundException
      */
-    public static AgentClassLoader initDefaultLoader() throws AgentPackageNotFoundException {
+    public static void initDefaultLoader() throws AgentPackageNotFoundException {
         if (DEFAULT_LOADER == null) {
             synchronized (AgentClassLoader.class) {
                 if (DEFAULT_LOADER == null) {
@@ -100,7 +99,6 @@ public class AgentClassLoader extends ClassLoader {
                 }
             }
         }
-        return getDefault();
     }
 
     public AgentClassLoader(ClassLoader parent) throws AgentPackageNotFoundException {

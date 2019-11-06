@@ -23,6 +23,6 @@ import org.apache.skywalking.apm.network.common.Command;
 /**
  * @author peng-yongsheng
  */
-public interface Deserializable {
-    void deserialize(Command command);
+public interface Deserializable<T extends BaseCommand> {
+    T deserialize(Command command);
 }

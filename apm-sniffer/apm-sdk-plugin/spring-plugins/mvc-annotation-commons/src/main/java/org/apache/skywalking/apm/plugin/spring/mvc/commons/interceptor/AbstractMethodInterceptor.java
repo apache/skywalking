@@ -34,7 +34,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
 
+import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
@@ -43,7 +46,17 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
  * the abstract method interceptor
  */
 public abstract class AbstractMethodInterceptor implements InstanceMethodsAroundInterceptor {
+
+    private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
+    private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
+    private static final String GET_STATUS_METHOD = "getStatus";
+
+    static {
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(AbstractMethodInterceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
+    }
+
     public abstract String getRequestURL(Method method);
+
     public abstract String getAcceptedMethodTypes(Method method);
 
     @Override
@@ -53,7 +66,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
         /**
          * Spring MVC plugin do nothing if current request is forward request.
-         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         * Ref: https://github.com/apache/skywalking/pull/1325
          */
         if (forwardRequestFlag != null && forwardRequestFlag) {
             return;
@@ -75,19 +88,46 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
         HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
         if (request != null) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            while (next.hasNext()) {
-                next = next.next();
-                next.setHeadValue(request.getHeader(next.getHeadKey()));
+            StackDepth stackDepth = (StackDepth)ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+
+            if (stackDepth == null) {
+                ContextCarrier contextCarrier = new ContextCarrier();
+                CarrierItem next = contextCarrier.items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    next.setHeadValue(request.getHeader(next.getHeadKey()));
+                }
+
+                AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
+                Tags.URL.set(span, request.getRequestURL().toString());
+                Tags.HTTP.METHOD.set(span, request.getMethod());
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
+                SpanLayer.asHttp(span);
+
+                stackDepth = new StackDepth();
+                ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, stackDepth);
+            } else {
+                AbstractSpan span =
+                    ContextManager.createLocalSpan(buildOperationName(objInst, method));
+                span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(operationName, contextCarrier);
-            Tags.URL.set(span, request.getRequestURL().toString());
-            Tags.HTTP.METHOD.set(span, request.getMethod());
-            span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
-            SpanLayer.asHttp(span);
+            stackDepth.increment();
         }
+    }
+
+    private String buildOperationName(Object invoker, Method method) {
+        StringBuilder operationName = new StringBuilder(invoker.getClass().getName())
+            .append(".").append(method.getName()).append("(");
+        for (Class<?> type : method.getParameterTypes()) {
+            operationName.append(type.getName()).append(",");
+        }
+
+        if (method.getParameterTypes().length > 0) {
+            operationName = operationName.deleteCharAt(operationName.length() - 1);
+        }
+
+        return operationName.append(")").toString();
     }
 
     @Override
@@ -96,25 +136,41 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         Boolean forwardRequestFlag = (Boolean)ContextManager.getRuntimeContext().get(FORWARD_REQUEST_FLAG);
         /**
          * Spring MVC plugin do nothing if current request is forward request.
-         * Ref: https://github.com/apache/incubator-skywalking/pull/1325
+         * Ref: https://github.com/apache/skywalking/pull/1325
          */
         if (forwardRequestFlag != null && forwardRequestFlag) {
             return ret;
         }
 
-        HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
-        try {
-            if (response != null) {
-                AbstractSpan span = ContextManager.activeSpan();
-                if (response.getStatus() >= 400) {
+        HttpServletRequest request = (HttpServletRequest)ContextManager.getRuntimeContext().get(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+
+        if (request != null) {
+            StackDepth stackDepth = (StackDepth)ContextManager.getRuntimeContext().get(CONTROLLER_METHOD_STACK_DEPTH);
+            if (stackDepth == null) {
+                throw new IllegalMethodStackDepthException();
+            } else {
+                stackDepth.decrement();
+            }
+
+            AbstractSpan span = ContextManager.activeSpan();
+
+            if (stackDepth.depth() == 0) {
+                HttpServletResponse response = (HttpServletResponse)ContextManager.getRuntimeContext().get(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                if (response == null) {
+                    throw new ServletResponseNotFoundException();
+                }
+
+                if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
                     span.errorOccurred();
                     Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
                 }
-                ContextManager.stopSpan();
+
+                ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
+                ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+                ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
             }
-        } finally {
-            ContextManager.getRuntimeContext().remove(REQUEST_KEY_IN_RUNTIME_CONTEXT);
-            ContextManager.getRuntimeContext().remove(RESPONSE_KEY_IN_RUNTIME_CONTEXT);
+
+            ContextManager.stopSpan();
         }
 
         return ret;

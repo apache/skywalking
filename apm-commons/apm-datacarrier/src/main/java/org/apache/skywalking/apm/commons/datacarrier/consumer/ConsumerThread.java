@@ -19,9 +19,10 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wusheng on 2016/10/25.
@@ -36,7 +37,7 @@ public class ConsumerThread<T> extends Thread {
         super(threadName);
         this.consumer = consumer;
         running = false;
-        dataSources = new LinkedList<DataSource>();
+        dataSources = new ArrayList<DataSource>(1);
         this.consumeCycle = consumeCycle;
     }
 
@@ -64,10 +65,9 @@ public class ConsumerThread<T> extends Thread {
     public void run() {
         running = true;
 
+        final List<T> consumeList = new ArrayList<T>(1500);
         while (running) {
-            boolean hasData = consume();
-
-            if (!hasData) {
+            if (!consume(consumeList)) {
                 try {
                     Thread.sleep(consumeCycle);
                 } catch (InterruptedException e) {
@@ -77,33 +77,27 @@ public class ConsumerThread<T> extends Thread {
 
         // consumer thread is going to stop
         // consume the last time
-        consume();
+        consume(consumeList);
 
         consumer.onExit();
     }
 
-    private boolean consume() {
-        boolean hasData = false;
-        LinkedList<T> consumeList = new LinkedList<T>();
+    private boolean consume(List<T> consumeList) {
         for (DataSource dataSource : dataSources) {
-            LinkedList<T> data = dataSource.obtain();
-            if (data.size() == 0) {
-                continue;
-            }
-            for (T element : data) {
-                consumeList.add(element);
-            }
-            hasData = true;
+            dataSource.obtain(consumeList);
         }
 
-        if (consumeList.size() > 0) {
+        if (!consumeList.isEmpty()) {
             try {
                 consumer.consume(consumeList);
             } catch (Throwable t) {
                 consumer.onError(consumeList, t);
+            } finally {
+                consumeList.clear();
             }
+            return true;
         }
-        return hasData;
+        return false;
     }
 
     void shutdown() {
@@ -124,8 +118,8 @@ public class ConsumerThread<T> extends Thread {
             this.end = end;
         }
 
-        LinkedList<T> obtain() {
-            return sourceBuffer.obtain(start, end);
+        void obtain(List<T> consumeList) {
+            sourceBuffer.obtain(consumeList, start, end);
         }
     }
 }

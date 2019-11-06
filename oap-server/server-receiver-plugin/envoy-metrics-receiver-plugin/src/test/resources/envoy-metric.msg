@@ -42,7 +42,7 @@ envoy_metrics [
     {
         name: "cluster.service_stats.update_attempt",
         type: COUNTER
-        metric [
+        metrics [
             {
               counter {
                 value: 1
@@ -54,7 +54,7 @@ envoy_metrics [
     {
         name: "cluster.service_stats.membership_change",
         type: COUNTER
-        metric [
+        metrics [
             {
               counter {
                 value: 1
@@ -66,7 +66,7 @@ envoy_metrics [
     {
         name: "server.parent_connections",
         type: GAUGE
-        metric [
+        metrics [
           {
             gauge {
               value: 50
@@ -78,7 +78,7 @@ envoy_metrics [
     {
         name: "server.total_connections",
         type: GAUGE
-        metric [
+        metrics [
           {
             gauge {
               value: 14
@@ -90,7 +90,7 @@ envoy_metrics [
     {
         name: "server.memory_heap_size",
         type: GAUGE
-        metric [
+        metrics [
           {
             gauge {
               value: 3145728

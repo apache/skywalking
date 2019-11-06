@@ -52,6 +52,6 @@ public class IstioTelemetryReceiverProvider extends ModuleProvider {
     }
 
     @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME, MeshReceiverModule.NAME};
+        return new String[] {TelemetryModule.NAME, CoreModule.NAME, MeshReceiverModule.NAME, SharingServerModule.NAME};
     }
 }

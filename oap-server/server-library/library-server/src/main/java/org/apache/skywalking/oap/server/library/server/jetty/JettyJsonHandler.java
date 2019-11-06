@@ -31,7 +31,7 @@ import static java.util.Objects.nonNull;
  * @author wusheng
  */
 public abstract class JettyJsonHandler extends JettyHandler {
-    private static final Logger logger = LoggerFactory.getLogger(JettyHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JettyJsonHandler.class);
 
     @Override
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {

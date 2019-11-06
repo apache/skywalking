@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * @author peng-yongsheng
  */
 public interface IWorkerInstanceSetter extends Service {
-
-    int put(AbstractWorker instance);
+    void put(String remoteReceiverWorkName, AbstractWorker instance, Class<? extends StreamData> streamDataClass);
 }

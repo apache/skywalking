@@ -46,7 +46,6 @@ import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +90,7 @@ public class SenderInterceptorTest {
     public void test_constructor() {
         Request request = Request.create("https://nutz.cn/yvr/list", METHOD.GET);
         constructorInterceptPoint.onConstruct(enhancedInstance, new Object[] {request});
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField(request);
+        verify(enhancedInstance).setSkyWalkingDynamicField(request);
     }
 
     @Test
@@ -115,7 +114,7 @@ public class SenderInterceptorTest {
     protected void _sender_sender_test() throws Throwable {
         Request request = Request.create("https://nutz.cn/yvr/list", METHOD.GET);
         constructorInterceptPoint.onConstruct(enhancedInstance, new Object[] {request});
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField(request);
+        verify(enhancedInstance).setSkyWalkingDynamicField(request);
 
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(request);
         when(resp.getStatus()).thenReturn(200);

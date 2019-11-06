@@ -55,11 +55,11 @@ public class ConnectionInstrumentation extends ClassInstanceMethodsEnhancePlugin
     public static final String PG_JDBC3_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc3g.Jdbc3gConnection";
     public static final String PG_JDBC4_CONNECTION_ENHANCE_CLASS = "org.postgresql.jdbc4.Jdbc4Connection";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

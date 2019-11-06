@@ -37,7 +37,7 @@ public class ClientCallsInstrumentation extends ClassStaticMethodsEnhancePluginD
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.BlockingCallInterceptor";
     private static final String FUTURE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AsyncUnaryRequestCallCallInterceptor";
 
-    @Override protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

@@ -19,24 +19,20 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.common.xcontent.*;
-import org.slf4j.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
 public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(RegisterEsDAO.class);
-
     private final StorageBuilder<RegisterSource> storageBuilder;
 
-    public RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
+    RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
@@ -51,24 +47,12 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
     }
 
     @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {
-        XContentBuilder builder = build(source);
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceInsert(modelName, source.id(), builder);
     }
 
     @Override public void forceUpdate(String modelName, RegisterSource source) throws IOException {
-        XContentBuilder builder = build(source);
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceUpdate(modelName, source.id(), builder);
-    }
-
-    private XContentBuilder build(RegisterSource source) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.data2Map(source);
-
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (String key : objectMap.keySet()) {
-            builder.field(key, objectMap.get(key));
-        }
-        builder.endObject();
-        
-        return builder;
     }
 }

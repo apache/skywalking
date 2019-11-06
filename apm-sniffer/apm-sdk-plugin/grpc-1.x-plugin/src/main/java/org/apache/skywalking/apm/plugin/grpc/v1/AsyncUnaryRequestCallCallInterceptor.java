@@ -36,7 +36,7 @@ import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.f
 public class AsyncUnaryRequestCallCallInterceptor implements StaticMethodsAroundInterceptor {
     @Override public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         MethodInterceptResult result) {
-        BlockingCallClientInterceptor originClientCall = (BlockingCallClientInterceptor)allArguments[0];
+        CallClientInterceptor originClientCall = (CallClientInterceptor)allArguments[0];
         Channel channel = originClientCall.getChannel();
         MethodDescriptor methodDescriptor = originClientCall.getMethodDescriptor();
 

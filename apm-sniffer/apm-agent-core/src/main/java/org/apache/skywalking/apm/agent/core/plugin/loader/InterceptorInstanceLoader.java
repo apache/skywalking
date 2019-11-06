@@ -20,10 +20,7 @@
 package org.apache.skywalking.apm.agent.core.plugin.loader;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +35,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by wusheng on 16/8/2.
  */
 public class InterceptorInstanceLoader {
-    private static final ILog logger = LogManager.getLogger(InterceptorInstanceLoader.class);
 
     private static ConcurrentHashMap<String, Object> INSTANCE_CACHE = new ConcurrentHashMap<String, Object>();
     private static ReentrantLock INSTANCE_LOAD_LOCK = new ReentrantLock();
@@ -53,14 +49,13 @@ public class InterceptorInstanceLoader {
      * @param targetClassLoader the class loader for current application context
      * @param <T>               expected type
      * @return the type reference.
-     * @throws InvocationTargetException
      * @throws IllegalAccessException
      * @throws InstantiationException
      * @throws ClassNotFoundException
      * @throws AgentPackageNotFoundException
      */
     public static <T> T load(String className, ClassLoader targetClassLoader)
-            throws InvocationTargetException, IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException {
+            throws IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException {
         if (targetClassLoader == null) {
             targetClassLoader = InterceptorInstanceLoader.class.getClassLoader();
         }

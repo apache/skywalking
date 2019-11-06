@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
@@ -71,6 +72,14 @@ public class GRPCChannel {
 
     public boolean isShutdown() {
         return originChannel.isShutdown();
+    }
+
+    public boolean isConnected() {
+        return isConnected(false);
+    }
+
+    public boolean isConnected(boolean requestConnection) {
+        return originChannel.getState(requestConnection) == ConnectivityState.READY;
     }
 
     public static class Builder {

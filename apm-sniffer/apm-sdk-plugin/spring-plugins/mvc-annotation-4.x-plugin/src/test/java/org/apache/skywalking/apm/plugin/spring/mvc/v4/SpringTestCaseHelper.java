@@ -32,6 +32,7 @@ public final class SpringTestCaseHelper {
         ContextManager.getRuntimeContext().put(Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT, response);
         a.handleCase();
         ContextManager.stopSpan();
+        ContextManager.getRuntimeContext().remove(Constants.CONTROLLER_METHOD_STACK_DEPTH);
     }
 
     public interface CaseHandler {

@@ -49,7 +49,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
             searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(ServiceInstanceInventory.MODEL_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());
@@ -74,7 +74,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
 
     private int get(String id) {
         try {
-            GetResponse response = getClient().get(ServiceInstanceInventory.MODEL_NAME, id);
+            GetResponse response = getClient().get(ServiceInstanceInventory.INDEX_NAME, id);
             if (response.isExists()) {
                 return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {

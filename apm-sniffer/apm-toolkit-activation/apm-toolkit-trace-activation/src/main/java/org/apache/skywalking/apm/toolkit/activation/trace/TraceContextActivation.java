@@ -55,7 +55,7 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
      * interceptors.
      */
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override

@@ -23,29 +23,28 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.ProcessorUtil;
 import org.apache.skywalking.apm.network.common.CPU;
-import org.apache.skywalking.apm.network.language.agent.*;
 
 /**
  * @author wusheng
  */
 public enum CPUProvider {
     INSTANCE;
-    private CPUMetricAccessor cpuMetricAccessor;
+    private CPUMetricsAccessor cpuMetricsAccessor;
 
     CPUProvider() {
         int processorNum = ProcessorUtil.getNumberOfProcessors();
         try {
-            this.cpuMetricAccessor =
-                (CPUMetricAccessor)CPUProvider.class.getClassLoader().loadClass("org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor")
+            this.cpuMetricsAccessor =
+                (CPUMetricsAccessor)CPUProvider.class.getClassLoader().loadClass("org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor")
                     .getConstructor(int.class).newInstance(processorNum);
         } catch (Exception e) {
-            this.cpuMetricAccessor = new NoSupportedCPUAccessor(processorNum);
+            this.cpuMetricsAccessor = new NoSupportedCPUAccessor(processorNum);
             ILog logger = LogManager.getLogger(CPUProvider.class);
-            logger.error(e, "Only support accessing CPU metric in SUN JVM platform.");
+            logger.error(e, "Only support accessing CPU metrics in SUN JVM platform.");
         }
     }
 
     public CPU getCpuMetric() {
-        return cpuMetricAccessor.getCPUMetric();
+        return cpuMetricsAccessor.getCPUMetrics();
     }
 }

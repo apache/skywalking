@@ -39,7 +39,7 @@ public class ClientOptionsInstrumentation extends ClassInstanceMethodsEnhancePlu
     private static final String CLIENT_OPTIONS_CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.lettuce.v5.ClientOptionsConstructorInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{
             new ConstructorInterceptPoint() {
                 @Override
@@ -56,7 +56,7 @@ public class ClientOptionsInstrumentation extends ClassInstanceMethodsEnhancePlu
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[0];
     }
 

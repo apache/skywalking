@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
@@ -39,17 +40,18 @@ public class AsyncCommandInstrumentation extends ClassInstanceMethodsEnhancePlug
     private static final String ASYNC_COMMAND_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.lettuce.v5.AsyncCommandMethodInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("onComplete");
+                    return (named("onComplete").and(takesArgumentWithType(0,"java.util.function.Consumer")))
+                            .or(named("onComplete").and(takesArgumentWithType(0,"java.util.function.BiConsumer")));
                 }
 
                 @Override

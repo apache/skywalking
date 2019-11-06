@@ -27,6 +27,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
  * @author peng-yongsheng
  */
 @ScopeDeclaration(id = SERVICE_INSTANCE_JVM_MEMORY_POOL, name = "ServiceInstanceJVMMemoryPool", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceJVMMemoryPool extends Source {
     @Override public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE_JVM_MEMORY_POOL;
@@ -39,7 +40,7 @@ public class ServiceInstanceJVMMemoryPool extends Source {
     @Getter @Setter private int id;
     @Getter @Setter private String name;
     @Getter @Setter private String serviceName;
-    @Getter @Setter private int serviceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private MemoryPoolType poolType;
     @Getter @Setter private long init;
     @Getter @Setter private long max;

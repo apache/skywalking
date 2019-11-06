@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,14 +45,14 @@ public class JedisConstructorWithStringArgInterceptorTest {
     public void onConstruct() throws Exception {
         interceptor.onConstruct(enhancedInstance, new Object[] {"127.0.0.1"});
 
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:6379");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:6379");
     }
 
     @Test
     public void onConstructWithPort() {
         interceptor.onConstruct(enhancedInstance, new Object[] {"127.0.0.1", 16379});
 
-        verify(enhancedInstance, times(1)).setSkyWalkingDynamicField("127.0.0.1:16379");
+        verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:16379");
     }
 
 }

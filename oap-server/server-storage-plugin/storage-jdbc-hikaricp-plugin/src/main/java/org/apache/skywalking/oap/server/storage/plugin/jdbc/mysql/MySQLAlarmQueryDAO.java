@@ -45,8 +45,10 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
-        sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
-        parameters.add(scopeId.intValue());
+        if (Objects.nonNull(scopeId)) {
+            sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
+            parameters.add(scopeId.intValue());
+        }
         if (startTB != 0 && endTB != 0) {
             sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);

@@ -22,7 +22,6 @@ import java.util.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.EndOfBatchContext;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -60,7 +59,7 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
     }
 
     @Override public final void in(RegisterSource source) {
-        source.setEndOfBatchContext(new EndOfBatchContext(false));
+        source.resetEndOfBatch();
         dataCarrier.produce(source);
     }
 
@@ -73,7 +72,7 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
             sources.get(source).combine(source);
         }
 
-        if (messageNum >= 1000 || source.getEndOfBatchContext().isEndOfBatch()) {
+        if (messageNum >= 1000 || source.isEndOfBatch()) {
             sources.values().forEach(nextWorker::in);
             sources.clear();
             messageNum = 0;
@@ -99,7 +98,7 @@ public class RegisterDistinctWorker extends AbstractWorker<RegisterSource> {
                 RegisterSource source = sourceIterator.next();
                 i++;
                 if (i == sources.size()) {
-                    source.getEndOfBatchContext().setEndOfBatch(true);
+                    source.asEndOfBatch();
                 }
                 aggregator.onWork(source);
             }

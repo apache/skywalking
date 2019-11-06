@@ -92,7 +92,7 @@ class BaseInterceptorMethods {
     }
 
     void handleMethodException(Throwable t) {
-        if (ContextManager.activeSpan() != null) {
+        if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }
     }

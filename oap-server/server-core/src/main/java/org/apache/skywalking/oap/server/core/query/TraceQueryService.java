@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.query.entity.RefType;
 import org.apache.skywalking.oap.server.core.query.entity.Trace;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -154,10 +155,10 @@ public class TraceQueryService implements Service {
             span.setLayer(spanObject.getSpanLayer().name());
             span.setType(spanObject.getSpanType().name());
 
-            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getSpanId());
+            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + spanObject.getSpanId();
             span.setSegmentSpanId(segmentSpanId);
 
-            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getParentSpanId());
+            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + spanObject.getParentSpanId();
             span.setSegmentParentSpanId(segmentParentSpanId);
 
             if (spanObject.getPeerId() == 0) {
@@ -177,8 +178,12 @@ public class TraceQueryService implements Service {
             }
             span.setEndpointName(endpointName);
 
-            String serviceCode = getServiceInventoryCache().get(serviceId).getName();
-            span.setServiceCode(serviceCode);
+            final ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
+            if (serviceInventory != null) {
+                span.setServiceCode(serviceInventory.getName());
+            } else {
+                span.setServiceCode("unknown");
+            }
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());
@@ -204,14 +209,14 @@ public class TraceQueryService implements Service {
                 StringBuilder segmentIdBuilder = new StringBuilder();
                 for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
                     if (i == 0) {
-                        segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                        segmentIdBuilder.append(uniqueId.getIdPartsList().get(i));
                     } else {
-                        segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                        segmentIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
                     }
                 }
                 ref.setParentSegmentId(segmentIdBuilder.toString());
 
-                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + String.valueOf(ref.getParentSpanId()));
+                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId());
 
                 span.getRefs().add(ref);
             });
@@ -259,10 +264,10 @@ public class TraceQueryService implements Service {
             span.setLayer(spanObject.getSpanLayer().name());
             span.setType(spanObject.getSpanType().name());
 
-            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getSpanId());
+            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + spanObject.getSpanId();
             span.setSegmentSpanId(segmentSpanId);
 
-            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + String.valueOf(spanObject.getParentSpanId());
+            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + spanObject.getParentSpanId();
             span.setSegmentParentSpanId(segmentParentSpanId);
 
             if (spanObject.getPeerId() == 0) {
@@ -282,8 +287,12 @@ public class TraceQueryService implements Service {
             }
             span.setEndpointName(endpointName);
 
-            String serviceCode = getServiceInventoryCache().get(serviceId).getName();
-            span.setServiceCode(serviceCode);
+            final ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
+            if (serviceInventory != null) {
+                span.setServiceCode(serviceInventory.getName());
+            } else {
+                span.setServiceCode("unknown");
+            }
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());
@@ -309,14 +318,14 @@ public class TraceQueryService implements Service {
                 StringBuilder segmentIdBuilder = new StringBuilder();
                 for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
                     if (i == 0) {
-                        segmentIdBuilder.append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                        segmentIdBuilder.append(uniqueId.getIdPartsList().get(i));
                     } else {
-                        segmentIdBuilder.append(".").append(String.valueOf(uniqueId.getIdPartsList().get(i)));
+                        segmentIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
                     }
                 }
                 ref.setParentSegmentId(segmentIdBuilder.toString());
 
-                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + String.valueOf(ref.getParentSpanId()));
+                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId());
 
                 span.getRefs().add(ref);
             });

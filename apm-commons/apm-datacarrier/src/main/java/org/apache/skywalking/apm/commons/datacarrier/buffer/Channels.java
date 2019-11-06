@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallb
 import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 
 /**
- * Channels of Buffer It contais all buffer data which belongs to this channel. It supports several strategy when buffer
+ * Channels of Buffer It contains all buffer data which belongs to this channel. It supports several strategy when buffer
  * is full. The Default is BLOCKING <p> Created by wusheng on 2016/10/25.
  */
 public class Channels<T> {

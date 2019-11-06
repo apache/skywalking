@@ -41,11 +41,11 @@ public class SuccessCallbackInstrumentation extends ClassInstanceMethodsEnhanceP
         "org.apache.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor";
     public static final String SUCCESS_METHOD_NAME = "onSuccess";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

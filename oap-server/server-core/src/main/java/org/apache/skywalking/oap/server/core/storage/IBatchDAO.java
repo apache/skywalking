@@ -19,11 +19,14 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.List;
+import org.apache.skywalking.oap.server.library.client.request.*;
 
 /**
  * @author peng-yongsheng
  */
 public interface IBatchDAO extends DAO {
 
-    void batchPersistence(List<?> batchCollection);
+    void asynchronous(InsertRequest insertRequest);
+
+    void synchronous(List<PrepareRequest> prepareRequests);
 }

@@ -6,14 +6,10 @@ Apache SkyWalking
 **SkyWalking**: an APM(application performance monitor) system, especially designed for
 microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
-[![GitHub stars](https://img.shields.io/github/stars/apache/incubator-skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/incubator-skywalking)
+[![GitHub stars](https://img.shields.io/github/stars/apache/skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/skywalking)
 [![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
 
-
-[![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm-incubating.svg)](http://skywalking.apache.org/downloads/)
-[![Build Status](https://travis-ci.org/apache/incubator-skywalking.svg?branch=master)](https://travis-ci.org/apache/incubator-skywalking)
-[![Join the chat at https://gitter.im/sky-walking/Lobby](https://badges.gitter.im/openskywalking/Lobby.svg)](https://gitter.im/openskywalking/Lobby)
-[![OpenTracing-1.x Badge](https://img.shields.io/badge/OpenTracing--1.x-enabled-blue.svg)](http://opentracing.io)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm.svg)](http://skywalking.apache.org/downloads/)
 
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
@@ -27,19 +23,22 @@ The core features are following.
 - Slow services and endpoints detected
 - Performance optimization
 - Distributed tracing and context propagation
-- Database access metric. Detect slow database access statements(including SQL statements).
+- Database access metrics. Detect slow database access statements(including SQL statements).
 - Alarm
 
 
-<img src="http://skywalking.apache.org/assets/frame.jpeg?u=20190311"/>
+<img src="http://skywalking.apache.org/assets/frame.jpeg?u=20190518"/>
 
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
 including
-1. Java, .NET Core, NodeJS and PHP auto-instrument agents in SkyWalking format
+1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs) and [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) auto-instrument agents in SkyWalking format
+1. Manual-instrument [Go agent](https://github.com/tetratelabs/go2sky) in SkyWalking format.
 1. Istio telemetry format
-1. Zipkin v1/v2 format
-1. Envoy metrics format (the metric entries itself is prometheus client [metric family](https://github.com/prometheus/client_model/blob/fd36f4220a901265f90734c3183c5f0c91daa0b8/metrics.proto#L77))
+1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh
+1. Envoy Metrics Service format.
+1. Zipkin v1/v2 format.
+1. Jaeger gRPC format.
 
 
 # Document
@@ -55,24 +54,29 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines) to report unacceptable behavior.
 
 # Live Demo
-- Host in Beijing. Go to [demo](http://106.75.237.45:8080/).
-  - Username: admin
-  - Password: admin
+Host in Beijing. Go to [demo](http://122.112.182.72:8080).
+
+**Video on youtube.com**
+
+[![RocketBot UI](http://img.youtube.com/vi/JC-Anlshqx8/0.jpg)](http://www.youtube.com/watch?v=JC-Anlshqx8)
+
 
 # Screenshot
 <table>
   <tr>
-    <td width="50%" align="center"><b>Under javaagent observing</b></td>
-    <td width="50%" align="center"><b>Observe on Istio</b></td>
+    <td width="100%" align="center" colspan="2"><b>Dashboard</b></td>
   </tr>
   <tr>
-    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Topology.png"/>
-</td>
-    <td><img src="http://skywalking.apache.org/screenshots/6.0.0-alpha/Istio/Topology.png"/>
-</td>
-   <tr>
-     <td align="center"><a href="docs/Screenshots.md#agent">More screenshots</a></td>
-     <td align="center"><a href="docs/Screenshots.md#istio">More screenshots</a></td>
+    <td><img src="http://skywalking.apache.org/screenshots/6.1.0/dashboard-1.png"/></td>
+    <td><img src="http://skywalking.apache.org/screenshots/6.1.0/dashboard-2.png"/></td>
+  </tr>
+  <tr>
+      <td width="50%" align="center"><b>Topology Map</b></td>
+      <td width="50%" align="center"><b>Trace</b></td>
+  </tr>
+  <tr>
+     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/topology.png"/></td>
+     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/trace.png"/></td>
   </tr>
 </table>
 
@@ -80,18 +84,31 @@ Please follow the [REPORTING GUIDELINES](CODE_OF_CONDUCT.md#reporting-guidelines
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
-* Submit an [issue](https://github.com/apache/incubator-skywalking/issues)
+* Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
-* [Slack](https://skywalking.slack.com)
-* QQ Group: 392443393
+* Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNzc2ODE3MjI1MDk1LTAyZGJmNTg1NWZhNmVmOWZjMjA2MGUyOGY4MjE5ZGUwOTQxY2Q3MDBmNTM5YTllNGU4M2QyMzQ4M2U4ZjQ5YmY). If the linke is not working, find the latest one at [Apache INFRA WIKI](https://cwiki.apache.org/confluence/display/INFRA/Slack+Guest+Invites).
+* QQ Group: 392443393(2000/2000, not available), 901167865(available)
 
 # Who Uses SkyWalking?
-A wide variety of companies and organizations use SkyWalking for research, production and commercial product.
-Here is the **User Wall** of SkyWalking.
+Hundreds of companies and organizations use SkyWalking for research, production, and commercial product, including
+1. Alibaba Cloud
+1. China Eastern Airlines
+1. China Merchants Bank
+1. DaoCloud
+1. GOME
+1. guazi.com
+1. Huawei
+1. ke.com
+1. lizhi.fm
+1. NetEase
+1. tetrate.io
+1. WeBank
+1. Xiaomi
+1. Yonghui Superstores Co., Ltd
+1. zhaopin.com
 
-<img src="http://skywalking.apache.org/assets/users-20190222.png"/>
-
-Users are encouraged to add themselves to the [PoweredBy](docs/powered-by.md) page.
+The [PoweredBy](docs/powered-by.md) page includes more users of the project.
+Users are encouraged to add themselves to there.
 
 # Landscapes
 
@@ -107,9 +124,6 @@ SkyWalking enriches the <a href="https://landscape.cncf.io/landscape=observabili
 <a href="https://openapm.io"><img src="https://openapm.io/static/media/openapm_logo.svg" width="100"/></a>
   <br/>Our project enriches the <a href="https://openapm.io">OpenAPM Landscape!</a>
 </p>
-
-# Stargazers over time
-[![Stargazers over time](https://starcharts.herokuapp.com/apache/incubator-skywalking.svg)](https://starcharts.herokuapp.com/apache/incubator-skywalking)
 
 # License
 [Apache 2.0 License.](/LICENSE)

@@ -1,10 +1,9 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -186,6 +185,51 @@ Lettuce:
 Zookeeper:
   id: 58
   languages: Java
+Vertx:
+  id: 59
+  languages: Java
+ShardingSphere:
+  id: 60
+  languages: Java
+spring-cloud-gateway:
+  id: 61
+  languages: Java
+RESTEasy:
+  id: 62
+  languages: Java
+SolrJ:
+  id: 63
+  languages: Java
+Solr:
+  id: 64
+  languages: Java
+SpringAsync:
+  id: 65
+  languages: Java
+JdkHttp:
+  id: 66
+  languages: Java
+spring-webflux:
+  id: 67
+  languages: Java
+Play:
+  id: 68
+  languages: Java,Scala
+cassandra-java-driver:
+  id: 69
+  languages: Java
+Cassandra:
+  id: 70
+  languages: Java
+Light4J:
+  id: 71
+  languages: Java
+Ehcache:
+  id: 75
+  languages: Java
+SocketIO:
+  id: 76
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -283,3 +327,5 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
+  SolrJ: Solr
+  cassandra-java-driver: Cassandra

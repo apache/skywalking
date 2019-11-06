@@ -242,7 +242,7 @@ public class MakeWrapperInterceptor implements StaticMethodsAroundInterceptor {
             return false;
         }
         for (Method m : methods) {
-            if (m.getDeclaringClass() != Object.class) {
+            if (m.getDeclaringClass() != Object.class && !"getSkyWalkingDynamicField".equals(m.getName()) && !"setSkyWalkingDynamicField".equals(m.getName())) {
                 return true;
             }
         }

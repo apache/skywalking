@@ -40,12 +40,12 @@ public class EventThreadInstrumentation extends ClassInstanceMethodsEnhancePlugi
     private static final String EVENT_THREAD_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.zookeeper.EventThreadMethodInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override

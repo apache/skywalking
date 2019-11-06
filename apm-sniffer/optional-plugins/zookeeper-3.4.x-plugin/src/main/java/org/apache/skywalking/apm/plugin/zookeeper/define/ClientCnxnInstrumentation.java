@@ -41,7 +41,7 @@ public class ClientCnxnInstrumentation extends ClassInstanceMethodsEnhancePlugin
     private static final String CLIENT_CNXN_INTERCEPTOR = "org.apache.skywalking.apm.plugin.zookeeper.ClientCnxnInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -58,7 +58,7 @@ public class ClientCnxnInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override

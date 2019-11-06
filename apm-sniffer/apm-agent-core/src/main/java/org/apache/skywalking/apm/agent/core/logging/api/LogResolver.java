@@ -30,4 +30,10 @@ public interface LogResolver {
      * @return {@link ILog} implementation.
      */
     ILog getLogger(Class<?> clazz);
+
+    /**
+     * @param clazz the class is showed in log message.
+     * @return {@link ILog} implementation.
+     */
+    ILog getLogger(String clazz);
 }

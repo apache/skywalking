@@ -301,107 +301,107 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         ResultSet resultSet = callableStatement.executeQuery();
         callableStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).clearParameters();
-        verify(mysqlCallableStatement, times(1)).executeQuery();
-        verify(mysqlCallableStatement, times(1)).close();
-        verify(mysqlCallableStatement, times(1)).setAsciiStream(anyInt(), any(InputStream.class));
-        verify(mysqlCallableStatement, times(1)).setAsciiStream(anyInt(), any(InputStream.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setAsciiStream(anyInt(), any(InputStream.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setCharacterStream(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement, times(1)).setCharacterStream(anyInt(), any(Reader.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setCharacterStream(anyInt(), any(Reader.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setShort(anyInt(), anyShort());
-        verify(mysqlCallableStatement, times(1)).setInt(anyInt(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setString(anyInt(), anyString());
-        verify(mysqlCallableStatement, times(1)).setBoolean(anyInt(), anyBoolean());
-        verify(mysqlCallableStatement, times(1)).setLong(anyInt(), anyLong());
-        verify(mysqlCallableStatement, times(1)).setDouble(anyInt(), anyDouble());
-        verify(mysqlCallableStatement, times(1)).setFloat(anyInt(), anyFloat());
-        verify(mysqlCallableStatement, times(1)).setByte(anyInt(), anyByte());
-        verify(mysqlCallableStatement, times(1)).setBytes(14, bytesParam);
-        verify(mysqlCallableStatement, times(1)).setDate(anyInt(), any(Date.class));
-        verify(mysqlCallableStatement, times(1)).setNull(anyInt(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setNull(anyInt(), anyInt(), anyString());
-        verify(mysqlCallableStatement, times(1)).setBigDecimal(anyInt(), any(BigDecimal.class));
-        verify(mysqlCallableStatement, times(1)).setBlob(anyInt(), any(InputStream.class));
-        verify(mysqlCallableStatement, times(1)).setBlob(anyInt(), any(InputStream.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setClob(anyInt(), any(Clob.class));
-        verify(mysqlCallableStatement, times(1)).setClob(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement, times(1)).setClob(anyInt(), any(Reader.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setNString(anyInt(), anyString());
-        verify(mysqlCallableStatement, times(1)).setNCharacterStream(anyInt(), any(Reader.class));
-        verify(mysqlCallableStatement, times(1)).setNCharacterStream(anyInt(), any(Reader.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setNClob(27, nClob);
-        verify(mysqlCallableStatement, times(1)).setNClob(28, reader, 1);
-        verify(mysqlCallableStatement, times(1)).setObject(anyInt(), Matchers.anyObject());
-        verify(mysqlCallableStatement, times(1)).setObject(anyInt(), Matchers.anyObject(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setObject(anyInt(), Matchers.anyObject(), anyInt(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setRef(anyInt(), any(Ref.class));
-        verify(mysqlCallableStatement, times(1)).setRowId(anyInt(), any(RowId.class));
-        verify(mysqlCallableStatement, times(1)).setSQLXML(anyInt(), any(SQLXML.class));
-        verify(mysqlCallableStatement, times(1)).setTime(anyInt(), any(Time.class));
-        verify(mysqlCallableStatement, times(1)).setTimestamp(anyInt(), any(Timestamp.class));
-        verify(mysqlCallableStatement, times(1)).setTimestamp(anyInt(), any(Timestamp.class), any(Calendar.class));
-        verify(mysqlCallableStatement, times(1)).setURL(anyInt(), any(URL.class));
-        verify(mysqlCallableStatement, times(1)).setBinaryStream(anyInt(), any(InputStream.class));
-        verify(mysqlCallableStatement, times(1)).setBinaryStream(anyInt(), any(InputStream.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setBinaryStream(anyInt(), any(InputStream.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setNClob(42, reader);
-        verify(mysqlCallableStatement, times(1)).setTime(anyInt(), any(Time.class), any(Calendar.class));
-        verify(mysqlCallableStatement, times(1)).setTimestamp(anyInt(), any(Timestamp.class), any(Calendar.class));
-        verify(mysqlCallableStatement, times(1)).setArray(anyInt(), any(Array.class));
-        verify(mysqlCallableStatement, times(1)).setBlob(anyInt(), any(Blob.class));
-        verify(mysqlCallableStatement, times(1)).setDate(anyInt(), any(Date.class), any(Calendar.class));
+        verify(mysqlCallableStatement).clearParameters();
+        verify(mysqlCallableStatement).executeQuery();
+        verify(mysqlCallableStatement).close();
+        verify(mysqlCallableStatement).setAsciiStream(anyInt(), any(InputStream.class));
+        verify(mysqlCallableStatement).setAsciiStream(anyInt(), any(InputStream.class), anyInt());
+        verify(mysqlCallableStatement).setAsciiStream(anyInt(), any(InputStream.class), anyLong());
+        verify(mysqlCallableStatement).setCharacterStream(anyInt(), any(Reader.class));
+        verify(mysqlCallableStatement).setCharacterStream(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setCharacterStream(anyInt(), any(Reader.class), anyLong());
+        verify(mysqlCallableStatement).setShort(anyInt(), anyShort());
+        verify(mysqlCallableStatement).setInt(anyInt(), anyInt());
+        verify(mysqlCallableStatement).setString(anyInt(), anyString());
+        verify(mysqlCallableStatement).setBoolean(anyInt(), anyBoolean());
+        verify(mysqlCallableStatement).setLong(anyInt(), anyLong());
+        verify(mysqlCallableStatement).setDouble(anyInt(), anyDouble());
+        verify(mysqlCallableStatement).setFloat(anyInt(), anyFloat());
+        verify(mysqlCallableStatement).setByte(anyInt(), anyByte());
+        verify(mysqlCallableStatement).setBytes(14, bytesParam);
+        verify(mysqlCallableStatement).setDate(anyInt(), any(Date.class));
+        verify(mysqlCallableStatement).setNull(anyInt(), anyInt());
+        verify(mysqlCallableStatement).setNull(anyInt(), anyInt(), anyString());
+        verify(mysqlCallableStatement).setBigDecimal(anyInt(), any(BigDecimal.class));
+        verify(mysqlCallableStatement).setBlob(anyInt(), any(InputStream.class));
+        verify(mysqlCallableStatement).setBlob(anyInt(), any(InputStream.class), anyLong());
+        verify(mysqlCallableStatement).setClob(anyInt(), any(Clob.class));
+        verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class));
+        verify(mysqlCallableStatement).setClob(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNString(anyInt(), anyString());
+        verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class));
+        verify(mysqlCallableStatement).setNCharacterStream(anyInt(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNClob(27, nClob);
+        verify(mysqlCallableStatement).setNClob(28, reader, 1);
+        verify(mysqlCallableStatement).setObject(anyInt(), Matchers.anyObject());
+        verify(mysqlCallableStatement).setObject(anyInt(), Matchers.anyObject(), anyInt());
+        verify(mysqlCallableStatement).setObject(anyInt(), Matchers.anyObject(), anyInt(), anyInt());
+        verify(mysqlCallableStatement).setRef(anyInt(), any(Ref.class));
+        verify(mysqlCallableStatement).setRowId(anyInt(), any(RowId.class));
+        verify(mysqlCallableStatement).setSQLXML(anyInt(), any(SQLXML.class));
+        verify(mysqlCallableStatement).setTime(anyInt(), any(Time.class));
+        verify(mysqlCallableStatement).setTimestamp(anyInt(), any(Timestamp.class));
+        verify(mysqlCallableStatement).setTimestamp(anyInt(), any(Timestamp.class), any(Calendar.class));
+        verify(mysqlCallableStatement).setURL(anyInt(), any(URL.class));
+        verify(mysqlCallableStatement).setBinaryStream(anyInt(), any(InputStream.class));
+        verify(mysqlCallableStatement).setBinaryStream(anyInt(), any(InputStream.class), anyInt());
+        verify(mysqlCallableStatement).setBinaryStream(anyInt(), any(InputStream.class), anyLong());
+        verify(mysqlCallableStatement).setNClob(42, reader);
+        verify(mysqlCallableStatement).setTime(anyInt(), any(Time.class), any(Calendar.class));
+        verify(mysqlCallableStatement).setTimestamp(anyInt(), any(Timestamp.class), any(Calendar.class));
+        verify(mysqlCallableStatement).setArray(anyInt(), any(Array.class));
+        verify(mysqlCallableStatement).setBlob(anyInt(), any(Blob.class));
+        verify(mysqlCallableStatement).setDate(anyInt(), any(Date.class), any(Calendar.class));
 
-        verify(mysqlCallableStatement, times(1)).clearParameters();
-        verify(mysqlCallableStatement, times(1)).executeQuery();
-        verify(mysqlCallableStatement, times(1)).close();
-        verify(mysqlCallableStatement, times(1)).setAsciiStream(anyString(), any(InputStream.class));
-        verify(mysqlCallableStatement, times(1)).setAsciiStream(anyString(), any(InputStream.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setAsciiStream(anyString(), any(InputStream.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setCharacterStream(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement, times(1)).setCharacterStream(anyString(), any(Reader.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setCharacterStream(anyString(), any(Reader.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setShort(anyString(), anyShort());
-        verify(mysqlCallableStatement, times(1)).setInt(anyString(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setString(anyString(), anyString());
-        verify(mysqlCallableStatement, times(1)).setBoolean(anyString(), anyBoolean());
-        verify(mysqlCallableStatement, times(1)).setLong(anyString(), anyLong());
-        verify(mysqlCallableStatement, times(1)).setDouble(anyString(), anyDouble());
-        verify(mysqlCallableStatement, times(1)).setFloat(anyString(), anyFloat());
-        verify(mysqlCallableStatement, times(1)).setByte(anyString(), anyByte());
-        verify(mysqlCallableStatement, times(1)).setBytes(14, bytesParam);
-        verify(mysqlCallableStatement, times(1)).setDate(anyString(), any(Date.class));
-        verify(mysqlCallableStatement, times(1)).setNull(anyString(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setNull(anyString(), anyInt(), anyString());
-        verify(mysqlCallableStatement, times(1)).setBigDecimal(anyString(), any(BigDecimal.class));
-        verify(mysqlCallableStatement, times(1)).setBlob(anyString(), any(InputStream.class));
-        verify(mysqlCallableStatement, times(1)).setBlob(anyString(), any(InputStream.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setClob(anyString(), any(Clob.class));
-        verify(mysqlCallableStatement, times(1)).setClob(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement, times(1)).setClob(anyString(), any(Reader.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setNString(anyString(), anyString());
-        verify(mysqlCallableStatement, times(1)).setNCharacterStream(anyString(), any(Reader.class));
-        verify(mysqlCallableStatement, times(1)).setNCharacterStream(anyString(), any(Reader.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setNClob(27, nClob);
-        verify(mysqlCallableStatement, times(1)).setNClob(28, reader, 1);
-        verify(mysqlCallableStatement, times(1)).setObject(anyString(), Matchers.anyObject());
-        verify(mysqlCallableStatement, times(1)).setObject(anyString(), Matchers.anyObject(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setObject(anyString(), Matchers.anyObject(), anyInt(), anyInt());
-        verify(mysqlCallableStatement, times(1)).setRowId(anyString(), any(RowId.class));
-        verify(mysqlCallableStatement, times(1)).setSQLXML(anyString(), any(SQLXML.class));
-        verify(mysqlCallableStatement, times(1)).setTime(anyString(), any(Time.class));
-        verify(mysqlCallableStatement, times(1)).setTimestamp(anyString(), any(Timestamp.class));
-        verify(mysqlCallableStatement, times(1)).setTimestamp(anyString(), any(Timestamp.class), any(Calendar.class));
-        verify(mysqlCallableStatement, times(1)).setURL(anyString(), any(URL.class));
-        verify(mysqlCallableStatement, times(1)).setBinaryStream(anyString(), any(InputStream.class));
-        verify(mysqlCallableStatement, times(1)).setBinaryStream(anyString(), any(InputStream.class), anyInt());
-        verify(mysqlCallableStatement, times(1)).setBinaryStream(anyString(), any(InputStream.class), anyLong());
-        verify(mysqlCallableStatement, times(1)).setNClob(42, reader);
-        verify(mysqlCallableStatement, times(1)).setTime(anyString(), any(Time.class), any(Calendar.class));
-        verify(mysqlCallableStatement, times(1)).setTimestamp(anyString(), any(Timestamp.class), any(Calendar.class));
-        verify(mysqlCallableStatement, times(1)).setBlob(anyString(), any(Blob.class));
-        verify(mysqlCallableStatement, times(1)).setDate(anyString(), any(Date.class), any(Calendar.class));
+        verify(mysqlCallableStatement).clearParameters();
+        verify(mysqlCallableStatement).executeQuery();
+        verify(mysqlCallableStatement).close();
+        verify(mysqlCallableStatement).setAsciiStream(anyString(), any(InputStream.class));
+        verify(mysqlCallableStatement).setAsciiStream(anyString(), any(InputStream.class), anyInt());
+        verify(mysqlCallableStatement).setAsciiStream(anyString(), any(InputStream.class), anyLong());
+        verify(mysqlCallableStatement).setCharacterStream(anyString(), any(Reader.class));
+        verify(mysqlCallableStatement).setCharacterStream(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setCharacterStream(anyString(), any(Reader.class), anyLong());
+        verify(mysqlCallableStatement).setShort(anyString(), anyShort());
+        verify(mysqlCallableStatement).setInt(anyString(), anyInt());
+        verify(mysqlCallableStatement).setString(anyString(), anyString());
+        verify(mysqlCallableStatement).setBoolean(anyString(), anyBoolean());
+        verify(mysqlCallableStatement).setLong(anyString(), anyLong());
+        verify(mysqlCallableStatement).setDouble(anyString(), anyDouble());
+        verify(mysqlCallableStatement).setFloat(anyString(), anyFloat());
+        verify(mysqlCallableStatement).setByte(anyString(), anyByte());
+        verify(mysqlCallableStatement).setBytes(14, bytesParam);
+        verify(mysqlCallableStatement).setDate(anyString(), any(Date.class));
+        verify(mysqlCallableStatement).setNull(anyString(), anyInt());
+        verify(mysqlCallableStatement).setNull(anyString(), anyInt(), anyString());
+        verify(mysqlCallableStatement).setBigDecimal(anyString(), any(BigDecimal.class));
+        verify(mysqlCallableStatement).setBlob(anyString(), any(InputStream.class));
+        verify(mysqlCallableStatement).setBlob(anyString(), any(InputStream.class), anyLong());
+        verify(mysqlCallableStatement).setClob(anyString(), any(Clob.class));
+        verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class));
+        verify(mysqlCallableStatement).setClob(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNString(anyString(), anyString());
+        verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class));
+        verify(mysqlCallableStatement).setNCharacterStream(anyString(), any(Reader.class), anyInt());
+        verify(mysqlCallableStatement).setNClob(27, nClob);
+        verify(mysqlCallableStatement).setNClob(28, reader, 1);
+        verify(mysqlCallableStatement).setObject(anyString(), Matchers.anyObject());
+        verify(mysqlCallableStatement).setObject(anyString(), Matchers.anyObject(), anyInt());
+        verify(mysqlCallableStatement).setObject(anyString(), Matchers.anyObject(), anyInt(), anyInt());
+        verify(mysqlCallableStatement).setRowId(anyString(), any(RowId.class));
+        verify(mysqlCallableStatement).setSQLXML(anyString(), any(SQLXML.class));
+        verify(mysqlCallableStatement).setTime(anyString(), any(Time.class));
+        verify(mysqlCallableStatement).setTimestamp(anyString(), any(Timestamp.class));
+        verify(mysqlCallableStatement).setTimestamp(anyString(), any(Timestamp.class), any(Calendar.class));
+        verify(mysqlCallableStatement).setURL(anyString(), any(URL.class));
+        verify(mysqlCallableStatement).setBinaryStream(anyString(), any(InputStream.class));
+        verify(mysqlCallableStatement).setBinaryStream(anyString(), any(InputStream.class), anyInt());
+        verify(mysqlCallableStatement).setBinaryStream(anyString(), any(InputStream.class), anyLong());
+        verify(mysqlCallableStatement).setNClob(42, reader);
+        verify(mysqlCallableStatement).setTime(anyString(), any(Time.class), any(Calendar.class));
+        verify(mysqlCallableStatement).setTimestamp(anyString(), any(Timestamp.class), any(Calendar.class));
+        verify(mysqlCallableStatement).setBlob(anyString(), any(Blob.class));
+        verify(mysqlCallableStatement).setDate(anyString(), any(Date.class), any(Calendar.class));
     }
 
     @Test
@@ -441,32 +441,32 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         callableStatement.getResultSet();
 
         callableStatement.close();
-        verify(mysqlCallableStatement, times(1)).getUpdateCount();
-        verify(mysqlCallableStatement, times(1)).getMoreResults();
-        verify(mysqlCallableStatement, times(1)).setFetchDirection(anyInt());
-        verify(mysqlCallableStatement, times(1)).getFetchDirection();
-        verify(mysqlCallableStatement, times(1)).getResultSetType();
-        verify(mysqlCallableStatement, times(1)).isClosed();
-        verify(mysqlCallableStatement, times(1)).setPoolable(anyBoolean());
-        verify(mysqlCallableStatement, times(1)).getWarnings();
-        verify(mysqlCallableStatement, times(1)).clearWarnings();
-        verify(mysqlCallableStatement, times(1)).setCursorName(anyString());
-        verify(mysqlCallableStatement, times(1)).setMaxFieldSize(anyInt());
-        verify(mysqlCallableStatement, times(1)).getMaxFieldSize();
-        verify(mysqlCallableStatement, times(1)).setMaxRows(anyInt());
-        verify(mysqlCallableStatement, times(1)).getMaxRows();
-        verify(mysqlCallableStatement, times(1)).setEscapeProcessing(anyBoolean());
-        verify(mysqlCallableStatement, times(1)).getResultSetConcurrency();
-        verify(mysqlCallableStatement, times(1)).getResultSetConcurrency();
-        verify(mysqlCallableStatement, times(1)).getResultSetType();
-        verify(mysqlCallableStatement, times(1)).getMetaData();
-        verify(mysqlCallableStatement, times(1)).getParameterMetaData();
-        verify(mysqlCallableStatement, times(1)).getMoreResults(anyInt());
-        verify(mysqlCallableStatement, times(1)).setFetchSize(anyInt());
-        verify(mysqlCallableStatement, times(1)).getFetchSize();
-        verify(mysqlCallableStatement, times(1)).getQueryTimeout();
-        verify(mysqlCallableStatement, times(1)).setQueryTimeout(anyInt());
-        verify(mysqlCallableStatement, times(1)).getResultSet();
+        verify(mysqlCallableStatement).getUpdateCount();
+        verify(mysqlCallableStatement).getMoreResults();
+        verify(mysqlCallableStatement).setFetchDirection(anyInt());
+        verify(mysqlCallableStatement).getFetchDirection();
+        verify(mysqlCallableStatement).getResultSetType();
+        verify(mysqlCallableStatement).isClosed();
+        verify(mysqlCallableStatement).setPoolable(anyBoolean());
+        verify(mysqlCallableStatement).getWarnings();
+        verify(mysqlCallableStatement).clearWarnings();
+        verify(mysqlCallableStatement).setCursorName(anyString());
+        verify(mysqlCallableStatement).setMaxFieldSize(anyInt());
+        verify(mysqlCallableStatement).getMaxFieldSize();
+        verify(mysqlCallableStatement).setMaxRows(anyInt());
+        verify(mysqlCallableStatement).getMaxRows();
+        verify(mysqlCallableStatement).setEscapeProcessing(anyBoolean());
+        verify(mysqlCallableStatement).getResultSetConcurrency();
+        verify(mysqlCallableStatement).getResultSetConcurrency();
+        verify(mysqlCallableStatement).getResultSetType();
+        verify(mysqlCallableStatement).getMetaData();
+        verify(mysqlCallableStatement).getParameterMetaData();
+        verify(mysqlCallableStatement).getMoreResults(anyInt());
+        verify(mysqlCallableStatement).setFetchSize(anyInt());
+        verify(mysqlCallableStatement).getFetchSize();
+        verify(mysqlCallableStatement).getQueryTimeout();
+        verify(mysqlCallableStatement).setQueryTimeout(anyInt());
+        verify(mysqlCallableStatement).getResultSet();
         assertThat(connection, CoreMatchers.<Connection>is(swConnection));
     }
 
@@ -477,8 +477,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
 
         callableStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).executeQuery();
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).executeQuery();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -494,8 +494,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.getGeneratedKeys();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).executeQuery(anyString());
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).executeQuery(anyString());
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -509,8 +509,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", 1);
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).execute(anyString(), anyInt());
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).execute(anyString(), anyInt());
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -524,7 +524,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new int[] {1, 2});
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -538,7 +538,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         boolean insertCount = preparedStatement.execute("INSERT INTO test VALUES(1)", new String[] {"1", "2"});
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -554,8 +554,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.cancel();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).execute(anyString());
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).execute(anyString());
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -571,8 +571,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.cancel();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).executeUpdate();
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).executeUpdate();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -588,8 +588,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.cancel();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).executeUpdate(anyString());
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).executeUpdate(anyString());
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -605,7 +605,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.cancel();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -621,7 +621,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.cancel();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -637,7 +637,7 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         preparedStatement.cancel();
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).close();
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -654,9 +654,9 @@ public class SWCallableStatementTest extends AbstractStatementTest {
         int[] resultSet = preparedStatement.executeBatch();
         preparedStatement.clearBatch();
 
-        verify(mysqlCallableStatement, times(1)).executeBatch();
-        verify(mysqlCallableStatement, times(1)).addBatch();
-        verify(mysqlCallableStatement, times(1)).clearBatch();
+        verify(mysqlCallableStatement).executeBatch();
+        verify(mysqlCallableStatement).addBatch();
+        verify(mysqlCallableStatement).clearBatch();
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -676,8 +676,8 @@ public class SWCallableStatementTest extends AbstractStatementTest {
 
         preparedStatement.close();
 
-        verify(mysqlCallableStatement, times(1)).executeQuery();
-        verify(mysqlCallableStatement, times(1)).close();
+        verify(mysqlCallableStatement).executeQuery();
+        verify(mysqlCallableStatement).close();
     }
 
     @Test(expected = SQLException.class)
@@ -696,12 +696,12 @@ public class SWCallableStatementTest extends AbstractStatementTest {
 
             preparedStatement.close();
         } finally {
-            verify(mysqlCallableStatement, times(1)).executeQuery();
+            verify(mysqlCallableStatement).executeQuery();
             verify(mysqlCallableStatement, times(0)).close();
-            verify(mysqlCallableStatement, times(1)).setBigDecimal(anyInt(), any(BigDecimal.class));
-            verify(mysqlCallableStatement, times(1)).setBlob(anyInt(), any(InputStream.class));
-            verify(mysqlCallableStatement, times(1)).setBlob(anyInt(), any(InputStream.class), anyLong());
-            verify(mysqlCallableStatement, times(1)).setByte(anyInt(), anyByte());
+            verify(mysqlCallableStatement).setBigDecimal(anyInt(), any(BigDecimal.class));
+            verify(mysqlCallableStatement).setBlob(anyInt(), any(InputStream.class));
+            verify(mysqlCallableStatement).setBlob(anyInt(), any(InputStream.class), anyLong());
+            verify(mysqlCallableStatement).setByte(anyInt(), anyByte());
             assertThat(segmentStorage.getTraceSegments().size(), is(1));
             TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
             List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);

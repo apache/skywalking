@@ -18,18 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.indicator.DoubleValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.indicator.Indicator;
-import org.apache.skywalking.oap.server.core.analysis.indicator.IntValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.indicator.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
@@ -37,6 +31,13 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
@@ -49,19 +50,19 @@ public class RunningRule {
 
     private String ruleName;
     private int period;
-    private String indicatorName;
+    private String metricsName;
     private final Threshold threshold;
     private final OP op;
     private final int countThreshold;
     private final int silencePeriod;
     private Map<MetaInAlarm, Window> windows;
-    private volatile IndicatorValueType valueType;
+    private volatile MetricsValueType valueType;
     private int targetScopeId;
     private List<String> includeNames;
     private AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
-        indicatorName = alarmRule.getIndicatorName();
+        metricsName = alarmRule.getMetricsName();
         this.ruleName = alarmRule.getAlarmRuleName();
 
         // Init the empty window for alarming rule.
@@ -80,13 +81,13 @@ public class RunningRule {
     }
 
     /**
-     * Receive indicator result from persistence, after it is saved into storage. In alarm, only minute dimensionality
-     * indicators are expected to process.
+     * Receive metrics result from persistence, after it is saved into storage. In alarm, only minute dimensionality
+     * metrics are expected to process.
      *
-     * @param indicator
+     * @param metrics
      */
-    public void in(MetaInAlarm meta, Indicator indicator) {
-        if (!meta.getIndicatorName().equals(indicatorName)) {
+    public void in(MetaInAlarm meta, Metrics metrics) {
+        if (!meta.getMetricsName().equals(metricsName)) {
             //Don't match rule, exit.
             return;
         }
@@ -98,15 +99,15 @@ public class RunningRule {
         }
 
         if (valueType == null) {
-            if (indicator instanceof LongValueHolder) {
-                valueType = IndicatorValueType.LONG;
-                threshold.setType(IndicatorValueType.LONG);
-            } else if (indicator instanceof IntValueHolder) {
-                valueType = IndicatorValueType.INT;
-                threshold.setType(IndicatorValueType.INT);
-            } else if (indicator instanceof DoubleValueHolder) {
-                valueType = IndicatorValueType.DOUBLE;
-                threshold.setType(IndicatorValueType.DOUBLE);
+            if (metrics instanceof LongValueHolder) {
+                valueType = MetricsValueType.LONG;
+                threshold.setType(MetricsValueType.LONG);
+            } else if (metrics instanceof IntValueHolder) {
+                valueType = MetricsValueType.INT;
+                threshold.setType(MetricsValueType.INT);
+            } else if (metrics instanceof DoubleValueHolder) {
+                valueType = MetricsValueType.DOUBLE;
+                threshold.setType(MetricsValueType.DOUBLE);
             } else {
                 return;
             }
@@ -117,12 +118,12 @@ public class RunningRule {
             Window window = windows.get(meta);
             if (window == null) {
                 window = new Window(period);
-                LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(indicator.getTimeBucket() + "");
+                LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(metrics.getTimeBucket() + "");
                 window.moveTo(timebucket);
                 windows.put(meta, window);
             }
 
-            window.add(indicator);
+            window.add(metrics);
         }
     }
 
@@ -147,9 +148,11 @@ public class RunningRule {
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
                 alarmMessage.setScopeId(meta.getScopeId());
+                alarmMessage.setScope(meta.getScope());
                 alarmMessage.setName(meta.getName());
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
+                alarmMessage.setRuleName(this.ruleName);
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
@@ -159,8 +162,10 @@ public class RunningRule {
         return alarmMessageList;
     }
 
+
+
     /**
-     * A indicator window, based on {@link AlarmRule#period}. This window slides with time, just keeps the recent
+     * A metrics window, based on {@link AlarmRule#period}. This window slides with time, just keeps the recent
      * N(period) buckets.
      *
      * @author wusheng
@@ -171,7 +176,7 @@ public class RunningRule {
         private int counter;
         private int silenceCountdown;
 
-        private LinkedList<Indicator> values;
+        private LinkedList<Metrics> values;
         private ReentrantLock lock = new ReentrantLock();
 
         public Window(int period) {
@@ -209,8 +214,8 @@ public class RunningRule {
             }
         }
 
-        public void add(Indicator indicator) {
-            long bucket = indicator.getTimeBucket();
+        public void add(Metrics metrics) {
+            long bucket = metrics.getTimeBucket();
 
             LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(bucket + "");
 
@@ -233,7 +238,7 @@ public class RunningRule {
                     return;
                 }
 
-                values.set(values.size() - minutes - 1, indicator);
+                values.set(values.size() - minutes - 1, metrics);
             } finally {
                 lock.unlock();
             }
@@ -243,7 +248,7 @@ public class RunningRule {
             if (isMatch()) {
                 /**
                  * When
-                 * 1. Metric value threshold triggers alarm by rule
+                 * 1. Metrics value threshold triggers alarm by rule
                  * 2. Counter reaches the count threshold;
                  * 3. Isn't in silence stage, judged by SilenceCountdown(!=0).
                  */
@@ -268,14 +273,14 @@ public class RunningRule {
 
         private boolean isMatch() {
             int matchCount = 0;
-            for (Indicator indicator : values) {
-                if (indicator == null) {
+            for (Metrics metrics : values) {
+                if (metrics == null) {
                     continue;
                 }
 
                 switch (valueType) {
                     case LONG:
-                        long lvalue = ((LongValueHolder)indicator).getValue();
+                        long lvalue = ((LongValueHolder)metrics).getValue();
                         long lexpected = RunningRule.this.threshold.getLongThreshold();
                         switch (op) {
                             case GREATER:
@@ -293,7 +298,7 @@ public class RunningRule {
                         }
                         break;
                     case INT:
-                        int ivalue = ((IntValueHolder)indicator).getValue();
+                        int ivalue = ((IntValueHolder)metrics).getValue();
                         int iexpected = RunningRule.this.threshold.getIntThreshold();
                         switch (op) {
                             case LESS:
@@ -311,7 +316,7 @@ public class RunningRule {
                         }
                         break;
                     case DOUBLE:
-                        double dvalue = ((DoubleValueHolder)indicator).getValue();
+                        double dvalue = ((DoubleValueHolder)metrics).getValue();
                         double dexpected = RunningRule.this.threshold.getDoubleThreadhold();
                         switch (op) {
                             case EQUAL:

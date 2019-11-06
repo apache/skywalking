@@ -27,6 +27,10 @@ public class AlarmMessageFormatterTest {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc words {sdf");
         String message = formatter.format(new MetaInAlarm() {
 
+            @Override public String getScope() {
+                return "SERVICE";
+            }
+
             @Override public int getScopeId() {
                 return -1;
             }
@@ -35,7 +39,7 @@ public class AlarmMessageFormatterTest {
                 return null;
             }
 
-            @Override public String getIndicatorName() {
+            @Override public String getMetricsName() {
                 return null;
             }
 
@@ -56,6 +60,10 @@ public class AlarmMessageFormatterTest {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc} words {name} - {id} .. {");
         String message = formatter.format(new MetaInAlarm() {
 
+            @Override public String getScope() {
+                return "SERVICE";
+            }
+
             @Override public int getScopeId() {
                 return -1;
             }
@@ -64,7 +72,7 @@ public class AlarmMessageFormatterTest {
                 return "service";
             }
 
-            @Override public String getIndicatorName() {
+            @Override public String getMetricsName() {
                 return null;
             }
 

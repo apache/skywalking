@@ -19,39 +19,28 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.xcontent.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
  * @author peng-yongsheng
  */
-public class RecordEsDAO extends EsDAO implements IRecordDAO<IndexRequest> {
+public class RecordEsDAO extends EsDAO implements IRecordDAO {
 
     private final StorageBuilder<Record> storageBuilder;
 
-    public RecordEsDAO(ElasticSearchClient client, StorageBuilder<Record> storageBuilder) {
+    RecordEsDAO(ElasticSearchClient client, StorageBuilder<Record> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public IndexRequest prepareBatchInsert(String modelName, Record record) throws IOException {
-        Map<String, Object> objectMap = storageBuilder.data2Map(record);
-
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (String key : objectMap.keySet()) {
-            Object value = objectMap.get(key);
-            if (value instanceof StorageDataType) {
-                builder.field(key, ((StorageDataType)value).toStorageData());
-            } else {
-                builder.field(key, value);
-            }
-        }
-        builder.endObject();
+    @Override public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(record));
+        String modelName = TimeSeriesUtils.timeSeries(model, record.getTimeBucket());
         return getClient().prepareInsert(modelName, record.id(), builder);
     }
 }

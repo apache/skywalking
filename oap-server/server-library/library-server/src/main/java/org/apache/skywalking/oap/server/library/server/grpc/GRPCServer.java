@@ -24,12 +24,14 @@ import io.netty.handler.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.Objects;
+import java.util.concurrent.*;
+
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.*;
 import org.slf4j.*;
 
 /**
- * @author peng-yongsheng, wusheng
+ * @author peng-yongsheng, wusheng, yantaowu
  */
 public class GRPCServer implements Server {
 
@@ -44,6 +46,8 @@ public class GRPCServer implements Server {
     private SslContextBuilder sslContextBuilder;
     private File certChainFile;
     private File privateKeyFile;
+    private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 4;
+    private int threadPoolQueueSize = 10000;
 
     public GRPCServer(String host, int port) {
         this.host = host;
@@ -59,6 +63,15 @@ public class GRPCServer implements Server {
     public void setMaxMessageSize(int maxMessageSize) {
         this.maxMessageSize = maxMessageSize;
     }
+
+    public void setThreadPoolSize(int threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
+    }
+
+    public void setThreadPoolQueueSize(int threadPoolQueueSize) {
+        this.threadPoolQueueSize = threadPoolQueueSize;
+    }
+
 
     /**
      * Require for `server.crt` and `server.pem` for open ssl at server side.
@@ -90,10 +103,20 @@ public class GRPCServer implements Server {
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
-
+        ArrayBlockingQueue blockingQueue = new ArrayBlockingQueue(threadPoolQueueSize);
+        ExecutorService executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60,
+                TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
-        nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize);
+        nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize).executor(executor);
         logger.info("Server started, host {} listening on {}", host, port);
+    }
+
+    static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            logger.warn("Grpc server thread pool is full, rejecting the task");
+        }
     }
 
     @Override

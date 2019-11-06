@@ -35,7 +35,7 @@ public class LimitedSizeDataCollection<STORAGE_DATA extends ComparableStorageDat
         this.limitedSize = limitedSize;
     }
 
-    public void finishWriting() {
+    @Override public void finishWriting() {
         writing = false;
     }
 

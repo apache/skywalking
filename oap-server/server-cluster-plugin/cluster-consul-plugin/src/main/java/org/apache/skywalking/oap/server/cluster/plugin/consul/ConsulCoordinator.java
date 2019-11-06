@@ -54,13 +54,11 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         if (CollectionUtils.isNotEmpty(nodes)) {
             nodes.forEach(node -> {
                 if (!Strings.isNullOrEmpty(node.getService().getAddress())) {
-                    if (Objects.nonNull(selfAddress)) {
-                        if (selfAddress.getHost().equals(node.getService().getAddress()) && selfAddress.getPort() == node.getService().getPort()) {
-                            remoteInstances.add(new RemoteInstance(new Address(node.getService().getAddress(), node.getService().getPort(), true)));
-                        } else {
-                            remoteInstances.add(new RemoteInstance(new Address(node.getService().getAddress(), node.getService().getPort(), false)));
-                        }
+                    Address address = new Address(node.getService().getAddress(), node.getService().getPort(), false);
+                    if (address.equals(selfAddress)) {
+                        address.setSelf(true);
                     }
+                    remoteInstances.add(new RemoteInstance(address));
                 }
             });
         }

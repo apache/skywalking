@@ -54,7 +54,6 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -128,7 +127,7 @@ public class HttpClientExecuteInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertHttpSpan(spans.get(0));
-        verify(request, times(1)).setHeader(anyString(), anyString());
+        verify(request).setHeader(anyString(), anyString());
     }
 
     @Test
@@ -149,7 +148,7 @@ public class HttpClientExecuteInterceptorTest {
 
         assertHttpSpan(spans.get(0));
         assertThat(SpanHelper.getErrorOccurred(spans.get(0)), is(true));
-        verify(request, times(1)).setHeader(anyString(), anyString());
+        verify(request).setHeader(anyString(), anyString());
     }
 
     @Test
@@ -167,7 +166,7 @@ public class HttpClientExecuteInterceptorTest {
         assertHttpSpan(span);
         assertThat(SpanHelper.getErrorOccurred(span), is(true));
         assertHttpSpanErrorLog(SpanHelper.getLogs(span));
-        verify(request, times(1)).setHeader(anyString(), anyString());
+        verify(request).setHeader(anyString(), anyString());
 
     }
 
@@ -197,7 +196,7 @@ public class HttpClientExecuteInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertHttpSpan(spans.get(0));
-        verify(request, times(1)).setHeader(anyString(), anyString());
+        verify(request).setHeader(anyString(), anyString());
     }
 
     private void assertHttpSpanErrorLog(List<LogDataEntity> logs) {

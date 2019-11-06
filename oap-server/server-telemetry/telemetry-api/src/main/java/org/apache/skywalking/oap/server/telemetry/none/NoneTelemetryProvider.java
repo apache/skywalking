@@ -20,7 +20,8 @@ package org.apache.skywalking.oap.server.telemetry.none;
 
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.MetricCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 
 /**
  * A nutshell telemetry implementor.
@@ -42,7 +43,8 @@ public class NoneTelemetryProvider extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        this.registerServiceImplementation(MetricCreator.class, new MetricCreatorNoop());
+        this.registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
+        this.registerServiceImplementation(MetricsCollector.class, new MetricsCollectorNoop());
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {

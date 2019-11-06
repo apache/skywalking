@@ -40,12 +40,12 @@ public class AopExpressionMatchInstrumentation extends ClassStaticMethodsEnhance
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spring.patch.AopExpressionMatchInterceptor";
 
     @Override
-    protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[]{new StaticMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {

@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.telemetry.api;
 
 /**
- * The telemetry context which the metric instances may need to know.
+ * The telemetry context which the metrics instances may need to know.
  * @author wusheng
  */
 public enum TelemetryRelatedContext {

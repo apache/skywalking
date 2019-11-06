@@ -26,7 +26,7 @@ public abstract class HttpClientInstrumentation extends ClassInstanceMethodsEnha
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpClient.v4.HttpClientExecuteInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 

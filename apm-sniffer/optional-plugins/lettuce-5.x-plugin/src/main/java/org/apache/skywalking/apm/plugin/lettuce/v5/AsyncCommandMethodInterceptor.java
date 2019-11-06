@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -42,7 +43,11 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
         String operationName = "Lettuce/" + asyncCommand.getType().name();
         AbstractSpan span = ContextManager.createLocalSpan(operationName + "/onComplete");
         span.setComponent(ComponentsDefine.LETTUCE);
-        allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture(), operationName);
+        if (allArguments[0] instanceof Consumer) {
+            allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture(), operationName);
+        } else {
+            allArguments[0] = new SWBiConsumer((BiConsumer) allArguments[0], ContextManager.capture(), operationName);
+        }
     }
 
     @Override

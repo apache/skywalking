@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanTagActivation
+toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotationActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceContextActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableActivation

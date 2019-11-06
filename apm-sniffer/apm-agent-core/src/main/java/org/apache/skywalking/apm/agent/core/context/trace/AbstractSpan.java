@@ -39,8 +39,8 @@ public interface AbstractSpan extends AsyncSpan {
     AbstractSpan setComponent(Component component);
 
     /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It it higher recommend
-     * don't use this for performance consideration.
+     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It is highly recommended
+     * not to use this method for performance reasons.
      *
      * @param componentName
      * @return the span for chaining.
@@ -127,7 +127,7 @@ public interface AbstractSpan extends AsyncSpan {
      */
     void ref(TraceSegmentRef ref);
 
-    AbstractSpan start(long starttime);
+    AbstractSpan start(long startTime);
 
     AbstractSpan setPeer(String remotePeer);
 }

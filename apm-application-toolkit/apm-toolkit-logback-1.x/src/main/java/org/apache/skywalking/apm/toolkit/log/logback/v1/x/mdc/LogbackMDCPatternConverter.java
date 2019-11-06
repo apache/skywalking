@@ -40,10 +40,10 @@ public class LogbackMDCPatternConverter extends MDCConverter {
     }
     @Override
     public String convert(ILoggingEvent iLoggingEvent) {
-        return convert4TID ? convertTID() : super.convert(iLoggingEvent);
+        return convert4TID ? convertTID(iLoggingEvent) : super.convert(iLoggingEvent);
     }
 
-    public String convertTID() {
+    public String convertTID(ILoggingEvent iLoggingEvent) {
         return "TID: N/A";
     }
 }

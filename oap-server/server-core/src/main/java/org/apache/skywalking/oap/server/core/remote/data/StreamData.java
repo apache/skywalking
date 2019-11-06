@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.remote.data;
 
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import org.apache.skywalking.oap.server.core.analysis.data.QueueData;
 import org.apache.skywalking.oap.server.core.remote.*;
 
 /**
@@ -26,14 +26,18 @@ import org.apache.skywalking.oap.server.core.remote.*;
  */
 public abstract class StreamData implements QueueData, Serializable, Deserializable {
 
-    private EndOfBatchContext endOfBatchContext;
+    private boolean endOfBatch = false;
 
-    @Override public final EndOfBatchContext getEndOfBatchContext() {
-        return this.endOfBatchContext;
+    @Override public void resetEndOfBatch() {
+        this.endOfBatch = false;
     }
 
-    @Override public final void setEndOfBatchContext(EndOfBatchContext context) {
-        this.endOfBatchContext = context;
+    @Override public void asEndOfBatch() {
+        this.endOfBatch = true;
+    }
+
+    @Override public boolean isEndOfBatch() {
+        return this.endOfBatch;
     }
 
     public abstract int remoteHashCode();

@@ -18,28 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * Worker Instance Service hosts all remote handler workers with the stream data type.
+ *
+ * @author peng-yongsheng, wusheng
  */
 public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerInstanceGetter {
+    private static final Logger logger = LoggerFactory.getLogger(WorkerInstancesService.class);
 
-    private final AtomicInteger generator = new AtomicInteger(1);
-    private final Map<Integer, AbstractWorker> instances;
+    private final Map<String, RemoteHandleWorker> instances;
 
     public WorkerInstancesService() {
         this.instances = new HashMap<>();
     }
 
-    @Override public AbstractWorker get(int workerId) {
-        return instances.get(workerId);
+    @Override public RemoteHandleWorker get(String nextWorkerName) {
+        return instances.get(nextWorkerName);
     }
 
-    @Override public int put(AbstractWorker instance) {
-        int workerId = generator.getAndIncrement();
-        instances.put(workerId, instance);
-        return workerId;
+    @Override public void put(String remoteReceiverWorkName, AbstractWorker instance,
+        Class<? extends StreamData> streamDataClass) {
+        if (instances.containsKey(remoteReceiverWorkName)) {
+            throw new UnexpectedException("Duplicate worker name:" + remoteReceiverWorkName);
+        }
+        instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, streamDataClass));
+        logger.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
     }
 }

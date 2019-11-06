@@ -15,8 +15,6 @@
  * limitations under the License.
  *
  */
-
-
 package org.apache.skywalking.apm.plugin.redisson.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -40,7 +38,7 @@ public class RedisConnectionInstrumentation extends ClassInstanceMethodsEnhanceP
     private static final String REDISSON_METHOD_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.redisson.v3.RedisConnectionMethodInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -57,7 +55,7 @@ public class RedisConnectionInstrumentation extends ClassInstanceMethodsEnhanceP
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override

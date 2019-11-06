@@ -22,7 +22,7 @@ import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.slf4j.*;
 
 /**
@@ -42,12 +42,12 @@ public class JVMMetricsServiceHandler extends JVMMetricsServiceGrpc.JVMMetricsSe
         int serviceInstanceId = request.getApplicationInstanceId();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("receive the jvm metric from service instance, id: {}", serviceInstanceId);
+            logger.debug("receive the jvm metrics from service instance, id: {}", serviceInstanceId);
         }
 
-        request.getMetricsList().forEach(metric -> {
-            long minuteTimeBucket = TimeBucketUtils.INSTANCE.getMinuteTimeBucket(metric.getTime());
-            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metric);
+        request.getMetricsList().forEach(metrics -> {
+            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
+            jvmSourceDispatcher.sendMetric(serviceInstanceId, minuteTimeBucket, metrics);
         });
 
         responseObserver.onNext(Downstream.newBuilder().build());

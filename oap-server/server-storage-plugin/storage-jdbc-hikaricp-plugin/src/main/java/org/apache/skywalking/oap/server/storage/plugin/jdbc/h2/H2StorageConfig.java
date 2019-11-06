@@ -32,4 +32,5 @@ public class H2StorageConfig extends ModuleConfig {
     private String url = "jdbc:h2:mem:collector";
     private String user = "";
     private String password = "";
+    private int metadataQueryMaxSize = 5000;
 }

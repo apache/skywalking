@@ -84,12 +84,12 @@ public class MysqlURLParser extends AbstractURLParser {
             StringBuilder sb = new StringBuilder();
             for (String host : hostSegment) {
                 if (host.split(":").length == 1) {
-                    sb.append(host + ":" + DEFAULT_PORT + ",");
+                    sb.append(host).append(":").append(DEFAULT_PORT).append(",");
                 } else {
-                    sb.append(host + ",");
+                    sb.append(host).append(",");
                 }
             }
-            return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, sb.toString(), fetchDatabaseNameFromURL());
+            return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, sb.substring(0, sb.length() - 1), fetchDatabaseNameFromURL());
         } else {
             String[] hostAndPort = hostSegment[0].split(":");
             if (hostAndPort.length != 1) {

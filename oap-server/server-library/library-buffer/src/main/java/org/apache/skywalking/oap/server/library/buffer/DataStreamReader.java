@@ -145,6 +145,10 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                     }
                 }
             }
+
+            if (bufferDataCollection.size() > 0) {
+                reCall();
+            }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

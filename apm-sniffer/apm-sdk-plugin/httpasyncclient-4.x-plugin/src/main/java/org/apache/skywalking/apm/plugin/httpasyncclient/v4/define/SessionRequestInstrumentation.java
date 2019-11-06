@@ -46,7 +46,7 @@ public class SessionRequestInstrumentation extends ClassInstanceMethodsEnhancePl
     private static final String ENHANCE_CLASS = "org.apache.http.impl.nio.reactor.SessionRequestImpl";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[]{new ConstructorInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -62,7 +62,7 @@ public class SessionRequestInstrumentation extends ClassInstanceMethodsEnhancePl
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {

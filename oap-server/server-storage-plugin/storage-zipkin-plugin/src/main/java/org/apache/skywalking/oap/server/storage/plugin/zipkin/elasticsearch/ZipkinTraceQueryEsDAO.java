@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.*;
 import lombok.Setter;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
@@ -158,7 +159,6 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         List<org.apache.skywalking.oap.server.core.query.entity.Span> spanList = new ArrayList<>();
 
-        boolean isFirst = true;
         for (SearchHit searchHit : response.getHits().getHits()) {
             int serviceId = ((Number)searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
             String dataBinaryBase64 = (String)searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
@@ -201,10 +201,9 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
             }
 
-            if (isFirst) {
+            if (StringUtil.isEmpty(span.parentId())) {
                 swSpan.setRoot(true);
                 swSpan.setSegmentParentSpanId("");
-                isFirst = false;
             } else {
                 Ref ref = new Ref();
                 ref.setTraceId(span.traceId());

@@ -52,12 +52,12 @@ public class RulesReader {
                         AlarmRule alarmRule = new AlarmRule();
                         alarmRule.setAlarmRuleName((String)k);
                         Map settings = (Map)v;
-                        Object indicatorName = settings.get("indicator-name");
-                        if (indicatorName == null) {
-                            throw new IllegalArgumentException("indicator-name can't be null");
+                        Object metricsName = settings.get("metrics-name");
+                        if (metricsName == null) {
+                            throw new IllegalArgumentException("metrics-name can't be null");
                         }
 
-                        alarmRule.setIndicatorName((String)indicatorName);
+                        alarmRule.setMetricsName((String)metricsName);
                         alarmRule.setIncludeNames((ArrayList)settings.getOrDefault("include-names", new ArrayList(0)));
                         alarmRule.setThreshold(settings.get("threshold").toString());
                         alarmRule.setOp((String)settings.get("op"));

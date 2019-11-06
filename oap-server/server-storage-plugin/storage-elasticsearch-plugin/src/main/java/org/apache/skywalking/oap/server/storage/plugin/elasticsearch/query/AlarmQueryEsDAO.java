@@ -30,6 +30,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 /**
  * @author peng-yongsheng
@@ -54,10 +55,10 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
 
         if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(AlarmRecord.ALARM_MESSAGE);
-            boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
+            boolQueryBuilder.must().add(QueryBuilders.matchPhraseQuery(matchCName, keyword));
         }
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(boolQueryBuilder).sort(AlarmRecord.START_TIME, SortOrder.DESC);
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 

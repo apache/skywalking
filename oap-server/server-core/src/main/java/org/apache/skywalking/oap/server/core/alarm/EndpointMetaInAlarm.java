@@ -26,12 +26,16 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
 public class EndpointMetaInAlarm extends MetaInAlarm {
-    private String indicatorName;
+    private String metricsName;
 
     private int id;
     private String name;
     private String[] tags;
     private String[] properties;
+
+    @Override public String getScope() {
+        return DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
+    }
 
     @Override public int getScopeId() {
         return DefaultScopeDefine.ENDPOINT;

@@ -55,7 +55,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost:3307,secondaryhost1,secondaryhost2/test?profileSQL=true");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306,"));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306"));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql:replication://master,slave1,slave2,slave3/test");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("master:3306,slave1:3306,slave2:3306,slave3:3306,"));
+        assertThat(connectionInfo.getDatabasePeer(), is("master:3306,slave1:3306,slave2:3306,slave3:3306"));
     }
 
     @Test

@@ -1,6 +1,6 @@
 # Trace Sampling at server side
 When we run a distributed tracing system, the trace bring us detailed info, but cost a lot at storage.
-Open server side trace sampling mechanism, the metric of service, service instance, endpoint and topology are all accurate
+Open server side trace sampling mechanism, the metrics of service, service instance, endpoint and topology are all accurate
 as before, but only don't save all the traces into storage.
 
 Of course, even you open sampling, the traces will be kept as consistent as possible. **Consistent** means, once the trace

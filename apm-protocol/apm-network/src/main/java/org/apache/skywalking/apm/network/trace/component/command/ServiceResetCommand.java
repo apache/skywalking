@@ -19,19 +19,38 @@
 package org.apache.skywalking.apm.network.trace.component.command;
 
 import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+
+import java.util.List;
 
 /**
  * Clear the service metadata cache and other metadata caches belong to it, and re-register them.
  *
  * @author peng-yongsheng
  */
-public class ServiceResetCommand extends BaseCommand implements Serializable {
+public class ServiceResetCommand extends BaseCommand implements Serializable, Deserializable<ServiceResetCommand> {
+    public static final Deserializable<ServiceResetCommand> DESERIALIZER = new ServiceResetCommand("");
+    public static final String NAME = "ServiceMetadataReset";
 
     public ServiceResetCommand(String serialNumber) {
-        super("ServiceMetadataReset", serialNumber);
+        super(NAME, serialNumber);
     }
 
-    @Override public Command.Builder serialize() {
+    @Override
+    public Command.Builder serialize() {
         return commandBuilder();
+    }
+
+    @Override
+    public ServiceResetCommand deserialize(Command command) {
+        final List<KeyStringValuePair> argsList = command.getArgsList();
+        String serialNumber = null;
+        for (final KeyStringValuePair pair : argsList) {
+            if ("SerialNumber".equals(pair.getKey())) {
+                serialNumber = pair.getValue();
+                break;
+            }
+        }
+        return new ServiceResetCommand(serialNumber);
     }
 }

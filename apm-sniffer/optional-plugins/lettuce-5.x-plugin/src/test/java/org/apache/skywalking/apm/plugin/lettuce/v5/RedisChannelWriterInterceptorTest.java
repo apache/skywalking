@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.lettuce.v5;
 
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandType;
 import io.lettuce.core.protocol.RedisCommand;
@@ -32,6 +33,8 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.plugin.lettuce.v5.mock.MockRedisClusterClient;
+import org.apache.skywalking.apm.plugin.lettuce.v5.mock.MockRedisClusterClientConstructorInterceptor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
@@ -43,6 +46,7 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -108,5 +112,18 @@ public class RedisChannelWriterInterceptorTest {
         List<TagValuePair> tags = SpanHelper.getTags(spans.get(0));
         assertThat(tags.get(0).getValue(), is("Redis"));
         assertThat(SpanHelper.getLayer(spans.get(0)), CoreMatchers.is(SpanLayer.CACHE));
+    }
+
+
+    @Test
+    public void testOnHugeClusterConsumerConfig() {
+        List<RedisURI> redisURIs = new ArrayList<>(100);
+        for (int i = 0; i < 100; i++) {
+            redisURIs.add(RedisURI.create("localhost", i));
+        }
+        MockRedisClusterClient mockRedisClusterClient = new MockRedisClusterClient();
+        MockRedisClusterClientConstructorInterceptor constructorInterceptor = new MockRedisClusterClientConstructorInterceptor();
+        constructorInterceptor.onConstruct(mockRedisClusterClient, new Object[]{null, redisURIs});
+        assertThat(mockRedisClusterClient.getOptions().getSkyWalkingDynamicField().toString().length(), Is.is(200));
     }
 }

@@ -33,7 +33,7 @@ public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrument
 
     private static final String CONNECT_METHOD = "getInstance";
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override

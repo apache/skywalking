@@ -18,32 +18,34 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import java.util.*;
-import lombok.*;
+import com.google.common.base.Strings;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.annotation.InventoryType;
-import org.apache.skywalking.oap.server.core.remote.annotation.StreamData;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.elasticsearch.common.Strings;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
 
 /**
  * @author peng-yongsheng
  */
-@InventoryType
-@StreamData
 @ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
-@StorageEntity(name = NetworkAddressInventory.MODEL_NAME, builder = NetworkAddressInventory.Builder.class, deleteHistory = false, sourceScopeId = DefaultScopeDefine.NETWORK_ADDRESS)
+@Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, builder = NetworkAddressInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class NetworkAddressInventory extends RegisterSource {
 
-    public static final String MODEL_NAME = "network_address_inventory";
+    public static final String INDEX_NAME = "network_address_inventory";
 
     private static final String NAME = "name";
-    public static final String NODE_TYPE = "node_type";
+    private static final String NODE_TYPE = "node_type";
 
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
@@ -90,6 +92,7 @@ public class NetworkAddressInventory extends RegisterSource {
         inventory.setSequence(getSequence());
         inventory.setRegisterTime(getRegisterTime());
         inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setLastUpdateTime(getLastUpdateTime());
         inventory.setName(name);
         inventory.setNodeType(nodeType);
 
@@ -97,14 +100,14 @@ public class NetworkAddressInventory extends RegisterSource {
     }
 
     @Override public boolean combine(RegisterSource registerSource) {
-        boolean isCombine = super.combine(registerSource);
+        boolean isChanged = super.combine(registerSource);
         NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
 
-        if (nodeType != inventory.nodeType) {
-            setNodeType(inventory.nodeType);
+        if (this.nodeType != inventory.getNodeType() && inventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
+            setNodeType(inventory.getNodeType());
             return true;
         } else {
-            return isCombine;
+            return isChanged;
         }
     }
 
@@ -115,6 +118,7 @@ public class NetworkAddressInventory extends RegisterSource {
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
+        remoteBuilder.addDataLongs(getLastUpdateTime());
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
@@ -126,6 +130,7 @@ public class NetworkAddressInventory extends RegisterSource {
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
+        setLastUpdateTime(remoteData.getDataLongs(2));
 
         setName(remoteData.getDataStrings(0));
     }
@@ -138,11 +143,12 @@ public class NetworkAddressInventory extends RegisterSource {
 
         @Override public NetworkAddressInventory map2Data(Map<String, Object> dbMap) {
             NetworkAddressInventory inventory = new NetworkAddressInventory();
-            inventory.setSequence((Integer)dbMap.get(SEQUENCE));
+            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
             inventory.setName((String)dbMap.get(NAME));
-            inventory.setNodeType((Integer)dbMap.get(NODE_TYPE));
-            inventory.setRegisterTime((Long)dbMap.get(REGISTER_TIME));
-            inventory.setHeartbeatTime((Long)dbMap.get(HEARTBEAT_TIME));
+            inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
+            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
             return inventory;
         }
 
@@ -153,6 +159,7 @@ public class NetworkAddressInventory extends RegisterSource {
             map.put(NODE_TYPE, storageData.getNodeType());
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
+            map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             return map;
         }
     }

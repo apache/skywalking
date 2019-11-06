@@ -33,5 +33,5 @@ public interface IServiceInventoryCacheDAO extends DAO {
 
     ServiceInventory get(int serviceId);
 
-    List<ServiceInventory> loadLastMappingUpdate();
+    List<ServiceInventory> loadLastUpdate(long lastUpdateTime);
 }

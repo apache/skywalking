@@ -31,5 +31,5 @@ public interface RemoteClient extends Comparable<RemoteClient> {
 
     void close();
 
-    void push(int nextWorkerId, StreamData streamData);
+    void push(String nextWorkerName, StreamData streamData);
 }

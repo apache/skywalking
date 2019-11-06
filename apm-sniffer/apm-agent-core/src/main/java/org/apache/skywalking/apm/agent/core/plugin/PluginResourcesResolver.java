@@ -55,26 +55,4 @@ public class PluginResourcesResolver {
         }
         return null;
     }
-
-    /**
-     * Get the classloader.
-     * First getDefault current thread's classloader,
-     * if fail, getDefault {@link PluginResourcesResolver}'s classloader.
-     *
-     * @return the classloader to find plugin definitions.
-     */
-    private ClassLoader getDefaultClassLoader() {
-        ClassLoader cl = null;
-        try {
-            cl = Thread.currentThread().getContextClassLoader();
-        } catch (Throwable ex) {
-            // Cannot access thread context ClassLoader - falling back to system class loader...
-        }
-        if (cl == null) {
-            // No thread context class loader -> use class loader of this class.
-            cl = PluginResourcesResolver.class.getClassLoader();
-        }
-        return cl;
-    }
-
 }

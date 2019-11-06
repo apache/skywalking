@@ -21,11 +21,14 @@ package org.apache.skywalking.oap.server.core.alarm;
 import java.util.Objects;
 
 public abstract class MetaInAlarm {
+
+    public abstract String getScope();
+
     public abstract int getScopeId();
 
     public abstract String getName();
 
-    public abstract String getIndicatorName();
+    public abstract String getMetricsName();
 
     /**
      * In most scopes, there is only id0, as primary id. Such as Service, Endpoint. But in relation, the ID includes

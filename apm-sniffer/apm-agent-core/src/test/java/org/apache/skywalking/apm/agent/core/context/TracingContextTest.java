@@ -39,28 +39,34 @@ public class TracingContextTest {
     @Test
     public void testSpanLimit() {
         final boolean[] dataReceived = {false};
-        TracingContext.ListenerManager.add(new TracingContextListener() {
+        TracingContextListener listener = new TracingContextListener() {
             @Override public void afterFinished(TraceSegment traceSegment) {
                 dataReceived[0] = true;
             }
-        });
-        TracingContext tracingContext = new TracingContext();
-        AbstractSpan span = tracingContext.createEntrySpan("/url");
+        };
+        TracingContext.ListenerManager.add(listener);
+        try {
+            TracingContext tracingContext = new TracingContext();
+            AbstractSpan span = tracingContext.createEntrySpan("/url");
 
-        for (int i = 0; i < 10; i++) {
-            AbstractSpan localSpan = tracingContext.createLocalSpan("/java-bean");
+            for (int i = 0; i < 10; i++) {
+                AbstractSpan localSpan = tracingContext.createLocalSpan("/java-bean");
 
-            for (int j = 0; j < 100; j++) {
-                AbstractSpan exitSpan = tracingContext.createExitSpan("/redis","localhost");
-                tracingContext.stopSpan(exitSpan);
+                for (int j = 0; j < 100; j++) {
+                    AbstractSpan exitSpan = tracingContext.createExitSpan("/redis", "localhost");
+                    tracingContext.stopSpan(exitSpan);
+                }
+
+                tracingContext.stopSpan(localSpan);
             }
 
-            tracingContext.stopSpan(localSpan);
+            tracingContext.stopSpan(span);
+
+            Assert.assertTrue(dataReceived[0]);
+        } finally {
+            TracingContext.ListenerManager.remove(listener);
         }
-
-        tracingContext.stopSpan(span);
-
-
-        Assert.assertTrue(dataReceived[0]);
     }
+
+
 }

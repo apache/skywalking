@@ -68,7 +68,7 @@ public class PropertyPlaceholderHelperTest {
     @Test
     public void testDataType() {
         //tests that do not use ${name} to set config.
-        Assert.assertEquals("grpc.skywalking.incubator.apache.org",
+        Assert.assertEquals("grpc.skywalking.apache.org",
             yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("gRPCHost"), properties)));
 
         //tests that use ${REST_HOST:0.0.0.0} but not set REST_HOST in environmentVariables.
@@ -78,6 +78,19 @@ public class PropertyPlaceholderHelperTest {
         //tests that use ${REST_PORT:12800} and set REST_PORT in environmentVariables.
         Assert.assertEquals(12801,
             yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
+    }
+
+    @Test
+    public void testReplacePlaceholders() {
+        PropertyPlaceholderHelper propertyPlaceholderHelper = PropertyPlaceholderHelper.INSTANCE;
+        Properties properties = new Properties();
+        String resultString = propertyPlaceholderHelper.replacePlaceholders("&${[}7", properties);
+
+        Assert.assertEquals(0, properties.size());
+        Assert.assertTrue(properties.isEmpty());
+
+        Assert.assertNotNull(resultString);
+        Assert.assertEquals("&${[}7", resultString);
     }
 
     @After

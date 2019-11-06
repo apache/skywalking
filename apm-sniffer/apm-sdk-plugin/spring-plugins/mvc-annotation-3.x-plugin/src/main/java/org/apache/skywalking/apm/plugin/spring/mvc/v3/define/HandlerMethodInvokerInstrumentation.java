@@ -39,11 +39,11 @@ public class HandlerMethodInvokerInstrumentation extends AbstractSpring3Instrume
     private static final String ENHANCE_METHOD = "invokeHandlerMethod";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.mvc.v3.HandlerMethodInvokerInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {

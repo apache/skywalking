@@ -19,17 +19,11 @@
 package org.apache.skywalking.apm.agent.core.dictionary;
 
 import io.netty.util.internal.ConcurrentSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.logging.api.*;
 import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.register.v2.Endpoint;
-import org.apache.skywalking.apm.network.register.v2.EndpointMapping;
-import org.apache.skywalking.apm.network.register.v2.EndpointMappingElement;
-import org.apache.skywalking.apm.network.register.v2.Enpoints;
-import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
+import org.apache.skywalking.apm.network.register.v2.*;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.ENDPOINT_NAME_BUFFER_SIZE;
 
@@ -73,7 +67,7 @@ public enum EndpointNameDictionary {
     public void syncRemoteDictionary(
         RegisterGrpc.RegisterBlockingStub serviceNameDiscoveryServiceBlockingStub) {
         if (unRegisterEndpoints.size() > 0) {
-            Enpoints.Builder builder = Enpoints.newBuilder();
+            Endpoints.Builder builder = Endpoints.newBuilder();
             for (OperationNameKey operationNameKey : unRegisterEndpoints) {
                 Endpoint endpoint = Endpoint.newBuilder()
                     .setServiceId(operationNameKey.getServiceId())
@@ -95,6 +89,10 @@ public enum EndpointNameDictionary {
                 }
             }
         }
+    }
+
+    public void clear() {
+        endpointDictionary.clear();
     }
 
     private class OperationNameKey {

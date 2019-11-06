@@ -25,7 +25,7 @@ public abstract class AbstractSpring4Instrumentation extends ClassInstanceMethod
     public static final String WITHNESS_CLASSES = "org.springframework.cache.interceptor.SimpleKey";
 
     @Override
-    protected final String[] witnessClasses() {
+    protected String[] witnessClasses() {
         return new String[] {WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator"};
     }
 }

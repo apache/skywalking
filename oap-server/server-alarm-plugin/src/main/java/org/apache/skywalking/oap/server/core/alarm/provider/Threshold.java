@@ -50,7 +50,7 @@ public class Threshold {
         return longThreshold;
     }
 
-    public void setType(IndicatorValueType type) {
+    public void setType(MetricsValueType type) {
         try {
             switch (type) {
                 case INT:
@@ -64,7 +64,7 @@ public class Threshold {
                     break;
             }
         } catch (NumberFormatException e) {
-            logger.warn("Alarm rule {} threshold doesn't match the indicator type, expected type: {}", alarmRuleName, type);
+            logger.warn("Alarm rule {} threshold doesn't match the metrics type, expected type: {}", alarmRuleName, type);
         }
     }
 }

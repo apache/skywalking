@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link Mysql50ConnectionInstrumentation} interceptor the com.mysql.jdbc.Connection class in the 5.0.x verison
+ * {@link Mysql50ConnectionInstrumentation} interceptor the com.mysql.jdbc.Connection class in the 5.0.x version
  * of mysql driver jar.
  *
  * @author zhangxin

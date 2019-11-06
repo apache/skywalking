@@ -19,6 +19,8 @@
 
 package org.apache.skywalking.apm.agent.core.context.util;
 
+import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.CAUSE_EXCEPTION_DEPTH;
+
 /**
  * {@link ThrowableTransformer} is responsible for transferring stack trace of throwable.
  */
@@ -30,10 +32,12 @@ public enum ThrowableTransformer {
     public String convert2String(Throwable throwable, final int maxLength) {
         final StringBuilder stackMessage = new StringBuilder();
         Throwable causeException = throwable;
-        while (causeException != null) {
+
+        int depth = CAUSE_EXCEPTION_DEPTH;
+        while (causeException != null && depth != 0) {
             stackMessage.append(printExceptionInfo(causeException));
 
-            boolean overMaxLength = printStackElement(throwable.getStackTrace(), new AppendListener() {
+            boolean isLookDeeper = printStackElement(causeException.getStackTrace(), new AppendListener() {
                 public void append(String value) {
                     stackMessage.append(value);
                 }
@@ -43,11 +47,12 @@ public enum ThrowableTransformer {
                 }
             });
 
-            if (overMaxLength) {
+            if (isLookDeeper) {
                 break;
             }
 
-            causeException = throwable.getCause();
+            causeException = causeException.getCause();
+            depth--;
         }
 
         return stackMessage.toString();
@@ -58,6 +63,14 @@ public enum ThrowableTransformer {
     }
 
     private boolean printStackElement(StackTraceElement[] stackTrace, AppendListener printListener) {
+        if (stackTrace.length == 0) {
+            /**
+             * In some cases, people would fill empty stackTrace intentionally.
+             * This is a quick stop.
+             */
+            return true;
+        }
+
         for (StackTraceElement traceElement : stackTrace) {
             printListener.append("at " + traceElement + LINE_SEPARATOR);
             if (printListener.overMaxLength()) {
