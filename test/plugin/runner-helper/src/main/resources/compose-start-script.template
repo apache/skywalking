@@ -16,7 +16,7 @@
 -->
 
 compose_file="${docker_compose_file}"
-project_name="${build_id}"
+project_name=$(echo "${build_id}" |awk '{print tolower($0)}')
 docker_container_name="${docker_container_name}_1"
 
 <#noparse>

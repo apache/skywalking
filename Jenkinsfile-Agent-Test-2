@@ -32,6 +32,7 @@ pipeline {
     }
 
     environment {
+        BUILD_NO="wl2_${BUILD_ID}"
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
@@ -63,12 +64,12 @@ pipeline {
                 }
             }
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl2_${BUILD_ID} docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (156)') {
+        stage('Test Cases Report (136)') {
             steps {
-                echo "reserve."
+                echo "Test Cases Report"
             }
         }
 
@@ -81,59 +82,49 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
-                        stage('spring-cloud-gateway 2.1.x (3)') {
+                        stage('spring 4.3.x-5.2.x (54)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} gateway-scenario'
+                                sh 'bash test/plugin/run.sh spring-4.3.x-scenario'
                             }
                         }
 
                         stage('dubbo 2.5.x-2.6.x (10)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} dubbo-2.5.x-scenario'
+                                sh 'bash test/plugin/run.sh dubbo-2.5.x-scenario'
                             }
                         }
 
-                        stage('spring 3.0.x (8)') {
+                        stage('dubbo 2.7.x (4)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-3.0.x-scenario'
+                                sh 'bash test/plugin/run.sh dubbo-2.7.x-scenario'
+                            }
+                        }
+                    }
+                }
+
+                stage('Group2') {
+                    stages {
+                        stage('redisson 3.x (37)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh redisson-scenario'
                             }
                         }
 
                         stage('spring 3.1.x-4.0.x (25)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-3.1.x-scenario'
+                                sh 'bash test/plugin/run.sh spring-3.1.x-scenario'
                             }
                         }
 
-                        stage('spring 4.1.x-4.2.x (20)') {
+                        stage('spring-cloud-gateway 2.1.x (3)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-4.1.x-scenario'
+                                sh 'bash test/plugin/run.sh gateway-scenario'
                             }
                         }
 
-                        stage('apm-toolkit-trace (1)') {
+                        stage('elasticsearch 5.x (3)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} apm-toolkit-trace-scenario'
-                            }
-                        }
-                    }
-                }
-                stage('Group2') {
-                    stages {
-                        stage('solrj 7.x (12)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} solrj-7.x-scenario'
-                            }
-                        }
-
-                        stage('spring 4.3.x-5.2.x (54)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} spring-4.3.x-scenario'
-                            }
-                        }
-                        stage('undertow-scenario 1.3.0-2.0.27 (23)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} undertow-scenario'
+                                sh 'bash test/plugin/run.sh elasticsearch-5.x-scenario'
                             }
                         }
                     }
@@ -144,7 +135,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --build_id=wl2_${BUILD_ID} --cleanup'
+            sh 'bash test/plugin/run.sh --cleanup'
             deleteDir()
         }
     }
