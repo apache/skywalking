@@ -66,7 +66,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl1_${BUILD_ID} docker:build'
             }
         }
-        stage('Test Cases Report (169)') {
+        stage('Test Cases Report (176)') {
             steps {
                 echo "reserve."
             }
@@ -81,6 +81,11 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
+                        stage('elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)') {
+                                steps {
+                                    sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} elasticsearch-6.x-scenario'
+                                }
+                            }
                         stage('httpasyncclient 4.0-4.1.3 (7)') {
                             steps {
                                 sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} httpasyncclient-scenario'
