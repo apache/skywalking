@@ -642,21 +642,19 @@ postgresql 9.2.x-9.4.x | 36 | 1243.03
 sofarpc 5.4.0-5.6.2 | 23 | 817.77
 spring 3.0.x | 8 | 231.11
 
-#### Group 2 (3138.093s)
+#### Group 2 (2433.33s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
 spring async 4.3.x-5.1.x | 35 | 967.70
-kafka 0.11.0.0-2.3.0 | 16 | 704.75
 mongodb 3.4.0-3.11.1 | 17 | 1465.63
 
-
 ### Workload 4
-#### Group 1 (1688.243s)
+#### Group 1 (1778.45s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-undertow-routing 1.3.0-2.0.27 | 23 | 643.31
+kafka 0.11.0.0-2.3.0 | 16 | 704.75
 ehcache 2.8.x-2.10.x | 19 | 440.71
-undertow 1.3.0-2.0.27 | 23 | 604.20
+undertow 1.3.0-2.0.27 | 23 | 633.00
 
 #### Group 2 (2148.155s)
 scenario name | versions | elapsed time (sec)
