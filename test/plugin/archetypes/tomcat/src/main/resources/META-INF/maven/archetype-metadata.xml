@@ -15,9 +15,6 @@
         <requiredProperty key="version">
             <defaultValue>1.0.0</defaultValue>
         </requiredProperty>
-        <requiredProperty key="version">
-            <defaultValue>1.0.0</defaultValue>
-        </requiredProperty>
         <requiredProperty key="package">
             <defaultValue>org.apache.skywalking.apm.testcase.${scenario_name}</defaultValue>
         </requiredProperty>
