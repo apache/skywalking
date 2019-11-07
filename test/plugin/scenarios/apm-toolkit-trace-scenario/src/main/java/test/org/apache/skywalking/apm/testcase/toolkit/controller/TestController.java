@@ -62,6 +62,14 @@ public class TestController {
                 // ignore
             }
         });
+        testService.asyncSupplier(()->{
+            try {
+                visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier");
+            } catch (IOException e) {
+                // ignore
+            }
+            return true;
+        });
         return SUCCESS;
     }
 
@@ -78,6 +86,11 @@ public class TestController {
     @RequestMapping("/asyncVisit/callable")
     public String asyncVisitCallable() {
         return SUCCESS;
+    }
+
+    @RequestMapping("/asyncVisit/supplier")
+    public String asyncVisitSupplier() {
+    	return SUCCESS;
     }
 
 
