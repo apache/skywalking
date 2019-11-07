@@ -1,0 +1,50 @@
+<archetype-descriptor
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0
+        http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
+  xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="archetype">
+
+    <requiredProperties>
+        <requiredProperty key="groupId">
+            <defaultValue>org.apache.skywalking.apm.testcase</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="artifactId">
+            <defaultValue>${scenario_name}</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="version">
+            <defaultValue>1.0.0</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="version">
+            <defaultValue>1.0.0</defaultValue>
+        </requiredProperty>
+        <requiredProperty key="package">
+            <defaultValue>org.apache.skywalking.apm.testcase.${scenario_name}</defaultValue>
+        </requiredProperty>
+
+        <requiredProperty key="scenario_name" />
+        <requiredProperty key="scenario_case">
+            <defaultValue>${scenario_name}</defaultValue>
+        </requiredProperty>
+    </requiredProperties>
+
+    <fileSets>
+        <fileSet filtered="true" packaged="false" encoding="utf-8">
+            <directory/>
+            <includes>
+                <include>configuration.yml</include>
+                <include>support-version.list</include>
+                <include>bin/startup.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true" packaged="false">
+            <directory>config</directory>
+        </fileSet>
+        <fileSet filtered="true" packaged="true">
+            <directory>src/main/java</directory>
+        </fileSet>
+        <fileSet filtered="true" packaged="false">
+            <directory>src/main/resources</directory>
+        </fileSet>
+    </fileSets>
+</archetype-descriptor>
