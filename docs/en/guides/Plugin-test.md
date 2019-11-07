@@ -595,62 +595,72 @@ stage('Run Agent Plugin Tests') {
 }
 ```
 
+## The elapsed time list of plugins
 
-## The elapsed time list of plugins 
-### Workload-1 Goup1:
+### How to get the Elapsed time of your task?
+ 
+Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
+
+### Workload 1
+#### Group 1 (2164.287s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-apm-toolkit-trace | 1 | 21.17
-jetty 9.x | 63 | 492.72
-netty-socketio 1.x | 4 | 27.17
+apm-toolkit-trace | 1 | 84.69
+jetty 9.x | 63 | 1970.88
+netty-socketio 1.x | 4 | 108.70
 
-### Workload-1 Group2:
+#### Group 2 (2119.991s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-wl group2 | customize | 1 | 21.41
-wl group2 | postgresql 9.4.1207+ | 62 | 455.07
-wl group2 | canal 1.0.24-1.1.2 | 5 | 53.51
+customize | 1 | 85.64
+postgresql 9.4.1207+ | 62 | 1820.29
+canal 1.0.24-1.1.2 | 5 | 214.05
 
-### Workload-2 Group1:
+
+### Workload 2
+#### Group 1 (2351.54s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-spring 3.1.x-4.0.x | 25 | 190.05
-dubbo 2.5.x-2.6.x | 10 | 91.80
-dubbo 2.7.x | 4 | 53.74
+spring 4.3.x-5.2.x | 54 | 1769.32
+dubbo 2.5.x-2.6.x | 10 | 367.23
+dubbo 2.7.x | 4 | 214.99
 
-### Workload-2 Group2:
+#### Group 2 (2550.66s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-redisson 3.x | 37 | 364.44
-spring 4.3.x-5.2.x | 54 | 442.33
-spring-cloud-gateway 2.1.x | 3 | 47.63
-elasticsearch 5.x | 3 | 35.53
+redisson 3.x | 37 | 1457.77
+spring 3.1.x-4.0.x | 25 | 760.22
+spring-cloud-gateway 2.1.x | 3 | 190.52
+elasticsearch 5.x | 3 | 142.15
 
-### Workload-3 Group1:
+
+### Workload 3
+#### Group 1 (2291.912s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-postgresql 9.2.x-9.4.x | 36 | 310.75
-sofarpc 5.4.0-5.6.2 | 23 | 204.44
-spring 3.0.x | 8 | 57.77
+postgresql 9.2.x-9.4.x | 36 | 1243.03
+sofarpc 5.4.0-5.6.2 | 23 | 817.77
+spring 3.0.x | 8 | 231.11
 
-### Workload-3 Group2:
+#### Group 2 (3138.093s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-spring async 4.3.x-5.1.x | 35 | 241.92
-mongodb 3.4.0-3.11.1 | 17 | 366.40
+spring async 4.3.x-5.1.x | 35 | 967.70
+mongodb 3.4.0-3.11.1 | 17 | 1465.63
 
-### Workload-4 Group1:
+### Workload 4
+#### Group 1 (1688.243s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-kafka 0.11.0.0-2.3.0 | 16 | 176.18
-ehcache 2.8.x-2.10.x | 19 | 110.17
-undertow 1.3.0-2.0.27 | 23 | 151.05
+kafka 0.11.0.0-2.3.0 | 16 | 704.75
+ehcache 2.8.x-2.10.x | 19 | 440.71
+undertow 1.3.0-2.0.27 | 23 | 604.20
 
-### Workload-4 Group2:
+#### Group 2 (2148.155s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-spring-webflux 2.x | 18 | 176.40
-spring 4.1.x-4.2.x | 20 | 143.68
-solrj 7.x | 12 | 91.76
-httpclient 4.3.x-4.5.x | 14 | 75.15
-httpasyncclient 4.0-4.1.3 | 7 | 50.02
+spring-webflux 2.x | 18 | 705.60
+spring 4.1.x-4.2.x | 20 | 574.75
+solrj 7.x | 12 | 367.05
+httpclient 4.3.x-4.5.x | 14 | 300.61
+httpasyncclient 4.0-4.1.3 | 7 | 200.11
