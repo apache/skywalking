@@ -68,7 +68,7 @@ pipeline {
             }
         }
 
-        stage('Test Cases Report (143)') {
+        stage('Test Cases Report (136)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -83,12 +83,6 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
-                        stage('elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} elasticsearch-6.x-scenario'
-                            }
-                        }
-
                         stage('apm-toolkit-trace (1)') {
                             steps {
                                 sh 'bash test/plugin/run.sh apm-toolkit-trace-scenario'

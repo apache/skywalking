@@ -32,9 +32,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <elasticsearch.rest.high.level.client.version>6.7.1</elasticsearch.rest.high.level.client.version>
     </properties>
 
