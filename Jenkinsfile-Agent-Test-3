@@ -67,7 +67,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (135)') {
+        stage('Test Cases Report (119)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -107,12 +107,6 @@ pipeline {
                         stage('spring async 4.3.x-5.1.x (35)') {
                             steps {
                                 sh 'bash test/plugin/run.sh spring-async-scenario'
-                            }
-                        }
-
-                        stage('kafka 0.11.0.0-2.3.0 (16)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh kafka-scenario'
                             }
                         }
 
