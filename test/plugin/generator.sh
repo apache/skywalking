@@ -23,7 +23,7 @@ type="jvm"
 artifactId=
 scenario_home=
 scenario_case=
-scenarios_home=${wkdir}/../scenarios
+scenarios_home=${wkdir}/scenarios
 
 exitWithMessage() {
     echo $1>&2
@@ -99,13 +99,13 @@ ${MVNW} -f ./pom.xml install
 
 package="org.apache.skywalking.apm.testcase.${artifactId%%-scenario}"
 ${MVNW} archetype:generate \
-	-Dfilter=org.apache.skywalking.apm.testcase:${artifactId}:"1.0.0" \
-	-DarchetypeGroupId=org.apache.skywalking.plugin \
-	-DoutputDirectory=${scenarios_home} \
-        -Dscenario_name=${scenario_name} \
-	-Dscenario_case=${scenario_case} \
-	-DarchetypeArtifactId=${type} \
-	-DarchetypeCatalog=local \
-	-DinteractiveMode=false \
-	-DarchetypeVersion=1.0.0 \
-        -Dpackage=${package}
+    -Dfilter=org.apache.skywalking.apm.testcase:${artifactId}:"1.0.0" \
+    -DarchetypeGroupId=org.apache.skywalking.plugin \
+    -DoutputDirectory=${scenarios_home} \
+    -Dscenario_name=${scenario_name} \
+    -Dscenario_case=${scenario_case} \
+    -DarchetypeArtifactId=${type} \
+    -DarchetypeCatalog=local \
+    -DinteractiveMode=false \
+    -DarchetypeVersion=1.0.0 \
+    -Dpackage=${package}
