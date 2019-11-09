@@ -16,7 +16,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 in Cloud Native architecture.
 The core features are following.
 
-- Service, service instance, endpoint metrics analysis
+- Service, service instance, endpoint metrics analysis.
 - Root cause analysis
 - Service topology map analysis
 - Service, service instance and endpoint dependency analysis
