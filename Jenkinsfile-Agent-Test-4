@@ -68,7 +68,7 @@ pipeline {
             }
         }
 
-        stage('Test Cases Report (142)') {
+        stage('Test Cases Report (154)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -105,6 +105,12 @@ pipeline {
                         stage('undertow 1.3.0-2.0.27 (23)') {
                             steps {
                                 sh 'bash test/plugin/run.sh undertow-scenario'
+                            }
+                        }
+
+                        stage('jedis 2.4.0-2.9.0 (18)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh jedis-scenario'
                             }
                         }
                     }
