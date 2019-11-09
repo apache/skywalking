@@ -21,7 +21,7 @@ The test framework provides `JVM-container` and `Tomcat-container` base images. 
 ### JVM-container Image Introduction
 
 [JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the basic image.
-The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn package`.
+The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
 Take the following test projects as good examples
 * [sofarpc-scenario](../../../test/plugin/scenarios/sofarpc-scenario) as a single project case.
@@ -30,7 +30,7 @@ Take the following test projects as good examples
 ### Tomcat-container Image Introduction
 
 [Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the basic image.
-The test case project is required to ba packaged as `project-name.war` by using `mvn package`.
+The test case project is required to be packaged as `project-name.war` by using `mvn package`.
 
 Take the following test project as a good example
 * [spring-4.3.x-scenario](https://github.com/apache/skywalking/tree/master/test/plugin/scenarios/spring-4.3.x-scenario)
@@ -359,6 +359,16 @@ java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyclient-scenario"  
 
 
 ## Best Practices
+
+### How To Use The Archetype To Create A Test Case Project
+We provided archetypes and a script to make creating a project easier. It creates a completed project of a test case. So that we only need to focus on cases.
+First, we can use followed command to get usage about the script.
+
+`bash ${SKYWALKING_HOME}/test/plugin/generator.sh -h`
+
+Then, runs and generates a project, named by `scenario_name`, in `./scenarios`.
+
+
 ### Recommendations for pom
 
 ```xml
