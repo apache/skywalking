@@ -16,20 +16,20 @@
  *
  */
 
-package $package;
+package ${package}.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-@Controller
+@RestController
 @RequestMapping("/case")
-@PropertySource("classpath:application.properties")
 public class CaseController {
+
     private static final Logger logger = LogManager.getLogger(CaseController.class);
+
     private static final String SUCCESS = "Success";
 
     @RequestMapping("/${scenario_case}")

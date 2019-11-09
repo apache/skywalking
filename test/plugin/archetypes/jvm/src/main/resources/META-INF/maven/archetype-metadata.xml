@@ -55,6 +55,9 @@
         <fileSet filtered="true" packaged="false">
             <directory>config</directory>
         </fileSet>
+        <fileSet filtered="true" packaged="false">
+            <directory>src/main/assembly</directory>
+        </fileSet>
         <fileSet filtered="true" packaged="true">
             <directory>src/main/java</directory>
         </fileSet>

@@ -29,6 +29,7 @@ public class CaseServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // your codes
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("success");
         printWriter.flush();

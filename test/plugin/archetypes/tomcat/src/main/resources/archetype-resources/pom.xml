@@ -27,6 +27,8 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <name>skywalking-${scenario_name}</name>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>

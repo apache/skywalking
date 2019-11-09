@@ -16,14 +16,14 @@
   ~ limitations under the License.
   ~
   -->
-<Configuration status="info">
+<Configuration status="WARN">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d [%traceId] %-5p %c{1}:%L - %m%n"/>
+        <Console name="Console" target="SYSTEM_ERR">
+            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="OFF">
+        <Root level="WARN">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

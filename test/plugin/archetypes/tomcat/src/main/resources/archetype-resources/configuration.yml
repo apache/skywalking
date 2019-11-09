@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
+type: tomcat
 entryService: http://localhost:8080/${scenario_name}/case/${scenario_case}
 healthCheck: http://localhost:8080/${scenario_name}/case/healthCheck
 framework: ${scenario_name}
