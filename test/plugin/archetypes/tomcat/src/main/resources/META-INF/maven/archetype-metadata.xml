@@ -60,5 +60,8 @@
         <fileSet filtered="true" packaged="false">
             <directory>src/main/resources</directory>
         </fileSet>
+        <fileSet filtered="true" packaged="false">
+            <directory>src/main/webapp</directory>
+        </fileSet>
     </fileSets>
 </archetype-descriptor>

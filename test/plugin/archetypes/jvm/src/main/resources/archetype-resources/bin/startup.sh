@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs${scenario_name}.jar &
+java -jar ${agent_opts} ${home}/../libs/${scenario_name}.jar &

@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 #
-
-server.port=8080
-server.contextPath=/${scenario_name}
-logging.config=classpath:log4j2.xml
+server:
+  port: 8080
+  servlet:
+    context-path: /${scenario_name}
+logging:
+  config: classpath:log4j2.xml
