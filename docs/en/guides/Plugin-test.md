@@ -21,7 +21,7 @@ The test framework provides `JVM-container` and `Tomcat-container` base images. 
 ### JVM-container Image Introduction
 
 [JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the basic image.
-The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn package`.
+The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
 Take the following test projects as good examples
 * [sofarpc-scenario](../../../test/plugin/scenarios/sofarpc-scenario) as a single project case.
@@ -30,7 +30,7 @@ Take the following test projects as good examples
 ### Tomcat-container Image Introduction
 
 [Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the basic image.
-The test case project is required to ba packaged as `project-name.war` by using `mvn package`.
+The test case project is required to be packaged as `project-name.war` by using `mvn package`.
 
 Take the following test project as a good example
 * [spring-4.3.x-scenario](https://github.com/apache/skywalking/tree/master/test/plugin/scenarios/spring-4.3.x-scenario)
@@ -359,6 +359,16 @@ java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyclient-scenario"  
 
 
 ## Best Practices
+
+### How To Use The Archetype To Create A Test Case Project
+We provided archetypes and a script to make creating a project easier. It creates a completed project of a test case. So that we only need to focus on cases.
+First, we can use followed command to get usage about the script.
+
+`bash ${SKYWALKING_HOME}/test/plugin/generator.sh`
+
+Then, runs and generates a project, named by `scenario_name`, in `./scenarios`.
+
+
 ### Recommendations for pom
 
 ```xml
@@ -594,3 +604,74 @@ stage('Run Agent Plugin Tests') {
     }
 }
 ```
+
+## The elapsed time list of plugins
+
+### How to get the Elapsed time of your task?
+ 
+Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
+
+### Workload 1
+#### Group 1 (2164.287s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+apm-toolkit-trace | 1 | 84.69
+jetty 9.x | 63 | 1970.88
+netty-socketio 1.x | 4 | 108.70
+
+#### Group 2 (2119.991s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+customize | 1 | 85.64
+postgresql 9.4.1207+ | 62 | 1820.29
+canal 1.0.24-1.1.2 | 5 | 214.05
+
+
+### Workload 2
+#### Group 1 (2351.54s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+spring 4.3.x-5.2.x | 54 | 1769.32
+dubbo 2.5.x-2.6.x | 10 | 367.23
+dubbo 2.7.x | 4 | 214.99
+
+#### Group 2 (2550.66s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+redisson 3.x | 37 | 1457.77
+spring 3.1.x-4.0.x | 25 | 760.22
+spring-cloud-gateway 2.1.x | 3 | 190.52
+elasticsearch 5.x | 3 | 142.15
+
+
+### Workload 3
+#### Group 1 (2291.912s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+postgresql 9.2.x-9.4.x | 36 | 1243.03
+sofarpc 5.4.0-5.6.2 | 23 | 817.77
+spring 3.0.x | 8 | 231.11
+
+#### Group 2 (2433.33s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+spring async 4.3.x-5.1.x | 35 | 967.70
+mongodb 3.4.0-3.11.1 | 17 | 1465.63
+
+### Workload 4
+#### Group 1 (2397.45s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+kafka 0.11.0.0-2.3.0 | 16 | 704.75
+ehcache 2.8.x-2.10.x | 19 | 440.71
+undertow 1.3.0-2.0.27 | 23 | 633.00
+jedis 2.4.0-2.9.0 ｜ 18 ｜ 619
+
+#### Group 2 (2148.155s)
+scenario name | versions | elapsed time (sec)
+---|---|---
+spring-webflux 2.x | 18 | 705.60
+spring 4.1.x-4.2.x | 20 | 574.75
+solrj 7.x | 12 | 367.05
+httpclient 4.3.x-4.5.x | 14 | 300.61
+httpasyncclient 4.0-4.1.3 | 7 | 200.11
