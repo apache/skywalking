@@ -659,12 +659,13 @@ spring async 4.3.x-5.1.x | 35 | 967.70
 mongodb 3.4.0-3.11.1 | 17 | 1465.63
 
 ### Workload 4
-#### Group 1 (1778.45s)
+#### Group 1 (2397.45s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
 kafka 0.11.0.0-2.3.0 | 16 | 704.75
 ehcache 2.8.x-2.10.x | 19 | 440.71
 undertow 1.3.0-2.0.27 | 23 | 633.00
+jedis 2.4.0-2.9.0 ｜ 18 ｜ 619
 
 #### Group 2 (2148.155s)
 scenario name | versions | elapsed time (sec)
