@@ -364,7 +364,7 @@ java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyclient-scenario"  
 We provided archetypes and a script to make creating a project easier. It creates a completed project of a test case. So that we only need to focus on cases.
 First, we can use followed command to get usage about the script.
 
-`bash ${SKYWALKING_HOME}/test/plugin/generator.sh -h`
+`bash ${SKYWALKING_HOME}/test/plugin/generator.sh`
 
 Then, runs and generates a project, named by `scenario_name`, in `./scenarios`.
 
