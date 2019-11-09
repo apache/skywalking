@@ -18,6 +18,3 @@
 home="$(cd "$(dirname $0)"; pwd)"
 
 java -jar ${agent_opts} -Dskywalking.plugin.elasticsearch.trace_dsl=true ${home}/../libs/elasticsearch-6.x-scenario.jar &
-
-# user for more time to collect data
-sleep 5

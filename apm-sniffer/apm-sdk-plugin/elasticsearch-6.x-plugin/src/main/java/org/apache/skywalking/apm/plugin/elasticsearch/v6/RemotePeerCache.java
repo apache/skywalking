@@ -17,21 +17,19 @@
  */
 package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
+ *
+ * Used for store ES connection related information, remotePeers will store the IP address and port,
+ * separated by commas when multiple connections are made.
+ *
  * @author aderm
  */
 public class RemotePeerCache {
 
-    private List<String> remotePeerList = Collections.synchronizedList(new ArrayList<String>());
     private String remotePeers = "";
 
     public void addRemotePeer(String host, int port) {
         String hostPort = host + ":" + String.valueOf(port);
-        remotePeerList.add(hostPort);
 
         if (remotePeers.isEmpty()) {
             remotePeers = hostPort;

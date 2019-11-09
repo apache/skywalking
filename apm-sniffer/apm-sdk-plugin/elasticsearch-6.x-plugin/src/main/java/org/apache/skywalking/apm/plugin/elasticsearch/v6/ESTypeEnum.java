@@ -17,6 +17,12 @@
  */
 package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
+/**
+ *
+ * ES common operation type enumeration class
+ *
+ * @author aderm
+ */
 public enum ESTypeEnum {
 
     CREATE("create"), INDEX("index"), GET("get"), SEARCH("search"), UPDATE("update"), DELETE("delete");

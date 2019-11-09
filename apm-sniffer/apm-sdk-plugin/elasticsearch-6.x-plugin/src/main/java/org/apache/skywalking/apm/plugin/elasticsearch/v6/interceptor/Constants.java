@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
  * @author aderm
  */
 public class Constants {
-    //interceptor
+    //interceptor class
     public static final String REST_HIGH_LEVEL_CLIENT_CON_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientConInterceptor";
     public static final String INDICES_CLIENT_CREATE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientCreateMethodsInterceptor";
     public static final String INDICES_CLIENT_DELETE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientDeleteMethodsInterceptor";

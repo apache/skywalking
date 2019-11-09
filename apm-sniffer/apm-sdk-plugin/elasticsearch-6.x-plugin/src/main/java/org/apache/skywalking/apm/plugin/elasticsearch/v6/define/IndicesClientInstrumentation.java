@@ -30,6 +30,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 
 /**
+ *
+ * {@link IndicesClientInstrumentation} enhance the <code>create createAsync delete deleteAsync</code> method without argument in
+ * <code>org.elasticsearch.client.IndicesClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientCreateMethodsInterceptor
+ *  org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientDeleteMethodsInterceptor</code>
+ *
  * @author aderm
  */
 public class IndicesClientInstrumentation extends ClassEnhancePluginDefine {

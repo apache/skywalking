@@ -23,8 +23,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -37,8 +35,6 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
  * @author aderm
  */
 public class IndicesClientDeleteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final ILog logger = LogManager.getLogger(IndicesClientDeleteMethodsInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -62,13 +58,21 @@ public class IndicesClientDeleteMethodsInterceptor implements InstanceMethodsAro
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
+            .getSkyWalkingDynamicField());
+        if (restClientEnhanceInfo != null) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method,
         Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
+            .getSkyWalkingDynamicField());
+        if (restClientEnhanceInfo != null) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 }
