@@ -19,10 +19,10 @@ registryItems:
   instances:
   - {rabbitmq-scenario: 1}
   operationNames:
-  - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq,/rabbitmq-scenario/case/healthcheck,RabbitMQ/Topic/Queue/test/Producer,RabbitMQ/Topic/Queue/test/Consumer]
+  - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq,RabbitMQ/Topic/Queue/test/Producer,RabbitMQ/Topic/Queue/test/Consumer]
 segmentItems:
 - applicationCode: rabbitmq-scenario
-  segmentSize: ge 2
+  segmentSize: gt 2
   segments:
   - segmentId: not null
     spans:
@@ -80,21 +80,4 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/rabbitmq-scenario/case/rabbitmq'}
       - {key: http.method, value: GET}
-  - segmentId: not null
-    spans:
-    - operationName: /rabbitmq-scenario/case/healthcheck
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: Http
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 1
-      componentName: ''
-      isError: false
-      spanType: Entry
-      peer: ''
-      peerId: 0
-      tags:
-      - {key: url, value: 'http://localhost:8080/rabbitmq-scenario/case/healthcheck'}
-      - {key: http.method, value: HEAD}
+

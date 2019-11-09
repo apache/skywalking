@@ -59,7 +59,8 @@ public class CaseController {
 
     @RequestMapping("/rabbitmq")
     @ResponseBody
-    public String rabbitmqCase() {
+    public String rabbitmqCase() throws Exception {
+        Channel channel = null;
 
         try{
             factory = new ConnectionFactory();
@@ -71,7 +72,7 @@ public class CaseController {
 
             connection = factory.newConnection();
 
-            Channel channel = connection.createChannel();
+            channel = connection.createChannel();
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
             logger.info("Message being published -------------->"+MESSAGE);
@@ -85,17 +86,24 @@ public class CaseController {
             channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
             Thread.sleep(5000);
             logger.info("Message Consumed-------------->");
-            channel.close();
-            connection.close();
 
         }catch (Exception ex){
             logger.error(ex.toString());
+        }
+        finally {
+            if (channel != null) {
+                channel.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
         }
         return "Success";
     }
 
     @RequestMapping("/healthcheck")
     public String healthCheck() throws Exception {
+       Channel channel = null;
 
         try{
             factory = new ConnectionFactory();
@@ -107,16 +115,21 @@ public class CaseController {
 
             connection = factory.newConnection();
 
-            Channel channel = connection.createChannel();
+            channel = connection.createChannel();
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             logger.info("Completed Health Check. Able to connect to RabbitMQ and create queue-------------->");
-            channel.close();
-            connection.close();
-
         }catch (Exception ex){
             logger.error(ex.toString());
             throw ex;
         }
-        return "Success";
+        finally {
+            if (channel != null) {
+                channel.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+       return "Success";
     }
 }
