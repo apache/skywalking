@@ -31,8 +31,6 @@ public class MongoConstants {
 
     public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
 
-    public static final int FILTER_LENGTH_LIMIT = 256;
-
     public static final String EMPTY = "";
 
 }
