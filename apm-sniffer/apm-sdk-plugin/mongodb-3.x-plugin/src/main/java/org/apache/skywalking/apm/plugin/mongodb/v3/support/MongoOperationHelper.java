@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * @author scolia
  */
-@SuppressWarnings( {"deprecation", "Duplicates"})
+@SuppressWarnings({"deprecation", "Duplicates"})
 public class MongoOperationHelper {
 
 
