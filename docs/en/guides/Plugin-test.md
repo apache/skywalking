@@ -359,6 +359,16 @@ java -jar ${agent_opts} "-Dskywalking.agent.service_name=jettyclient-scenario"  
 
 
 ## Best Practices
+
+### How To Use The Archetype To Create A Test Case Project
+We provided archetypes and a script to make creating a project easier. It creates a completed project of a test case. So that we only need to focus on cases.
+First, we can use followed command to get usage about the script.
+
+`bash ${SKYWALKING_HOME}/test/plugin/generator.sh`
+
+Then, runs and generates a project, named by `scenario_name`, in `./scenarios`.
+
+
 ### Recommendations for pom
 
 ```xml
@@ -656,7 +666,7 @@ elasticsearch-6.x-scenario | 7 | 273.00
 kafka 0.11.0.0-2.3.0 | 16 | 628.00
 ehcache 2.8.x-2.10.x | 19 | 442.00
 undertow 1.3.0-2.0.27 | 23 | 596.00
-jedis 2.4.0-2.9.0 | 18 | 524.00
+jedis 2.4.0-2.9.0 ｜ 18 ｜ 524.00
 
 #### Group 2 (2148.155s)
 scenario name | versions | elapsed time (sec)

@@ -16,21 +16,29 @@
  *
  */
 
+package $package;
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.support;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-/**
- * @author scolia
- */
-public class MongoConstants {
+public class CaseServlet extends HttpServlet {
 
-    private MongoConstants() {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // your codes
+        PrintWriter printWriter = resp.getWriter();
+        printWriter.write("success");
+        printWriter.flush();
+        printWriter.close();
     }
 
-    public static final String DB_TYPE = "MongoDB";
-
-    public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
-
-    public static final String EMPTY = "";
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
 
 }

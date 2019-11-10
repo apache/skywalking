@@ -65,6 +65,7 @@ or providing commercial products including Apache SkyWalking.
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
 1. NetEase 网易 https://www.163.com/
 1. Osacart in WeChat app 广州美克曼尼电子商务有限公司
+1. Peking University 北京大学
 1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com 
 1. qiniu.com 七牛云 http://qiniu.com 
 1. Qingyidai.com 轻易贷 https://www.qingyidai.com/

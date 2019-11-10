@@ -13,24 +13,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
+package $package;
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.support;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-/**
- * @author scolia
- */
-public class MongoConstants {
+public class HealthCheckServlet extends HttpServlet {
 
-    private MongoConstants() {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // your codes
+        PrintWriter writer = resp.getWriter();
+        writer.write("Success");
+        writer.flush();
     }
 
-    public static final String DB_TYPE = "MongoDB";
-
-    public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
-
-    public static final String EMPTY = "";
-
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
 }

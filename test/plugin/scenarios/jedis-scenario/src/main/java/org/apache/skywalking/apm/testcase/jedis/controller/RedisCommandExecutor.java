@@ -16,21 +16,31 @@
  *
  */
 
+package org.apache.skywalking.apm.testcase.jedis.controller;
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.support;
+import redis.clients.jedis.Jedis;
 
-/**
- * @author scolia
- */
-public class MongoConstants {
+public class RedisCommandExecutor implements AutoCloseable{
+    private Jedis jedis;
 
-    private MongoConstants() {
+    public RedisCommandExecutor(String host, Integer port) {
+        jedis = new Jedis(host, port);
+        jedis.echo("Test");
     }
 
-    public static final String DB_TYPE = "MongoDB";
+    public void set(String key, String value) {
+        jedis.set(key, value);
+    }
 
-    public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
+    public void get(String key) {
+        jedis.get(key);
+    }
 
-    public static final String EMPTY = "";
+    public void del(String key) {
+        jedis.del(key);
+    }
 
+    public void close() throws Exception {
+        jedis.close();
+    }
 }

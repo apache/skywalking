@@ -16,21 +16,20 @@
  *
  */
 
+package org.apache.skywalking.apm.testcase.jedis;
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.support;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author scolia
- */
-public class MongoConstants {
 
-    private MongoConstants() {
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
-
-    public static final String DB_TYPE = "MongoDB";
-
-    public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
-
-    public static final String EMPTY = "";
-
 }

@@ -16,21 +16,34 @@
  *
  */
 
+package ${package}.controller;
 
-package org.apache.skywalking.apm.plugin.mongodb.v3.support;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-/**
- * @author scolia
- */
-public class MongoConstants {
+@RestController
+@RequestMapping("/case")
+public class CaseController {
 
-    private MongoConstants() {
+    private static final Logger logger = LogManager.getLogger(CaseController.class);
+
+    private static final String SUCCESS = "Success";
+
+    @RequestMapping("/${scenario_case}")
+    @ResponseBody
+    public String testcase() {
+        // your codes
+        return SUCCESS;
     }
 
-    public static final String DB_TYPE = "MongoDB";
-
-    public static final String MONGO_DB_OP_PREFIX = "MongoDB/";
-
-    public static final String EMPTY = "";
+    @RequestMapping("/healthCheck")
+    @ResponseBody
+    public String healthCheck() {
+        // your codes
+        return SUCCESS;
+    }
 
 }
