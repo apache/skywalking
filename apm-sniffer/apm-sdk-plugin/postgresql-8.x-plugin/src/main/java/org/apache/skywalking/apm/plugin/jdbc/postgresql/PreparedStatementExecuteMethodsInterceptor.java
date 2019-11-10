@@ -58,7 +58,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             if (parameters != null && parameters.length > 0) {
                 int maxIndex = cacheObject.getMaxIndex();
                 String parameterString = buildParameterString(parameters, maxIndex);
-                int sqlParametersMaxLength = Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH;
+                int sqlParametersMaxLength = Config.Plugin.POSTGRESQL.SQL_PARAMETERS_MAX_LENGTH;
                 if (sqlParametersMaxLength > 0 && parameterString.length() > sqlParametersMaxLength) {
                     parameterString = parameterString.substring(0, sqlParametersMaxLength) + "..." + "]";
                 }
