@@ -43,6 +43,7 @@ Release Notes.
 - Fix bug: language initialization failed 
 - Fix bug: not show instance language
 - Feature: support the trace list display export png
+- Feature: Metrics comparison view
 
 #### Java Agent
 - Spring async scenario optimize (#3723)
