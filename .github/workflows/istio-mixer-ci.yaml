@@ -1,0 +1,15 @@
+name: istio-mixer-ci
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-16.04
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Prepare enviroment
+        run: bash ./test/scripts/pre.sh
+      - name: Start minikube
+        run: bash ./test/scripts/minikube.sh start

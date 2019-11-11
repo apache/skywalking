@@ -21,8 +21,6 @@
 
 set -ex
 
-apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*
-
 HELMVERSION=$1
 if [[ "${HELMVERSION}" == "" ]]; then
     HELMVERSION="helm-v3.0.0-rc.3"
@@ -68,7 +66,10 @@ sudo apt-get update
 sudo apt-get install -y \
     --no-install-recommends --allow-downgrades --allow-remove-essential --allow-change-held-packages \
     xvfb libgtk-3-0 libnotify4 libgconf-2-4 libnss3 libxss1 libasound2 \
-    apt-transport-https systemd \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
     software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 0EBFCD88
