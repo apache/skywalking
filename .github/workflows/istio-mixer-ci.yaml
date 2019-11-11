@@ -1,15 +1,18 @@
 name: istio-mixer-ci
 
 on: [push]
-
+env:
+  SCRIPTS_DIR: ./test/scripts
 jobs:
   build:
-
     runs-on: ubuntu-16.04
-
     steps:
       - uses: actions/checkout@v1
       - name: Prepare enviroment
         run: bash ./test/scripts/pre.sh
       - name: Start minikube
-        run: bash ./test/scripts/minikube.sh start
+        run: bash ${SCRIPTS_DIR}/minikube.sh start &
+      - name: Wating minikube ready
+        run: bash ${SCRIPTS_DIR}/minikube.sh wait
+      - name: Setup tunnel
+        run: minikube tunnel --log_dir=/tmp/skywalking &
