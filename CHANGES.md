@@ -44,6 +44,7 @@ Release Notes.
 - Fix bug: not show instance language
 - Feature: support the trace list display export png
 - Feature: Metrics comparison view
+- BugFix: Fix dashboard top throughput copy
 
 #### Java Agent
 - Spring async scenario optimize (#3723)
