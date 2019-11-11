@@ -3,16 +3,23 @@ name: istio-mixer-ci
 on: [push]
 env:
   SCRIPTS_DIR: ./test/scripts
+  LOG_DIR: /tmp/skywalking
 jobs:
   build:
     runs-on: ubuntu-16.04
     steps:
       - uses: actions/checkout@v1
       - name: Prepare enviroment
-        run: bash ./test/scripts/pre.sh
+        run: |
+          bash ./test/scripts/pre.sh
+          mkdir -p ${LOG_DIR}
       - name: Start minikube
-        run: bash ${SCRIPTS_DIR}/minikube.sh start &
+        run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
       - name: Wating minikube ready
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
-        run: minikube tunnel --log_dir=/tmp/skywalking &
+        run: minikube tunnel --log_dir=${LOG_DIR} &
+      - uses: actions/upload-artifact@v1.0.0
+        with:
+          name: logs
+          path: /tmp/skywalking
