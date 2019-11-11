@@ -2,6 +2,78 @@ Changes by Version
 ==================
 Release Notes.
 
+6.5.0
+------------------
+
+#### Project
+- TTL E2E test (#3437)
+- Test coverage is back in pull request check status (#3503)
+- Plugin tests begin to be migrated into main repo, and is in process. (#3528, #3756, #3751, etc.)
+- Switch to SkyWalking CI (exclusive) nodes (#3546)
+- MySQL storage e2e test. (#3648)
+- E2E tests are verified in multiple jdk versions, jdk 8, 9, 11, 12 (#3657)
+- Jenkins build jobs run only when necessary (#3662)
+
+#### OAP-Backend
+- Support dynamically configure alarm settings (#3557)
+- Language of instance could be null (#3485)
+- Make query max window size configurable. (#3765)
+- Remove two max size 500 limit. (#3748)
+- Parameterize the cache size. (#3741)
+- ServiceInstanceRelation set error id (#3683)
+- Makes the scope of alarm message more semantic. (#3680)
+- Add register persistent worker latency metrics (#3677)
+- Fix more reasonable error (#3619)
+- Add GraphQL getServiceInstance instanceUuid field. (#3595)
+- Support namespace in Nacos cluster/configuration (#3578)
+- Instead of datasource-settings.properties, use application.yml for MySQLStorageProvider (#3564)
+- Provide consul dynamic configuration center implementation (#3560)
+- Upgrade guava version to support higher jdk version (#3541)
+- Sync latest als from envoy api (#3507)
+- Set telemetry instanced id for Etcd and Nacos plugin (#3492)
+- Support timeout configuration in agent and backend. (#3491)
+- Make sure the cluster register happens before streaming process. (#3471)
+- Agent supports custom properties. (#3367)
+- Miscellaneous bug fixes (#3567)
+
+#### UI 
+- Feature: node detail display in topo circle-chart view.
+- BugFix: the jvm-maxheap & jvm-maxnonheap is -1, free is no value
+- Fix bug: time select operation not in effect 
+- Fix bug: language initialization failed 
+- Fix bug: not show instance language
+- Feature: support the trace list display export png
+- Feature: Metrics comparison view
+- BugFix: Fix dashboard top throughput copy
+
+#### Java Agent
+- Spring async scenario optimize (#3723)
+- Support log4j2 AsyncLogger (#3715)
+- Add config to collect PostgreSQL sql query params (#3695)
+- Support namespace in Nacos cluster/configuration (#3578)
+- Provide plugin for ehcache 2.x (#3575)
+- Supporting RequestRateLimiterGatewayFilterFactory (#3538)
+- Kafka-plugin compatible with KafkaTemplate (#3505)
+- Add pulsar apm plugin (#3476)
+- Spring-cloud-gateway traceId does not transmit #3411 (#3446)
+- Gateway compatible with downstream loss (#3445)
+- Provide cassandra java driver 3.x plugin (#3410)
+- Fix SpringMVC4 NoSuchMethodError (#3408)
+- BugFix: endpoint grouping rules may be not unique (#3510)
+- Add feature to control the maximum agent log files (#3475)
+- Agent support custom properties. (#3367)
+
+#### Document
+- Remove travis badge (#3763)
+- Replace user wall to typical users in readme page (#3719)
+- Update istio docs according latest istio release (#3646)
+- Use chart deploy sw docs (#3573)
+- Reorganize the doc, and provide catalog (#3563)
+- Committer vote and set up document. (#3496)
+- Update als setup doc as istio 1.3 released (#3470)
+- Fill faq reply in official document. (#3450)
+
+
 6.4.0
 ------------------
 
