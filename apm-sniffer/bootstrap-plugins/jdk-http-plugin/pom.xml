@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>bootstrap-plugins</artifactId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
