@@ -15,8 +15,6 @@
  * limitations under the License.
  *
  */
-
-
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

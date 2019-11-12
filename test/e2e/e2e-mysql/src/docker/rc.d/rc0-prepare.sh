@@ -17,7 +17,6 @@
 
 MYSQL_URL="http://central.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
 MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
-TMP_APP_YML="tmp_app.yml"
 
 echo "MySQL database is storage provider..."   
 # Download MySQL connector.
@@ -25,6 +24,4 @@ curl ${MYSQL_URL} > "${SW_HOME}/oap-libs/${MYSQL_DRIVER}"
 [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
 
 # Modify application.yml to set MySQL as storage provider.
-cat "${SW_HOME}/config/application.yml" | sed '/elasticsearch/,/mysql/d' | sed "/storage:/a \  mysql:" | sed "/storage:/,/receiver-sharing-server:/s/#//" > ${TMP_APP_YML}
-cat ${TMP_APP_YML} > "${SW_HOME}/config/application.yml"
-rm -f ${TMP_APP_YML}
+cat /application.yml > "${SW_HOME}/config/application.yml"

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -54,7 +54,6 @@
         <module>mysql-common</module>
         <module>h2-1.x-plugin</module>
         <module>postgresql-8.x-plugin</module>
-        <module>postgresql-common</module>
         <module>rocketMQ-3.x-plugin</module>
         <module>rocketMQ-4.x-plugin</module>
         <module>elastic-job-2.x-plugin</module>
