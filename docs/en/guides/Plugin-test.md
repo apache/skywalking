@@ -619,9 +619,10 @@ apm-toolkit-trace | 1 | 84.69
 jetty 9.x | 63 | 1970.88
 netty-socketio 1.x | 4 | 108.70
 
-#### Group 2 (2119.991s)
+#### Group 2 (2291.98s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+feign 9.0.0-9.5.1 | 5 | 172.00
 customize | 1 | 85.64
 postgresql 9.4.1207+ | 62 | 1820.29
 canal 1.0.24-1.1.2 | 5 | 214.05
