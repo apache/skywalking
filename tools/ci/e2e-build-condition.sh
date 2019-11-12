@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bash -x $(dirname "$0")/changed.sh --any-of '^pom.xml$' \
+bash -x $(dirname "$0")/changed.sh --includes '^pom.xml$' \
   '^Jenkinsfile-E2E$' \
   '^apm-commons/.*$' \
   '^apm-protocol/.*$' \

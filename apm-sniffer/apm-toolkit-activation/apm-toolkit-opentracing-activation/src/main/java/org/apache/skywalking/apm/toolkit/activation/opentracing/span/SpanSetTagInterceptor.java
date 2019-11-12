@@ -43,6 +43,8 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
             activeSpan.setComponent(tagValue);
         } else if (Tags.PEER_SERVICE.getKey().equals(tagKey)) {
             activeSpan.setOperationName(tagValue);
+        } else if (Tags.ERROR.getKey().equals(tagKey) && "true".equals(tagValue)) {
+            activeSpan.errorOccurred();
         } else {
             activeSpan.tag(tagKey, tagValue);
         }

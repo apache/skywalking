@@ -83,6 +83,12 @@ pipeline {
                                 sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-single-service'
                             }
                         }
+                        
+                        stage('Single Node Tests(MySQL/JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-mysql'
+                            }
+                        }                        
 
                         stage('Single Node Tests(JDK9)') {
                             steps {

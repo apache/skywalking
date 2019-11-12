@@ -25,7 +25,7 @@ registryItems:
   heartbeat: []
 segmentItems:
   - applicationCode: dubbo-2.7.x-scenario
-    segmentSize: 3
+    segmentSize: ge 3
     segments:
       - segmentId: not null
         spans:

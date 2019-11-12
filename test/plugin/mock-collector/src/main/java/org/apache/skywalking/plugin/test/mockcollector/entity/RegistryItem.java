@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.skywalking.apm.network.language.agent.SpanType;
 
@@ -44,10 +45,10 @@ public class RegistryItem {
     private final Map<String, Integer> heartBeats;
 
     public RegistryItem() {
-        applications = new HashMap<>();
-        operationNames = new HashMap<>();
-        instanceMapping = new HashMap<>();
-        heartBeats = new HashMap<>();
+        applications = new ConcurrentHashMap<>();
+        operationNames = new ConcurrentHashMap<>();
+        instanceMapping = new ConcurrentHashMap<>();
+        heartBeats = new ConcurrentHashMap<>();
     }
 
     public void registryApplication(Application application) {
