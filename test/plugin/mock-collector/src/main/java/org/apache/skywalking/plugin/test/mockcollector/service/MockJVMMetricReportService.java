@@ -16,6 +16,9 @@
  */
 package org.apache.skywalking.plugin.test.mockcollector.service;
 
+import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.network.common.Commands;
+import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricReportServiceGrpc;
 
 /**
@@ -24,4 +27,9 @@ import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricReportServic
  **/
 public class MockJVMMetricReportService extends JVMMetricReportServiceGrpc.JVMMetricReportServiceImplBase {
 
+    @Override
+    public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
+        responseObserver.onNext(Commands.newBuilder().build());
+        responseObserver.onCompleted();
+    }
 }
