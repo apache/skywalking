@@ -15,20 +15,24 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.plugin.spring.transaction.context;
+package test.org.apache.skywalking.apm.testcase.spring.transaction.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.sql.DataSource;
 
 /**
  * @author zhaoyuguang
  */
+@Configuration
+public class TransactionConfig {
 
-public interface Constants {
-    String OPERATION_NAME_SPRING_TRANSACTION_PREFIX = "TX/";
-    String OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD = OPERATION_NAME_SPRING_TRANSACTION_PREFIX + "get/";
-    String TAG_SPRING_TRANSACTION_ISOLATION_LEVEL = "isolationLevel";
-    String TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR = "propagationBehavior";
-    String TAG_SPRING_TRANSACTION_TIMEOUT = "timeout";
-    String TAG_SPRING_TRANSACTION_IS_NEW_TRANSACTION = "isNewTransaction";
-    String TAG_SPRING_TRANSACTION_HAS_SAVEPOINT = "hasSavepoint";
-    String TAG_SPRING_TRANSACTION_ROLLBACK_ONLY = "rollbackOnly";
-    String TAG_SPRING_TRANSACTION_IS_COMPLETED = "isCompleted";
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource){
+        return new DataSourceTransactionManager(dataSource);
+    }
+
 }

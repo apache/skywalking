@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.apm.plugin.spring.transaction;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;

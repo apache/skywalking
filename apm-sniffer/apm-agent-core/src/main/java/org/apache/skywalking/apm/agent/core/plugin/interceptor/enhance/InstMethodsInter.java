@@ -15,21 +15,16 @@
  * limitations under the License.
  *
  */
-
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.implementation.bind.annotation.*;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.loader.InterceptorInstanceLoader;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 /**
  * The actual byte-buddy's interceptor to intercept class instance methods.
