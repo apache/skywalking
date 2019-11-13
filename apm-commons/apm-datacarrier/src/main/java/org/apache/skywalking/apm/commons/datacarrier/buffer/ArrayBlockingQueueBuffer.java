@@ -41,7 +41,7 @@ public class ArrayBlockingQueueBuffer<T> implements QueueBuffer<T> {
     }
 
     @Override public boolean save(T data) {
-        switch (strategy){
+        switch (strategy) {
             case IF_POSSIBLE:
                 return queue.offer(data);
             default:

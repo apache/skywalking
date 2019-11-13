@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 
 /**
