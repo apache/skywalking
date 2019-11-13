@@ -67,6 +67,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
+
         stage('Test Cases Report (141)') {
             steps {
                 echo "Test Cases Report"
