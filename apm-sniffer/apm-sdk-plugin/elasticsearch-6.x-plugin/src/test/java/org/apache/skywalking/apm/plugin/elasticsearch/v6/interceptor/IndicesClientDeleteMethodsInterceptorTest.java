@@ -103,7 +103,7 @@ public class IndicesClientDeleteMethodsInterceptorTest {
 
         List<TagValuePair> tags = SpanHelper.getTags(exitSpan);
         assertThat(tags.size(), is(2));
-        assertThat(tags.get(0).getValue(), is("delete"));
+        assertThat(tags.get(0).getValue(), is("Elasticsearch"));
         assertThat(tags.get(1).getValue(), is("[index]"));
     }
 

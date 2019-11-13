@@ -112,7 +112,7 @@ public class IndicesClientCreateMethodsInterceptorTest {
 
         List<TagValuePair> tags = SpanHelper.getTags(exitSpan);
         assertThat(tags.size(), is(3));
-        assertThat(tags.get(0).getValue(), is("create"));
+        assertThat(tags.get(0).getValue(), is("Elasticsearch"));
         assertThat(tags.get(1).getValue(), is("index"));
         assertThat(tags.get(2).getValue(), is("mappings"));
     }

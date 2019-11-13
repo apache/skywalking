@@ -107,7 +107,7 @@ public class RestHighLevelClientIndexMethodsInterceptorTest {
 
         List<TagValuePair> tags = SpanHelper.getTags(exitSpan);
         assertThat(tags.size(), is(3));
-        assertThat(tags.get(0).getValue(), is("index"));
+        assertThat(tags.get(0).getValue(), is("Elasticsearch"));
         assertThat(tags.get(1).getValue(), is("indexName"));
         assertThat(tags.get(2).getValue(), is("indexRequest"));
     }
