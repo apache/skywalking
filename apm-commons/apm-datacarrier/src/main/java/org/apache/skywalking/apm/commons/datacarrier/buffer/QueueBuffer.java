@@ -16,13 +16,34 @@
  *
  */
 
-package org.apache.skywalking.apm.commons.datacarrier.callback;
+package org.apache.skywalking.apm.commons.datacarrier.buffer;
+
+import java.util.List;
 
 /**
- * Notify when the queue, which is in blocking strategy, has be blocked.
+ * Queue buffer interface.
  *
- * @author wu-sheng
+ * @author wusheng
  */
-public interface QueueBlockingCallback<T> {
-    void notify(T message);
+public interface QueueBuffer<T> {
+    /**
+     * Save data into the queue;
+     * @param data to add.
+     * @return true if saved
+     */
+    boolean save(T data);
+
+    /**
+     * Set different strategy when queue is full.
+     * @param strategy
+     */
+    void setStrategy(BufferStrategy strategy);
+
+    /**
+     * Obtain the existing data from the queue
+     * @param consumeList
+     */
+    void obtain(List<T> consumeList);
+
+    int getBufferSize();
 }

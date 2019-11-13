@@ -113,7 +113,6 @@ public class GRPCRemoteClient implements RemoteClient {
             synchronized (GRPCRemoteClient.class) {
                 if (Objects.isNull(this.carrier)) {
                     this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
-                    this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
                 }
             }
         }

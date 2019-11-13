@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.commons.datacarrier;
 
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
 
 /**
  * @author wu-sheng
@@ -31,7 +30,4 @@ public class BlockingDataCarrier<T> {
         this.channels = channels;
     }
 
-    public void addCallback(QueueBlockingCallback<T> callback) {
-        this.channels.addCallback(callback);
-    }
 }
