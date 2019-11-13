@@ -257,6 +257,9 @@ Ehcache:
 SocketIO:
   id: 76
   languages: Java
+rest-high-level-client:
+  id: 77
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -360,3 +363,4 @@ Component-Server-Mappings:
   cassandra-java-driver: Cassandra
   pulsar-producer: Pulsar
   pulsar-consumer: Pulsar
+  rest-high-level-client: Elasticsearch

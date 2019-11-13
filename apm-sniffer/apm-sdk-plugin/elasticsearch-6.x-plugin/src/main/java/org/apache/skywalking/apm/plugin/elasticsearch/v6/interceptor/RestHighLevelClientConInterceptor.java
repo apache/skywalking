@@ -13,32 +13,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
+package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-package org.apache.skywalking.apm.plugin.httpasyncclient.v4;
-
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import java.util.List;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-
-import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
+import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
+import org.elasticsearch.client.Node;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 
 /**
- * hold the snapshot in SkyWalkingDynamicField
- * @author lican
+ * @author aderm
  */
-public class SessionRequestConstructorInterceptor implements InstanceConstructorInterceptor {
+public class RestHighLevelClientConInterceptor implements InstanceConstructorInterceptor {
+
+    private static final ILog logger = LogManager.getLogger(RestHighLevelClientConInterceptor.class);
+
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (ContextManager.isActive()) {
-            if (ContextManager.activeSpan().isExit()) {
-                CONTEXT_LOCAL.remove();
-                return;
-            }
-            ContextSnapshot snapshot = ContextManager.capture();
-            objInst.setSkyWalkingDynamicField(new Object[]{snapshot, CONTEXT_LOCAL.get()});
+        RestClientBuilder restClientBuilder = (RestClientBuilder)(allArguments[0]);
+        RestClient restClient = restClientBuilder.build();
+
+        RestClientEnhanceInfo restClientEnhanceInfo = new RestClientEnhanceInfo();
+        List<Node> nodeList = restClient.getNodes();
+        for (Node node : nodeList) {
+            restClientEnhanceInfo.addHttpHost(node.getHost());
         }
-        CONTEXT_LOCAL.remove();
+
+        objInst.setSkyWalkingDynamicField(restClientEnhanceInfo);
     }
 }
