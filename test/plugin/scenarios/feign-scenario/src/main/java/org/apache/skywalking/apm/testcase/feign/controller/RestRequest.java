@@ -52,6 +52,6 @@ public interface RestRequest {
             .decoder(decoder)
             .logger(new Logger.ErrorLogger())
             .logLevel(Logger.Level.BASIC)
-            .target(RestRequest.class, "http://localhost:8080/feign-case");
+            .target(RestRequest.class, "http://localhost:8080/feign-scenario");
     }
 }

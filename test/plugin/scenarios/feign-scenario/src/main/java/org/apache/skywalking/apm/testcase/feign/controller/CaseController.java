@@ -32,13 +32,13 @@ public class CaseController {
     private Logger logger = LogManager.getLogger(CaseController.class);
 
     @ResponseBody
-    @RequestMapping("/healthcheck")
+    @RequestMapping("/healthCheck")
     public String healthcheck() {
         return "Success";
     }
 
     @ResponseBody
-    @RequestMapping("/feign")
+    @RequestMapping("/feign-scenario")
     public String feignCase() {
         RestRequest request = RestRequest.connect();
         request.createUser(1, "test");
