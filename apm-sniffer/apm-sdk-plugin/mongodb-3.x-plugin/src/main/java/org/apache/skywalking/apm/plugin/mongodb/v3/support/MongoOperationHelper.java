@@ -23,7 +23,24 @@ import com.mongodb.bulk.DeleteRequest;
 import com.mongodb.bulk.InsertRequest;
 import com.mongodb.bulk.UpdateRequest;
 import com.mongodb.bulk.WriteRequest;
-import com.mongodb.operation.*;
+import com.mongodb.operation.CountOperation;
+import com.mongodb.operation.CreateCollectionOperation;
+import com.mongodb.operation.CreateIndexesOperation;
+import com.mongodb.operation.CreateViewOperation;
+import com.mongodb.operation.DeleteOperation;
+import com.mongodb.operation.DistinctOperation;
+import com.mongodb.operation.FindAndDeleteOperation;
+import com.mongodb.operation.FindAndReplaceOperation;
+import com.mongodb.operation.FindAndUpdateOperation;
+import com.mongodb.operation.FindOperation;
+import com.mongodb.operation.GroupOperation;
+import com.mongodb.operation.InsertOperation;
+import com.mongodb.operation.ListCollectionsOperation;
+import com.mongodb.operation.MapReduceToCollectionOperation;
+import com.mongodb.operation.MapReduceWithInlineResultsOperation;
+import com.mongodb.operation.MixedBulkWriteOperation;
+import com.mongodb.operation.UpdateOperation;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.bson.BsonDocument;
 
 import java.util.List;
@@ -111,7 +128,8 @@ public class MongoOperationHelper {
             } else if (request instanceof UpdateRequest) {
                 params.append(((UpdateRequest) request).getFilter()).append(",");
             }
-            if (params.length() > MongoConstants.FILTER_LENGTH_LIMIT) {
+            final int filterLengthLimit = Config.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
+            if (filterLengthLimit > 0 && params.length() > filterLengthLimit) {
                 params.append("...");
                 break;
             }
@@ -121,8 +139,9 @@ public class MongoOperationHelper {
 
     private static String limitFilter(String filter) {
         final StringBuilder params = new StringBuilder();
-        if (filter.length() > MongoConstants.FILTER_LENGTH_LIMIT) {
-            return params.append(filter, 0, MongoConstants.FILTER_LENGTH_LIMIT).append("...").toString();
+        final int filterLengthLimit = Config.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
+        if (filterLengthLimit > 0 && filter.length() > filterLengthLimit) {
+            return params.append(filter, 0, filterLengthLimit).append("...").toString();
         } else {
             return filter;
         }

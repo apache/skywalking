@@ -143,9 +143,9 @@ test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argu
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
-    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests -DBUILD_NO=${BUILD_NO:=local} clean package
+    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests docker:build
+[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
 
 workspace="${home}/workspace/${scenario_name}"
 task_state_house="${workspace}/.states"

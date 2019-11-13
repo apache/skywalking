@@ -221,6 +221,7 @@ The text of each license is the standard Apache 2.0 license.
    proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
    proto files from lyft/protoc-gen-validate: https://github.com/lyft/protoc-gen-validate Apache 2.0
    proto files from gogo/googleapis: https://github.com/gogo/googleapis Apache 2.0
+   mvnw files from https://github.com/takari/maven-wrapper Apache 2.0
 
 
 ========================================================================
