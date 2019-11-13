@@ -44,7 +44,7 @@ segmentItems:
         peer: not null
         peerId: 0
         tags:
-        - {key: db.type, value: create}
+        - {key: db.type, value: Elasticsearch}
         - {key: db.instance, value: not null}
         - {key: db.statement, value: not null}
       - operationName: Elasticsearch/IndexRequest
@@ -61,7 +61,7 @@ segmentItems:
         peer: not null
         peerId: 0
         tags:
-        - {key: db.type, value: index}
+        - {key: db.type, value: Elasticsearch}
         - {key: db.instance, value: not null}
         - {key: db.statement, value: not null}
       - operationName: Elasticsearch/GetRequest
@@ -78,7 +78,7 @@ segmentItems:
         peer: not null
         peerId: 0
         tags:
-        - {key: db.type, value: get}
+        - {key: db.type, value: Elasticsearch}
         - {key: db.instance, value: not null}
         - {key: db.statement, value: not null}
       - operationName: Elasticsearch/SearchRequest
@@ -95,7 +95,7 @@ segmentItems:
         peer: not null
         peerId: 0
         tags:
-        - {key: db.type, value: search}
+        - {key: db.type, value: Elasticsearch}
         - {key: db.instance, value: not null}
         - {key: db.statement, value: not null}
       - operationName: Elasticsearch/UpdateRequest
@@ -112,7 +112,7 @@ segmentItems:
         peer: not null
         peerId: 0
         tags:
-        - {key: db.type, value: update}
+        - {key: db.type, value: Elasticsearch}
         - {key: db.instance, value: not null}
         - {key: db.statement, value: not null}
       - operationName: Elasticsearch/DeleteRequest
@@ -129,7 +129,7 @@ segmentItems:
         peer: not null
         peerId: 0
         tags:
-        - {key: db.type, value: delete}
+        - {key: db.type, value: Elasticsearch}
         - {key: db.instance, value: not null}
       - operationName: /elasticsearch-case/case/elasticsearch
         operationId: 0

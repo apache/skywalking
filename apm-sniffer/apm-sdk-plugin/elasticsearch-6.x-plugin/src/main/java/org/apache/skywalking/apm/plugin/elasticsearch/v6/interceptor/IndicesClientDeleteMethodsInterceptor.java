@@ -17,6 +17,8 @@
  */
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -27,7 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.elasticsearch.v6.ESTypeEnum;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 
@@ -49,7 +50,7 @@ public class IndicesClientDeleteMethodsInterceptor implements InstanceMethodsAro
                     restClientEnhanceInfo.getPeers());
             span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
-            Tags.DB_TYPE.set(span, ESTypeEnum.DELETE.getType());
+            Tags.DB_TYPE.set(span, DB_TYPE);
             Tags.DB_INSTANCE.set(span, Arrays.asList(deleteIndexRequest.indices()).toString());
             SpanLayer.asDB(span);
         }

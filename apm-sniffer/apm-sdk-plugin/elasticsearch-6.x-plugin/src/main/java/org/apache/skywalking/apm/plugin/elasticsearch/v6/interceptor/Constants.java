@@ -39,4 +39,5 @@ public class Constants {
     public static final String SEARCH_OPERATOR_NAME = "Elasticsearch/SearchRequest";
     public static final String UPDATE_OPERATOR_NAME = "Elasticsearch/UpdateRequest";
 
+    public static final String DB_TYPE = "Elasticsearch";
 }

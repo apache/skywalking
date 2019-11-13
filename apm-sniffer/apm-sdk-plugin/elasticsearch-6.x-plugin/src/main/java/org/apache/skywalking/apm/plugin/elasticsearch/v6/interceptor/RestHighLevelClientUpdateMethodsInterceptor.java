@@ -18,6 +18,7 @@
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -28,7 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.elasticsearch.v6.ESTypeEnum;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.action.update.UpdateRequest;
 
@@ -46,7 +46,7 @@ public class RestHighLevelClientUpdateMethodsInterceptor implements InstanceMeth
             .createExitSpan(Constants.UPDATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
         span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
-        Tags.DB_TYPE.set(span, ESTypeEnum.UPDATE.getType());
+        Tags.DB_TYPE.set(span, DB_TYPE);
         Tags.DB_INSTANCE.set(span, updateRequest.index());
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, updateRequest.toString());
