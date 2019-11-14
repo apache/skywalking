@@ -68,7 +68,7 @@ pipeline {
             }
         }
 
-        stage('Test Cases Report (141)') {
+        stage('Test Cases Report (144)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -105,7 +105,7 @@ pipeline {
 
                 stage('Group2') {
                     stages {
-                        stage('feign 9.0.0-9.5.1 (5)') {
+                        stage('feign 9.0.0-9.5.1 (8)') {
                             steps {
                                 sh 'bash test/plugin/run.sh feign-scenario'
                             }
