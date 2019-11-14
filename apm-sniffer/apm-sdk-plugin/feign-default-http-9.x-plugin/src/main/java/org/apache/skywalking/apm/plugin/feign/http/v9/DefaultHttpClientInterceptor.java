@@ -20,16 +20,13 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
 import feign.Response;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -40,6 +37,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
@@ -47,8 +45,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
  * @author peng-yongsheng
  */
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final String COMPONENT_NAME = "FeignDefaultHttp";
 
     /**
      * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host, port,
@@ -59,15 +55,17 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable
      */
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Request request = (Request)allArguments[0];
-
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        Request request = (Request) allArguments[0];
+        String originUrl = PathVarInterceptor.URL_CONTEXT.get();
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
         int port = url.getPort() == -1 ? 80 : url.getPort();
         String remotePeer = url.getHost() + ":" + port;
-        String operationName = url.getPath();
+        String operationName = StringUtil.isEmpty(originUrl) ? url.getPath() : originUrl;
+        PathVarInterceptor.URL_CONTEXT.remove();
         if (operationName == null || operationName.length() == 0) {
             operationName = "/";
         }
@@ -101,13 +99,14 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * the server. Finish the {@link AbstractSpan}.
      *
      * @param method
-     * @param ret the method's original return value.
+     * @param ret    the method's original return value.
      * @return
      * @throws Throwable
      */
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Response response = (Response)ret;
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.status();
 
@@ -123,8 +122,9 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);
         activeSpan.errorOccurred();
