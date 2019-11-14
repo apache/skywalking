@@ -612,12 +612,12 @@ stage('Run Agent Plugin Tests') {
 Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
 
 ### Workload 1
-#### Group 1 (2164.287s)
+#### Group 1 (2247.00s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-apm-toolkit-trace | 1 | 84.69
-jetty 9.x | 63 | 1970.88
-netty-socketio 1.x | 4 | 108.70
+apm-toolkit-trace | 1 | 87.00
+jetty 9.x | 63 | 2043.00
+netty-socketio 1.x | 4 | 117.00
 
 #### Group 2 (2119.991s)
 scenario name | versions | elapsed time (sec)
@@ -659,13 +659,14 @@ spring async 4.3.x-5.1.x | 35 | 967.70
 mongodb 3.4.0-3.11.1 | 17 | 1465.63
 
 ### Workload 4
-#### Group 1 (2397.45s)
+#### Group 1 (2463.00s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
-kafka 0.11.0.0-2.3.0 | 16 | 704.75
-ehcache 2.8.x-2.10.x | 19 | 440.71
-undertow 1.3.0-2.0.27 | 23 | 633.00
-jedis 2.4.0-2.9.0 ｜ 18 ｜ 619
+elasticsearch-6.x-scenario | 7 | 273.00
+kafka 0.11.0.0-2.3.0 | 16 | 628.00
+ehcache 2.8.x-2.10.x | 19 | 442.00
+undertow 1.3.0-2.0.27 | 23 | 596.00
+jedis 2.4.0-2.9.0 ｜ 18 ｜ 524.00
 
 #### Group 2 (2148.155s)
 scenario name | versions | elapsed time (sec)
