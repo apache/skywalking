@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class CaseServlet extends HttpServlet {
 
@@ -38,18 +40,22 @@ public class CaseServlet extends HttpServlet {
         try {
             Socket socket = null;
             try {
-                socket = IO.socket("http://localhost:" + SocketIOStarter.SERVER_PORT);
-                socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-                    @Override
-                    public void call(Object... objects) {
-                    }
-                });
-                socket.connect();
-
                 // client send message to server
                 // test for get message from client interceptor
                 SocketIOStarter.getInstance().sendEvent("data");
+
+                socket = IO.socket("http://localhost:" + SocketIOStarter.SERVER_PORT);
+                final CountDownLatch latch = new CountDownLatch(1);
+                socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... objects) {
+                        latch.countDown();
+                    }
+                });
+                socket.connect();
                 socket.emit(SocketIOStarter.LISTEN_EVENT_NAME, "hello");
+
+                latch.await(5, TimeUnit.SECONDS);
             } catch (Exception e) {
                 throw e;
             } finally {
