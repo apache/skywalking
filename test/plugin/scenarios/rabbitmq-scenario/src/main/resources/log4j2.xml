@@ -17,14 +17,14 @@
   ~
   -->
 
-<Configuration status="debug">
+<Configuration status="WARN">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="Console" target="SYSTEM_ERR">
             <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="debug">
+        <Root level="WARN">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

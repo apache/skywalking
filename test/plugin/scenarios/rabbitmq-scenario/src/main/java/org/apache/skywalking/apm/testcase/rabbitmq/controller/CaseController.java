@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.testcase.rabbitmq.controller;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import com.rabbitmq.client.*;
 import org.apache.logging.log4j.LogManager;
@@ -52,18 +54,14 @@ public class CaseController {
 
     private static final  String MESSAGE = "rabbitmq-testcase";
 
-    ConnectionFactory factory;
-
-    Connection connection = null;
-
-
     @RequestMapping("/rabbitmq")
     @ResponseBody
     public String rabbitmqCase() throws Exception {
         Channel channel = null;
+        Connection connection = null;
 
         try{
-            factory = new ConnectionFactory();
+            ConnectionFactory factory = new ConnectionFactory();
             logger.info("Using brokerUrl = " + brokerUrl);
             factory.setHost(brokerUrl);
             factory.setPort(PORT);
@@ -79,12 +77,14 @@ public class CaseController {
             channel.basicPublish("", QUEUE_NAME, propsBuilder.build(), MESSAGE.getBytes("UTF-8"));
             logger.info("Message has been published-------------->"+MESSAGE);
 
+            final CountDownLatch waitForConsume = new CountDownLatch(1);
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), "UTF-8");
                 logger.info("Message received-------------->"+message);
+                waitForConsume.countDown();
             };
             channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
-            Thread.sleep(5000);
+            waitForConsume.await(5000L, TimeUnit.MILLISECONDS);
             logger.info("Message Consumed-------------->");
 
         }catch (Exception ex){
@@ -92,10 +92,18 @@ public class CaseController {
         }
         finally {
             if (channel != null) {
-                channel.close();
+                try {
+                    channel.close();
+                }catch (Exception e){
+                    // ignore
+                }
             }
             if (connection != null) {
-                connection.close();
+                try {
+                    connection.close();
+                }catch (Exception e){
+                    // ignore
+                }
             }
         }
         return "Success";
@@ -103,10 +111,11 @@ public class CaseController {
 
     @RequestMapping("/healthcheck")
     public String healthCheck() throws Exception {
-       Channel channel = null;
+        Channel channel = null;
+        Connection connection = null;
 
         try{
-            factory = new ConnectionFactory();
+            ConnectionFactory factory = new ConnectionFactory();
             logger.info("Using brokerUrl = " + brokerUrl);
             factory.setHost(brokerUrl);
             factory.setPort(PORT);
@@ -124,12 +133,20 @@ public class CaseController {
         }
         finally {
             if (channel != null) {
-                channel.close();
+                try {
+                    channel.close();
+                }catch (Exception e){
+                    // ignore
+                }
             }
             if (connection != null) {
-                connection.close();
+                try {
+                    connection.close();
+                }catch (Exception e){
+                    // ignore
+                }
             }
         }
-       return "Success";
+        return "Success";
     }
 }
