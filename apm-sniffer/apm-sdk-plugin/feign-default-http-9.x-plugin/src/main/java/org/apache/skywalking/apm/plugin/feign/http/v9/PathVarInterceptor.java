@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * {@link PathVarInterceptor} intercept the Feign RequestTemplate args resolve ;
