@@ -16,30 +16,38 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.netty.socketio;
+package org.apache.skywalking.apm.testcase.feign.entity;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+public class User {
 
-/**
- * @author MrPro
- */
-public class ContextListener implements ServletContextListener {
+    private int id;
+    private String userName;
 
-    @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
-        // start socket io server on tomcat start
-        SocketIOStarter.startServer();
-
-        // start client
-        try {
-            SocketIOStarter.startClientAndWaitConnect();
-        } catch (Exception e) {
-        }
+    public User(int id) {
+        this.id = id;
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        SocketIOStarter.server.stop();
+    public User(int id, String userName) {
+        this.id = id;
+        this.userName = userName;
+    }
+
+    public User() {
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
