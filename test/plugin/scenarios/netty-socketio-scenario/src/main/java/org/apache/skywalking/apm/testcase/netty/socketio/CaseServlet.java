@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.testcase.netty.socketio;
 
-import com.corundumstudio.socketio.SocketIOClient;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -33,13 +35,31 @@ public class CaseServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // create socket io client and send data
         // test send message interceptor
-        SocketIOClient client = SocketIOStarter.server.getAllClients().iterator().next();
-        client.sendEvent(SocketIOStarter.SEND_EVENT_NAME, "data");
+        try {
+            Socket socket = null;
+            try {
+                socket = IO.socket("http://localhost:" + SocketIOStarter.SERVER_PORT);
+                socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... objects) {
+                    }
+                });
+                socket.connect();
 
-        // client send message to server
-        // test for get message from client interceptor
-        SocketIOStarter.client.emit(SocketIOStarter.LISTEN_EVENT_NAME, "hello");
-
+                // client send message to server
+                // test for get message from client interceptor
+                SocketIOStarter.getInstance().sendEvent("data");
+                socket.emit(SocketIOStarter.LISTEN_EVENT_NAME, "hello");
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                if (socket != null) {
+                    socket.disconnect();
+                }
+            }
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("success");
         printWriter.flush();
