@@ -145,7 +145,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?   order by " + SegmentRecord.START_TIME +  " " + SortOrder.DESC , traceId)) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ? order by " + SegmentRecord.START_TIME + " " + SortOrder.DESC, traceId)) {                
                 while (resultSet.next()) {
                     SegmentRecord segmentRecord = new SegmentRecord();
                     segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
