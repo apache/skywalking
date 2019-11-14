@@ -330,5 +330,6 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
+  rest-high-level-client: Elasticsearch
   SolrJ: Solr
   cassandra-java-driver: Cassandra
