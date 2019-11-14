@@ -65,6 +65,7 @@
         <module>sofarpc-plugin</module>
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
+        <module>elasticsearch-6.x-plugin</module>
         <module>undertow-plugins</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>

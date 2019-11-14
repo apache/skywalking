@@ -15,31 +15,30 @@
  * limitations under the License.
  *
  */
-
-package org.apache.skywalking.apm.testcase.netty.socketio;
-
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
 /**
- * @author MrPro
+ *
+ * Used for store ES connection related information, remotePeers will store the IP address and port,
+ * separated by commas when multiple connections are made.
+ *
+ * @author aderm
  */
-public class ContextListener implements ServletContextListener {
+public class RemotePeerCache {
 
-    @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
-        // start socket io server on tomcat start
-        SocketIOStarter.startServer();
+    private String remotePeers = "";
 
-        // start client
-        try {
-            SocketIOStarter.startClientAndWaitConnect();
-        } catch (Exception e) {
+    public void addRemotePeer(String host, int port) {
+        String hostPort = host + ":" + String.valueOf(port);
+
+        if (remotePeers.isEmpty()) {
+            remotePeers = hostPort;
+        } else {
+            remotePeers = "," + hostPort;
         }
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        SocketIOStarter.server.stop();
+    public String getRemotePeers() {
+        return remotePeers;
     }
 }
