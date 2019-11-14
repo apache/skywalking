@@ -37,7 +37,7 @@ segmentItems:
             spanLayer: Unknown
             startTime: not null
             endTime: not null
-            componentId: 77
+            componentId: 78
             componentName: ''
             isError: false
             spanType: Local
@@ -139,7 +139,7 @@ segmentItems:
             spanLayer: Unknown
             startTime: not null
             endTime: not null
-            componentId: 77
+            componentId: 78
             componentName: ''
             isError: false
             spanType: Local
