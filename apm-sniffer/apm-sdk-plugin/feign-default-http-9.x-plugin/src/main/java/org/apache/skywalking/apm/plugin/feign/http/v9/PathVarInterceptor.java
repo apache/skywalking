@@ -36,24 +36,23 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
     static final ThreadLocal<String> URL_CONTEXT = new ThreadLocal<String>();
 
     /**
-     * Get the {@link RequestTemplate#url()} before {@link feign.ReflectiveFeign.BuildTemplateByResolvingArgs#resolve(Object[], RequestTemplate, Map)}
+     * Get the {@link RequestTemplate#url()} before feign.ReflectiveFeign.BuildTemplateByResolvingArgs#resolve(Object[], RequestTemplate, Map)
      *  put it into the {@link PathVarInterceptor#URL_CONTEXT}
      *
-     * @param method
+     * @param method intercept method
      * @param result change this result, if you want to truncate the method.
-     * @throws Throwable
      */
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        Class<?>[] argumentsTypes, MethodInterceptResult result) {
         RequestTemplate template = (RequestTemplate)allArguments[1];
         URL_CONTEXT.set(template.url());
     }
 
     /**
      *  do nothing
-     * @param method
+     * @param method intercept method
      * @param ret the method's original return value.
-     * @return
+     * @return result without change
      */
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) {

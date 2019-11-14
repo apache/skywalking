@@ -51,9 +51,9 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * kind, component, url from {@link feign.Request}. Through the reflection of the way, set the http header of
      * context data into {@link feign.Request#headers}.
      *
-     * @param method
+     * @param method intercept method
      * @param result change this result, if you want to truncate the method.
-     * @throws Throwable
+     * @throws Throwable NoSuchFieldException or IllegalArgumentException
      */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -98,14 +98,13 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
      * the server. Finish the {@link AbstractSpan}.
      *
-     * @param method
+     * @param method intercept method
      * @param ret    the method's original return value.
-     * @return
-     * @throws Throwable
+     * @return origin ret
      */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+                              Class<?>[] argumentsTypes, Object ret) {
         Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.status();
