@@ -33,7 +33,7 @@ public class DemoDaoImpl implements DemoDao {
 
     @Override
     public int insert(String name) {
-        return jdbcTemplate.update("insert into table_demo(name) values(?)", name);
+        return jdbcTemplate.update("insert into `test`.`table_demo`(name) values(?)", name);
     }
 
 }

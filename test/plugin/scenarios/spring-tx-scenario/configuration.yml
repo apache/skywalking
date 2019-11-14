@@ -19,13 +19,16 @@ entryService: http://localhost:8080/spring-tx-scenario/case/spring-tx-case
 healthCheck: http://localhost:8080/spring-tx-scenario/case/healthCheck
 startScript: ./bin/startup.sh
 framework: spring-tx
+runningMode: with_optional
+withPlugins: apm-spring-tx-plugin-*.jar
 environment:
   - MYSQL_SERVERS=mysql:3306
+  - MYSQL_DATABASE=test
 depends_on:
-  - mysql-server
+  - mysql
 dependencies:
   mysql:
-    image: mysql:5.7
+    image: mysql:5.6
     hostname: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=000000

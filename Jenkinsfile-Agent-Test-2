@@ -82,6 +82,12 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
+                        stage('spring-tx 4.x+ (10)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh spring-tx-scenario'
+                            }
+                        }
+
                         stage('spring 4.3.x-5.2.x (54)') {
                             steps {
                                 sh 'bash test/plugin/run.sh spring-4.3.x-scenario'

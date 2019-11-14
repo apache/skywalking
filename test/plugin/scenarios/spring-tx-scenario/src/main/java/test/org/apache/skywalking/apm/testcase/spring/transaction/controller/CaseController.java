@@ -53,12 +53,18 @@ public class CaseController {
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
-        jdbcTemplate.execute("" +
-                "CREATE TABLE IF NOT EXISTS `table_demo` (\n" +
-                "  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-                "  `name` varchar(60),\n" +
-                "  PRIMARY KEY (`id`)\n" +
-                ") ENGINE=InnoDB");
+        try {
+            jdbcTemplate.execute("create database if not exists test default charset = utf8");
+            jdbcTemplate.execute("" +
+                    "CREATE TABLE IF NOT EXISTS `test`.`table_demo` (\n" +
+                    "  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `name` varchar(60),\n" +
+                    "  PRIMARY KEY (`id`)\n" +
+                    ") ENGINE=InnoDB");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
         return "success";
     }
 

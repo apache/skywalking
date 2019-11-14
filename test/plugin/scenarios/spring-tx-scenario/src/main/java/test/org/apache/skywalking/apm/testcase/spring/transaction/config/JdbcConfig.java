@@ -33,21 +33,19 @@ import javax.sql.DataSource;
 public class JdbcConfig {
 
     @Value("${mysql.servers}")
-    String url;
-    String username = "root";
-    String password = "000000";
+    private String url;
 
-    @Bean("dataSource")
+    @Bean(name = "dataSource")
     public DataSource createDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://" + url + "/test");
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
+        dataSource.setUrl("jdbc:mysql://" + url + "?useSSL=false");
+        dataSource.setUsername("root");
+        dataSource.setPassword("000000");
         return dataSource;
     }
 
-    @Bean("jdbcTemplate")
+    @Bean(name = "jdbcTemplate")
     public JdbcTemplate createJdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
