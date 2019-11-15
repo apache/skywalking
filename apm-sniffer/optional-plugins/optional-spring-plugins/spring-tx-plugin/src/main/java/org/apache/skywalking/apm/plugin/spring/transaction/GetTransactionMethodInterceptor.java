@@ -17,6 +17,7 @@
  */
 package org.apache.skywalking.apm.plugin.spring.transaction;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -36,7 +37,7 @@ public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInt
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         TransactionDefinition definition = (TransactionDefinition) allArguments[0];
-        AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + definition.getName());
+        AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + buildOperationName(definition.getName()));
         span.tag(Constants.TAG_SPRING_TRANSACTION_ISOLATION_LEVEL, String.valueOf(definition.getIsolationLevel()));
         span.tag(Constants.TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR, String.valueOf(definition.getPropagationBehavior()));
         span.tag(Constants.TAG_SPRING_TRANSACTION_TIMEOUT, String.valueOf(definition.getTimeout()));
@@ -54,5 +55,22 @@ public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInt
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private String buildOperationName(String transactionDefinitionName) {
+        if (!Config.Plugin.SpringTransaction.SIMPLIFY_TRANSACTION_DEFINITION_NAME) {
+            return transactionDefinitionName;
+        }
+        String[] ss = transactionDefinitionName.split("\\.");
+
+        int simplifiedLength = ss.length - 2;
+        if (simplifiedLength < 0) {
+            return transactionDefinitionName;
+        }
+        StringBuilder name = new StringBuilder();
+        for (int i = 0; i < ss.length - 1; i++) {
+            name.append(i < simplifiedLength ? ss[i].charAt(0) : ss[i]).append(".");
+        }
+        return name.append(ss[ss.length - 1]).toString();
     }
 }

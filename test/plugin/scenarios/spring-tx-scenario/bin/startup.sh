@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -Dmysql.servers=${MYSQL_SERVERS} -jar ${agent_opts} ${home}/../libs/spring-tx-scenario.jar &
+java -Dmysql.servers=${MYSQL_SERVERS} -Dskywalking.plugin.springtransaction.simplify_transaction_definition_name=true -jar ${agent_opts} ${home}/../libs/spring-tx-scenario.jar &

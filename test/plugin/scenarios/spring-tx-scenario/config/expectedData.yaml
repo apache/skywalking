@@ -30,7 +30,7 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: TX/get/test.org.apache.skywalking.apm.testcase.spring.transaction.service.impl.DemoServiceImpl.doBiz
+          - operationName: TX/get/t.o.a.s.a.t.s.t.s.i.DemoServiceImpl.doBiz
             operationId: 0
             parentSpanId: 0
             spanId: 1
