@@ -51,11 +51,16 @@ public class PathVarInterceptorTest {
     private Object[] allArguments;
     private Class[] argumentTypes;
 
+    private RequestTemplate resolvedTemplate;
+
     @Before
     public void setUp() {
 
         RequestTemplate template = new RequestTemplate();
         template.append("http://skywalking.org/{pathVar}");
+
+        resolvedTemplate = new RequestTemplate();
+        resolvedTemplate.append("http://skywalking.org/value");
 
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("pathVar","value");
@@ -68,6 +73,8 @@ public class PathVarInterceptorTest {
     @Test
     public void testMethodsAround() throws Throwable {
         pathVarInterceptor.beforeMethod(enhancedInstance,null,allArguments,argumentTypes,result);
+        pathVarInterceptor.afterMethod(enhancedInstance,null,allArguments,argumentTypes,resolvedTemplate);
         assertThat(PathVarInterceptor.ORIGIN_URL_CONTEXT.get(),is("http://skywalking.org/{pathVar}"));
+        assertThat(PathVarInterceptor.RESOLVED_URL_CONTEXT.get(),is("http://skywalking.org/value"));
     }
 }
