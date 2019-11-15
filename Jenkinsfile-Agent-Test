@@ -32,6 +32,7 @@ pipeline {
     }
 
     environment {
+        BUILD_NO="wl1_${BUILD_ID}"
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
     }
 
@@ -63,12 +64,12 @@ pipeline {
                 }
             }
             steps {
-                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests -Dbuild_id=wl1_${BUILD_ID} docker:build'
+                sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (169)') {
+        stage('Test Cases Report (156)') {
             steps {
-                echo "reserve."
+                echo "Test Cases Report"
             }
         }
 
@@ -81,55 +82,58 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
-                        stage('httpasyncclient 4.0-4.1.3 (7)') {
+                        stage('apm-toolkit-trace (1)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} httpasyncclient-scenario'
-                            }
-                        }
-                        stage('httpclient 4.3.x-4.5.x (14)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} httpclient-4.3.x-scenario'
+                                sh 'bash test/plugin/run.sh apm-toolkit-trace-scenario'
                             }
                         }
 
-                        stage('ehcache 2.8.x-2.10.x (19)') {
+                        stage('jetty 9.x (63)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} ehcache-2.x-scenario'
-                            }
-                        }
-
-                        stage('dubbo 2.7.x (4)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} dubbo-2.7.x-scenario'
-                            }
-                        }
-
-                        stage('spring async 4.3.x-5.1.x (35)') {
-                            steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} spring-async-scenario'
+                                sh 'bash test/plugin/run.sh jetty-scenario'
                             }
                         }
 
                         stage('netty-socketio 1.x (4)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} netty-socketio-scenario'
+                                sh 'bash test/plugin/run.sh netty-socketio-scenario'
+                            }
+                        }
+
+                        stage('rabbitmq-scenario (12)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh rabbitmq-scenario'
                             }
                         }
                     }
                 }
+
                 stage('Group2') {
                     stages {
-                        stage('jetty 9.x (63)') {
+                        stage('feign 9.0.0-9.5.1 (8)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} jetty-scenario'
+                                sh 'bash test/plugin/run.sh feign-scenario'
                             }
                         }
-                        stage('undertow-routing-scenario 1.3.0-2.0.27 (23)') {
+
+                        stage('customize (1)') {
                             steps {
-                                sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} undertow-routing-scenario'
+                                sh 'bash test/plugin/run.sh customize-scenario'
                             }
                         }
-                    }                        
+
+                        stage('postgresql 9.4.1207+ (62)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh postgresql-above9.4.1207-scenario'
+                            }
+                        }
+
+                        stage('canal 1.0.24-1.1.2 (5)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh canal-scenario'
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -137,7 +141,7 @@ pipeline {
 
     post {
         cleanup {
-            sh 'bash test/plugin/run.sh --build_id=wl1_${BUILD_ID} --cleanup'
+            sh 'bash test/plugin/run.sh --cleanup'
             deleteDir()
         }
     }

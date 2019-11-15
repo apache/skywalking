@@ -15,8 +15,6 @@
  * limitations under the License.
  *
  */
-
-
 package org.apache.skywalking.apm.plugin.redisson.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
