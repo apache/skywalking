@@ -16,30 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.netty.socketio;
+package org.apache.skywalking.apm.testcase.rabbitmq;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import org.springframework.boot.SpringApplication;
 
-/**
- * @author MrPro
- */
-public class ContextListener implements ServletContextListener {
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
-        // start socket io server on tomcat start
-        SocketIOStarter.startServer();
 
-        // start client
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
         try {
-            SocketIOStarter.startClientAndWaitConnect();
+            SpringApplication.run(Application.class, args);
         } catch (Exception e) {
+            // Never do this
         }
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        SocketIOStarter.server.stop();
     }
 }

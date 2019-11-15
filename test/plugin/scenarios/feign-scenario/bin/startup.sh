@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,28 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/kafka-scenario/case/kafka-case
-healthCheck: http://localhost:8080/kafka-scenario/case/healthCheck
-startScript: ./bin/startup.sh
-framework: kafka
-environment:
-  - BOOTSTRAP_SERVERS=kafka-server:9092
-depends_on:
-  - zookeeper-server
-  - kafka-server
-dependencies:
-  zookeeper-server:
-    image: zookeeper:3.4
-    hostname: zookeeper-server
-  kafka-server:
-    image: bitnami/kafka:2.1.1
-    hostname: kafka-server
-    environment:
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper-server:2181
-      - KAFKA_BROKER_ID=1
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
-      - KAFKA_CFG_LOG_FLUSH_INTERVAL_MS=1000
-    depends_on:
-      - zookeeper-server
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/feign-scenario.jar &

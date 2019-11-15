@@ -20,7 +20,7 @@ The test framework provides `JVM-container` and `Tomcat-container` base images. 
 
 ### JVM-container Image Introduction
 
-[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the basic image.
+[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image.
 The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
 Take the following test projects as good examples
@@ -29,7 +29,7 @@ Take the following test projects as good examples
 
 ### Tomcat-container Image Introduction
 
-[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the basic image.
+[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the base image.
 The test case project is required to be packaged as `project-name.war` by using `mvn package`.
 
 Take the following test project as a good example
@@ -38,7 +38,7 @@ Take the following test project as a good example
 
 ## Test project hierarchical structure
 The test case is an independent maven project, and it is required to be packaged as a war tar ball or zip file, depends 
-on the chosen basic image. Also, two external accessible endpoints, mostly two URLs, are required.
+on the chosen base image. Also, two external accessible endpoints, mostly two URLs, are required.
 
 All test case codes should be in `org.apache.skywalking.apm.testcase.*` package, unless there are some codes expected being instrumented,
 then the classes could be in `test.org.apache.skywalking.apm.testcase.*` package.
@@ -94,7 +94,7 @@ File Name | Descriptions
 `support-version.list` | List the target versions for this case
 `startup.sh` |`JVM-container` only, don't need this when use`Tomcat-container`
 
-`*` support-version.list format requires every line for a singe version. Could use `#` to comment out this version.
+`*` support-version.list format requires every line for a single version. Could use `#` to comment out this version.
 
 ### configuration.yml
 
@@ -612,16 +612,18 @@ stage('Run Agent Plugin Tests') {
 Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
 
 ### Workload 1
-#### Group 1 (2247.00s)
+#### Group 1 (2709.00s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
 apm-toolkit-trace | 1 | 87.00
 jetty 9.x | 63 | 2043.00
 netty-socketio 1.x | 4 | 117.00
+rabbitmq-scenario | 12 | 462
 
-#### Group 2 (2119.991s)
+#### Group 2 (2291.98s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+feign 9.0.0-9.5.1 | 8 | 172.00
 customize | 1 | 85.64
 postgresql 9.4.1207+ | 62 | 1820.29
 canal 1.0.24-1.1.2 | 5 | 214.05
