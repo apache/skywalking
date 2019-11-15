@@ -628,9 +628,10 @@ canal 1.0.24-1.1.2 | 5 | 214.05
 
 
 ### Workload 2
-#### Group 1 (2351.54s)
+#### Group 1 (2906.54s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+spring-tx 4.x+ | 10 | 555.00
 spring 4.3.x-5.2.x | 54 | 1769.32
 dubbo 2.5.x-2.6.x | 10 | 367.23
 dubbo 2.7.x | 4 | 214.99
