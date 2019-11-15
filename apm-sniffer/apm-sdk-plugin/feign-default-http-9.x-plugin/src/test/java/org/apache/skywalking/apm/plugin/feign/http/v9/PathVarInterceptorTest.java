@@ -76,5 +76,7 @@ public class PathVarInterceptorTest {
         pathVarInterceptor.afterMethod(enhancedInstance,null,allArguments,argumentTypes,resolvedTemplate);
         assertThat(PathVarInterceptor.ORIGIN_URL_CONTEXT.get(),is("http://skywalking.org/{pathVar}"));
         assertThat(PathVarInterceptor.RESOLVED_URL_CONTEXT.get(),is("http://skywalking.org/value"));
+        PathVarInterceptor.RESOLVED_URL_CONTEXT.remove();
+        PathVarInterceptor.ORIGIN_URL_CONTEXT.remove();
     }
 }
