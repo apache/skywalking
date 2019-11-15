@@ -20,13 +20,6 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
 import feign.Response;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.*;
-
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -35,9 +28,15 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.*;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
@@ -59,13 +58,18 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
-        String originUrl = PathVarInterceptor.URL_CONTEXT.get();
+        String originUrl = PathVarInterceptor.ORIGIN_URL_CONTEXT.get();
+        String resolvedUrl = PathVarInterceptor.RESOLVED_URL_CONTEXT.get();
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
         int port = url.getPort() == -1 ? 80 : url.getPort();
         String remotePeer = url.getHost() + ":" + port;
-        String operationName = StringUtil.isEmpty(originUrl) ? url.getPath() : originUrl;
-        PathVarInterceptor.URL_CONTEXT.remove();
+        String operationName = url.getPath();
+        if (!StringUtil.isEmpty(originUrl) && !StringUtil.isEmpty(resolvedUrl)) {
+            operationName = operationName.replace(resolvedUrl,originUrl);
+        }
+        PathVarInterceptor.ORIGIN_URL_CONTEXT.remove();
+        PathVarInterceptor.RESOLVED_URL_CONTEXT.remove();
         if (operationName == null || operationName.length() == 0) {
             operationName = "/";
         }

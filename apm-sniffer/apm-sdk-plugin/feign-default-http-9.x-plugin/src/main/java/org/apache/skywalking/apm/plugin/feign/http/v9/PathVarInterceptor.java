@@ -32,11 +32,12 @@ import java.lang.reflect.Method;
  */
 public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
 
-    static final ThreadLocal<String> URL_CONTEXT = new ThreadLocal<String>();
+    static final ThreadLocal<String> ORIGIN_URL_CONTEXT = new ThreadLocal<String>();
+    static final ThreadLocal<String> RESOLVED_URL_CONTEXT = new ThreadLocal<String>();
 
     /**
      * Get the {@link RequestTemplate#url()} before feign.ReflectiveFeign.BuildTemplateByResolvingArgs#resolve(Object[], RequestTemplate, Map)
-     *  put it into the {@link PathVarInterceptor#URL_CONTEXT}
+     *  put it into the {@link PathVarInterceptor#ORIGIN_URL_CONTEXT}
      *
      * @param method intercept method
      * @param result change this result, if you want to truncate the method.
@@ -44,7 +45,7 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) {
         RequestTemplate template = (RequestTemplate)allArguments[1];
-        URL_CONTEXT.set(template.url());
+        ORIGIN_URL_CONTEXT.set(template.url());
     }
 
     /**
@@ -55,6 +56,8 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
      */
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) {
+        RequestTemplate resolvedTemplate = (RequestTemplate) ret;
+        RESOLVED_URL_CONTEXT.set(resolvedTemplate.url());
         return ret;
     }
 

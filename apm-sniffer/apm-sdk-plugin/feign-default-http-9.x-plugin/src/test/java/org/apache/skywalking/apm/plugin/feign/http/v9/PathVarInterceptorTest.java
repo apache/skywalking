@@ -68,6 +68,6 @@ public class PathVarInterceptorTest {
     @Test
     public void testMethodsAround() throws Throwable {
         pathVarInterceptor.beforeMethod(enhancedInstance,null,allArguments,argumentTypes,result);
-        assertThat(PathVarInterceptor.URL_CONTEXT.get(),is("http://skywalking.org/{pathVar}"));
+        assertThat(PathVarInterceptor.ORIGIN_URL_CONTEXT.get(),is("http://skywalking.org/{pathVar}"));
     }
 }
