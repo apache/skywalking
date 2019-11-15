@@ -16,22 +16,34 @@
  *
  */
 
-package org.apache.skywalking.apm.commons.datacarrier;
+package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
+import java.util.List;
 
 /**
- * @author wu-sheng
+ * Queue buffer interface.
+ *
+ * @author wusheng
  */
-public class BlockingDataCarrier<T> {
-    private Channels<T> channels;
+public interface QueueBuffer<T> {
+    /**
+     * Save data into the queue;
+     * @param data to add.
+     * @return true if saved
+     */
+    boolean save(T data);
 
-    BlockingDataCarrier(Channels<T> channels) {
-        this.channels = channels;
-    }
+    /**
+     * Set different strategy when queue is full.
+     * @param strategy
+     */
+    void setStrategy(BufferStrategy strategy);
 
-    public void addCallback(QueueBlockingCallback<T> callback) {
-        this.channels.addCallback(callback);
-    }
+    /**
+     * Obtain the existing data from the queue
+     * @param consumeList
+     */
+    void obtain(List<T> consumeList);
+
+    int getBufferSize();
 }
