@@ -612,12 +612,13 @@ stage('Run Agent Plugin Tests') {
 Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
 
 ### Workload 1
-#### Group 1 (2247.00s)
+#### Group 1 (2709.00s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
 apm-toolkit-trace | 1 | 87.00
 jetty 9.x | 63 | 2043.00
 netty-socketio 1.x | 4 | 117.00
+rabbitmq-scenario | 12 | 462
 
 #### Group 2 (2291.98s)
 scenario name | versions | elapsed time (sec)
