@@ -19,13 +19,8 @@ package org.apache.skywalking.apm.testcase.netty.socketio;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
-import io.socket.client.IO;
-import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
+import io.netty.util.concurrent.Future;
 
-import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,15 +32,15 @@ public class SocketIOStarter {
     public static final String LISTEN_EVENT_NAME = "send_data";
     public static final String SEND_EVENT_NAME = "get_data";
 
-    public static SocketIOServer server;
-    public static Socket client;
+    private SocketIOServer server;
+    private Future<Void> startFuture;
+    private static final SocketIOStarter INSTANCE = new SocketIOStarter();
 
-    private static CountDownLatch connectedCountDownLatch = new CountDownLatch(1);
+    public static final SocketIOStarter getInstance() {
+        return INSTANCE;
+    }
 
-    public static void startServer() {
-        if (server != null) {
-            return;
-        }
+    public SocketIOStarter() {
         Configuration config = new Configuration();
         config.setHostname("localhost");
         config.setPort(SERVER_PORT);
@@ -53,29 +48,15 @@ public class SocketIOStarter {
         config.setWorkerThreads(1);
 
         server = new SocketIOServer(config);
-
-        server.start();
+        startFuture = server.startAsync();
     }
 
-    public static void startClientAndWaitConnect() throws URISyntaxException, InterruptedException {
-        if (client != null) {
-            // check client is connected again
-            // if this method invoke on multi thread, client will return but not connected
-            connectedCountDownLatch.await(5, TimeUnit.SECONDS);
-            return;
-        }
-        client = IO.socket("http://localhost:" + SERVER_PORT);
-        LinkedBlockingQueue<Boolean> connected = new LinkedBlockingQueue<>(1);
-        client.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-            @Override
-            public void call(Object... objects) {
-                connectedCountDownLatch.countDown();
-            }
-        });
-        client.connect();
+    public boolean healthCheck() throws InterruptedException {
+        return startFuture.await(1L, TimeUnit.SECONDS);
+    }
 
-        // wait connect to server
-        connectedCountDownLatch.await(5, TimeUnit.SECONDS);
+    public void sendEvent(String message) {
+        server.getAllClients().forEach(e -> e.sendEvent(SEND_EVENT_NAME, message));
     }
 
 }
