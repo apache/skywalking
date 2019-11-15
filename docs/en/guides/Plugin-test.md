@@ -20,7 +20,7 @@ The test framework provides `JVM-container` and `Tomcat-container` base images. 
 
 ### JVM-container Image Introduction
 
-[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the basic image.
+[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image.
 The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
 Take the following test projects as good examples
@@ -29,7 +29,7 @@ Take the following test projects as good examples
 
 ### Tomcat-container Image Introduction
 
-[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the basic image.
+[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the base image.
 The test case project is required to be packaged as `project-name.war` by using `mvn package`.
 
 Take the following test project as a good example
@@ -38,7 +38,7 @@ Take the following test project as a good example
 
 ## Test project hierarchical structure
 The test case is an independent maven project, and it is required to be packaged as a war tar ball or zip file, depends 
-on the chosen basic image. Also, two external accessible endpoints, mostly two URLs, are required.
+on the chosen base image. Also, two external accessible endpoints, mostly two URLs, are required.
 
 All test case codes should be in `org.apache.skywalking.apm.testcase.*` package, unless there are some codes expected being instrumented,
 then the classes could be in `test.org.apache.skywalking.apm.testcase.*` package.
@@ -94,7 +94,7 @@ File Name | Descriptions
 `support-version.list` | List the target versions for this case
 `startup.sh` |`JVM-container` only, don't need this when use`Tomcat-container`
 
-`*` support-version.list format requires every line for a singe version. Could use `#` to comment out this version.
+`*` support-version.list format requires every line for a single version. Could use `#` to comment out this version.
 
 ### configuration.yml
 
