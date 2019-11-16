@@ -19,10 +19,10 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 
 /**
  * Created by wusheng on 2016/10/25.
@@ -42,23 +42,12 @@ public class ConsumerThread<T> extends Thread {
     }
 
     /**
-     * add partition of buffer to consume
-     *
-     * @param sourceBuffer
-     * @param start
-     * @param end
-     */
-    void addDataSource(Buffer<T> sourceBuffer, int start, int end) {
-        this.dataSources.add(new DataSource(sourceBuffer, start, end));
-    }
-
-    /**
      * add whole buffer to consume
      *
      * @param sourceBuffer
      */
-    void addDataSource(Buffer<T> sourceBuffer) {
-        this.dataSources.add(new DataSource(sourceBuffer, 0, sourceBuffer.getBufferSize()));
+    void addDataSource(QueueBuffer<T> sourceBuffer) {
+        this.dataSources.add(new DataSource(sourceBuffer));
     }
 
     @Override
@@ -108,18 +97,14 @@ public class ConsumerThread<T> extends Thread {
      * DataSource is a refer to {@link Buffer}.
      */
     class DataSource {
-        private Buffer<T> sourceBuffer;
-        private int start;
-        private int end;
+        private QueueBuffer<T> sourceBuffer;
 
-        DataSource(Buffer<T> sourceBuffer, int start, int end) {
+        DataSource(QueueBuffer<T> sourceBuffer) {
             this.sourceBuffer = sourceBuffer;
-            this.start = start;
-            this.end = end;
         }
 
         void obtain(List<T> consumeList) {
-            sourceBuffer.obtain(consumeList, start, end);
+            sourceBuffer.obtain(consumeList);
         }
     }
 }
