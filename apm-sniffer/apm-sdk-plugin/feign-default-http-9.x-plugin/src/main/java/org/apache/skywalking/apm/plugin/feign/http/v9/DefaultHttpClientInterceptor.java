@@ -30,7 +30,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -63,18 +62,21 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                              Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
-        String originUrl = PathVarInterceptor.ORIGIN_URL_CONTEXT.get();
-        String resolvedUrl = PathVarInterceptor.RESOLVED_URL_CONTEXT.get();
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
         int port = url.getPort() == -1 ? 80 : url.getPort();
         String remotePeer = url.getHost() + ":" + port;
         String operationName = url.getPath();
-        if (!StringUtil.isEmpty(originUrl) && !StringUtil.isEmpty(resolvedUrl)) {
-            operationName = operationName.replace(resolvedUrl,originUrl);
+        FeignResolvedURL feignResolvedURL = PathVarInterceptor.URL_CONTEXT.get();
+        try {
+            if (feignResolvedURL != null) {
+                operationName = operationName.replace(feignResolvedURL.getUrl(), feignResolvedURL.getOriginUrl());
+            }
+        } finally {
+            if (feignResolvedURL != null) {
+                PathVarInterceptor.URL_CONTEXT.remove();
+            }
         }
-        PathVarInterceptor.ORIGIN_URL_CONTEXT.remove();
-        PathVarInterceptor.RESOLVED_URL_CONTEXT.remove();
         if (operationName == null || operationName.length() == 0) {
             operationName = "/";
         }

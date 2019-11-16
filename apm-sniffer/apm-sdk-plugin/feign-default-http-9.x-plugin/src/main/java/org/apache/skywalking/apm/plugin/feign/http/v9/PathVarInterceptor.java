@@ -32,12 +32,11 @@ import java.lang.reflect.Method;
  */
 public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
 
-    static final ThreadLocal<String> ORIGIN_URL_CONTEXT = new ThreadLocal<String>();
-    static final ThreadLocal<String> RESOLVED_URL_CONTEXT = new ThreadLocal<String>();
+    static final ThreadLocal<FeignResolvedURL> URL_CONTEXT = new ThreadLocal<FeignResolvedURL>();
 
     /**
      * Get the {@link RequestTemplate#url()} before feign.ReflectiveFeign.BuildTemplateByResolvingArgs#resolve(Object[], RequestTemplate, Map)
-     *  put it into the {@link PathVarInterceptor#ORIGIN_URL_CONTEXT}
+     *  put it into the {@link PathVarInterceptor#URL_CONTEXT}
      *
      * @param method intercept method
      * @param result change this result, if you want to truncate the method.
@@ -45,11 +44,12 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) {
         RequestTemplate template = (RequestTemplate)allArguments[1];
-        ORIGIN_URL_CONTEXT.set(template.url());
+        URL_CONTEXT.set(new FeignResolvedURL(template.url()));
     }
 
     /**
-     *  do nothing
+     * Get the resolved {@link RequestTemplate#url()} after feign.ReflectiveFeign.BuildTemplateByResolvingArgs#resolve(Object[], RequestTemplate, Map)
+     *  put it into the {@link PathVarInterceptor#URL_CONTEXT}
      * @param method intercept method
      * @param ret the method's original return value.
      * @return result without change
@@ -57,12 +57,14 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) {
         RequestTemplate resolvedTemplate = (RequestTemplate) ret;
-        RESOLVED_URL_CONTEXT.set(resolvedTemplate.url());
+        URL_CONTEXT.get().setUrl(resolvedTemplate.url());
         return ret;
     }
 
     @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-
+        if (URL_CONTEXT.get() != null) {
+            URL_CONTEXT.remove();
+        }
     }
 }

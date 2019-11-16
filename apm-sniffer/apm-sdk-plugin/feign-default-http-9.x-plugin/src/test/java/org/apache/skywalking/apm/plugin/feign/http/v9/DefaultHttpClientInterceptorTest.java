@@ -35,6 +35,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,8 +87,7 @@ public class DefaultHttpClientInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        PathVarInterceptor.ORIGIN_URL_CONTEXT.set("/test/{pathVar}");
-        PathVarInterceptor.RESOLVED_URL_CONTEXT.set("/test/var");
+        PathVarInterceptor.URL_CONTEXT.set(new FeignResolvedURL("/test/{pathVar}","/test/var"));
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
         request = Request.create("GET", "http://skywalking.org/test/var", headers, "Test".getBytes(), Charset.forName("UTF-8"));
         Request.Options options = new Request.Options();
@@ -118,8 +118,6 @@ public class DefaultHttpClientInterceptorTest {
         assertThat(finishedSpan.getOperationName(),is("/test/{pathVar}"));
 
         Assert.assertEquals(false, SpanHelper.getErrorOccurred(finishedSpan));
-        PathVarInterceptor.ORIGIN_URL_CONTEXT.remove();
-        PathVarInterceptor.RESOLVED_URL_CONTEXT.remove();
     }
 
     @Test
@@ -184,5 +182,10 @@ public class DefaultHttpClientInterceptorTest {
         assertThat(logDataEntity.getLogs().get(1).getValue(), CoreMatchers.<Object>is(NullPointerException.class.getName()));
         assertThat(logDataEntity.getLogs().get(2).getValue(), is("testException"));
         assertNotNull(logDataEntity.getLogs().get(3).getValue());
+    }
+
+    @After
+    public void clean() {
+        PathVarInterceptor.URL_CONTEXT.remove();
     }
 }

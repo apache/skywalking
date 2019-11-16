@@ -22,6 +22,7 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 import feign.RequestTemplate;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,9 +75,12 @@ public class PathVarInterceptorTest {
     public void testMethodsAround() throws Throwable {
         pathVarInterceptor.beforeMethod(enhancedInstance,null,allArguments,argumentTypes,result);
         pathVarInterceptor.afterMethod(enhancedInstance,null,allArguments,argumentTypes,resolvedTemplate);
-        assertThat(PathVarInterceptor.ORIGIN_URL_CONTEXT.get(),is("http://skywalking.org/{pathVar}"));
-        assertThat(PathVarInterceptor.RESOLVED_URL_CONTEXT.get(),is("http://skywalking.org/value"));
-        PathVarInterceptor.RESOLVED_URL_CONTEXT.remove();
-        PathVarInterceptor.ORIGIN_URL_CONTEXT.remove();
+        assertThat(PathVarInterceptor.URL_CONTEXT.get().getOriginUrl(),is("http://skywalking.org/{pathVar}"));
+        assertThat(PathVarInterceptor.URL_CONTEXT.get().getUrl(),is("http://skywalking.org/value"));
+    }
+
+    @After
+    public void clean() {
+        PathVarInterceptor.URL_CONTEXT.remove();
     }
 }
