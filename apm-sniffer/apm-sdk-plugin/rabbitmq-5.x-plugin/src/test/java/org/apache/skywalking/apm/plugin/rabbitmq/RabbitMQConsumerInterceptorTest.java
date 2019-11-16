@@ -74,7 +74,7 @@ public class RabbitMQConsumerInterceptorTest {
         Map<String, Object> headers = new HashMap<String, Object>();
         headers.put("sw6","1-MS4xLjE1NDM5NzU1OTEwMTQwMDAx-MS4xLjE1NDM5NzU1OTA5OTcwMDAw-0-1-1-IzEyNy4wLjAuMTo1Mjcy-I1JhYmJpdE1RL1RvcGljL1F1ZXVlL3JhYmJpdG1xLXRlc3QvUHJvZHVjZXI=-I1JhYmJpdE1RL1RvcGljL1F1ZXVlL3JhYmJpdG1xLXRlc3QvUHJvZHVjZXI=");
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-        Object[] arguments = new Object[]  {0,0,envelope,propsBuilder.headers(headers).build()};
+        Object[] arguments = new Object[]  {0,envelope,propsBuilder.headers(headers).build()};
 
         rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
         rabbitMQConsumerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
@@ -86,7 +86,7 @@ public class RabbitMQConsumerInterceptorTest {
     public void testRabbitMQConsumerInterceptorWithNilHeaders() throws Throwable {
         Envelope envelope = new Envelope(1111,false,"","rabbitmq-test");
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-        Object[] arguments = new Object[]  {0,0,envelope,propsBuilder.headers(null).build()};
+        Object[] arguments = new Object[]  {0,envelope,propsBuilder.headers(null).build()};
 
         rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
         rabbitMQConsumerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
@@ -99,7 +99,7 @@ public class RabbitMQConsumerInterceptorTest {
         Envelope envelope = new Envelope(1111,false,"","rabbitmq-test");
         Map<String, Object> headers = new HashMap<String, Object>();
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-        Object[] arguments = new Object[]  {0,0,envelope,propsBuilder.headers(headers).build()};
+        Object[] arguments = new Object[]  {0,envelope,propsBuilder.headers(headers).build()};
 
         rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
         rabbitMQConsumerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);

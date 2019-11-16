@@ -40,8 +40,8 @@ public class RabbitMQConsumerInterceptor implements InstanceMethodsAroundInterce
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
         String url = (String) objInst.getSkyWalkingDynamicField();
-        Envelope envelope = (Envelope) allArguments[2];
-        AMQP.BasicProperties  properties = (AMQP.BasicProperties) allArguments[3];
+        Envelope envelope = (Envelope) allArguments[1];
+        AMQP.BasicProperties  properties = (AMQP.BasicProperties) allArguments[2];
         AbstractSpan  activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + "Topic/" + envelope.getExchange() + "Queue/" + envelope.getRoutingKey() + CONSUMER_OPERATE_NAME_SUFFIX, null).start(System.currentTimeMillis());
         Tags.MQ_BROKER.set(activeSpan,url);
         Tags.MQ_TOPIC.set(activeSpan,envelope.getExchange());
