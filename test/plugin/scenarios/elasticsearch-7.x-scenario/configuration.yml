@@ -20,11 +20,11 @@ healthCheck: http://localhost:8080/elasticsearch-case/case/healthCheck
 startScript: ./bin/startup.sh
 framework: elasticsearch-7.x-scenario
 environment:
-- elasticsearch.server=elasticsearch-server:9200
+- elasticsearch.server=elasticsearch-server-7.x:9200
 dependencies:
-  elasticsearch-server:
-    image: elasticsearch:7.0.0
-    hostname: elasticsearch-server
+  elasticsearch-server-7.x:
+    image: elasticsearch:${CASE_SERVER_IMAGE_VERSION}
+    hostname: elasticsearch-server-7.x
     expose:
     - 9200
     environment:
