@@ -16,22 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.commons.datacarrier;
+package org.apache.skywalking.apm.testcase.rabbitmq;
 
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
+import org.springframework.boot.SpringApplication;
 
-/**
- * @author wu-sheng
- */
-public class BlockingDataCarrier<T> {
-    private Channels<T> channels;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    BlockingDataCarrier(Channels<T> channels) {
-        this.channels = channels;
-    }
 
-    public void addCallback(QueueBlockingCallback<T> callback) {
-        this.channels.addCallback(callback);
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
 }

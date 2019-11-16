@@ -80,7 +80,7 @@ public class ConsumerTest {
         for (SampleData data : result) {
             consumerCounter.add(data.getIntValue());
         }
-        Assert.assertEquals(5, consumerCounter.size());
+        Assert.assertEquals(2, consumerCounter.size());
     }
 
     @Test
