@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,5 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-feign-default-http-9.x=org.apache.skywalking.apm.plugin.feign.http.v9.define.DefaultHttpClientInstrumentation
-feign-pathvar-9.x=org.apache.skywalking.apm.plugin.feign.http.v9.define.PathVarInstrumentation
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} -Dskywalking.plugin.elasticsearch.trace_dsl=true ${home}/../libs/elasticsearch-7.x-scenario.jar &
