@@ -670,9 +670,10 @@ ehcache 2.8.x-2.10.x | 19 | 442.00
 undertow 1.3.0-2.0.27 | 23 | 596.00
 jedis 2.4.0-2.9.0 ｜ 18 ｜ 524.00
 
-#### Group 2 (2148.155s)
+#### Group 2 (2398.155s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+elasticsearch-7.x-scenario | 11 | 250.00
 spring-webflux 2.x | 18 | 705.60
 spring 4.1.x-4.2.x | 20 | 574.75
 solrj 7.x | 12 | 367.05
