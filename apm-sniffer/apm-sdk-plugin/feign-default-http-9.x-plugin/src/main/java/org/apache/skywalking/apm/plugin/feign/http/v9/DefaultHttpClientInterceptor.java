@@ -68,16 +68,14 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         String remotePeer = url.getHost() + ":" + port;
         String operationName = url.getPath();
         FeignResolvedURL feignResolvedURL = PathVarInterceptor.URL_CONTEXT.get();
-        try {
-            if (feignResolvedURL != null) {
+        if (feignResolvedURL != null) {
+            try {
                 operationName = operationName.replace(feignResolvedURL.getUrl(), feignResolvedURL.getOriginUrl());
-            }
-        } finally {
-            if (feignResolvedURL != null) {
+            } finally {
                 PathVarInterceptor.URL_CONTEXT.remove();
             }
         }
-        if (operationName == null || operationName.length() == 0) {
+        if (operationName.length() == 0) {
             operationName = "/";
         }
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
