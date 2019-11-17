@@ -15,23 +15,44 @@
  * limitations under the License.
  *
  */
-
-package org.apache.skywalking.apm.commons.datacarrier;
-
-import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
+package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 /**
- * @author wu-sheng
+ * class for {@link PathVarInterceptor} intercept feign url resolved params in url .
+ * @author qiyang
  */
-public class BlockingDataCarrier<T> {
-    private Channels<T> channels;
+public class FeignResolvedURL {
+    /**
+     * url before resolved
+     */
+    private String originUrl;
+    /**
+     * url after resolved
+     */
+    private String url;
 
-    BlockingDataCarrier(Channels<T> channels) {
-        this.channels = channels;
+    public FeignResolvedURL(String originUrl) {
+        this.originUrl = originUrl;
     }
 
-    public void addCallback(QueueBlockingCallback<T> callback) {
-        this.channels.addCallback(callback);
+    public FeignResolvedURL(String originUrl, String url) {
+        this.originUrl = originUrl;
+        this.url = url;
+    }
+
+    public String getOriginUrl() {
+        return originUrl;
+    }
+
+    public void setOriginUrl(String originUrl) {
+        this.originUrl = originUrl;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
