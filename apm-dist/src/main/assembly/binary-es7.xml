@@ -36,9 +36,26 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>
-                ${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap/config
-            </directory>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>log4j2.xml</include>
+                <include>application.yml</include>
+                <include>alarm-settings.yml</include>
+                <include>alarm-settings-sample.yml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
+            <includes>
+                <include>component-libraries.yml</include>
+                <include>official_analysis.oal</include>
+                <include>gateways.yml</include>
+            </includes>
+            <outputDirectory>/config</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap/config</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>*.yml</include>
@@ -48,9 +65,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>
-                ${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap/libs
-            </directory>
+            <directory>${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
             <outputDirectory>/oap-libs</outputDirectory>
         </fileSet>
 

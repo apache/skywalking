@@ -96,6 +96,7 @@
                             <run>
                                 <env>
                                     <MODE>standalone</MODE>
+                                    <ES_VERSION>${elasticsearch.version}</ES_VERSION>
                                     <SW_STORAGE_ES_CLUSTER_NODES>
                                         ${e2e.container.name.prefix}-elasticsearch:9200
                                     </SW_STORAGE_ES_CLUSTER_NODES>

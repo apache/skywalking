@@ -27,12 +27,12 @@ storage:
 ```
 
 ## ElasticSearch
-Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
+Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**, active ElasticSearch 7 as storage, set storage provider to **elasticsearch7**.
 
 **Required ElasticSearch 6.3.2 or higher. HTTP RestHighLevelClient is used to connect server.**
 
 For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz` or `apache-skywalking-bin.zip`,
-for ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-es7-bin.tar.gz` or `apache-skywalking-es7-bin.zip`.
+for ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-bin-es7.tar.gz` or `apache-skywalking-bin-es7.zip`.
 
 At the moment, ElasticSearch 6 and ElasticSearch 7 share the same configurations, as following:
 
@@ -98,7 +98,7 @@ And recommend read more about these configuration from ElasticSearch official do
 This effects the performance of ElasticSearch very much.
 
 
-### ElasticSearch 6/7 with Zipkin trace extension
+### ElasticSearch 6 with Zipkin trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
 ```yaml
@@ -122,7 +122,7 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
 
-### ElasticSearch 6/7 with Jaeger trace extension
+### ElasticSearch 6 with Jaeger trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
 ```yaml

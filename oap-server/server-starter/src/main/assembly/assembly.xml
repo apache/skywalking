@@ -30,25 +30,4 @@
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
-    <fileSets>
-        <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>/config</outputDirectory>
-            <includes>
-                <include>log4j2.xml</include>
-                <include>application.yml</include>
-                <include>alarm-settings.yml</include>
-                <include>alarm-settings-sample.yml</include>
-                <include>gateways.yml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>src/main/resources</directory>
-            <includes>
-                <include>component-libraries.yml</include>
-                <include>official_analysis.oal</include>
-            </includes>
-            <outputDirectory>/config</outputDirectory>
-        </fileSet>
-    </fileSets>
 </assembly>

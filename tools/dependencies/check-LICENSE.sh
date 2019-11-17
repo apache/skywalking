@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist
+
 # List all modules(jars) that belong to the SkyWalking itself, these will be ignored
 # when checking the dependency licenses
 ./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
@@ -37,6 +39,8 @@ diff -w -B -U0 <(cat tools/dependencies/known-oap-backend-dependencies.txt | sor
 [[ $? -ne 0 ]] && exit $?
 
 # Check ES7 distribution package
+
+tar -zxf dist/apache-skywalking-apm-bin-es7.tar.gz -C dist
 
 ls dist/apache-skywalking-apm-bin-es7/oap-libs > all-dependencies-es7.txt
 
