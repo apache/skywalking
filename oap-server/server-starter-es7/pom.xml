@@ -36,30 +36,8 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-starter</artifactId>
+            <artifactId>server-bootstrap</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>storage-elasticsearch-plugin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>storage-zipkin-plugin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>storage-jaeger-plugin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>jaeger-receiver-plugin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>zipkin-receiver-plugin</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -70,7 +48,6 @@
 
     <build>
         <finalName>skywalking-oap</finalName>
-
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

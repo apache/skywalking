@@ -43,6 +43,7 @@
         <module>oal-grammar</module>
         <module>exporter</module>
         <module>server-configuration</module>
+        <module>server-bootstrap</module>
     </modules>
 
     <properties>
