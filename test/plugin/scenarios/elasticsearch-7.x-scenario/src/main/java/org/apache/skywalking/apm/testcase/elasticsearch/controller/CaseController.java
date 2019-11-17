@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.elasticsearch.controller;
 
 import static java.util.Collections.singletonMap;
@@ -52,11 +53,14 @@ import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ * @author aderm
+ */
 @RestController
-@RequestMapping("/elasticsearch-case/case")
+@RequestMapping("/case")
 public class CaseController {
 
     private static Logger logger = LogManager.getLogger(CaseController.class);
@@ -64,7 +68,7 @@ public class CaseController {
     @Autowired
     private RestHighLevelClient client;
 
-    @GetMapping("/healthcheck")
+    @GetMapping("/healthCheck")
     public String healthcheck() throws Exception {
         ClusterHealthRequest request = new ClusterHealthRequest();
         request.timeout(TimeValue.timeValueSeconds(10));
@@ -90,7 +94,7 @@ public class CaseController {
 
             client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
 
-             //get
+            //get
             get(client, indexName);
             // search
             search(client, indexName);
@@ -151,7 +155,7 @@ public class CaseController {
             builder.field("title", "Java programing.");
         }
         builder.endObject();
-        IndexRequest indexRequest = new IndexRequest(indexName,"_doc", "1").source(builder);
+        IndexRequest indexRequest = new IndexRequest(indexName).id("1").source(builder);
 
         IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
         if (indexResponse.status().getStatus() >= 400) {
@@ -162,7 +166,7 @@ public class CaseController {
     }
 
     private void get(RestHighLevelClient client, String indexName) throws IOException {
-        GetRequest getRequest = new GetRequest(indexName, "_doc", "1");
+        GetRequest getRequest = new GetRequest(indexName, "1");
         GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
 
         if (!getResponse.isExists()) {
@@ -173,7 +177,7 @@ public class CaseController {
     }
 
     private void update(RestHighLevelClient client, String indexName) throws IOException {
-        UpdateRequest request = new UpdateRequest(indexName, "_doc", "1");
+        UpdateRequest request = new UpdateRequest(indexName, "1");
         Map<String, Object> parameters = singletonMap("title", "c++ programing.");
         Script inline = new Script(ScriptType.INLINE, "painless", "ctx._source.title = params.title", parameters);
         request.script(inline);
@@ -197,7 +201,6 @@ public class CaseController {
     }
 
     private void search(RestHighLevelClient client, String indexName) throws IOException {
-
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.termQuery("author", "Marker"));
         sourceBuilder.from(0);
@@ -207,11 +210,14 @@ public class CaseController {
         searchRequest.indices(indexName);
         searchRequest.source(sourceBuilder);
         SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-        if (!(searchResponse.getHits().totalHits > 0)) {
+
+        int length = searchResponse.getHits().getHits().length;
+        if (!(length > 0)) {
             String message = "elasticsearch search data fail.";
             logger.error(message);
             throw new RuntimeException(message);
         }
     }
 }
+
 
