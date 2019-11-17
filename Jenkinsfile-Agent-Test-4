@@ -115,7 +115,7 @@ pipeline {
                         }
                     }
                 }
-                
+
                 stage('Group2') {
                     stages {
                         stage('elasticsearch-7.x-scenario 7.0.0-7.4.2 (11)') {
