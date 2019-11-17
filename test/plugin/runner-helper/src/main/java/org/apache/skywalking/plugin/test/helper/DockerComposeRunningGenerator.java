@@ -62,6 +62,8 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         root.put("docker_image_version", configuration.dockerImageVersion());
         root.put("docker_container_name", configuration.dockerContainerName());
 
+        root.put("network_name", configuration.dockerNetworkName());
+
         ArrayList<String> links = Lists.newArrayList();
         configuration.caseConfiguration().getDependencies().forEach((k, service) -> {
             links.add(service.getHostname());
