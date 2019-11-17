@@ -4,7 +4,7 @@ use is by changing the `application.yml`
 
 Native supported storage
 - H2
-- ElasticSearch 6
+- ElasticSearch 6, 7
 - MySQL
 - TiDB
 
@@ -26,10 +26,15 @@ storage:
     user: sa
 ```
 
-## ElasticSearch 6
+## ElasticSearch
 Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
 
-**Required ElasticSearch 6.3.2 or higher, excepted 7.0.0 or higher. HTTP RestHighLevelClient is used to connect server.**
+**Required ElasticSearch 6.3.2 or higher. HTTP RestHighLevelClient is used to connect server.**
+
+For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz` or `apache-skywalking-bin.zip`,
+for ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-es7-bin.tar.gz` or `apache-skywalking-es7-bin.zip`.
+
+At the moment, ElasticSearch 6 and ElasticSearch 7 share the same configurations, as following:
 
 Setting fragment example
 
@@ -93,7 +98,7 @@ And recommend read more about these configuration from ElasticSearch official do
 This effects the performance of ElasticSearch very much.
 
 
-### ElasticSearch 6 with Zipkin trace extension
+### ElasticSearch 6/7 with Zipkin trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
 ```yaml
@@ -117,7 +122,7 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
 ```
 
-### ElasticSearch 6 with Jaeger trace extension
+### ElasticSearch 6/7 with Jaeger trace extension
 This implementation shares most of `elasticsearch`, just extend to support zipkin span storage.
 It has all same configs.
 ```yaml
@@ -194,7 +199,7 @@ These settings can refer to the configuration of *MySQL* above.
 
 ## ElasticSearch 5
 ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
-[OpenSkywalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
+[OpenSkyWalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 

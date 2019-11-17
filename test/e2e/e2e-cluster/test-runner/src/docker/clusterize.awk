@@ -61,7 +61,7 @@ BEGIN {
         # in the storage: section now
         # disable h2 module
         if (in_storage_es_section == 0) {
-            in_storage_es_section=$0 ~ /^#?\s+elasticsearch:$/
+            in_storage_es_section=$0 ~ /^#?\s+elasticsearch7?:$/
         } else {
             in_storage_es_section=$0 ~ /^#?\s{4}/
         }

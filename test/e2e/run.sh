@@ -22,6 +22,9 @@ base_dir=$(pwd)
 build=0
 cases=()
 
+DIST_PACKAGE=${DIST_PACKAGE:-apache-skywalking-apm-bin.tar.gz}
+ES_VERSION=${ES_VERSION:-6.3.2}
+
 # Parse the arguments
 # --build-dist: build the distribution package ignoring the existance of `dist` folder, useful when running e2e locally
 
@@ -29,6 +32,9 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --build)
       build=1
+      ;;
+    --profiles=*)
+      profiles=${1#*=}
       ;;
     *)
       cases+=($1)
@@ -46,7 +52,7 @@ done
 
 [[ ${build} -eq 1 ]] \
   && echo 'Building distribution package...' \
-  && ./mvnw -q -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -DskipTests clean install
+  && ./mvnw --activate-profiles "${profiles}" -q -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -DskipTests -am clean install
 
 echo "Running cases: $(IFS=$' '; echo "${cases[*]}")"
 
@@ -58,9 +64,13 @@ do
 
   # Some of the tests will modify files in the distribution folder, e.g. cluster test will modify the application.yml
   # so we give each test a separate distribution folder here
-  mkdir -p "$test_case" && tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C "$test_case"
-  
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" -De2e.container.version="${E2E_VERSION}" -Dsw.home="${base_dir}/$test_case/apache-skywalking-apm-bin" -f test/e2e/pom.xml -pl "$test_case" -am verify
+  mkdir -p "$test_case" && tar -zxf dist/${DIST_PACKAGE} -C "$test_case"
+
+  ./mvnw -Dbuild.id="${BUILD_ID:-local}" \
+         -De2e.container.version="${E2E_VERSION}" \
+         -Delasticsearch.version="${ES_VERSION}" \
+         -Dsw.home="${base_dir}/$test_case/${DIST_PACKAGE//.tar.gz/}" \
+         -f test/e2e/pom.xml -pl "$test_case" -am verify
 
   status_code=$?
 
