@@ -136,7 +136,7 @@ segmentItems:
       tags:
       - {key: http.method, value: POST}
       - {key: url, value: 'http://localhost:8080/feign-scenario/create/'}
-    - operationName: /feign-scenario/get/1
+    - operationName: /feign-scenario/get/{id}
       operationId: 0
       parentSpanId: 0
       spanId: 2
@@ -152,7 +152,7 @@ segmentItems:
       tags:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://localhost:8080/feign-scenario/get/1'}
-    - operationName: /feign-scenario/update/1
+    - operationName: /feign-scenario/update/{id}
       operationId: 0
       parentSpanId: 0
       spanId: 3
@@ -168,7 +168,7 @@ segmentItems:
       tags:
       - {key: http.method, value: PUT}
       - {key: url, value: 'http://localhost:8080/feign-scenario/update/1'}
-    - operationName: /feign-scenario/delete/1
+    - operationName: /feign-scenario/delete/{id}
       operationId: 0
       parentSpanId: 0
       spanId: 4
