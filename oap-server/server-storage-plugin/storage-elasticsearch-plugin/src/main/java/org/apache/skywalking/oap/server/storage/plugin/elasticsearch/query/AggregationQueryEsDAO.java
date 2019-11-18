@@ -104,7 +104,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    private List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
+    protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         boolean asc = false;
         if (order.equals(Order.ASC)) {

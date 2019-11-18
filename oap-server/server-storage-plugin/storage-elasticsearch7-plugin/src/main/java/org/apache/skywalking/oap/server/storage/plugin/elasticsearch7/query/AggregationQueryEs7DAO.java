@@ -19,11 +19,21 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.Avg;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -33,6 +43,37 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
 
     public AggregationQueryEs7DAO(ElasticSearchClient client) {
         super(client);
+    }
+
+    protected List<TopNEntity> aggregation(
+        String indexName,
+        String valueCName,
+        SearchSourceBuilder sourceBuilder,
+        int topN,
+        Order order) throws IOException {
+
+        boolean asc = false;
+        if (order.equals(Order.ASC)) {
+            asc = true;
+        }
+
+        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
+
+        sourceBuilder.aggregation(aggregationBuilder);
+
+        SearchResponse response = getClient().search(indexName, sourceBuilder);
+
+        List<TopNEntity> topNEntities = new ArrayList<>();
+        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
+        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+            TopNEntity topNEntity = new TopNEntity();
+            topNEntity.setId(termsBucket.getKeyAsString());
+            Avg value = termsBucket.getAggregations().get(valueCName);
+            topNEntity.setValue((long) value.getValue());
+            topNEntities.add(topNEntity);
+        }
+
+        return topNEntities;
     }
 
     protected TermsAggregationBuilder aggregationBuilder(final String valueCName, final int topN, final boolean asc) {
