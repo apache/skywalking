@@ -36,6 +36,11 @@ public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInt
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+        if (allArguments[0] == null) {
+            AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_NO_TRANSACTION_DEFINITION_GIVEN);
+            span.setComponent(ComponentsDefine.SPRING_TX);
+            return;
+        }
         TransactionDefinition definition = (TransactionDefinition) allArguments[0];
         AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + buildOperationName(definition.getName()));
         span.tag(Constants.TAG_SPRING_TRANSACTION_ISOLATION_LEVEL, String.valueOf(definition.getIsolationLevel()));
