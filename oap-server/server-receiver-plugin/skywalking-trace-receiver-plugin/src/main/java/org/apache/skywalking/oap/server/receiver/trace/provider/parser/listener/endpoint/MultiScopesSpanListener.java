@@ -198,7 +198,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                     String dbType = tag.getValue();
                     DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
                     int threshold = thresholds.getThreshold(dbType);
-                    if (sourceBuilder.getLatency() >= threshold) {
+                    if (sourceBuilder.getLatency() > threshold) {
                         isSlowDBAccess = true;
                     }
                 }
