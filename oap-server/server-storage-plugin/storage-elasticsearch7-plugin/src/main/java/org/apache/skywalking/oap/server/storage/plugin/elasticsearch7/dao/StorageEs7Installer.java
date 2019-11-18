@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +29,14 @@ import java.util.Map;
 /**
  * @author kezhenxu94
  */
-public class StorageEsInstaller extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller {
+public class StorageEs7Installer extends StorageEsInstaller {
 
-    private static final Logger logger = LoggerFactory.getLogger(StorageEsInstaller.class);
+    private static final Logger logger = LoggerFactory.getLogger(StorageEs7Installer.class);
 
-    public StorageEsInstaller(final ModuleManager moduleManager,
-                              final int indexShardsNumber,
-                              final int indexReplicasNumber,
-                              final int indexRefreshInterval) {
+    public StorageEs7Installer(final ModuleManager moduleManager,
+                               final int indexShardsNumber,
+                               final int indexReplicasNumber,
+                               final int indexRefreshInterval) {
         super(moduleManager, indexShardsNumber, indexReplicasNumber, indexRefreshInterval);
     }
 

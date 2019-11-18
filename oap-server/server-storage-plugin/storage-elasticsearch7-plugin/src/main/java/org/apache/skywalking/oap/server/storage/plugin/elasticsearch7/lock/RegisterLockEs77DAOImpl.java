@@ -21,8 +21,8 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.RegisterLockIndex;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.EsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.Es7DAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -35,11 +35,11 @@ import java.util.Map;
 /**
  * @author kezhenxu94
  */
-public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
+public class RegisterLockEs77DAOImpl extends Es7DAO implements IRegisterLockDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(RegisterLockDAOImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(RegisterLockEs77DAOImpl.class);
 
-    public RegisterLockDAOImpl(ElasticSearchClient client) {
+    public RegisterLockEs77DAOImpl(ElasticSearch7Client client) {
         super(client);
     }
 

@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.lock;
 
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.RegisterLockIndex;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.RegisterLockInstaller;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,9 +29,9 @@ import java.util.Map;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class RegisterLockInstaller extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.RegisterLockInstaller {
+public class RegisterLockEs7Installer extends RegisterLockInstaller {
 
-    public RegisterLockInstaller(final ElasticSearchClient client) {
+    public RegisterLockEs7Installer(final ElasticSearchClient client) {
         super(client);
     }
 

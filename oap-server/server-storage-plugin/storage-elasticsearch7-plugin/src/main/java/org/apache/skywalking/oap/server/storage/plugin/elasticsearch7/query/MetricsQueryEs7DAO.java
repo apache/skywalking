@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -40,9 +41,9 @@ import java.io.IOException;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class MetricsQueryEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO {
+public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
-    public MetricsQueryEsDAO(ElasticSearchClient client) {
+    public MetricsQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 

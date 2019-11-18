@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache;
 
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.ServiceInventoryCacheEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -31,21 +32,21 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng, jian.tan
  * @author kezhenxu94
  */
-public class NetworkAddressInventoryCacheEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressInventoryCacheEsDAO {
+public class ServiceInventoryCacheEs7DAO extends ServiceInventoryCacheEsDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEsDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEs7DAO.class);
 
-    public NetworkAddressInventoryCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
+    public ServiceInventoryCacheEs7DAO(final ElasticSearchClient client, final int resultWindowMaxSize) {
         super(client, resultWindowMaxSize);
     }
 
-    @Override public NetworkAddressInventory get(int addressId) {
+    @Override public ServiceInventory get(int serviceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().getTotalHits().value == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

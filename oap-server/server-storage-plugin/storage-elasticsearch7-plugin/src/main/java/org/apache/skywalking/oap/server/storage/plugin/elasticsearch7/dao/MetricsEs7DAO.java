@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MetricsEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 
 import java.io.IOException;
@@ -32,10 +33,10 @@ import java.util.List;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class MetricsEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MetricsEsDAO {
+public class MetricsEs7DAO extends MetricsEsDAO {
 
-    MetricsEsDAO(final ElasticSearchClient client,
-                 final StorageBuilder<Metrics> storageBuilder) {
+    MetricsEs7DAO(final ElasticSearchClient client,
+                  final StorageBuilder<Metrics> storageBuilder) {
         super(client, storageBuilder);
     }
 

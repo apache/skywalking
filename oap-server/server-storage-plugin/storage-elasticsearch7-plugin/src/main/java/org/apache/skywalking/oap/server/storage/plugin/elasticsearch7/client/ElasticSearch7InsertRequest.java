@@ -25,15 +25,15 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class ElasticSearchInsertRequest extends IndexRequest implements InsertRequest {
+public class ElasticSearch7InsertRequest extends IndexRequest implements InsertRequest {
 
-    public ElasticSearchInsertRequest(String index, String id) {
+    public ElasticSearch7InsertRequest(String index, String id) {
         super(index);
         id(id);
     }
 
     @Override
-    public ElasticSearchInsertRequest source(XContentBuilder sourceBuilder) {
+    public ElasticSearch7InsertRequest source(XContentBuilder sourceBuilder) {
         super.source(sourceBuilder);
         return this;
     }

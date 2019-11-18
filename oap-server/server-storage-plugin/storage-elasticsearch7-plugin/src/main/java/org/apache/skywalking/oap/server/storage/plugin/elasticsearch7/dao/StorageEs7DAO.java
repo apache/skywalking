@@ -34,14 +34,14 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.Regist
 /**
  * @author peng-yongsheng
  */
-public class StorageEsDAO extends EsDAO implements StorageDAO {
+public class StorageEs7DAO extends EsDAO implements StorageDAO {
 
-    public StorageEsDAO(ElasticSearchClient client) {
+    public StorageEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new MetricsEsDAO(getClient(), storageBuilder);
+        return new MetricsEs7DAO(getClient(), storageBuilder);
     }
 
     @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {

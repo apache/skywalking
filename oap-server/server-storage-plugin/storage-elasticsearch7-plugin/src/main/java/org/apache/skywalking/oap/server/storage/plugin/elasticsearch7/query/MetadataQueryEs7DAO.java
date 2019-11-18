@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -33,9 +34,9 @@ import java.io.IOException;
 /**
  * @author peng-yongsheng
  */
-public class MetadataQueryEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO {
+public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
-    public MetadataQueryEsDAO(final ElasticSearchClient client, final int queryMaxSize) {
+    public MetadataQueryEs7DAO(final ElasticSearchClient client, final int queryMaxSize) {
         super(client, queryMaxSize);
     }
 

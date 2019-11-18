@@ -47,8 +47,8 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
  * @author wusheng
  * @author kezhenxu94
  */
-public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
-    public LogQueryEsDAO(ElasticSearchClient client) {
+public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
+    public LogQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 

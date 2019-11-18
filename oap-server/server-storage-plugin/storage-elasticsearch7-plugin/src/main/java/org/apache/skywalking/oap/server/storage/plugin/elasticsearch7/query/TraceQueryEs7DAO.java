@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -42,9 +43,9 @@ import java.util.List;
 /**
  * @author peng-yongsheng
  */
-public class TraceQueryEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO {
+public class TraceQueryEs7DAO extends TraceQueryEsDAO {
 
-    public TraceQueryEsDAO(ElasticSearchClient client, int segmentQueryMaxSize) {
+    public TraceQueryEs7DAO(ElasticSearchClient client, int segmentQueryMaxSize) {
         super(client, segmentQueryMaxSize);
     }
 

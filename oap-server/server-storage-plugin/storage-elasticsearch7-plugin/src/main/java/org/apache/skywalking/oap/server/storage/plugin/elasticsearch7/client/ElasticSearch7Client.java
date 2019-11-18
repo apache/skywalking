@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.admin.indices.alias.Alias;
@@ -68,15 +69,15 @@ import java.util.Map;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class ElasticSearchClient extends org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient {
+public class ElasticSearch7Client extends ElasticSearchClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticSearch7Client.class);
 
-    public ElasticSearchClient(final String clusterNodes,
-                               final String protocol,
-                               final String trustStorePath,
-                               final String trustStorePass,
-                               final String namespace, final String user, final String password) {
+    public ElasticSearch7Client(final String clusterNodes,
+                                final String protocol,
+                                final String trustStorePath,
+                                final String trustStorePass,
+                                final String namespace, final String user, final String password) {
         super(clusterNodes, protocol, trustStorePath, trustStorePass, namespace, user, password);
     }
 
@@ -222,12 +223,12 @@ public class ElasticSearchClient extends org.apache.skywalking.oap.server.librar
 
     public InsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new ElasticSearchInsertRequest(indexName, id).source(source);
+        return new ElasticSearch7InsertRequest(indexName, id).source(source);
     }
 
     public UpdateRequest prepareUpdate(String indexName, String id, XContentBuilder source) {
         indexName = formatIndexName(indexName);
-        return new ElasticSearchUpdateRequest(indexName, id).doc(source);
+        return new ElasticSearch7UpdateRequest(indexName, id).doc(source);
     }
 
     public int delete(

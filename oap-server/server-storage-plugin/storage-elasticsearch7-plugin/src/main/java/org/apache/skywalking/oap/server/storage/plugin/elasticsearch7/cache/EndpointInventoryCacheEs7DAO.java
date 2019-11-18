@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache;
 
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.EndpointInventoryCacheEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -28,32 +29,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng, jian.tan
+ * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class ServiceInventoryCacheEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.ServiceInventoryCacheEsDAO {
+public class EndpointInventoryCacheEs7DAO extends EndpointInventoryCacheEsDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEsDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEs7DAO.class);
 
-    public ServiceInventoryCacheEsDAO(final ElasticSearchClient client, final int resultWindowMaxSize) {
-        super(client, resultWindowMaxSize);
+    public EndpointInventoryCacheEs7DAO(ElasticSearchClient client) {
+        super(client);
     }
 
-    @Override public ServiceInventory get(int serviceId) {
+    @Override
+    public EndpointInventory get(int endpointId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().getTotalHits().value == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());
             } else {
                 return null;
             }
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
             return null;
         }
     }

@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache;
 
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressInventoryCacheEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -28,25 +29,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  * @author kezhenxu94
  */
-public class ServiceInstanceInventoryCacheDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.ServiceInstanceInventoryCacheDAO {
+public class NetworkAddressInventoryCacheEs7DAO extends NetworkAddressInventoryCacheEsDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCacheDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEs7DAO.class);
 
-    public ServiceInstanceInventoryCacheDAO(ElasticSearchClient client) {
-        super(client);
+    public NetworkAddressInventoryCacheEs7DAO(ElasticSearchClient client, int resultWindowMaxSize) {
+        super(client, resultWindowMaxSize);
     }
 
-    @Override
-    public ServiceInstanceInventory get(int serviceInstanceId) {
+    @Override public NetworkAddressInventory get(int addressId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().getTotalHits().value == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

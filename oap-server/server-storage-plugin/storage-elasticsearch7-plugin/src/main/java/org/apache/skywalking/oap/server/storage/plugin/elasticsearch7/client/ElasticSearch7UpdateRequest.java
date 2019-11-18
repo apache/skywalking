@@ -24,14 +24,14 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class ElasticSearchUpdateRequest extends UpdateRequest implements org.apache.skywalking.oap.server.library.client.request.UpdateRequest {
+public class ElasticSearch7UpdateRequest extends UpdateRequest implements org.apache.skywalking.oap.server.library.client.request.UpdateRequest {
 
-    public ElasticSearchUpdateRequest(String index, String id) {
+    public ElasticSearch7UpdateRequest(String index, String id) {
         super(index, id);
     }
 
     @Override
-    public ElasticSearchUpdateRequest doc(XContentBuilder source) {
+    public ElasticSearch7UpdateRequest doc(XContentBuilder source) {
         super.doc(source);
         return this;
     }

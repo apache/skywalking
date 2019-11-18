@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -28,9 +29,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class AggregationQueryEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO {
+public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
 
-    public AggregationQueryEsDAO(ElasticSearchClient client) {
+    public AggregationQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 

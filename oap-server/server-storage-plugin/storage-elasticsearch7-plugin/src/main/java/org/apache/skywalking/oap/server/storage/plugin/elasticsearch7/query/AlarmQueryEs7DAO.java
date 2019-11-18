@@ -41,9 +41,9 @@ import java.util.Objects;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
+public class AlarmQueryEs7DAO extends EsDAO implements IAlarmQueryDAO {
 
-    public AlarmQueryEsDAO(ElasticSearchClient client) {
+    public AlarmQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 

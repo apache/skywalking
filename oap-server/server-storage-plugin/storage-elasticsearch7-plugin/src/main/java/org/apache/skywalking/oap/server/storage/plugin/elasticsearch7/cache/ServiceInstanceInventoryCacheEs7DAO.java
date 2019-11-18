@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache;
 
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.ServiceInstanceInventoryCacheDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -31,30 +32,30 @@ import org.slf4j.LoggerFactory;
  * @author peng-yongsheng
  * @author kezhenxu94
  */
-public class EndpointInventoryCacheEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.EndpointInventoryCacheEsDAO {
+public class ServiceInstanceInventoryCacheEs7DAO extends ServiceInstanceInventoryCacheDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEsDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCacheEs7DAO.class);
 
-    public EndpointInventoryCacheEsDAO(ElasticSearchClient client) {
+    public ServiceInstanceInventoryCacheEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public EndpointInventory get(int endpointId) {
+    public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().getTotalHits().value == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());
             } else {
                 return null;
             }
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
             return null;
         }
     }
