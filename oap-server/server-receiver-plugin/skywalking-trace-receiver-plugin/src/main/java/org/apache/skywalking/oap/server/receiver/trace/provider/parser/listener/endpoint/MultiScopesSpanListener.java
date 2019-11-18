@@ -188,7 +188,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
                     if (StringUtil.isEmpty(sqlStatement)) {
-                        statement.setStatement("No statement.");
+                        statement.setStatement("[No statement]/" + spanDecorator.getOperationName());
                     } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
                         statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
                     } else {
