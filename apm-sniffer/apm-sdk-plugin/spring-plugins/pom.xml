@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sdk-plugin</artifactId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-plugins</artifactId>

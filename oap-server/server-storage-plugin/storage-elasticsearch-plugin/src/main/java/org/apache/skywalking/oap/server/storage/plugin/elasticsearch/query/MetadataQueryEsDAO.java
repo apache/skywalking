@@ -84,7 +84,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return (int)response.getHits().getTotalHits();
     }
 
-    @Override public int numOfEndpoint(long startTimestamp, long endTimestamp) throws IOException {
+    @Override public int numOfEndpoint() throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -99,7 +99,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public int numOfConjectural(long startTimestamp, long endTimestamp, int nodeTypeValue) throws IOException {
+    public int numOfConjectural(int nodeTypeValue) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));

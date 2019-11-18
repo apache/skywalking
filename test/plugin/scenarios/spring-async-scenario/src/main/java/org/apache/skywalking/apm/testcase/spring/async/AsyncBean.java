@@ -34,11 +34,11 @@ public class AsyncBean {
 
     @Async
     public void sendVisitBySystem() throws IOException {
-        httpBean.visit("http://skywalking.apache.org/zh/team/?k1=v");
+        httpBean.visit("http://localhost:8080/spring-async-scenario/case/asyncVisit?by=system");
     }
 
     @Async("customizeAsync")
     public void sendVisitByCustomize() throws IOException {
-        httpBean.visit("http://skywalking.apache.org/zh/team/?k2=v");
+        httpBean.visit("http://localhost:8080/spring-async-scenario/case/asyncVisit?by=customize");
     }
 }

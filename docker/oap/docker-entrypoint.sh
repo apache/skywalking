@@ -116,6 +116,7 @@ cat <<EOT >> ${var_application_file}
     bulkSize: \${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: \${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: \${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    resultWindowMaxSize: \${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: \${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: \${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
 EOT

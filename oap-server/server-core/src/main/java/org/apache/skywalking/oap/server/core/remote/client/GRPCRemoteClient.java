@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
@@ -113,7 +112,6 @@ public class GRPCRemoteClient implements RemoteClient {
             synchronized (GRPCRemoteClient.class) {
                 if (Objects.isNull(this.carrier)) {
                     this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
-                    this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
                 }
             }
         }

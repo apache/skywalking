@@ -46,8 +46,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>${docker-maven-plugin.version}</version>
                 <configuration>
-                    <imageTags>${build_id}</imageTags>
-                    <imageName>skywalking/${project.name}</imageName>
+                    <imageName>skywalking/${project.name}:${BUILD_NO}</imageName>
                     <dockerDirectory>${project.basedir}/docker</dockerDirectory>
                     <skipDocker>${skip.docker}</skipDocker>
                     <resources>

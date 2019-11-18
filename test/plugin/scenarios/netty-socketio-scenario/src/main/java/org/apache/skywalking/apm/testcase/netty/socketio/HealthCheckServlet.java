@@ -28,6 +28,13 @@ public class HealthCheckServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // start socket io server and client on heath check
+        try {
+            SocketIOStarter.getInstance().healthCheck();
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
+
         PrintWriter writer = resp.getWriter();
         writer.write("Success");
         writer.flush();

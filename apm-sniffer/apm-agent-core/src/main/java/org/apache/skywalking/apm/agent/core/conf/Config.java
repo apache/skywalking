@@ -19,12 +19,13 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -220,6 +221,14 @@ public class Config {
              * include parameters.
              */
             public static boolean TRACE_PARAM = false;
+
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code FILTER_LENGTH_LIMIT} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int FILTER_LENGTH_LIMIT = 256;
         }
 
         public static class Elasticsearch {
@@ -264,6 +273,22 @@ public class Config {
              * collected.
              */
             public static boolean TRACE_SQL_PARAMETERS = false;
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+        }
+
+        public static class POSTGRESQL {
+            /**
+             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
+             * collected.
+             */
+            public static boolean TRACE_SQL_PARAMETERS = false;
+
             /**
              * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
              * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.

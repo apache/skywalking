@@ -93,7 +93,10 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
     }
 
     private void registerKeyListeners(final Set<String> keys) {
-        keys.forEach(key -> {
+        final Set<String> unregisterKeys = new HashSet<>(keys);
+        unregisterKeys.removeAll(cachesByKey.keySet());
+
+        unregisterKeys.forEach(key -> {
             KVCache cache = KVCache.newCache(consul, key);
             cache.addListener(newValues -> {
                 Optional<Value> value = newValues.values().stream().filter(it -> key.equals(it.getKey())).findAny();

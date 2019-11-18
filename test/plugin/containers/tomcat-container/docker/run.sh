@@ -30,9 +30,10 @@ function exitAndClean() {
 function healthCheck() {
     HEALTH_CHECK_URL=$1
 
-    for ((i=1; i<=150; i++));
+    TIMES=${TIMES:-150}
+    for ((i=1; i<=${TIMES}; i++));
     do
-        STATUS_CODE="$(curl -Is ${HEALTH_CHECK_URL} | head -n 1)"
+        STATUS_CODE="$(curl --max-time 3 -Is ${HEALTH_CHECK_URL} | head -n 1)"
         if [[ $STATUS_CODE == *"200"* ]]; then
           echo "${HEALTH_CHECK_URL}: ${STATUS_CODE}"
           return 0
@@ -60,14 +61,16 @@ healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
 /usr/local/tomcat/bin/catalina.sh start 1>/dev/null &
+
+healthCheck http://localhost:12800/status 10
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-curl -s ${SCENARIO_ENTRY_SERVICE}
+curl -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}
 sleep 5
 
 echo "To receive actual data"
-curl -s http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
+curl -s --max-time 3 http://localhost:12800/receiveData > ${SCENARIO_HOME}/data/actualData.yaml
 [[ ! -f ${SCENARIO_HOME}/data/actualData.yaml ]] && exitOnError "${SCENARIO_NAME}-${SCENARIO_VERSION}, 'actualData.yaml' Not Found!"
 
 echo "To validate"

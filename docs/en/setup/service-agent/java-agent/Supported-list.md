@@ -10,7 +10,7 @@
   * [Resin](http://www.caucho.com/resin-4.0/) 4 (Optional¹)
   * [Jetty Server](http://www.eclipse.org/jetty/) 9
   * [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) 5.x
-  * [Undertow](http://undertow.io/)  2.0.0.Final -> 2.0.13.Final
+  * [Undertow](http://undertow.io/)  1.3.0.Final -> 2.0.27.Final
   * [RESTEasy](https://resteasy.github.io/)  3.1.0.Final -> 3.7.0.Final
   * [Play Framework](https://www.playframework.com/) 2.6.x -> 2.7.x (Optional²)
   * [Light4J Microservices Framework](https://doc.networknt.com/) 1.6.x -> 2.x
@@ -57,6 +57,8 @@
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
+    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.7/index.html) 6.7.1-6.8.4
+    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.4.2
   * [Solr](https://github.com/apache/lucene-solr/)
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x

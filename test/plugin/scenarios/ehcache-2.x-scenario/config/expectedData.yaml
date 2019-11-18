@@ -23,26 +23,8 @@ registryItems:
   heartbeat: []
 segmentItems:
   - applicationCode: ehcache-2.x-scenario
-    segmentSize: 2
+    segmentSize: ge 2
     segments:
-      - segmentId: not null
-        spans:
-          - operationName: /ehcache-2.x-scenario/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/ehcache-2.x-scenario/healthCheck'}
-              - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
           - operationName: Ehcache/put/testCache

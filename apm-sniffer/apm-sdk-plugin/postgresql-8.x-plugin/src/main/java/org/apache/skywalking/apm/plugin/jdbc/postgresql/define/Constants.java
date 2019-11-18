@@ -28,5 +28,4 @@ public class Constants {
     public static final String CREATE_STATEMENT_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.CreateStatementInterceptor";
     public static final String CREATE_PREPARED_STATEMENT_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.CreatePreparedStatementInterceptor";
     public static final String CREATE_CALLABLE_STATEMENT_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.jdbc.postgresql.CreateCallableStatementInterceptor";
-
 }

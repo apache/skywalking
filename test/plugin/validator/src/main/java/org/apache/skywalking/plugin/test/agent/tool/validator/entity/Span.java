@@ -41,7 +41,7 @@ public interface Span {
 
     String componentName();
 
-    boolean error();
+    String error();
 
     String spanType();
 
