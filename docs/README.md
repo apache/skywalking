@@ -16,6 +16,7 @@ you are facing a problem, check here first.
 
 In addition, you might find these links interesting:
 
+- Up-to-date overview of SkyWalking module [call flow](https://sourcespy.com/github/skywalking/xx-omcalls-.html) and [hierarchy](https://sourcespy.com/github/skywalking/xx-omhierarchy-.html) including ability to analize each module individually.
 - The latest and old releases are all available at [Apache SkyWalking release page](http://skywalking.apache.org/downloads/). The change logs are [here](../CHANGES.md).
 - You can find the speaking schedules at Conf, online videos and articles about SkyWalking in [Community resource catalog](https://github.com/OpenSkywalking/Community).
 Also, if you have some related to us, welcome to submit a pull request to add.
