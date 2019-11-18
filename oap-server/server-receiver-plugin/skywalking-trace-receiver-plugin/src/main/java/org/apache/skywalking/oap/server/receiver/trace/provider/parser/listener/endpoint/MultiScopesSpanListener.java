@@ -188,7 +188,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
                     if (StringUtil.isEmpty(sqlStatement)) {
-                        statement.setStatement("[No statement]/" + spanDecorator.getOperationName());
+                        statement.setStatement("[No statement]/" + sourceBuilder.getDestEndpointName());
                     } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
                         statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
                     } else {
@@ -198,7 +198,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
                     String dbType = tag.getValue();
                     DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
                     int threshold = thresholds.getThreshold(dbType);
-                    if (sourceBuilder.getLatency() > threshold) {
+                    if (sourceBuilder.getLatency() >= threshold) {
                         isSlowDBAccess = true;
                     }
                 }
