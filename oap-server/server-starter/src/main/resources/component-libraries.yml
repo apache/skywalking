@@ -327,6 +327,15 @@ Koa:
   id: 4004
   languages: Node.js
 
+# Golang components
+# [5000, 6000) for Golang agent
+ServiceCombMesher:
+  id: 5001
+  languages: Golang
+ServiceCombServiceCenter:
+  id: 5002
+  languages: Golang
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
