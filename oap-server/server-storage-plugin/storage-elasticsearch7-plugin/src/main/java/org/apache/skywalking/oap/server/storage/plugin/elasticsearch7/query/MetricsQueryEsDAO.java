@@ -38,6 +38,7 @@ import java.io.IOException;
 
 /**
  * @author peng-yongsheng
+ * @author kezhenxu94
  */
 public class MetricsQueryEsDAO extends org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO {
 
@@ -45,8 +46,16 @@ public class MetricsQueryEsDAO extends org.apache.skywalking.oap.server.storage.
         super(client);
     }
 
-    @Override public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where, String valueCName,
+    @Override
+    public IntValues getValues(
+        String indName,
+        Downsampling downsampling,
+        long startTB,
+        long endTB,
+        Where where,
+        String valueCName,
         Function function) throws IOException {
+
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -66,15 +75,15 @@ public class MetricsQueryEsDAO extends org.apache.skywalking.oap.server.storage.
             switch (function) {
                 case Sum:
                     Sum sum = idBucket.getAggregations().get(valueCName);
-                    value = (long)sum.getValue();
+                    value = (long) sum.getValue();
                     break;
                 case Avg:
                     Avg avg = idBucket.getAggregations().get(valueCName);
-                    value = (long)avg.getValue();
+                    value = (long) avg.getValue();
                     break;
                 default:
                     avg = idBucket.getAggregations().get(valueCName);
-                    value = (long)avg.getValue();
+                    value = (long) avg.getValue();
                     break;
             }
 
@@ -84,5 +93,19 @@ public class MetricsQueryEsDAO extends org.apache.skywalking.oap.server.storage.
             intValues.getValues().add(kvInt);
         }
         return intValues;
+    }
+
+    protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
+        switch (function) {
+            case Avg:
+                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
+                break;
+            case Sum:
+                parentAggBuilder.subAggregation(AggregationBuilders.sum(valueCName).field(valueCName));
+                break;
+            default:
+                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
+                break;
+        }
     }
 }

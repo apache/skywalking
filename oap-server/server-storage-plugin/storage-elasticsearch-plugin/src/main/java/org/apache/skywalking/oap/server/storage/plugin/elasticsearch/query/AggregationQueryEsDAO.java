@@ -111,14 +111,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             asc = true;
         }
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders
-            .terms(Metrics.ENTITY_ID)
-            .field(Metrics.ENTITY_ID)
-            .order(BucketOrder.aggregation(valueCName, asc))
-            .size(topN)
-            .subAggregation(
-                AggregationBuilders.avg(valueCName).field(valueCName)
-            );
+        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
+
         sourceBuilder.aggregation(aggregationBuilder);
 
         SearchResponse response = getClient().search(indexName, sourceBuilder);
@@ -134,5 +128,16 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         }
 
         return topNEntities;
+    }
+
+    protected TermsAggregationBuilder aggregationBuilder(final String valueCName, final int topN, final boolean asc) {
+        return AggregationBuilders
+                .terms(Metrics.ENTITY_ID)
+                .field(Metrics.ENTITY_ID)
+                .order(BucketOrder.aggregation(valueCName, asc))
+                .size(topN)
+                .subAggregation(
+                    AggregationBuilders.avg(valueCName).field(valueCName)
+                );
     }
 }

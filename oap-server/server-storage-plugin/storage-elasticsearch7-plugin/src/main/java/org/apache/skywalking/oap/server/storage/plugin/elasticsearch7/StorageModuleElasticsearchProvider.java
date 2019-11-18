@@ -47,7 +47,6 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.ElasticsearchStorageTTL;
@@ -60,6 +59,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.Storag
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.StorageEsInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.lock.RegisterLockDAOImpl;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.lock.RegisterLockInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AlarmQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.MetadataQueryEsDAO;
