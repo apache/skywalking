@@ -67,7 +67,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (140)') {
+        stage('Test Cases Report (160)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -82,6 +82,12 @@ pipeline {
             parallel {
                 stage('Group1') {
                     stages {
+                        stage('hystrix 1.4.20-1.5.12 (20)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh hystrix-scenario'
+                            }
+                        }
+
                         stage('postgresql 9.2.x-9.4.x (36)') {
                             steps {
                                 sh 'bash test/plugin/run.sh postgresql-scenario'
