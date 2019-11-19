@@ -77,10 +77,15 @@ exitWithMessage() {
 exitAndClean() {
     elapsed=$(( `date +%s` - $start_stamp ))
     num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
+    [[ $1 -eq 1 ]] && printSystemInfo
     printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
         ${scenario_name} "${num_of_testcases}" "${parallel_run_size}" \
         $(( ${elapsed}/3600 )) $(( ${elapsed}%3600/60 )) $(( ${elapsed}%60 ))
     exit $1
+}
+
+printSystemInfo(){
+  bash ${home}/script/systeminfo.sh
 }
 
 waitForAvailable() {
