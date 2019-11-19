@@ -36,6 +36,5 @@ dependencies:
       - KAFKA_BROKER_ID=1
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
-      - KAFKA_CFG_LOG_FLUSH_INTERVAL_MS=1000
     depends_on:
       - zookeeper-server
