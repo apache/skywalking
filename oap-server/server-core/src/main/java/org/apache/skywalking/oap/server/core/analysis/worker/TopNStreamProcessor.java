@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.*;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -41,6 +42,8 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
 
     @Getter private List<TopNWorker> persistentWorkers = new ArrayList<>();
     private Map<Class<? extends Record>, TopNWorker> workers = new HashMap<>();
+    @Setter @Getter private int topNWorkerReportCycle = 10;
+    @Setter @Getter private int topSize = 50;
 
     public static TopNStreamProcessor getInstance() {
         return PROCESSOR;
@@ -63,7 +66,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
         Model model = modelSetter.putIfAbsent(topNClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second), true);
 
-        TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, model, 50, recordDAO);
+        TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, model, topSize, topNWorkerReportCycle * 60 * 1000L, recordDAO);
         persistentWorkers.add(persistentWorker);
         workers.put(topNClass, persistentWorker);
     }
