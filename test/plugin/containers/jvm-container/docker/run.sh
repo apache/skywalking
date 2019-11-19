@@ -64,7 +64,7 @@ healthCheck http://localhost:12800/receiveData
 # start applications
 export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Dskywalking.collector.grpc_channel_check_interval=2
-    -Dskywalking.collector.app_and_service_register_check_interval=1
+    -Dskywalking.collector.app_and_service_register_check_interval=2
     -Dskywalking.collector.discovery_check_interval=2
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}

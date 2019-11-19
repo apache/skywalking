@@ -15,6 +15,11 @@
   ~ limitations under the License.
 -->
 version: '2.1'
+
+networks:
+   default:
+     name: ${network_name}
+
 services:
     ${docker_container_name}:
         image: ${docker_image_name}:${docker_image_version}
