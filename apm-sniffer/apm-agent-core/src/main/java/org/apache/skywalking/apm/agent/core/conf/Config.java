@@ -330,5 +330,13 @@ public class Config {
              */
             public static boolean TRACE_HANDLER_CHAIN = false;
         }
+
+        public static class SpringTransaction {
+
+            /**
+             * If true, the transaction definition name will be simplified
+             */
+            public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
+        }
     }
 }
