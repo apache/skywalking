@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
@@ -34,11 +35,11 @@ public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
         String requestURL = "";
-        GetMapping getMapping = method.getAnnotation(GetMapping.class);
-        PostMapping postMapping = method.getAnnotation(PostMapping.class);
-        PutMapping putMapping = method.getAnnotation(PutMapping.class);
-        DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
-        PatchMapping patchMapping = method.getAnnotation(PatchMapping.class);
+        GetMapping getMapping = AnnotationUtils.getAnnotation(method, GetMapping.class);
+        PostMapping postMapping = AnnotationUtils.getAnnotation(method, PostMapping.class);
+        PutMapping putMapping = AnnotationUtils.getAnnotation(method, PutMapping.class);
+        DeleteMapping deleteMapping = AnnotationUtils.getAnnotation(method, DeleteMapping.class);
+        PatchMapping patchMapping = AnnotationUtils.getAnnotation(method, PatchMapping.class);
         if (getMapping != null) {
             if (getMapping.value().length > 0) {
                 requestURL = getMapping.value()[0];
