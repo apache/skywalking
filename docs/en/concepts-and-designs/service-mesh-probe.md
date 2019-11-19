@@ -12,7 +12,7 @@ such as A/B testing, canary releases, rate limiting, access control, and end-to-
 Istio is a very typical Service Mesh design and implementor. It defines **Control Panel** and **Data Panel**,
 which are wide used. Here is Istio Architecture:
 
-<img src="https://istio.io/docs/concepts/what-is-istio/arch.svg"/>
+![Istio Architecture](https://istio.io/docs/ops/architecture/arch.svg)
 
 Service Mesh probe can choose to collect data from **Control Panel** or **Data Panel**. In Istio, 
 it means collecting telemetry data from Mixer(Control Panel) or Envoy sidecar(Data Panel). Underlying

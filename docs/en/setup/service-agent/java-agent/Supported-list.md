@@ -70,6 +70,7 @@
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x
+  * Spring Transaction 4.x and 5.x (Optional²)
 * [Hystrix: Latency and Fault Tolerance for Distributed Systems](https://github.com/Netflix/Hystrix) 1.4.20 -> 1.5.12
 * Scheduler
   * [Elastic Job](https://github.com/elasticjob/elastic-job) 2.x
