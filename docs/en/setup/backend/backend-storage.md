@@ -69,10 +69,13 @@ and there're also some configurations that are ES7 specific, as follows:
 
 ```yaml
 storage:
-  # Index max result window, for segment deep pagination, usually we don't recommend to scroll too many pages,
-  # instead, give more query criteria (e.g. service id or time range), to narrow the query results.
-  # see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html for more information
-  indexMaxResultWindow: ${SW_STORAGE_ES_INDEX_MAX_RESULT_WINDOW:5000}
+  elasticsearch7:
+    # ... the configurations shared with ES6 that are listed above ...
+
+    # Index max result window, for segment deep pagination, usually we don't recommend to scroll too many pages,
+    # instead, give more query criteria (e.g. service id or time range), to narrow the query results.
+    # see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html for more information
+    indexMaxResultWindow: ${SW_STORAGE_ES_INDEX_MAX_RESULT_WINDOW:5000}
 ```
 
 ### ElasticSearch 6 With Https SSL Encrypting communications.
