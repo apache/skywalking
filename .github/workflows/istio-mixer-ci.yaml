@@ -16,7 +16,7 @@
 
 name: istio-mixer-ci
 
-on: [push]
+on: [push, pull_request]
 env:
   SCRIPTS_DIR: ./test/scripts
   LOG_DIR: /tmp/skywalking
