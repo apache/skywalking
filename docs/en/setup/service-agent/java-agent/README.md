@@ -67,68 +67,6 @@ add
 export JAVA_OPTIONS="${JAVA_OPTIONS} -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
 
-- Resin pro 3.1
-Modify `resin.conf`.
-add
-```xml
-<jvm-arg>-javaagent:/path/to/skywalking-agent/skywalking-agent.jar</jvm-arg> 
-```
-The demonstration configuration for all servers in the cluster is as follows
-```xml
-<cluster id="cluster_id"> 
-      ........
-    <server-default> 
-      ...........
-        <jvm-arg> -javaagent:/path/to/skywalking-agent/skywalking-agent.jar</jvm-arg> 
-      ..........
-   </server-default> 
-      ..........
-</cluster>
-```
-The demonstration configuration for a server in the cluster is as follows
-```xml
-<cluster id="cluster_id"> 
-      ........
-    <server id="" address="***.***.***.***" port="****"> 
-      ...........
-        <jvm-arg> -javaagent:/path/to/skywalking-agent/skywalking-agent.jar</jvm-arg> 
-      ..........
-   </server> 
-      ..........
-</cluster>
-```
-
-Resin pro 4.0
-Change `resin.properties`.
-add 
-```xml
-<jvm-arg>-javaagent:/path/to/skywalking-agent/skywalking-agent.jar</jvm-arg>
-```
-The demonstration configuration for all servers in the cluster is as follows
-```xml
-<cluster id="cluster_id"> 
-      ........
-    <server-default> 
-      ...........
-        <jvm-arg> -javaagent:/path/to/skywalking-agent/skywalking-agent.jar</jvm-arg> 
-      ..........
-   </server-default> 
-      ..........
-</cluster>
-```
-The demonstration configuration for a server in the cluster is as follows
-```xml
-<cluster id="cluster_id"> 
-      ........
-    <server id="" address="***.***.***.***" port="****"> 
-      ...........
-        <jvm-arg> -javaagent:/path/to/skywalking-agent/skywalking-agent.jar</jvm-arg> 
-      ..........
-   </server> 
-      ..........
-</cluster>
-```
-
 ## Table of Agent Configuration Properties
 This is the properties list supported in `agent/config/agent.config`.
 
