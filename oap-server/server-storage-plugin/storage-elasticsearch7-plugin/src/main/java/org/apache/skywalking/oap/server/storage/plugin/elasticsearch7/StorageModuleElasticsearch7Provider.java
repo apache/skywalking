@@ -44,7 +44,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
@@ -56,7 +55,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache.Serv
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache.ServiceInventoryCacheEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.StorageEs7DAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.StorageEs7Installer;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base.StorageEs7Installer;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.lock.RegisterLockEs77DAOImpl;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.lock.RegisterLockEs7Installer;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.AggregationQueryEs7DAO;
@@ -78,12 +77,12 @@ import java.security.cert.CertificateException;
  */
 public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
-    protected final StorageModuleElasticsearchConfig config;
+    protected final StorageModuleElasticsearch7Config config;
     protected ElasticSearch7Client elasticSearch7Client;
 
     public StorageModuleElasticsearch7Provider() {
         super();
-        this.config = new StorageModuleElasticsearchConfig();
+        this.config = new StorageModuleElasticsearch7Config();
     }
 
     @Override
@@ -135,7 +134,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         try {
             elasticSearch7Client.connect();
 
-            StorageEs7Installer installer = new StorageEs7Installer(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval());
+            StorageEs7Installer installer = new StorageEs7Installer(getManager(), config);
             installer.install(elasticSearch7Client);
 
             RegisterLockEs7Installer lockInstaller = new RegisterLockEs7Installer(elasticSearch7Client);

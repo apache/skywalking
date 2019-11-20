@@ -59,6 +59,9 @@ storage:
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
+    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
+    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
 ```
 
 ### ElasticSearch 6 With Https SSL Encrypting communications.
@@ -92,9 +95,19 @@ storage:
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
 
-### ElasticSearch server settings
-Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. 
-And recommend read more about these configuration from ElasticSearch official document. 
+### Recommended ElasticSearch server-side configurations
+You could add following config to `elasticsearch.yml`, set the value based on your env.
+
+```yml
+# In tracing scenario, consider to set more than this at least.
+thread_pool.index.queue_size: 1000 # Only suitable for ElasticSearch 6
+thread_pool.write.queue_size: 1000 # Suitable for ElasticSearch 6 and 7
+
+# When you face query error at trace page, remember to check this.
+index.max_result_window: 1000000 # Only suitable for ElasticSearch 6. For ES 7, set `indexMaxResultWindow` under `storage`-`elasticsearch7` section in application.yml
+```
+
+We strongly recommend you to read more about these configurations from ElasticSearch official document. 
 This effects the performance of ElasticSearch very much.
 
 

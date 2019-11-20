@@ -115,6 +115,10 @@ storage:
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+    # Index max result window, for segment deep pagination, usually we don't recommend to scroll too many pages,
+    # instead, give more query criteria (e.g. service id or time range), to narrow the query results.
+    # see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html for more information
+    indexMaxResultWindow: ${SW_STORAGE_ES_INDEX_MAX_RESULT_WINDOW:5000}
 #  h2:
 #    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
 #    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}

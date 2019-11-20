@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base;
 
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.StorageModuleElasticsearch7Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +34,13 @@ public class StorageEs7Installer extends StorageEsInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageEs7Installer.class);
 
+    private final StorageModuleElasticsearch7Config config;
+
     public StorageEs7Installer(final ModuleManager moduleManager,
-                               final int indexShardsNumber,
-                               final int indexReplicasNumber,
-                               final int indexRefreshInterval) {
-        super(moduleManager, indexShardsNumber, indexReplicasNumber, indexRefreshInterval);
+                               final StorageModuleElasticsearch7Config config) {
+        super(moduleManager, config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval());
+
+        this.config = config;
     }
 
     @SuppressWarnings("unchecked")
@@ -49,5 +52,15 @@ public class StorageEs7Installer extends StorageEsInstaller {
         logger.debug("elasticsearch index template setting: {}", mapping.toString());
 
         return mapping;
+    }
+
+    protected Map<String, Object> createSetting(boolean record) {
+        Map<String, Object> setting = super.createSetting(record);
+
+        if (config.getIndexMaxResultWindow() > 0) {
+            setting.put("index.max_result_window", config.getIndexMaxResultWindow());
+        }
+
+        return setting;
     }
 }
