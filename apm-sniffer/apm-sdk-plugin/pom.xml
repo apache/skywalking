@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -65,6 +65,7 @@
         <module>sofarpc-plugin</module>
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
+        <module>elasticsearch-6.x-plugin</module>
         <module>undertow-plugins</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>

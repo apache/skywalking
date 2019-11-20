@@ -71,6 +71,7 @@ core:
     # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
+    topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10} # top_n record worker report cycle, unit is minute
 storage:
   elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}

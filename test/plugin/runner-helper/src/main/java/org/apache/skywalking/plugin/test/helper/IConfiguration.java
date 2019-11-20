@@ -44,6 +44,8 @@ public interface IConfiguration {
 
     String dockerContainerName();
 
+    String dockerNetworkName();
+
     String dockerImageVersion();
 
     String scenarioHome();

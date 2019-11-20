@@ -257,6 +257,12 @@ Ehcache:
 SocketIO:
   id: 76
   languages: Java
+rest-high-level-client:
+  id: 77
+  languages: Java
+spring-tx:
+  id: 78
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -324,6 +330,15 @@ Koa:
   id: 4004
   languages: Node.js
 
+# Golang components
+# [5000, 6000) for Golang agent
+ServiceCombMesher:
+  id: 5001
+  languages: Golang
+ServiceCombServiceCenter:
+  id: 5002
+  languages: Golang
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
@@ -360,3 +375,4 @@ Component-Server-Mappings:
   cassandra-java-driver: Cassandra
   pulsar-producer: Pulsar
   pulsar-consumer: Pulsar
+  rest-high-level-client: Elasticsearch
