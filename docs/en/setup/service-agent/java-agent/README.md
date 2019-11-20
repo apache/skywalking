@@ -60,9 +60,8 @@ Add `-javaagent` argument to command line in which you start your app. eg:
  java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
 
-- Jetty 
-Modify `jetty.sh`.
-add
+- Jetty  
+Modify `jetty.sh`, add `-javaagent` argument to command line in which you start your app. eg:
 ```shell
 export JAVA_OPTIONS="${JAVA_OPTIONS} -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
