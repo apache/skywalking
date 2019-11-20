@@ -397,7 +397,7 @@ public class TraceQueryService implements Service {
          * 2. Lost in sampling, agent fail safe, segment lost, even bug.
          * Sorting the segments makes the trace view more readable.
          */
-        rootSpans.sort(Comparator.comparing(span -> new Long(span.getStartTime())));
+        rootSpans.sort(Comparator.comparing(span -> span.getStartTime()));
         return rootSpans;
     }
 
