@@ -27,14 +27,15 @@ storage:
 ```
 
 ## ElasticSearch
-Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**, active ElasticSearch 7 as storage, set storage provider to **elasticsearch7**.
+- In order to activate ElasticSearch 6 as storage, set storage provider to **elasticsearch**
+- In order to activate ElasticSearch 7 as storage, set storage provider to **elasticsearch7**
 
 **Required ElasticSearch 6.3.2 or higher. HTTP RestHighLevelClient is used to connect server.**
 
-For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz` or `apache-skywalking-bin.zip`,
-for ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-bin-es7.tar.gz` or `apache-skywalking-bin-es7.zip`.
+- For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz` or `apache-skywalking-bin.zip`,
+- For ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-bin-es7.tar.gz` or `apache-skywalking-bin-es7.zip`.
 
-At the moment, ElasticSearch 6 and ElasticSearch 7 share the same configurations, as following:
+ElasticSearch 6 and ElasticSearch 7 share most of the configurations, as follows:
 
 Setting fragment example
 
@@ -62,6 +63,16 @@ storage:
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+```
+
+and there're also some configurations that are ES7 specific, as follows:
+
+```yaml
+storage:
+  # Index max result window, for segment deep pagination, usually we don't recommend to scroll too many pages,
+  # instead, give more query criteria (e.g. service id or time range), to narrow the query results.
+  # see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html for more information
+  indexMaxResultWindow: ${SW_STORAGE_ES_INDEX_MAX_RESULT_WINDOW:5000}
 ```
 
 ### ElasticSearch 6 With Https SSL Encrypting communications.
@@ -107,7 +118,7 @@ thread_pool.write.queue_size: 1000 # Suitable for ElasticSearch 6 and 7
 index.max_result_window: 1000000 # Only suitable for ElasticSearch 6. For ES 7, set `indexMaxResultWindow` under `storage`-`elasticsearch7` section in application.yml
 ```
 
-We strongly recommend you to read more about these configurations from ElasticSearch official document. 
+We strongly advice you to read more about these configurations from ElasticSearch official document. 
 This effects the performance of ElasticSearch very much.
 
 
