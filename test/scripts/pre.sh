@@ -23,7 +23,7 @@ set -ex
 
 HELMVERSION=$1
 if [[ "${HELMVERSION}" == "" ]]; then
-    HELMVERSION="helm-v3.0.0-rc.3"
+    HELMVERSION="helm-v3.0.0"
 fi
 
 MINIKUBEVERESION=$2
