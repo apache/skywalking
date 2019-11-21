@@ -18,7 +18,7 @@ name: istio-mixer-ci
 
 on: [push, pull_request]
 env:
-  SCRIPTS_DIR: ./test/scripts
+  SCRIPTS_DIR: ./test/e2e/e2e-istio/scripts
   LOG_DIR: /tmp/skywalking
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Prepare enviroment
         run: |
-          bash ./test/scripts/pre.sh
+          bash ${SCRIPTS_DIR}/pre.sh
           mkdir -p ${LOG_DIR}
       - name: Start minikube
         run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
@@ -36,7 +36,7 @@ jobs:
       - name: Setup tunnel
         run: minikube tunnel --log_dir=${LOG_DIR} &
       - name: Compile all and Build docker image
-        run: bash ./test/scripts/compile_build.sh
+        run: bash ${SCRIPTS_DIR}/compile_build.sh
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: logs
