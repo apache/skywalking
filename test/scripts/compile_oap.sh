@@ -25,4 +25,4 @@ git rev-parse HEAD
 git submodule init
 git submodule update
 
-make build.backend
+make build.all
