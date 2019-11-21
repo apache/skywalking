@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -28,31 +30,26 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 public class StorageEsInstaller extends ModelInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageEsInstaller.class);
+    private final Gson gson = new Gson();
 
-    protected final int indexShardsNumber;
-    protected final int indexReplicasNumber;
-    protected final int indexRefreshInterval;
-    protected final Map<String,Object> advanced;
+    private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
-    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber, int indexRefreshInterval,
-        Map<String, Object> advanced) {
+    public StorageEsInstaller(ModuleManager moduleManager, final StorageModuleElasticsearchConfig config) {
         super(moduleManager);
-        this.indexShardsNumber = indexShardsNumber;
-        this.indexReplicasNumber = indexReplicasNumber;
-        this.indexRefreshInterval = indexRefreshInterval;
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
-        this.advanced = advanced;
+        this.config = config;
     }
 
     @Override protected boolean isExists(Client client, Model model) throws StorageException {
@@ -106,12 +103,13 @@ public class StorageEsInstaller extends ModelInstaller {
 
     protected Map<String, Object> createSetting(boolean record) {
         Map<String, Object> setting = new HashMap<>();
-        setting.put("index.number_of_shards", indexShardsNumber);
-        setting.put("index.number_of_replicas", indexReplicasNumber);
-        setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10).toString() : TimeValue.timeValueSeconds(indexRefreshInterval).toString());
+        setting.put("index.number_of_shards", config.getIndexShardsNumber());
+        setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
+        setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10).toString() : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
-        if (!advanced.isEmpty()) {
-            advanced.forEach(setting::put);
+        if (!StringUtil.isEmpty(config.getAdvanced())) {
+            Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
+            advancedSettings.forEach(setting::put);
         }
         return setting;
     }

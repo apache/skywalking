@@ -119,7 +119,6 @@ cat <<EOT >> ${var_application_file}
     resultWindowMaxSize: \${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: \${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: \${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
-    topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10}
 EOT
 }
 
@@ -306,6 +305,7 @@ core:
     # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: \${SW_CORE_ENABLE_DATABASE_SESSION:true}
+    topNReportPeriod: \${SW_CORE_TOPN_REPORT_PERIOD:10}
 EOT
 
     # generate storage
