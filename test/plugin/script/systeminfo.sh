@@ -47,9 +47,3 @@ do
  echo "container id:"$i
  docker inspect $i | grep CpusetCpus
 done
-
-echo "CPU all core stats:"
-sar -u 1 5 -P ALL
-
-echo "Disk io stats:"
-sar -p -d 1 5
