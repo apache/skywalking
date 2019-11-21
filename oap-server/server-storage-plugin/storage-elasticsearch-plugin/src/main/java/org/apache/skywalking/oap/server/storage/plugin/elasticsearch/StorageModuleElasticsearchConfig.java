@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -50,6 +51,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private int dayMetricsDataTTL = 2;
     private int otherMetricsDataTTL = 0;
     @Setter private int monthMetricsDataTTL = 18;
+    @Setter private Map<String,Object> advanced;
 
     public int getMinuteMetricsDataTTL() {
         if (otherMetricsDataTTL > 0) {

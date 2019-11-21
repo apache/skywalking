@@ -37,8 +37,8 @@ public class StorageEs7Installer extends StorageEsInstaller {
     private final StorageModuleElasticsearch7Config config;
 
     public StorageEs7Installer(final ModuleManager moduleManager,
-                               final StorageModuleElasticsearch7Config config) {
-        super(moduleManager, config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval());
+                               final StorageModuleElasticsearch7Config config, final Map<String, Object> advanced) {
+        super(moduleManager, config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval(), advanced);
 
         this.config = config;
     }

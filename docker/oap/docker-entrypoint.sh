@@ -119,6 +119,7 @@ cat <<EOT >> ${var_application_file}
     resultWindowMaxSize: \${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: \${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: \${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+    topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10}
 EOT
 }
 

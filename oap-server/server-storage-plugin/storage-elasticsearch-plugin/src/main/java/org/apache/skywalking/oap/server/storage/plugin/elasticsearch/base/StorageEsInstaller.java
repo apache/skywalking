@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -29,10 +32,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author peng-yongsheng
  */
@@ -43,14 +42,17 @@ public class StorageEsInstaller extends ModelInstaller {
     protected final int indexShardsNumber;
     protected final int indexReplicasNumber;
     protected final int indexRefreshInterval;
+    protected final Map<String,Object> advanced;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
-    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber, int indexRefreshInterval) {
+    public StorageEsInstaller(ModuleManager moduleManager, int indexShardsNumber, int indexReplicasNumber, int indexRefreshInterval,
+        Map<String, Object> advanced) {
         super(moduleManager);
         this.indexShardsNumber = indexShardsNumber;
         this.indexReplicasNumber = indexReplicasNumber;
         this.indexRefreshInterval = indexRefreshInterval;
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
+        this.advanced = advanced;
     }
 
     @Override protected boolean isExists(Client client, Model model) throws StorageException {
@@ -108,6 +110,9 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.number_of_replicas", indexReplicasNumber);
         setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10).toString() : TimeValue.timeValueSeconds(indexRefreshInterval).toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
+        if(!advanced.isEmpty()){
+            advanced.forEach(setting::put);
+        }
         return setting;
     }
 

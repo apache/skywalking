@@ -134,7 +134,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         try {
             elasticSearch7Client.connect();
 
-            StorageEs7Installer installer = new StorageEs7Installer(getManager(), config);
+            StorageEs7Installer installer = new StorageEs7Installer(getManager(), config, config.getAdvanced());
             installer.install(elasticSearch7Client);
 
             RegisterLockEs7Installer lockInstaller = new RegisterLockEs7Installer(elasticSearch7Client);
