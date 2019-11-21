@@ -37,7 +37,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEsDAO.class);
 
-    private final EndpointInventory.Builder builder = new EndpointInventory.Builder();
+    protected final EndpointInventory.Builder builder = new EndpointInventory.Builder();
 
     public EndpointInventoryCacheEsDAO(ElasticSearchClient client) {
         super(client);
