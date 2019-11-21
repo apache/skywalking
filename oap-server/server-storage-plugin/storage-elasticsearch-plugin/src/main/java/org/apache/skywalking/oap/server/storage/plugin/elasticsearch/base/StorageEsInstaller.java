@@ -110,7 +110,7 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.number_of_replicas", indexReplicasNumber);
         setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10).toString() : TimeValue.timeValueSeconds(indexRefreshInterval).toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
-        if(!advanced.isEmpty()){
+        if (!advanced.isEmpty()) {
             advanced.forEach(setting::put);
         }
         return setting;
