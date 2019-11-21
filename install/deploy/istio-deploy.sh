@@ -76,7 +76,7 @@ deploy_istio() {
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
      do
-       kubectl rollout status $line -n ${NAMESPACE} --timeout 3m
+       kubectl rollout status $line -n ${NAMESPACE} --timeout 5m
      done
   }
   check
