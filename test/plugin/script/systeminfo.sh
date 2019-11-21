@@ -53,7 +53,3 @@ sar -u 1 5 -P ALL
 
 echo "Disk io stats:"
 sar -p -d 1 5
-
-
-
-
