@@ -21,8 +21,10 @@
 
 set -e
 
+TAG=`date +"%Y-%m-%d"`
+
 git rev-parse HEAD
 git submodule init
 git submodule update
 
-make build.all
+make build.all && make docker.oap -e TAG=$TAG
