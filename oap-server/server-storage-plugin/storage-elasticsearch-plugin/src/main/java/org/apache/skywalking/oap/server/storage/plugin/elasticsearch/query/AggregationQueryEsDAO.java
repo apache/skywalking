@@ -104,21 +104,15 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    private List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
+    protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         boolean asc = false;
         if (order.equals(Order.ASC)) {
             asc = true;
         }
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders
-            .terms(Metrics.ENTITY_ID)
-            .field(Metrics.ENTITY_ID)
-            .order(BucketOrder.aggregation(valueCName, asc))
-            .size(topN)
-            .subAggregation(
-                AggregationBuilders.avg(valueCName).field(valueCName)
-            );
+        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
+
         sourceBuilder.aggregation(aggregationBuilder);
 
         SearchResponse response = getClient().search(indexName, sourceBuilder);
@@ -134,5 +128,16 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         }
 
         return topNEntities;
+    }
+
+    protected TermsAggregationBuilder aggregationBuilder(final String valueCName, final int topN, final boolean asc) {
+        return AggregationBuilders
+                .terms(Metrics.ENTITY_ID)
+                .field(Metrics.ENTITY_ID)
+                .order(BucketOrder.aggregation(valueCName, asc))
+                .size(topN)
+                .subAggregation(
+                    AggregationBuilders.avg(valueCName).field(valueCName)
+                );
     }
 }

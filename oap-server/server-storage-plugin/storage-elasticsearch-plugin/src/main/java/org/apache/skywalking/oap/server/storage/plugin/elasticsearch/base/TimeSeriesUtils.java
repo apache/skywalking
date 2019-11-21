@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
  */
 public class TimeSeriesUtils {
 
-    static String timeSeries(Model model) {
+    public static String timeSeries(Model model) {
         long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
         return timeSeries(model, timeBucket);
     }

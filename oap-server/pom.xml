@@ -34,6 +34,7 @@
         <module>server-storage-plugin</module>
         <module>server-library</module>
         <module>server-starter</module>
+        <module>server-starter-es7</module>
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
         <module>server-testing</module>
@@ -42,6 +43,7 @@
         <module>oal-grammar</module>
         <module>exporter</module>
         <module>server-configuration</module>
+        <module>server-bootstrap</module>
     </modules>
 
     <properties>
