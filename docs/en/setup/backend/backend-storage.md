@@ -112,7 +112,8 @@ storage:
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
 
 ### Advanced Configurations For Elasticsearch Index
-You can add advanced configurations in `JSON` format to set `elasticsearch index settings`.
+You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
+
 For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-translog.html) settings:
 
 ```yaml
