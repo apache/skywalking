@@ -81,6 +81,7 @@ deploy_istio() {
        kubectl get deploy -n ${NAMESPACE} -owide
        free -lh
        kubectl describe deploy `echo $line | sed 's/deployment\///g'` -n ${NAMESPACE}
+       kubectl get event -n  ${NAMESPACE}
      done
   }
   check
