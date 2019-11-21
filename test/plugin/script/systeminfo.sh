@@ -37,3 +37,23 @@ free -m
 
 echo "Disk usage:"
 df -h
+
+echo "docker stats:"
+docker stats --no-stream
+
+echo "docker cpuset stats:"
+for i in `docker ps -aq`
+do
+ echo "container id:"$i
+ docker inspect $i | grep CpusetCpus
+done
+
+echo "CPU all core stats:"
+sar -u 1 5 -P ALL
+
+echo "Disk io stats:"
+sar -p -d 1 5
+
+
+
+
