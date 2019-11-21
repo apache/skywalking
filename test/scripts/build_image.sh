@@ -19,10 +19,10 @@
 # under the License.
 # ----------------------------------------------------------------------------
 
-set -x
+#set -x
 
-TAG=`date +"%Y-%m-%d"`
+#TAG=`date +"%Y-%m-%d"`
 
-env IMAGE_TAG=$TAG
+#env IMAGE_TAG=$TAG
 
-docker build -f ./docker/oap/Dockerfile.oap -t apache/skywalking-oap-server:$TAG .
+#docker build -f ./docker/oap/Dockerfile.oap -t apache/skywalking-oap-server:$TAG .
