@@ -61,7 +61,11 @@ BEGIN {
         # in the storage: section now
         # disable h2 module
         if (in_storage_es_section == 0) {
-            in_storage_es_section=$0 ~ /^#?\s+elasticsearch:$/
+            if (ENVIRON["ES_VERSION"] ~ /^6.+/) {
+                in_storage_es_section=$0 ~ /^#?\s+elasticsearch:$/
+            } else if (ENVIRON["ES_VERSION"] ~ /^7.+/) {
+                in_storage_es_section=$0 ~ /^#?\s+elasticsearch7:$/
+            }
         } else {
             in_storage_es_section=$0 ~ /^#?\s{4}/
         }

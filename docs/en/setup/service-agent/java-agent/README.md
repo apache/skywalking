@@ -53,12 +53,19 @@ Change the first line of `tomcat/bin/catalina.bat`.
 ```shell
 set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
+
 - JAR file  
 Add `-javaagent` argument to command line in which you start your app. eg:
  ```shell
  java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
- 
+
+- Jetty  
+Modify `jetty.sh`, add `-javaagent` argument to command line in which you start your app. eg:
+```shell
+export JAVA_OPTIONS="${JAVA_OPTIONS} -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
+```
+
 ## Table of Agent Configuration Properties
 This is the properties list supported in `agent/config/agent.config`.
 

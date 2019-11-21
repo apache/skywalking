@@ -38,8 +38,8 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEsDAO.class);
 
-    private final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
-    private final int resultWindowMaxSize;
+    protected final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
+    protected final int resultWindowMaxSize;
 
     public NetworkAddressInventoryCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client);
