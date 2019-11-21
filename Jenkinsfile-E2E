@@ -113,6 +113,12 @@ pipeline {
                                 sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-agent-reboot'
                             }
                         }
+
+                        stage('Cluster Tests (ES7/ZK/JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.0.0 bash -x test/e2e/run.sh e2e-cluster/test-runner'
+                            }
+                        }
                     }
                 }
 
@@ -127,6 +133,12 @@ pipeline {
                         stage('TTL ES Tests(JDK8)') {
                             steps {
                                 sh 'E2E_VERSION=jdk8-1.3 bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
+                            }
+                        }
+
+                        stage('TTL ES7 Tests(JDK8)') {
+                            steps {
+                                sh 'E2E_VERSION=jdk8-1.3 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.0.0 bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es'
                             }
                         }
                     }

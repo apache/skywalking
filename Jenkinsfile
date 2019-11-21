@@ -72,7 +72,6 @@ pipeline {
                                 }
                             }
                             steps {
-                                sh 'tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist'
                                 sh 'tools/dependencies/check-LICENSE.sh'
                             }
                         }

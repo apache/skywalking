@@ -37,7 +37,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCacheDAO.class);
 
-    private final ServiceInstanceInventory.Builder builder = new ServiceInstanceInventory.Builder();
+    protected final ServiceInstanceInventory.Builder builder = new ServiceInstanceInventory.Builder();
 
     public ServiceInstanceInventoryCacheDAO(ElasticSearchClient client) {
         super(client);
