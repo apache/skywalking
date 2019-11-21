@@ -132,7 +132,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         try {
             elasticSearchClient.connect();
 
-            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval());
+            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config);
             installer.install(elasticSearchClient);
 
             RegisterLockInstaller lockInstaller = new RegisterLockInstaller(elasticSearchClient);
