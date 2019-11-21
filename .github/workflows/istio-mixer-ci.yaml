@@ -20,6 +20,7 @@ on: [push, pull_request]
 env:
   SCRIPTS_DIR: ./test/e2e/e2e-istio/scripts
   LOG_DIR: /tmp/skywalking
+  INSTALL_SCRIPTS_DIR: ./install/deploy
 jobs:
   build:
     runs-on: ubuntu-16.04
@@ -37,6 +38,8 @@ jobs:
         run: minikube tunnel --log_dir=${LOG_DIR} &
       - name: Compile all and Build docker image
         run: bash ${SCRIPTS_DIR}/compile_build.sh
+      - name: Istio install
+        run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: logs
