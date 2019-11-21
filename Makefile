@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SHELL := /bin/bash -o pipefail
 
 export SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
