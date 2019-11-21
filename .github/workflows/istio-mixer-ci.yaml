@@ -35,6 +35,8 @@ jobs:
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
         run: minikube tunnel --log_dir=${LOG_DIR} &
+      - name: Compile OAP
+        run: bash ./test/scripts/compile_oap.sh
       - name: Build OAP Image
         run: bash ./test/scripts/build_image.sh
       - uses: actions/upload-artifact@v1.0.0
