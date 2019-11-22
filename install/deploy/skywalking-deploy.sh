@@ -50,8 +50,11 @@ helm dep up skywalking
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
 
-for component in $NEED_CHECK_PREFIX"oap" $NEED_CHECK_PREFIX"ui" ; do
-  kubectl -n istio-system rollout status $component --timeout 3m
+for component in $NEED_CHECK_PREFIX"oap" ; do
+  kubectl -n ${DPELOY_NAMESPACE} get deploy
+  sleep 10
+  kubectl -n ${DPELOY_NAMESPACE} get event
+  kubectl -n ${DPELOY_NAMESPACE} rollout status $component --timeout 10m
 done
 
 echo "SkyWalking deployed successfully"
