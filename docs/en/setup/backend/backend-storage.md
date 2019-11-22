@@ -63,6 +63,7 @@ storage:
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+    advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
 
 and there're also some configurations that are ES7 specific, as follows:
@@ -103,11 +104,24 @@ storage:
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
 
 
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
+
+### Advanced Configurations For Elasticsearch Index
+You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
+
+For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-translog.html) settings:
+
+```yaml
+storage:
+  elasticsearch:
+    # ......
+    advanced: ${SW_STORAGE_ES_ADVANCED:"{\"index.translog.durability\":\"request\",\"index.translog.sync_interval\":\"5s\"}"}
+```
 
 ### Recommended ElasticSearch server-side configurations
 You could add following config to `elasticsearch.yml`, set the value based on your env.

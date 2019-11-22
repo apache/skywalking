@@ -70,7 +70,7 @@ public class DataCarrier<T> {
     }
 
     /**
-     * produce data to buffer, using the givven {@link BufferStrategy}.
+     * produce data to buffer, using the given {@link BufferStrategy}.
      *
      * @param data
      * @return false means produce data failure. The data will not be consumed.
