@@ -51,9 +51,9 @@ helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
-  kubectl -n ${DPELOY_NAMESPACE} get deploy
+  kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
   sleep 600
-  kubectl -n ${DPELOY_NAMESPACE} get event
+  kubectl -n ${DPELOY_NAMESPACE} get event | grep -v "istio"
   kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
   kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'` --all-containers=true
   kubectl -n ${DPELOY_NAMESPACE} logs $component
