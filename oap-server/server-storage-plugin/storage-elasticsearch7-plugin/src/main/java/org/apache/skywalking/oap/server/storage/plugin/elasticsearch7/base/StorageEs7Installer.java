@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * @author kezhenxu94
+ * @author kezhenxu94, jian.tan
  */
 public class StorageEs7Installer extends StorageEsInstaller {
 
@@ -38,8 +38,7 @@ public class StorageEs7Installer extends StorageEsInstaller {
 
     public StorageEs7Installer(final ModuleManager moduleManager,
                                final StorageModuleElasticsearch7Config config) {
-        super(moduleManager, config.getIndexShardsNumber(), config.getIndexReplicasNumber(), config.getIndexRefreshInterval());
-
+        super(moduleManager, config);
         this.config = config;
     }
 
