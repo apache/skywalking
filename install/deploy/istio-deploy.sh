@@ -79,21 +79,11 @@ deploy_istio() {
           --set mixer.telemetry.resources=null \
           --set global.defaultResources=null \
           --set pilot.resources=null \
-#          --set gateways.istio-ingressgateway.resources.requests.cpu=,gateways.istio-ingressgateway.resources.requests.memory= \
-#          --set pilot.resources.requests.memory=,pilot.resources.requests.cpu= \
-#          --set mixer.telemetry.resources.requests.cpu=,mixer.telemetry.resources.requests.memory= \
-#          --set global.defaultResources.requests.cpu= \
-#          --set pilot.resources.requests.cpu=,pilot.resources.requests.memory= \
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
      do
-       kubectl get deploy -n ${NAMESPACE} -owide
-       kubectl rollout status $line -n ${NAMESPACE} --timeout 30m
-       kubectl get deploy -n ${NAMESPACE} -owide
-       free -lh
-       kubectl describe deploy `echo $line | sed 's/deployment\///g'` -n ${NAMESPACE}
-       kubectl get event -n  ${NAMESPACE}
+       kubectl rollout status $line -n ${NAMESPACE} --timeout 10m
      done
   }
   check
