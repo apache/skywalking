@@ -74,11 +74,16 @@ deploy_istio() {
   helm install istio istio -n ${NAMESPACE} --set prometheus.enabled=false --set pilot.autoscaleEnabled=false \
           --set gateways.istio-ingressgateway.autoscaleEnabled=false --set mixer.policy.autoscaleEnabled=false \
           --set mixer.telemetry.autoscaleEnabled=false \
-          --set gateways.istio-ingressgateway.resources.requests.cpu=,gateways.istio-ingressgateway.resources.requests.memory= \
-          --set pilot.resources.requests.memory=,pilot.resources.requests.cpu= \
-          --set mixer.telemetry.resources.requests.cpu=,mixer.telemetry.resources.requests.memory= \
-          --set global.defaultResources.requests.cpu= \
-          --set pilot.resources.requests.cpu=,pilot.resources.requests.memory= \
+          --set gateways.istio-ingressgateway.resources=null \
+          --set pilot.resources=null \
+          --set mixer.telemetry.resources=null \
+          --set global.defaultResources=null \
+          --set pilot.resources=null \
+#          --set gateways.istio-ingressgateway.resources.requests.cpu=,gateways.istio-ingressgateway.resources.requests.memory= \
+#          --set pilot.resources.requests.memory=,pilot.resources.requests.cpu= \
+#          --set mixer.telemetry.resources.requests.cpu=,mixer.telemetry.resources.requests.memory= \
+#          --set global.defaultResources.requests.cpu= \
+#          --set pilot.resources.requests.cpu=,pilot.resources.requests.memory= \
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
