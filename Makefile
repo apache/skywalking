@@ -21,6 +21,9 @@ export SW_OUT:=${SW_ROOT}/dist
 
 SKIP_TEST?=false
 
+init:
+	cd $(SW_ROOT) && git submodule update --init --recursive
+
 .PHONY: build.all build.agent build.backend build.ui build.docker
 
 build.all:
@@ -48,7 +51,7 @@ TAG?=latest
 
 .PHONY: docker docker.all docker.oap
 
-docker: build.docker docker.all
+docker: init build.docker docker.all
 
 DOCKER_TARGETS:=docker.oap docker.ui
 
