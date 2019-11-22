@@ -54,7 +54,7 @@ for component in $NEED_CHECK_PREFIX"oap" ; do
   kubectl -n ${DPELOY_NAMESPACE} get deploy
   sleep 10
   kubectl -n ${DPELOY_NAMESPACE} get event
-  kubectl -n ${DPELOY_NAMESPACE} describe deploy $component
+  kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
 #  kubectl -n ${DPELOY_NAMESPACE} rollout status $component --timeout 10m
 done
