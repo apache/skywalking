@@ -17,7 +17,7 @@
 
 set -e
 
-CHART_PATH="../kubernetes/helm"
+CHART_PATH="./install/kubernetes/helm"
 DPELOY_NAMESPACE="istio-system"
 NEED_CHECK_PREFIX="deployment/skywalking-skywalking-"
 ALS_ENABLED=true
@@ -47,7 +47,8 @@ and_stable_repo
 
 helm dep up skywalking
 
-helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED --set oap.envoy.als.enabled=$ALS_ENABLED
+helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
+        --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
 
 for component in $NEED_CHECK_PREFIX"oap" $NEED_CHECK_PREFIX"ui" ; do
   kubectl -n istio-system rollout status $component --timeout 3m
