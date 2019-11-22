@@ -35,14 +35,12 @@ public class CaseController {
     @RequestMapping("/receiveContext-1")
     @ResponseBody
     public String receiveContextService1() throws InterruptedException {
-        Thread.sleep(2 * 1000);
         return "receiveContext-1";
     }
 
     @RequestMapping("/receiveContext-0")
     @ResponseBody
     public String receiveContextService0() throws InterruptedException {
-        Thread.sleep(2 * 1000);
         return "receiveContext-0";
     }
 
