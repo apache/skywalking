@@ -16,15 +16,15 @@
  */
 package org.apache.skywalking.plugin.test.helper;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-
 import com.google.common.base.Strings;
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.util.StringUtils;
 import org.apache.skywalking.plugin.test.helper.vo.CaseConfiguration;
 import org.yaml.snakeyaml.Yaml;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 public class ConfigurationImpl implements IConfiguration {
     private CaseConfiguration configuration;
@@ -113,6 +113,10 @@ public class ConfigurationImpl implements IConfiguration {
         return System.getProperty("docker.image.version", "latest");
     }
 
+    @Override
+    public String dockerNetworkName() {
+        return (scenarioName() + "-" + dockerImageVersion()).toLowerCase();
+    }
 
     @Override
     public String dockerContainerName() {

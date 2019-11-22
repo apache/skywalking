@@ -68,7 +68,7 @@ pipeline {
             }
         }
 
-        stage('Test Cases Report (154)') {
+        stage('Test Cases Report (165)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -115,9 +115,15 @@ pipeline {
                         }
                     }
                 }
-                
+
                 stage('Group2') {
                     stages {
+                        stage('elasticsearch-7.x-scenario 7.0.0-7.4.2 (11)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh elasticsearch-7.x-scenario'
+                            }
+                        }
+
                         stage('spring-webflux 2.x (18)') {
                             steps {
                                 sh 'bash test/plugin/run.sh webflux-scenario'

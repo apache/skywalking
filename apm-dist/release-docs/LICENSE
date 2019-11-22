@@ -238,6 +238,7 @@ The text of each license is the standard Apache 2.0 license.
     Google: proto-google-common-protos 0.1.9: https://github.com/googleapis/googleapis , Apache 2.0
     Google: jsr305 3.0.0: http://central.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.pom , Apache 2.0
     Elasticsearch BV (Elasticsearch) 6.3.2: https://www.elastic.co/products/elasticsearch , Apache 2.0
+    Elasticsearch BV (Elasticsearch) 7.0.0: https://www.elastic.co/products/elasticsearch , Apache 2.0
     lang-mustache-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/lang-mustache , Apache 2.0
     parent-join-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/parent-join , Apache 2.0
     reindex-client 5.5.0: https://github.com/elastic/elasticsearch/tree/master/modules/reindex , Apache 2.0
@@ -250,7 +251,7 @@ The text of each license is the standard Apache 2.0 license.
     LMAX Ltd.(disruptor) 3.3.6: https://github.com/LMAX-Exchange/disruptor , Apache 2.0
     Eclipse (Jetty) 3.3.6: https://www.eclipse.org/jetty/ , Apache 2.0 and Eclipse Public License 1.0
     SnakeYAML 1.18: http://www.snakeyaml.org , Apache 2.0
-    Joda-Time 2.9.9: http://www.joda.org/joda-time/ , Apache 2.0
+    Joda-Time 2.10.5: http://www.joda.org/joda-time/ , Apache 2.0
     Joda-Convert 1.2: http://www.joda.org/joda-convert/ , Apache 2.0
     Spring Framework 4.3.14.RELEASE: https://github.com/spring-projects/spring-framework, Apache 2.0
     Spring Boot 1.5.10: https://spring.io/, Apache 2.0

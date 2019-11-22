@@ -1,0 +1,98 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+registryItems:
+  applications:
+    - {hystrix-scenario: 2}
+  instances:
+    - {hystrix-scenario: 1}
+  operationNames:
+    - hystrix-scenario: [/case/hystrix-scenario]
+  heartbeat: []
+segmentItems:
+- applicationCode: hystrix-scenario
+  segmentSize: ge 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: Hystrix/TestACommand/Execution
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 29
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+      logs:
+      - logEvent:
+        - {key: event, value: error}
+        - {key: error.kind, value: java.lang.InterruptedException}
+        - {key: message, value: not null}
+        - {key: stack, value: not null}
+      refs:
+      - {parentEndpointId: 0, parentEndpoint: /case/hystrix-scenario, networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: '${hystrix-scenario[2]}', parentServiceInstanceId: nq 0, networkAddress: '', entryEndpoint: /case/hystrix-scenario, entryServiceInstanceId: nq 0 }
+  - segmentId: not null
+    spans:
+    - operationName: Hystrix/TestACommand/Fallback
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 29
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+      refs:
+      - {parentEndpointId: 0, parentEndpoint: Hystrix/TestACommand/Execution, networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: '${hystrix-scenario[0]}', parentServiceInstanceId: nq 0, networkAddress: '', entryEndpoint: /case/hystrix-scenario, entryServiceInstanceId: nq 0}
+  - segmentId: not null
+    spans:
+    - operationName: Hystrix/TestBCommand/Execution
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 29
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+    - operationName: /case/hystrix-scenario
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 14
+      componentName: ''
+      isError: false
+      spanType: Entry
+      peer: ''
+      peerId: 0
+      tags:
+      - {key: url, value: 'http://localhost:8080/hystrix-scenario/case/hystrix-scenario'}
+      - {key: http.method, value: GET}

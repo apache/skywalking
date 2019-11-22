@@ -39,8 +39,8 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEsDAO.class);
 
-    private final ServiceInventory.Builder builder = new ServiceInventory.Builder();
-    private final int resultWindowMaxSize;
+    protected final ServiceInventory.Builder builder = new ServiceInventory.Builder();
+    protected final int resultWindowMaxSize;
 
     public ServiceInventoryCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client);

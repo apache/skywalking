@@ -20,7 +20,7 @@ The test framework provides `JVM-container` and `Tomcat-container` base images. 
 
 ### JVM-container Image Introduction
 
-[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the basic image.
+[JVM-container](../../../test/plugin/containers/jvm-container) uses `openjdk:8` as the base image.
 The test case project is required to be packaged as `project-name.zip`, including `startup.sh` and uber jar, by using `mvn clean package`.
 
 Take the following test projects as good examples
@@ -29,7 +29,7 @@ Take the following test projects as good examples
 
 ### Tomcat-container Image Introduction
 
-[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the basic image.
+[Tomcat-container](../../../test/plugin/containers/tomcat-container) uses `tomcat:8.5.42-jdk8-openjdk` as the base image.
 The test case project is required to be packaged as `project-name.war` by using `mvn package`.
 
 Take the following test project as a good example
@@ -38,7 +38,7 @@ Take the following test project as a good example
 
 ## Test project hierarchical structure
 The test case is an independent maven project, and it is required to be packaged as a war tar ball or zip file, depends 
-on the chosen basic image. Also, two external accessible endpoints, mostly two URLs, are required.
+on the chosen base image. Also, two external accessible endpoints, mostly two URLs, are required.
 
 All test case codes should be in `org.apache.skywalking.apm.testcase.*` package, unless there are some codes expected being instrumented,
 then the classes could be in `test.org.apache.skywalking.apm.testcase.*` package.
@@ -94,7 +94,7 @@ File Name | Descriptions
 `support-version.list` | List the target versions for this case
 `startup.sh` |`JVM-container` only, don't need this when use`Tomcat-container`
 
-`*` support-version.list format requires every line for a singe version. Could use `#` to comment out this version.
+`*` support-version.list format requires every line for a single version. Could use `#` to comment out this version.
 
 ### configuration.yml
 
@@ -612,25 +612,28 @@ stage('Run Agent Plugin Tests') {
 Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
 
 ### Workload 1
-#### Group 1 (2247.00s)
+#### Group 1 (2709.00s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
 apm-toolkit-trace | 1 | 87.00
 jetty 9.x | 63 | 2043.00
 netty-socketio 1.x | 4 | 117.00
+rabbitmq-scenario | 12 | 462
 
-#### Group 2 (2119.991s)
+#### Group 2 (2291.98s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+feign 9.0.0-9.5.1 | 8 | 172.00
 customize | 1 | 85.64
 postgresql 9.4.1207+ | 62 | 1820.29
 canal 1.0.24-1.1.2 | 5 | 214.05
 
 
 ### Workload 2
-#### Group 1 (2351.54s)
+#### Group 1 (2906.54s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+spring-tx 4.x+ | 10 | 555.00
 spring 4.3.x-5.2.x | 54 | 1769.32
 dubbo 2.5.x-2.6.x | 10 | 367.23
 dubbo 2.7.x | 4 | 214.99
@@ -645,9 +648,10 @@ elasticsearch 5.x | 3 | 142.15
 
 
 ### Workload 3
-#### Group 1 (2291.912s)
+#### Group 1 (3090.912s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+hystrix-scenario | 20 | 799.00
 postgresql 9.2.x-9.4.x | 36 | 1243.03
 sofarpc 5.4.0-5.6.2 | 23 | 817.77
 spring 3.0.x | 8 | 231.11
@@ -668,9 +672,10 @@ ehcache 2.8.x-2.10.x | 19 | 442.00
 undertow 1.3.0-2.0.27 | 23 | 596.00
 jedis 2.4.0-2.9.0 ｜ 18 ｜ 524.00
 
-#### Group 2 (2148.155s)
+#### Group 2 (2398.155s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
+elasticsearch-7.x-scenario | 11 | 250.00
 spring-webflux 2.x | 18 | 705.60
 spring 4.1.x-4.2.x | 20 | 574.75
 solrj 7.x | 12 | 367.05

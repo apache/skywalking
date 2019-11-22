@@ -67,8 +67,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-
-        stage('Test Cases Report (136)') {
+        stage('Test Cases Report (156)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -100,11 +99,23 @@ pipeline {
                                 sh 'bash test/plugin/run.sh netty-socketio-scenario'
                             }
                         }
+
+                        stage('rabbitmq-scenario (12)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh rabbitmq-scenario'
+                            }
+                        }
                     }
                 }
 
                 stage('Group2') {
                     stages {
+                        stage('feign 9.0.0-9.5.1 (8)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh feign-scenario'
+                            }
+                        }
+
                         stage('customize (1)') {
                             steps {
                                 sh 'bash test/plugin/run.sh customize-scenario'

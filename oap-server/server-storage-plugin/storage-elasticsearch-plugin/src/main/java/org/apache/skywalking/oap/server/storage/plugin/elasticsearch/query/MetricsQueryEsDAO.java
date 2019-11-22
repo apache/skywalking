@@ -86,7 +86,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return intValues;
     }
 
-    private void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
+    protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
         switch (function) {
             case Avg:
                 parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
