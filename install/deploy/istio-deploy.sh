@@ -71,9 +71,9 @@ deploy_istio() {
   NAMESPACE=$1
   VERSION=$2
   helm pull istio/istio && tar zxvf istio-${VERSION}.tgz && rm istio-${VERSION}.tgz
-  helm install istio istio -n ${NAMESPACE} --set prometheus.enabled=false --set pilot.autoscaleEnabled=false  \
-          --set gateways.autoscaleEnabled=false --set mixer.policy.autoscaleEnabled=false \
-          --set sidecarInjectorWebhook.autoscaleEnabled=false --set mixer.telemetry.autoscaleEnabled=false
+  helm install istio istio -n ${NAMESPACE} --set prometheus.enabled=false --set pilot.autoscaleEnabled=false \
+          --set gateways.istio-ingressgateway.autoscaleEnabled=false --set mixer.policy.autoscaleEnabled=false \
+          --set mixer.telemetry.autoscaleEnabled=false
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
      do
