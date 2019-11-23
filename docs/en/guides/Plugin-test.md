@@ -661,6 +661,7 @@ scenario name | versions | elapsed time (sec)
 ---|---|---
 spring async 4.3.x-5.1.x | 35 | 967.70
 mongodb 3.4.0-3.11.1 | 17 | 1465.63
+grcp 1.6.0-1.25.0 | 25 | 627.00
 
 ### Workload 4
 #### Group 1 (2463.00s)
