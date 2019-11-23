@@ -107,7 +107,22 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
+            @Override
+            public void update(int serviceInstanceId, NodeType nodeType, JsonObject properties) {
+
+            }
+
             @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
+
+            }
+
+            @Override
+            public void updateMapping(int serviceInstanceId, int mappingServiceInstanceId) {
+
+            }
+
+            @Override
+            public void resetMapping(int serviceInstanceId) {
 
             }
         };

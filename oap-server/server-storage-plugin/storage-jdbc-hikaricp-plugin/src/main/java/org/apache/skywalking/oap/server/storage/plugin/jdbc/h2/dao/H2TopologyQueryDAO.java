@@ -24,7 +24,10 @@ import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
-import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -62,6 +65,24 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), true);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+        String tableName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
+        return loadServiceCalls(tableName, startTB, endTB,
+                ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+                ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
+                serviceIds, false);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+        String tableName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
+        return loadServiceCalls(tableName, startTB, endTB,
+                ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+                ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
+                serviceIds, true);
     }
 
     @Override
