@@ -16,19 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.servicerelation;
+package org.apache.skywalking.oap.server.core.analysis.manual.relation.instance;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 
 /**
- * @author wusheng
+ * @author zhangwei
  */
-public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRelation> {
+public class ServiceInstanceCallRelationDispatcher implements SourceDispatcher<ServiceInstanceRelation> {
 
     @Override
-    public void dispatch(ServiceRelation source) {
+    public void dispatch(ServiceInstanceRelation source) {
         switch (source.getDetectPoint()) {
             case SERVER:
                 serverSide(source);
@@ -39,21 +39,25 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         }
     }
 
-    private void serverSide(ServiceRelation source) {
-        ServiceRelationServerSideMetrics metrics = new ServiceRelationServerSideMetrics();
+    private void serverSide(ServiceInstanceRelation source) {
+        ServiceInstanceRelationServerSideMetrics metrics = new ServiceInstanceRelationServerSideMetrics();
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceServiceId(source.getSourceServiceId());
+        metrics.setSourceServiceInstanceId(source.getSourceServiceInstanceId());
         metrics.setDestServiceId(source.getDestServiceId());
+        metrics.setDestServiceInstanceId(source.getDestServiceInstanceId());
         metrics.setComponentId(source.getComponentId());
         metrics.buildEntityId();
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    private void clientSide(ServiceRelation source) {
-        ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
+    private void clientSide(ServiceInstanceRelation source) {
+        ServiceInstanceRelationClientSideMetrics metrics = new ServiceInstanceRelationClientSideMetrics();
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceServiceId(source.getSourceServiceId());
+        metrics.setSourceServiceInstanceId(source.getSourceServiceInstanceId());
         metrics.setDestServiceId(source.getDestServiceId());
+        metrics.setDestServiceInstanceId(source.getDestServiceInstanceId());
         metrics.setComponentId(source.getComponentId());
         metrics.buildEntityId();
         MetricsStreamProcessor.getInstance().in(metrics);

@@ -19,11 +19,6 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import com.google.common.base.Strings;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
@@ -41,6 +36,12 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author peng-yongsheng
@@ -93,9 +94,17 @@ public class TopologyQueryService implements Service {
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(downsampling, startTB, endTB);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
-        Topology topology = builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
+        return builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
+    }
 
-        return topology;
+    public Topology getGlobalInstanceTopology(final List<Integer> serviceIds, final Downsampling downsampling, final long startTB, final long endTB) throws IOException {
+        logger.debug("ServiceIds: {}, Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", serviceIds, downsampling, startTB, endTB);
+
+        List<Call.CallDetail> instanceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceInstanceRelations(downsampling, startTB, endTB, serviceIds);
+        List<Call.CallDetail> instanceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceInstanceRelations(downsampling, startTB, endTB, serviceIds);
+
+        TopologyInstanceBuilder builder = new TopologyInstanceBuilder(moduleManager);
+        return builder.build(instanceRelationClientCalls, instanceRelationServerCalls);
     }
 
     public Topology getServiceTopology(final Downsampling downsampling, final long startTB, final long endTB, final int serviceId) throws IOException {

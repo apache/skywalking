@@ -19,12 +19,16 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import java.io.IOException;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.*;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
+import org.apache.skywalking.oap.server.core.query.StepToDownsampling;
+import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -50,6 +54,13 @@ public class TopologyQuery implements GraphQLQueryResolver {
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
         return getQueryService().getGlobalTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+    }
+
+    public Topology getServiceInstanceTopology(final List<Integer> serviceIds, final Duration duration) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getGlobalInstanceTopology(serviceIds, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {
