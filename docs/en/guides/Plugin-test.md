@@ -637,6 +637,7 @@ spring-tx 4.x+ | 10 | 555.00
 spring 4.3.x-5.2.x | 54 | 1769.32
 dubbo 2.5.x-2.6.x | 10 | 367.23
 dubbo 2.7.x | 4 | 214.99
+okhttp 3.0.x-3.14.x | 34 | 1030
 
 #### Group 2 (2550.66s)
 scenario name | versions | elapsed time (sec)
