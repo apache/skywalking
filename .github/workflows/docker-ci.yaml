@@ -16,7 +16,7 @@
 
 name: docker-ci
 
-on: [push]
+on: [push, pull_request]
 env:
   SKIP_TEST: true
   DOCKER_DIR: ./docker
