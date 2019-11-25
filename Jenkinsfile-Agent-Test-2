@@ -67,7 +67,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (146)') {
+        stage('Test Cases Report (170)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -103,6 +103,12 @@ pipeline {
                         stage('dubbo 2.7.x (4)') {
                             steps {
                                 sh 'bash test/plugin/run.sh dubbo-2.7.x-scenario'
+                            }
+                        }
+
+                        stage('okhttp 3.0.x-3.14.x (34)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh okhttp-scenario'
                             }
                         }
                     }
