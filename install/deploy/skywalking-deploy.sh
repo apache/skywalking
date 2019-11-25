@@ -53,6 +53,7 @@ helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.
 for component in $NEED_CHECK_PREFIX"oap" ; do
   for i in {1..10} ;do
     echo "*****************$i time*************"
+    free -lh
     echo "*****************************************************"
     kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
     echo "*****************************************************"
