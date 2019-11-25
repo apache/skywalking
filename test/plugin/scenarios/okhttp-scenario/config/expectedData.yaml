@@ -20,7 +20,7 @@ registryItems:
   instances:
   - {okhttp-scenario: 1}
   operationNames:
-  - okhttp-scenario: [/case/healthCheck, /case/okhttp-case, /case/receiveContext-0]
+  - okhttp-scenario: [/case/receiveContext-0, /okhttp-case/case/receiveContext-0,/case/healthCheck, /case/okhttp-case, /case/receiveContext-1]
   heartbeat: []
 segmentItems:
 - applicationCode: okhttp-scenario
