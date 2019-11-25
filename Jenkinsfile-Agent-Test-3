@@ -67,7 +67,7 @@ pipeline {
                 sh './mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build'
             }
         }
-        stage('Test Cases Report (160)') {
+        stage('Test Cases Report (161)') {
             steps {
                 echo "Test Cases Report"
             }
@@ -122,7 +122,7 @@ pipeline {
                             }
                         }
 
-                        stage('grpc 1.0.0-1.9.0 (21)') {
+                        stage('grpc 1.6.0-1.25.0 (22)') {
                             steps {
                                 sh 'bash test/plugin/run.sh grpc-scenario'
                             }

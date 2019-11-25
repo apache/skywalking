@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,29 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8u181-jdk-stretch
+home="$(cd "$(dirname $0)"; pwd)"
 
-ENV DIST_NAME=apache-skywalking-apm-bin \
-    JAVA_OPTS=" -Xms256M " \
-    SW_CLUSTER="standalone" \
-    SW_STORAGE="h2"
-
-COPY "$DIST_NAME.tar.gz" /
-
-RUN set -ex; \
-    tar -xzf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME/config/log4j2.xml"; \
-    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent"; \
-    mv "$DIST_NAME" skywalking;
-
-WORKDIR skywalking
-
-COPY log4j2.xml config/
-COPY docker-entrypoint.sh .
-RUN mkdir ext-config; \
-    mkdir ext-libs;
-
-EXPOSE 12800 11800 1234
-
-ENTRYPOINT ["bash", "docker-entrypoint.sh"]
+java -jar ${agent_opts} ${home}/../libs/okhttp-scenario.jar &
