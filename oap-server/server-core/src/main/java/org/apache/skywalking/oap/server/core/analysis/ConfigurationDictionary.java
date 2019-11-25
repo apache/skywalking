@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics;
+package org.apache.skywalking.oap.server.core.analysis;
 
 /**
  * Dictionary for lookup config item.
