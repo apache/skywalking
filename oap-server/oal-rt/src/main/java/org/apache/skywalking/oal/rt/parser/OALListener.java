@@ -21,6 +21,7 @@ package org.apache.skywalking.oal.rt.parser;
 import java.util.List;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.apache.skywalking.oal.rt.grammar.*;
+import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 public class OALListener extends OALParserBaseListener {
@@ -148,7 +149,11 @@ public class OALListener extends OALParserBaseListener {
     ////////////
 
     @Override public void enterLiteralExpression(OALParser.LiteralExpressionContext ctx) {
-        current.addFuncArg(ctx.getText());
+        if (ctx.IDENTIFIER() == null) {
+            current.addFuncArg(ctx.getText());
+            return;
+        }
+        current.addFuncArg("source." + ClassMethodUtil.toGetMethod(ctx.getText()) + "()");
     }
 
     private String metricsNameFormat(String source) {

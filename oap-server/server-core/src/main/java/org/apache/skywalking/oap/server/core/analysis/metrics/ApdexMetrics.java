@@ -39,8 +39,8 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     protected static final String T = "t";
     protected static final String SCORE = "score";
 
-    @Getter @Setter @Column(columnName = VALUE) private long value;
-    @Getter @Setter @Column(columnName = T) private long t;
+    @Getter @Setter @Column(columnName = VALUE) private int value;
+    @Getter @Setter @Column(columnName = T) private int t;
     @Getter @Setter @Column(columnName = SCORE, isValue = true, function = Function.Avg) private int score;
 
     @Entrance
