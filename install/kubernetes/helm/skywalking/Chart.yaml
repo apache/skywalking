@@ -30,5 +30,5 @@ maintainers:
 
 dependencies:
   - name: elasticsearch
-    version: 6.8.5
+    version: 6.8.2
     condition: elasticsearch.enabled

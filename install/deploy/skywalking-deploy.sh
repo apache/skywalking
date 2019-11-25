@@ -51,15 +51,19 @@ helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
-  echo "*****************************************************"
-  kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
-  echo "*****************************************************"
-  kubectl -n ${DPELOY_NAMESPACE} get jobs -o wide
-  echo "*****************************************************"
-  kubectl -n ${DPELOY_NAMESPACE} get event | grep -v "istio"
-  kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep elasticsearch | awk '{print $1}'`
-  echo "*****************************************************"
-  kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
+  for i in {1..10} ;do
+    echo "*****************$i time*************"
+    echo "*****************************************************"
+    kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
+    echo "*****************************************************"
+    kubectl -n ${DPELOY_NAMESPACE} get jobs -o wide
+    echo "*****************************************************"
+    kubectl -n ${DPELOY_NAMESPACE} get event  | grep -v "istio"
+    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep elasticsearch | awk '{print $1}'`
+    echo "*****************************************************"
+    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
+    sleep 10
+  done
   echo "*****************************************************"
   sleep 10
 
