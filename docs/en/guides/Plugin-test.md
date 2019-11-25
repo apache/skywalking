@@ -630,7 +630,7 @@ canal 1.0.24-1.1.2 | 5 | 214.05
 
 
 ### Workload 2
-#### Group 1 (2906.54s)
+#### Group 1 (3936.54s)
 scenario name | versions | elapsed time (sec)
 ---|---|---
 spring-tx 4.x+ | 10 | 555.00
