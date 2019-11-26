@@ -32,7 +32,10 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
 /**
+ * Apdex threshold configuration dictionary adapter.
+ * Looking up a service apdex threshold from dynamic config service.
  *
+ * @author hongtaogao
  */
 @Slf4j
 public class ApdexThresholdConfig extends ConfigChangeWatcher implements ConfigurationDictionary {
@@ -51,14 +54,6 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
             updateConfig(ResourceUtils.read(CONFIG_FILE_NAME));
         } catch (final FileNotFoundException e) {
             log.error("Cannot config from: {}", CONFIG_FILE_NAME, e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void updateConfig(final Reader contentRender) {
-        dictionary = (Map<String, Integer>)new Yaml().load(contentRender);
-        if (dictionary == null) {
-            dictionary = Collections.emptyMap();
         }
     }
 
@@ -95,5 +90,13 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
         }
         rawConfig = config;
         updateConfig(new StringReader(config));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void updateConfig(final Reader contentRender) {
+        dictionary = (Map<String, Integer>)new Yaml().load(contentRender);
+        if (dictionary == null) {
+            dictionary = Collections.emptyMap();
+        }
     }
 }
