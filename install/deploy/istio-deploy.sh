@@ -79,6 +79,7 @@ deploy_istio() {
           --set mixer.telemetry.resources=null \
           --set global.defaultResources=null \
           --set pilot.resources=null \
+          --set global.proxy.init.resources=null,global.prnoxy.resources=null
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
