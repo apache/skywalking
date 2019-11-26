@@ -47,6 +47,8 @@ and_stable_repo
 
 helm dep up skywalking
 
+sysctl -w vm.max_map_count=262144
+
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
 
