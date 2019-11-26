@@ -17,14 +17,26 @@
 
 set -e
 
+free -lh
+
 # The script for bookinfo Application to deploy
 BOOKINFO_VERSION="1.3"
 kubectl label namespace default istio-injection=enabled
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-${BOOKINFO_VERSION}/samples/bookinfo/platform/kube/bookinfo.yaml
 
+
+
 # check status
 kubectl get deploy  | grep -E 'details|productpage|ratings|reviews' | awk '{print "deployment/"$1}' | while read deploy
 do
+  for i in {1..5} ;do
+     echo "******************* $i time ***************************"
+     kubectl get deploy -o wide
+     echo "*****************************************************"
+
+     kubectl describe deploy $deploy
+     sleep 10
+  done
   kubectl wait ${deploy} --for condition=available --timeout=600s
 done
 
