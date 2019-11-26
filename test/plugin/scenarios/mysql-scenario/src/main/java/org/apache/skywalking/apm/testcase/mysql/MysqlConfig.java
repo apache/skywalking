@@ -16,7 +16,7 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.mysql;
+package org.apache.skywalking.apm.testcase.mysql;
 
 import java.io.IOException;
 import java.io.InputStream;

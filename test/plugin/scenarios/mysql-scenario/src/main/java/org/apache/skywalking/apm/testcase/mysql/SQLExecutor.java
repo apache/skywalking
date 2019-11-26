@@ -16,7 +16,7 @@
  *
  */
 
-package test.apache.skywalking.apm.testcase.mysql;
+package org.apache.skywalking.apm.testcase.mysql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
