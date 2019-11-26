@@ -14,29 +14,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:8u181-jdk-stretch
-
-ENV DIST_NAME=apache-skywalking-apm-bin \
-    JAVA_OPTS=" -Xms256M " \
-    SW_CLUSTER="standalone" \
-    SW_STORAGE="h2"
-
-COPY "$DIST_NAME.tar.gz" /
-
-RUN set -ex; \
-    tar -xzf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME.tar.gz"; \
-    rm -rf "$DIST_NAME/config/log4j2.xml"; \
-    rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent"; \
-    mv "$DIST_NAME" skywalking;
-
-WORKDIR skywalking
-
-COPY log4j2.xml config/
-COPY docker-entrypoint.sh .
-RUN mkdir ext-config; \
-    mkdir ext-libs;
-
-EXPOSE 12800 11800 1234
-
-ENTRYPOINT ["bash", "docker-entrypoint.sh"]
+3.0.0
+3.0.1
+3.1.0
+3.1.1
+3.1.2
+3.2.0
+3.3.0
+3.3.1
+3.4.0
+3.4.1
+3.4.2
+3.5.0
+3.6.0
+3.7.0
+3.8.0
+3.8.1
+3.9.0
+3.9.1
+3.10.0
+3.11.0
+3.12.0
+3.12.1
+3.12.2
+3.12.3
+3.12.4
+3.12.5
+3.12.6
+3.13.0
+3.13.1
+3.14.0
+3.14.1
+3.14.2
+3.14.3
+3.14.4
