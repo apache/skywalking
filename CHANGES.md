@@ -62,6 +62,7 @@ Release Notes.
 - BugFix: endpoint grouping rules may be not unique (#3510)
 - Add feature to control the maximum agent log files (#3475)
 - Agent support custom properties. (#3367)
+- Add Light4j plugin (#3323)
 
 #### Document
 - Remove travis badge (#3763)
