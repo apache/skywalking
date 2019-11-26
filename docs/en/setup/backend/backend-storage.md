@@ -4,7 +4,7 @@ use is by changing the `application.yml`
 
 Native supported storage
 - H2
-- ElasticSearch 6
+- ElasticSearch 6, 7
 - MySQL
 - TiDB
 
@@ -26,10 +26,16 @@ storage:
     user: sa
 ```
 
-## ElasticSearch 6
-Active ElasticSearch 6 as storage, set storage provider to **elasticsearch**.
+## ElasticSearch
+- In order to activate ElasticSearch 6 as storage, set storage provider to **elasticsearch**
+- In order to activate ElasticSearch 7 as storage, set storage provider to **elasticsearch7**
 
-**Required ElasticSearch 6.3.2 or higher, excepted 7.0.0 or higher. HTTP RestHighLevelClient is used to connect server.**
+**Required ElasticSearch 6.3.2 or higher. HTTP RestHighLevelClient is used to connect server.**
+
+- For ElasticSearch 6.3.2 ~ 7.0.0 (excluded), please download the `apache-skywalking-bin.tar.gz` or `apache-skywalking-bin.zip`,
+- For ElasticSearch 7.0.0 ~ 8.0.0 (excluded), please download the `apache-skywalking-bin-es7.tar.gz` or `apache-skywalking-bin-es7.zip`.
+
+ElasticSearch 6 and ElasticSearch 7 share most of the configurations, as follows:
 
 Setting fragment example
 
@@ -54,6 +60,23 @@ storage:
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
+    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
+    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+    advanced: ${SW_STORAGE_ES_ADVANCED:""}
+```
+
+and there're also some configurations that are ES7 specific, as follows:
+
+```yaml
+storage:
+  elasticsearch7:
+    # ... the configurations shared with ES6 that are listed above ...
+
+    # Index max result window, for segment deep pagination, usually we don't recommend to scroll too many pages,
+    # instead, give more query criteria (e.g. service id or time range), to narrow the query results.
+    # see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html for more information
+    indexMaxResultWindow: ${SW_STORAGE_ES_INDEX_MAX_RESULT_WINDOW:5000}
 ```
 
 ### ElasticSearch 6 With Https SSL Encrypting communications.
@@ -81,15 +104,38 @@ storage:
     bulkSize: ${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
 
 
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
 
-### ElasticSearch server settings
-Read the [ElasticSearch storage FAQ](../../FAQ/ES-Server-FAQ.md) if you are new to ElasticSearch. 
-And recommend read more about these configuration from ElasticSearch official document. 
+### Advanced Configurations For Elasticsearch Index
+You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
+
+For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-translog.html) settings:
+
+```yaml
+storage:
+  elasticsearch:
+    # ......
+    advanced: ${SW_STORAGE_ES_ADVANCED:"{\"index.translog.durability\":\"request\",\"index.translog.sync_interval\":\"5s\"}"}
+```
+
+### Recommended ElasticSearch server-side configurations
+You could add following config to `elasticsearch.yml`, set the value based on your env.
+
+```yml
+# In tracing scenario, consider to set more than this at least.
+thread_pool.index.queue_size: 1000 # Only suitable for ElasticSearch 6
+thread_pool.write.queue_size: 1000 # Suitable for ElasticSearch 6 and 7
+
+# When you face query error at trace page, remember to check this.
+index.max_result_window: 1000000 # Only suitable for ElasticSearch 6. For ES 7, set `indexMaxResultWindow` under `storage`-`elasticsearch7` section in application.yml
+```
+
+We strongly advice you to read more about these configurations from ElasticSearch official document. 
 This effects the performance of ElasticSearch very much.
 
 
@@ -194,7 +240,7 @@ These settings can refer to the configuration of *MySQL* above.
 
 ## ElasticSearch 5
 ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
-[OpenSkywalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
+[OpenSkyWalking/SkyWalking-With-Es5x-Storage](https://github.com/OpenSkywalking/SkyWalking-With-Es5x-Storage) repo includes the distribution version. 
 
 ## More storage solution extension
 Follow [Storage extension development guide](../../guides/storage-extention.md) 
