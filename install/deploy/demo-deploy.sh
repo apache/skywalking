@@ -29,8 +29,9 @@ do
   for i in {1..10} ;do
      echo "******************* $i time ***************************"
      kubectl get deploy -o wide
-     echo "*****************************************************"
-
+     echo "*********************** pod describe ******************************"
+     kubectl describe pod `kubectl get pod -o wide | grep $deploy | awk '{print $1}'`
+     echo "************************* deploy describe ****************************"
      kubectl describe deploy $deploy
      sleep 10
   done
