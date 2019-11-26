@@ -57,6 +57,11 @@ for component in $NEED_CHECK_PREFIX"oap" ; do
     echo "*****************************************************"
     kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
     echo "*****************************************************"
+    if [[ `kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide | grep skywalking-elasticsearch | awk '{print $2}'` == "1/1" ]] ;then
+      sleep 10
+      kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-elasticsearch | awk '{print $1}'` --all-containers=true
+    fi
+    echo "*****************************************************"
     kubectl -n ${DPELOY_NAMESPACE} get jobs -o wide
     echo "*****************************************************"
     kubectl -n ${DPELOY_NAMESPACE} get event  | grep -v "istio"
