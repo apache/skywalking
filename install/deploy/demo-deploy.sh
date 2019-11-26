@@ -25,7 +25,7 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-${BOOKINF
 # check status
 kubectl get deploy  | grep -E 'details|productpage|ratings|reviews' | awk '{print "deployment/"$1}' | while read deploy
 do
-  kubectl rollout status ${deploy}  --timeout 3m
+  kubectl wait ${deploy} --for condition=available --timeout=600s
 done
 
 # request

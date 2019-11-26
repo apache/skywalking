@@ -48,32 +48,34 @@ and_stable_repo
 helm dep up skywalking
 
 sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w vm.drop_caches=1
+sudo sysctl -w vm.drop_caches=3
 
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
-  for i in {1..10} ;do
-    echo "*****************$i time*************"
-    free -lh
-    echo "*****************************************************"
-    kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
-    echo "*****************************************************"
-    if [[ `kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide | grep skywalking-elasticsearch | awk '{print $2}'` == "1/1" ]] ;then
-      sleep 10
-      kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-elasticsearch | awk '{print $1}'` --all-containers=true
-    fi
-    echo "*****************************************************"
-    kubectl -n ${DPELOY_NAMESPACE} get jobs -o wide
-    echo "*****************************************************"
-    kubectl -n ${DPELOY_NAMESPACE} get event  | grep -v "istio"
-    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep elasticsearch | awk '{print $1}'`
-    echo "*****************************************************"
-    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
-    sleep 10
-  done
-  echo "*****************************************************"
-  sleep 10
+#  for i in {1..10} ;do
+#    echo "*****************$i time*************"
+#    free -lh
+#    echo "*****************************************************"
+#    kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
+#    echo "*****************************************************"
+#    if [[ `kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide | grep skywalking-elasticsearch | awk '{print $2}'` == "1/1" ]] ;then
+#      sleep 10
+#      kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-elasticsearch | awk '{print $1}'` --all-containers=true
+#    fi
+#    echo "*****************************************************"
+#    kubectl -n ${DPELOY_NAMESPACE} get jobs -o wide
+#    echo "*****************************************************"
+#    kubectl -n ${DPELOY_NAMESPACE} get event  | grep -v "istio"
+#    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep elasticsearch | awk '{print $1}'`
+#    echo "*****************************************************"
+#    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
+#    sleep 10
+#  done
+#  echo "*****************************************************"
+#  sleep 10
 
   #kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'` --all-containers=true
   #kubectl -n ${DPELOY_NAMESPACE} logs $component
