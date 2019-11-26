@@ -21,6 +21,11 @@ spec:
       serviceAccountName: {{ include "elasticsearch.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: "sysctl"
+          image: busybox:1.30
+          imagePullPolicy: IfNotPresent
+          command: ["sysctl", "-w" ,"vm.max_map_count=262144"]
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
