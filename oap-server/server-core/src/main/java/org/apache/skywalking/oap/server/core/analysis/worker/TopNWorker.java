@@ -46,7 +46,7 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     private volatile long lastReportTimestamp;
 
     TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model,
-        int topNSize, IRecordDAO recordDAO) {
+        int topNSize, long reportCycle, IRecordDAO recordDAO) {
         super(moduleDefineHolder);
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
@@ -54,8 +54,8 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         this.dataCarrier = new DataCarrier<>("TopNWorker", 1, 1000);
         this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
         this.lastReportTimestamp = System.currentTimeMillis();
-        // Top N persistent only works per 10 minutes.
-        this.reportCycle = 10 * 60 * 1000L;
+        // Top N persistent works per 10 minutes default.
+        this.reportCycle = reportCycle;
     }
 
     @Override public void cacheData(TopN data) {

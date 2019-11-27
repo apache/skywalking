@@ -33,7 +33,7 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO {
 
     private final StorageBuilder<Record> storageBuilder;
 
-    RecordEsDAO(ElasticSearchClient client, StorageBuilder<Record> storageBuilder) {
+    public RecordEsDAO(ElasticSearchClient client, StorageBuilder<Record> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }

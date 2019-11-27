@@ -20,7 +20,6 @@ home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
 force_build="off"
-build_id="local"
 cleanup="off"
 
 mvnw=${home}/../../mvnw
@@ -30,7 +29,6 @@ scenarios_home="${home}/scenarios"
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
-    echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
     echo -e "\t--cleanup, \t\t\t remove the related images and directories"
 }
@@ -46,14 +44,6 @@ parse_commandline() {
                 ;;
             --cleanup)
                 cleanup="on"
-                ;;
-            --build_id)
-                test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
-                build_id="$2"
-                shift
-                ;;
-            --build_id=*)
-                build_id="${_key##--build_id=}"
                 ;;
             --parallel_run_size)
                 test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
@@ -87,10 +77,15 @@ exitWithMessage() {
 exitAndClean() {
     elapsed=$(( `date +%s` - $start_stamp ))
     num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
+    [[ $1 -eq 1 ]] && printSystemInfo
     printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
         ${scenario_name} "${num_of_testcases}" "${parallel_run_size}" \
         $(( ${elapsed}/3600 )) $(( ${elapsed}%3600/60 )) $(( ${elapsed}%60 ))
     exit $1
+}
+
+printSystemInfo(){
+  bash ${home}/script/systeminfo.sh
 }
 
 waitForAvailable() {
@@ -105,7 +100,7 @@ waitForAvailable() {
 }
 
 do_cleanup() {
-    images=$(docker images -q "skywalking/agent-test-*:${build_id}")
+    images=$(docker images -q "skywalking/agent-test-*:${BUILD_NO:=local}")
     [[ -n "${images}" ]] && docker rmi -f ${images}
     images=$(docker images -qf "dangling=true")
     [[ -n "${images}" ]] && docker rmi -f ${images}
@@ -146,16 +141,16 @@ parse_commandline "$@"
 
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
-    exit 0
+    [[ -z "${scenario_name}" ]] && exit 0
 fi
 
 test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
-    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package 
+    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -Dbuild_id=${build_id} docker:build
+[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
 
 workspace="${home}/workspace/${scenario_name}"
 task_state_house="${workspace}/.states"
@@ -182,9 +177,8 @@ running_mode=$(grep "^runningMode" ${scenario_home}/configuration.yml |sed -e "s
 with_plugins=$(grep "^withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
 
 if [[ -n "${running_mode}" ]]; then
-    # [[ -z "${with_plugins}" ]] ; then&& exitWithMessage \
-    #    "'withPlugins' has required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
-    [[ -z "${with_plugins}" ]] && with_plugins="*.jar"
+    [[ -z "${with_plugins}" ]] && exitWithMessage \
+       "'withPlugins' is required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
     agent_home_selector ${running_mode} ${with_plugins}
 fi
 
@@ -215,7 +209,7 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${_agent_home} \
-        -Ddocker.image.version=${build_id} \
+        -Ddocker.image.version=${BUILD_NO:=local} \
         ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"

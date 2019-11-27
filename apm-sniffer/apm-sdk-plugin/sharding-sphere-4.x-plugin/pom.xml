@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,19 +45,19 @@
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>sharding-core-execute</artifactId>
-            <version>[4.0.0-RC1,5.0.0)</version>
+            <version>4.0.0-RC2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>sharding-jdbc-core</artifactId>
-            <version>[4.0.0-RC1,5.0.0)</version>
+            <version>4.0.0-RC2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>sharding-proxy-frontend-core</artifactId>
-            <version>[4.0.0-RC1,5.0.0)</version>
+            <version>4.0.0-RC2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

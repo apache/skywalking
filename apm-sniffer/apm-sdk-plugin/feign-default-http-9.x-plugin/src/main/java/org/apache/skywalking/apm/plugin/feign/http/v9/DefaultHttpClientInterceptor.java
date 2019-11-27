@@ -20,6 +20,17 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
 import feign.Response;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,16 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.apm.agent.core.context.CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
@@ -48,27 +49,33 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
  */
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 
-    private static final String COMPONENT_NAME = "FeignDefaultHttp";
-
     /**
      * Get the {@link feign.Request} from {@link EnhancedInstance}, then create {@link AbstractSpan} and set host, port,
      * kind, component, url from {@link feign.Request}. Through the reflection of the way, set the http header of
      * context data into {@link feign.Request#headers}.
      *
-     * @param method
+     * @param method intercept method
      * @param result change this result, if you want to truncate the method.
-     * @throws Throwable
+     * @throws Throwable NoSuchFieldException or IllegalArgumentException
      */
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Request request = (Request)allArguments[0];
-
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        Request request = (Request) allArguments[0];
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
         int port = url.getPort() == -1 ? 80 : url.getPort();
         String remotePeer = url.getHost() + ":" + port;
         String operationName = url.getPath();
-        if (operationName == null || operationName.length() == 0) {
+        FeignResolvedURL feignResolvedURL = PathVarInterceptor.URL_CONTEXT.get();
+        if (feignResolvedURL != null) {
+            try {
+                operationName = operationName.replace(feignResolvedURL.getUrl(), feignResolvedURL.getOriginUrl());
+            } finally {
+                PathVarInterceptor.URL_CONTEXT.remove();
+            }
+        }
+        if (operationName.length() == 0) {
             operationName = "/";
         }
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
@@ -100,14 +107,14 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
      * the server. Finish the {@link AbstractSpan}.
      *
-     * @param method
-     * @param ret the method's original return value.
-     * @return
-     * @throws Throwable
+     * @param method intercept method
+     * @param ret    the method's original return value.
+     * @return origin ret
      */
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Response response = (Response)ret;
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
+                              Class<?>[] argumentsTypes, Object ret) {
+        Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.status();
 
@@ -123,8 +130,9 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);
         activeSpan.errorOccurred();

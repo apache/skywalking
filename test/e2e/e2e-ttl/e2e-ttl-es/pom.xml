@@ -87,8 +87,6 @@
                                 </wait>
                                 <env>
                                     <discovery.type>single-node</discovery.type>
-                                    <thread_pool.index.queue_size>500</thread_pool.index.queue_size>
-                                    <thread_pool.write.queue_size>500</thread_pool.write.queue_size>
                                 </env>
                             </run>
                         </image>
@@ -98,6 +96,7 @@
                             <run>
                                 <env>
                                     <MODE>standalone</MODE>
+                                    <ES_VERSION>${elasticsearch.version}</ES_VERSION>
                                     <SW_STORAGE_ES_CLUSTER_NODES>
                                         ${e2e.container.name.prefix}-elasticsearch:9200
                                     </SW_STORAGE_ES_CLUSTER_NODES>

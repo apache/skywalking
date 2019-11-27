@@ -53,12 +53,19 @@ Change the first line of `tomcat/bin/catalina.bat`.
 ```shell
 set "CATALINA_OPTS=-javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
 ```
+
 - JAR file  
 Add `-javaagent` argument to command line in which you start your app. eg:
  ```shell
  java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar -jar yourApp.jar
  ```
- 
+
+- Jetty  
+Modify `jetty.sh`, add `-javaagent` argument to command line in which you start your app. eg:
+```shell
+export JAVA_OPTIONS="${JAVA_OPTIONS} -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"
+```
+
 ## Table of Agent Configuration Properties
 This is the properties list supported in `agent/config/agent.config`.
 
@@ -97,6 +104,7 @@ property key | Description | Default |
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
+`plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
 `plugin.springmvc.use_qualified_name_as_endpoint_name`|If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.|`false`|
 `plugin.toolit.use_qualified_name_as_operation_name`|If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.|`false`|
@@ -108,6 +116,7 @@ property key | Description | Default |
 `plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 `plugin.light4j.trace_handler_chain`|If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request.|false|
 `plugin.opgroup.*`|Support operation name customize group rules in different plugins. Read [Group rule supported plugins](op_name_group_rule.md)|Not set|
+`plugin.springtransaction.simplify_transaction_definition_name`|If true, the transaction definition name will be simplified.|false|
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -123,6 +132,7 @@ Now, we have the following known optional plugins.
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway.
 * Plugin of [Play Framework](https://www.playframework.com/) 2.6+ (JDK 1.8 required & Scala 2.12/2.13) in optional plugin folder. Please only active this plugin when you install agent in [Play Framework](https://www.playframework.com/). 
+* Plugin of Spring Transaction in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.

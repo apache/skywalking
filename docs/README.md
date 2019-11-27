@@ -17,6 +17,7 @@ you are facing a problem, check here first.
 In addition, you might find these links interesting:
 
 - The latest and old releases are all available at [Apache SkyWalking release page](http://skywalking.apache.org/downloads/). The change logs are [here](../CHANGES.md).
+- Up-to-date overview of SkyWalking module [call flow](https://sourcespy.com/github/skywalking/xx-omcalls-.html) and [hierarchy](https://sourcespy.com/github/skywalking/xx-omhierarchy-.html) including ability to analize each module individually.
 - You can find the speaking schedules at Conf, online videos and articles about SkyWalking in [Community resource catalog](https://github.com/OpenSkywalking/Community).
 Also, if you have some related to us, welcome to submit a pull request to add.
 - We’re always looking for help improving our documentation and codes, so please don’t hesitate to [file an issue](https://github.com/apache/skywalking/issues/new) 
@@ -76,6 +77,11 @@ If you have been familiar with SkyWalking, you could use this catalog to find th
       * [Dynamic Configuration](en/setup/backend/dynamic-config.md). Make configuration of OAP changed dynamic, from remote service or 3rd party configuration management system.
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
     * [UI setup document](en/setup/backend/ui-setup.md).
+* [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can know how to contribute from beginning.
+  * [Contact us](en/guides/README.md#contact-us). Guide users about how to contact the official committer team or communicate with the project community.
+  * [Process to become official Apache SkyWalking Committer](en/guides/asf/committer.md). How to become an official committer or PMC member.
+  * [Compiling Guide](en/guides/How-to-build.md). Follow this to compile the whole project from the source code.
+  * [Agent plugin development guide](en/guides/Java-Plugin-Development-Guide.md). Guide the developer to write their plugin, and follow [plugin test requirement](en/guides/Plugin-test.md) when you push the plugin to the upstream.
 * [Protocols](en/protocols/README.md). Protocols show the communication ways between agents/probes and backend. Anyone, interested in uplink telemetry data, definitely should read this.
 * [FAQs](en/FAQ/README.md). Include a manifest, including already known setup problems, secondary developments experiments. When  you are facing a problem, check here first.
 
