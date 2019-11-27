@@ -74,12 +74,20 @@ deploy_istio() {
   helm install istio istio -n ${NAMESPACE} --set prometheus.enabled=false --set pilot.autoscaleEnabled=false \
           --set gateways.istio-ingressgateway.autoscaleEnabled=false --set mixer.policy.autoscaleEnabled=false \
           --set mixer.telemetry.autoscaleEnabled=false \
-          --set gateways.istio-ingressgateway.resources=null \
-          --set pilot.resources=null \
-          --set mixer.telemetry.resources=null \
-          --set global.defaultResources=null \
-          --set pilot.resources=null \
-          --set global.proxy.init.resources=null,global.prnoxy.resources=null
+          --set gateways.istio-ingressgateway.resources.requests.cpu=10m,gateways.istio-ingressgateway.resources.requests.memory=128m \
+          --set gateways.istio-ingressgateway.resources.limits.cpu=10m,gateways.istio-ingressgateway.resources.limits.memory=128m \
+          --set pilot.resources.requests.cpu=10m,pilot.resources.requests.memory=128m \
+          --set pilot.resources.limits.cpu=10m,pilot.resources.limits.memory=128m \
+          --set mixer.telemetry.resources.requests.cpu=10m,mixer.telemetry.resources.requests.memory=128m \
+          --set mixer.telemetry.resources.limits.cpu=10m,mixer.telemetry.resources.limits.memory=128m \
+          --set pilot.resources.requests.cpu=10m,pilot.resources.requests.memory=128m \
+          --set pilot.resources.limits.cpu=10m,pilot.resources.limits.memory=128m \
+          --set global.defaultResources.requests.cpu=10m,global.defaultResources.requests.memory=128m \
+          --set global.defaultResources.limits.cpu=10m,global.defaultResources.limits.memory=128m \
+          --set global.proxy.init.resources.requests.cpu=10m,global.proxy.init.resources.requests.memory=128m \
+          --set global.proxy.init.resources.limits.cpu=10m,global.proxy.init.resources.limits.memory=128m \
+          --set global.proxy.resources.requests.cpu=10m,global.proxy.resources.requests.memory=128m \
+          --set global.proxy.resources.limits.cpu=10m,global.proxy.resources.limits.memory=128m \
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
