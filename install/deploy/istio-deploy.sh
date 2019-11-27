@@ -75,7 +75,6 @@ deploy_istio() {
           --set gateways.istio-ingressgateway.autoscaleEnabled=false --set mixer.policy.autoscaleEnabled=false \
           --set mixer.telemetry.autoscaleEnabled=false \
           --set gateways.istio-ingressgateway.resources=null \
-          --set gateways.istio-ingressgateway.sds.resources=null \
           --set pilot.resources=null \
           --set mixer.telemetry.resources=null \
           --set pilot.resources=null \
