@@ -28,43 +28,63 @@ import static org.junit.Assert.*;
 public class ApdexMetricsTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ApdexMetrics.setDICT(name -> name.equals("foo") ? 500 : 1000);
     }
 
     @Test
     public void testEntrance() {
         ApdexMetrics apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo");
-        apdex.combine(300, "bar");
+        apdex.combine(200, "foo", 200);
+        apdex.combine(300, "bar", 200);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(3333));
+        assertThat(apdex.getScore(), is(10000));
 
         apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo");
-        apdex.combine(500, "foo");
-        apdex.combine(300, "bar1");
-        apdex.combine(400, "bar2");
+        apdex.combine(200, "foo", 200);
+        apdex.combine(1500, "bar", 200);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(4666));
+        assertThat(apdex.getScore(), is(5000));
+
+        apdex = new ApdexMetricsImpl();
+        apdex.combine(200, "foo", 200);
+        apdex.combine(300, "bar", 404);
+        apdex.calculate();
+        assertThat(apdex.getScore(), is(5000));
+
+        apdex = new ApdexMetricsImpl();
+        apdex.combine(200, "foo", 200);
+        apdex.combine(1500, "bar", 404);
+        apdex.calculate();
+        assertThat(apdex.getScore(), is(5000));
+
+        apdex = new ApdexMetricsImpl();
+        apdex.combine(200, "foo", 200);
+        apdex.combine(5000, "bar", 200);
+        apdex.calculate();
+        assertThat(apdex.getScore(), is(5000));
     }
 
     @Test
     public void testCombine() {
         ApdexMetrics apdex1 = new ApdexMetricsImpl();
-        apdex1.combine(200, "foo");
-        apdex1.combine(300, "bar");
+        apdex1.combine(200, "foo", 200);
+        apdex1.combine(300, "bar", 200);
+        apdex1.combine(200, "foo", 200);
+        apdex1.combine(1500, "bar", 200);
 
 
         ApdexMetrics apdex2 = new ApdexMetricsImpl();
-        apdex2.combine(200, "foo");
-        apdex2.combine(500, "foo");
-        apdex2.combine(300, "bar1");
-        apdex2.combine(400, "bar2");
+        apdex2.combine(200, "foo", 200);
+        apdex2.combine(300, "bar", 404);
+        apdex2.combine(200, "foo", 200);
+        apdex2.combine(1500, "bar", 404);
+        apdex2.combine(200, "foo", 200);
+        apdex2.combine(5000, "bar", 200);
 
         apdex1.combine(apdex2);
         apdex1.calculate();
-        assertThat(apdex1.getScore(), is(4222));
+        assertThat(apdex1.getScore(), is(6000));
     }
 
     public class ApdexMetricsImpl extends ApdexMetrics {

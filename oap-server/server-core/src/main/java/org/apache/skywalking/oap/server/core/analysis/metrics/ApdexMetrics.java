@@ -35,27 +35,41 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Setter
     private static ConfigurationDictionary DICT;
-    protected static final String VALUE = "value";
-    protected static final String T = "t";
+    protected static final String TOTAL_NUM = "total_num";
+    // Level: satisfied
+    protected static final String S_NUM = "s_num";
+    // Level: tolerated
+    protected static final String T_NUM = "t_num";
     protected static final String SCORE = "score";
 
-    @Getter @Setter @Column(columnName = VALUE) private int value;
-    @Getter @Setter @Column(columnName = T) private int t;
+    @Getter @Setter @Column(columnName = TOTAL_NUM) private int totalNum;
+    @Getter @Setter @Column(columnName = S_NUM) private int sNum;
+    @Getter @Setter @Column(columnName = T_NUM) private int tNum;
     @Getter @Setter @Column(columnName = SCORE, isValue = true, function = Function.Avg) private int score;
 
     @Entrance
-    public final void combine(@SourceFrom int value, @Arg String name) {
-        this.value += value;
-        this.t += DICT.lookup(name).intValue();
+    public final void combine(@SourceFrom int value, @Arg String name, @Arg int responseCode) {
+        int t = DICT.lookup(name).intValue();
+        int t4 = t * 4;
+        totalNum++;
+        if (responseCode > 399 || value >= t4) {
+            return;
+        }
+        if (value >= t) {
+            tNum++;
+        } else {
+            sNum++;
+        }
     }
 
     @Override public final void combine(Metrics metrics) {
-        t += ((ApdexMetrics)metrics).t;
-        value += ((ApdexMetrics)metrics).value;
+        tNum += ((ApdexMetrics)metrics).tNum;
+        sNum += ((ApdexMetrics)metrics).sNum;
+        totalNum += ((ApdexMetrics)metrics).totalNum;
     }
 
     @Override public void calculate() {
-        score = (int)(value * 10000 / t);
+        score = (sNum + tNum / 2) * 10000 / totalNum;
     }
 
     @Override public int getValue() {
