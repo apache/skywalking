@@ -35,32 +35,32 @@ public class ApdexMetricsTest {
     @Test
     public void testEntrance() {
         ApdexMetrics apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo", 200);
-        apdex.combine(300, "bar", 200);
+        apdex.combine(200, "foo", true);
+        apdex.combine(300, "bar", true);
         apdex.calculate();
         assertThat(apdex.getScore(), is(10000));
 
         apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo", 200);
-        apdex.combine(1500, "bar", 200);
+        apdex.combine(200, "foo", true);
+        apdex.combine(1500, "bar", true);
         apdex.calculate();
         assertThat(apdex.getScore(), is(5000));
 
         apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo", 200);
-        apdex.combine(300, "bar", 404);
+        apdex.combine(200, "foo", true);
+        apdex.combine(300, "bar", false);
         apdex.calculate();
         assertThat(apdex.getScore(), is(5000));
 
         apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo", 200);
-        apdex.combine(1500, "bar", 404);
+        apdex.combine(200, "foo", true);
+        apdex.combine(1500, "bar", false);
         apdex.calculate();
         assertThat(apdex.getScore(), is(5000));
 
         apdex = new ApdexMetricsImpl();
-        apdex.combine(200, "foo", 200);
-        apdex.combine(5000, "bar", 200);
+        apdex.combine(200, "foo", true);
+        apdex.combine(5000, "bar", true);
         apdex.calculate();
         assertThat(apdex.getScore(), is(5000));
     }
@@ -68,19 +68,19 @@ public class ApdexMetricsTest {
     @Test
     public void testCombine() {
         ApdexMetrics apdex1 = new ApdexMetricsImpl();
-        apdex1.combine(200, "foo", 200);
-        apdex1.combine(300, "bar", 200);
-        apdex1.combine(200, "foo", 200);
-        apdex1.combine(1500, "bar", 200);
+        apdex1.combine(200, "foo", true);
+        apdex1.combine(300, "bar", true);
+        apdex1.combine(200, "foo", true);
+        apdex1.combine(1500, "bar", true);
 
 
         ApdexMetrics apdex2 = new ApdexMetricsImpl();
-        apdex2.combine(200, "foo", 200);
-        apdex2.combine(300, "bar", 404);
-        apdex2.combine(200, "foo", 200);
-        apdex2.combine(1500, "bar", 404);
-        apdex2.combine(200, "foo", 200);
-        apdex2.combine(5000, "bar", 200);
+        apdex2.combine(200, "foo", true);
+        apdex2.combine(300, "bar", false);
+        apdex2.combine(200, "foo", true);
+        apdex2.combine(1500, "bar", false);
+        apdex2.combine(200, "foo", true);
+        apdex2.combine(5000, "bar", true);
 
         apdex1.combine(apdex2);
         apdex1.calculate();
