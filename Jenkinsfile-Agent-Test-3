@@ -130,7 +130,7 @@ pipeline {
 
                          stage('mysql 5.1.2-8.0.15 (53)') {
                             steps {
-                                sh 'bash test/plugin/run.sh grpc-scenario'
+                                sh 'bash test/plugin/run.sh mysql-scenario'
                             }
                          }
                     }
