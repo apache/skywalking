@@ -29,12 +29,14 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_P90 = "service_p90";
     public static String SERVICE_P75 = "service_p75";
     public static String SERVICE_P50 = "service_p50";
+    public static String SERVICE_APDEX = "service_apdex";
     public static String[] ALL_SERVICE_METRICS = {
         SERVICE_P99,
         SERVICE_P95,
         SERVICE_P90,
         SERVICE_P75,
-        SERVICE_P50
+        SERVICE_P50,
+        SERVICE_APDEX
     };
 
     public static String ENDPOINT_P99 = "endpoint_p99";
