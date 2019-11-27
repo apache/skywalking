@@ -18,29 +18,29 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>optional-spring-plugins</artifactId>
-    <groupId>org.apache.skywalking</groupId>
-    <version>6.5.0</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>optional-spring-plugins</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>6.6.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>apm-spring-webflux-5.x-reactive-plugin</artifactId>
+    <artifactId>apm-spring-webflux-5.x-reactive-plugin</artifactId>
 
-  <url>http://maven.apache.org</url>
+    <url>http://maven.apache.org</url>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webflux</artifactId>
-      <version>5.0.0.RELEASE</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>5.0.0.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-  <properties>
-    <compiler.version>1.8</compiler.version>
-  </properties>
+    <properties>
+        <compiler.version>1.8</compiler.version>
+    </properties>
 </project>
