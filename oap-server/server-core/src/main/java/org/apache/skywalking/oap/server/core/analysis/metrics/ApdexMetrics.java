@@ -29,6 +29,14 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
+ * Apdex dissatisfaction levels of Tolerating (apdex_t) and Frustrated (apdex_f) indicate how slow site performance
+ * contributes to poor customer experiences in your app. For example:
+ *
+ * 10000: All responses are satisfactory.
+ * Tolerating responses half satisfy a user. For example, if all responses are Tolerating, then the Apdex score will
+ * be 5000.
+ * 0: None of the responses are satisfactory.
+ *
  * @author gaohongtao
  */
 @MetricsFunction(functionName = "apdex")
