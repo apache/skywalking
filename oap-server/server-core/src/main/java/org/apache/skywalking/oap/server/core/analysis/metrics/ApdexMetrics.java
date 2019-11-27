@@ -48,11 +48,11 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Getter @Setter @Column(columnName = SCORE, isValue = true, function = Function.Avg) private int score;
 
     @Entrance
-    public final void combine(@SourceFrom int value, @Arg String name, @Arg int responseCode) {
+    public final void combine(@SourceFrom int value, @Arg String name, @Arg boolean status) {
         int t = DICT.lookup(name).intValue();
         int t4 = t * 4;
         totalNum++;
-        if (responseCode > 399 || value >= t4) {
+        if (!status || value >= t4) {
             return;
         }
         if (value >= t) {
