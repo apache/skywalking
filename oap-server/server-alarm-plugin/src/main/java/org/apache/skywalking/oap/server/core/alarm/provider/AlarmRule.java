@@ -41,6 +41,7 @@ public class AlarmRule {
 
     private String metricsName;
     private ArrayList includeNames;
+    private ArrayList excludeNames;
     private String threshold;
     private String op;
     private int period;
@@ -66,6 +67,7 @@ public class AlarmRule {
             && Objects.equals(alarmRuleName, alarmRule.alarmRuleName)
             && Objects.equals(metricsName, alarmRule.metricsName)
             && Objects.equals(includeNames, alarmRule.includeNames)
+            && Objects.equals(excludeNames, alarmRule.excludeNames)
             && Objects.equals(threshold, alarmRule.threshold)
             && Objects.equals(op, alarmRule.op)
             && Objects.equals(message, alarmRule.message);
@@ -73,6 +75,6 @@ public class AlarmRule {
 
     @Override
     public int hashCode() {
-        return Objects.hash(alarmRuleName, metricsName, includeNames, threshold, op, period, count, silencePeriod, message);
+        return Objects.hash(alarmRuleName, metricsName, includeNames, excludeNames, threshold, op, period, count, silencePeriod, message);
     }
 }
