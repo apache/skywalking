@@ -43,24 +43,7 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
             <version>${test.framework.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-spring-webflux-5.x-reactive-plugin</artifactId>
-            <version>6.6.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-webflux-5.x-plugin</artifactId>
-            <version>6.6.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.6</version>
-        </dependency>
     </dependencies>
 
     <build>
