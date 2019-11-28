@@ -272,3 +272,5 @@ jobs:
         run: bash test/plugin/run.sh httpclient-4.3.x-scenario
       - name: Run httpasyncclient 4.0-4.1.3 (7)
         run: bash test/plugin/run.sh httpasyncclient-scenario
+      - name: Run mysqlscenario 5.1.2-8.0.15 (53)
+        run: bash test/plugin/run.sh mysql-scenario
