@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * contributes to poor customer experiences in your app. For example:
  *
  * 10000: All responses are satisfactory.
- * Tolerating responses half satisfy a user. For example, if all responses are Tolerating, then the Apdex score will
+ * Tolerating responses half satisfy a user. For example, if all responses are Tolerating, then the Apdex value will
  * be 5000.
  * 0: None of the responses are satisfactory.
  *
@@ -48,12 +48,12 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     protected static final String S_NUM = "s_num";
     // Level: tolerated
     protected static final String T_NUM = "t_num";
-    protected static final String SCORE = "score";
+    protected static final String VALUE = "value";
 
     @Getter @Setter @Column(columnName = TOTAL_NUM) private int totalNum;
     @Getter @Setter @Column(columnName = S_NUM) private int sNum;
     @Getter @Setter @Column(columnName = T_NUM) private int tNum;
-    @Getter @Setter @Column(columnName = SCORE, isValue = true, function = Function.Avg) private int score;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
 
     @Entrance
     public final void combine(@SourceFrom int value, @Arg String name, @Arg boolean status) {
@@ -77,10 +77,10 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     }
 
     @Override public void calculate() {
-        score = (sNum + tNum / 2) * 10000 / totalNum;
+        value = (sNum + tNum / 2) * 10000 / totalNum;
     }
 
     @Override public int getValue() {
-        return score;
+        return value;
     }
 }

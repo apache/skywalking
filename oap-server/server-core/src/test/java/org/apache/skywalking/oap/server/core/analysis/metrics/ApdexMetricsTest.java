@@ -38,31 +38,31 @@ public class ApdexMetricsTest {
         apdex.combine(200, "foo", true);
         apdex.combine(300, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(10000));
+        assertThat(apdex.getValue(), is(10000));
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(1500, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(5000));
+        assertThat(apdex.getValue(), is(5000));
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(300, "bar", false);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(5000));
+        assertThat(apdex.getValue(), is(5000));
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(1500, "bar", false);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(5000));
+        assertThat(apdex.getValue(), is(5000));
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(5000, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getScore(), is(5000));
+        assertThat(apdex.getValue(), is(5000));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ApdexMetricsTest {
 
         apdex1.combine(apdex2);
         apdex1.calculate();
-        assertThat(apdex1.getScore(), is(6000));
+        assertThat(apdex1.getValue(), is(6000));
     }
 
     public class ApdexMetricsImpl extends ApdexMetrics {
