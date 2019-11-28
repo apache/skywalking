@@ -52,7 +52,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String NAME = "name";
     public static final String INSTANCE_UUID = "instance_uuid";
     public static final String SERVICE_ID = "service_id";
-    private static final String IS_ADDRESS = "is_address";
+    public static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
     public static final String NODE_TYPE = "node_type";
     public static final String MAPPING_SERVICE_ID = "mapping_service_instance_id";
