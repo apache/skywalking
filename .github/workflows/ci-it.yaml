@@ -16,7 +16,7 @@
 
 name: CI AND IT
 
-on: [pull_request]
+on: [pull_request, push]
 
 jobs:
   CI:
@@ -39,7 +39,7 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         run: |
-          export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
           ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean verify install
           ./mvnw javadoc:javadoc -Dmaven.test.skip=true
       - name: 'Check Dependencies Licenses'
