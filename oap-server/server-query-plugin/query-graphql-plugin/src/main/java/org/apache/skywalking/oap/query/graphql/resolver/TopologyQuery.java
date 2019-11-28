@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -56,18 +55,18 @@ public class TopologyQuery implements GraphQLQueryResolver {
         return getQueryService().getGlobalTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
-    public Topology getServiceInstanceTopology(final List<Integer> serviceIds, final Duration duration) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getGlobalInstanceTopology(serviceIds, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
-    }
-
     public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
         return getQueryService().getServiceTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, serviceId);
+    }
+
+    public Topology getServiceInstanceTopology(final int clientServiceId, final int serverServiceId, final Duration duration) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getServiceInstanceTopology(clientServiceId, serverServiceId, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public Topology getEndpointTopology(final int endpointId, final Duration duration) throws IOException {
