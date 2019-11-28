@@ -71,7 +71,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
             }
         }
 
-        String pathStr = exchange.getRequest().getPath().toString();
+        String pathStr = exchange.getRequest().getPath().value();
         String methodStr = exchange.getRequest().getMethodValue();
         String operationName = methodStr + ":" + pathStr;
 
