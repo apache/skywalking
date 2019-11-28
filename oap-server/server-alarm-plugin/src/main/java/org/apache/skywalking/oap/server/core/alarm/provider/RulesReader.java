@@ -59,6 +59,7 @@ public class RulesReader {
 
                         alarmRule.setMetricsName((String)metricsName);
                         alarmRule.setIncludeNames((ArrayList)settings.getOrDefault("include-names", new ArrayList(0)));
+                        alarmRule.setExcludeNames((ArrayList)settings.getOrDefault("exclude-names", new ArrayList(0)));
                         alarmRule.setThreshold(settings.get("threshold").toString());
                         alarmRule.setOp((String)settings.get("op"));
                         alarmRule.setPeriod((Integer)settings.getOrDefault("period", 1));

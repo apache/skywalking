@@ -11,6 +11,8 @@ Alarm rule is constituted by following keys
 [List of all potential metrics name](#list-of-all-potential-metrics-name).
 - **Include names**. The following entity names are included in this rule. Such as Service name,
 endpoint name.
+- **Exclude names**. The following entity names are excluded in this rule. Such as Service name,
+  endpoint name.
 - **Threshold**. The target value.
 - **OP**. Operator, support `>`, `<`, `=`. Welcome to contribute all OPs.
 - **Period**. How long should the alarm rule should be checked. This is a time window, which goes with the
@@ -43,6 +45,8 @@ rules:
     include-names:
       - service_a
       - service_b
+    exclude-names:
+      - service_c
     threshold: 85
     op: <
     period: 10
