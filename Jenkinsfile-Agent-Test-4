@@ -130,6 +130,12 @@ pipeline {
                             }
                         }
 
+                        stage('spring-webflux-reactive 2.x (21)') {
+                            steps {
+                                sh 'bash test/plugin/run.sh webflux-reactive-scenario'
+                            }
+                        }
+
                         stage('spring 4.1.x-4.2.x (20)') {
                             steps {
                                 sh 'bash test/plugin/run.sh spring-4.1.x-scenario'
