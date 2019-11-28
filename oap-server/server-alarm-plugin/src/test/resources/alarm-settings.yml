@@ -33,6 +33,8 @@ rules:
     include-names:
       - service_a
       - service_b
+    exclude-names:
+      - service_c
     threshold: 85
     op: <
     period: 10

@@ -52,6 +52,12 @@ public class AlarmRulesWatcherTest {
                 add("2");
             }
         })
+        .excludeNames(new ArrayList<String>() {
+            {
+                add("3");
+                add("4");
+            }
+        })
         .message("test")
         .metricsName("metrics1")
         .op(">")
