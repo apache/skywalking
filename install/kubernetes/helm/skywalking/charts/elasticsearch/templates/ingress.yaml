@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  {{- if .Values.ingress.enabled -}}
+{{- if .Values.ingress.enabled -}}
 {{- $fullName := include "elasticsearch.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
