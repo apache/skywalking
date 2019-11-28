@@ -118,41 +118,42 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
-
-        setInstanceQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
+        setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
 
         return load(sourceBuilder, indexName, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
-
-        setInstanceQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
+        setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
 
         return load(sourceBuilder, indexName, DetectPoint.CLIENT);
     }
 
-    private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, List<Integer> serviceId) {
+    private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, int clientServiceId, int serverServiceId) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        boolQuery.must().add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
 
-        BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(serviceIdBoolQuery);
+        BoolQueryBuilder serviceIdBoolQuery = new BoolQueryBuilder();
+        boolQuery.must(serviceIdBoolQuery);
 
-        if (serviceId.size() == 1) {
-            serviceIdBoolQuery.should().add(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceId.get(0)));
-            serviceIdBoolQuery.should().add(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serviceId.get(0)));
-        } else {
-            serviceIdBoolQuery.should().add(QueryBuilders.termsQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceId));
-            serviceIdBoolQuery.should().add(QueryBuilders.termsQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serviceId));
-        }
+        BoolQueryBuilder serverRelationBoolQuery = new BoolQueryBuilder();
+        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId));
+        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
+        serviceIdBoolQuery.should(serverRelationBoolQuery);
+
+        BoolQueryBuilder clientRelationBoolQuery = new BoolQueryBuilder();
+        clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId));
+        clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
+        serviceIdBoolQuery.should(serverRelationBoolQuery);
+
         sourceBuilder.query(boolQuery);
     }
 

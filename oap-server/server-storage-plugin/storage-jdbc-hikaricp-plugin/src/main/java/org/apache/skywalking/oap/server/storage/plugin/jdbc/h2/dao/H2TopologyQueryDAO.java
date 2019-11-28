@@ -68,21 +68,21 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
-        return loadServiceCalls(tableName, startTB, endTB,
+        return loadServiceInstanceCalls(tableName, startTB, endTB,
                 ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
                 ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
-                serviceIds, false);
+                clientServiceId, serverServiceId, false);
     }
 
     @Override
-    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
-        return loadServiceCalls(tableName, startTB, endTB,
+        return loadServiceInstanceCalls(tableName, startTB, endTB,
                 ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
                 ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
-                serviceIds, true);
+                clientServiceId, serverServiceId, true);
     }
 
     @Override
@@ -121,6 +121,29 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                     + serviceIdMatchSql.toString()
                     + " group by " + Metrics.ENTITY_ID,
                 conditions)) {
+                buildCalls(resultSet, calls, isClientSide);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return calls;
+    }
+
+    private List<Call.CallDetail> loadServiceInstanceCalls(String tableName, long startTB, long endTB, String sourceCName,
+                                                           String descCName, int sourceServiceId, int destServiceId, boolean isClientSide) throws IOException {
+        Object[] conditions = new Object[]{startTB, endTB, sourceServiceId, destServiceId, destServiceId, sourceServiceId};
+        StringBuilder serviceIdMatchSql = new StringBuilder("and ((")
+                .append(sourceCName).append("=? and ").append(descCName).append("=?").append(") or (")
+                .append(sourceCName).append("=? and ").append(descCName).append("=?").append("))");
+        List<Call.CallDetail> calls = new ArrayList<>();
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select "
+                            + Metrics.ENTITY_ID
+                            + " from " + tableName + " where "
+                            + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? "
+                            + serviceIdMatchSql.toString()
+                            + " group by " + Metrics.ENTITY_ID,
+                    conditions)) {
                 buildCalls(resultSet, calls, isClientSide);
             }
         } catch (SQLException e) {
