@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # default threshold is 500ms
-default: 500
+default: 5000
 # example:
 # the threshold of service "tomcat" is 1s
 # tomcat: 1000
