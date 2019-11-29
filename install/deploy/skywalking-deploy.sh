@@ -58,6 +58,7 @@ helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1 --set oap.image.tag=$TAG,oap.image.repository=$IMAGE
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
+  sleep 60
   kubectl get deploy -o wide
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
 done
