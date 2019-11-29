@@ -26,13 +26,15 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-${BOOKINF
 
 kubectl get deploy | grep -E 'details|productpage|ratings|reviews' | awk '{print $1}' | while read deploy
 do
-  for i in {1..10} ;do
+  for i in {1..5} ;do
      echo "******************* $i time ***************************"
      kubectl get deploy -o wide
      echo "*********************** pod describe ******************************"
      kubectl describe pod `kubectl get pod -o wide | grep $deploy | awk '{print $1}'`
      echo "************************* deploy describe ****************************"
      kubectl describe deploy $deploy
+     kubectl get event -o wide
+     free -lh
      sleep 10
   done
 done
@@ -40,7 +42,6 @@ done
 # check status
 kubectl get deploy  | grep -E 'details|productpage|ratings|reviews' | awk '{print "deployment/"$1}' | while read deploy
 do
-
   kubectl wait ${deploy} --for condition=available --timeout=600s
 done
 
