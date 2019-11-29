@@ -51,11 +51,10 @@ sudo sysctl -w vm.max_map_count=262144
 sudo sysctl -w vm.drop_caches=1
 sudo sysctl -w vm.drop_caches=3
 
-TAG=`env | grep OAP_TAG | sed 's/OAP_TAG=//g'`
-IMAGE=`env | grep OAP_REPOSITORY | sed 's/OAP_REPOSITORY=//g'`
+TAG=`cat tag.txt`
+IMAGE="skywalking/oap"
 
 echo $TAG
-echo $IMAGE
 
 docker images
 
@@ -67,5 +66,7 @@ for component in $NEED_CHECK_PREFIX"oap" ; do
   kubectl get deploy -o wide -n $DPELOY_NAMESPACE
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
 done
+
+rm -rf tag.txt
 
 echo "SkyWalking deployed successfully"
