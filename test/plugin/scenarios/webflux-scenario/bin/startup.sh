@@ -17,5 +17,5 @@
 # limitations under the License.
 
 home="$(cd "$(dirname $0)"; pwd)"
-rm agent/plugins/apm-webflux-5.x-plugin-*.jar
-java -jar ${agent_opts} ${home}/../libs/webflux-reactive-scenario.jar &
+
+java -jar ${agent_opts} ${home}/../libs/webflux-scenario.jar &
