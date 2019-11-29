@@ -23,6 +23,7 @@ set -e
 
 TAG=`date +"%Y-%m-%d"`
 export OAP_TAG="$TAG"
+export OAP_REPOSITORY="skywalking/oap"
 
 git rev-parse HEAD
 git submodule init
