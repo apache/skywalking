@@ -16,7 +16,15 @@
 
 name: E2E
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'apm-webapp/**'
+      - 'oap-server/**'
+      - 'test/e2e/**'
 
 jobs:
   Single:

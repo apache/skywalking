@@ -16,7 +16,11 @@
 
 name: CI AND IT
 
-on: [pull_request, push]
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
 
 jobs:
   CI:
