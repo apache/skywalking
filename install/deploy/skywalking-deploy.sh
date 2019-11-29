@@ -57,7 +57,7 @@ IMAGE="skywalking/oap"
 docker images
 
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
-        --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1 --set oap.image.tag=$TAG,oap.image.repository=$IMAGE
+        --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1 --set oap.image.tag=$TAG --set oap.image.repository=$IMAGE
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
   sleep 60
