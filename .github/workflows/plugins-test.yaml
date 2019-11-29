@@ -103,7 +103,7 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run apm-toolkit-trace (1)
         run: bash test/plugin/run.sh apm-toolkit-trace-scenario
-      - name: Run spring-webflux 2.x (18)
+      - name: Run spring-webflux 2.x (7)
         run: bash test/plugin/run.sh webflux-scenario
       - name: Run netty-socketio 1.x (4)
         run: bash test/plugin/run.sh netty-socketio-scenario
