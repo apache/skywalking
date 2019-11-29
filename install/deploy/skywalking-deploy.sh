@@ -54,6 +54,8 @@ sudo sysctl -w vm.drop_caches=3
 TAG=`env | grep OAP_TAG | sed 's/OAP_TAG=//g'`
 IMAGE=`env | grep OAP_REPOSITORY | sed 's/OAP_REPOSITORY=//g'`
 
+docker images
+
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
         --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1 --set oap.image.tag=$TAG,oap.image.repository=$IMAGE
 
