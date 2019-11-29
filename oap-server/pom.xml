@@ -58,7 +58,7 @@
         <zookeeper.version>3.4.10</zookeeper.version>
         <grpc.version>1.15.1</grpc.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
-        <jetty.version>9.4.2.v20170220</jetty.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
         <lombok.version>1.18.0</lombok.version>
         <h2.version>1.4.196</h2.version>
         <shardingjdbc.version>2.0.3</shardingjdbc.version>
