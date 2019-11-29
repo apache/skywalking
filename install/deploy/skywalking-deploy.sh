@@ -51,10 +51,8 @@ sudo sysctl -w vm.max_map_count=262144
 sudo sysctl -w vm.drop_caches=1
 sudo sysctl -w vm.drop_caches=3
 
-TAG=`cat tag.txt`
+TAG="ci"
 IMAGE="skywalking/oap"
-
-echo $TAG
 
 docker images
 

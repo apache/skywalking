@@ -21,8 +21,7 @@
 
 set -e
 
-TAG=`date +"%Y-%m-%d"`
-echo $TAG > tag.txt
+TAG="ci"
 
 git rev-parse HEAD
 git submodule init
