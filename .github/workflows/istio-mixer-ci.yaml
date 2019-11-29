@@ -36,8 +36,8 @@ jobs:
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
         run: minikube tunnel --log_dir=${LOG_DIR} &
-#      - name: Compile all and Build docker image
-#        run: bash ${SCRIPTS_DIR}/compile_build.sh
+      - name: Compile all and Build docker image
+        run: bash ${SCRIPTS_DIR}/compile_build.sh
       - name: Istio install
         run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
       - name: SW And ES install

@@ -51,36 +51,13 @@ sudo sysctl -w vm.max_map_count=262144
 sudo sysctl -w vm.drop_caches=1
 sudo sysctl -w vm.drop_caches=3
 
+TAG=`env | grep OAP_TAG | sed 's/OAP_TAG=//g'`
+
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
-        --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1
+        --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1 --set oap.image.tag=$TAG
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
-#  for i in {1..10} ;do
-#    echo "*****************$i time*************"
-#    free -lh
-#    echo "*****************************************************"
-#    kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide
-#    echo "*****************************************************"
-#    if [[ `kubectl -n ${DPELOY_NAMESPACE} get deploy -o wide | grep skywalking-elasticsearch | awk '{print $2}'` == "1/1" ]] ;then
-#      sleep 10
-#      kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-elasticsearch | awk '{print $1}'` --all-containers=true
-#    fi
-#    echo "*****************************************************"
-#    kubectl -n ${DPELOY_NAMESPACE} get jobs -o wide
-#    echo "*****************************************************"
-#    kubectl -n ${DPELOY_NAMESPACE} get event  | grep -v "istio"
-#    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep elasticsearch | awk '{print $1}'`
-#    echo "*****************************************************"
-#    kubectl -n ${DPELOY_NAMESPACE} describe pod `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'`
-#    sleep 10
-#  done
-#  echo "*****************************************************"
-#  sleep 10
-
-  #kubectl -n ${DPELOY_NAMESPACE} logs `kubectl -n ${DPELOY_NAMESPACE} get pod |grep skywalking-skywalking-oap | awk '{print $1}'` --all-containers=true
-  #kubectl -n ${DPELOY_NAMESPACE} logs $component
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
-#  kubectl -n ${DPELOY_NAMESPACE} rollout status $component --timeout 10m
 done
 
 echo "SkyWalking deployed successfully"

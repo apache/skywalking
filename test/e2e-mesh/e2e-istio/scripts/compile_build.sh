@@ -22,6 +22,7 @@
 set -e
 
 TAG=`date +"%Y-%m-%d"`
+export OAP_TAG="$TAG"
 
 git rev-parse HEAD
 git submodule init

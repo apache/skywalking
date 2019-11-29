@@ -77,16 +77,6 @@ deploy_istio() {
   cd $CHART_DIR
 
   helm install istio istio -n ${NAMESPACE} -f istio/values-istio-skywalking.yaml
-#          --set prometheus.enabled=false --set pilot.autoscaleEnabled=false \
-#          --set gateways.istio-ingressgateway.autoscaleEnabled=false --set mixer.policy.autoscaleEnabled=false \
-#          --set mixer.telemetry.autoscaleEnabled=false \
-#          --set gateways.istio-ingressgateway.resources.requests={},gateways.istio-ingressgateway.resources.limits={}, \
-#          --set pilot.resources.requests={},pilot.resources.limits={} \
-#          --set mixer.telemetry.resources.requests={},mixer.telemetry.resources.limits={} \
-#          --set pilot.resources.requests={},pilot.resources.limits={} \
-#          --set global.defaultResources.requests={},global.defaultResources.limits={} \
-#          --set global.proxy.init.resources.requests={},global.proxy.init.resources.limits={} \
-#          --set global.proxy.resources.requests={},global.proxy.resources.limits={}
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
