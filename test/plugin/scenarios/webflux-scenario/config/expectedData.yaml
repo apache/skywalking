@@ -62,6 +62,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/healthCheck'}
               - {key: http.method, value: HEAD}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: GET:/testcase/annotation/hello
@@ -80,6 +81,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/testcase/annotation/hello'}
               - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: GET:/testcase/annotation/bad
@@ -174,3 +176,4 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/testcase'}
               - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}

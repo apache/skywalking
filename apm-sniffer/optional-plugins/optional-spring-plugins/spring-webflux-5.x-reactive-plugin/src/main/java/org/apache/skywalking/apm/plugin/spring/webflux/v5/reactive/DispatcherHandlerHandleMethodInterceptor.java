@@ -91,9 +91,12 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         return ((Mono) ret).doFinally(s -> {
             try {
                 HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-                Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
-                if (httpStatus.isError()) {
-                    span.errorOccurred();
+                // fix webflux-2.0.x version have bug. httpStatus is null. not support
+                if (httpStatus != null) {
+                    Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                    if (httpStatus.isError()) {
+                        span.errorOccurred();
+                    }
                 }
             } finally {
                 context.stopSpan(span);
