@@ -15,7 +15,7 @@ private void do${metricsName}(org.apache.skywalking.oap.server.core.source.${sou
     </#list>
     metrics.${entryMethod.methodName}(
         <#list entryMethod.argsExpressions as arg>
-            <#if entryMethod.argTypes[arg_index] == 1>
+            <#if entryMethod.argTypes[arg_index] < 3>
                 ${arg}
             <#else>
                  new org.apache.skywalking.oap.server.core.analysis.metrics.expression.${arg.expressionObject}().match(${arg.left}, ${arg.right})
