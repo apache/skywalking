@@ -14,7 +14,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
 in Cloud Native architecture.
-The core features are following.
+The core features are following
 
 - Service, service instance, endpoint metrics analysis
 - Root cause analysis
