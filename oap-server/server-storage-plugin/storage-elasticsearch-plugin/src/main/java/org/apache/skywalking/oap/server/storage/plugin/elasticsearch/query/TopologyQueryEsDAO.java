@@ -145,14 +145,16 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         boolQuery.must(serviceIdBoolQuery);
 
         BoolQueryBuilder serverRelationBoolQuery = new BoolQueryBuilder();
-        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId));
-        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
         serviceIdBoolQuery.should(serverRelationBoolQuery);
 
+        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId));
+        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
+
         BoolQueryBuilder clientRelationBoolQuery = new BoolQueryBuilder();
+        serviceIdBoolQuery.should(clientRelationBoolQuery);
+
         clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId));
         clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
-        serviceIdBoolQuery.should(serverRelationBoolQuery);
 
         sourceBuilder.query(boolQuery);
     }
