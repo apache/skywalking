@@ -77,7 +77,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     }
 
     @Override public void calculate() {
-        value = (sNum + tNum / 2) * 10000 / totalNum;
+        value = (sNum * 10000 + tNum * 10000 / 2) / totalNum;
     }
 
     @Override public int getValue() {

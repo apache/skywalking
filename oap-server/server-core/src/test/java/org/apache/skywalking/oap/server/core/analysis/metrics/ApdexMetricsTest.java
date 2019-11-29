@@ -36,6 +36,21 @@ public class ApdexMetricsTest {
     public void testEntrance() {
         ApdexMetrics apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
+        apdex.calculate();
+        assertThat(apdex.getValue(), is(10000));
+
+        apdex = new ApdexMetricsImpl();
+        apdex.combine(1000, "foo", true);
+        apdex.calculate();
+        assertThat(apdex.getValue(), is(5000));
+
+        apdex = new ApdexMetricsImpl();
+        apdex.combine(2000, "foo", true);
+        apdex.calculate();
+        assertThat(apdex.getValue(), is(0));
+
+        apdex = new ApdexMetricsImpl();
+        apdex.combine(200, "foo", true);
         apdex.combine(300, "bar", true);
         apdex.calculate();
         assertThat(apdex.getValue(), is(10000));
@@ -44,7 +59,7 @@ public class ApdexMetricsTest {
         apdex.combine(200, "foo", true);
         apdex.combine(1500, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(5000));
+        assertThat(apdex.getValue(), is(7500));
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
@@ -84,7 +99,7 @@ public class ApdexMetricsTest {
 
         apdex1.combine(apdex2);
         apdex1.calculate();
-        assertThat(apdex1.getValue(), is(6000));
+        assertThat(apdex1.getValue(), is(6500));
     }
 
     public class ApdexMetricsImpl extends ApdexMetrics {
