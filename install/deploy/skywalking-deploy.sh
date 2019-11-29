@@ -54,6 +54,9 @@ sudo sysctl -w vm.drop_caches=3
 TAG=`env | grep OAP_TAG | sed 's/OAP_TAG=//g'`
 IMAGE=`env | grep OAP_REPOSITORY | sed 's/OAP_REPOSITORY=//g'`
 
+echo $TAG
+echo $IMAGE
+
 docker images
 
 helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
@@ -61,7 +64,7 @@ helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.
 
 for component in $NEED_CHECK_PREFIX"oap" ; do
   sleep 60
-  kubectl get deploy -o wide
+  kubectl get deploy -o wide -n $DPELOY_NAMESPACE
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
 done
 
