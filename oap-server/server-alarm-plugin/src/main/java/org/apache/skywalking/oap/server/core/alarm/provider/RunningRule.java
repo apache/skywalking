@@ -59,6 +59,7 @@ public class RunningRule {
     private volatile MetricsValueType valueType;
     private int targetScopeId;
     private List<String> includeNames;
+    private List<String> excludeNames;
     private AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -77,6 +78,7 @@ public class RunningRule {
         this.silencePeriod = alarmRule.getSilencePeriod();
 
         this.includeNames = alarmRule.getIncludeNames();
+        this.excludeNames = alarmRule.getExcludeNames();
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
     }
 
@@ -94,6 +96,12 @@ public class RunningRule {
 
         if (CollectionUtils.isNotEmpty(includeNames)) {
             if (!includeNames.contains(meta.getName())) {
+                return;
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(excludeNames)) {
+            if (excludeNames.contains(meta.getName())) {
                 return;
             }
         }

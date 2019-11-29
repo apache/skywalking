@@ -20,7 +20,8 @@ package org.apache.skywalking.oal.rt.parser;
 
 import java.util.List;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.apache.skywalking.oal.rt.grammar.*;
+import org.apache.skywalking.oal.rt.grammar.OALParser;
+import org.apache.skywalking.oal.rt.grammar.OALParserBaseListener;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 public class OALListener extends OALParserBaseListener {
@@ -148,7 +149,11 @@ public class OALListener extends OALParserBaseListener {
     ////////////
 
     @Override public void enterLiteralExpression(OALParser.LiteralExpressionContext ctx) {
-        current.addFuncArg(ctx.getText());
+        if (ctx.IDENTIFIER() == null) {
+            current.addFuncArg(new Argument(EntryMethod.LITERAL_TYPE, ctx.getText()));
+            return;
+        }
+        current.addFuncArg(new Argument(EntryMethod.IDENTIFIER_TYPE, ctx.getText()));
     }
 
     private String metricsNameFormat(String source) {
