@@ -557,129 +557,37 @@ rather than recompiling it every time.
 
 Use `${SKYWALKING_HOME}/test/plugin/run.sh -h` to know more command options.
 
-If the local test passed, then you could add it to Jenkins file, which will drive the tests running on the official SkyWalking INFRA.
-We have 3 JenkinsFile to control the test jobs, `jenkinsfile-agent-test`, `jenkinsfile-agent-test-2` and `jenkinsfile-agent-test-3`(maybe will have 4 later)
-each file declares two parallel groups. Please check the prev agent related PRs, and add your case to the fastest group,
-in order to make the whole test finished as soon as possible.
+If the local test passed, then you could add it to `.github/workflows/plugins-test.yaml` file, which will drive the tests running on the Github Action of official SkyWalking repository. Please check the prev agent related PRs, and add your case to the fastest group, in order to make the whole test finished as soon as possible.
 
-Every test case is a Jenkins stage. Please use the scenario name, version range and version number to combine the name,
-take the existing one as a reference. And update the total case number in `Test Cases Report` stage.
+Every test case is a Github Action Step. Please use the scenario name, version range and version number to combine the name,
+take the existing one as a reference. 
 
-Example
+For example:
 
+Here is a group named 'Kafka'. The latest step is Kafka scenario.
 ```
-stage('Test Cases Report (15)') { # 15=12+3 The total number of test cases
-    steps {
-        echo "Test Cases Report"
-    }
-}
-
-stage('Run Agent Plugin Tests') {
-    when {
-        expression {
-            return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
-        }
-    }
-    parallel {
-        stage('Group1') {
-            stages {
-                stage('spring-cloud-gateway 2.1.x (3)') { # For Spring clound gateway 2.1.x, having 3 versions to be tested.
-                    steps {
-                        sh 'bash test/plugin/run.sh gateway-scenario'
-                    }
-                }
-            }
-            ...
-        }
-        stage('Group2') {
-            stages {
-                stage('solrj 7.x (12)') { # For Solrj 7.x, having 12 versions to be tested.
-                    steps {
-                        sh 'bash test/plugin/run.sh solrj-7.x-scenario'
-                    }
-                }
-            }
-            ...
-        }
-    }
-}
+  Kafka:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run kafka 0.11.0.0-2.3.0 (16)
+        run: bash test/plugin/run.sh kafka-scenario
 ```
-
-## The elapsed time list of plugins
-
-### How to get the Elapsed time of your task?
- 
-Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
-
-### Workload 1
-#### Group 1 (2709.00s)
-scenario name | versions | elapsed time (sec)
----|---|---
-apm-toolkit-trace | 1 | 87.00
-jetty 9.x | 63 | 2043.00
-netty-socketio 1.x | 4 | 117.00
-rabbitmq-scenario | 12 | 462
-
-#### Group 2 (2291.98s)
-scenario name | versions | elapsed time (sec)
----|---|---
-feign 9.0.0-9.5.1 | 8 | 172.00
-customize | 1 | 85.64
-postgresql 9.4.1207+ | 62 | 1820.29
-canal 1.0.24-1.1.2 | 5 | 214.05
-
-
-### Workload 2
-#### Group 1 (3936.54s)
-scenario name | versions | elapsed time (sec)
----|---|---
-spring-tx 4.x+ | 10 | 555.00
-spring 4.3.x-5.2.x | 54 | 1769.32
-dubbo 2.5.x-2.6.x | 10 | 367.23
-dubbo 2.7.x | 4 | 214.99
-okhttp 3.0.x-3.14.x | 34 | 1030
-
-#### Group 2 (2550.66s)
-scenario name | versions | elapsed time (sec)
----|---|---
-redisson 3.x | 37 | 1457.77
-spring 3.1.x-4.0.x | 25 | 760.22
-spring-cloud-gateway 2.1.x | 3 | 190.52
-elasticsearch 5.x | 3 | 142.15
-
-
-### Workload 3
-#### Group 1 (3090.912s)
-scenario name | versions | elapsed time (sec)
----|---|---
-hystrix-scenario | 20 | 799.00
-postgresql 9.2.x-9.4.x | 36 | 1243.03
-sofarpc 5.4.0-5.6.2 | 23 | 817.77
-spring 3.0.x | 8 | 231.11
-
-#### Group 2 (2433.33s)
-scenario name | versions | elapsed time (sec)
----|---|---
-spring async 4.3.x-5.1.x | 35 | 967.70
-mongodb 3.4.0-3.11.1 | 17 | 1465.63
-grcp 1.6.0-1.25.0 | 25 | 627.00
-
-### Workload 4
-#### Group 1 (2463.00s)
-scenario name | versions | elapsed time (sec)
----|---|---
-elasticsearch-6.x-scenario | 7 | 273.00
-kafka 0.11.0.0-2.3.0 | 16 | 628.00
-ehcache 2.8.x-2.10.x | 19 | 442.00
-undertow 1.3.0-2.0.27 | 23 | 596.00
-jedis 2.4.0-2.9.0 ｜ 18 ｜ 524.00
-
-#### Group 2 (2398.155s)
-scenario name | versions | elapsed time (sec)
----|---|---
-elasticsearch-7.x-scenario | 11 | 250.00
-spring-webflux 2.x | 18 | 705.60
-spring 4.1.x-4.2.x | 20 | 574.75
-solrj 7.x | 12 | 367.05
-httpclient 4.3.x-4.5.x | 14 | 300.61
-httpasyncclient 4.0-4.1.3 | 7 | 200.11
