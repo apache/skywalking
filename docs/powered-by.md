@@ -23,6 +23,7 @@ or providing commercial products including Apache SkyWalking.
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
+1. China Mobile. CMSS. 中国移动苏州研发中心.
 1. Chtwm.com. 恒天财富投资管理股份有限公司. https://www.chtwm.com/
 1. Cmft.com. 招商局金融科技. https://www.cmft.com/
 1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
@@ -117,6 +118,9 @@ Integrated in the microservices architecture support platform.
 
 ## China Merchants Bank
 Use SkyWalking and [SkyAPM .net agent](https://github.com/SkyAPM/SkyAPM-dotnet) in the CMBChina Mall project.
+
+## China Mobile
+China Mobile Suzhou Research Center, CMSS, integrated SkyWalking as the APM component in China Mobile PAAS. 
 
 ## ke.com
 Deploy SkyWalking in production environments.
