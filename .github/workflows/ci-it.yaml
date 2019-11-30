@@ -16,7 +16,7 @@
 
 name: CI AND IT
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   CI:
