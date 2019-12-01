@@ -29,6 +29,7 @@ import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
 import org.apache.skywalking.e2e.service.endpoint.Endpoints;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
+import org.apache.skywalking.e2e.topo.InstanceTopoQuery;
 import org.apache.skywalking.e2e.topo.TopoData;
 import org.apache.skywalking.e2e.topo.TopoQuery;
 import org.apache.skywalking.e2e.topo.TopoResponse;
@@ -170,6 +171,30 @@ public class SimpleQueryClient {
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
             new ParameterizedTypeReference<GQLResponse<TopoResponse>>() {
             }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+    }
+
+    public TopoData instanceTopo(final InstanceTopoQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("instanceTopo.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+                .stream()
+                .filter(it -> !it.startsWith("#"))
+                .collect(Collectors.joining())
+                .replace("{step}", query.step())
+                .replace("{start}", query.start())
+                .replace("{end}", query.end())
+                .replace("{clientServiceId}", query.clientServiceId())
+                .replace("{serverServiceId}", query.serverServiceId());
+        final ResponseEntity<GQLResponse<TopoResponse>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<TopoResponse>>() {
+                }
         );
 
         if (responseEntity.getStatusCode() != HttpStatus.OK) {

@@ -18,44 +18,31 @@
 
 package org.apache.skywalking.e2e.topo;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.skywalking.e2e.AbstractQuery;
 
 /**
- * @author kezhenxu94
+ * @author zhangwei
  */
-public class TopoData {
-    private List<Node> nodes;
-    private List<Call> calls;
+public class InstanceTopoQuery extends AbstractQuery<InstanceTopoQuery> {
 
-    public TopoData() {
-        nodes = new ArrayList<>();
-        calls = new ArrayList<>();
-    }
+    private String clientServiceId;
+    private String serverServiceId;
 
-    public List<Node> getNodes() {
-        return nodes;
-    }
-
-    public TopoData setNodes(List<Node> nodes) {
-        this.nodes = nodes;
+    public InstanceTopoQuery clientServiceId(String clientServiceId) {
+        this.clientServiceId = clientServiceId;
         return this;
     }
 
-    public List<Call> getCalls() {
-        return calls;
-    }
-
-    public TopoData setCalls(List<Call> calls) {
-        this.calls = calls;
+    public InstanceTopoQuery serverServiceId(String serverServiceId) {
+        this.serverServiceId = serverServiceId;
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "TopoData{" +
-                "nodes=" + nodes +
-                ", calls=" + calls +
-                '}';
+    public String clientServiceId() {
+        return clientServiceId;
+    }
+
+    public String serverServiceId() {
+        return serverServiceId;
     }
 }

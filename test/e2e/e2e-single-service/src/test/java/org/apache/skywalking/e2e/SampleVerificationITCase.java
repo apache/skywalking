@@ -33,6 +33,7 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
+import org.apache.skywalking.e2e.topo.InstanceTopoQuery;
 import org.apache.skywalking.e2e.topo.TopoData;
 import org.apache.skywalking.e2e.topo.TopoMatcher;
 import org.apache.skywalking.e2e.topo.TopoQuery;
@@ -140,6 +141,14 @@ public class SampleVerificationITCase {
                 LOGGER.warn(e.getMessage(), e);
             }
         });
+
+        doRetryableVerification(() -> {
+            try{
+                verifyInstanceTopo(minutesAgo);
+            }catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        });
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
@@ -160,6 +169,25 @@ public class SampleVerificationITCase {
         topoMatcher.verify(topoData);
     }
 
+    private void verifyInstanceTopo(LocalDateTime minutesAgo) throws Exception {
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+        final TopoData topoData = queryClient.instanceTopo(
+                new InstanceTopoQuery()
+                        .stepByMinute()
+                        .start(minutesAgo.minusDays(1))
+                        .end(now)
+                        .clientServiceId("1")
+                        .serverServiceId("2")
+        );
+        LOGGER.info("instanceTopoData: {}", topoData);
+
+        InputStream expectedInputStream =
+                new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instanceTopo.yml").getInputStream();
+
+        final TopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, TopoMatcher.class);
+        topoMatcher.verify(topoData);
+    }
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 

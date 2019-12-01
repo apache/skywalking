@@ -128,21 +128,26 @@
                                     <INSTRUMENTED_SERVICE_1_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
                                         -DSW_AGENT_NAME=${provider.name}
+                                        -Dserver.port=9090
                                     </INSTRUMENTED_SERVICE_1_OPTS>
-                                    <INSTRUMENTED_SERVICE_1_ARGS>
-                                        --server.port=9090
-                                    </INSTRUMENTED_SERVICE_1_ARGS>
 
                                     <INSTRUMENTED_SERVICE_2>
-                                        ${consumer.name}-${project.version}.jar
+                                        ${provider.name}-${project.version}.jar
                                     </INSTRUMENTED_SERVICE_2>
                                     <INSTRUMENTED_SERVICE_2_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11801
-                                        -DSW_AGENT_NAME=${consumer.name}
+                                        -DSW_AGENT_NAME=${provider.name}
+                                        -Dserver.port=9091
                                     </INSTRUMENTED_SERVICE_2_OPTS>
-                                    <INSTRUMENTED_SERVICE_2_ARGS>
-                                        --server.port=9091
-                                    </INSTRUMENTED_SERVICE_2_ARGS>
+
+                                    <INSTRUMENTED_SERVICE_3>
+                                        ${consumer.name}-${project.version}.jar
+                                    </INSTRUMENTED_SERVICE_3>
+                                    <INSTRUMENTED_SERVICE_3_OPTS>
+                                        -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11801
+                                        -DSW_AGENT_NAME=${consumer.name}
+                                        -Dserver.port=9092
+                                    </INSTRUMENTED_SERVICE_3_OPTS>
                                 </env>
                                 <dependsOn>
                                     <container>${e2e.container.name.prefix}-elasticsearch</container>
@@ -150,7 +155,7 @@
                                 </dependsOn>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8081</port>
-                                    <port>+service.host:service.port:9091</port>
+                                    <port>+service.host:service.port:9092</port>
                                 </ports>
                                 <links>
                                     <link>${e2e.container.name.prefix}-elasticsearch</link>

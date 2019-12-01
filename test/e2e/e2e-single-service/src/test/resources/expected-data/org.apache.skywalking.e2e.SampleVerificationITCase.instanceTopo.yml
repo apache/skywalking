@@ -14,9 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9092
+# 1 health-check by docker-maven-plugin
+# 1 drop table if exists, because we have `ddl-auto: create-drop`
+# 1 drop sequence
+# 1 create sequence
+# 1 create table statement
 
-spring:
-  main:
-    banner-mode: 'off'
+nodes:
+  - id: 1
+    name: User
+    type: USER
+    isReal: false
+  - id: 2
+    name: not null
+    type: Tomcat
+    isReal: true
+calls:
+  - id: 1_2
+    source: 1
+    detectPoints:
+      - SERVER
+    target: 2

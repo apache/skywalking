@@ -14,9 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9092
-
-spring:
-  main:
-    banner-mode: 'off'
+{
+    "query": "query queryInstanceTopo($clientServiceId: ID!, $serverServiceId: ID!, $duration: Duration!) {
+        topo: getServiceInstanceTopology(clientServiceId: $clientServiceId, serverServiceId: $serverServiceId, duration: $duration) {
+            nodes {
+                id
+                name
+                type
+                isReal
+            }
+            calls {
+                id
+                source
+                detectPoints
+                target
+            }
+        }
+    }",
+    "variables": {
+        "duration": {
+            "start": "{start}",
+            "end": "{end}",
+            "step": "{step}"
+        },
+        "clientServiceId": "{clientServiceId}",
+        "serverServiceId": "{serverServiceId}"
+    }
+}

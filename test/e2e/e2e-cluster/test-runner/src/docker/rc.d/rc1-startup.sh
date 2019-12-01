@@ -78,6 +78,18 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+check_tcp 127.0.0.1 \
+          9092 \
+          60 \
+          10 \
+          "waiting for the instrumented service 2 to be ready"
+
+if [[ $? -ne 0 ]]; then
+    echo "instrumented service 2 failed to start in 24 * 10 seconds: "
+    cat ${SERVICE_LOG}/*
+    exit 1
+fi
+
 echo "SkyWalking e2e container is ready for tests"
 
 tail -f ${OAP_LOG_DIR}/* \

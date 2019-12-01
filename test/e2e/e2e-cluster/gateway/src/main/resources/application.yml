@@ -24,5 +24,13 @@ zuul:
   ignoredServices: '*'
   routes:
     api:
+      serviceId: api
       path: /e2e/users
-      url: http://127.0.0.1:9090
+
+ribbon:
+  eureka:
+    enabled: false
+
+api:
+  ribbon:
+    listOfServers: http://127.0.0.1:9090,http://127.0.0.1:9091
