@@ -16,13 +16,7 @@
  */
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.ElementAssertor;
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.EqualsAssertor;
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.GreatThanAssertor;
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.GreetEqualAssertor;
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.NoopAssertor;
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.NotEqualsAssertor;
-import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.NotNullAssertor;
+import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element.*;
 
 public class ExpressParser {
     public static ElementAssertor parse(String express) {
@@ -36,7 +30,7 @@ public class ExpressParser {
         }
 
         if (expressTrim.equals("null")) {
-            return new NotNullAssertor();
+            return new NullAssertor();
         }
 
         String[] expressSegment = expressTrim.split(" ");
