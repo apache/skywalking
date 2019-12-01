@@ -54,9 +54,8 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         if (span == null) {
             return;
         }
-        SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(), ContextManager.capture(), span.getOperationName());
+        SWTransmitter transmitter = new SWTransmitter(context.capture(), span.getOperationName());
         instance.setSkyWalkingDynamicField(transmitter);
-        ContextManager.stopSpan(span);
     }
 
     @Override
@@ -81,8 +80,6 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
                 localSpan.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
                 ContextManager.continued(swTransmitter.getSnapshot());
                 ContextManager.stopSpan(localSpan);
-                AbstractSpan spanWebflux = swTransmitter.getSpanWebflux();
-                spanWebflux.asyncFinish();
             }
         });
     }
