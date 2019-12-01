@@ -27,7 +27,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-spring-webflux-5.x-reactive-plugin</artifactId>
+    <artifactId>apm-spring-webflux-5.x-plugin</artifactId>
 
     <url>http://maven.apache.org</url>
 

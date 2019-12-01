@@ -37,32 +37,15 @@ registryItems:
     - {webflux-scenario: nq 0}
   operationNames:
     - webflux-scenario: ['GET:/testcase/route/bad', 'GET:/testcase/annotation/bad',
-                         'HEAD:/healthCheck', 'GET:/testcase/annotation/hello', 'GET:/testcase/notFound',
-                         'GET:/testcase', 'GET:/testcase/route/hello']
+                         'GET:/testcase/annotation/hello','POST:/testcase/annotation/foo',
+                         'POST:/testcase/annotation/loo', 'GET:/testcase/notFound',
+                         'GET:/testcase', 'GET:/testcase/route/hello',
+                         'POST:/testcase/route/foo', 'POST:/testcase/route/loo']
   heartbeat: []
 segmentItems:
   - applicationCode: webflux-scenario
     segmentSize: nq 0
     segments:
-      - segmentId: not null
-        spans:
-          - operationName: HEAD:/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 67
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/healthCheck'}
-              - {key: http.method, value: HEAD}
-              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: GET:/testcase/annotation/hello
@@ -103,6 +86,44 @@ segmentItems:
               - {key: status_code, value: '500'}
       - segmentId: not null
         spans:
+          - operationName: POST:/testcase/annotation/foo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/testcase/annotation/foo'}
+              - {key: http.method, value: POST}
+              - {key: status_code, value: '200'}
+      - segmentId: not null
+        spans:
+          - operationName: POST:/testcase/annotation/loo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/testcase/annotation/loo'}
+              - {key: http.method, value: POST}
+              - {key: status_code, value: '200'}
+      - segmentId: not null
+        spans:
           - operationName: GET:/testcase/route/hello
             operationId: 0
             parentSpanId: -1
@@ -139,6 +160,44 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/route/bad'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '500'}
+      - segmentId: not null
+        spans:
+          - operationName: POST:/testcase/route/foo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/testcase/route/foo'}
+              - {key: http.method, value: POST}
+              - {key: status_code, value: '200'}
+      - segmentId: not null
+        spans:
+          - operationName: POST:/testcase/route/loo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 67
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/testcase/route/loo'}
+              - {key: http.method, value: POST}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: GET:/testcase/notFound

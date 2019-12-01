@@ -20,4 +20,4 @@ healthCheck: http://localhost:8080/healthCheck
 startScript: ./bin/startup.sh
 framework: spring-webflux
 runningMode: with_optional
-withPlugins: apm-spring-webflux-5.x-reactive-plugin-*.jar
+withPlugins: apm-spring-webflux-5.x-plugin-*.jar

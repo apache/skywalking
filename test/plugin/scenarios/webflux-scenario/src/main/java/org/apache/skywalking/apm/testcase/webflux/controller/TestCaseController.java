@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.testcase.webflux.controller;
 import java.io.IOException;
 import java.util.Objects;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -37,10 +39,14 @@ public class TestCaseController {
         return Flux.concat(
                 WebClient.create("http://localhost:8080/testcase/annotation/hello").get().exchange(),
                 WebClient.create("http://localhost:8080/testcase/annotation/bad").get().exchange(),
+                WebClient.create("http://localhost:8080/testcase/annotation/foo").post().exchange(),
+                WebClient.create("http://localhost:8080/testcase/annotation/loo").post().exchange(),
                 WebClient.create("http://localhost:8080/testcase/route/hello").get().exchange(),
                 WebClient.create("http://localhost:8080/testcase/route/bad").get().exchange(),
+                WebClient.create("http://localhost:8080/testcase/route/foo").post().exchange(),
+                WebClient.create("http://localhost:8080/testcase/route/loo").post().exchange(),
                 WebClient.create("http://localhost:8080/testcase/notFound").get().exchange()
-                ).all(Objects::nonNull);
+        ).all(Objects::nonNull);
     }
 
     @GetMapping("/healthCheck")
@@ -57,6 +63,11 @@ public class TestCaseController {
     @GetMapping("/testcase/annotation/bad")
     public Mono<String> testBad() {
         throw new RuntimeException();
+    }
+
+    @PostMapping("/testcase/annotation/{test}")
+    public Mono<String> testVariable(@PathVariable("test") String var) {
+        return Mono.just(var);
     }
 
 }

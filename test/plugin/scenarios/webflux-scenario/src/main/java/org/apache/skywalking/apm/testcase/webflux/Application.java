@@ -39,13 +39,16 @@ public class Application {
 
     @Bean
     public RouterFunction<?> routerFunction() {
-        return route(
-                GET("/testcase/route/hello").and(accept(MediaType.TEXT_PLAIN)), request ->
-                        ServerResponse.ok().body(BodyInserters.fromObject("hello")))
-                .and(route(
-                GET("/testcase/route/bad").and(accept(MediaType.TEXT_PLAIN)), request -> {
-                            throw new RuntimeException();
-                        })
-        );
+        return route()
+                .GET("/testcase/route/hello", accept(MediaType.TEXT_PLAIN), request -> {
+                    return ServerResponse.ok().body(BodyInserters.fromObject("hello"));
+                })
+                .GET("/testcase/route/bad", accept(MediaType.TEXT_PLAIN), request -> {
+                    throw new RuntimeException();
+                })
+                .POST("/testcase/route/{test}", accept(MediaType.TEXT_PLAIN), request -> {
+                    return ServerResponse.ok().body(BodyInserters.fromObject(request.pathVariable("test")));
+                })
+                .build();
     }
 }

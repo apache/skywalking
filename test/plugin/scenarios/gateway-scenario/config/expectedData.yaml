@@ -23,7 +23,7 @@ registryItems:
     - {gateway-projectA-scenario: 1}
   operationNames:
     - gateway-projectB-scenario: [/provider/b/healthCheck, /provider/b/testcase]
-    - gateway-projectA-scenario: ['GET:/provider/b/testcase', 'HEAD:/provider/b/healthCheck']
+    - gateway-projectA-scenario: ['GET:/provider/b/testcase']
   heartbeat: []
 segmentItems:
   - applicationCode: gateway-projectB-scenario
@@ -78,48 +78,6 @@ segmentItems:
   - applicationCode: gateway-projectA-scenario
     segmentSize: nq 0
     segments:
-      - segmentId: not null
-        spans:
-          - operationName: HEAD:/provider/b/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 61
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: url, value: 'localhost:18070/provider/b/healthCheck'}
-              - {key: http.method, value: HEAD}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: 'HEAD:/provider/b/healthCheck', networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: '', entryEndpoint: 'HEAD:/provider/b/healthCheck',
-                 entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: HEAD:/provider/b/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 67
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/provider/b/healthCheck'}
-              - {key: http.method, value: HEAD}
-              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: GET:/provider/b/testcase
