@@ -22,11 +22,11 @@ import groovy.util.logging.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.Call;
-import org.apache.skywalking.oap.server.core.query.entity.Node;
-import org.apache.skywalking.oap.server.core.query.entity.Topology;
+import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -42,48 +42,52 @@ import static java.util.Objects.isNull;
  * @author zhangwei
  */
 @Slf4j
-public class TopologyInstanceBuilder {
+public class ServiceInstanceTopologyBuilder {
 
+    private final ServiceInventoryCache serviceInventoryCache;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
-    public TopologyInstanceBuilder(ModuleManager moduleManager) {
+    public ServiceInstanceTopologyBuilder(ModuleManager moduleManager) {
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
         this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
     }
 
-    Topology build(List<Call.CallDetail> serviceInstanceRelationClientCalls, List<Call.CallDetail> serviceInstanceRelationServerCalls) {
+    ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls, List<Call.CallDetail> serviceInstanceRelationServerCalls) {
         filterZeroSourceOrTargetReference(serviceInstanceRelationClientCalls);
         filterZeroSourceOrTargetReference(serviceInstanceRelationServerCalls);
 
-        Map<Integer, Node> nodes = new HashMap<>();
+        Map<Integer, ServiceInstanceNode> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
         for (Call.CallDetail clientCall : serviceInstanceRelationClientCalls) {
-            ServiceInstanceInventory source = serviceInstanceInventoryCache.get(clientCall.getSource());
-            ServiceInstanceInventory target = serviceInstanceInventoryCache.get(clientCall.getTarget());
+            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(clientCall.getSource());
+            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(clientCall.getTarget());
 
-            if (isNull(source) || isNull(target)) {
+            if (isNull(sourceInstance) || isNull(targetInstance)) {
                 continue;
             }
 
-            if (target.getMappingServiceInstanceId() != Const.NONE) {
+            if (targetInstance.getMappingServiceInstanceId() != Const.NONE) {
                 continue;
             }
 
-            if (!nodes.containsKey(source.getSequence())) {
-                nodes.put(source.getSequence(), buildNode(source));
+            if (!nodes.containsKey(sourceInstance.getSequence())) {
+                ServiceInventory sourceService = serviceInventoryCache.get(sourceInstance.getServiceId());
+                nodes.put(sourceInstance.getSequence(), buildNode(sourceService, sourceInstance));
             }
 
-            if (!nodes.containsKey(target.getSequence())) {
-                nodes.put(target.getSequence(), buildNode(target));
-                if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
-                    nodes.get(target.getSequence()).setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
+            if (!nodes.containsKey(targetInstance.getSequence())) {
+                ServiceInventory targetService = serviceInventoryCache.get(targetInstance.getServiceId());
+                nodes.put(targetInstance.getSequence(), buildNode(targetService, targetInstance));
+                if (BooleanUtils.valueToBoolean(targetInstance.getIsAddress())) {
+                    nodes.get(targetInstance.getSequence()).setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
 
-            String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
+            String callId = sourceInstance.getSequence() + Const.ID_SPLIT + targetInstance.getSequence();
             if (!callMap.containsKey(callId)) {
                 Call call = new Call();
 
@@ -103,36 +107,41 @@ public class TopologyInstanceBuilder {
         }
 
         for (Call.CallDetail serverCall : serviceInstanceRelationServerCalls) {
-            ServiceInstanceInventory source = serviceInstanceInventoryCache.get(serverCall.getSource());
-            ServiceInstanceInventory target = serviceInstanceInventoryCache.get(serverCall.getTarget());
+            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(serverCall.getSource());
+            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(serverCall.getTarget());
 
-            if (isNull(source) || isNull(target)) {
+            if (isNull(sourceInstance) || isNull(targetInstance)) {
                 continue;
             }
 
-            if (source.getSequence() == Const.USER_INSTANCE_ID) {
-                if (!nodes.containsKey(source.getSequence())) {
-                    Node visualUserNode = new Node();
-                    visualUserNode.setId(source.getSequence());
+            if (sourceInstance.getSequence() == Const.USER_INSTANCE_ID) {
+                if (!nodes.containsKey(sourceInstance.getSequence())) {
+                    ServiceInstanceNode visualUserNode = new ServiceInstanceNode();
+                    visualUserNode.setId(sourceInstance.getSequence());
                     visualUserNode.setName(Const.USER_CODE);
+                    visualUserNode.setServiceId(Const.USER_SERVICE_ID);
+                    visualUserNode.setServiceName(Const.USER_CODE);
                     visualUserNode.setType(Const.USER_CODE.toUpperCase());
                     visualUserNode.setReal(false);
-                    nodes.put(source.getSequence(), visualUserNode);
+                    nodes.put(sourceInstance.getSequence(), visualUserNode);
                 }
             }
 
-            if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
-                if (!nodes.containsKey(source.getSequence())) {
-                    Node conjecturalNode = new Node();
-                    conjecturalNode.setId(source.getSequence());
-                    conjecturalNode.setName(source.getName());
+            if (BooleanUtils.valueToBoolean(sourceInstance.getIsAddress())) {
+                if (!nodes.containsKey(sourceInstance.getSequence())) {
+                    ServiceInventory sourceService = serviceInventoryCache.get(sourceInstance.getServiceId());
+                    ServiceInstanceNode conjecturalNode = new ServiceInstanceNode();
+                    conjecturalNode.setId(sourceInstance.getSequence());
+                    conjecturalNode.setName(sourceInstance.getName());
+                    conjecturalNode.setServiceId(sourceService.getSequence());
+                    conjecturalNode.setServiceName(sourceService.getName());
                     conjecturalNode.setType(componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
                     conjecturalNode.setReal(true);
-                    nodes.put(source.getSequence(), conjecturalNode);
+                    nodes.put(sourceInstance.getSequence(), conjecturalNode);
                 }
             }
 
-            String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
+            String callId = sourceInstance.getSequence() + Const.ID_SPLIT + targetInstance.getSequence();
             if (!callMap.containsKey(callId)) {
                 Call call = new Call();
                 callMap.put(callId, call);
@@ -151,29 +160,33 @@ public class TopologyInstanceBuilder {
                 call.addTargetComponent(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
             }
 
-            if (!nodes.containsKey(source.getSequence())) {
-                nodes.put(source.getSequence(), buildNode(source));
+            if (!nodes.containsKey(sourceInstance.getSequence())) {
+                ServiceInventory sourceService = serviceInventoryCache.get(sourceInstance.getServiceId());
+                nodes.put(sourceInstance.getSequence(), buildNode(sourceService, sourceInstance));
             }
 
-            if (!nodes.containsKey(target.getSequence())) {
-                nodes.put(target.getSequence(), buildNode(target));
+            if (!nodes.containsKey(targetInstance.getSequence())) {
+                ServiceInventory targetService = serviceInventoryCache.get(targetInstance.getServiceId());
+                nodes.put(targetInstance.getSequence(), buildNode(targetService, targetInstance));
             }
 
-            if (nodes.containsKey(target.getSequence())) {
-                nodes.get(target.getSequence()).setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+            if (nodes.containsKey(targetInstance.getSequence())) {
+                nodes.get(targetInstance.getSequence()).setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
             }
         }
 
-        Topology topology = new Topology();
+        ServiceInstanceTopology topology = new ServiceInstanceTopology();
         topology.getCalls().addAll(calls);
         topology.getNodes().addAll(nodes.values());
         return topology;
     }
 
-    private Node buildNode(ServiceInstanceInventory instanceInventory) {
-        Node instanceNode = new Node();
+    private ServiceInstanceNode buildNode(ServiceInventory serviceInventory, ServiceInstanceInventory instanceInventory) {
+        ServiceInstanceNode instanceNode = new ServiceInstanceNode();
         instanceNode.setId(instanceInventory.getSequence());
         instanceNode.setName(instanceInventory.getName());
+        instanceNode.setServiceId(serviceInventory.getSequence());
+        instanceNode.setServiceName(serviceInventory.getName());
         if (BooleanUtils.valueToBoolean(instanceInventory.getIsAddress())) {
             instanceNode.setReal(false);
         } else {
