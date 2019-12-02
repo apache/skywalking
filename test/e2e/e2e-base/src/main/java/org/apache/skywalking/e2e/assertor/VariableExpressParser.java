@@ -33,7 +33,7 @@ public class VariableExpressParser {
 
     public static <T> T parse(String express, List<T> actual, Function<T, String> getFiled) {
         express = express.trim();
-        if (!express.startsWith("${") && !express.endsWith("}")) {
+        if (!(express.startsWith("${") && express.endsWith("}"))) {
             return null;
         }
 
