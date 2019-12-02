@@ -118,7 +118,7 @@ jobs:
         run: bash test/plugin/run.sh netty-socketio-scenario
       - name: Run rabbitmq-scenario (12)
         run: bash test/plugin/run.sh rabbitmq-scenario
-      - name: Run gson-scenario (6)
+      - name: Run gson-scenario (7)
         run: bash test/plugin/run.sh gson-scenario
 
   Feign_Canal:

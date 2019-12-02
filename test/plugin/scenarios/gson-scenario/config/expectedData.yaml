@@ -19,7 +19,7 @@ registryItems:
   instances:
     - {gson-scenario: nq 0}
   operationNames:
-    - gson-scenario: [/gson-scenario/case/healthCheck,/gson-scenario/case/gson-scenario]
+    - gson-scenario: [/gson-scenario/case/gson-scenario]
 segmentItems:
 - applicationCode: gson-scenario
   segmentSize: ge 2
