@@ -77,7 +77,7 @@ by the values.
 
 The actual query GraphQL scrips could be found inside `query-protocol` folder in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
 
-Here is the list of all existing metrics names, based on [official_analysis.oal](../../../oap-server/generated-analysis/src/main/resources/official_analysis.oal)
+Here is the list of all existing metrics names, based on [official_analysis.oal](../../../oap-server/server-bootstrap/src/main/resources/official_analysis.oal)
 
 **Global metrics**
 - all_p99, p99 response time of all services
