@@ -20,6 +20,8 @@
             nodes {
                 id
                 name
+                serviceId
+                serviceName
                 type
                 isReal
             }
