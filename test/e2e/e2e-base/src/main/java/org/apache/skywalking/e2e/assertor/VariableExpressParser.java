@@ -19,10 +19,11 @@ package org.apache.skywalking.e2e.assertor;
 
 import org.apache.skywalking.e2e.assertor.exception.VariableNotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author zhangwei
@@ -42,21 +43,21 @@ public class VariableExpressParser {
         String regex = express.substring(0, startIndexOfIndex);
         int endIndexOfIndex = express.indexOf("]", startIndexOfIndex);
         int expectedIndex = Integer.parseInt(express.substring(startIndexOfIndex + 1, endIndexOfIndex));
-        int expectedSize = expectedIndex + 1;
+        int mappingIndex = 0;
 
-        List<T> mappings = new ArrayList<>(expectedSize);
+        T mapping = null;
         for (T t : actual) {
             if (Pattern.matches(regex, getFiled.apply(t))) {
-                mappings.add(t);
-                if (mappings.size() == expectedSize) {
+                if (mappingIndex++ == expectedIndex) {
+                    mapping = t;
                     break;
                 }
             }
         }
 
-        if (mappings.size() < expectedSize) {
+        if (isNull(mapping)) {
             throw new VariableNotFoundException(express);
         }
-        return mappings.get(expectedIndex);
+        return mapping;
     }
 }
