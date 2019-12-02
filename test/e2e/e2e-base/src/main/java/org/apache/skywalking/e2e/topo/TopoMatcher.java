@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.e2e.topo;
 
+import org.apache.skywalking.e2e.assertor.VariableExpressParser;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import java.util.List;
-import java.util.Objects;
 
+import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -37,11 +38,12 @@ public class TopoMatcher extends AbstractMatcher<TopoData> {
 
     @Override
     public void verify(final TopoData topoData) {
-        if (Objects.nonNull(getNodes())) {
+        if (nonNull(getNodes())) {
             verifyNodes(topoData);
         }
 
-        if (Objects.nonNull(getCalls())) {
+        if (nonNull(getCalls())) {
+            convertNodeId(getCalls(), topoData.getNodes());
             verifyCalls(topoData);
         }
     }
@@ -100,5 +102,27 @@ public class TopoMatcher extends AbstractMatcher<TopoData> {
             "nodes=" + nodes +
             ", calls=" + calls +
             '}';
+    }
+
+
+    private static void convertNodeId(List<CallMatcher> callMatchers, List<Node> nodes) {
+        for (CallMatcher callMatcher : callMatchers) {
+            Node sourceNode = VariableExpressParser.parse(callMatcher.getSource(), nodes, Node::getName);
+            Node targetNode = VariableExpressParser.parse(callMatcher.getTarget(), nodes, Node::getName);
+
+            boolean convert = false;
+            if (nonNull(sourceNode)) {
+                callMatcher.setSource(sourceNode.getId());
+                convert = true;
+            }
+            if (nonNull(targetNode)) {
+                callMatcher.setTarget(targetNode.getId());
+                convert = true;
+            }
+
+            if (convert) {
+                callMatcher.setId(String.join("_", callMatcher.getSource(), callMatcher.getTarget()));
+            }
+        }
     }
 }
