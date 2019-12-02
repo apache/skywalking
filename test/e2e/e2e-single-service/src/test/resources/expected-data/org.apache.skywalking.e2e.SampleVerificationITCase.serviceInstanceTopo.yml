@@ -24,9 +24,13 @@ nodes:
   - id: 1
     name: User
     type: USER
+    serviceId: 1
+    serviceName: User
     isReal: false
   - id: 2
     name: not null
+    serviceId: 2
+    serviceName: Your_ApplicationName
     type: Tomcat
     isReal: true
 calls:

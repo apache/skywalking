@@ -18,31 +18,15 @@
 
 package org.apache.skywalking.e2e.topo;
 
-import org.apache.skywalking.e2e.AbstractQuery;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author zhangwei
  */
-public class InstanceTopoQuery extends AbstractQuery<InstanceTopoQuery> {
+@Setter
+@Getter
+public class ServiceInstanceTopoResponse {
 
-    private String clientServiceId;
-    private String serverServiceId;
-
-    public InstanceTopoQuery clientServiceId(String clientServiceId) {
-        this.clientServiceId = clientServiceId;
-        return this;
-    }
-
-    public InstanceTopoQuery serverServiceId(String serverServiceId) {
-        this.serverServiceId = serverServiceId;
-        return this;
-    }
-
-    public String clientServiceId() {
-        return clientServiceId;
-    }
-
-    public String serverServiceId() {
-        return serverServiceId;
-    }
+    private ServiceInstanceTopoData topo;
 }

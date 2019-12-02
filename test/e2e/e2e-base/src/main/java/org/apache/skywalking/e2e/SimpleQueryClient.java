@@ -29,10 +29,7 @@ import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
 import org.apache.skywalking.e2e.service.endpoint.Endpoints;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.InstanceTopoQuery;
-import org.apache.skywalking.e2e.topo.TopoData;
-import org.apache.skywalking.e2e.topo.TopoQuery;
-import org.apache.skywalking.e2e.topo.TopoResponse;
+import org.apache.skywalking.e2e.topo.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesData;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -180,7 +177,7 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
     }
 
-    public TopoData instanceTopo(final InstanceTopoQuery query) throws Exception {
+    public ServiceInstanceTopoData serviceInstanceTopo(final ServiceInstanceTopoQuery query) throws Exception {
         final URL queryFileUrl = Resources.getResource("instanceTopo.gql");
         final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
                 .stream()
@@ -191,9 +188,9 @@ public class SimpleQueryClient {
                 .replace("{end}", query.end())
                 .replace("{clientServiceId}", query.clientServiceId())
                 .replace("{serverServiceId}", query.serverServiceId());
-        final ResponseEntity<GQLResponse<TopoResponse>> responseEntity = restTemplate.exchange(
+        final ResponseEntity<GQLResponse<ServiceInstanceTopoResponse>> responseEntity = restTemplate.exchange(
                 new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
-                new ParameterizedTypeReference<GQLResponse<TopoResponse>>() {
+                new ParameterizedTypeReference<GQLResponse<ServiceInstanceTopoResponse>>() {
                 }
         );
 
