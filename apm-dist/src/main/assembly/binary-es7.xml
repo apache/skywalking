@@ -51,6 +51,7 @@
                 <include>component-libraries.yml</include>
                 <include>official_analysis.oal</include>
                 <include>gateways.yml</include>
+                <include>service-apdex-threshold.yml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>
