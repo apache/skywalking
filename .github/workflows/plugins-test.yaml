@@ -88,7 +88,7 @@ jobs:
       - name: Run elasticsearch 5.x (3)
         run: bash test/plugin/run.sh elasticsearch-5.x-scenario
 
-  Webflux_SocketIO_RabbitMQ:
+  Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
