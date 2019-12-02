@@ -22,7 +22,7 @@ registryItems:
     - {gateway-projectB-scenario: 1}
     - {gateway-projectA-scenario: 1}
   operationNames:
-    - gateway-projectB-scenario: [/provider/b/healthCheck, /provider/b/testcase]
+    - gateway-projectB-scenario: [/provider/b/testcase]
     - gateway-projectA-scenario: ['GET:/provider/b/testcase']
   heartbeat: []
 segmentItems:
@@ -51,29 +51,6 @@ segmentItems:
               - {parentEndpointId: 0, parentEndpoint: 'GET:/provider/b/testcase', networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
                  parentServiceInstanceId: not null, networkAddress: 'localhost:18070', entryEndpoint: 'GET:/provider/b/testcase',
-                 entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /provider/b/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:18070/provider/b/healthCheck'}
-              - {key: http.method, value: HEAD}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: 'HEAD:/provider/b/healthCheck', networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:18070', entryEndpoint: 'HEAD:/provider/b/healthCheck',
                  entryServiceInstanceId: not null}
   - applicationCode: gateway-projectA-scenario
     segmentSize: nq 0
