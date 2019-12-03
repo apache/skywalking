@@ -79,7 +79,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         return serviceInstanceId;
     }
 
-    @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
+    @Override public int getOrCreate(int serviceId, String instanceName, int addressId, long registerTime) {
         if (logger.isDebugEnabled()) {
             logger.debug("get or create service instance by getAddress id, service id: {}, getAddress id: {}, registerTime: {}", serviceId, addressId, registerTime);
         }
@@ -89,7 +89,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         if (serviceInstanceId == Const.NONE) {
             ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
             serviceInstanceInventory.setServiceId(serviceId);
-            serviceInstanceInventory.setName(Const.EMPTY_STRING);
+            serviceInstanceInventory.setName(instanceName);
             serviceInstanceInventory.setIsAddress(BooleanUtils.TRUE);
             serviceInstanceInventory.setAddressId(addressId);
             serviceInstanceInventory.setMappingServiceInstanceId(Const.NONE);

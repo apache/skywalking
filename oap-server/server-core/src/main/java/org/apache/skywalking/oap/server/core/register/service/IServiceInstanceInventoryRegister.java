@@ -30,7 +30,7 @@ public interface IServiceInstanceInventoryRegister extends Service {
     int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
         JsonObject properties);
 
-    int getOrCreate(int serviceId, int addressId, long registerTime);
+    int getOrCreate(int serviceId, String instanceName, int addressId, long registerTime);
 
     void update(int serviceInstanceId, NodeType nodeType, JsonObject properties);
 
