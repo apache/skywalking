@@ -23,7 +23,7 @@ set -ex
 
 HELMVERSION=$1
 if [[ "${HELMVERSION}" == "" ]]; then
-    HELMVERSION="helm-v3.0.0-rc.3"
+    HELMVERSION="helm-v3.0.0"
 fi
 
 MINIKUBEVERESION=$2
@@ -70,7 +70,8 @@ sudo apt-get install -y \
     ca-certificates \
     curl \
     gnupg-agent \
-    software-properties-common
+    software-properties-common \
+    openjdk-8-jdk-headless
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 0EBFCD88
 sudo add-apt-repository \

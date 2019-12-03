@@ -18,8 +18,9 @@ name: istio-mixer-ci
 
 on: [pull_request]
 env:
-  SCRIPTS_DIR: ./test/scripts
+  SCRIPTS_DIR: ./test/e2e-mesh/e2e-istio/scripts
   LOG_DIR: /tmp/skywalking
+  INSTALL_SCRIPTS_DIR: ./install/deploy
 jobs:
   build:
     runs-on: ubuntu-16.04
@@ -27,7 +28,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Prepare enviroment
         run: |
-          bash ./test/scripts/pre.sh
+          bash ${SCRIPTS_DIR}/pre.sh
           mkdir -p ${LOG_DIR}
       - name: Start minikube
         run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
@@ -35,6 +36,14 @@ jobs:
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
         run: minikube tunnel --log_dir=${LOG_DIR} &
+      - name: Compile all and Build docker image
+        run: bash ${SCRIPTS_DIR}/compile_build.sh
+      - name: Istio install
+        run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
+      - name: SW And ES install
+        run: bash ${INSTALL_SCRIPTS_DIR}/skywalking-deploy.sh
+      - name: Bookinfo demo install
+        run: bash ${INSTALL_SCRIPTS_DIR}/demo-deploy.sh
       - uses: actions/upload-artifact@v1.0.0
         with:
           name: logs

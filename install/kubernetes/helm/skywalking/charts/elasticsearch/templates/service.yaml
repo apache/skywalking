@@ -13,22 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: v2
-name: skywalking
-home: https://skywalking.apache.org
-version: 0.1.2
-appVersion: latest
-description: Apache SkyWalking APM System
-icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
-sources:
-- https://github.com/apache/skywalking-kubernetes
-maintainers:
-- name: hanahmily
-  email: hanahmily@gmail.com
-- name: innerpeacez
-  email: innerpeace.zhai@gmail.com
-
-dependencies:
-  - name: elasticsearch
-    version: 6.8.2
-    condition: elasticsearch.enabled
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elasticsearch.fullname" . }}
+  labels:
+    {{- include "elasticsearch.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.ports.http }}
+      targetPort: http
+      name: http
+    - name: tcp
+      port: {{ .Values.service.ports.transport }}
+      targetPort: transport
+  selector:
+    {{- include "elasticsearch.selectorLabels" . | nindent 4 }}
