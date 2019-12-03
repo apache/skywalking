@@ -34,12 +34,9 @@ public class StorageEs7Installer extends StorageEsInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageEs7Installer.class);
 
-    private final StorageModuleElasticsearch7Config config;
-
     public StorageEs7Installer(final ModuleManager moduleManager,
                                final StorageModuleElasticsearch7Config config) {
         super(moduleManager, config);
-        this.config = config;
     }
 
     @SuppressWarnings("unchecked")
@@ -51,15 +48,5 @@ public class StorageEs7Installer extends StorageEsInstaller {
         logger.debug("elasticsearch index template setting: {}", mapping.toString());
 
         return mapping;
-    }
-
-    protected Map<String, Object> createSetting(boolean record) {
-        Map<String, Object> setting = super.createSetting(record);
-
-        if (config.getIndexMaxResultWindow() > 0) {
-            setting.put("index.max_result_window", config.getIndexMaxResultWindow());
-        }
-
-        return setting;
     }
 }
