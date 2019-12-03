@@ -26,7 +26,7 @@ nodes:
     type: Unknown
     serviceId: not null
     serviceName: 127.0.0.1:9099
-    isReal: false
+    isReal: true
   - id: not null
     name: not null
     serviceId: not null
