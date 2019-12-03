@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,32 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-nodes:
-  - id: not null
-    name: User
-    type: USER
-  - id: not null
-    name: provider
-    type: Tomcat
-  - id: not null
-    name: consumer
-    type: Tomcat
-  - id: not null
-    name: "localhost:-1"
-    type: H2
-  - id: not null
-    name: "127.0.0.1:9099"
-    type: Unknown
-calls:
-  - id: not null
-    source: ${User[0]}
-    target: ${consumer[0]}
-  - id: not null
-    source: ${127.0.0.1:9099[0]}
-    target: ${provider[0]}
-  - id: not null
-    source: ${consumer[0]}
-    target: ${127.0.0.1:9099[0]}
-  - id: not null
-    source: ${provider[0]}
-    target: ${localhost:-1[0]}
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/mysql-scenario.jar &

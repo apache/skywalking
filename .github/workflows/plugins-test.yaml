@@ -88,7 +88,7 @@ jobs:
       - name: Run elasticsearch 5.x (3)
         run: bash test/plugin/run.sh elasticsearch-5.x-scenario
 
-  Webflux_SocketIO_RabbitMQ:
+  Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -118,6 +118,8 @@ jobs:
         run: bash test/plugin/run.sh netty-socketio-scenario
       - name: Run rabbitmq-scenario (12)
         run: bash test/plugin/run.sh rabbitmq-scenario
+      - name: Run gson-scenario (7)
+        run: bash test/plugin/run.sh gson-scenario
 
   Feign_Canal:
     runs-on: ubuntu-18.04
@@ -465,3 +467,28 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run kafka 0.11.0.0-2.3.0 (16)
         run: bash test/plugin/run.sh kafka-scenario
+
+  MySQL:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run mysql 5.1.2-8.0.15 (53)
+        run: bash test/plugin/run.sh mysql-scenario

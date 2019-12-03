@@ -14,32 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-nodes:
-  - id: not null
-    name: User
-    type: USER
-  - id: not null
-    name: provider
-    type: Tomcat
-  - id: not null
-    name: consumer
-    type: Tomcat
-  - id: not null
-    name: "localhost:-1"
-    type: H2
-  - id: not null
-    name: "127.0.0.1:9099"
-    type: Unknown
-calls:
-  - id: not null
-    source: ${User[0]}
-    target: ${consumer[0]}
-  - id: not null
-    source: ${127.0.0.1:9099[0]}
-    target: ${provider[0]}
-  - id: not null
-    source: ${consumer[0]}
-    target: ${127.0.0.1:9099[0]}
-  - id: not null
-    source: ${provider[0]}
-    target: ${localhost:-1[0]}
+type: jvm
+entryService: http://localhost:8080/mysql-scenario/case/mysql-scenario
+healthCheck: http://localhost:8080/mysql-scenario/case/healthCheck
+startScript: ./bin/startup.sh
+framework: mysql-scenario
+environment:
+depends_on:
+  - mysql-server
+dependencies:
+  mysql-server:
+    image: mysql:5.7
+    hostname: mysql-server
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=test
