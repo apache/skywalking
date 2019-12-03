@@ -22,6 +22,7 @@ public class DependencyComponent {
     private String image;
     private String hostname;
     private String version;
+    private List<String> startScript;
     private List<String> links;
     private List<String> expose;
     private List<String> entrypoint;
@@ -99,5 +100,13 @@ public class DependencyComponent {
 
     public void setHealthcheck(List<String> healthcheck) {
         this.healthcheck = healthcheck;
+    }
+
+    public List<String> getStartScript() {
+        return startScript;
+    }
+
+    public void setStartScript(List<String> startScript) {
+        this.startScript = startScript;
     }
 }
