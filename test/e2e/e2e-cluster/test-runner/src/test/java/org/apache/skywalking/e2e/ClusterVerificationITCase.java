@@ -33,9 +33,7 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.TopoData;
-import org.apache.skywalking.e2e.topo.TopoMatcher;
-import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -61,6 +59,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author kezhenxu94
@@ -114,6 +113,7 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
+        String clientServiceId = null, serverServiceId = null;
         boolean valid = false;
         while (!valid) {
             try {
@@ -131,7 +131,51 @@ public class ClusterVerificationITCase {
                 final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
                 topoMatcher.verify(topoData);
                 valid = true;
+                for (Node node : topoData.getNodes()) {
+                    switch (node.getName()) {
+                        case "127.0.0.1:9099": {
+                            clientServiceId = node.getId();
+                            break;
+                        }
+                        case "provider": {
+                            serverServiceId = node.getId();
+                            break;
+                        }
+                    }
+                }
             } catch (Throwable t) {
+                LOGGER.warn(t.getMessage(), t);
+                generateTraffic();
+                Thread.sleep(retryInterval);
+            }
+        }
+        verifyServiceInstanceTopo(minutesAgo, clientServiceId, serverServiceId);
+    }
+
+    private void verifyServiceInstanceTopo(LocalDateTime minutesAgo, String clientServiceId, String serverServiceId) throws Exception {
+        if (clientServiceId == null || serverServiceId == null) {
+            fail("clientService or serverService not found");
+        }
+        boolean valid = false;
+        while (!valid) {
+            try {
+                final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(
+                        new ServiceInstanceTopoQuery()
+                                .stepByMinute()
+                                .start(minutesAgo.minusDays(1))
+                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
+                                .clientServiceId(clientServiceId)
+                                .serverServiceId(serverServiceId)
+                );
+
+                LOGGER.info("Actual service instance topology: {}", topoData);
+
+                InputStream expectedInputStream =
+                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.serviceInstanceTopo.yml").getInputStream();
+                final ServiceInstanceTopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, ServiceInstanceTopoMatcher.class);
+                topoMatcher.verify(topoData);
+                valid = true;
+            }catch (Throwable t){
                 LOGGER.warn(t.getMessage(), t);
                 generateTraffic();
                 Thread.sleep(retryInterval);
