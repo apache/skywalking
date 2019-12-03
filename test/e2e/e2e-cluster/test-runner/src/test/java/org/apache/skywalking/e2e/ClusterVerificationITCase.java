@@ -194,8 +194,16 @@ public class ClusterVerificationITCase {
                     .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
             );
         }
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
+
+        InputStream expectedInputStream;
+        if ("provider".equals(service.getLabel())) {
+            expectedInputStream =
+                    new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.providerInstances.yml").getInputStream();
+        } else {
+            expectedInputStream =
+                    new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
+        }
+
         final InstancesMatcher instancesMatcher = yaml.loadAs(expectedInputStream, InstancesMatcher.class);
         instancesMatcher.verify(instances);
         return instances;
