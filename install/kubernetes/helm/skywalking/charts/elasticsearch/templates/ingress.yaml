@@ -13,37 +13,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- if .Values.ui.ingress.enabled -}}
-{{- $serviceName := include "skywalking.ui.fullname" . -}}
-{{- $servicePort := .Values.ui.service.externalPort -}}
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "elasticsearch.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
 apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
+  name: {{ $fullName }}
   labels:
-    app: {{ template "skywalking.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.ui.name }}"
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-  name: {{ template "skywalking.ui.fullname" . }}
+    {{- include "elasticsearch.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- range $key, $value := .Values.ui.ingress.annotations }}
-      {{ $key }}: {{ $value | quote }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+{{- if .Values.ingress.tls }}
+  tls:
+  {{- range .Values.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
   rules:
-    {{- range .Values.ui.ingress.hosts }}
-      {{- $url := splitList "/" . }}
-    - host: {{ first $url }}
+  {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
       http:
         paths:
-          - path: /{{ rest $url | join "/" }}
+        {{- range .paths }}
+          - path: {{ . }}
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
-    {{- end -}}
-  {{- if .Values.ui.ingress.tls }}
-  tls:
-{{ toYaml .Values.ui.ingress.tls | indent 4 }}
-  {{- end -}}
-{{- end -}}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+{{- end }}
