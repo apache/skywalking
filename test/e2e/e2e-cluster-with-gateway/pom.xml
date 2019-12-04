@@ -27,12 +27,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>e2e-cluster</artifactId>
+    <artifactId>e2e-cluster-with-gateway</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>e2e-cluster-provider</module>
-        <module>e2e-cluster-consumer</module>
-        <module>e2e-cluster-test-runner</module>
+        <module>e2e-cluster-with-gateway-provider</module>
+        <module>e2e-cluster-with-gateway-consumer</module>
+        <module>e2e-cluster-with-gateway-gateway</module>
+        <module>e2e-cluster-with-gateway-test-runner</module>
     </modules>
 </project>
