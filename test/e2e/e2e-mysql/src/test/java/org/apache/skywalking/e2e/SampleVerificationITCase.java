@@ -33,9 +33,7 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.TopoData;
-import org.apache.skywalking.e2e.topo.TopoMatcher;
-import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -140,6 +138,14 @@ public class SampleVerificationITCase {
                 LOGGER.warn(e.getMessage(), e);
             }
         });
+
+        doRetryableVerification(() -> {
+            try{
+                verifyServiceInstanceTopo(minutesAgo);
+            }catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        });
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
@@ -157,6 +163,26 @@ public class SampleVerificationITCase {
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml").getInputStream();
 
         final TopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, TopoMatcher.class);
+        topoMatcher.verify(topoData);
+    }
+
+    private void verifyServiceInstanceTopo(LocalDateTime minutesAgo) throws Exception {
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+        final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(
+                new ServiceInstanceTopoQuery()
+                        .stepByMinute()
+                        .start(minutesAgo.minusDays(1))
+                        .end(now)
+                        .clientServiceId("1")
+                        .serverServiceId("2")
+        );
+        LOGGER.info("instanceTopoData: {}", topoData);
+
+        InputStream expectedInputStream =
+                new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.serviceInstanceTopo.yml").getInputStream();
+
+        final ServiceInstanceTopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, ServiceInstanceTopoMatcher.class);
         topoMatcher.verify(topoData);
     }
 
