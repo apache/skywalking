@@ -23,7 +23,6 @@
 nodes:
   - id: not null
     name: not null
-    type: null
     serviceId: not null
     serviceName: e2e-cluster-consumer
     isReal: true
