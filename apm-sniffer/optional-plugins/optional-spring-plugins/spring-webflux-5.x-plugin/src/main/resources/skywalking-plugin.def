@@ -14,5 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-spring-webflux-5.x-reactive=org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive.define.DispatcherHandlerInstrumentation
-spring-webflux-5.x-reactive=org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive.define.ServerWebExchangeInstrumentation
+spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.DispatcherHandlerInstrumentation
+spring-webflux-5.x=org.apache.skywalking.apm.plugin.spring.webflux.v5.define.ServerWebExchangeInstrumentation

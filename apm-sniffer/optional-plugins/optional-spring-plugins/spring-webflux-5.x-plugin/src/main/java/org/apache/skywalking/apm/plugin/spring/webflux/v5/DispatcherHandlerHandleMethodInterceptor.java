@@ -16,15 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive;
+package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags.HTTP;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -44,8 +42,7 @@ import reactor.core.publisher.Mono;
  * @author Born
  */
 public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private ContextManagerExtendService extendService = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
+    private static final String WIP_OPERATION_NAME = "WEBFLUX.handle";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -71,22 +68,14 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
             }
         }
 
-        String pathStr = exchange.getRequest().getPath().value();
-        String methodStr = exchange.getRequest().getMethodValue();
-        String operationName = methodStr + ":" + pathStr;
-
-        AbstractTracerContext context = extendService.createTraceContext(operationName, false);
-        AbstractSpan span = context.createEntrySpan(operationName);
-        if (carrier != null && carrier.isValid()) {
-            context.extract(carrier);
-        }
-
+        AbstractSpan span = ContextManager.createEntrySpan(WIP_OPERATION_NAME, carrier);
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
-        HTTP.METHOD.set(span,methodStr);
-
-        instance.setSkyWalkingDynamicField(context);
+        HTTP.METHOD.set(span, exchange.getRequest().getMethodValue());
+        instance.setSkyWalkingDynamicField(ContextManager.capture());
+        span.prepareForAsync();
+        ContextManager.stopSpan(span);
 
         return ((Mono) ret).doFinally(s -> {
             try {
@@ -99,7 +88,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
                     }
                 }
             } finally {
-                context.stopSpan(span);
+                span.asyncFinish();
             }
         });
 

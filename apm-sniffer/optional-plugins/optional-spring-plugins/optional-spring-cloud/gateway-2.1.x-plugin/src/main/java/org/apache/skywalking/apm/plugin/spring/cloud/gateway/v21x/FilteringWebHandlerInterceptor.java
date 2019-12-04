@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
+
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -29,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTransmitter;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -39,6 +42,8 @@ import reactor.core.publisher.Mono;
  */
 public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
+    private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "GATEWAY/";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
@@ -46,15 +51,16 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         if (instance == null) {
             return;
         }
-        AbstractTracerContext context = (AbstractTracerContext) instance.getSkyWalkingDynamicField();
-        if (context == null) {
+        ContextSnapshot contextSnapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
+        if (contextSnapshot == null) {
             return;
         }
-        AbstractSpan span = context.activeSpan();
-        if (span == null) {
-            return;
-        }
-        SWTransmitter transmitter = new SWTransmitter(context.capture(), span.getOperationName());
+
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
+        Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
+        operationName = operationName + route.getId();
+        SWTransmitter transmitter = new SWTransmitter(contextSnapshot, operationName);
         instance.setSkyWalkingDynamicField(transmitter);
     }
 

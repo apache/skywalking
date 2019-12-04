@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive.define;
+package org.apache.skywalking.apm.plugin.spring.webflux.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -43,7 +43,7 @@ public class ServerWebExchangeInstrumentation extends ClassInstanceMethodsEnhanc
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive.ServerWebExchangeConstructorInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.ServerWebExchangeConstructorInterceptor";
                 }
             }
         };

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive.define;
+package org.apache.skywalking.apm.plugin.spring.webflux.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -49,7 +49,7 @@ public class DispatcherHandlerInstrumentation extends ClassInstanceMethodsEnhanc
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.reactive.DispatcherHandlerHandleMethodInterceptor";
+                    return "org.apache.skywalking.apm.plugin.spring.webflux.v5.DispatcherHandlerHandleMethodInterceptor";
                 }
 
                 @Override

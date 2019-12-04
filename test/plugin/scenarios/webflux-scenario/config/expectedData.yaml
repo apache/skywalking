@@ -36,11 +36,7 @@ registryItems:
   instances:
     - {webflux-scenario: nq 0}
   operationNames:
-    - webflux-scenario: ['GET:/testcase/route/bad', 'GET:/testcase/annotation/bad',
-                         'GET:/testcase/annotation/hello','POST:/testcase/annotation/foo',
-                         'POST:/testcase/annotation/loo', 'GET:/testcase/notFound',
-                         'GET:/testcase', 'GET:/testcase/route/hello',
-                         'POST:/testcase/route/foo', 'POST:/testcase/route/loo']
+    - webflux-scenario: ['WEBFLUX.handle']
   heartbeat: []
 segmentItems:
   - applicationCode: webflux-scenario
@@ -48,7 +44,7 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: GET:/testcase/annotation/hello
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -67,7 +63,7 @@ segmentItems:
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
-          - operationName: GET:/testcase/annotation/bad
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -86,7 +82,7 @@ segmentItems:
               - {key: status_code, value: '500'}
       - segmentId: not null
         spans:
-          - operationName: POST:/testcase/annotation/foo
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -105,7 +101,7 @@ segmentItems:
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
-          - operationName: POST:/testcase/annotation/loo
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -124,7 +120,7 @@ segmentItems:
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
-          - operationName: GET:/testcase/route/hello
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -143,7 +139,7 @@ segmentItems:
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
-          - operationName: GET:/testcase/route/bad
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -162,7 +158,7 @@ segmentItems:
               - {key: status_code, value: '500'}
       - segmentId: not null
         spans:
-          - operationName: POST:/testcase/route/foo
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -181,7 +177,7 @@ segmentItems:
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
-          - operationName: POST:/testcase/route/loo
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -200,7 +196,7 @@ segmentItems:
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
-          - operationName: GET:/testcase/notFound
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -219,7 +215,7 @@ segmentItems:
               - {key: status_code, value: '404'}
       - segmentId: not null
         spans:
-          - operationName: GET:/testcase
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
