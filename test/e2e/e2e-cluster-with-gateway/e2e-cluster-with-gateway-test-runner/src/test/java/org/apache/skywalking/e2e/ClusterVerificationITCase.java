@@ -76,14 +76,12 @@ public class ClusterVerificationITCase {
     private long retryInterval = TimeUnit.SECONDS.toMillis(30);
 
     private String providerName;
-    private String consumerName;
     private String gateWayName;
 
 
     @Before
     public void setUp() {
         providerName = System.getProperty("provider.name", "e2e-cluster-provider");
-        consumerName = System.getProperty("consumer.name", "e2e-cluster-consumer");
         gateWayName = System.getProperty("gateway.name", "127.0.0.1:9099");
 
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
