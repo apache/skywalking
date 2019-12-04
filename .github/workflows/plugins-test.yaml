@@ -149,6 +149,8 @@ jobs:
         run: bash test/plugin/run.sh customize-scenario
       - name: Run canal 1.0.24-1.1.2 (5)
         run: bash test/plugin/run.sh canal-scenario
+      - name: Run Feign_Canal_Pulsar 2.2.0-2.4.1 (7)
+        run: bash test/plugin/run.sh pulsar-scenario
 
   Hystrix_SofaRPC_Spring30x:
     runs-on: ubuntu-18.04
@@ -492,28 +494,3 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run mysql 5.1.2-8.0.15 (53)
         run: bash test/plugin/run.sh mysql-scenario
-
-  Pulsar:
-    runs-on: ubuntu-18.04
-    timeout-minutes: 90
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 8
-      - name: Build SkyWalking Agent
-        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
-      - name: Build the Docker image
-        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
-      - name: Run Pulsar 2.2.0-2.4.1 (7)
-        run: bash test/plugin/run.sh pulsar-scenario
