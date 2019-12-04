@@ -32,14 +32,14 @@ nodes:
     type: Unknown
 calls:
   - id: not null
-    source: not null
-    target: not null
+    source: ${User[0]}
+    target: ${consumer[0]}
   - id: not null
-    source: not null
-    target: not null
+    source: ${127.0.0.1:9099[0]}
+    target: ${provider[0]}
   - id: not null
-    source: not null
-    target: not null
+    source: ${consumer[0]}
+    target: ${127.0.0.1:9099[0]}
   - id: not null
-    source: not null
-    target: not null
+    source: ${provider[0]}
+    target: ${localhost:-1[0]}

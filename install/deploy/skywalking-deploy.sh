@@ -17,7 +17,7 @@
 
 set -e
 
-CHART_PATH="../kubernetes/helm"
+CHART_PATH="./install/kubernetes/helm"
 DPELOY_NAMESPACE="istio-system"
 NEED_CHECK_PREFIX="deployment/skywalking-skywalking-"
 ALS_ENABLED=true
@@ -47,10 +47,24 @@ and_stable_repo
 
 helm dep up skywalking
 
-helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED --set oap.envoy.als.enabled=$ALS_ENABLED
+sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w vm.drop_caches=1
+sudo sysctl -w vm.drop_caches=3
 
-for component in $NEED_CHECK_PREFIX"oap" $NEED_CHECK_PREFIX"ui" ; do
-  kubectl -n istio-system rollout status $component --timeout 3m
+TAG="ci"
+IMAGE="skywalking/oap"
+
+docker images
+
+helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.enabled=$MIXER_ENABLED \
+        --set oap.envoy.als.enabled=$ALS_ENABLED --set oap.replicas=1 --set oap.image.tag=$TAG --set oap.image.repository=$IMAGE
+
+for component in $NEED_CHECK_PREFIX"oap" ; do
+  sleep 60
+  kubectl get deploy -o wide -n $DPELOY_NAMESPACE
+  kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
 done
+
+rm -rf tag.txt
 
 echo "SkyWalking deployed successfully"
