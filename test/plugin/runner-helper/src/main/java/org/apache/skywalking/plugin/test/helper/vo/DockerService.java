@@ -22,6 +22,7 @@ public class DockerService {
     private String name;
     private String imageName;
     private String hostname;
+    private List<String> startScript;
     private List<String> links;
     private List<String> expose;
     private List<String> entrypoint;
@@ -99,5 +100,13 @@ public class DockerService {
 
     public void setEnvironment(List<String> environment) {
         this.environment = environment;
+    }
+
+    public List<String> getStartScript() {
+        return startScript;
+    }
+
+    public void setStartScript(List<String> startScript) {
+        this.startScript = startScript;
     }
 }
