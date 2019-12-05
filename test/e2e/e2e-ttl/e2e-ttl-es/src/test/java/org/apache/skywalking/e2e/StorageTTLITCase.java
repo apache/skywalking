@@ -81,7 +81,7 @@ public class StorageTTLITCase {
         grpcStub = ServiceMeshMetricServiceGrpc.newStub(channel);
     }
 
-    @Test(timeout = 720000)
+    @Test(timeout = 1200000)
     public void dayMetricsDataShouldBeRemovedAfterTTL() throws Exception {
 
         final ServiceMeshMetric.Builder builder = ServiceMeshMetric
