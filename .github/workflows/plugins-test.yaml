@@ -465,8 +465,8 @@ jobs:
           java-version: 8
       - name: Build SkyWalking Agent
         run: ./mvnw clean package -DskipTests -Pagent >/dev/null
-      - name: Download apm-oracle-10.x-plugin-1.0.1.jar
-        run: curl -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
+      - name: Download apm-oracle-10.x-plugin-1.0.1.jar to agent plugins dir.
+        run: curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
       - name: Download ojdbc14.jar
         run: curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
       - name: Maven install ojdbc14.jar
