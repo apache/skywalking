@@ -465,16 +465,13 @@ jobs:
           java-version: 8
       - name: Build SkyWalking Agent
         run: ./mvnw clean package -DskipTests -Pagent >/dev/null
-      - name: Download apm-oracle-10.x-plugin-1.0.1.jar to agent plugins dir.
-        run: curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
-      - name: Download ojdbc14.jar
-        run: curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
-      - name: Maven install ojdbc14.jar
-        run: ./mvnw install:install-file  -Dfile=ojdbc14-10.2.0.4.0.jar  -DgroupId=com.oracle  -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
-      - name: Build the Docker image
-        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run oracle 10.2.0.4.0 (1)
-        run: bash test/plugin/run.sh oracle-scenario
+        run: |
+          curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
+          curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
+          ./mvnw install:install-file  -Dfile=ojdbc14-10.2.0.4.0.jar  -DgroupId=com.oracle  -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
+          ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+          bash test/plugin/run.sh oracle-scenario
       - name: Run kafka 0.11.0.0-2.3.0 (16)
         run: bash test/plugin/run.sh kafka-scenario
 
