@@ -116,7 +116,7 @@ public class StorageTTLITCase {
         shouldBeEmptyBetweenTimeRange(queryStart, queryEnd, "DAY");
     }
 
-    @Test(timeout = 720000)
+    @Test(timeout = 1200000)
     public void monthMetricsDataShouldBeRemovedAfterTTL() throws Exception {
 
         final ServiceMeshMetric.Builder builder = ServiceMeshMetric
