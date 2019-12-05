@@ -170,7 +170,6 @@ public class ClusterVerificationITCase {
                 );
 
                 LOGGER.info("Actual service instance topology: {}", topoData);
-
                 InputStream expectedInputStream =
                         new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.serviceInstanceTopo.yml").getInputStream();
                 final ServiceInstanceTopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, ServiceInstanceTopoMatcher.class);
