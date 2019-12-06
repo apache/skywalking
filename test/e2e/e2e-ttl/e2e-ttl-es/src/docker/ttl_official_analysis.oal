@@ -16,5 +16,9 @@
  *
  */
 
+
+// In TTL ES7 testing, using full oal config makes the test very unstable, so only service_p99 is reserved for testing.
+// ref https://github.com/apache/skywalking/pull/3978
+
 // Service scope metrics
 service_p99 = from(Service.latency).p99(10);
