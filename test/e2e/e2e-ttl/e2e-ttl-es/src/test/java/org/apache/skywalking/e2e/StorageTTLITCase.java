@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class StorageTTLITCase {
 
-    //TODO Make TTL ES7 test stable. Ref https://github.com/apache/skywalking/pull/3978
+    //TODO Make TTL ES7 test stable. Ref https://github.com/apache/skywalking/pull/3978, https://github.com/apache/skywalking/issues/4018
 
     private static final int SW_STORAGE_ES_MONTH_METRIC_DATA_TTL = 4;
     private static final int SW_STORAGE_ES_OTHER_METRIC_DATA_TTL = 5;
