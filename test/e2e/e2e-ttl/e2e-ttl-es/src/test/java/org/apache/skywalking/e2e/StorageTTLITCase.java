@@ -162,7 +162,7 @@ public class StorageTTLITCase {
             try {
                 final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
 
-                log.info("ServiceMetrics: {}", serviceMetrics);
+                log.info("shouldBeEmptyBetweenTimeRange-ServiceMetrics: {}", serviceMetrics);
 
                 AllOfMetricsMatcher instanceRespTimeMatcher = new AllOfMetricsMatcher();
                 MetricsValueMatcher equalsZero = new MetricsValueMatcher();
@@ -191,30 +191,27 @@ public class StorageTTLITCase {
         final String step
     ) throws Exception {
 
+        for (int i = 0; i < 10; i ++) {
+            sendMetrics(
+                    builder
+                            .setStartTime(startTime)
+                            .setEndTime(endTime)
+                            .build()
+            );
+        }
+
         boolean prepared = false;
         while (!prepared) {
-            sendMetrics(
-                builder
-                    .setStartTime(startTime)
-                    .setEndTime(endTime)
-                    .build()
-            );
-
             final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
             instanceRespTimeMatcher.setValue(greaterThanZero);
             try {
+                log.info("ensureSendingMetricsWorks-ServiceMetrics: {}", serviceMetrics);
                 instanceRespTimeMatcher.verify(serviceMetrics);
                 prepared = true;
             } catch (Throwable ignored) {
-                sendMetrics(
-                    builder
-                        .setStartTime(startTime)
-                        .setEndTime(endTime)
-                        .build()
-                );
                 Thread.sleep(10000);
             }
         }
