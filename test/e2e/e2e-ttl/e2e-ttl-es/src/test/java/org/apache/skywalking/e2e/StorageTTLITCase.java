@@ -81,7 +81,7 @@ public class StorageTTLITCase {
         grpcStub = ServiceMeshMetricServiceGrpc.newStub(channel);
     }
 
-    @Test(timeout = 1200000)
+    @Test(timeout = 360000)
     public void dayMetricsDataShouldBeRemovedAfterTTL() throws Exception {
 
         final ServiceMeshMetric.Builder builder = ServiceMeshMetric
@@ -116,7 +116,7 @@ public class StorageTTLITCase {
         shouldBeEmptyBetweenTimeRange(queryStart, queryEnd, "DAY");
     }
 
-    @Test(timeout = 1200000)
+    @Test(timeout = 360000)
     public void monthMetricsDataShouldBeRemovedAfterTTL() throws Exception {
 
         final ServiceMeshMetric.Builder builder = ServiceMeshMetric
@@ -190,28 +190,29 @@ public class StorageTTLITCase {
         final LocalDateTime queryEnd,
         final String step
     ) throws Exception {
-
-        for (int i = 0; i < 10; i ++) {
-            sendMetrics(
-                    builder
-                            .setStartTime(startTime)
-                            .setEndTime(endTime)
-                            .build()
-            );
-        }
-
         boolean prepared = false;
         while (!prepared) {
+            sendMetrics(
+                    builder
+                        .setStartTime(startTime)
+                        .setEndTime(endTime)
+                         .build()
+            );
             final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
             instanceRespTimeMatcher.setValue(greaterThanZero);
             try {
-                log.info("ensureSendingMetricsWorks-ServiceMetrics: {}", serviceMetrics);
                 instanceRespTimeMatcher.verify(serviceMetrics);
                 prepared = true;
             } catch (Throwable ignored) {
+                sendMetrics(
+                        builder
+                            .setStartTime(startTime)
+                            .setEndTime(endTime)
+                            .build()
+                );
                 Thread.sleep(10000);
             }
         }
