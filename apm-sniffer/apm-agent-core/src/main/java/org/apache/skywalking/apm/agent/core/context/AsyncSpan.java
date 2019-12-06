@@ -53,4 +53,11 @@ public interface AsyncSpan {
      * @return the current span
      */
     AbstractSpan asyncFinish();
+
+    /**
+     * Set the operation name, If span is in async mode
+     *
+     * @return the current span
+     */
+    AbstractSpan setOperationNameInAsync(String operationName);
 }
