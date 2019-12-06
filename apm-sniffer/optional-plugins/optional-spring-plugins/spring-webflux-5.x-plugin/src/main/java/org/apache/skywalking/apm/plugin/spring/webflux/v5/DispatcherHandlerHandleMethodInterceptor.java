@@ -33,9 +33,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import org.springframework.web.util.pattern.PathPattern;
 import reactor.core.publisher.Mono;
 
 /**
@@ -80,6 +82,11 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         return ((Mono) ret).doFinally(s -> {
             try {
                 HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+                if (exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE) != null) {
+                    String urlPattern = ((PathPattern) exchange
+                            .getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)).getPatternString();
+                    span.setOperationName(urlPattern);
+                }
                 // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
                 if (httpStatus != null) {
                     Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
