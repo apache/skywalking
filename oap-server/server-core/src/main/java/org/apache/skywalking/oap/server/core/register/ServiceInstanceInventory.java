@@ -69,7 +69,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop;
     @Getter private JsonObject properties;
 
-    @Setter @Getter private boolean resetServiceMapping = false;
+    @Setter @Getter private boolean resetServiceInstanceMapping = false;
 
     public static String buildId(int serviceId, String uuid) {
         return serviceId + Const.ID_SPLIT + uuid + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
@@ -153,7 +153,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         inventory.setNodeType(nodeType);
         inventory.setMappingServiceInstanceId(mappingServiceInstanceId);
         inventory.setProp(prop);
-        inventory.setResetServiceMapping(resetServiceMapping);
+        inventory.setResetServiceInstanceMapping(resetServiceInstanceMapping);
 
         inventory.setSequence(getSequence());
         inventory.setRegisterTime(getRegisterTime());
@@ -171,7 +171,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         remoteBuilder.addDataIntegers(addressId);
         remoteBuilder.addDataIntegers(nodeType);
         remoteBuilder.addDataIntegers(mappingServiceInstanceId);
-        remoteBuilder.addDataIntegers(resetServiceMapping ? 1 : 0);
+        remoteBuilder.addDataIntegers(resetServiceInstanceMapping ? 1 : 0);
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
@@ -191,7 +191,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         setAddressId(remoteData.getDataIntegers(3));
         setNodeType(remoteData.getDataIntegers(4));
         setMappingServiceInstanceId(remoteData.getDataIntegers(5));
-        setResetServiceMapping(remoteData.getDataIntegers(6) == 1);
+        setResetServiceInstanceMapping(remoteData.getDataIntegers(6) == 1);
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -212,9 +212,9 @@ public class ServiceInstanceInventory extends RegisterSource {
 
         if (instanceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
             this.nodeType = instanceInventory.getNodeType();
-            this.resetServiceMapping = instanceInventory.isResetServiceMapping();
+            this.resetServiceInstanceMapping = instanceInventory.isResetServiceInstanceMapping();
             setProp(instanceInventory.getProp());
-            if (instanceInventory.isResetServiceMapping()) {
+            if (instanceInventory.isResetServiceInstanceMapping()) {
                 this.mappingServiceInstanceId = Const.NONE;
             } else if (Const.NONE != instanceInventory.getMappingServiceInstanceId()) {
                 this.mappingServiceInstanceId = instanceInventory.mappingServiceInstanceId;

@@ -147,7 +147,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         if (nonNull(instanceInventory) && instanceInventory.getMappingServiceInstanceId() != Const.NONE) {
             instanceInventory = instanceInventory.getClone();
             instanceInventory.setLastUpdateTime(System.currentTimeMillis());
-            instanceInventory.setResetServiceMapping(true);
+            instanceInventory.setResetServiceInstanceMapping(true);
 
             InventoryStreamProcessor.getInstance().in(instanceInventory);
         } else {
