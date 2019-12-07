@@ -85,7 +85,7 @@ the yml to active.
 cluster:
   consul:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
-    # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+    # The consul cluster agents(agent is server agent or client agent). example: 127.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
 ```
 
