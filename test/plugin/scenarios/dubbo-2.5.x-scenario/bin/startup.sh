@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} "-Dskywalking.agent.service_name=dubbo-2.5.x-scenario" ${home}/../libs/dubbo-2.5.x-scenario.jar &
+java -jar ${agent_opts} ${home}/../libs/dubbo-2.5.x-scenario.jar &

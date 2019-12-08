@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} -Dskywalking.agent.service_name=armeria-server ${home}/../libs/armeria-scenario.jar &
+java -jar ${agent_opts} ${home}/../libs/armeria-scenario.jar &
