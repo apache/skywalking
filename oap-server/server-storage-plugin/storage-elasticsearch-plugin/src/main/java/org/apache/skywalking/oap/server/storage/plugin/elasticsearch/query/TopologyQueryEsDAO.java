@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import java.io.IOException;
-import java.util.*;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
-import org.apache.skywalking.oap.server.core.analysis.manual.servicerelation.*;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -34,10 +35,15 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author peng-yongsheng
@@ -109,6 +115,48 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
 
         return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
+        String indexName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        sourceBuilder.size(0);
+        setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
+
+        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+    }
+
+    @Override
+    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
+        String indexName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        sourceBuilder.size(0);
+        setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
+
+        return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+    }
+
+    private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, int clientServiceId, int serverServiceId) {
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must().add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+
+        BoolQueryBuilder serviceIdBoolQuery = new BoolQueryBuilder();
+        boolQuery.must(serviceIdBoolQuery);
+
+        BoolQueryBuilder serverRelationBoolQuery = new BoolQueryBuilder();
+        serviceIdBoolQuery.should(serverRelationBoolQuery);
+
+        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId));
+        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
+
+        BoolQueryBuilder clientRelationBoolQuery = new BoolQueryBuilder();
+        serviceIdBoolQuery.should(clientRelationBoolQuery);
+
+        clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId));
+        clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
+
+        sourceBuilder.query(boolQuery);
     }
 
     @Override
