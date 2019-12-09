@@ -9,9 +9,11 @@ option java_package = "io.envoyproxy.envoy.data.accesslog.v2";
 import "envoy/api/v2/core/address.proto";
 import "envoy/api/v2/core/base.proto";
 
+import "google/protobuf/any.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+
 import "validate/validate.proto";
 
 // [#protodoc-title: gRPC access logs]
@@ -34,16 +36,18 @@ message TCPAccessLogEntry {
 }
 
 message HTTPAccessLogEntry {
-  // Common properties shared by all Envoy access logs.
-  AccessLogCommon common_properties = 1;
-
   // HTTP version
   enum HTTPVersion {
     PROTOCOL_UNSPECIFIED = 0;
     HTTP10 = 1;
     HTTP11 = 2;
     HTTP2 = 3;
+    HTTP3 = 4;
   }
+
+  // Common properties shared by all Envoy access logs.
+  AccessLogCommon common_properties = 1;
+
   HTTPVersion protocol_version = 2;
 
   // Description of the incoming HTTP request.
@@ -63,11 +67,12 @@ message ConnectionProperties {
 }
 
 // Defines fields that are shared by all Envoy access logs.
+// [#next-free-field: 22]
 message AccessLogCommon {
   // [#not-implemented-hide:]
   // This field indicates the rate at which this log entry was sampled.
   // Valid range is (0.0, 1.0].
-  double sample_rate = 1 [(validate.rules).double.gt = 0.0, (validate.rules).double.lte = 1.0];
+  double sample_rate = 1 [(validate.rules).double = {lte: 1.0 gt: 0.0}];
 
   // This field is the remote/origin address on which the request from the user was received.
   // Note: This may not be the physical peer. E.g, if the remote address is inferred from for
@@ -158,10 +163,28 @@ message AccessLogCommon {
   // received. Note: This is always the physical peer, even if the remote address is inferred from
   // for example the x-forwarder-for header, proxy protocol, etc.
   envoy.api.v2.core.Address downstream_direct_remote_address = 20;
+
+  // Map of filter state in stream info that have been configured to be logged. If the filter
+  // state serialized to any message other than `google.protobuf.Any` it will be packed into
+  // `google.protobuf.Any`.
+  map<string, google.protobuf.Any> filter_state_objects = 21;
 }
 
 // Flags indicating occurrences during request/response processing.
+// [#next-free-field: 20]
 message ResponseFlags {
+  message Unauthorized {
+    // Reasons why the request was unauthorized
+    enum Reason {
+      REASON_UNSPECIFIED = 0;
+
+      // The request was denied by the external authorization service.
+      EXTERNAL_SERVICE = 1;
+    }
+
+    Reason reason = 1;
+  }
+
   // Indicates local server healthcheck failed.
   bool failed_local_healthcheck = 1;
 
@@ -198,17 +221,6 @@ message ResponseFlags {
   // Indicates that the request was rate-limited locally.
   bool rate_limited = 12;
 
-  message Unauthorized {
-    // Reasons why the request was unauthorized
-    enum Reason {
-      REASON_UNSPECIFIED = 0;
-      // The request was denied by the external authorization service.
-      EXTERNAL_SERVICE = 1;
-    }
-
-    Reason reason = 1;
-  }
-
   // Indicates if the request was deemed unauthorized and the reason for it.
   Unauthorized unauthorized_details = 13;
 
@@ -227,9 +239,13 @@ message ResponseFlags {
   // Indicates that the request was rejected because an envoy request header failed strict
   // validation.
   bool invalid_envoy_request_headers = 18;
+
+  // Indicates there was an HTTP protocol error on the downstream request.
+  bool downstream_protocol_error = 19;
 }
 
 // Properties of a negotiated TLS connection.
+// [#next-free-field: 7]
 message TLSProperties {
   enum TLSVersion {
     VERSION_UNSPECIFIED = 0;
@@ -238,6 +254,24 @@ message TLSProperties {
     TLSv1_2 = 3;
     TLSv1_3 = 4;
   }
+
+  message CertificateProperties {
+    message SubjectAltName {
+      oneof san {
+        string uri = 1;
+
+        // [#not-implemented-hide:]
+        string dns = 2;
+      }
+    }
+
+    // SANs present in the certificate.
+    repeated SubjectAltName subject_alt_name = 1;
+
+    // The subject field of the certificate.
+    string subject = 2;
+  }
+
   // Version of TLS that was negotiated.
   TLSVersion tls_version = 1;
 
@@ -251,22 +285,6 @@ message TLSProperties {
   // SNI hostname from handshake.
   string tls_sni_hostname = 3;
 
-  message CertificateProperties {
-    message SubjectAltName {
-      oneof san {
-        string uri = 1;
-        // [#not-implemented-hide:]
-        string dns = 2;
-      }
-    }
-
-    // SANs present in the certificate.
-    repeated SubjectAltName subject_alt_name = 1;
-
-    // The subject field of the certificate.
-    string subject = 2;
-  }
-
   // Properties of the local certificate used to negotiate TLS.
   CertificateProperties local_certificate_properties = 4;
 
@@ -277,11 +295,10 @@ message TLSProperties {
   string tls_session_id = 6;
 }
 
+// [#next-free-field: 14]
 message HTTPRequestProperties {
   // The request method (RFC 7231/2616).
-  // [#comment:TODO(htuch): add (validate.rules).enum.defined_only = true once
-  // https://github.com/lyft/protoc-gen-validate/issues/42 is resolved.]
-  envoy.api.v2.core.RequestMethod request_method = 1;
+  envoy.api.v2.core.RequestMethod request_method = 1 [(validate.rules).enum = {defined_only: true}];
 
   // The scheme portion of the incoming request URI.
   string scheme = 2;
@@ -331,6 +348,7 @@ message HTTPRequestProperties {
   map<string, string> request_headers = 13;
 }
 
+// [#next-free-field: 7]
 message HTTPResponseProperties {
   // The HTTP response code returned by Envoy.
   google.protobuf.UInt32Value response_code = 1;

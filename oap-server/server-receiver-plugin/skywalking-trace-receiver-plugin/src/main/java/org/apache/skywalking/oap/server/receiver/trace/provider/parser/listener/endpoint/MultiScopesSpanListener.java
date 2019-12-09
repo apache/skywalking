@@ -159,16 +159,21 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
+        int mappingServiceInstanceId = instanceInventoryCache.get(destInstanceId).getMappingServiceInstanceId();
 
         sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
         sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
         sourceBuilder.setSourceServiceId(segmentCoreInfo.getServiceId());
         sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-        sourceBuilder.setDestServiceInstanceId(destInstanceId);
         if (Const.NONE == mappingServiceId) {
             sourceBuilder.setDestServiceId(destServiceId);
         } else {
             sourceBuilder.setDestServiceId(mappingServiceId);
+        }
+        if (Const.NONE == mappingServiceInstanceId) {
+            sourceBuilder.setDestServiceInstanceId(destInstanceId);
+        } else {
+            sourceBuilder.setDestServiceInstanceId(mappingServiceInstanceId);
         }
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
         sourceBuilder.setComponentId(spanDecorator.getComponentId());
