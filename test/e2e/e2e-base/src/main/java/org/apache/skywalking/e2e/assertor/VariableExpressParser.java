@@ -31,18 +31,18 @@ import static java.util.Objects.isNull;
 public class VariableExpressParser {
 
 
-    public static <T> T parse(String express, List<T> actual, Function<T, String> getFiled) {
-        express = express.trim();
-        if (!(express.startsWith("${") && express.endsWith("}"))) {
+    public static <T> T parse(final String express, List<T> actual, Function<T, String> getFiled) {
+        String variable = express.trim();
+        if (!(variable.startsWith("${") && variable.endsWith("}"))) {
             return null;
         }
 
-        express = express.substring(2, express.length() - 1);
+        variable = variable.substring(2, variable.length() - 1);
 
-        int startIndexOfIndex = express.lastIndexOf("[");
-        String regex = express.substring(0, startIndexOfIndex);
-        int endIndexOfIndex = express.indexOf("]", startIndexOfIndex);
-        int expectedIndex = Integer.parseInt(express.substring(startIndexOfIndex + 1, endIndexOfIndex));
+        int startIndexOfIndex = variable.lastIndexOf("[");
+        String regex = variable.substring(0, startIndexOfIndex);
+        int endIndexOfIndex = variable.indexOf("]", startIndexOfIndex);
+        int expectedIndex = Integer.parseInt(variable.substring(startIndexOfIndex + 1, endIndexOfIndex));
         int mappingIndex = 0;
 
         T mapping = null;

@@ -116,6 +116,7 @@
                                         <volume>${sw.home}:/sw</volume>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                         <volume>${project.basedir}/src/docker/es_storage.awk:/es_storage.awk</volume>
+                                        <volume>${project.basedir}/src/docker/ttl_official_analysis.oal:/ttl_official_analysis.oal</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
