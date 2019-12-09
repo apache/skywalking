@@ -15,71 +15,71 @@
 # limitations under the License.
 registryItems:
   applications:
-    - {jdk-http-scenario: nq 0}
+    - {jdk-http-scenario: 2}
   instances:
     - {jdk-http-scenario: 1}
   operationNames:
-    - jdk-http-scenario: [/case/jdk-http-case, /case/receiveContext-0, /jdk-http-case/case/receiveContext-0]
+    - jdk-http-scenario: [/jdk-http-scenario/case/receiveContext-0, /jdk-http-scenario/case/jdk-http-scenario]
   heartbeat: []
 segmentItems:
   - applicationCode: jdk-http-scenario
-    segmentSize: 2
+    segmentSize: gt 2
     segments:
       - segmentId: not null
         spans:
-          - operationName: /jdk-http-case/case/receiveContext-0
-            operationId: eq 0
-            parentSpanId: 0
-            spanId: 1
-            startTime: nq 0
-            endTime: nq 0
-            isError: false
-            spanLayer: Http
-            spanType: Exit
-            componentName: null
-            componentId: eq 66
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/jdk-http-case/case/receiveContext-0'}
-            logs: []
-            peer: null
-            peerId: eq 0
-          - operationName: /case/jdk-http-case
-            operationId: eq 0
+          - operationName: /jdk-http-scenario/case/receiveContext-0
+            operationId: 0
             parentSpanId: -1
             spanId: 0
+            spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            spanLayer: Http
+            componentId: 1
+            componentName: ''
             isError: false
             spanType: Entry
-            componentName: null
-            componentId: 14
+            peer: ''
+            peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:{SERVER_OUTPUT_PORT}/jdk-http-case/case/jdk-http-case'}
-              - {key: http.method, value: GET}
-            logs: []
-            peer: null
-            peerId: eq 0
-
-      - segmentId: not null
-        spans:
-          - operationName: /case/receiveContext-0
-            operationId: eq 0
-            parentSpanId: -1
-            spanId: 0
-            startTime: nq 0
-            endTime: nq 0
-            spanLayer: Http
-            isError: false
-            spanType: Entry
-            componentName: null
-            componentId: 14
-            peer: null
-            peerId: eq 0
-            logs: []
-            tags:
-              - {key: url, value: 'http://localhost:8080/jdk-http-case/case/receiveContext-0'}
+              - {key: url, value: 'http://localhost:8080/jdk-http-scenario/case/receiveContext-0'}
               - {key: http.method, value: GET}
             refs:
-              - {parentSpanId: 1, parentTraceSegmentId: "${jdk-http-scenario[0]}", entryEndpoint: "/case/jdk-http-case", networkAddress: "127.0.0.1:8080",parentEndpoint: "/case/jdk-http-case",entryServiceInstanceId: nq 0 }
+              - {parentEndpointId: 0, parentEndpoint: /jdk-http-scenario/case/jdk-http-scenario,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
+                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+                 networkAddress: 'localhost:8080', entryEndpoint: /jdk-http-scenario/case/jdk-http-scenario,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /jdk-http-scenario/case/receiveContext-0
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 66
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/jdk-http-scenario/case/receiveContext-0'}
+          - operationName: /jdk-http-scenario/case/jdk-http-scenario
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/jdk-http-scenario/case/jdk-http-scenario'}
+              - {key: http.method, value: GET}

@@ -475,7 +475,7 @@ jobs:
       - name: Run kafka 0.11.0.0-2.3.0 (16)
         run: bash test/plugin/run.sh kafka-scenario
 
-  MySQL:
+  MySQL_JdkHttp:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -499,3 +499,5 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run mysql 5.1.2-8.0.15 (53)
         run: bash test/plugin/run.sh mysql-scenario
+      - name: Run jdk http (1)
+        run: bash test/plugin/run.sh jdk-http-scenario
