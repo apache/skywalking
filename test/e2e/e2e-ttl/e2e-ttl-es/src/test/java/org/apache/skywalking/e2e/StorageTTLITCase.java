@@ -51,6 +51,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Slf4j
 public class StorageTTLITCase {
+
+    //TODO Make TTL ES7 test stable. Ref https://github.com/apache/skywalking/pull/3978, https://github.com/apache/skywalking/issues/4018
+
     private static final int SW_STORAGE_ES_MONTH_METRIC_DATA_TTL = 4;
     private static final int SW_STORAGE_ES_OTHER_METRIC_DATA_TTL = 5;
 
@@ -190,7 +193,6 @@ public class StorageTTLITCase {
         final LocalDateTime queryEnd,
         final String step
     ) throws Exception {
-
         boolean prepared = false;
         while (!prepared) {
             sendMetrics(
@@ -199,7 +201,6 @@ public class StorageTTLITCase {
                     .setEndTime(endTime)
                     .build()
             );
-
             final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
