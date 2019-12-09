@@ -70,13 +70,18 @@ create_crd() {
 deploy_istio() {
   NAMESPACE=$1
   VERSION=$2
-  helm pull istio/istio && tar zxvf istio-${VERSION}.tgz && rm istio-${VERSION}.tgz
-  helm install istio istio -n ${NAMESPACE}
+  CHART_DIR="istio-skywalking-ci/install/kubernetes/helm"
+
+  git clone -b istio-skywalking-ci https://github.com/SkyAPMTest/istio-skywalking-ci.git
+
+  cd $CHART_DIR
+
+  helm install istio istio -n ${NAMESPACE} -f istio/values-istio-skywalking.yaml
 
   check() {
      kubectl -n ${NAMESPACE}  get deploy | grep istio | awk '{print "deployment/"$1}' | while read line ;
      do
-       kubectl rollout status $line -n ${NAMESPACE} --timeout 3m
+       kubectl rollout status $line -n ${NAMESPACE} --timeout 10m
      done
   }
   check

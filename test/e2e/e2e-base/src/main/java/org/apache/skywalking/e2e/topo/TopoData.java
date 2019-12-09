@@ -50,4 +50,12 @@ public class TopoData {
         this.calls = calls;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "TopoData{" +
+                "nodes=" + nodes +
+                ", calls=" + calls +
+                '}';
+    }
 }
