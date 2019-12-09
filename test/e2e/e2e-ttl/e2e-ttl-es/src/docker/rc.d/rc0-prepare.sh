@@ -23,6 +23,7 @@ original_wd=$(pwd)
 cd ${SW_HOME}/config \
     && gawk -f /es_storage.awk application.yml > es_storage_app.yml \
     && mv es_storage_app.yml application.yml \
+    && cp /ttl_official_analysis.oal official_analysis.oal \
     && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.storage" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
     && mv log4j2debuggable.xml log4j2.xml
 
