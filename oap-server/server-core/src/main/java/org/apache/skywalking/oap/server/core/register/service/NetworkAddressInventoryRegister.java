@@ -73,7 +73,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
             int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress, properties);
 
             if (serviceId != Const.NONE) {
-                int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, addressId, System.currentTimeMillis());
+                int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, networkAddress, addressId, System.currentTimeMillis());
 
                 if (serviceInstanceId != Const.NONE) {
                     return addressId;
