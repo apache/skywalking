@@ -151,8 +151,10 @@ jobs:
         run: bash test/plugin/run.sh canal-scenario
       - name: Run Pulsar 2.2.0-2.4.1 (7)
         run: bash test/plugin/run.sh pulsar-scenario
-      - name: Run Armeria 0.63.0-0.84.0 (6)
-        run: bash test/plugin/run.sh armeria-scenario
+      - name: Run Armeria 0.63.0-0.95.0 (20)
+        run: bash test/plugin/run.sh armeria-0.96minus-scenario
+      - name: Run Armeria 0.96.0-0.97.0 (2)
+        run: bash test/plugin/run.sh armeria-0.96plus-scenario
 
 
   Hystrix_SofaRPC_Spring30x:
