@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.*;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
  * Pool of consumers <p> Created by wusheng on 2016/10/25.
@@ -93,44 +92,19 @@ public class ConsumeDriver<T> implements IDriver {
 
     private void allocateBuffer2Thread() {
         int channelSize = this.channels.getChannelSize();
-        if (channelSize < consumerThreads.length) {
-            /**
-             * if consumerThreads.length > channelSize
-             * each channel will be process by several consumers.
-             */
-            ArrayList<Integer>[] threadAllocation = new ArrayList[channelSize];
-            for (int threadIndex = 0; threadIndex < consumerThreads.length; threadIndex++) {
-                int index = threadIndex % channelSize;
-                if (threadAllocation[index] == null) {
-                    threadAllocation[index] = new ArrayList<Integer>();
-                }
-                threadAllocation[index].add(threadIndex);
-            }
-
-            for (int channelIndex = 0; channelIndex < channelSize; channelIndex++) {
-                ArrayList<Integer> threadAllocationPerChannel = threadAllocation[channelIndex];
-                Buffer<T> channel = this.channels.getBuffer(channelIndex);
-                int bufferSize = channel.getBufferSize();
-                int step = bufferSize / threadAllocationPerChannel.size();
-                for (int i = 0; i < threadAllocationPerChannel.size(); i++) {
-                    int threadIndex = threadAllocationPerChannel.get(i);
-                    int start = i * step;
-                    int end = i == threadAllocationPerChannel.size() - 1 ? bufferSize : (i + 1) * step;
-                    consumerThreads[threadIndex].addDataSource(channel, start, end);
-                }
-            }
-        } else {
-            /**
-             * if consumerThreads.length < channelSize
-             * each consumer will process several channels.
-             *
-             * if consumerThreads.length == channelSize
-             * each consumer will process one channel.
-             */
-            for (int channelIndex = 0; channelIndex < channelSize; channelIndex++) {
-                int consumerIndex = channelIndex % consumerThreads.length;
-                consumerThreads[consumerIndex].addDataSource(channels.getBuffer(channelIndex));
-            }
+        /**
+         * if consumerThreads.length < channelSize
+         * each consumer will process several channels.
+         *
+         * if consumerThreads.length == channelSize
+         * each consumer will process one channel.
+         *
+         * if consumerThreads.length > channelSize
+         * there will be some threads do nothing.
+         */
+        for (int channelIndex = 0; channelIndex < channelSize; channelIndex++) {
+            int consumerIndex = channelIndex % consumerThreads.length;
+            consumerThreads[consumerIndex].addDataSource(channels.getBuffer(channelIndex));
         }
 
     }

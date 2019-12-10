@@ -20,8 +20,11 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
+import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.ApdexMetrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
@@ -58,6 +61,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private final StorageModels storageModels;
     private final SourceReceiverImpl receiver;
     private OALEngine oalEngine;
+    private ApdexThresholdConfig apdexThresholdConfig;
 
     public CoreModuleProvider() {
         super();
@@ -170,9 +174,13 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
 
         MetricsStreamProcessor.getInstance().setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());
+        TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
+        apdexThresholdConfig = new ApdexThresholdConfig(this);
+        ApdexMetrics.setDICT(apdexThresholdConfig);
     }
 
     @Override public void start() throws ModuleStartException {
+
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
         remoteClientManager.start();
@@ -191,6 +199,8 @@ public class CoreModuleProvider extends ModuleProvider {
             this.getManager().find(ClusterModule.NAME).provider().getService(ClusterRegister.class).registerRemote(gRPCServerInstance);
         }
 
+        DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME).provider().getService(DynamicConfigurationService.class);
+        dynamicConfigurationService.registerConfigChangeWatcher(apdexThresholdConfig);
     }
 
     @Override public void notifyAfterCompleted() throws ModuleStartException {

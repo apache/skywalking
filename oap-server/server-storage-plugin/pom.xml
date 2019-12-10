@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,6 +30,7 @@
     <modules>
         <module>storage-jdbc-hikaricp-plugin</module>
         <module>storage-elasticsearch-plugin</module>
+        <module>storage-elasticsearch7-plugin</module>
         <module>storage-zipkin-plugin</module>
         <module>storage-jaeger-plugin</module>
     </modules>

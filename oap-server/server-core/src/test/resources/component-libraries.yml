@@ -230,6 +230,12 @@ Ehcache:
 SocketIO:
   id: 76
   languages: Java
+rest-high-level-client:
+  id: 77
+  languages: Java
+spring-tx:
+  id: 78
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -327,5 +333,6 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
+  rest-high-level-client: Elasticsearch
   SolrJ: Solr
   cassandra-java-driver: Cassandra

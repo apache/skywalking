@@ -50,6 +50,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private int dayMetricsDataTTL = 2;
     private int otherMetricsDataTTL = 0;
     @Setter private int monthMetricsDataTTL = 18;
+    @Setter private String advanced;
 
     public int getMinuteMetricsDataTTL() {
         if (otherMetricsDataTTL > 0) {

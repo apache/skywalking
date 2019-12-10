@@ -19,12 +19,13 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -167,7 +168,8 @@ public class Config {
         public static String FILE_NAME = "skywalking-api.log";
 
         /**
-         * Log files directory. Default is blank string, means, use "system.out" to output logs.
+         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. 
+         * {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located.
          *
          * Ref to {@link WriterFactory#getLogWriter()}
          */
@@ -220,6 +222,14 @@ public class Config {
              * include parameters.
              */
             public static boolean TRACE_PARAM = false;
+
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code FILTER_LENGTH_LIMIT} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int FILTER_LENGTH_LIMIT = 256;
         }
 
         public static class Elasticsearch {
@@ -320,6 +330,14 @@ public class Config {
              * generating a local span for each.
              */
             public static boolean TRACE_HANDLER_CHAIN = false;
+        }
+
+        public static class SpringTransaction {
+
+            /**
+             * If true, the transaction definition name will be simplified
+             */
+            public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
         }
     }
 }
