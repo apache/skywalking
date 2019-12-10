@@ -44,7 +44,7 @@ If you have been familiar with SkyWalking, you could use this catalog to find th
   * UI
     * [Overview](en/concepts-and-designs/ui-overview.md).  A simple brief about SkyWalking UI.
   * CLI (Command Line Interface)
-    * [SkyWalking CLI](https://github.com/apache/skywalking-cli) provides a command line interface to interact with SkyWalking backend (via GraphQL), for more information, [click here](https://github.com/apache/skywalking-cli).
+    * SkyWalking CLI provides a command line interface to interact with SkyWalking backend (via GraphQL), for more information, [click here](https://github.com/apache/skywalking-cli).
 * [Setup](en/setup/README.md).
   * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
@@ -60,7 +60,7 @@ If you have been familiar with SkyWalking, you could use this catalog to find th
   * Service Mesh
     * [SkyWalking on Istio](en/setup/istio/README.md). Introduce how to use Istio Mixer bypass Adapter to work with SkyWalking.
     * Use [ALS(access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
-  * [Backend and UI setup document](en/setup/backend/backend-ui-setup.md).
+  * [Backend, UI and CLI setup document](en/setup/backend/backend-ui-setup.md).
     * [Backend setup document](en/setup/backend/backend-setup.md).
       * [Overriding settings](en/setup/backend/backend-setting-override.md) in application.yml is supported。
       * [IP and port setting](en/setup/backend/backend-ip-port.md). Introduce how IP and port set and be used.
