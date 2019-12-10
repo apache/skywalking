@@ -43,8 +43,10 @@ If you have been familiar with SkyWalking, you could use this catalog to find th
     * [Query in OAP](en/protocols/README.md#query-protocol). A set of query protocol provided, based on the Observability Analysis Language metrics definition.
   * UI
     * [Overview](en/concepts-and-designs/ui-overview.md).  A simple brief about SkyWalking UI.
+  * CLI (Command Line Interface)
+    * [SkyWalking CLI](https://github.com/apache/skywalking-cli) provides a command line interface to interact with SkyWalking backend (via GraphQL), for more information, [click here](https://github.com/apache/skywalking-cli).
 * [Setup](en/setup/README.md).
-  * Backend, UI and Java agent are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
+  * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
     * [Java agent](en/setup/service-agent/java-agent/README.md). Introduce how to install java agent to your service, without change any codes.
       * [Supported middleware, framework and library](en/setup/service-agent/java-agent/Supported-list.md).
@@ -77,6 +79,7 @@ If you have been familiar with SkyWalking, you could use this catalog to find th
       * [Dynamic Configuration](en/setup/backend/dynamic-config.md). Make configuration of OAP changed dynamic, from remote service or 3rd party configuration management system.
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
     * [UI setup document](en/setup/backend/ui-setup.md).
+    * [CLI setup document](https://github.com/apache/skywalking-cli).
 * [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can know how to contribute from beginning.
   * [Contact us](en/guides/README.md#contact-us). Guide users about how to contact the official committer team or communicate with the project community.
   * [Process to become official Apache SkyWalking Committer](en/guides/asf/committer.md). How to become an official committer or PMC member.
