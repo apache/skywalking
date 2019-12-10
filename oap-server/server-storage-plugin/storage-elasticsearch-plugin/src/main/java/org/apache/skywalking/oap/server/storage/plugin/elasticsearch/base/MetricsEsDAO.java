@@ -24,6 +24,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.*;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
@@ -32,9 +34,9 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  */
 public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
 
-    private final StorageBuilder<Metrics> storageBuilder;
+    protected final StorageBuilder<Metrics> storageBuilder;
 
-    MetricsEsDAO(ElasticSearchClient client, StorageBuilder<Metrics> storageBuilder) {
+    protected MetricsEsDAO(ElasticSearchClient client, StorageBuilder<Metrics> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
@@ -50,13 +52,13 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         return result;
     }
 
-    @Override public ElasticSearchInsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
+    @Override public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
         String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareInsert(modelName, metrics.id(), builder);
     }
 
-    @Override public ElasticSearchUpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
+    @Override public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
         String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
         return getClient().prepareUpdate(modelName, metrics.id(), builder);

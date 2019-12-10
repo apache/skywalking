@@ -15,6 +15,11 @@
   ~ limitations under the License.
 -->
 version: '2.1'
+
+networks:
+   default:
+     name: ${network_name}
+
 services:
     ${docker_container_name}:
         image: ${docker_image_name}:${docker_image_version}
@@ -33,7 +38,9 @@ services:
             - ${env}
         </#list>
         </#if>
+        <#if start_script??>
             - SCENARIO_START_SCRIPT=${start_script}
+        </#if>
             - SCENARIO_NAME=${scenario_name}
             - SCENARIO_VERSION=${scenario_version}
             - SCENARIO_ENTRY_SERVICE=${entry_service}
@@ -67,6 +74,12 @@ services:
         expose:
         <#list service.expose as expose>
             - ${expose}
+        </#list>
+        </#if>
+        <#if service.startScript??>
+        command:
+        <#list service.startScript as startScript>
+            - ${startScript}
         </#list>
         </#if>
         <#if service.depends_on??>

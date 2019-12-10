@@ -43,7 +43,7 @@ public class WrapperInstrumentation extends ClassStaticMethodsEnhancePluginDefin
                 }
 
                 @Override public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.dubbo.patch.MakeWrapperInterceptor";
+                    return "org.apache.skywalking.apm.plugin.asf.dubbo.patch.MakeWrapperInterceptor";
                 }
 
                 @Override public boolean isOverrideArgs() {

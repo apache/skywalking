@@ -168,7 +168,8 @@ public class Config {
         public static String FILE_NAME = "skywalking-api.log";
 
         /**
-         * Log files directory. Default is blank string, means, use "system.out" to output logs.
+         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. 
+         * {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located.
          *
          * Ref to {@link WriterFactory#getLogWriter()}
          */
@@ -329,6 +330,14 @@ public class Config {
              * generating a local span for each.
              */
             public static boolean TRACE_HANDLER_CHAIN = false;
+        }
+
+        public static class SpringTransaction {
+
+            /**
+             * If true, the transaction definition name will be simplified
+             */
+            public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
         }
     }
 }

@@ -18,13 +18,25 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.RequestType;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -39,10 +51,6 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import static java.util.Objects.nonNull;
 
@@ -151,16 +159,21 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
+        int mappingServiceInstanceId = instanceInventoryCache.get(destInstanceId).getMappingServiceInstanceId();
 
         sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
         sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
         sourceBuilder.setSourceServiceId(segmentCoreInfo.getServiceId());
         sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-        sourceBuilder.setDestServiceInstanceId(destInstanceId);
         if (Const.NONE == mappingServiceId) {
             sourceBuilder.setDestServiceId(destServiceId);
         } else {
             sourceBuilder.setDestServiceId(mappingServiceId);
+        }
+        if (Const.NONE == mappingServiceInstanceId) {
+            sourceBuilder.setDestServiceInstanceId(destInstanceId);
+        } else {
+            sourceBuilder.setDestServiceInstanceId(mappingServiceInstanceId);
         }
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
         sourceBuilder.setComponentId(spanDecorator.getComponentId());
@@ -179,13 +192,13 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
-                    if (!StringUtil.isEmpty(sqlStatement) && sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                        statement.setStatement(sqlStatement.substring(0,config.getMaxSlowSQLLength()));
-                    }
-                    else {
+                    if (StringUtil.isEmpty(sqlStatement)) {
+                        statement.setStatement("[No statement]/" + sourceBuilder.getDestEndpointName());
+                    } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
+                        statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
+                    } else {
                         statement.setStatement(sqlStatement);
                     }
-
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
                     DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();

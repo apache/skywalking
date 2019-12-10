@@ -558,6 +558,7 @@
                             <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/configuration/service/*.class</exclude>
+                            <exclude>org/apache/skywalking/oap/server/starter/OAPServerStartUp.class</exclude>
 
                             <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
                             <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>

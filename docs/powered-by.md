@@ -2,7 +2,7 @@
 This page documents an **alphabetical list** of institutions that are using Apache SkyWalking for research and production,
 or providing commercial products including Apache SkyWalking.
 
-
+1. 17173.com https://www.17173.com/
 1. 300.cn 中企动力科技股份有限公司 http://www.300.cn/
 1. 360jinrong.net 360金融 https://www.360jinrong.net/
 1. 4399.com 四三九九网络股份有限公司. http://www.4399.com/
@@ -23,6 +23,7 @@ or providing commercial products including Apache SkyWalking.
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
+1. China Mobile. CMSS. 中国移动苏州研发中心.
 1. Chtwm.com. 恒天财富投资管理股份有限公司. https://www.chtwm.com/
 1. Cmft.com. 招商局金融科技. https://www.cmft.com/
 1. CXIST.com 上海程析智能科技有限公司 https://www.cxist.com/
@@ -33,6 +34,7 @@ or providing commercial products including Apache SkyWalking.
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
+1. fangdd.com 房多多 https://www.fangdd.com
 1. fullgoal.com.cn 富国基金管理有限公司 https://www.fullgoal.com.cn/
 1. GTrace System. (No company provided) 
 1. GSX Techedu Inc. 跟谁学 https://www.genshuixue.com
@@ -62,6 +64,7 @@ or providing commercial products including Apache SkyWalking.
 1. Mobanker.com 上海前隆信息科技有限公司  http://www.mobanker.com/
 1. Mxnavi. 沈阳美行科技有限公司 http://www.mxnavi.com/
 1. Moji 墨叽（深圳）科技有限公司 https://www.mojivip.com
+1. MINSHENG FinTech 民生科技有限责任公司 http://www.mskj.com/
 1. Mypharma.com 北京融贯电子商务有限公司 https://www.mypharma.com
 1. NetEase 网易 https://www.163.com/
 1. Osacart in WeChat app 广州美克曼尼电子商务有限公司
@@ -115,6 +118,9 @@ Integrated in the microservices architecture support platform.
 
 ## China Merchants Bank
 Use SkyWalking and [SkyAPM .net agent](https://github.com/SkyAPM/SkyAPM-dotnet) in the CMBChina Mall project.
+
+## China Mobile
+China Mobile Suzhou Research Center, CMSS, integrated SkyWalking as the APM component in China Mobile PAAS. 
 
 ## ke.com
 Deploy SkyWalking in production environments.
