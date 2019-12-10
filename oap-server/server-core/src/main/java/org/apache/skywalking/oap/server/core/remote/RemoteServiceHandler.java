@@ -93,10 +93,10 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
                     try {
                         RemoteHandleWorker handleWorker = workerInstanceGetter.get(nextWorkerName);
-                        AbstractWorker nextWorker = handleWorker.getWorker();
-                        StreamData streamData = handleWorker.getStreamDataClass().newInstance();
-                        streamData.deserialize(remoteData);
-                        if (nextWorker != null) {
+                        if (handleWorker != null) {
+                            AbstractWorker nextWorker = handleWorker.getWorker();
+                            StreamData streamData = handleWorker.getStreamDataClass().newInstance();
+                            streamData.deserialize(remoteData);
                             nextWorker.in(streamData);
                         } else {
                             remoteInTargetNotFoundCounter.inc();
