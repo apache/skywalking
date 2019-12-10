@@ -17,21 +17,20 @@
 
 package org.apache.skywalking.apm.plugin.armeria;
 
-import java.lang.reflect.Method;
-import java.net.URI;
-
 import com.linecorp.armeria.client.UserClient;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+import java.lang.reflect.Method;
+import java.net.URI;
+
 /**
  * @author kezhenxu94
  */
 @SuppressWarnings("rawtypes")
 public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
-    private static final String KEY_SAFE_CLOSEABLE = "SAFE_CLOSEABLE";
 
     @Override
     public void beforeMethod(

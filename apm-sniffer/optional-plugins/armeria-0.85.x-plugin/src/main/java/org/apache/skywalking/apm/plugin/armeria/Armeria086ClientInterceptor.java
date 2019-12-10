@@ -31,7 +31,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
  */
 @SuppressWarnings("rawtypes")
 public class Armeria086ClientInterceptor extends ArmeriaClientInterceptor {
-    private static final String KEY_SAFE_CLOSEABLE = "SAFE_CLOSEABLE";
 
     @Override
     public void beforeMethod(
