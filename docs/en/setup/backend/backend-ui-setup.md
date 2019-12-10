@@ -1,4 +1,4 @@
-# Backend and UI
+# Backend, UI, and CLI
 
 SkyWalking backend distribution package includes following parts
 1. **bin/cmd scripts**, in `/bin` folder. Include startup linux shell and Windows cmd scripts for Backend
@@ -37,4 +37,4 @@ data to backend. Also, jetty service supported in JSON format.
 Now, let's continue with the backend and UI setting documents.
 - [Backend setup document](backend-setup.md)
 - [UI setup document](ui-setup.md)
-
+- [CLI set up document](https://github.com/apache/skywalking-cli)
