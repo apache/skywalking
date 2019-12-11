@@ -350,9 +350,4 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    @Override
-    public AbstractSpan setOperationNameInAsync(String operationName) {
-        return setOperationName(operationName);
-    }
-
 }
