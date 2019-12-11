@@ -440,12 +440,12 @@ jobs:
         run: ./mvnw clean package -DskipTests -Pagent >/dev/null
       - name: Build the Docker image
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
-      - name: Run elasticsearch-7.x-scenario 7.0.0-7.4.2 (11)
+      - name: Run elasticsearch-7.x-scenario 7.0.0-7.5.0 (12)
         run: bash test/plugin/run.sh elasticsearch-7.x-scenario
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
 
-  Oracle_Kafka:
+  Oracle_Kafka_JdkHttp:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -474,6 +474,8 @@ jobs:
           bash test/plugin/run.sh oracle-scenario
       - name: Run kafka 0.11.0.0-2.3.0 (16)
         run: bash test/plugin/run.sh kafka-scenario
+      - name: Run jdk http (1)
+        run: bash test/plugin/run.sh jdk-http-scenario
 
   MySQL:
     runs-on: ubuntu-18.04

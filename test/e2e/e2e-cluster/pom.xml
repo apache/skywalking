@@ -31,9 +31,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>provider</module>
-        <module>consumer</module>
-        <module>gateway</module>
-        <module>test-runner</module>
+        <module>e2e-cluster-provider</module>
+        <module>e2e-cluster-consumer</module>
+        <module>e2e-cluster-test-runner</module>
     </modules>
 </project>
