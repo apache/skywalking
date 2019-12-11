@@ -52,7 +52,7 @@ TAG?=latest
 
 .PHONY: docker docker.all docker.oap
 
-docker: init build.docker docker.all
+docker: init build.all docker.all
 
 DOCKER_TARGETS:=docker.oap docker.ui
 
@@ -62,6 +62,12 @@ docker.oap: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
+		$(DOCKER_RULE)
+
+docker.oap-es7: $(SW_OUT)/apache-skywalking-apm-bin-es7.tar.gz
+docker.oap-es7: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap-es7
+docker.oap-es7: $(SW_ROOT)/docker/oap-es7/docker-entrypoint.sh
+docker.oap-es7: $(SW_ROOT)/docker/oap-es7/log4j2.xml
 		$(DOCKER_RULE)
 
 docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
