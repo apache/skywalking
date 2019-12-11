@@ -121,7 +121,7 @@ jobs:
       - name: Run gson-scenario (7)
         run: bash test/plugin/run.sh gson-scenario
 
-  Feign_Canal:
+  Feign_Canal_Armeria:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -149,8 +149,13 @@ jobs:
         run: bash test/plugin/run.sh customize-scenario
       - name: Run canal 1.0.24-1.1.2 (5)
         run: bash test/plugin/run.sh canal-scenario
-      - name: Run Feign_Canal_Pulsar 2.2.0-2.4.1 (7)
+      - name: Run Pulsar 2.2.0-2.4.1 (7)
         run: bash test/plugin/run.sh pulsar-scenario
+      - name: Run Armeria 0.63.0-0.95.0 (20)
+        run: bash test/plugin/run.sh armeria-0.96minus-scenario
+      - name: Run Armeria 0.96.0-0.97.0 (2)
+        run: bash test/plugin/run.sh armeria-0.96plus-scenario
+
 
   Cassandra_Hystrix_SofaRPC_Spring30x:
     runs-on: ubuntu-18.04
