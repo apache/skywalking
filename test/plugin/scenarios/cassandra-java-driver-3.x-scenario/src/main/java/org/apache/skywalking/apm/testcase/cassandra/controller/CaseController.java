@@ -51,9 +51,6 @@ public class CaseController {
     private static final String DROP_TABLE_SQL = "DROP TABLE IF EXISTS demo.test";
     private static final String DROP_KEYSPACE = "DROP KEYSPACE IF EXISTS demo";
 
-    private Cluster cluster;
-    private Session session;
-
     private static final Logger logger = LogManager.getLogger(CaseController.class);
     private static final String SUCCESS = "Success";
 
@@ -62,6 +59,8 @@ public class CaseController {
     public String testcase() {
         logger.info("cassandra contact points: {}:{}", host, port);
 
+        Cluster cluster = null;
+        Session session = null;
         try {
             cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
             session = cluster.connect();
@@ -150,6 +149,8 @@ public class CaseController {
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
+        Cluster cluster = null;
+        Session session = null;
         try {
             cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
             session = cluster.connect();

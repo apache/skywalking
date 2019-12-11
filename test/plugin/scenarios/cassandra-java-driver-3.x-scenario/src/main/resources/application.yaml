@@ -19,5 +19,10 @@ server:
   port: 8080
   servlet:
     context-path: /cassandra-java-driver-3.x-scenario
+#close jmx report
+spring:
+  data:
+    cassandra:
+      jmx-enabled: false
 logging:
   config: classpath:log4j2.xml
