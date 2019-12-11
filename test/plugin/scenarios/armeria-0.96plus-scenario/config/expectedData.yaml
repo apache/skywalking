@@ -45,6 +45,11 @@ segmentItems:
             tags:
               - {key: url, value: /greet/skywalking}
               - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /greet/skywalking, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: '127.0.0.1:8085', entryEndpoint: /greet/skywalking,
+                 entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
           - operationName: /greet/skywalking
