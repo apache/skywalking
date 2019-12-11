@@ -53,5 +53,4 @@ public interface AsyncSpan {
      * @return the current span
      */
     AbstractSpan asyncFinish();
-
 }

@@ -349,5 +349,4 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         isAsyncStopped = true;
         return this;
     }
-
 }

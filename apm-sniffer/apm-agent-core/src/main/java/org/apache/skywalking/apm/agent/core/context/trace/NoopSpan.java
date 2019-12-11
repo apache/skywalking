@@ -123,9 +123,4 @@ public class NoopSpan implements AbstractSpan {
     @Override public AbstractSpan asyncFinish() {
         return this;
     }
-
-    @Override
-    public AbstractSpan setOperationNameInAsync(String operationName) {
-        return this;
-    }
 }
