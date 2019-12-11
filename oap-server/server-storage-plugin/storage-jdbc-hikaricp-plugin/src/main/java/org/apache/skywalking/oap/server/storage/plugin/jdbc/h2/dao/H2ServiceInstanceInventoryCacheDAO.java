@@ -19,9 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +60,36 @@ public class H2ServiceInstanceInventoryCacheDAO extends H2SQLExecutor implements
     @Override public int getServiceInstanceId(int serviceId, int addressId) {
         String id = ServiceInstanceInventory.buildId(serviceId, addressId);
         return getByID(id);
+    }
+
+    @Override
+    public List<ServiceInstanceInventory> loadLastUpdate(long lastUpdateTime) {
+        List<ServiceInstanceInventory> instanceInventories = new ArrayList<>();
+
+        try {
+            StringBuilder sql = new StringBuilder("select * from ");
+            sql.append(ServiceInstanceInventory.INDEX_NAME);
+            sql.append(" where ").append(ServiceInstanceInventory.IS_ADDRESS).append("=? ");
+            sql.append(" and ").append(ServiceInstanceInventory.LAST_UPDATE_TIME).append(">?");
+
+            try (Connection connection = h2Client.getConnection()) {
+                try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), BooleanUtils.TRUE, lastUpdateTime)) {
+                    ServiceInstanceInventory serviceInstanceInventory;
+                    do {
+                        serviceInstanceInventory = (ServiceInstanceInventory) toStorageData(resultSet, ServiceInstanceInventory.INDEX_NAME, new ServiceInstanceInventory.Builder());
+                        if (serviceInstanceInventory != null) {
+                            instanceInventories.add(serviceInstanceInventory);
+                        }
+                    }
+                    while (serviceInstanceInventory != null);
+                }
+            } catch (SQLException e) {
+                throw new IOException(e);
+            }
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+        return instanceInventories;
     }
 
     private int getByID(String id) {

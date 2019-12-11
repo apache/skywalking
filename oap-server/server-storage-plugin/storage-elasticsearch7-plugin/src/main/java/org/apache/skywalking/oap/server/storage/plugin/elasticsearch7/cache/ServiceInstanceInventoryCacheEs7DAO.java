@@ -36,8 +36,8 @@ public class ServiceInstanceInventoryCacheEs7DAO extends ServiceInstanceInventor
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCacheEs7DAO.class);
 
-    public ServiceInstanceInventoryCacheEs7DAO(ElasticSearchClient client) {
-        super(client);
+    public ServiceInstanceInventoryCacheEs7DAO(ElasticSearchClient client, int resultWindowMaxSize) {
+        super(client, resultWindowMaxSize);
     }
 
     @Override
