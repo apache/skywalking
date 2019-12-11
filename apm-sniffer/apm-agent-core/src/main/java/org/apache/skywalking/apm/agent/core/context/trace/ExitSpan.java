@@ -116,7 +116,7 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
 
     @Override
     public AbstractTracingSpan setOperationName(String operationName) {
-        if (stackDepth == 1) {
+        if (stackDepth == 1 || isInAsyncMode) {
             return super.setOperationName(operationName);
         } else {
             return this;
