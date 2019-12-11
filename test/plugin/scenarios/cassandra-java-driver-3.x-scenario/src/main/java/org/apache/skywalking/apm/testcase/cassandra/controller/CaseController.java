@@ -62,7 +62,7 @@ public class CaseController {
         Cluster cluster = null;
         Session session = null;
         try {
-            cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
+            cluster = Cluster.builder().addContactPoint(host).withPort(port).withoutJMXReporting().build();
             session = cluster.connect();
             logger.info("cassandra connection open");
 
@@ -152,7 +152,7 @@ public class CaseController {
         Cluster cluster = null;
         Session session = null;
         try {
-            cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
+            cluster = Cluster.builder().addContactPoint(host).withPort(port).withoutJMXReporting().build();
             session = cluster.connect();
             logger.info("cassandra connection open");
 
@@ -169,5 +169,4 @@ public class CaseController {
         }
         return SUCCESS;
     }
-
 }
