@@ -190,6 +190,14 @@ needs to set in another thread, you should use these APIs.
      * @return the current span
      */
     AbstractSpan asyncFinish();
+
+    /**
+     * Set the operation name, If span is in async mode
+     *
+     * @return the current span
+     */
+    AbstractSpan setOperationNameInAsync(String operationName);
+
 ```
 1. Call `#prepareForAsync` in original context.
 1. Do `ContextManager#stopSpan` in original context when your job in current thread is done.
