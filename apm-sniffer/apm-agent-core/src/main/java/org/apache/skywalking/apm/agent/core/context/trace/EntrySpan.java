@@ -96,7 +96,7 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     @Override
     public AbstractTracingSpan setOperationName(String operationName) {
-        if (stackDepth == currentMaxDepth) {
+        if (stackDepth == currentMaxDepth || isInAsyncMode) {
             return super.setOperationName(operationName);
         } else {
             return this;
