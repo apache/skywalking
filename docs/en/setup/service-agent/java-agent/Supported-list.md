@@ -32,6 +32,7 @@
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
   * [ShardingSphere](https://github.com/apache/incubator-shardingsphere) 3.0.0, 4.0.0-RC1
   * PostgreSQL Driver 8.x, 9.x, 42.x
+  * Cassandra Driver 3.7.0-3.7.2
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
