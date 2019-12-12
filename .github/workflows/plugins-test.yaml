@@ -157,7 +157,7 @@ jobs:
         run: bash test/plugin/run.sh armeria-0.96plus-scenario
 
 
-  Hystrix_SofaRPC_Spring30x:
+  Cassandra_Hystrix_SofaRPC_Spring30x:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -179,6 +179,8 @@ jobs:
         run: ./mvnw clean package -DskipTests -Pagent >/dev/null
       - name: Build the Docker image
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run cassandra 3.7.0-3.7.2 (3)
+        run: bash test/plugin/run.sh cassandra-java-driver-3.x-scenario
       - name: Run hystrix 1.4.20-1.5.12 (20)
         run: bash test/plugin/run.sh hystrix-scenario
       - name: Run sofarpc 5.4.0-5.6.2 (23)
