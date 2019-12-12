@@ -51,7 +51,7 @@ jobs:
         run: tools/dependencies/check-LICENSE.sh
 
   CI-on-Windows:
-    runs-on: indows-latest
+    runs-on: Windows-latest
     timeout-minutes: 180
     strategy:
       fail-fast: true
