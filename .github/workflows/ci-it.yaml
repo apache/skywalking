@@ -56,12 +56,11 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: 'Set ENV'
-        run: |
-          set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
       - name: 'Install & Test'
         run: |
-          mvn -P"agent,backend,ui,dist" clean verify install
+          set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          ./mvnw -P"agent,backend,ui,dist" clean verify install
+
 
   CI-on-MacOS:
     runs-on: macos-latest
