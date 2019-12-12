@@ -18,14 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
+import org.apache.skywalking.oap.server.core.query.entity.Alarms;
+import org.apache.skywalking.oap.server.core.query.entity.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.elasticsearch.common.Strings;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author wusheng
@@ -64,7 +71,7 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
 
-            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " ) AS alarm", parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
                 }

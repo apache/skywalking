@@ -30,7 +30,7 @@ public class MySQLTraceQueryDAO extends H2TraceQueryDAO {
     }
 
     @Override protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " ) AS TRACE";
+        return "select count(1) total " + sql;
     }
 
     @Override protected void buildLimit(StringBuilder sql, int from, int limit) {

@@ -30,7 +30,7 @@ public class MySQLLogQueryDAO extends H2LogQueryDAO {
     }
 
     protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " )";
+        return "select count(1) total " + sql;
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
