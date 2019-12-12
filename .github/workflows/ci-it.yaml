@@ -71,7 +71,7 @@ jobs:
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT"
+          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean verify install
 
   CI-on-MacOS:
     runs-on: macos-latest
@@ -94,4 +94,4 @@ jobs:
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT"
+          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean verify install
