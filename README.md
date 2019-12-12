@@ -95,6 +95,8 @@ Hundreds of companies and organizations use SkyWalking for research, production,
 1. China Eastern Airlines
 1. China Merchants Bank
 1. China Mobile
+1. China Unicom
+1. China Tower
 1. DaoCloud
 1. GOME
 1. guazi.com
