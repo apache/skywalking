@@ -44,8 +44,8 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         run: |
-          export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
+          export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify package javadoc:javadoc
           CODECOV_TOKEN="d2065307-8f01-4637-9715-2781ef096db7" bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
@@ -70,8 +70,8 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         run: |
-          set MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          mvnw.cmd -P"agent,backend,ui,dist,CI-with-IT" clean verify install
+          set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          ./mvn -P"agent,backend,ui,dist" clean verify package
 
   CI-on-MacOS:
     runs-on: macos-latest
@@ -93,5 +93,5 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         run: |
-          export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean verify install
+          export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          ./mvnw -P"agent,backend,ui,dist" clean verify package
