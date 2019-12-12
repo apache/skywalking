@@ -33,19 +33,13 @@ jobs:
       - uses: actions/checkout@v1
         with:
           submodules: true
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify package javadoc:javadoc
+          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
           CODECOV_TOKEN="d2065307-8f01-4637-9715-2781ef096db7" bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
@@ -59,19 +53,15 @@ jobs:
       - uses: actions/checkout@v1
         with:
           submodules: true
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: 'Install & Test'
+      - name: 'Set ENV'
         run: |
           set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvn -P"agent,backend,ui,dist" clean verify package
+      - name: 'Install & Test'
+        run: |
+          mvn -P"agent,backend,ui,dist" clean verify install
 
   CI-on-MacOS:
     runs-on: macos-latest
@@ -82,16 +72,10 @@ jobs:
       - uses: actions/checkout@v1
         with:
           submodules: true
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist" clean verify package
+          ./mvnw -P"agent,backend,ui,dist" clean verify install
