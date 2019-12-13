@@ -36,7 +36,9 @@ registryItems:
   instances:
     - {webflux-scenario: nq 0}
   operationNames:
-    - webflux-scenario: ['WEBFLUX.handle']
+    - webflux-scenario: [/testcase/annotation/loo, /testcase/route/bad, /testcase/route/foo,
+                         /testcase/notFound, /testcase/annotation/foo, WEBFLUX.handle, /testcase/annotation/hello,
+                         /testcase/route/loo, /testcase/annotation/bad, /testcase/route/hello]
   heartbeat: []
 segmentItems:
   - applicationCode: webflux-scenario
@@ -44,7 +46,7 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/annotation/hello
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -61,9 +63,32 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/annotation/hello'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/hello, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/hello,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/annotation/hello
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/testcase/annotation/hello'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/annotation/bad
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -80,9 +105,33 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/annotation/bad'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '500'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/bad, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/bad,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/annotation/bad
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: true
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/testcase/annotation/bad'}
+              - {key: status_code, value: '500'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/annotation/{test}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -99,9 +148,32 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/annotation/foo'}
               - {key: http.method, value: POST}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/foo, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/foo,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/annotation/foo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: POST}
+              - {key: url, value: 'http://localhost:8080/testcase/annotation/foo'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/annotation/{test}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -118,9 +190,32 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/annotation/loo'}
               - {key: http.method, value: POST}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/loo, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/loo,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/annotation/loo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: POST}
+              - {key: url, value: 'http://localhost:8080/testcase/annotation/loo'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/route/hello
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -137,9 +232,32 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/route/hello'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/route/hello, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/hello,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/route/hello
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/testcase/route/hello'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/route/bad
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -156,9 +274,33 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/route/bad'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '500'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/route/bad, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/bad,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/route/bad
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/testcase/route/bad'}
+              - {key: status_code, value: '500'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/route/{test}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -175,9 +317,32 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/route/foo'}
               - {key: http.method, value: POST}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/route/foo, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/foo,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/route/foo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: POST}
+              - {key: url, value: 'http://localhost:8080/testcase/route/foo'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/route/{test}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -194,9 +359,32 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/route/loo'}
               - {key: http.method, value: POST}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/route/loo, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/loo,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/route/loo
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: POST}
+              - {key: url, value: 'http://localhost:8080/testcase/route/loo'}
+      - segmentId: not null
+        spans:
+          - operationName: /**
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -213,9 +401,33 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/testcase/notFound'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '404'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /testcase/notFound, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/notFound,
+                 entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: WEBFLUX.handle
+          - operationName: /testcase/notFound
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 12
+            componentName: ''
+            isError: true
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/testcase/notFound'}
+              - {key: status_code, value: '404'}
+      - segmentId: not null
+        spans:
+          - operationName: /testcase
             operationId: 0
             parentSpanId: -1
             spanId: 0

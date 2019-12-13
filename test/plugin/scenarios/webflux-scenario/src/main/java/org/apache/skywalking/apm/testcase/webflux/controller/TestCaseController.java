@@ -17,15 +17,19 @@
  */
 package org.apache.skywalking.apm.testcase.webflux.controller;
 
-import java.io.IOException;
+import java.time.Duration;
 import java.util.Objects;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author Born
@@ -33,24 +37,23 @@ import reactor.core.publisher.Mono;
 @RestController
 public class TestCaseController {
 
-
     @GetMapping("/testcase")
     public Mono<Boolean> testcase() {
         return Flux.concat(
-                WebClient.create("http://localhost:8080/testcase/annotation/hello").get().exchange(),
-                WebClient.create("http://localhost:8080/testcase/annotation/bad").get().exchange(),
-                WebClient.create("http://localhost:8080/testcase/annotation/foo").post().exchange(),
-                WebClient.create("http://localhost:8080/testcase/annotation/loo").post().exchange(),
-                WebClient.create("http://localhost:8080/testcase/route/hello").get().exchange(),
-                WebClient.create("http://localhost:8080/testcase/route/bad").get().exchange(),
-                WebClient.create("http://localhost:8080/testcase/route/foo").post().exchange(),
-                WebClient.create("http://localhost:8080/testcase/route/loo").post().exchange(),
-                WebClient.create("http://localhost:8080/testcase/notFound").get().exchange()
-        ).all(Objects::nonNull);
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/annotation/hello", "GET")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/annotation/bad", "GET")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/annotation/foo", "POST")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/annotation/loo", "POST")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/route/hello", "GET")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/route/bad", "GET")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/route/foo", "POST")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/route/loo", "POST")).timeout(Duration.ofMinutes(1)),
+                Mono.fromRunnable(() -> visit("http://localhost:8080/testcase/notFound", "GET")).timeout(Duration.ofMinutes(1))
+        ).all(Objects::nonNull).timeout(Duration.ofMinutes(10)).subscribeOn(Schedulers.parallel());
     }
 
     @GetMapping("/healthCheck")
-    public Mono<String> healthCheck() throws IOException {
+    public Mono<String> healthCheck() {
         return Mono.just("test");
     }
 
@@ -68,6 +71,23 @@ public class TestCaseController {
     @PostMapping("/testcase/annotation/{test}")
     public Mono<String> testVariable(@PathVariable("test") String var) {
         return Mono.just(var);
+    }
+
+
+
+    private static void visit(String url, String method) {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        try {
+            Request request ;
+            if ("GET".equals(method)) {
+                request = new Request.Builder().url(url).get().build();
+            } else {
+                request = new Request.Builder().url(url).post(RequestBody.create(MediaType.parse("text/html"),"")).build();
+            }
+            okHttpClient.newCall(request).execute();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

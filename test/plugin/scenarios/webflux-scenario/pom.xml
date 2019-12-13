@@ -43,7 +43,11 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
             <version>${test.framework.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
