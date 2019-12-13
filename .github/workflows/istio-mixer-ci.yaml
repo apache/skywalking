@@ -23,14 +23,13 @@ on:
       - master
     tags:
       - 'v*'
-
 env:
   SCRIPTS_DIR: ./test/e2e-mesh/e2e-istio/scripts
   LOG_DIR: /tmp/skywalking
   INSTALL_SCRIPTS_DIR: ./install/deploy
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: Prepare enviroment
