@@ -91,7 +91,7 @@ Follow this [document](docs/en/guides/How-to-build.md).
 
 # Who Uses SkyWalking?
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product, including
-1. Alibaba Cloud
+1. Alibaba & Alibaba Cloud
 1. China Eastern Airlines
 1. China Merchants Bank
 1. China Mobile

@@ -23,7 +23,7 @@ or providing commercial products including Apache SkyWalking.
 1. Chehejia Automotive. 北京车和家信息技术有限责任公司. https://www.chehejia.com/
 1. Chinadaas. 北京中数智汇科技股份有限公司. https://www.chinadaas.com/
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
-1. China Mobile CMSS. 中国移动苏州研发中心.
+1. China Mobile 中国移动
 1. China Mobile 中国联通
 1. China Tower 中国铁塔
 1. Chtwm.com. 恒天财富投资管理股份有限公司. https://www.chtwm.com/
@@ -113,8 +113,10 @@ or providing commercial products including Apache SkyWalking.
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
 
 # Use Cases
-## Alibaba Cloud
-Support SkyWalking agents and formats in Tracing Analysis cloud service.
+## Alibaba and Alibaba Cloud 
+Alibaba products including [Cloud DevOps product](https://cn.aliyun.com/product/yunxiao) are under SkyWalking monitoring.
+
+Alibaba Cloud supports SkyWalking agents and formats in Tracing Analysis cloud service.
 
 ## China Eastern Airlines
 Integrated in the microservices architecture support platform.
