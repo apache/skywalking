@@ -96,8 +96,8 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         sql.append(" order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
     
         List<TopNEntity> topNEntities = new ArrayList<>();
-        try (Connection connection = getClient().getConnection()) {
-            try (ResultSet resultSet = getClient().executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
             
                 try {
                     while (resultSet.next()) {
@@ -114,10 +114,6 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             throw new IOException(e);
         }
         return topNEntities;
-    }
-
-    public JDBCHikariCPClient getClient() {
-        return h2Client;
     }
 
     protected void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
