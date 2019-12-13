@@ -29,7 +29,7 @@ env:
   INSTALL_SCRIPTS_DIR: ./install/deploy
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
       - name: Prepare enviroment

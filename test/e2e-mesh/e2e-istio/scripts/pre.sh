@@ -61,6 +61,7 @@ curl -sSL "https://storage.googleapis.com/kubernetes-release/release/${K8SVERSIO
 chmod +x /tmp/kubectl
 sudo mv /tmp/kubectl /usr/local/bin/kubectl
 
+sudo rm -rf /var/lib/apt/lists/*
 sudo apt-get remove -y --purge man-db
 sudo apt-get update
 sudo apt-get install -y \
