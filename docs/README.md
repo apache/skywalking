@@ -48,7 +48,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
   * CLI (Command Line Interface)
     * SkyWalking CLI provides a command line interface to interact with SkyWalking backend (via GraphQL), for more information, [click here](https://github.com/apache/skywalking-cli).
 * [Setup](en/setup/README.md).
-  * Backend, UI and Java agent are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
+  * Backend, UI, Java agent, and CLI are Apache official release, you could find them at [Apache SkyWalking DOWNLOAD page](http://skywalking.apache.org/downloads/).
   * Language agents in Service
     * [Java agent](en/setup/service-agent/java-agent/README.md). Introduces how to install the java agent to your service, without changing any code.
       * [Supported middleware, framework and library](en/setup/service-agent/java-agent/Supported-list.md).
