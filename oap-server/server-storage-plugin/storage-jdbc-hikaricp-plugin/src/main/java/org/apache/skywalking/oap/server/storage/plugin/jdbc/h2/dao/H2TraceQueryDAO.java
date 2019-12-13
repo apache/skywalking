@@ -184,8 +184,4 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
     @Override public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
     }
-
-    protected JDBCHikariCPClient getClient() {
-        return h2Client;
-    }
 }
