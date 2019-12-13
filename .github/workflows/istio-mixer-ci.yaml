@@ -22,7 +22,7 @@ on:
     branches:
       - master
     tags:
-      - '*'
+      - 'v*'
 env:
   SCRIPTS_DIR: ./test/e2e-mesh/e2e-istio/scripts
   LOG_DIR: /tmp/skywalking

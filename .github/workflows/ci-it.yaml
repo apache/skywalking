@@ -22,7 +22,7 @@ on:
     branches: 
       - master
     tags:
-      - '*'
+      - 'v*'
     
 
 jobs:
