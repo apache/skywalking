@@ -236,6 +236,9 @@ rest-high-level-client:
 spring-tx:
   id: 78
   languages: Java
+Armeria:
+  id: 79
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

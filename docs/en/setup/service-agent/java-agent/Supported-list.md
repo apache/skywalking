@@ -40,6 +40,7 @@
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
   * [Apache ServiceComb Java Chassis](https://github.com/apache/servicecomb-java-chassis) 0.1 -> 0.5,1.0.x
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
+  * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.97.0
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -62,7 +63,7 @@
   * [Solr](https://github.com/apache/lucene-solr/)
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
-    * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.6.0-3.7.2
+    * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
