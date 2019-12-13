@@ -74,7 +74,7 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * Active spans stored in a Stack, usually called 'ActiveSpanStack'. This {@link LinkedList} is the in-memory
      * storage-structure. <p> I use {@link LinkedList#removeLast()}, {@link LinkedList#addLast(Object)} and {@link
-     * LinkedList#last} instead of {@link #pop()}, {@link #push(AbstractSpan)}, {@link #peek()}
+     * LinkedList#getLast()} instead of {@link #pop()}, {@link #push(AbstractSpan)}, {@link #peek()}
      */
     private LinkedList<AbstractSpan> activeSpanStack = new LinkedList<AbstractSpan>();
 
@@ -131,34 +131,57 @@ public class TracingContext implements AbstractTracerContext {
         } else {
             carrier.setPeerId(peerId);
         }
+
+        AbstractSpan firstSpan = first();
+        String firstSpanOperationName = firstSpan.getOperationName();
+
         List<TraceSegmentRef> refs = this.segment.getRefs();
-        int operationId;
-        String operationName;
+        int operationId = DictionaryUtil.inexistence();
+        String operationName = "";
         int entryApplicationInstanceId;
+
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
             operationId = ref.getEntryEndpointId();
             operationName = ref.getEntryEndpointName();
             entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
-            AbstractSpan firstSpan = first();
-            operationId = firstSpan.getOperationId();
-            operationName = firstSpan.getOperationName();
+            if (firstSpan.isEntry()) {
+                /**
+                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
+                 * this is not an endpoint.
+                 */
+                operationId = firstSpan.getOperationId();
+                operationName = firstSpanOperationName;
+            }
             entryApplicationInstanceId = this.segment.getApplicationInstanceId();
+
         }
         carrier.setEntryServiceInstanceId(entryApplicationInstanceId);
 
         if (operationId == DictionaryUtil.nullValue()) {
             if (!StringUtil.isEmpty(operationName)) {
                 carrier.setEntryEndpointName(operationName);
+            } else {
+                /**
+                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
+                 * this is not an endpoint.
+                 */
             }
         } else {
             carrier.setEntryEndpointId(operationId);
         }
 
-        int parentOperationId = first().getOperationId();
+        int parentOperationId = firstSpan.getOperationId();
         if (parentOperationId == DictionaryUtil.nullValue()) {
-            carrier.setParentEndpointName(first().getOperationName());
+            if (!StringUtil.isEmpty(firstSpanOperationName)) {
+                carrier.setParentEndpointName(firstSpanOperationName);
+            } else {
+                /**
+                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
+                 * this is not an endpoint.
+                 */
+            }
         } else {
             carrier.setParentEndpointId(parentOperationId);
         }
@@ -341,39 +364,13 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.FoundAndObtain() {
                         @Override
                         public Object doProcess(final int peerId) {
-                            return DictionaryManager.findEndpointSection()
-                                .findOnly(segment.getServiceId(), operationName)
-                                .doInCondition(
-                                    new PossibleFound.FoundAndObtain() {
-                                        @Override
-                                        public Object doProcess(int operationId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, peerId);
-                                        }
-                                    }, new PossibleFound.NotFoundAndObtain() {
-                                        @Override
-                                        public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
-                                        }
-                                    });
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
                         }
                     },
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            return DictionaryManager.findEndpointSection()
-                                .findOnly(segment.getServiceId(), operationName)
-                                .doInCondition(
-                                    new PossibleFound.FoundAndObtain() {
-                                        @Override
-                                        public Object doProcess(int operationId) {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationId, remotePeer);
-                                        }
-                                    }, new PossibleFound.NotFoundAndObtain() {
-                                        @Override
-                                        public Object doProcess() {
-                                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
-                                        }
-                                    });
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
                         }
                     });
             push(exitSpan);

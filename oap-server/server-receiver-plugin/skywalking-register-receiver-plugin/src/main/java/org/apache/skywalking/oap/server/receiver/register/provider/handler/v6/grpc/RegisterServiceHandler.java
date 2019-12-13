@@ -163,14 +163,19 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
             int serviceId = endpoint.getServiceId();
             String endpointName = endpoint.getEndpointName();
 
-            int endpointId = inventoryService.getOrCreate(serviceId, endpointName, DetectPoint.fromNetworkProtocolDetectPoint(endpoint.getFrom()));
+            DetectPoint detectPoint = DetectPoint.fromNetworkProtocolDetectPoint(endpoint.getFrom());
+            if (DetectPoint.SERVER.equals(detectPoint)) {
+                int endpointId = inventoryService.getOrCreate(serviceId, endpointName, detectPoint);
 
-            if (endpointId != Const.NONE) {
-                builder.addElements(EndpointMappingElement.newBuilder()
-                    .setServiceId(serviceId)
-                    .setEndpointName(endpointName)
-                    .setEndpointId(endpointId)
-                    .setFrom(endpoint.getFrom()));
+                if (endpointId != Const.NONE) {
+                    builder.addElements(EndpointMappingElement.newBuilder()
+                        .setServiceId(serviceId)
+                        .setEndpointName(endpointName)
+                        .setEndpointId(endpointId)
+                        .setFrom(endpoint.getFrom()));
+                }
+            } else {
+                logger.warn("Unexpected endpoint register, endpoint isn't detected from server side. {}", request);
             }
         });
 
