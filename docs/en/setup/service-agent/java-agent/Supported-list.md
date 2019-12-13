@@ -40,6 +40,7 @@
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
   * [Apache ServiceComb Java Chassis](https://github.com/apache/servicecomb-java-chassis) 0.1 -> 0.5,1.0.x
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
+  * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.97.0
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -58,11 +59,11 @@
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
     * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.7/index.html) 6.7.1-6.8.4
-    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.4.2
+    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.5.0
   * [Solr](https://github.com/apache/lucene-solr/)
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
-    * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.6.0-3.7.2
+    * [cassandra-java-driver](https://github.com/datastax/java-driver) 3.7.0-3.7.2
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
