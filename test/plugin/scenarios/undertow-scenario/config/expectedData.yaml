@@ -20,7 +20,7 @@ registryItems:
   instances:
     - {undertow-scenario: 1}
   operationNames:
-    - undertow-scenario: [/undertow-scenario/case/undertow1, /undertow-scenario/case/undertow, /undertow-routing-scenario/case/undertow,
+    - undertow-scenario: [/undertow-scenario/case/undertow1, /undertow-scenario/case/undertow,
                           '/undertow-routing-scenario/case/{context}']
   heartbeat: []
 segmentItems:

@@ -27,9 +27,7 @@ registryItems:
                                   WEBFLUX.handle, org.apache.skywalking.apm.testcase.sc.webflux.projectB.controller.TestAnnotationController.error,
                                   org.apache.skywalking.apm.testcase.sc.webflux.projectB.controller.TestAnnotationController.healthCheck,
                                   RoutingConfiguration.org.apache.skywalking.apm.testcase.sc.webflux.projectB.route.TestHandler]
-    - webflux-projectA-scenario: [/testcase/annotation/mono/hello, /projectA/testcase,
-                                  /testcase/annotation/success, /testcase/annotation/healthCheck, /notFound, /projectA/healthCheck,
-                                  /testcase/route/error, /testcase/route/success, /testcase/annotation/error]
+    - webflux-projectA-scenario: [/projectA/testcase]
   heartbeat: []
 segmentItems:
   - applicationCode: webflux-projectB-scenario
