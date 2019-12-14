@@ -15,8 +15,8 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/testcase
-healthCheck: http://localhost:8080/healthCheck
+entryService: http://localhost:8080/projectA/testcase
+healthCheck: http://localhost:8080/projectA/healthCheck
 startScript: ./bin/startup.sh
 framework: spring-webflux
 runningMode: with_optional

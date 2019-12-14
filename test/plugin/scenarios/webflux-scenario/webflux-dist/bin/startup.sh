@@ -18,4 +18,7 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/webflux-scenario.jar &
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=webflux-projectA-scenario" ${home}/../libs/webflux-projectA-scenario.jar &
+sleep 1
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=webflux-projectB-scenario" ${home}/../libs/webflux-projectB-scenario.jar &

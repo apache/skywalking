@@ -14,39 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 registryItems:
   applications:
-    - {webflux-scenario: nq 0}
+    - {webflux-projectB-scenario: nq 0}
+    - {webflux-projectA-scenario: nq 0}
   instances:
-    - {webflux-scenario: nq 0}
+    - {webflux-projectB-scenario: 1}
+    - {webflux-projectA-scenario: 1}
   operationNames:
-    - webflux-scenario: [/testcase/annotation/loo, /testcase/route/bad, /testcase/route/foo,
-                         /testcase/notFound, /testcase/annotation/foo, WEBFLUX.handle, /testcase/annotation/hello,
-                         /testcase/route/loo, /testcase/annotation/bad, /testcase/route/hello]
+    - webflux-projectB-scenario: [WEBFLUX.handle]
+    - webflux-projectA-scenario: [/testcase/annotation/mono/hello, /testcase/annotation/loo,
+                                  /projectA/testcase, /testcase/annotation/success, /testcase/annotation/healthCheck,
+                                  /projectA/healthCheck, /notFound, /testcase/route/error, /testcase/annotation/foo,
+                                  /testcase/route/success, /testcase/annotation/error]
   heartbeat: []
 segmentItems:
-  - applicationCode: webflux-scenario
+  - applicationCode: webflux-projectB-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null
         spans:
-          - operationName: /testcase/annotation/hello
+          - operationName: /testcase/annotation/success
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -60,35 +48,17 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/hello'}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/success'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/hello, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/hello,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: /testcase/annotation/hello
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/hello'}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/annotation/bad
+          - operationName: /testcase/annotation/error
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -102,33 +72,14 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/bad'}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/error'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '500'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/bad, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/bad,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/annotation/bad
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: true
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/bad'}
-              - {key: status_code, value: '500'}
       - segmentId: not null
         spans:
           - operationName: /testcase/annotation/{test}
@@ -145,32 +96,14 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/foo'}
-              - {key: http.method, value: POST}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/foo'}
+              - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/foo, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/foo,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 3, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/annotation/foo
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: POST}
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/foo'}
       - segmentId: not null
         spans:
           - operationName: /testcase/annotation/{test}
@@ -187,35 +120,17 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/loo'}
-              - {key: http.method, value: POST}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/loo'}
+              - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/annotation/loo, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/annotation/loo,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 4, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: /testcase/annotation/loo
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: POST}
-              - {key: url, value: 'http://localhost:8080/testcase/annotation/loo'}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/hello
+          - operationName: /testcase/route/{test}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -229,35 +144,17 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/route/hello'}
+              - {key: url, value: 'http://localhost:18080/testcase/route/success'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/route/hello, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/hello,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 5, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: /testcase/route/hello
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/testcase/route/hello'}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/bad
+          - operationName: /testcase/route/{test}
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -271,117 +168,14 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/route/bad'}
+              - {key: url, value: 'http://localhost:18080/testcase/route/error'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '500'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/route/bad, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/bad,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 6, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/bad
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/testcase/route/bad'}
-              - {key: status_code, value: '500'}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/{test}
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 67
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/testcase/route/foo'}
-              - {key: http.method, value: POST}
-              - {key: status_code, value: '200'}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/route/foo, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/foo,
-                 entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/foo
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: POST}
-              - {key: url, value: 'http://localhost:8080/testcase/route/foo'}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/{test}
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 67
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/testcase/route/loo'}
-              - {key: http.method, value: POST}
-              - {key: status_code, value: '200'}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/route/loo, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/route/loo,
-                 entryServiceInstanceId: not null}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase/route/loo
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: POST}
-              - {key: url, value: 'http://localhost:8080/testcase/route/loo'}
       - segmentId: not null
         spans:
           - operationName: /**
@@ -398,36 +192,17 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase/notFound'}
+              - {key: url, value: 'http://localhost:18080/notFound'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '404'}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /testcase/notFound, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: 'localhost:8080', entryEndpoint: /testcase/notFound,
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 7, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: /testcase/notFound
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 12
-            componentName: ''
-            isError: true
-            spanType: Exit
-            peer: localhost:8080
-            peerId: 0
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: 'http://localhost:8080/testcase/notFound'}
-              - {key: status_code, value: '404'}
-      - segmentId: not null
-        spans:
-          - operationName: /testcase
+          - operationName: /testcase/annotation/mono/hello
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -441,6 +216,163 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/testcase'}
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/mono/hello'}
               - {key: http.method, value: GET}
               - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /projectA/testcase, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 8, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
+                 entryServiceInstanceId: not null}
+  - applicationCode: webflux-projectA-scenario
+    segmentSize: nq 0
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: /testcase/annotation/success
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+          - operationName: /testcase/annotation/error
+            operationId: 0
+            parentSpanId: 0
+            spanId: 2
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: true
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '500'}
+          - operationName: /testcase/annotation/foo
+            operationId: 0
+            parentSpanId: 0
+            spanId: 3
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:18080
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/foo'}
+              - {key: http.method, value: GET}
+          - operationName: /testcase/annotation/loo
+            operationId: 0
+            parentSpanId: 0
+            spanId: 4
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:18080
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:18080/testcase/annotation/loo'}
+              - {key: http.method, value: GET}
+          - operationName: /testcase/route/success
+            operationId: 0
+            parentSpanId: 0
+            spanId: 5
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+          - operationName: /testcase/route/error
+            operationId: 0
+            parentSpanId: 0
+            spanId: 6
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: true
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '500'}
+          - operationName: /notFound
+            operationId: 0
+            parentSpanId: 0
+            spanId: 7
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: true
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '404'}
+          - operationName: /testcase/annotation/mono/hello
+            operationId: 0
+            parentSpanId: 0
+            spanId: 8
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: not null
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}
+          - operationName: /projectA/testcase
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: not null}
+              - {key: http.method, value: GET}

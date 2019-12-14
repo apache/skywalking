@@ -33,7 +33,12 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/webflux-scenario.jar</source>
+            <source>../webflux-projectA-scenario/target/webflux-projectA-scenario.jar</source>
+            <outputDirectory>./libs</outputDirectory>
+            <fileMode>0775</fileMode>
+        </file>
+        <file>
+            <source>../webflux-projectB-scenario/target/webflux-projectB-scenario.jar</source>
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>
