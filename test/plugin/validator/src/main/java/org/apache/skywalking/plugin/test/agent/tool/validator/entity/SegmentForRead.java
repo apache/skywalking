@@ -110,11 +110,11 @@ public class SegmentForRead implements Segment {
             this.entryServiceInstanceId = entryServiceInstanceId;
         }
 
-        @Override public String parentServiceId() {
+        @Override public String parentEndpointId() {
             return parentEndpointId;
         }
 
-        @Override public String parentServiceName() {
+        @Override public String parentEndpointName() {
             return parentEndpoint;
         }
 
@@ -122,7 +122,7 @@ public class SegmentForRead implements Segment {
             return networkAddressId;
         }
 
-        @Override public String entryServiceId() {
+        @Override public String entryEndpointId() {
             return entryEndpointId;
         }
 
@@ -138,7 +138,7 @@ public class SegmentForRead implements Segment {
             return parentTraceSegmentId;
         }
 
-        @Override public String parentApplicationInstanceId() {
+        @Override public String parentServiceInstanceId() {
             return parentServiceInstanceId;
         }
 
@@ -146,7 +146,7 @@ public class SegmentForRead implements Segment {
             return networkAddress;
         }
 
-        @Override public String entryServiceName() {
+        @Override public String entryEndpointName() {
             return entryEndpoint;
         }
 
@@ -154,15 +154,15 @@ public class SegmentForRead implements Segment {
             this.parentTraceSegmentId = parentTraceSegmentId;
         }
 
-        @Override public String entryApplicationInstanceId() {
+        @Override public String entryServiceInstanceId() {
             return entryServiceInstanceId;
         }
 
         @Override public String toString() {
             StringBuilder actualSegmentRef = new StringBuilder("\nSegmentRef:\n");
-            return actualSegmentRef.append(String.format(" - entryServiceName:\t\t%s\n", entryServiceName()))
+            return actualSegmentRef.append(String.format(" - entryServiceName:\t\t%s\n", entryEndpointName()))
                 .append(String.format(" - networkAddress:\t\t\t%s\n", networkAddress()))
-                .append(String.format(" - parentServiceName:\t\t%s\n", parentServiceName()))
+                .append(String.format(" - parentServiceName:\t\t%s\n", parentEndpointName()))
                 .append(String.format(" - parentSpanId:\t\t\t%s\n", parentSpanId()))
                 .append(String.format(" - parentTraceSegmentId:\t%s\n", parentTraceSegmentId()))
                 .append(String.format(" - refType:\t\t\t\t\t%s", refType())).toString();
