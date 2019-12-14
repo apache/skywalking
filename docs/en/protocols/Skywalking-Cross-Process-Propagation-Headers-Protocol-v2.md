@@ -38,6 +38,8 @@ _This value can use exchange/compress collector service to get the id(integer) t
 1. Parent endpoint of the parent service. **String(BASE64 encoded)**. 
 _This value can use exchange/compress collector service to get the id(integer) to represent the string. If you use the string, it must start with `#`, others use integer directly._
 
+endpoint id = -1 and parent endpoint name is empty mean there is no real parent endpoint. Since 6.6.0
+
 ## Sample values
 1. Short version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT`
 1. Complete version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT-ENTRYURI-PARENTURI`
