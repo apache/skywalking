@@ -52,20 +52,15 @@ public class RestHighLevelClientConInterceptorTest {
     @Mock
     private RestClient restClient;
 
-    @Mock
-    private HttpHost httpHost;
-
-
     private Object[] allArguments;
 
     private RestHighLevelClientConInterceptor restHighLevelClientConInterceptor;
 
     @Before
     public void setUp() throws Exception {
-        when(httpHost.getHostName()).thenReturn("127.0.0.1");
-        when(httpHost.getPort()).thenReturn(9200);
         List<Node> nodeList = new ArrayList<Node>();
-        nodeList.add(new Node(httpHost));
+        nodeList.add(new Node(new HttpHost("127.0.0.1", 9200)));
+        nodeList.add(new Node(new HttpHost("127.0.0.1", 9300)));
         restHighLevelClientConInterceptor = new RestHighLevelClientConInterceptor();
         when(restClientBuilder.build()).thenReturn(restClient);
         when(restClient.getNodes()).thenReturn(nodeList);
@@ -91,6 +86,6 @@ public class RestHighLevelClientConInterceptorTest {
         restHighLevelClientConInterceptor.onConstruct(objInst, allArguments);
 
         assertThat(objInst.getSkyWalkingDynamicField() instanceof RestClientEnhanceInfo, is(true));
-        assertThat(((RestClientEnhanceInfo)objInst.getSkyWalkingDynamicField()).getPeers(), is("127.0.0.1:9200"));
+        assertThat(((RestClientEnhanceInfo)objInst.getSkyWalkingDynamicField()).getPeers(), is("127.0.0.1:9200,127.0.0.1:9300"));
     }
 }
