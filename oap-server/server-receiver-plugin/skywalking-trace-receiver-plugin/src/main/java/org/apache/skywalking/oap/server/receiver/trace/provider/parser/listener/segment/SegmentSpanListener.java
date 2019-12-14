@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.source.Segment;
@@ -124,9 +125,11 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             return;
         }
 
-        if (entryEndpointId == 0) {
-            segment.setEndpointId(firstEndpointId);
-            segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
+        if (entryEndpointId == Const.NONE) {
+            if (firstEndpointId != Const.INEXISTENCE_ENDPOINT_ID) {
+                segment.setEndpointId(firstEndpointId);
+                segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
+            }
         } else {
             segment.setEndpointId(entryEndpointId);
             segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());
