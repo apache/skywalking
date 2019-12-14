@@ -20,9 +20,8 @@ registryItems:
   instances:
     - {apm-toolkit-trace-scenario: 1}
   operationNames:
-    - apm-toolkit-trace-scenario: [/apm-toolkit-trace-scenario/case/asyncVisit/runnable,
-                                   /case/asyncVisit/runnable, /case/asyncVisit/callable, /apm-toolkit-trace-scenario/case/asyncVisit/callable,
-                                   /case/tool-kit,/apm-toolkit-trace-scenario/case/asyncVisit/supplier,/case/asyncVisit/supplier]
+    - apm-toolkit-trace-scenario: [/case/asyncVisit/runnable, /case/asyncVisit/callable,
+                                   /case/tool-kit, /case/asyncVisit/supplier]
   heartbeat: []
 segmentItems:
   - applicationCode: apm-toolkit-trace-scenario
