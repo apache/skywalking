@@ -230,7 +230,7 @@ registryItems:
 | --- | ---
 | applications | The registered service codes. Normally, not 0 should be enough.
 | instances | The number of service instances exists in this test case.
-| operationNames | All endpoint registered in this test case. Also means, the operation names of all entry and exit spans.
+| operationNames | All endpoint registered in this test case. Also means, the operation names of all entry spans.
 
 
 **Segment verify description format**
