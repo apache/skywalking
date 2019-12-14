@@ -122,7 +122,7 @@ segmentItems:
             peer: ''
             peerId: 0
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /spring-async-scenario/case/spring-async,
+              - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 0,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: '', entryEndpoint: /spring-async-scenario/case/spring-async,

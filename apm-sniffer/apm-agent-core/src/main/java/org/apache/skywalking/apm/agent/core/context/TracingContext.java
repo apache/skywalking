@@ -167,7 +167,6 @@ public class TracingContext implements AbstractTracerContext {
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
-                carrier.setEntryEndpointId(DictionaryUtil.inexistence());
             }
         } else {
             carrier.setEntryEndpointId(operationId);
