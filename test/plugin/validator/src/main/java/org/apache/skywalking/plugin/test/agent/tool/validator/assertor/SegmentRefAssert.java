@@ -57,15 +57,15 @@ public class SegmentRefAssert {
 
     private static boolean segmentRefEquals(SegmentRef expected, SegmentRef actual) {
         try {
-            ExpressParser.parse(expected.entryServiceName()).assertValue("entry service name", actual.entryServiceName());
+            ExpressParser.parse(expected.entryServiceName()).assertValue("entry endpoint name", actual.entryServiceName());
             ExpressParser.parse(expected.networkAddress()).assertValue("network address", actual.networkAddress());
             ExpressParser.parse(expected.parentTraceSegmentId()).assertValue("parent segment id", actual.parentTraceSegmentId());
             ExpressParser.parse(expected.parentSpanId()).assertValue("span id", actual.parentSpanId());
-            ExpressParser.parse(expected.entryServiceId()).assertValue("entry service id", actual.entryServiceId());
+            ExpressParser.parse(expected.entryServiceId()).assertValue("entry endpoint id", actual.entryServiceId());
             ExpressParser.parse(expected.networkAddressId()).assertValue("network address id", actual.networkAddressId());
             ExpressParser.parse(expected.parentApplicationInstanceId()).assertValue("parent application instance id", actual.parentApplicationInstanceId());
-            ExpressParser.parse(expected.parentServiceId()).assertValue("parent service id", actual.parentServiceId());
-            ExpressParser.parse(expected.parentServiceName()).assertValue("parent service name", actual.parentServiceName());
+            ExpressParser.parse(expected.parentServiceId()).assertValue("parent endpoint id", actual.parentServiceId());
+            ExpressParser.parse(expected.parentServiceName()).assertValue("parent endpoint name", actual.parentServiceName());
             ExpressParser.parse(expected.refType()).assertValue("ref type", actual.refType());
             ExpressParser.parse(expected.entryApplicationInstanceId()).assertValue("entry application instance id", actual.entryApplicationInstanceId());
             return true;
