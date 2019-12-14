@@ -149,7 +149,7 @@ public class TracingContext implements AbstractTracerContext {
             if (firstSpan.isEntry()) {
                 /**
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * this is not an endpoint.
+                 * rather than an endpoint.
                  */
                 operationId = firstSpan.getOperationId();
                 operationName = firstSpanOperationName;
@@ -165,8 +165,9 @@ public class TracingContext implements AbstractTracerContext {
             } else {
                 /**
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * this is not an endpoint.
+                 * rather than an endpoint.
                  */
+                carrier.setEntryEndpointId(DictionaryUtil.inexistence());
             }
         } else {
             carrier.setEntryEndpointId(operationId);
@@ -174,13 +175,14 @@ public class TracingContext implements AbstractTracerContext {
 
         int parentOperationId = firstSpan.getOperationId();
         if (parentOperationId == DictionaryUtil.nullValue()) {
-            if (!StringUtil.isEmpty(firstSpanOperationName)) {
+            if (firstSpan.isEntry() && !StringUtil.isEmpty(firstSpanOperationName)) {
                 carrier.setParentEndpointName(firstSpanOperationName);
             } else {
                 /**
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * this is not an endpoint.
+                 * rather than an endpoint.
                  */
+                carrier.setParentEndpointId(DictionaryUtil.inexistence());
             }
         } else {
             carrier.setParentEndpointId(parentOperationId);
@@ -218,17 +220,27 @@ public class TracingContext implements AbstractTracerContext {
             activeSpan().getSpanId(),
             segment.getRelatedGlobalTraces());
         int entryOperationId;
-        String entryOperationName;
+        String entryOperationName = "";
         int entryApplicationInstanceId;
         AbstractSpan firstSpan = first();
+        String firstSpanOperationName = firstSpan.getOperationName();
+
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
             entryOperationId = ref.getEntryEndpointId();
             entryOperationName = ref.getEntryEndpointName();
             entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
-            entryOperationId = firstSpan.getOperationId();
-            entryOperationName = firstSpan.getOperationName();
+            if (firstSpan.isEntry()) {
+                entryOperationId = firstSpan.getOperationId();
+                entryOperationName = firstSpanOperationName;
+            } else {
+                /**
+                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
+                 * rather than an endpoint.
+                 */
+                entryOperationId = DictionaryUtil.inexistence();
+            }
             entryApplicationInstanceId = this.segment.getApplicationInstanceId();
         }
         snapshot.setEntryApplicationInstanceId(entryApplicationInstanceId);
@@ -236,15 +248,29 @@ public class TracingContext implements AbstractTracerContext {
         if (entryOperationId == DictionaryUtil.nullValue()) {
             if (!StringUtil.isEmpty(entryOperationName)) {
                 snapshot.setEntryOperationName(entryOperationName);
+            } else {
+                /**
+                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
+                 * rather than an endpoint.
+                 */
             }
         } else {
             snapshot.setEntryOperationId(entryOperationId);
         }
 
-        if (firstSpan.getOperationId() == DictionaryUtil.nullValue()) {
-            snapshot.setParentOperationName(firstSpan.getOperationName());
+        int parentOperationId = firstSpan.getOperationId();
+        if (parentOperationId == DictionaryUtil.nullValue()) {
+            if (firstSpan.isEntry() && !StringUtil.isEmpty(firstSpanOperationName)) {
+                snapshot.setParentOperationName(firstSpanOperationName);
+            } else {
+                /**
+                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
+                 * rather than an endpoint.
+                 */
+                snapshot.setParentOperationId(DictionaryUtil.inexistence());
+            }
         } else {
-            snapshot.setParentOperationId(firstSpan.getOperationId());
+            snapshot.setParentOperationId(parentOperationId);
         }
         return snapshot;
     }
