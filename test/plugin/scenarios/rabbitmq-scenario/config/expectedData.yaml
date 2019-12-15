@@ -19,7 +19,7 @@ registryItems:
   instances:
   - {rabbitmq-scenario: 1}
   operationNames:
-  - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq,RabbitMQ/Topic/Queue/test/Producer,RabbitMQ/Topic/Queue/test/Consumer]
+  - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq, RabbitMQ/Topic/Queue/test/Consumer]
 segmentItems:
 - applicationCode: rabbitmq-scenario
   segmentSize: gt 2

@@ -20,8 +20,7 @@ registryItems:
   instances:
     - {mongodb-3.x-scenario: 1}
   operationNames:
-    - mongodb-3.x-scenario: [/mongodb-case/case/mongodb, MongoDB/DropDatabaseOperation, MongoDB/FindOperation,
-                             MongoDB/CreateCollectionOperation, MongoDB/MixedBulkWriteOperation]
+    - mongodb-3.x-scenario: [/mongodb-case/case/mongodb]
   heartbeat: []
 
 segmentItems:
