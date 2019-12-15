@@ -20,7 +20,7 @@ registryItems:
   instances:
     - {jdk-threading-scenario: 1}
   operationNames:
-    - jdk-threading-scenario: ['/greet/{username}', /apache/skywalking]
+    - jdk-threading-scenario: ['/greet/{username}']
   heartbeat: []
 
 segmentItems:
