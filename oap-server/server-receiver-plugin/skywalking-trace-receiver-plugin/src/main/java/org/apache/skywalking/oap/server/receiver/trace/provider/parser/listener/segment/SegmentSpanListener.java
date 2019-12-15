@@ -126,15 +126,16 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         }
 
         if (entryEndpointId == Const.NONE) {
-            if (firstEndpointId != Const.INEXISTENCE_ENDPOINT_ID) {
+            if (firstEndpointId != Const.NONE) {
+                /**
+                 * Since 6.6.0, only entry span is treated as an endpoint. Other span's endpoint id == 0.
+                 */
                 segment.setEndpointId(firstEndpointId);
                 segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
             }
         } else {
-            if (entryEndpointId != Const.INEXISTENCE_ENDPOINT_ID) {
-                segment.setEndpointId(entryEndpointId);
-                segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());
-            }
+            segment.setEndpointId(entryEndpointId);
+            segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());
         }
 
         sourceReceiver.receive(segment);
