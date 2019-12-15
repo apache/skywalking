@@ -20,9 +20,7 @@ registryItems:
   instances:
     - {spring-tx-scenario: 1}
   operationNames:
-    - spring-tx-scenario: [Mysql/JDBI/Statement/execute, Mysql/JDBI/Connection/commit,
-                           Mysql/JDBI/PreparedStatement/executeUpdate, /case/spring-tx-case, /case/healthCheck,
-                           Mysql/JDBI/Connection/close, Mysql/JDBI/Statement/executeQuery]
+    - spring-tx-scenario: [/case/spring-tx-case, /case/healthCheck]
   heartbeat: []
 segmentItems:
   - applicationCode: spring-tx-scenario

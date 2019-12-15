@@ -18,3 +18,5 @@ OALLexer.tokens
 .vscode 
 .checkstyle
 .externalToolBuilders
+/test/plugin/dist
+/test/plugin/workspace

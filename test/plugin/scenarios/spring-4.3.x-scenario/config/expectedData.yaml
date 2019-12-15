@@ -20,9 +20,7 @@ registryItems:
     - {spring-4.3.x-scenario: 1}
   operationNames:
     - spring-4.3.x-scenario: [/create/, '/delete/{id}', /inherit/child/test, /healthCheck,
-                              /spring-4.3.x-scenario/case/spring3/, /spring-4.3.x-scenario/create/, /spring-4.3.x-scenario/get/1,
-                              '/get/{id}', '/update/{id}', /case/resttemplate, /spring-4.3.x-scenario/delete/1,
-                              /spring-4.3.x-scenario/inherit/child/test, /spring-4.3.x-scenario/update/1,
+                              '/get/{id}', '/update/{id}', /case/resttemplate,
                               /case/spring3]
   heartbeat: []
 segmentItems:
