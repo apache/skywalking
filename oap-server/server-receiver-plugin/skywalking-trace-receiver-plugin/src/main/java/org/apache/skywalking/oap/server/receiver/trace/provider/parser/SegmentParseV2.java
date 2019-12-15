@@ -158,7 +158,7 @@ public class SegmentParseV2 {
         for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
             SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
 
-            if (!SpanIdExchanger.getInstance(moduleManager).exchange(spanDecorator, segmentCoreInfo.getServiceId())) {
+            if (!SpanExchanger.getInstance(moduleManager).exchange(spanDecorator, segmentCoreInfo.getServiceId())) {
                 exchanged = false;
             } else {
                 for (int j = 0; j < spanDecorator.getRefsCount(); j++) {

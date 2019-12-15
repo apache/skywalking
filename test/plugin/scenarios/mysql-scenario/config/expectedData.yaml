@@ -19,8 +19,7 @@ registryItems:
   instances:
     - {mysql-scenario: 1}
   operationNames:
-    - mysql-scenario: [Mysql/JDBI/Statement/execute, /mysql-scenario/case/healthCheck,
-                       Mysql/JDBI/PreparedStatement/execute, /mysql-scenario/case/mysql-scenario, Mysql/JDBI/Connection/close]
+    - mysql-scenario: [/mysql-scenario/case/healthCheck, /mysql-scenario/case/mysql-scenario]
 segmentItems:
   - applicationCode: mysql-scenario
     segmentSize: ge 2

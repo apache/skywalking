@@ -19,9 +19,7 @@ registryItems:
   instances:
   - {oracle-scenario: 1}
   operationNames:
-  - oracle-scenario: [Oracle/JDBI/Connection/close, Oracle/JDBI/PreparedStatement/executeQuery,
-                      Oracle/JDBI/PreparedStatement/execute, Oracle/JDBI/Statement/execute,
-                      /oracle-scenario/case/oracle]
+  - oracle-scenario: [/oracle-scenario/case/oracle]
 segmentItems:
 - applicationCode: oracle-scenario
   segmentSize: ge 1

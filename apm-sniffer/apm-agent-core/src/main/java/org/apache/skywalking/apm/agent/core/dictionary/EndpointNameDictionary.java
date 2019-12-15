@@ -37,21 +37,20 @@ public enum EndpointNameDictionary {
     private Map<OperationNameKey, Integer> endpointDictionary = new ConcurrentHashMap<OperationNameKey, Integer>();
     private Set<OperationNameKey> unRegisterEndpoints = new ConcurrentSet<OperationNameKey>();
 
-    public PossibleFound findOrPrepare4Register(int serviceId, String endpointName,
-        boolean isEntry, boolean isExit) {
-        return find0(serviceId, endpointName, isEntry, isExit, true);
+    public PossibleFound findOrPrepare4Register(int serviceId, String endpointName) {
+        return find0(serviceId, endpointName, true);
     }
 
     public PossibleFound findOnly(int serviceId, String endpointName) {
-        return find0(serviceId, endpointName, false, false, false);
+        return find0(serviceId, endpointName, false);
     }
 
     private PossibleFound find0(int serviceId, String endpointName,
-        boolean isEntry, boolean isExit, boolean registerWhenNotFound) {
+        boolean registerWhenNotFound) {
         if (endpointName == null || endpointName.length() == 0) {
             return new NotFound();
         }
-        OperationNameKey key = new OperationNameKey(serviceId, endpointName, isEntry, isExit);
+        OperationNameKey key = new OperationNameKey(serviceId, endpointName);
         Integer operationId = endpointDictionary.get(key);
         if (operationId != null) {
             return new Found(operationId);
@@ -72,7 +71,7 @@ public enum EndpointNameDictionary {
                 Endpoint endpoint = Endpoint.newBuilder()
                     .setServiceId(operationNameKey.getServiceId())
                     .setEndpointName(operationNameKey.getEndpointName())
-                    .setFrom(operationNameKey.getSpanType())
+                    .setFrom(DetectPoint.server)
                     .build();
                 builder.addEndpoints(endpoint);
             }
@@ -81,9 +80,7 @@ public enum EndpointNameDictionary {
                 for (EndpointMappingElement element : serviceNameMappingCollection.getElementsList()) {
                     OperationNameKey key = new OperationNameKey(
                         element.getServiceId(),
-                        element.getEndpointName(),
-                        DetectPoint.server.equals(element.getFrom()),
-                        DetectPoint.client.equals(element.getFrom()));
+                        element.getEndpointName());
                     unRegisterEndpoints.remove(key);
                     endpointDictionary.put(key, element.getEndpointId());
                 }
@@ -98,14 +95,10 @@ public enum EndpointNameDictionary {
     private class OperationNameKey {
         private int serviceId;
         private String endpointName;
-        private boolean isEntry;
-        private boolean isExit;
 
-        public OperationNameKey(int serviceId, String endpointName, boolean isEntry, boolean isExit) {
+        public OperationNameKey(int serviceId, String endpointName) {
             this.serviceId = serviceId;
             this.endpointName = endpointName;
-            this.isEntry = isEntry;
-            this.isExit = isExit;
         }
 
         public int getServiceId() {
@@ -128,8 +121,7 @@ public enum EndpointNameDictionary {
             if (serviceId == key.serviceId && endpointName.equals(key.endpointName)) {
                 isServiceEndpointMatch = true;
             }
-            return isServiceEndpointMatch && isEntry == key.isEntry
-                && isExit == key.isExit;
+            return isServiceEndpointMatch;
         }
 
         @Override public int hashCode() {
@@ -138,30 +130,11 @@ public enum EndpointNameDictionary {
             return result;
         }
 
-        boolean isEntry() {
-            return isEntry;
-        }
-
-        boolean isExit() {
-            return isExit;
-        }
-
-        DetectPoint getSpanType() {
-            if (isEntry) {
-                return DetectPoint.server;
-            } else if (isExit) {
-                return DetectPoint.client;
-            } else {
-                return DetectPoint.UNRECOGNIZED;
-            }
-        }
 
         @Override public String toString() {
             return "OperationNameKey{" +
                 "serviceId=" + serviceId +
                 ", endpointName='" + endpointName + '\'' +
-                ", isEntry=" + isEntry +
-                ", isExit=" + isExit +
                 '}';
         }
     }

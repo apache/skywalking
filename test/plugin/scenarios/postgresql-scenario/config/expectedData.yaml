@@ -19,9 +19,7 @@ registryItems:
     instances:
     - {postgresql-scenario: 1}
     operationNames:
-    - postgresql-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/execute,
-                            PostgreSQL/JDBI/CallableStatement/execute, PostgreSQL/JDBI/Statement/execute,
-                            PostgreSQL/JDBI/Connection/close]
+    - postgresql-scenario: [/postgresql-scenario/case/postgres]
     heartbeat: []
 segmentItems:
 - applicationCode: postgresql-scenario

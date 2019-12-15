@@ -19,31 +19,12 @@ registryItems:
   instances:
     - {kafka-scenario: 1}
   operationNames:
-    - kafka-scenario: [Kafka/test/Producer, Kafka/test/Consumer/testGroup,
-                       /case/healthCheck, /case/kafka-case]
+    - kafka-scenario: [Kafka/test/Consumer/testGroup, /case/kafka-case]
   heartbeat: []
 segmentItems:
   - applicationCode: kafka-scenario
-    segmentSize: gt 4
+    segmentSize: gt 3
     segments:
-      - segmentId: not null
-        spans:
-          - operationName: /case/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 14
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/kafka-scenario/case/healthCheck'}
-              - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
           - operationName: Kafka/Producer/Callback
