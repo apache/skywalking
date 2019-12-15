@@ -52,6 +52,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
     private int entryEndpointId = 0;
     private int firstEndpointId = 0;
+    private String firstEndpointName = "";
 
     private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
@@ -86,6 +87,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setVersion(segmentCoreInfo.isV2() ? 2 : 1);
 
         firstEndpointId = spanDecorator.getOperationNameId();
+        firstEndpointName = spanDecorator.getOperationName();
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
@@ -132,6 +134,11 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
                  */
                 segment.setEndpointId(firstEndpointId);
                 segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
+            } else {
+                /**
+                 * Only fill first operation name for the trace list query, as no endpoint id.
+                 */
+                segment.setEndpointName(firstEndpointName);
             }
         } else {
             segment.setEndpointId(entryEndpointId);
