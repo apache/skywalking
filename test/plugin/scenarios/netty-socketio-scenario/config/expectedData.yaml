@@ -20,7 +20,7 @@ registryItems:
   instances:
     - {netty-socketio-scenario: 1}
   operationNames:
-    - netty-socketio-scenario: [/netty-socketio-scenario/case/netty-socketio, /socket.io/,
+    - netty-socketio-scenario: [/netty-socketio-scenario/case/netty-socketio,
                                 /netty-socketio-scenario/healthCheck, SocketIO/onConnect, SocketIO/send_data/receive]
   heartbeat: []
 segmentItems:

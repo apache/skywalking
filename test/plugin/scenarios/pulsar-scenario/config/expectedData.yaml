@@ -20,7 +20,7 @@ registryItems:
   instances:
   - {pulsar-scenario: nq 0}
   operationNames:
-  - pulsar-scenario: [Pulsar/test/Producer, /case/pulsar-case, Pulsar/test/Consumer/test]
+  - pulsar-scenario: [/case/pulsar-case, Pulsar/test/Consumer/test]
 segmentItems:
 - applicationCode: pulsar-scenario
   segmentSize: ge 3

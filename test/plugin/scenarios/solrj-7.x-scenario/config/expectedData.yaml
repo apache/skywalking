@@ -19,9 +19,7 @@ registryItems:
   instances:
     - {solrj-7.x-scenario: nq 0}
   operationNames:
-    - solrj-7.x-scenario: [/solrj-scenario/case/solrj, solrJ/mycore/update/COMMIT, solrJ/mycore/update/DELETE_BY_IDS,
-                           solrJ/mycore/select, solrJ/mycore/update/DELETE_BY_QUERY, solrJ/mycore/get,
-                           solrJ/mycore/update/OPTIMIZE, solrJ/mycore/update/ADD]
+    - solrj-7.x-scenario: [/solrj-scenario/case/solrj]
   heartbeat: []
 segmentItems:
   - applicationCode: solrj-7.x-scenario

@@ -20,8 +20,7 @@ registryItems:
   instances:
     - {jedis-scenario: 1}
   operationNames:
-    - jedis-scenario: [Jedis/set, Jedis/echo, Jedis/del,
-                       Jedis/get, /jedis-scenario/case/jedis-scenario]
+    - jedis-scenario: [/jedis-scenario/case/jedis-scenario]
   heartbeat: []
 segmentItems:
   - applicationCode: jedis-scenario

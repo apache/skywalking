@@ -20,12 +20,9 @@ package org.apache.skywalking.apm.plugin.spring.resttemplate.async;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.OperationNameFormatService;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -37,8 +34,6 @@ import org.apache.skywalking.apm.plugin.spring.commons.EnhanceCacheObjects;
 import org.springframework.http.HttpMethod;
 
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-    private OperationNameFormatService nameFormatService;
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -46,13 +41,9 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         final HttpMethod httpMethod = (HttpMethod)allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
 
-        if (nameFormatService == null) {
-            nameFormatService = ServiceManager.INSTANCE.findService(OperationNameFormatService.class);
-        }
-
         String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL.getScheme()) ? 443 : 80);
 
-        String formatURIPath = nameFormatService.formatOperationName(Config.Plugin.OPGroup.RestTemplate.class, requestURL.getPath());
+        String formatURIPath = requestURL.getPath();
         AbstractSpan span = ContextManager.createExitSpan(
             formatURIPath,
             contextCarrier, remotePeer);

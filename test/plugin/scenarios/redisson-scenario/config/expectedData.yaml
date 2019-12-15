@@ -20,7 +20,7 @@ registryItems:
   instances:
     - {redisson-scenario: 1}
   operationNames:
-    - redisson-scenario: [/case/healthCheck, Redisson/BATCH_EXECUTE, Redisson/SET, /case/redisson-case]
+    - redisson-scenario: [/case/healthCheck, /case/redisson-case]
   heartbeat: []
 segmentItems:
   - applicationCode: redisson-scenario

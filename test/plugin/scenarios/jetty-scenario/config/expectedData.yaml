@@ -22,8 +22,7 @@ registryItems:
   - {jettyclient-scenario: 1}
   operationNames:
   - jettyserver-scenario: [/jettyserver-case/case/receiveContext-0]
-  - jettyclient-scenario: [/jettyserver-case/case/receiveContext-0,
-                           /jettyclient-case/case/jettyclient-case,
+  - jettyclient-scenario: [/jettyclient-case/case/jettyclient-case,
                            /jettyclient-case/case/healthCheck]
 segmentItems:
 - applicationCode: jettyserver-scenario
