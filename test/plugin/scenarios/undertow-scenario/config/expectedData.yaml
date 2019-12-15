@@ -20,7 +20,7 @@ registryItems:
   instances:
     - {undertow-scenario: 1}
   operationNames:
-    - undertow-scenario: [/undertow-scenario/case/undertow1, /undertow-scenario/case/undertow, /undertow-routing-scenario/case/undertow,
+    - undertow-scenario: [/undertow-scenario/case/undertow1, /undertow-scenario/case/undertow,
                           '/undertow-routing-scenario/case/{context}']
   heartbeat: []
 segmentItems:
@@ -64,7 +64,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8081/undertow-routing-scenario/case/undertow'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: UndertowDispatch, networkAddressId: 0,
+              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8081', entryEndpoint: /undertow-scenario/case/undertow,
                  entryServiceInstanceId: 1}
@@ -87,7 +87,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: UndertowDispatch, networkAddressId: 0,
+              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /undertow-scenario/case/undertow,
                  entryServiceInstanceId: 1}

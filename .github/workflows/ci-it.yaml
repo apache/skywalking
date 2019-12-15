@@ -21,6 +21,8 @@ on:
   push:
     branches: 
       - master
+    tags:
+      - 'v*'
     
 
 jobs:
@@ -33,19 +35,48 @@ jobs:
       - uses: actions/checkout@v1
         with:
           submodules: true
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - uses: actions/setup-java@v1
         with:
           java-version: 8
       - name: 'Install & Test'
         run: |
-          export MAVEN_OPTS='-Dmaven.repo.local=.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
           ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
           CODECOV_TOKEN="d2065307-8f01-4637-9715-2781ef096db7" bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
+
+  CI-on-Windows:
+    runs-on: Windows-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: 'Install & Test'
+        run: |
+          set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          ./mvnw -P"agent,backend,ui,dist" clean verify install
+
+
+  CI-on-MacOS:
+    runs-on: macos-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: 'Install & Test'
+        run: |
+          export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+          ./mvnw -P"agent,backend,ui,dist" clean verify install

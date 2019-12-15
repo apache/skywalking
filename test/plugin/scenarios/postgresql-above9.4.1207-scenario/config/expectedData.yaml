@@ -19,9 +19,7 @@ registryItems:
     instances:
     - {postgresql-above9.4.1207-scenario: 1}
     operationNames:
-    - postgresql-above9.4.1207-scenario: [/postgresql-scenario/case/postgres, PostgreSQL/JDBI/PreparedStatement/executeWithFlags,
-                            PostgreSQL/JDBI/CallableStatement/executeWithFlags, PostgreSQL/JDBI/Statement/execute,
-                            PostgreSQL/JDBI/Connection/close]
+    - postgresql-above9.4.1207-scenario: [/postgresql-scenario/case/postgres]
 segmentItems:
 - applicationCode: postgresql-above9.4.1207-scenario
   segmentSize: ge 1

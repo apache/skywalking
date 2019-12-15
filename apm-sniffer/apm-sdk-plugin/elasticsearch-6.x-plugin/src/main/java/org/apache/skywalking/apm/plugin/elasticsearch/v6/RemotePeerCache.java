@@ -34,7 +34,7 @@ public class RemotePeerCache {
         if (remotePeers.isEmpty()) {
             remotePeers = hostPort;
         } else {
-            remotePeers = "," + hostPort;
+            remotePeers = remotePeers + "," + hostPort;
         }
     }
 
