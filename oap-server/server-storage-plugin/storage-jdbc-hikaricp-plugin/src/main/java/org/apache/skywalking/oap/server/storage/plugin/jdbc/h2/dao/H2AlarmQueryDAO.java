@@ -39,6 +39,7 @@ import java.util.Objects;
  * @author panjuan
  */
 public class H2AlarmQueryDAO implements IAlarmQueryDAO {
+    
     private JDBCHikariCPClient client;
 
     public H2AlarmQueryDAO(JDBCHikariCPClient client) {
@@ -71,7 +72,7 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
         
-            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total " + sql.toString(), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
                 }

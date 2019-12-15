@@ -135,7 +135,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
     }
 
     protected String buildCountStatement(String sql) {
-        return "select count(1) total " + sql;
+        return "select count(1) total from (select 1 " + sql + " )";
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
