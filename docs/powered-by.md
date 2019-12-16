@@ -32,7 +32,7 @@ or providing commercial products including Apache SkyWalking.
 1. China Merchants Bank. 中国招商银行. http://www.cmbchina.com/
 1. China National Software 中软
 1. China Mobile 中国移动
-1. China Mobile 中国联通
+1. China Unicom 中国联通
 1. China Tower 中国铁塔
 1. China Telecom 中国电信
 1. Chinese Academy of Sciences
