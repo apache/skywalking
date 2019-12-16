@@ -23,10 +23,7 @@ registryItems:
     - {webflux-projectA-scenario: 1}
   operationNames:
     - webflux-projectB-scenario: [WEBFLUX.handle]
-    - webflux-projectA-scenario: [/testcase/annotation/mono/hello, /testcase/annotation/loo,
-                                  /projectA/testcase, /testcase/annotation/success, /testcase/annotation/healthCheck,
-                                  /projectA/healthCheck, /notFound, /testcase/route/error, /testcase/annotation/foo,
-                                  /testcase/route/success, /testcase/annotation/error]
+    - webflux-projectA-scenario: [/projectA/testcase]
   heartbeat: []
 segmentItems:
   - applicationCode: webflux-projectB-scenario
