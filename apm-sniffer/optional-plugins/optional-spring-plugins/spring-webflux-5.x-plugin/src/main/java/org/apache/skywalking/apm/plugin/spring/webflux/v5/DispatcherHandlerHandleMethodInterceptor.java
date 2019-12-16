@@ -44,7 +44,7 @@ import reactor.core.publisher.Mono;
  * @author Born
  */
 public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethodsAroundInterceptor {
-    private static final String WIP_OPERATION_NAME = "WEBFLUX.handle";
+    private static final String DEFAULT_OPERATION_NAME = "WEBFLUX.handle";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -70,7 +70,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
             }
         }
 
-        AbstractSpan span = ContextManager.createEntrySpan(WIP_OPERATION_NAME, carrier);
+        AbstractSpan span = ContextManager.createEntrySpan(DEFAULT_OPERATION_NAME, carrier);
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
@@ -81,12 +81,11 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
         return ((Mono) ret).doFinally(s -> {
             try {
-                HttpStatus httpStatus = exchange.getResponse().getStatusCode();
-                if (exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE) != null) {
-                    String urlPattern = ((PathPattern) exchange
-                            .getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)).getPatternString();
-                    span.setOperationName(urlPattern);
+                Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+                if (pathPattern != null) {
+                    span.setOperationName(((PathPattern) pathPattern).getPatternString());
                 }
+                HttpStatus httpStatus = exchange.getResponse().getStatusCode();
                 // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
                 if (httpStatus != null) {
                     Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
