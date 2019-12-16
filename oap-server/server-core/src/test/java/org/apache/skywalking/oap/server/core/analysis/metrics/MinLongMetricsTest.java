@@ -23,35 +23,44 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author liuhaoyang
- **/
-public class MaxLongMetricsTest {
+ * @author jian.tan
+ */
+
+public class MinLongMetricsTest {
 
     @Test
     public void testEntranceCombine() {
-        MaxLongMetricsImpl impl = new MaxLongMetricsImpl();
+        MinLongMetricsImpl impl = new MinLongMetricsImpl();
         impl.combine(10);
         impl.combine(5);
         impl.combine(20);
         impl.calculate();
-        Assert.assertEquals(20, impl.getValue());
+        Assert.assertEquals(5, impl.getValue());
+
+        MinLongMetricsImpl impl2 = new MinLongMetricsImpl();
+        impl2.combine(10);
+        impl2.combine(0);
+        impl2.combine(10000);
+        impl2.calculate();
+
+        Assert.assertEquals(0, impl2.getValue());
     }
 
     @Test
     public void testSelfCombine() {
-        MaxLongMetricsImpl impl = new MaxLongMetricsImpl();
+        MinLongMetricsImpl impl = new MinLongMetricsImpl();
         impl.combine(10);
         impl.combine(5);
 
-        MaxLongMetricsImpl impl2 = new MaxLongMetricsImpl();
+        MinLongMetricsImpl impl2 = new MinLongMetricsImpl();
         impl2.combine(2);
         impl2.combine(6);
 
         impl.combine(impl2);
-        Assert.assertEquals(10, impl.getValue());
+        Assert.assertEquals(2, impl.getValue());
     }
 
-    public class MaxLongMetricsImpl extends MaxLongMetrics {
+    public class MinLongMetricsImpl extends MinLongMetrics {
 
         @Override public String id() {
             return null;
