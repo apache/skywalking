@@ -70,6 +70,10 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 standardBuilder.setEntryEndpointId(entryEndpointId);
                 standardBuilder.setEntryEndpointName(Const.EMPTY_STRING);
             }
+        } else {
+            /**
+             * Since 6.6.0, endpoint id could be -1, as it is not an endpoint. Such as local span and exist span.
+             */
         }
 
         if (standardBuilder.getParentEndpointId() == 0) {
@@ -88,6 +92,10 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 standardBuilder.setParentEndpointId(parentEndpointId);
                 standardBuilder.setParentEndpointName(Const.EMPTY_STRING);
             }
+        } else {
+            /**
+             * Since 6.6.0, endpoint id could be -1, as it is not an endpoint. Such as local span and exist span.
+             */
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getNetworkAddress())) {
@@ -104,16 +112,18 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 standardBuilder.setNetworkAddressId(networkAddressId);
                 standardBuilder.setNetworkAddress(Const.EMPTY_STRING);
             }
+        } else {
+            /**
+             * Since 6.6.0, endpoint id could be -1, as it is not an endpoint. Such as local span and exist span.
+             */
         }
         return exchanged;
     }
 
     /**
-     * Endpoint in ref could be local or exit span's operation name.
-     * Especially if it is local span operation name,
-     * exchange may not happen at agent, such as Java agent,
-     * then put literal endpoint string in the header,
-     * Need to try to get the id by assuming the endpoint name is detected at server, local or client.
+     * Endpoint in ref could be local or exit span's operation name. Especially if it is local span operation name,
+     * exchange may not happen at agent, such as Java agent, then put literal endpoint string in the header, Need to try
+     * to get the id by assuming the endpoint name is detected at server, local or client.
      *
      * If agent does the exchange, then always use endpoint id.
      */

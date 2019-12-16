@@ -40,9 +40,9 @@ public class SegmentRefNotFoundException extends AssertFailedException {
             String reason = cause.getFailedCause().getCauseMessage();
 
             StringBuilder actualSegmentRef = new StringBuilder(String.format("\nSegmentRef:\t%s\n", reason));
-            actualSegmentRef.append(String.format(" - entryServiceName:\t\t%s\n", actual.entryServiceName()))
+            actualSegmentRef.append(String.format(" - entryServiceName:\t\t%s\n", actual.entryEndpointName()))
                 .append(String.format(" - networkAddress:\t\t\t%s\n", actual.networkAddress()))
-                .append(String.format(" - parentServiceName:\t\t%s\n", actual.parentServiceName()))
+                .append(String.format(" - parentServiceName:\t\t%s\n", actual.parentEndpointName()))
                 .append(String.format(" - parentSpanId:\t\t\t%s\n", actual.parentSpanId()))
                 .append(String.format(" - parentTraceSegmentId:\t%s\n", actual.parentTraceSegmentId()))
                 .append(String.format(" - refType:\t\t\t\t\t%s", actual.refType())).toString();

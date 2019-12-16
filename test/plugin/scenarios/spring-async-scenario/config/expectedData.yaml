@@ -63,7 +63,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/asyncVisit'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: SpringAsync, networkAddressId: 0, entryEndpointId: 0,
+              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0, entryEndpointId: 0,
                  refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /spring-async-scenario/case/spring-async,
                  entryServiceInstanceId: 1}
@@ -86,7 +86,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/spring-async-scenario/case/asyncVisit'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: SpringAsync, networkAddressId: 0, entryEndpointId: 0,
+              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0, entryEndpointId: 0,
                  refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /spring-async-scenario/case/spring-async,
                  entryServiceInstanceId: 1}
