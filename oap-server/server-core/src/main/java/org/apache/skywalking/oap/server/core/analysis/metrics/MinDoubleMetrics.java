@@ -34,7 +34,7 @@ public abstract class MinDoubleMetrics extends Metrics implements DoubleValueHol
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private double value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true) private double value = Double.MAX_VALUE;
 
     @Entrance
     public final void combine(@SourceFrom double count) {
