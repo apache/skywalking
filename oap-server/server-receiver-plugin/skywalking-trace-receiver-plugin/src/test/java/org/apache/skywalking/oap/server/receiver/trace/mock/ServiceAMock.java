@@ -90,11 +90,7 @@ class ServiceAMock {
         span.setParentSpanId(0);
         span.setStartTime(startTimestamp + 100);
         span.setEndTime(startTimestamp + 500);
-        if (isPrepare) {
-            span.setOperationName("org.apache.skywalking.Local.do");
-        } else {
-            span.setOperationNameId(3);
-        }
+        span.setOperationName("org.apache.skywalking.Local.do");
         span.setIsError(false);
         return span;
     }
@@ -108,12 +104,11 @@ class ServiceAMock {
         span.setStartTime(startTimestamp + 120);
         span.setEndTime(startTimestamp + 5800);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
+        span.setOperationName(DUBBO_ENDPOINT);
         if (isPrepare) {
             span.setPeer(DUBBO_ADDRESS);
-            span.setOperationName(DUBBO_ENDPOINT);
         } else {
             span.setPeerId(2);
-            span.setOperationNameId(6);
         }
         span.setIsError(false);
         return span;

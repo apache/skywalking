@@ -19,7 +19,7 @@ registryItems:
   instances:
     - {cassandra-java-driver-3.x-scenario: 1}
   operationNames:
-    - cassandra-java-driver-3.x-scenario: [Cassandra/execute, Cassandra/executeAsync, /cassandra-java-driver-3.x-scenario/case/cassandra]
+    - cassandra-java-driver-3.x-scenario: [/cassandra-java-driver-3.x-scenario/case/cassandra]
   heartbeat: []
 segmentItems:
   - applicationCode: cassandra-java-driver-3.x-scenario

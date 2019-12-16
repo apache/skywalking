@@ -119,11 +119,10 @@ class ServiceBMock {
         span.addTags(KeyWithStringValue.newBuilder().setKey("db.statement").setValue("select * from database where complex = 1;").build());
         span.addTags(KeyWithStringValue.newBuilder().setKey("db.type").setValue("mongodb").build());
 
+        span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
         if (isPrepare) {
-            span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
             span.setPeer("localhost:27017");
         } else {
-            span.setOperationNameId(7);
             span.setPeerId(3);
         }
         return span;
@@ -140,11 +139,10 @@ class ServiceBMock {
         span.setComponentId(ComponentsDefine.ROCKET_MQ_PRODUCER.getId());
         span.setIsError(false);
 
+        span.setOperationName(ROCKET_MQ_ENDPOINT);
         if (isPrepare) {
-            span.setOperationName(ROCKET_MQ_ENDPOINT);
             span.setPeer(ROCKET_MQ_ADDRESS);
         } else {
-            span.setOperationNameId(8);
             span.setPeerId(4);
         }
         return span;

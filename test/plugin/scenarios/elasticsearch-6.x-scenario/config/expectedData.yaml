@@ -19,10 +19,7 @@ registryItems:
     instances:
     - {elasticsearch-6.x-scenario: 1}
     operationNames:
-    - elasticsearch-6.x-scenario: [Elasticsearch/CreateRequest, Elasticsearch/IndexRequest,
-                                   Elasticsearch/GetRequest, Elasticsearch/SearchRequest,
-                                   Elasticsearch/UpdateRequest, Elasticsearch/DeleteRequest,
-                                   /elasticsearch-case/case/elasticsearch]
+    - elasticsearch-6.x-scenario: [/elasticsearch-case/case/elasticsearch]
     heartbeat: []
 segmentItems:
 - applicationCode: elasticsearch-6.x-scenario

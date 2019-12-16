@@ -2,6 +2,15 @@ Changes by Version
 ==================
 Release Notes.
 
+6.6.0
+------------------
+TODO
+
+#### Project
+- [**IMPORTANT**] Local span and exit span are not treated as endpoint detected at client and local. Only entry span is the endpoint. Reduce the load of register and memory cost.
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/37?closed=1)
+
 6.5.0
 ------------------
 
@@ -73,6 +82,8 @@ Release Notes.
 - Committer vote and set up document. (#3496)
 - Update als setup doc as istio 1.3 released (#3470)
 - Fill faq reply in official document. (#3450)
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/36?closed=1)
 
 
 6.4.0
