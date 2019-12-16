@@ -117,6 +117,7 @@ property key | Description | Default |
 `plugin.light4j.trace_handler_chain`|If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request.|false|
 `plugin.opgroup.*`|Support operation name customize group rules in different plugins. Read [Group rule supported plugins](op_name_group_rule.md)|Not set|
 `plugin.springtransaction.simplify_transaction_definition_name`|If true, the transaction definition name will be simplified.|false|
+`plugin.jdkthreading.threading_class_prefixes` | Threading classes (`java.lang.Runnable` and `java.util.concurrent.Callable`) and their subclasses, including anonymous inner classes whose name match any one of the `THREADING_CLASS_PREFIXES` (splitted by `,`) will be instrumented, make sure to only specify as narrow prefixes as what you're expecting to instrument, (`java.` and `javax.` will be ignored due to safety issues) | Not set |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -140,6 +141,7 @@ For using these plugins, you need to put the target plugin jar file into `/plugi
 
 Now, we have the following known bootstrap plugins.
 * Plugin of JDK HttpURLConnection. Agent is compatible with JDK 1.6+
+* Plugin of JDK Callable and Runnable. Agent is compatible with JDK 1.6+
 
 ## Advanced Features
 * Set the settings through system properties for config file override. Read [setting override](Setting-override.md).

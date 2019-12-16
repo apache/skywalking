@@ -22,6 +22,7 @@ package org.apache.skywalking.apm.agent.core.plugin.match;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.description.type.TypeList;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -101,7 +102,7 @@ public class HierarchyMatch implements IndirectMatch {
 
     }
 
-    public static ClassMatch byHierarchyMatch(String[] parentTypes) {
+    public static IndirectMatch byHierarchyMatch(String... parentTypes) {
         return new HierarchyMatch(parentTypes);
     }
 }
