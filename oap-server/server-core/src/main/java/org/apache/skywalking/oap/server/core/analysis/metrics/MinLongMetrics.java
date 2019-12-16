@@ -34,14 +34,10 @@ public abstract class MinLongMetrics extends Metrics implements LongValueHolder 
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private long value;
+    @Getter @Setter @Column(columnName = VALUE, isValue = true) private long value = Long.MAX_VALUE;
 
     @Entrance
     public final void combine(@SourceFrom long count) {
-        if (this.value == 0) {
-            this.value = count;
-        }
-
         if (count < this.value) {
             this.value = count;
         }

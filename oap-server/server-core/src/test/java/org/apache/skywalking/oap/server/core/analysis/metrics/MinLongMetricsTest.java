@@ -36,6 +36,14 @@ public class MinLongMetricsTest {
         impl.combine(20);
         impl.calculate();
         Assert.assertEquals(5, impl.getValue());
+
+        MinLongMetricsImpl impl2 = new MinLongMetricsImpl();
+        impl2.combine(10);
+        impl2.combine(0);
+        impl2.combine(10000);
+        impl2.calculate();
+
+        Assert.assertEquals(0, impl2.getValue());
     }
 
     @Test
