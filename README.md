@@ -91,18 +91,35 @@ Follow this [document](docs/en/guides/How-to-build.md).
 
 # Who Uses SkyWalking?
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product, including
-1. Alibaba Cloud
+1. Anheuser-Busch InBev
+1. Agricultural Bank of China
+1. Alibaba & Alibaba Cloud
+1. Chinese Academy of Sciences
 1. China Eastern Airlines
+1. China Express Airlines
+1. China Minsheng Bank
 1. China Merchants Bank
 1. China Mobile
+1. China Unicom
+1. China Telecom
+1. China Tower
 1. DaoCloud
+1. DiDi
 1. GOME
 1. guazi.com
 1. Huawei
+1. Inspur
 1. ke.com
+1. Lenovo
 1. lizhi.fm
 1. NetEase
+1. Ping An Insurance
 1. Peking University
+1. Sina
+1. SPD Bank
+1. State Grid Corporation of China
+1. Tencent
+1. TravelSky
 1. tetrate.io
 1. WeBank
 1. Xiaomi
