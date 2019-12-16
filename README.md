@@ -116,6 +116,7 @@ Hundreds of companies and organizations use SkyWalking for research, production,
 1. Ping An Insurance
 1. Peking University
 1. Sina
+1. SPD Bank
 1. State Grid Corporation of China
 1. Tencent
 1. TravelSky
