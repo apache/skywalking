@@ -38,11 +38,11 @@ public class ServiceInstanceRelation extends Source {
         return String.valueOf(sourceServiceInstanceId) + Const.ID_SPLIT + String.valueOf(destServiceInstanceId);
     }
 
-    @Getter @Setter private int sourceServiceInstanceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_id") private int sourceServiceInstanceId;
     @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "source_service_id") private int sourceServiceId;
     @Getter @Setter private String sourceServiceName;
     @Getter @Setter private String sourceServiceInstanceName;
-    @Getter @Setter private int destServiceInstanceId;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_id") private int destServiceInstanceId;
     @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_id") private int destServiceId;
     @Getter @Setter private String destServiceName;
     @Getter @Setter private String destServiceInstanceName;
