@@ -22,8 +22,8 @@ registryItems:
     - {gateway-projectB-scenario: 1}
     - {gateway-projectA-scenario: 1}
   operationNames:
-    - gateway-projectB-scenario: [/provider/b/healthCheck, /provider/b/testcase]
-    - gateway-projectA-scenario: [GATEWAY/provider_route]
+    - gateway-projectB-scenario: [/provider/b/testcase]
+    - gateway-projectA-scenario: [WEBFLUX.handle]
   heartbeat: []
 segmentItems:
   - applicationCode: gateway-projectB-scenario
@@ -47,6 +47,11 @@ segmentItems:
             tags:
               - {key: url, value: not null}
               - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: not null, networkAddress: 'localhost:18070', entryEndpoint: WEBFLUX.handle,
+                 entryServiceInstanceId: not null}
   - applicationCode: gateway-projectA-scenario
     segmentSize: nq 0
     segments:
@@ -69,13 +74,13 @@ segmentItems:
               - {key: url, value: not null}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: GATEWAY/provider_route, networkAddressId: 0,
+              - {parentEndpointId: 0, parentEndpoint: WEBFLUX.handle, networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: not null, networkAddress: '', entryEndpoint: GATEWAY/provider_route,
+                 parentServiceInstanceId: not null, networkAddress: '', entryEndpoint: WEBFLUX.handle,
                  entryServiceInstanceId: not null}
       - segmentId: not null
         spans:
-          - operationName: GATEWAY/provider_route
+          - operationName: WEBFLUX.handle
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -89,4 +94,6 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: not null}
+              - {key: url, value: 'http://localhost:8080/provider/b/testcase'}
+              - {key: http.method, value: GET}
+              - {key: status_code, value: '200'}

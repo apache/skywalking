@@ -48,10 +48,8 @@ public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAro
             HttpResponseStatus response = (HttpResponseStatus) ret;
             if (response.code() >= 400) {
                 Tags.STATUS_CODE.set(transmitter.getSpanGateway().errorOccurred(), String.valueOf(response.code()));
-                Tags.STATUS_CODE.set(transmitter.getSpanWebflux().errorOccurred(), String.valueOf(response.code()));
             }
             transmitter.getSpanGateway().asyncFinish();
-            transmitter.getSpanWebflux().asyncFinish();
             objInst.setSkyWalkingDynamicField(null);
         }
         return ret;
