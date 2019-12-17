@@ -38,6 +38,8 @@ public class TestController {
     public String testcase() throws IOException {
         visit("http://" + hostBAddress + "/testcase/annotation/success");
         visit("http://" + hostBAddress + "/testcase/annotation/error");
+        visit("http://" + hostBAddress + "/testcase/annotation/foo");
+        visit("http://" + hostBAddress + "/testcase/annotation/loo");
         visit("http://" + hostBAddress + "/testcase/route/success");
         visit("http://" + hostBAddress + "/testcase/route/error");
         visit("http://" + hostBAddress + "/notFound");
