@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 
-/**
- * @author zhaoyuguang
- */
-
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags.HTTP;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -33,45 +32,72 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import org.springframework.web.util.pattern.PathPattern;
+import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
+/**
+ * @author zhaoyuguang, Born
+ */
 public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethodsAroundInterceptor {
-
-    private static final String WIP_OPERATION_NAME = "WEBFLUX.handle";
+    private static final String DEFAULT_OPERATION_NAME = "WEBFLUX.handle";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        EnhancedInstance instance = DispatcherHandlerHandleMethodInterceptor.getInstance(allArguments[0]);
-        if (instance != null) {
-            ContextCarrier contextCarrier = new ContextCarrier();
-            CarrierItem next = contextCarrier.items();
-            ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
-            HttpHeaders headers = exchange.getRequest().getHeaders();
-            while (next.hasNext()) {
-                next = next.next();
-                List<String> header = headers.get(next.getHeadKey());
-                if (header != null && header.size() > 0) {
-                    next.setHeadValue(header.get(0));
-                }
-            }
-            AbstractSpan span = ContextManager.createEntrySpan(WIP_OPERATION_NAME, contextCarrier);
-            span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
-            SpanLayer.asHttp(span);
-            Tags.URL.set(span, exchange.getRequest().getURI().toString());
-            instance.setSkyWalkingDynamicField(span);
-        }
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        return ret;
+        EnhancedInstance instance = getInstance(allArguments[0]);
+
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+
+        ContextCarrier carrier = new ContextCarrier();
+        CarrierItem next = carrier.items();
+        HttpHeaders headers = exchange.getRequest().getHeaders();
+        while (next.hasNext()) {
+            next = next.next();
+            List<String> header = headers.get(next.getHeadKey());
+            if (header != null && header.size() > 0) {
+                next.setHeadValue(header.get(0));
+            }
+        }
+
+        AbstractSpan span = ContextManager.createEntrySpan(DEFAULT_OPERATION_NAME, carrier);
+        span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
+        SpanLayer.asHttp(span);
+        Tags.URL.set(span, exchange.getRequest().getURI().toString());
+        HTTP.METHOD.set(span, exchange.getRequest().getMethodValue());
+        instance.setSkyWalkingDynamicField(ContextManager.capture());
+        span.prepareForAsync();
+        ContextManager.stopSpan(span);
+
+        return ((Mono) ret).doFinally(s -> {
+            try {
+                Object pathPattern = exchange.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+                if (pathPattern != null) {
+                    span.setOperationName(((PathPattern) pathPattern).getPatternString());
+                }
+                HttpStatus httpStatus = exchange.getResponse().getStatusCode();
+                // fix webflux-2.0.0-2.1.0 version have bug. httpStatus is null. not support
+                if (httpStatus != null) {
+                    Tags.STATUS_CODE.set(span, Integer.toString(httpStatus.value()));
+                    if (httpStatus.isError()) {
+                        span.errorOccurred();
+                    }
+                }
+            } finally {
+                span.asyncFinish();
+            }
+        });
+
     }
 
     @Override
@@ -81,26 +107,13 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
     public static EnhancedInstance getInstance(Object o) {
         EnhancedInstance instance = null;
-        if (o instanceof ServerWebExchangeDecorator) {
-            instance = getEnhancedInstance((ServerWebExchangeDecorator) o);
-        } else if (o instanceof DefaultServerWebExchange) {
+        if (o instanceof DefaultServerWebExchange) {
             instance = (EnhancedInstance) o;
+        } else if (o instanceof ServerWebExchangeDecorator) {
+            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
+            return getInstance(delegate);
         }
         return instance;
-    }
-
-
-    private static EnhancedInstance getEnhancedInstance(ServerWebExchangeDecorator serverWebExchangeDecorator) {
-        Object o = serverWebExchangeDecorator.getDelegate();
-        if (o instanceof ServerWebExchangeDecorator) {
-            return getEnhancedInstance((ServerWebExchangeDecorator) o);
-        } else if (o instanceof DefaultServerWebExchange) {
-            return (EnhancedInstance) o;
-        } else if (o == null) {
-            throw new NullPointerException("The expected class DefaultServerWebExchange is null");
-        } else {
-            throw new RuntimeException("Unknown parameter types:" + o.getClass());
-        }
     }
 
 }
