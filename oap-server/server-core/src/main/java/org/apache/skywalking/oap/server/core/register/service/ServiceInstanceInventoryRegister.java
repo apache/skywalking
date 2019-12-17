@@ -63,6 +63,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         if (serviceInstanceId == Const.NONE) {
             ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
             serviceInstanceInventory.setServiceId(serviceId);
+            serviceInstanceInventory.setServiceInstanceNodeType(NodeType.Unknown);
             serviceInstanceInventory.setName(serviceInstanceName);
             serviceInstanceInventory.setInstanceUUID(uuid);
             serviceInstanceInventory.setIsAddress(BooleanUtils.FALSE);
@@ -89,6 +90,7 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         if (serviceInstanceId == Const.NONE) {
             ServiceInstanceInventory serviceInstanceInventory = new ServiceInstanceInventory();
             serviceInstanceInventory.setServiceId(serviceId);
+            serviceInstanceInventory.setServiceInstanceNodeType(NodeType.Unknown);
             serviceInstanceInventory.setName(serviceInstanceName);
             serviceInstanceInventory.setIsAddress(BooleanUtils.TRUE);
             serviceInstanceInventory.setAddressId(addressId);
