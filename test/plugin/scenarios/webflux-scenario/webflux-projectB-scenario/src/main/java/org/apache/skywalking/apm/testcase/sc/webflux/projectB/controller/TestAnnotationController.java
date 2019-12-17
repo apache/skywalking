@@ -18,6 +18,7 @@
 package org.apache.skywalking.apm.testcase.sc.webflux.projectB.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +43,11 @@ public class TestAnnotationController {
             throw new RuntimeException("test_error");
         }
         return "1";
+    }
+
+    @GetMapping("/testcase/annotation/{test}")
+    public Mono<String> urlPattern(@PathVariable("test") String var) {
+        return Mono.just(var);
     }
 
     @GetMapping("/testcase/annotation/mono/hello")
