@@ -19,20 +19,36 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import com.google.common.base.Strings;
-import java.io.IOException;
-import java.sql.*;
-import java.util.*;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.ContentType;
+import org.apache.skywalking.oap.server.core.query.entity.Log;
+import org.apache.skywalking.oap.server.core.query.entity.LogState;
+import org.apache.skywalking.oap.server.core.query.entity.Logs;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.STATUS_CODE;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 
 /**
  * @author wusheng
+ * @author panjuan
  */
 public class H2LogQueryDAO implements ILogQueryDAO {
     private JDBCHikariCPClient h2Client;
