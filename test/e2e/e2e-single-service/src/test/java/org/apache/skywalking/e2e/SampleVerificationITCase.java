@@ -344,13 +344,13 @@ public class SampleVerificationITCase {
                 switch (detectPoint) {
                     case "CLIENT": {
                         for (String metricName : relationClientMetrics) {
-                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo);
                         }
                         break;
                     }
                     case "SERVER": {
                         for (String metricName : relationServerMetrics) {
-                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo);
                         }
                         break;
                     }
@@ -367,21 +367,6 @@ public class SampleVerificationITCase {
             } catch (Throwable ignored) {
                 Thread.sleep(retryInterval);
             }
-        }
-    }
-
-    private void generateTraffic() {
-        try {
-            final Map<String, String> user = new HashMap<>();
-            user.put("name", "SkyWalking");
-            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-            );
-            LOGGER.info("responseEntity: {}", responseEntity);
-        } catch (Throwable t) {
-            LOGGER.warn(t.getMessage(), t);
         }
     }
 }

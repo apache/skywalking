@@ -70,17 +70,11 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_RELATION_CLIENT_P99 = "service_relation_client_p99";
     public static String SERVICE_RELATION_SERVER_P99 = "service_relation_server_p99";
     public static String[] ALL_SERVICE_RELATION_CLIENT_METRICS = {
-        SERVICE_RELATION_CLIENT_CPM,
-        SERVICE_RELATION_CLIENT_CALL_SLA,
-        SERVICE_RELATION_CLIENT_RESP_TIME,
-        SERVICE_RELATION_CLIENT_P99,
+        SERVICE_RELATION_CLIENT_CPM
     };
 
     public static String[] ALL_SERVICE_RELATION_SERVER_METRICS = {
-        SERVICE_RELATION_SERVER_CPM,
-        SERVICE_RELATION_SERVER_CALL_SLA,
-        SERVICE_RELATION_SERVER_RESP_TIME,
-        SERVICE_RELATION_SERVER_P99
+        SERVICE_RELATION_SERVER_CPM
     };
 
     public static String SERVICE_INSTANCE_RELATION_CLIENT_CPM = "service_instance_relation_client_cpm";
@@ -92,17 +86,11 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_INSTANCE_RELATION_CLIENT_P99 = "service_instance_relation_client_p99";
     public static String SERVICE_INSTANCE_RELATION_SERVER_P99 = "service_instance_relation_server_p99";
     public static String[] ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS = {
-        SERVICE_INSTANCE_RELATION_CLIENT_CPM,
-        SERVICE_INSTANCE_RELATION_CLIENT_CALL_SLA,
-        SERVICE_INSTANCE_RELATION_CLIENT_RESP_TIME,
-        SERVICE_INSTANCE_RELATION_CLIENT_P99,
+        SERVICE_INSTANCE_RELATION_CLIENT_CPM
     };
 
     public static String[] ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS = {
-        SERVICE_INSTANCE_RELATION_SERVER_CPM,
-        SERVICE_INSTANCE_RELATION_SERVER_CALL_SLA,
-        SERVICE_INSTANCE_RELATION_SERVER_RESP_TIME,
-        SERVICE_INSTANCE_RELATION_SERVER_P99
+        SERVICE_INSTANCE_RELATION_SERVER_CPM
     };
 
     private String id;
