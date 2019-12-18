@@ -149,4 +149,6 @@ public class ComponentsDefine {
     public static final OfficialComponent SPRING_TX = new OfficialComponent(78, "spring-tx");
 
     public static final OfficialComponent ARMERIA = new OfficialComponent(79, "Armeria");
+
+    public static final OfficialComponent JDK_THREADING = new OfficialComponent(80, "JdkThreading");
 }

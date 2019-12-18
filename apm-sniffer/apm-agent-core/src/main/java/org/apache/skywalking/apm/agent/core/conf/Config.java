@@ -342,5 +342,16 @@ public class Config {
              */
             public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
         }
+
+        public static class JdkThreading {
+
+            /**
+             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable}
+             * and their subclasses, including anonymous inner classes)
+             * whose name matches any one of the {@code THREADING_CLASS_PREFIXES} (splitted by ,)
+             * will be instrumented
+             */
+            public static String THREADING_CLASS_PREFIXES = "";
+        }
     }
 }
