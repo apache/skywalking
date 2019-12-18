@@ -59,7 +59,6 @@ import java.util.Map;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
