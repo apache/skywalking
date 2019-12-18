@@ -279,12 +279,8 @@ public class ClusterVerificationITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
-
-                boolean valid = false;
-                while (!valid) {
-                    LOGGER.warn("instanceMetrics is null, will retry to query");
-                    valid = verifyMetrics(queryClient, metricsName, instance.getKey(), minutesAgo, retryInterval, this::generateTraffic);
-                }
+                LOGGER.warn("instanceMetrics is null, will retry to query");
+                verifyMetrics(queryClient, metricsName, instance.getKey(), minutesAgo, retryInterval, this::generateTraffic);
             }
         }
     }
@@ -296,11 +292,7 @@ public class ClusterVerificationITCase {
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
-
-                boolean valid = false;
-                while (!valid) {
-                    valid = verifyMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
-                }
+                verifyMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
             }
         }
     }
@@ -308,11 +300,7 @@ public class ClusterVerificationITCase {
     private void verifyServiceMetrics(Service service, final LocalDateTime minutesAgo) throws Exception {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
-
-            boolean valid = false;
-            while (!valid) {
-                valid = verifyMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
-            }
+            verifyMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
         }
     }
 
@@ -338,37 +326,29 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyServiceInstanceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
-        for (Call call : calls) {
-            verifyRelationMetrics(call, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
-        }
+        verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
     }
 
     private void verifyServiceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
-        for (Call call : calls) {
-            verifyRelationMetrics(call, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
-        }
+        verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
     }
 
-    private void verifyRelationMetrics(Call call, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
-        for (String detectPoint : call.getDetectPoints()) {
-            switch (detectPoint) {
-                case "CLIENT": {
-                    for (String metricName : relationClientMetrics) {
-                        boolean valid = false;
-                        while (!valid) {
-                            valid = verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
+    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
+        for (Call call : calls) {
+            for (String detectPoint : call.getDetectPoints()) {
+                switch (detectPoint) {
+                    case "CLIENT": {
+                        for (String metricName : relationClientMetrics) {
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
                         }
+                        break;
                     }
-                    break;
-                }
-                case "SERVER": {
-                    for (String metricName : relationServerMetrics) {
-                        boolean valid = false;
-                        while (!valid) {
-                            valid = verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
+                    case "SERVER": {
+                        for (String metricName : relationServerMetrics) {
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
                         }
+                        break;
                     }
-                    break;
                 }
             }
         }

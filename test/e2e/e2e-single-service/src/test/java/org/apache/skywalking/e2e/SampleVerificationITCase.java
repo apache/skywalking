@@ -331,37 +331,29 @@ public class SampleVerificationITCase {
     }
 
     private void verifyServiceInstanceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
-        for (Call call : calls) {
-            verifyRelationMetrics(call, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
-        }
+        verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
     }
 
     private void verifyServiceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
-        for (Call call : calls) {
-            verifyRelationMetrics(call, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
-        }
+        verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
     }
 
-    private void verifyRelationMetrics(Call call, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
-        for (String detectPoint : call.getDetectPoints()) {
-            switch (detectPoint) {
-                case "CLIENT": {
-                    for (String metricName : relationClientMetrics) {
-                        boolean valid = false;
-                        while (!valid) {
-                            valid = verifyMetrics(queryClient, metricName, call.getId(), minutesAgo);
+    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
+        for (Call call : calls) {
+            for (String detectPoint : call.getDetectPoints()) {
+                switch (detectPoint) {
+                    case "CLIENT": {
+                        for (String metricName : relationClientMetrics) {
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
                         }
+                        break;
                     }
-                    break;
-                }
-                case "SERVER": {
-                    for (String metricName : relationServerMetrics) {
-                        boolean valid = false;
-                        while (!valid) {
-                            valid = verifyMetrics(queryClient, metricName, call.getId(), minutesAgo);
+                    case "SERVER": {
+                        for (String metricName : relationServerMetrics) {
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
                         }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -375,6 +367,21 @@ public class SampleVerificationITCase {
             } catch (Throwable ignored) {
                 Thread.sleep(retryInterval);
             }
+        }
+    }
+
+    private void generateTraffic() {
+        try {
+            final Map<String, String> user = new HashMap<>();
+            user.put("name", "SkyWalking");
+            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
+                    instrumentedServiceUrl + "/e2e/users",
+                    user,
+                    String.class
+            );
+            LOGGER.info("responseEntity: {}", responseEntity);
+        } catch (Throwable t) {
+            LOGGER.warn(t.getMessage(), t);
         }
     }
 }
