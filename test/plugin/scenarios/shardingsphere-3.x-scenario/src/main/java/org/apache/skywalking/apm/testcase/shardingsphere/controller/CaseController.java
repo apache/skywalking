@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.api.service.CommonService;
@@ -26,11 +25,12 @@ import org.apache.skywalking.apm.testcase.shardingsphere.service.config.Sharding
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderItemRepositoryImpl;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderRepositoryImpl;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.service.RawPojoService;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-@Controller
+@RestController
 @RequestMapping("/case")
 public class CaseController {
 
