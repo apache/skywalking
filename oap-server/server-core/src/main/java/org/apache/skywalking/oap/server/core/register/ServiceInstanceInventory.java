@@ -55,7 +55,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
     public static final String NODE_TYPE = "node_type";
-    public static final String MAPPING_SERVICE_ID = "mapping_service_instance_id";
+    public static final String MAPPING_SERVICE_INSTANCE_ID = "mapping_service_instance_id";
     public static final String PROPERTIES = "properties";
     private static final Gson GSON = new Gson();
 
@@ -65,7 +65,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
     @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PACKAGE) @Column(columnName = NODE_TYPE) private int nodeType;
-    @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceInstanceId;
+    @Setter @Getter @Column(columnName = MAPPING_SERVICE_INSTANCE_ID) private int mappingServiceInstanceId;
     @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop;
     @Getter private JsonObject properties;
 
@@ -239,7 +239,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
 
             inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
-            inventory.setMappingServiceInstanceId(((Number)dbMap.get(MAPPING_SERVICE_ID)).intValue());
+            inventory.setMappingServiceInstanceId(((Number)dbMap.get(MAPPING_SERVICE_INSTANCE_ID)).intValue());
 
             inventory.setName((String)dbMap.get(NAME));
             inventory.setInstanceUUID((String)dbMap.get(INSTANCE_UUID));
@@ -259,7 +259,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
 
             map.put(NODE_TYPE, storageData.getNodeType());
-            map.put(MAPPING_SERVICE_ID, storageData.getMappingServiceInstanceId());
+            map.put(MAPPING_SERVICE_INSTANCE_ID, storageData.getMappingServiceInstanceId());
 
             map.put(NAME, storageData.getName());
             map.put(INSTANCE_UUID, storageData.getInstanceUUID());
