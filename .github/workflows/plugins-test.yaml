@@ -503,7 +503,6 @@ jobs:
       - name: Run mysql 5.1.2-8.0.15 (53)
         run: bash test/plugin/run.sh mysql-scenario
 
-
   ShardingSphere3x:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
