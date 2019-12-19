@@ -4,10 +4,55 @@ Release Notes.
 
 6.6.0
 ------------------
-TODO
 
 #### Project
 - [**IMPORTANT**] Local span and exit span are not treated as endpoint detected at client and local. Only entry span is the endpoint. Reduce the load of register and memory cost.
+* Support MiniKube, Istio and SkyWalking on K8s deployment in CI.
+* Support Windows and MacOS build in GitHub Action CI.
+* Support ElasticSearch 7 in official dist.
+* Hundreds plugin cases have been added in GitHub Action CI process.
+
+#### Java Agent
+* Remove the local/exit span operation name register mechanism.
+* Add plugin for JDK Threading classes.
+* Add plugin for Armeria.
+* Support set operation name in async span.
+* Enhance webflux plugin, related to Spring Gateway plugin. Webflux plugin is in optional, due to JDK8 required.
+* Fix a possible deadlock.
+* Fix NPE when OAL scripts are different in different OAP nodes, mostly in upgrading stage.
+* Fix bug about wrong peer in ES plugin.
+* Fix NPE in Spring plugin.
+* Fix wrong class name in Dubbo 2.7 conflict patch.
+* Fix spring annotation inheritance problem.
+
+#### OAP-Backend
+* Remove the local/exit span operation name register mechanism.
+* Remove client side endpoint register in service mesh.
+* Service instance dependency and related metrics.
+* Support `min` func in OAL
+* Support `apdex` func in OAL
+* Support custom ES config setting at the index level.
+* Envoy ALS proto upgraded.
+* Update JODA lib as bugs in UTC +13/+14.
+* Support topN sample period configurable.
+* Ignore no statement DB operations in slow SQL collection.
+* Fix bug in docker-entrypoint.sh when using MySQL as storage
+
+#### UI
+* Service topology enhancement. Dive into service, instance and endpoint metrics on topo map.
+* Service instance dependency view and related metrics.
+* Support using URL parameter in trace query page.
+* Support apdex score in service page.
+* Add service dependency metrics into metrics comparison.
+* Fix alarm search not working.
+
+#### Document
+* Update user list and user wall.
+* Add document link for CLI.
+* Add deployment guide of agent in Jetty case.
+* Modify Consul cluster doc.
+* Add document about injecting traceId into the logback with logstack in JSON format.
+* ElementUI license and dependency added.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/37?closed=1)
 
