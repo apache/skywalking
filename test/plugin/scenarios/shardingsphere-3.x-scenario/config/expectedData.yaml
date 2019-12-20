@@ -20,8 +20,7 @@ registryItems:
   instances:
     - {shardingsphere-3.x-scenario: 1}
   operationNames:
-    - shardingsphere-3.x-scenario: [/shardingsphere-3.x-scenario/case/healthCheck,
-                                    H2/JDBI/PreparedStatement/executeQuery, /shardingsphere-3.x-scenario/case/execute]
+    - shardingsphere-3.x-scenario: [/shardingsphere-3.x-scenario/case/healthCheck, /shardingsphere-3.x-scenario/case/execute]
   heartbeat: []
 segmentItems:
   - applicationCode: shardingsphere-3.x-scenario
