@@ -16,18 +16,14 @@
 
 registryItems:
   applications:
-    - Your_ApplicationName: nq 0
+    - {shardingsphere-3.x-scenario: nq 0}
   instances:
-    - Your_ApplicationName: 1
+    - {shardingsphere-3.x-scenario: 1}
   operationNames:
-    - Your_ApplicationName:
-        - H2/JDBI/Statement/execute
-        - "/case/execute"
-        - H2/JDBI/Statement/executeUpdate
-        - H2/JDBI/Connection/close
-        - H2/JDBI/PreparedStatement/executeQuery
+    - shardingsphere-3.x-scenario: [H2/JDBI/Statement/execute, H2/JDBI/Statement/executeUpdate,
+                                    H2/JDBI/Connection/close, /shardingsphere-3.x-scenario/case/healthCheck, /shardingsphere-3.x-scenario/case/execute]
 segmentItems:
-  - applicationCode: Your_ApplicationName
+  - applicationCode: shardingsphere-3.x-scenario
     segmentSize: not null
     segments:
       - segmentId:  not null
@@ -64,7 +60,7 @@ segmentItems:
                 entryEndpointId: 0
                 refType: CrossThread
                 parentSpanId: 2
-                parentTraceSegmentId: "${Your_ApplicationName[3]}"
+                parentTraceSegmentId: "${shardingsphere-3.x-scenario[3]}"
                 parentServiceInstanceId: 1
                 networkAddress: ''
                 entryEndpoint: "/case/execute"
@@ -111,7 +107,7 @@ segmentItems:
                 entryEndpointId: 0
                 refType: CrossThread
                 parentSpanId: 2
-                parentTraceSegmentId: "${Your_ApplicationName[3]}"
+                parentTraceSegmentId: "${shardingsphere-3.x-scenario[3]}"
                 parentServiceInstanceId: 1
                 networkAddress: ''
                 entryEndpoint: "/case/execute"
@@ -158,7 +154,7 @@ segmentItems:
                 entryEndpointId: 0
                 refType: CrossThread
                 parentSpanId: 2
-                parentTraceSegmentId: "${Your_ApplicationName[3]}"
+                parentTraceSegmentId: "${shardingsphere-3.x-scenario[3]}"
                 parentServiceInstanceId: 1
                 networkAddress: ''
                 entryEndpoint: "/case/execute"
@@ -242,7 +238,7 @@ segmentItems:
             spanLayer: Http
             tags:
               - key: url
-                value: http://localhost:{SERVER_OUTPUT_PORT}/shardingsphere-case/case/execute
+                value: http://127.0.0.1:8080/shardingsphere-case/case/execute
               - key: http.method
                 value: GET
             startTime:  not null
