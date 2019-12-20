@@ -294,7 +294,7 @@ jobs:
       - name: Run mongodb 3.4.0-3.11.1 (17)
         run: bash test/plugin/run.sh mongodb-3.x-scenario
 
-  Redisson:
+  Redisson_ShardingSphere:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
