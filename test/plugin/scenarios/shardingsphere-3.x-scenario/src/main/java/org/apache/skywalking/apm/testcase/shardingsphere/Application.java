@@ -35,13 +35,13 @@ public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         try {
-            SpringApplication.run(Application.class, args);
             DataSourceUtil.createDataSource("");
             DataSourceUtil.createSchema("demo_ds_0");
             DataSourceUtil.createSchema("demo_ds_1");
             DataSourceUtil.createDataSource("demo_ds_0");
             DataSourceUtil.createDataSource("demo_ds_1");
             DataSource dataSource = new ShardingDatabasesAndTablesConfigurationPrecise().createDataSource();
+            SpringApplication.run(Application.class, args);
             CommonService commonService = new RawPojoService(new JDBCOrderRepositoryImpl(dataSource), new JDBCOrderItemRepositoryImpl(dataSource));
             commonService.initEnvironment();
         } catch (Exception e) {
