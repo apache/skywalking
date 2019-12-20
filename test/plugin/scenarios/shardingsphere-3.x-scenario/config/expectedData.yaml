@@ -20,30 +20,12 @@ registryItems:
   instances:
     - {shardingsphere-3.x-scenario: 1}
   operationNames:
-    - shardingsphere-3.x-scenario: [/shardingsphere-3.x-scenario/case/healthCheck, /shardingsphere-3.x-scenario/case/execute]
+    - shardingsphere-3.x-scenario: [/shardingsphere-3.x-scenario/case/execute]
   heartbeat: []
 segmentItems:
   - applicationCode: shardingsphere-3.x-scenario
     segmentSize: not null
     segments:
-      - segmentId: not null
-        spans:
-          - operationName: /shardingsphere-3.x-scenario/case/healthCheck
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/shardingsphere-3.x-scenario/case/healthCheck'}
-              - {key: http.method, value: HEAD}
       - segmentId: not null
         spans:
           - operationName: H2/JDBI/PreparedStatement/executeQuery
