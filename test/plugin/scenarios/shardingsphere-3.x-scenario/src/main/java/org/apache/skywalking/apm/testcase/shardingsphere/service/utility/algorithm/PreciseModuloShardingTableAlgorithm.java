@@ -23,10 +23,10 @@ import io.shardingsphere.api.algorithm.sharding.standard.PreciseShardingAlgorith
 
 import java.util.Collection;
 
-public class PreciseModuloShardingTableAlgorithm implements PreciseShardingAlgorithm<Integer> {
+public class PreciseModuloShardingTableAlgorithm implements PreciseShardingAlgorithm<Long> {
     
     @Override
-    public String doSharding(final Collection<String> tableNames, final PreciseShardingValue<Integer> shardingValue) {
+    public String doSharding(final Collection<String> tableNames, final PreciseShardingValue<Long> shardingValue) {
         for (String each : tableNames) {
             if (each.endsWith(shardingValue.getValue() % 2 + "")) {
                 return each;
