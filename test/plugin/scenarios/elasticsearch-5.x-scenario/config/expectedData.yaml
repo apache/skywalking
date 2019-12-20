@@ -19,10 +19,7 @@ registryItems:
     instances:
     - {elasticsearch-5.x-scenario: 1}
     operationNames:
-    - elasticsearch-5.x-scenario: [Elasticsearch/IndexRequest, Elasticsearch/GetRequest,
-                                   Elasticsearch/SearchRequest, Elasticsearch/UpdateRequest,
-                                   Elasticsearch/DeleteRequest, Elasticsearch/DeleteIndexRequest,
-                                   /case/elasticsearch]
+    - elasticsearch-5.x-scenario: [/case/elasticsearch]
     heartbeat: []
 segmentItems:
 - applicationCode: elasticsearch-5.x-scenario

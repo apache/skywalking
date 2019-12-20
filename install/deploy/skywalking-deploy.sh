@@ -17,7 +17,9 @@
 
 set -e
 
-CHART_PATH="./install/kubernetes/helm"
+CURRENT_DIR="$(cd "$(dirname $0)"; pwd)"
+
+CHART_PATH="$CURRENT_DIR/../kubernetes/helm"
 DPELOY_NAMESPACE="istio-system"
 NEED_CHECK_PREFIX="deployment/skywalking-skywalking-"
 ALS_ENABLED=true

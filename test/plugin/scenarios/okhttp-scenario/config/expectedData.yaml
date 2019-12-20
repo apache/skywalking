@@ -20,7 +20,7 @@ registryItems:
   instances:
   - {okhttp-scenario: 1}
   operationNames:
-  - okhttp-scenario: [/case/receiveContext-0, /okhttp-case/case/receiveContext-0,/case/healthCheck, /case/okhttp-case, /case/receiveContext-1]
+  - okhttp-scenario: [/case/receiveContext-0, /case/healthCheck, /case/okhttp-case, /case/receiveContext-1]
   heartbeat: []
 segmentItems:
 - applicationCode: okhttp-scenario
@@ -76,7 +76,9 @@ segmentItems:
       - {key: url, value: 'http://127.0.0.1:8080/okhttp-case/case/receiveContext-0'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpointId: 0, parentEndpoint: /okhttp-case/case/receiveContext-0, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: nq 0, parentServiceInstanceId: nq 0, networkAddress: '127.0.0.1:8080', entryEndpoint: /case/okhttp-case, entryServiceInstanceId: nq 0}
+      - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0, entryEndpointId: 0,
+         refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: nq 0, parentServiceInstanceId: nq 0, networkAddress: '127.0.0.1:8080',
+         entryEndpoint: /case/okhttp-case, entryServiceInstanceId: nq 0}
   - segmentId: not null
     spans:
     - operationName: /case/receiveContext-1
@@ -96,7 +98,8 @@ segmentItems:
       - {key: url, value: 'http://127.0.0.1:8080/okhttp-case/case/receiveContext-1'}
       - {key: http.method, value: GET}
       refs:
-      - {parentEndpointId: 0, parentEndpoint: /okhttp-case/case/receiveContext-0, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: nq 0, parentServiceInstanceId: nq 0, networkAddress: '127.0.0.1:8080', entryEndpoint: /case/okhttp-case, entryServiceInstanceId: nq 0}
+      - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0,
+         parentTraceSegmentId: nq 0, parentServiceInstanceId: nq 0, networkAddress: '127.0.0.1:8080', entryEndpoint: /case/okhttp-case, entryServiceInstanceId: nq 0}
   - segmentId: not null
     spans:
     - operationName: /okhttp-case/case/receiveContext-0
@@ -116,4 +119,5 @@ segmentItems:
       - {key: http.method, value: GET}
       - {key: url, value: 'http://127.0.0.1:8080/okhttp-case/case/receiveContext-0'}
       refs:
-      - {parentEndpointId: 0, parentEndpoint: /case/okhttp-case, networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: nq 0, parentServiceInstanceId: nq 0, networkAddress: '', entryEndpoint: /case/okhttp-case, entryServiceInstanceId: nq 0}
+      - {parentEndpointId: 0, parentEndpoint: '/case/okhttp-case', networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 1,
+         parentTraceSegmentId: nq 0, parentServiceInstanceId: nq 0, networkAddress: '', entryEndpoint: /case/okhttp-case, entryServiceInstanceId: nq 0}

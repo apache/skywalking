@@ -20,9 +20,8 @@ registryItems:
   instances:
     - {apm-toolkit-trace-scenario: 1}
   operationNames:
-    - apm-toolkit-trace-scenario: [/apm-toolkit-trace-scenario/case/asyncVisit/runnable,
-                                   /case/asyncVisit/runnable, /case/asyncVisit/callable, /apm-toolkit-trace-scenario/case/asyncVisit/callable,
-                                   /case/tool-kit,/apm-toolkit-trace-scenario/case/asyncVisit/supplier,/case/asyncVisit/supplier]
+    - apm-toolkit-trace-scenario: [/case/asyncVisit/runnable, /case/asyncVisit/callable,
+                                   /case/tool-kit, /case/asyncVisit/supplier]
   heartbeat: []
 segmentItems:
   - applicationCode: apm-toolkit-trace-scenario
@@ -163,7 +162,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.CallableWrapper/call,
+              - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}
@@ -258,7 +257,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/runnable'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.RunnableWrapper/run,
+              - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}
@@ -317,7 +316,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get,
+              - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}

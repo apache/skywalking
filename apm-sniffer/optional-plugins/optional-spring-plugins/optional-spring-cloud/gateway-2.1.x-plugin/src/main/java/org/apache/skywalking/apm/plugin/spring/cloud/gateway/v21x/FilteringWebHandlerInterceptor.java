@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
+
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -31,9 +35,6 @@ import org.springframework.cloud.gateway.route.Route;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import java.lang.reflect.Method;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
 
 /**
@@ -42,6 +43,7 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
 public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "GATEWAY/";
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
@@ -49,18 +51,17 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         if (instance == null) {
             return;
         }
-        AbstractSpan span = (AbstractSpan) instance.getSkyWalkingDynamicField();
-        if (span == null) {
+        ContextSnapshot contextSnapshot = (ContextSnapshot) instance.getSkyWalkingDynamicField();
+        if (contextSnapshot == null) {
             return;
         }
+
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         String operationName = SPRING_CLOUD_GATEWAY_ROUTE_PREFIX;
         Route route = exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);
         operationName = operationName + route.getId();
-        span.setOperationName(operationName);
-        SWTransmitter transmitter = new SWTransmitter(span.prepareForAsync(),ContextManager.capture(),operationName);
+        SWTransmitter transmitter = new SWTransmitter(contextSnapshot, operationName);
         instance.setSkyWalkingDynamicField(transmitter);
-        ContextManager.stopSpan(span);
     }
 
     @Override
@@ -85,8 +86,6 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
                 localSpan.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
                 ContextManager.continued(swTransmitter.getSnapshot());
                 ContextManager.stopSpan(localSpan);
-                AbstractSpan spanWebflux = swTransmitter.getSpanWebflux();
-                spanWebflux.asyncFinish();
             }
         });
     }

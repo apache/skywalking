@@ -89,21 +89,26 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
     @Override
     public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
-            if (this.operationId == DictionaryUtil.nullValue()) {
-                this.operationId = (Integer)DictionaryManager.findEndpointSection()
-                    .findOrPrepare4Register(owner.getServiceId(), operationName, this.isEntry(), this.isExit())
-                    .doInCondition(
-                        new PossibleFound.FoundAndObtain() {
-                            @Override public Object doProcess(int value) {
-                                return value;
+            /**
+             * Since 6.6.0, only entry span requires the op name register, which is endpoint.
+             */
+            if (this.isEntry()) {
+                if (this.operationId == DictionaryUtil.nullValue()) {
+                    this.operationId = (Integer)DictionaryManager.findEndpointSection()
+                        .findOrPrepare4Register(owner.getServiceId(), operationName)
+                        .doInCondition(
+                            new PossibleFound.FoundAndObtain() {
+                                @Override public Object doProcess(int value) {
+                                    return value;
+                                }
+                            },
+                            new PossibleFound.NotFoundAndObtain() {
+                                @Override public Object doProcess() {
+                                    return DictionaryUtil.nullValue();
+                                }
                             }
-                        },
-                        new PossibleFound.NotFoundAndObtain() {
-                            @Override public Object doProcess() {
-                                return DictionaryUtil.nullValue();
-                            }
-                        }
-                    );
+                        );
+                }
             }
             return super.finish(owner);
         } else {
